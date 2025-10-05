@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface PhotoGalleryModalProps {
   photos: string[];
@@ -14,6 +14,14 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   onClose
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % photos.length);
+  }, [photos.length]);
+
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  }, [photos.length]);
 
   useEffect(() => {
     // Lock body scroll
@@ -32,15 +40,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
       document.body.classList.remove('modal-open');
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-  };
+  }, [onClose, goToNext, goToPrevious]);
 
   if (photos.length === 0) return null;
 
