@@ -3,6 +3,7 @@ import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth'
 import { supabase } from '../config/supabase';
 import express from 'express';
 import { logger } from '../utils/logger';
+import { categoriesCache, dashboardStatsCache, listingsCache } from '../middleware/cache';
 import {
   getEstablishments,
   getEstablishment,
@@ -70,7 +71,7 @@ const transformEmployee = (emp: any) => ({
 });
 
 // TEMP ADMIN ROUTES - Must be FIRST before any parametric routes
-router.get('/temp-admin-dashboard-stats', async (req, res) => {
+router.get('/temp-admin-dashboard-stats', dashboardStatsCache, async (req, res) => {
   logger.debug('🎯🎯 TEMP ADMIN STATS ROUTE HIT! 🎯🎯');
   try {
     // 🚀 PERFORMANCE: Execute all count queries in parallel with Promise.all()
@@ -240,8 +241,8 @@ router.get('/temp-admin-employees', async (req, res) => {
 });
 
 // Public routes
-router.get('/', getEstablishments);
-router.get('/categories', getEstablishmentCategories);
+router.get('/', listingsCache(), getEstablishments);
+router.get('/categories', categoriesCache, getEstablishmentCategories);
 
 
 // WORKAROUND: Simple POST endpoint for grid position updates - MUST BE BEFORE DYNAMIC ROUTES

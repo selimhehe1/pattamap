@@ -5,6 +5,7 @@ import { CreateEstablishmentRequest, Establishment } from '../types';
 import { validateTextInput, validateNumericInput, prepareFilterParams } from '../utils/validation';
 import { logger } from '../utils/logger';
 import { paginateQuery, validatePaginationParams, offsetFromPage, buildOffsetPaginationMeta } from '../utils/pagination';
+import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 
 export const getEstablishments = async (req: AuthRequest, res: Response) => {
   try {
@@ -436,6 +437,11 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
         status: 'pending'
       });
 
+    // Invalidate cache after creation
+    await cacheInvalidatePattern('establishments:*');
+    await cacheDel('dashboard:stats');
+    await cacheDel(CACHE_KEYS.CATEGORIES);
+
     // Return created establishment
     res.status(201).json({
       message: 'Establishment submitted for approval',
@@ -597,6 +603,11 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
       barfine: updatedEstablishment.barfine || '400',
       rooms: updatedEstablishment.rooms || 'N/A'
     };
+
+    // Invalidate cache after update
+    await cacheDel(CACHE_KEYS.ESTABLISHMENT(id));
+    await cacheInvalidatePattern('establishments:*');
+    await cacheDel('dashboard:stats');
 
     res.json({
       message: 'Establishment updated successfully',
