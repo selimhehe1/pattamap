@@ -1,0 +1,193 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 🎨 STYLES POUR LA MAP SOI 6 */
+
+.soi6-map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.soi6-bar-circle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  cursor: pointer;
+}
+
+.soi6-bar-circle:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
+}
+
+.soi6-bar-circle.edit-mode {
+  cursor: grab;
+  transform: scale(1.05);
+}
+
+.soi6-bar-circle.edit-mode:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 8px 25px rgba(255, 215, 0, 0.4));
+}
+
+.soi6-bar-circle.dragging {
+  cursor: grabbing;
+  opacity: 0.8;
+  transform: scale(0.9);
+}
+
+.soi6-bar-label {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.soi6-zone-title {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.soi6-type-button {
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.soi6-type-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.soi6-type-button.active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.soi6-edit-toggle {
+  backdrop-filter: blur(15px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.soi6-edit-toggle:hover {
+  transform: translateY(-3px);
+}
+
+.soi6-drag-instruction {
+  backdrop-filter: blur(10px);
+  animation: soi6-pulse 2s ease-in-out infinite;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@keyframes soi6-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.soi6-drop-zone {
+  animation: soi6-drop-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes soi6-drop-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+  }
+}
+
+.soi6-street-line {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+  transition: all 0.3s ease;
+}
+
+.soi6-row-indicator {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.soi6-row-indicator:hover {
+  opacity: 1;
+}
+
+/* Responsive adaptations */
+@media (max-width: 1200px) {
+  .soi6-bar-circle {
+    r: 18;
+  }
+
+  .soi6-bar-label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 768px) {
+  .soi6-bar-circle {
+    r: 15;
+  }
+
+  .soi6-bar-label {
+    font-size: 8px;
+  }
+
+  .soi6-type-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

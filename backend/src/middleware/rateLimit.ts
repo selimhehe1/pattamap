@@ -1,0 +1,218 @@
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils/logger';
+
+interface RateLimitStore {
+  [key: string]: {
+    count: number;
+    resetTime: number;
+  };
+}
+
+class MemoryRateLimitStore {
+  private store: RateLimitStore = {};
+  private cleanupInterval: NodeJS.Timeout;
+
+  constructor() {
+    // Clean up expired entries every 5 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const key in this.store) {
+      if (this.store[key].resetTime < now) {
+        delete this.store[key];
+      }
+    }
+  }
+
+  get(key: string): { count: number; resetTime: number } | null {
+    const entry = this.store[key];
+    if (!entry || entry.resetTime < Date.now()) {
+      return null;
+    }
+    return entry;
+  }
+
+  increment(key: string, windowMs: number): { count: number; resetTime: number } {
+    const now = Date.now();
+    const resetTime = now + windowMs;
+
+    const existing = this.store[key];
+    if (!existing || existing.resetTime < now) {
+      this.store[key] = { count: 1, resetTime };
+      return this.store[key];
+    }
+
+    existing.count++;
+    return existing;
+  }
+
+  destroy(): void {
+    clearInterval(this.cleanupInterval);
+    this.store = {};
+  }
+}
+
+interface RateLimitOptions {
+  windowMs: number;        // Time window in milliseconds
+  maxRequests: number;     // Maximum requests per window
+  message?: string;        // Error message
+  skipSuccessfulRequests?: boolean;
+  skipFailedRequests?: boolean;
+  keyGenerator?: (req: Request) => string;
+}
+
+const store = new MemoryRateLimitStore();
+
+// Generate rate limit key from request
+const defaultKeyGenerator = (req: Request): string => {
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const userAgent = req.get('User-Agent') || 'unknown';
+  return `${ip}:${userAgent.substring(0, 100)}`;
+};
+
+export const createRateLimit = (options: RateLimitOptions) => {
+  const {
+    windowMs,
+    maxRequests,
+    message = 'Too many requests',
+    skipSuccessfulRequests = false,
+    skipFailedRequests = false,
+    keyGenerator = defaultKeyGenerator
+  } = options;
+
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const key = keyGenerator(req);
+      const current = store.increment(key, windowMs);
+
+      // Set rate limit headers
+      res.set({
+        'X-RateLimit-Limit': maxRequests.toString(),
+        'X-RateLimit-Remaining': Math.max(0, maxRequests - current.count).toString(),
+        'X-RateLimit-Reset': new Date(current.resetTime).toISOString()
+      });
+
+      if (current.count > maxRequests) {
+        return res.status(429).json({
+          error: message,
+          code: 'RATE_LIMIT_EXCEEDED',
+          resetTime: current.resetTime
+        });
+      }
+
+      // Handle skip options
+      if (skipSuccessfulRequests || skipFailedRequests) {
+        const originalSend = res.json;
+        const originalStatus = res.status;
+        let statusCode = 200;
+
+        res.status = function(code: number) {
+          statusCode = code;
+          return originalStatus.call(this, code);
+        };
+
+        res.json = function(body: any) {
+          const shouldSkip =
+            (skipSuccessfulRequests && statusCode >= 200 && statusCode < 400) ||
+            (skipFailedRequests && statusCode >= 400);
+
+          if (shouldSkip) {
+            // Decrement counter for skipped requests
+            const entry = store.get(key);
+            if (entry && entry.count > 0) {
+              entry.count--;
+            }
+          }
+
+          return originalSend.call(this, body);
+        };
+      }
+
+      next();
+
+    } catch (error) {
+      logger.error('Rate limit error:', error);
+      next(); // Don't block requests on rate limit errors
+    }
+  };
+};
+
+// Pre-configured rate limiters for common scenarios
+
+// General API rate limit
+export const apiRateLimit = createRateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
+  maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
+  message: 'Too many API requests'
+});
+
+// Strict rate limit for authentication endpoints
+export const authRateLimit = createRateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes (reduced for dev)
+  maxRequests: 20, // 20 attempts per 5 minutes (increased for dev)
+  message: 'Too many authentication attempts',
+  skipSuccessfulRequests: true // Don't count successful logins
+});
+
+// Upload rate limit
+export const uploadRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 10,
+  message: 'Too many upload requests'
+});
+
+// Admin actions rate limit
+export const adminRateLimit = createRateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  maxRequests: 50,
+  message: 'Too many admin actions'
+});
+
+// Strict rate limit for sensitive admin operations
+export const adminCriticalRateLimit = createRateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  maxRequests: 10, // Very restrictive
+  message: 'Too many critical admin operations, please wait',
+  keyGenerator: (req: Request) => {
+    // Include user ID if available for more precise limiting
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `critical:${userIdFromToken}:${ip}`;
+  }
+});
+
+// Rate limit specifically for user management operations
+export const userManagementRateLimit = createRateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  maxRequests: 20,
+  message: 'Too many user management operations',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `usermgmt:${userIdFromToken}:${ip}`;
+  }
+});
+
+// Rate limit for data export/bulk operations
+export const bulkOperationRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 5, // Very limited
+  message: 'Too many bulk operations, please wait',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    return `bulk:${userIdFromToken}`;
+  }
+});
+
+// Comment/review rate limit
+export const commentRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 20, // Increased for dev testing (was 3)
+  message: 'Too many comments, please wait before posting again'
+});
+
+export { store as rateLimitStore };
