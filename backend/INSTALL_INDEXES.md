@@ -1,4 +1,13 @@
-# 🚀 Installation des Database Indexes
+# 🚀 Installation des Database Indexes Additionnels
+
+## ⚠️ Note Importante
+
+**Beaucoup d'indexes existent déjà** dans le schéma de la base de données (créés dans `schema.sql`).
+
+Ce script ajoute seulement les **10 indexes manquants** pour optimiser :
+- Recherche full-text (GIN indexes)
+- Filtres combinés (composite indexes)
+- Queries spécifiques (partial indexes)
 
 ## Guide rapide
 
@@ -17,7 +26,7 @@
 3. Cliquer sur **Run** (ou appuyer sur Ctrl+Enter)
 
 ### Étape 4: Vérifier l'installation
-Le script affiche automatiquement tous les indexes créés. Vous devriez voir ~30 indexes listés.
+Le script affiche automatiquement tous les indexes de la base. Vous devriez voir ~38 indexes au total.
 
 ## ⏱️ Temps d'exécution
 - **~30 secondes** pour créer tous les indexes
@@ -32,18 +41,16 @@ Le script affiche automatiquement tous les indexes créés. Vous devriez voir ~3
 | Recherche texte | 2000ms | 100ms | **20x** |
 | Liste employées par établissement | 300ms | 30ms | **10x** |
 
-## ✅ Indexes créés
+## ✅ Indexes additionnels créés
 
-**7 tables optimisées:**
-- ✅ Establishments (7 indexes)
-- ✅ Employees (6 indexes)
-- ✅ Employment History (4 indexes)
-- ✅ Comments (5 indexes)
-- ✅ Users (2 indexes)
-- ✅ Reports (4 indexes)
-- ✅ Favorites (5 indexes)
+**5 tables optimisées:**
+- ✅ Establishments (2 nouveaux indexes)
+- ✅ Employees (4 nouveaux indexes)
+- ✅ Employment History (2 nouveaux indexes)
+- ✅ Comments (1 nouvel index)
+- ✅ Reports (1 nouvel index)
 
-**Total: 33 indexes**
+**Total: 10 nouveaux indexes** (+ ~28 existants = ~38 au total)
 
 ## 🔍 Types d'indexes
 
