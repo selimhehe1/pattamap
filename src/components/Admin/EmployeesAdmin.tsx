@@ -1201,7 +1201,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     <img
                       key={index}
                       src={photo}
-                      alt={`${selectedEmployee.name}, ${selectedEmployee.age} years old from ${selectedEmployee.nationality} - Photo ${index + 1}`}
+                      alt={`${selectedEmployee.name}, ${selectedEmployee.age} years old from ${selectedEmployee.nationality} - ${index + 1}`}
                       style={{
                         width: '100%',
                         marginBottom: '10px',

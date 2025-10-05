@@ -66,7 +66,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
         <div className="photo-gallery-simple-content-nightlife">
           <img
             src={photos[currentIndex]}
-            alt={`${employeeName} - Photo ${currentIndex + 1}`}
+            alt={`${employeeName} - ${currentIndex + 1}`}
             className="photo-gallery-simple-image-nightlife"
           />
         </div>
