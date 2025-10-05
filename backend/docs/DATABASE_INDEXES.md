@@ -132,10 +132,6 @@ WHERE is_current = true;
 CREATE INDEX IF NOT EXISTS idx_comments_status
 ON comments(status);
 
--- Establishment comments
-CREATE INDEX IF NOT EXISTS idx_comments_establishment
-ON comments(establishment_id);
-
 -- Employee comments
 CREATE INDEX IF NOT EXISTS idx_comments_employee
 ON comments(employee_id);
@@ -148,9 +144,9 @@ ON comments(user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at
 ON comments(created_at DESC);
 
--- Composite for filtering approved comments by establishment
-CREATE INDEX IF NOT EXISTS idx_comments_est_status
-ON comments(establishment_id, status)
+-- Composite for filtering approved comments by employee
+CREATE INDEX IF NOT EXISTS idx_comments_employee_status
+ON comments(employee_id, status)
 WHERE status = 'approved';
 ```
 
@@ -270,11 +266,10 @@ CREATE INDEX IF NOT EXISTS idx_employment_history_est_current ON employment_hist
 
 -- 4. COMMENTS
 CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);
-CREATE INDEX IF NOT EXISTS idx_comments_establishment ON comments(establishment_id);
 CREATE INDEX IF NOT EXISTS idx_comments_employee ON comments(employee_id);
 CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_comments_est_status ON comments(establishment_id, status) WHERE status = 'approved';
+CREATE INDEX IF NOT EXISTS idx_comments_employee_status ON comments(employee_id, status) WHERE status = 'approved';
 
 -- 5. USERS
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
