@@ -23,19 +23,6 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
   const [categories, setCategories] = useState<Array<{id: number, name: string, icon: string, color: string}>>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Fonction pour obtenir le nom lisible de la catégorie (même que dans PricingForm)
-  const getCategoryDisplayName = (category: string) => {
-    const categoryMap: { [key: string]: string } = {
-      beer: 'Bières',
-      shot: 'Shots',
-      cocktail: 'Cocktails',
-      spirit: 'Spiritueux',
-      wine: 'Vins',
-      soft: 'Boissons non-alcoolisées'
-    };
-    return categoryMap[category] || category;
-  };
-
   // Charger les catégories d'établissements
   useEffect(() => {
     const loadCategories = async () => {

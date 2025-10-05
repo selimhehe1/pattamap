@@ -24,7 +24,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
 
   // Logo upload states for Edit Mode

@@ -11,7 +11,6 @@ interface ConsumablesAdminProps {
 const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabChange }) => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
   const [consumables, setConsumables] = useState<ConsumableTemplate[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingConsumable, setEditingConsumable] = useState<ConsumableTemplate | null>(null);
   const [formData, setFormData] = useState({
@@ -26,7 +25,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   }, []);
 
   const loadConsumables = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/admin/consumables`, {
         headers: {
@@ -58,8 +56,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
         { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
       ];
       setConsumables(mockConsumables);
-    } finally {
-      setIsLoading(false);
     }
   };
 

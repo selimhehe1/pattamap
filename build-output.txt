@@ -1,0 +1,162 @@
+
+> pattamap@0.1.0 build
+> react-scripts build
+
+Creating an optimized production build...
+Compiled with warnings.
+
+[eslint] 
+src\App.tsx
+  Line 25:11:  'token' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  Line 122:9:  'handleCategoryToggle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Admin\AdminDashboard.tsx
+  Line 61:6:  React Hook useEffect has a missing dependency: 'loadDashboardStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Admin\CommentsAdmin.tsx
+  Line 50:6:  React Hook useEffect has a missing dependency: 'loadComments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Admin\ConsumablesAdmin.tsx
+  Line 14:10:  'isLoading' is assigned a value but never used                                                                      @typescript-eslint/no-unused-vars
+  Line 26:6:   React Hook useEffect has a missing dependency: 'loadConsumables'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Admin\EmployeesAdmin.tsx
+  Line 99:6:     React Hook useEffect has a missing dependency: 'loadEmployees'. Either include it or remove the dependency array                                                                                 react-hooks/exhaustive-deps
+  Line 1201:21:  Redundant alt attribute. Screen-readers already announce `img` tags as an image. You don’t need to use the words `image`, `photo,` or `picture` (or any specified custom words) in the alt prop  jsx-a11y/img-redundant-alt
+
+src\components\Admin\EstablishmentsAdmin.tsx
+  Line 80:6:  React Hook useEffect has a missing dependency: 'loadEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Admin\UsersAdmin.tsx
+  Line 42:6:  React Hook useEffect has a missing dependency: 'loadUsers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Bar\BarDetailPage.tsx
+  Line 27:17:  'token' is assigned a value but never used                                                                      @typescript-eslint/no-unused-vars
+  Line 350:6:  React Hook useEffect has a missing dependency: 'secureFetch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Bar\BarInfoSidebar.tsx
+  Line 27:9:  'getCategoryDisplayName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Bar\GirlProfile.tsx
+  Line 12:8:   'EmployeeForm' is defined but never used                  @typescript-eslint/no-unused-vars
+  Line 34:10:  'showReviewsModal' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 34:28:  'setShowReviewsModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 35:10:  'showEditModal' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  Line 35:25:  'setShowEditModal' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Common\PhotoGalleryModal.tsx
+  Line 35:6:   React Hook useEffect has missing dependencies: 'goToNext' and 'goToPrevious'. Either include them or remove the dependency array                                                                 react-hooks/exhaustive-deps
+  Line 67:11:  Redundant alt attribute. Screen-readers already announce `img` tags as an image. You don’t need to use the words `image`, `photo,` or `picture` (or any specified custom words) in the alt prop  jsx-a11y/img-redundant-alt
+
+src\components\Forms\EmployeeForm.tsx
+  Line 15:11:   'token' is assigned a value but never used                                                                                                                                                       @typescript-eslint/no-unused-vars
+  Line 57:6:    React Hook useEffect has a missing dependency: 'fetchEstablishments'. Either include it or remove the dependency array                                                                           react-hooks/exhaustive-deps
+  Line 390:21:  Redundant alt attribute. Screen-readers already announce `img` tags as an image. You don’t need to use the words `image`, `photo,` or `picture` (or any specified custom words) in the alt prop  jsx-a11y/img-redundant-alt
+
+src\components\Forms\EmployeeFormContent.tsx
+  Line 20:11:  'token' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Forms\EstablishmentForm.tsx
+  Line 20:11:  'token' is assigned a value but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 61:6:   React Hook useEffect has a missing dependency: 'fetchCategories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomBeachRoadMap.tsx
+  Line 167:10:  'waitingForDataUpdate' is assigned a value but never used                                                                                        @typescript-eslint/no-unused-vars
+  Line 241:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                        react-hooks/exhaustive-deps
+  Line 288:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                        react-hooks/exhaustive-deps
+  Line 783:6:   React Hook useCallback has missing dependencies: 'getCSRFHeaders' and 'optimisticPositions'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomBoyzTownMap.tsx
+  Line 121:122:  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 142:6:    React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomJomtienComplexMap.tsx
+  Line 128:21:  'setIsLoading' is assigned a value but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 149:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 180:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomLKMetroMap.tsx
+  Line 7:10:    'logger' is defined but never used                                                                                               @typescript-eslint/no-unused-vars
+  Line 85:9:    'zoneConfig' is assigned a value but never used                                                                                  @typescript-eslint/no-unused-vars
+  Line 208:10:  'waitingForDataUpdate' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+  Line 285:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+  Line 648:19:  'errorText' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  Line 710:19:  'errorText' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  Line 742:6:   React Hook useCallback has an unnecessary dependency: 'onEstablishmentUpdate'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 798:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+
+src\components\Map\CustomSoi6Map.tsx
+  Line 163:10:  'waitingForDataUpdate' is assigned a value but never used                                                                                              @typescript-eslint/no-unused-vars
+  Line 599:11:  'originalVisualPos' is assigned a value but never used                                                                                                 @typescript-eslint/no-unused-vars
+  Line 606:11:  'targetVisualPos' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 797:6:   React Hook useCallback has unnecessary dependencies: 'onEstablishmentUpdate', 'token', and 'user'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 860:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+
+src\components\Map\CustomSoi78Map.tsx
+  Line 103:122:  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 124:6:    React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomSoiBuakhaoMap.tsx
+  Line 135:10:  'waitingForDataUpdate' is assigned a value but never used                                                                  @typescript-eslint/no-unused-vars
+  Line 252:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 672:6:   React Hook useCallback has a missing dependency: 'optimisticPositions'. Either include it or remove the dependency array   react-hooks/exhaustive-deps
+
+src\components\Map\CustomTreetownMap.tsx
+  Line 67:9:    'zoneConfig' is assigned a value but never used                                                                                  @typescript-eslint/no-unused-vars
+  Line 234:10:  'isLoading' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  Line 235:10:  'waitingForDataUpdate' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+  Line 296:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+  Line 318:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+  Line 377:11:  'roadWidth' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  Line 378:11:  'roadHalfWidth' is assigned a value but never used                                                                               @typescript-eslint/no-unused-vars
+  Line 685:6:   React Hook useCallback has an unnecessary dependency: 'onEstablishmentUpdate'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\CustomWalkingStreetMap.tsx
+  Line 312:10:  'waitingForDataUpdate' is assigned a value but never used                                                                                                         @typescript-eslint/no-unused-vars
+  Line 383:6:   React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                                         react-hooks/exhaustive-deps
+  Line 687:11:  'barRightEdge' is assigned a value but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 956:6:   React Hook useCallback has unnecessary dependencies: 'containerRef', 'isMobile', and 'onEstablishmentUpdate'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\Map\GenericRoadCanvas.tsx
+  Line 77:9:  The 'roadStyle' object makes the dependencies of useEffect Hook (at line 461) change on every render. Move it inside the useEffect callback. Alternatively, wrap the initialization of 'roadStyle' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+src\components\Map\WalkingStreetRoad.tsx
+  Line 503:15:  'soisCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Review\UserRating.tsx
+  Line 68:6:  React Hook useEffect has a missing dependency: 'secureFetch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\components\User\UserDashboard.tsx
+  Line 6:20:  'Employee' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+  Line 27:6:  React Hook useEffect has a missing dependency: 'loadFavorites'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\contexts\ModalContext.tsx
+  Line 62:6:   React Hook useEffect has a missing dependency: 'closeModal'. Either include it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 99:6:   React Hook useCallback has a missing dependency: 'closeModal'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 123:6:  React Hook useCallback has a missing dependency: 'closeModal'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\utils\constants.ts
+  Line 6:10:  'ZONE_GRID_CONFIGS' is defined but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  241.64 kB  build\static\js\main.f12d8be2.js
+  21.31 kB   build\static\css\main.90a2cd57.css
+  1.76 kB    build\static\js\453.3ab0f46b.chunk.js
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

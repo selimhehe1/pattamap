@@ -22,7 +22,6 @@ import './styles/nightlife-theme.css';
 
 const HomePage: React.FC = () => {
   logger.debug('HomePage rendering');
-  const { token } = useAuth();
   const navigate = useNavigate();
 
   // States pour les données
@@ -119,14 +118,6 @@ const HomePage: React.FC = () => {
   }, [establishments, selectedCategories, searchTerm]);
 
   // Handlers
-  const handleCategoryToggle = (categoryId: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
-
   const handleEstablishmentClick = (establishment: Establishment) => {
     setSelectedEstablishment(establishment.id);
     navigate(`/bar/${establishment.id}`);

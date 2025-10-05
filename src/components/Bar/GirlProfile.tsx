@@ -9,7 +9,6 @@ import UserRating from '../Review/UserRating';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import EmployeeFormContent from '../Forms/EmployeeFormContent';
-import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import { logger } from '../../utils/logger';
@@ -31,8 +30,6 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-  const [showReviewsModal, setShowReviewsModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   // Handler to open photo gallery
   const handlePhotoClick = () => {
