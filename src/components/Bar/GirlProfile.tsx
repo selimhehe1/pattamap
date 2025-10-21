@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Employee } from '../../types';
 import StarRating from '../Common/StarRating';
@@ -9,9 +9,19 @@ import UserRating from '../Review/UserRating';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import EmployeeFormContent from '../Forms/EmployeeFormContent';
+import ClaimEmployeeModal from '../Employee/ClaimEmployeeModal';
+import EmployeeVerificationStatusCard from '../Employee/EmployeeVerificationStatusCard';
+import ValidationBadge from '../Employee/ValidationBadge';
+import ValidationVoteButtons from '../Employee/ValidationVoteButtons';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import { logger } from '../../utils/logger';
+import '../../styles/components/employee-profile.css';
+import '../../styles/components/modal-forms.css';
+import '../../styles/components/photos.css';
+import '../../styles/components/photo-gallery-modal.css';
+import '../../styles/components/profile-modal.css';
+import '../../styles/pages/user-dashboard.css';
 
 interface GirlProfileProps {
   girl: Employee;
@@ -30,6 +40,22 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+
+  // Ref for auto-focus on review form
+  const reviewFormRef = useRef<HTMLDivElement>(null);
+
+  // Auto-focus on review form when opened
+  useEffect(() => {
+    if (showReviewForm && reviewFormRef.current) {
+      // Scroll to form and focus first input
+      reviewFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const textarea = reviewFormRef.current.querySelector('textarea');
+      if (textarea) {
+        setTimeout(() => textarea.focus(), 300); // Delay for animation
+      }
+    }
+  }, [showReviewForm]);
 
   // Handler to open photo gallery
   const handlePhotoClick = () => {
@@ -305,20 +331,95 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
 
   return (
     <div className="profile-container-vertical-nightlife">
+        {/* Sticky Header avec boutons d'action */}
+        <div className="profile-sticky-header">
+          <div className="profile-header-title">
+            {girl.name} {girl.nickname && `"${girl.nickname}"`}
+          </div>
+
+          <div className="profile-header-actions">
+            {/* Bouton Favorite */}
+            <button
+              onClick={handleToggleFavorite}
+              disabled={isTogglingFavorite}
+              className={`profile-header-btn profile-header-favorite ${isFavorite ? 'favorited' : ''} ${isTogglingFavorite ? 'loading' : ''}`}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {isTogglingFavorite ? '⏳' : isFavorite ? '⭐' : '☆'}
+            </button>
+
+            {/* Bouton Edit - Pour tous les users connectés */}
+            {user && (
+              <button
+                className="profile-header-btn profile-header-edit"
+                title={user.role === 'admin' || user.role === 'moderator' ? 'Edit Profile' : 'Suggest Edit'}
+                onClick={() => openModal('edit-employee', EmployeeFormContent, {
+                  initialData: {
+                    ...girl,
+                    current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
+                  },
+                  onSubmit: async (employeeData: any) => {
+                    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
+                    const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
+                      method: 'POST',
+                      body: JSON.stringify({
+                        item_type: 'employee',
+                        item_id: girl.id,
+                        proposed_changes: employeeData,
+                        current_values: girl
+                      })
+                    });
+
+                    if (response.ok) {
+                      const data = await response.json();
+                      if (data.auto_approved) {
+                        alert('✅ Modifications appliquées immédiatement !');
+                      } else {
+                        alert('✅ Proposition créée ! Elle sera examinée par un modérateur.');
+                      }
+                      closeModal('edit-employee');
+                      window.location.reload();
+                    } else {
+                      alert('❌ Erreur lors de la création de la proposition');
+                    }
+                  }
+                }, {
+                  size: 'medium',
+                  closeOnOverlayClick: false
+                })}
+              >
+                ✏️
+              </button>
+            )}
+
+            {/* Bouton Claim - Only for employees on unclaimed profiles */}
+            {user &&
+             user.account_type === 'employee' &&
+             !user.linked_employee_id &&
+             !girl.user_id && (
+              <button
+                className="profile-header-btn profile-header-claim"
+                title="Claim This Profile"
+                onClick={() => setShowClaimModal(true)}
+              >
+                🔗
+              </button>
+            )}
+
+            {/* Bouton Close */}
+            <button
+              onClick={onClose}
+              className="profile-header-btn profile-header-close"
+              title="Close profile"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
         {/* Section photos */}
         <div className="profile-photo-section-vertical">
-          {/* Boutons overlay dans la photo */}
-          <button
-            onClick={handleToggleFavorite}
-            disabled={isTogglingFavorite}
-            className={`profile-photo-overlay-btn profile-photo-favorite-btn ${isFavorite ? 'favorited' : ''} ${isTogglingFavorite ? 'loading' : ''}`}
-          >
-            {isTogglingFavorite ? '⏳' : isFavorite ? '⭐' : '☆'}
-          </button>
-
-          <button onClick={onClose} className="profile-photo-overlay-btn profile-photo-close-btn">
-            ✕
-          </button>
 
           {/* Photo principale */}
           <div
@@ -378,80 +479,22 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
 
         {/* Contenu principal */}
         <div className="profile-content-vertical">
-          {/* Informations principales avec edit button à droite */}
+          {/* Informations principales - Boutons déplacés dans sticky header */}
           <div className="profile-main-info">
-            <div className="profile-header-row">
-              <div className="profile-name-section">
-                <h1 className="profile-name-nightlife">
-                  {girl.name}
-                  {girl.nickname && (
-                    <span className="profile-nickname">
-                      "{girl.nickname}"
-                    </span>
-                  )}
-                </h1>
-              </div>
-
-              {user && (
-                <button
-                  className="edit-icon-btn-nightlife edit-icon-right"
-                  title={user.role === 'admin' || user.role === 'moderator' ? 'Edit Profile' : 'Suggest Edit'}
-                  onClick={() => openModal('edit-employee', EmployeeFormContent, {
-                    initialData: {
-                      ...girl,
-                      current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
-                    },
-                    onSubmit: async (employeeData: any) => {
-                      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-
-                      const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                          item_type: 'employee',
-                          item_id: girl.id,
-                          proposed_changes: employeeData,
-                          current_values: girl
-                        })
-                      });
-
-                      if (response.ok) {
-                        const data = await response.json();
-                        if (data.auto_approved) {
-                          alert('✅ Modifications appliquées immédiatement !');
-                        } else {
-                          alert('✅ Proposition créée ! Elle sera examinée par un modérateur.');
-                        }
-                        closeModal('edit-employee');
-                        window.location.reload();
-                      } else {
-                        alert('❌ Erreur lors de la création de la proposition');
-                      }
-                    }
-                  }, {
-                    size: 'medium',
-                    closeOnOverlayClick: false
-                  })}
-                >
-                  ✏️
-                </button>
+            <h1 className="profile-name-nightlife">
+              {girl.name}
+              {girl.nickname && (
+                <span className="profile-nickname">
+                  "{girl.nickname}"
+                </span>
               )}
-            </div>
+            </h1>
 
             <div className="profile-meta-row">
               <span className="profile-age-nationality">
                 {girl.age} years old • {girl.nationality}
               </span>
-
-              <div className="profile-rating-container">
-                <StarRating
-                  rating={girl.average_rating || 0}
-                  readonly={true}
-                  size="medium"
-                />
-                <span className="profile-rating-text">
-                  {girl.average_rating?.toFixed(1) || '0.0'} ({girl.comment_count || 0} reviews)
-                </span>
-              </div>
+              {/* Rating removed: duplicate of UserRating component below */}
             </div>
 
             {girl.description && (
@@ -460,6 +503,34 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
               </p>
             )}
           </div>
+
+          {/* Verification Status Card - Only for profile owner */}
+          {user && user.linked_employee_id === girl.id && (
+            <EmployeeVerificationStatusCard
+              employeeId={girl.id}
+              employeeName={girl.name}
+              isVerified={girl.is_verified || false}
+            />
+          )}
+
+          {/* Community Validation Section - ONLY if profile is NOT CLAIMED and NOT VERIFIED */}
+          {!girl.user_id && !girl.is_self_profile && !girl.is_verified && (
+            <div className="profile-community-validation">
+              <h3 className="profile-section-title">
+                🔍 Community Validation
+              </h3>
+
+              <ValidationBadge employeeId={girl.id} />
+              <ValidationVoteButtons employeeId={girl.id} />
+            </div>
+          )}
+
+          {/* Message if profile is CLAIMED or VERIFIED */}
+          {(girl.user_id || girl.is_self_profile || girl.is_verified) && (
+            <div className="verified-owner-badge">
+              ✅ {girl.is_verified ? 'Verified Profile' : 'Verified by Owner'}
+            </div>
+          )}
 
           {/* Current Workplace */}
           {girl.current_employment && girl.current_employment.length > 0 && (
@@ -576,9 +647,9 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
 
           {/* Comments Section - Après rating et actions */}
           <div className="profile-comments-section">
-            {/* Review Form */}
+            {/* Review Form with auto-focus */}
             {showReviewForm && (
-              <div className="profile-review-form">
+              <div className="profile-review-form" ref={reviewFormRef}>
                 <ReviewForm
                   employeeId={girl.id}
                   onSubmit={handleReviewSubmit}
@@ -610,6 +681,14 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
             </div>
           </div>
         </div>
+
+        {/* Claim Employee Modal */}
+        {showClaimModal && (
+          <ClaimEmployeeModal
+            preselectedEmployee={girl}
+            onClose={() => setShowClaimModal(false)}
+          />
+        )}
       </div>
   );
 };
