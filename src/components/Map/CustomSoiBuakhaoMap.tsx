@@ -3,10 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Establishment, CustomBar } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getZoneConfig } from '../../utils/zoneConfig';
+import { MAP_CONFIG } from '../../utils/constants';
 import { useContainerSize } from '../../hooks/useContainerSize';
 import GenericRoadCanvas from './GenericRoadCanvas';
 import DragDropIndicator from './DragDropIndicator';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
+import ScreenReaderEstablishmentList from './ScreenReaderEstablishmentList';
+import LazyImage from '../Common/LazyImage';
+import { generateEstablishmentUrl } from '../../utils/slugify';
 
 export interface Bar {
   id: string;
@@ -28,9 +33,9 @@ interface CustomSoiBuakhaoMapProps {
 }
 
 const TYPE_STYLES = {
-  gogo: { color: '#FF1B8D', icon: '💃', shadow: 'rgba(255, 27, 141, 0.5)' },
+  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
   beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00FFFF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
+  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
   massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
   nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
 };
@@ -80,7 +85,7 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
 
     const x = startX + spacing + (col - 1) * (idealBarWidth + spacing);
 
-    const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : 600;
+    const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : MAP_CONFIG.DEFAULT_HEIGHT;
     const topY = containerHeight * zoneConfig.startY / 100;
     const bottomY = containerHeight * zoneConfig.endY / 100;
     const y = row === 1 ? topY : bottomY;
@@ -150,8 +155,13 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
   // Throttle ref for performance
   const throttleTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
+  const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
+  const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // Monitor container size changes to recalculate positions
-  const containerDimensions = useContainerSize(containerRef, 150);
+  // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
+  const containerDimensions = useContainerSize(containerRef, 300);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -162,6 +172,35 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
     window.addEventListener('resize', checkMobile);
 
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Orientation detection (for landscape responsive design)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+
+    const handleOrientationChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      // Orientation change detected - CSS media queries will handle styling
+      logger.debug('Orientation changed', {
+        isPortrait: e.matches,
+        isLandscape: !e.matches
+      });
+    };
+
+    // Initial check
+    handleOrientationChange(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleOrientationChange);
+
+    // Also listen for orientationchange event (for iOS Safari)
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => handleOrientationChange(mediaQuery), 100);
+    });
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleOrientationChange);
+      window.removeEventListener('orientationchange', () => handleOrientationChange(mediaQuery));
+    };
   }, []);
 
   // Get all bars (API only) with dynamic sizing + OPTIMISTIC UI
@@ -237,7 +276,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
       };
       onBarClick(customBar);
     } else {
-      navigate(`/bar/${bar.id}`);
+      navigate(generateEstablishmentUrl(bar.id, bar.name, establishment?.zone || 'soibuakhao'));
     }
   }, [establishments, onEstablishmentClick, onBarClick, navigate, isEditMode]);
 
@@ -257,20 +296,12 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
     if (establishment?.logo_url) {
       return (
         <div className="map-logo-container-nightlife">
-          <img
+          <LazyImage
             src={establishment.logo_url}
             alt={establishment.name}
+            cloudinaryPreset="establishmentLogo"
             className="map-logo-image-nightlife"
-            onError={(e) => {
-              const target = e.target as HTMLElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                parent.textContent = fallbackIcon;
-                parent.style.background = 'transparent';
-                parent.style.fontSize = '16px';
-              }
-            }}
+            objectFit="contain"
           />
         </div>
       );
@@ -310,12 +341,31 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
   }, [allBars, establishments, optimisticPositions]);
 
   // Convert mouse position to grid position
-  const getGridFromMousePosition = useCallback((event: React.DragEvent) => {
+  // ✅ TOUCH SUPPORT: Extract coordinates from both drag and touch events
+  const getEventCoordinates = (event: React.DragEvent | React.TouchEvent): { clientX: number; clientY: number } | null => {
+    if ('touches' in event && event.touches.length > 0) {
+      return {
+        clientX: event.touches[0].clientX,
+        clientY: event.touches[0].clientY
+      };
+    } else if ('clientX' in event) {
+      return {
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+    }
+    return null;
+  };
+
+  const getGridFromMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return null;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return null;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
     const zoneConfig = getZoneConfig('soibuakhao');
 
     let row: number, col: number;
@@ -407,12 +457,15 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
   }, [isMobile, containerRef]);
 
   // Throttled version of handleDragOver for performance
-  const updateMousePosition = useCallback((event: React.DragEvent) => {
+  const updateMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     setMousePosition({ x: relativeX, y: relativeY });
 
@@ -536,6 +589,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -570,7 +624,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
               userMessage = `❌ Move failed: ${response.status} ${response.statusText}`;
             }
 
-            alert(userMessage);
+            toast.error(userMessage);
           }
         } else {
           logger.error('Move failed - missing establishment or token');
@@ -607,6 +661,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -644,7 +699,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
               userMessage = `❌ Swap failed: ${response.status} ${response.statusText}`;
             }
 
-            alert(userMessage);
+            toast.error(userMessage);
           }
         } else {
           logger.error('Swap failed - missing establishments or token');
@@ -684,6 +739,324 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
       throttleTimeout.current = null;
     }
   }, []);
+
+  // ✅ TOUCH SUPPORT: Handle touch start
+  const handleTouchStart = useCallback((bar: Bar, event: React.TouchEvent) => {
+    const now = Date.now();
+
+    if (!isEditMode || isLoading || now < operationLockUntil) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+
+    // Haptic feedback on touch start
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+
+    setDraggedBar(bar);
+    setIsDragging(true);
+  }, [isEditMode, isLoading, operationLockUntil]);
+
+  // ✅ TOUCH SUPPORT: Handle touch move
+  const handleTouchMove = useCallback((event: React.TouchEvent) => {
+    event.preventDefault();
+    updateMousePosition(event);
+  }, [updateMousePosition]);
+
+  // ✅ TOUCH SUPPORT: Handle touch end
+  const handleTouchEnd = useCallback(async (event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !dragOverPosition || !draggedBar || dropAction === 'blocked') {
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      return;
+    }
+
+    event.preventDefault();
+
+    const { row, col } = dragOverPosition;
+
+    const conflictBar = findBarAtPosition(row, col);
+
+    const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+    const originalPosition = draggedEstablishment ? {
+      row: draggedEstablishment.grid_row,
+      col: draggedEstablishment.grid_col
+    } : null;
+
+    if (originalPosition && originalPosition.row === row && originalPosition.col === col) {
+      logger.warn('⚠️ Dropping on same position, cancelling');
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+      return;
+    }
+
+    // Haptic feedback on successful drop
+    if (navigator.vibrate) {
+      navigator.vibrate([20, 10, 20]);
+    }
+
+    const loadingTimeout = setTimeout(() => {
+      logger.warn('⚠️ Loading timeout - resetting states');
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+    }, 10000);
+
+    try {
+      setIsLoading(true);
+
+      // Determine action: swap only if conflict exists AND it's a different bar
+      const actualAction = (conflictBar && conflictBar.id !== draggedBar.id) ? 'swap' : 'move';
+
+      if (actualAction === 'move') {
+        const establishment = establishments.find(est => est.id === draggedBar.id);
+
+        if (establishment) {
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(establishment.id, { row, col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: establishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'soibuakhao'
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Position updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Move failed', {
+              status: response.status,
+              error: errorText
+            });
+
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(establishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            let userMessage = 'Failed to move establishment';
+            if (response.status === 400 && errorText.includes('Column position out of bounds')) {
+              userMessage = `❌ Invalid position: Column ${col} is out of bounds (1-40 allowed)`;
+            } else if (response.status === 400 && errorText.includes('Database constraint')) {
+              userMessage = '❌ Database constraint error - please try a different position';
+            } else {
+              userMessage = `❌ Move failed: ${response.status} ${response.statusText}`;
+            }
+
+            toast.error(userMessage);
+          }
+        } else {
+          logger.error('Move failed - missing establishment or token');
+        }
+
+      } else if (actualAction === 'swap' && conflictBar) {
+        const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+        const conflictEstablishment = establishments.find(est => est.id === conflictBar.id);
+
+        if (draggedEstablishment && conflictEstablishment) {
+          // Get the actual current position (optimistic or real)
+          const draggedOptimisticPos = optimisticPositions.get(draggedEstablishment.id);
+          const draggedOriginalPos = draggedOptimisticPos || {
+            row: draggedEstablishment.grid_row || 1,
+            col: draggedEstablishment.grid_col || 1
+          };
+
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(draggedEstablishment.id, { row, col });
+            newMap.set(conflictEstablishment.id, { row: draggedOriginalPos.row, col: draggedOriginalPos.col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: draggedEstablishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'soibuakhao',
+            swap_with_id: conflictEstablishment.id
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Position updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Atomic swap failed', {
+              status: response.status,
+              error: errorText
+            });
+
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(draggedEstablishment.id);
+              newMap.delete(conflictEstablishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            let userMessage = 'Failed to swap establishments';
+            if (response.status === 400 && errorText.includes('Column position out of bounds')) {
+              userMessage = `❌ Invalid swap position: Column ${col} is out of bounds (1-40 allowed)`;
+            } else if (response.status === 400 && errorText.includes('Database constraint')) {
+              userMessage = '❌ Database constraint error - swap not possible at this position';
+            } else if (response.status === 500) {
+              userMessage = '❌ Swap failed due to server error - please try again';
+            } else {
+              userMessage = `❌ Swap failed: ${response.status} ${response.statusText}`;
+            }
+
+            toast.error(userMessage);
+          }
+        } else {
+          logger.error('Swap failed - missing establishments or token');
+        }
+      }
+
+    } catch (error) {
+      logger.error('Drop operation error', error);
+    } finally {
+      clearTimeout(loadingTimeout);
+
+      setIsLoading(false);
+
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+
+      if (throttleTimeout.current) {
+        clearTimeout(throttleTimeout.current);
+        throttleTimeout.current = null;
+      }
+    }
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, optimisticPositions]);
+  // ✅ KEYBOARD NAVIGATION: Arrow key handler for navigating between establishments
+  const handleKeyboardNavigation = useCallback((e: React.KeyboardEvent) => {
+    // Only handle arrow keys
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      return;
+    }
+
+    // Don't interfere with edit mode or if no bars exist
+    if (isEditMode || allBars.length === 0) {
+      return;
+    }
+
+    e.preventDefault();
+
+    // Initialize focus if not set
+    let currentIndex = focusedBarIndex;
+    if (currentIndex === -1 || currentIndex >= allBars.length) {
+      currentIndex = 0;
+      setFocusedBarIndex(0);
+      const firstBar = allBars[0];
+      barRefs.current.get(firstBar.id)?.focus();
+      return;
+    }
+
+    const currentBar = allBars[currentIndex];
+    const currentRow = currentBar.grid_row || 1;
+    const currentCol = currentBar.grid_col || 1;
+
+    let targetBar: Bar | null = null;
+    let targetIndex = -1;
+
+    switch (e.key) {
+      case 'ArrowRight':
+        // Find next bar in same row (higher column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) > currentCol)
+          .sort((a, b) => (a.bar.grid_col || 1) - (b.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowLeft':
+        // Find previous bar in same row (lower column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) < currentCol)
+          .sort((a, b) => (b.bar.grid_col || 1) - (a.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowUp':
+        // Find bar in row above (row 2 if currently row 1), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) !== currentRow)
+          .sort((a, b) => {
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowDown':
+        // Find bar in row below (row 1 if currently row 2), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) !== currentRow)
+          .sort((a, b) => {
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+    }
+
+    // Focus target bar if found
+    if (targetBar && targetIndex !== -1) {
+      setFocusedBarIndex(targetIndex);
+      barRefs.current.get(targetBar.id)?.focus();
+    }
+  }, [allBars, focusedBarIndex, isEditMode]);
 
   // Toggle edit mode
   const toggleEditMode = useCallback(() => {
@@ -731,7 +1104,25 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
       }}
       onDragOver={isEditMode ? handleDragOver : undefined}
       onDrop={isEditMode ? handleDrop : undefined}
+      onKeyDown={handleKeyboardNavigation}
+      role="region"
+      aria-label="Interactive map of Soi Buakhao establishments"
+      aria-describedby="soibuakhao-map-description"
     >
+      {/* Screen Reader Accessible Description */}
+      <p id="soibuakhao-map-description" className="sr-only">
+        Interactive map displaying {allBars.length} establishments in Soi Buakhao.
+        {isEditMode ? ' Edit mode active: drag establishments to reposition them.' : ' Click on establishments to view details.'}
+        For keyboard navigation, press Tab to focus establishments, then use Arrow keys to navigate between them, Enter or Space to select.
+      </p>
+
+      {/* Screen Reader Only Establishment List */}
+      <ScreenReaderEstablishmentList
+        establishments={establishments}
+        zone="soibuakhao"
+        onEstablishmentSelect={(est) => onEstablishmentClick?.(est)}
+      />
+
       {isAdmin && (
         <div style={{
           position: 'absolute',
@@ -741,6 +1132,8 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
         }}>
           <button
             onClick={toggleEditMode}
+            aria-label={isEditMode ? 'Exit edit mode and save changes' : 'Enter edit mode to reposition establishments'}
+            aria-pressed={isEditMode}
             style={{
               background: isEditMode ? 'linear-gradient(135deg, #FF6B6B, #FF8E53)' : 'linear-gradient(135deg, #4ECDC4, #44A08D)',
               color: 'white',
@@ -754,7 +1147,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            {isEditMode ? (<>🔒<span className="edit-mode-text"> Exit Edit</span></>) : (<>✏️<span className="edit-mode-text"> Edit Mode</span></>)}
           </button>
         </div>
       )}
@@ -800,262 +1193,6 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
         />
       </div>
 
-      {/* Labels Indication Intersections - Desktop (horizontal) - Frôlent la route */}
-      {!isMobile && (
-        <>
-          {/* South Pattaya Road Label - 0km */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '5%',
-            transform: 'translateX(-50%)',
-            color: '#FFD700',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(255,215,0,0.4)'
-          }}>
-            🏙️ S. Pattaya
-          </div>
-
-          {/* Soi Lengkee - ~0.3km (18% de 1.7km) */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '21%',
-            transform: 'translateX(-50%)',
-            color: '#00FFFF',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 8px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 5px',
-            borderRadius: '6px',
-            border: '1px solid rgba(0,255,255,0.3)'
-          }}>
-            Lengkee
-          </div>
-
-          {/* Soi Diana (LK Metro) - ~0.7km (41% de 1.7km) */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '42%',
-            transform: 'translateX(-50%)',
-            color: '#FF1B8D',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 8px rgba(255,27,141,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 5px',
-            borderRadius: '6px',
-            border: '1px solid rgba(255,27,141,0.3)'
-          }}>
-            LK Metro
-          </div>
-
-          {/* Soi Honey - ~1.0km (59% de 1.7km) */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '58%',
-            transform: 'translateX(-50%)',
-            color: '#00FFFF',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 8px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 5px',
-            borderRadius: '6px',
-            border: '1px solid rgba(0,255,255,0.3)'
-          }}>
-            Honey
-          </div>
-
-          {/* Tree Town - ~1.35km (79% de 1.7km) */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '77%',
-            transform: 'translateX(-50%)',
-            color: '#00FF7F',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 8px rgba(0,255,127,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 5px',
-            borderRadius: '6px',
-            border: '1px solid rgba(0,255,127,0.3)'
-          }}>
-            Tree Town
-          </div>
-
-          {/* Central Pattaya Road Label - 1.7km (100%) */}
-          <div style={{
-            position: 'absolute',
-            top: '9%',
-            left: '95%',
-            transform: 'translateX(-50%)',
-            color: '#FFD700',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(255,215,0,0.4)'
-          }}>
-            C. Pattaya 🛣️
-          </div>
-        </>
-      )}
-
-      {/* Labels Indication Intersections - Mobile (vertical) - À GAUCHE de la route, espacés selon distances réelles */}
-      {isMobile && (
-        <>
-          {/* Central Pattaya Road Label - 0km (Top) */}
-          <div style={{
-            position: 'absolute',
-            top: '5%',
-            left: '5px',
-            color: '#FFD700',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            textShadow: '0 0 12px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '3px 7px',
-            borderRadius: '10px',
-            border: '1px solid rgba(255,215,0,0.4)'
-          }}>
-            C. Pattaya Rd 🛣️
-          </div>
-
-          {/* Tree Town - ~1.35km = 79% depuis S.Pattaya = 21% depuis C.Pattaya */}
-          <div style={{
-            position: 'absolute',
-            top: '23%',
-            left: '5px',
-            color: '#00FF7F',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(0,255,127,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(0,255,127,0.3)'
-          }}>
-            Tree Town
-          </div>
-
-          {/* Soi Honey - ~1.0km = 59% depuis S.Pattaya = 41% depuis C.Pattaya */}
-          <div style={{
-            position: 'absolute',
-            top: '42%',
-            left: '5px',
-            color: '#00FFFF',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(0,255,255,0.3)'
-          }}>
-            Soi Honey
-          </div>
-
-          {/* Soi Diana (LK Metro) - ~0.7km = 41% depuis S.Pattaya = 59% depuis C.Pattaya */}
-          <div style={{
-            position: 'absolute',
-            top: '58%',
-            left: '5px',
-            color: '#FF1B8D',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,27,141,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(255,27,141,0.3)'
-          }}>
-            Soi Diana
-          </div>
-
-          {/* Soi Lengkee - ~0.3km = 18% depuis S.Pattaya = 82% depuis C.Pattaya */}
-          <div style={{
-            position: 'absolute',
-            top: '79%',
-            left: '5px',
-            color: '#00FFFF',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '2px 6px',
-            borderRadius: '8px',
-            border: '1px solid rgba(0,255,255,0.3)'
-          }}>
-            Soi Lengkee
-          </div>
-
-          {/* South Pattaya Road Label - 1.7km (Bottom) */}
-          <div style={{
-            position: 'absolute',
-            top: '95%',
-            left: '5px',
-            color: '#FFD700',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            textShadow: '0 0 12px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'left',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '3px 7px',
-            borderRadius: '10px',
-            border: '1px solid rgba(255,215,0,0.4)'
-          }}>
-            🏙️ S. Pattaya Rd
-          </div>
-        </>
-      )}
-
       {/* Debug Grid - Desktop Only */}
       {isEditMode && !isMobile && containerRef.current && (() => {
         const zoneConfig = getZoneConfig('soibuakhao');
@@ -1098,33 +1235,82 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
         return gridCells;
       })()}
 
-      {allBars.map((bar) => {
+      {allBars.map((bar, index) => {
         const isSelected = selectedEstablishment === bar.id;
         const isHovered = hoveredBar === bar.id;
         const isBeingDragged = isDragging && draggedBar?.id === bar.id;
 
+        // Get establishment details for aria-label
+        const establishment = establishments.find(est => est.id === bar.id);
+        const categoryName = establishment?.category_id === 2 ? 'GoGo Bar'
+          : establishment?.category_id === 1 ? 'Bar'
+          : establishment?.category_id === 3 ? 'Massage Salon'
+          : establishment?.category_id === 4 ? 'Nightclub'
+          : 'Establishment';
+
+        // 🆕 v10.3 Phase 5 - VIP Status Check
+        const isVIP = establishment?.is_vip && establishment?.vip_expires_at &&
+          new Date(establishment.vip_expires_at) > new Date();
+
+        // Responsive VIP sizing: Mobile +15%, Tablet +25%, Desktop +35%
+        const vipSizeMultiplier = window.innerWidth < 480 ? 1.15
+                                : window.innerWidth < 768 ? 1.25
+                                : 1.35;
+        const vipBarSize = Math.round(currentBarSize * vipSizeMultiplier);
+        const finalBarSize = isVIP ? vipBarSize : currentBarSize;
+
+        const ariaLabel = `${bar.name}, ${categoryName}${isVIP ? ', VIP establishment' : ''}, click to view details`;
+
         return (
           <div
             key={bar.id}
-            className={`soibuakhao-bar-circle ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${isBeingDragged ? 'dragging' : ''}`}
+            ref={(el) => {
+              if (el) {
+                barRefs.current.set(bar.id, el);
+              } else {
+                barRefs.current.delete(bar.id);
+              }
+            }}
+            className={`soibuakhao-bar-circle ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${isBeingDragged ? 'dragging' : ''} ${isVIP ? 'vip-establishment-marker' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={ariaLabel}
+            aria-pressed={isSelected}
+            aria-describedby={isHovered ? `tooltip-sb-${bar.id}` : undefined}
             onClick={() => handleBarClick(bar)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBarClick(bar);
+              }
+            }}
             onMouseEnter={() => setHoveredBar(bar.id)}
             onMouseLeave={() => setHoveredBar(null)}
+            onFocus={() => {
+              setHoveredBar(bar.id);
+              setFocusedBarIndex(index);
+            }}
+            onBlur={() => setHoveredBar(null)}
             draggable={isEditMode && isAdmin && !isLoading ? true : false}
             onDragStart={(e) => handleDragStart(bar, e)}
             onDragEnd={handleDragEnd}
+            onTouchStart={isEditMode ? (e) => handleTouchStart(bar, e) : undefined}
+            onTouchMove={isEditMode ? handleTouchMove : undefined}
+            onTouchEnd={isEditMode ? handleTouchEnd : undefined}
             style={{
               position: 'absolute',
-              left: `${bar.position.x - currentBarSize/2}px`,
-              top: `${bar.position.y - currentBarSize/2}px`,
-              width: `${currentBarSize}px`,
-              height: `${currentBarSize}px`,
+              left: `${bar.position.x - finalBarSize/2}px`,
+              top: `${bar.position.y - finalBarSize/2}px`,
+              width: `${finalBarSize}px`,
+              height: `${finalBarSize}px`,
               borderRadius: '50%',
               background: `
                 radial-gradient(circle at 30% 30%, ${bar.color}FF, ${bar.color}DD 60%, ${bar.color}AA 100%),
                 linear-gradient(45deg, ${bar.color}22, ${bar.color}44)
               `,
-              border: isSelected
+              border: isVIP
+                ? '5px solid #FFD700'  // VIP: Always gold border (thick)
+                : isSelected
                 ? '3px solid #FFD700'
                 : isEditMode
                   ? '2px solid #00FF00'
@@ -1135,8 +1321,11 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
               justifyContent: 'center',
               fontSize: '16px',
               transform: isHovered && !isBeingDragged ? 'scale(1.2)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              boxShadow: isHovered
+              transition: isVIP ? 'none' : 'all 0.3s ease',
+              touchAction: isEditMode ? 'none' : 'auto',
+              boxShadow: isVIP
+                ? undefined  // CSS animation handles VIP glow
+                : isHovered
                 ? `
                     0 0 25px ${TYPE_STYLES[bar.type].shadow},
                     0 0 40px ${TYPE_STYLES[bar.type].shadow}66,
@@ -1155,22 +1344,47 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
           >
             {getEstablishmentIcon(bar.id, establishments, bar.icon)}
 
+            {/* 🆕 v10.3 Phase 5 - VIP Ultra Premium Effects */}
+            {isVIP && (
+              <div
+                className="vip-crown"
+                style={{
+                  position: 'absolute',
+                  top: '-35px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 5,
+                  pointerEvents: 'none'
+                }}
+                title={`VIP until ${new Date(establishment.vip_expires_at!).toLocaleDateString()}`}
+              >
+                👑
+              </div>
+            )}
+            {isVIP && (
+              <div className="vip-badge">VIP</div>
+            )}
+
             {isHovered && !isDragging && (
-              <div style={{
-                position: 'absolute',
-                bottom: '45px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.9)',
-                color: '#fff',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                zIndex: 20,
-                border: '1px solid #FFD700'
-              }}>
+              <div
+                id={`tooltip-sb-${bar.id}`}
+                role="tooltip"
+                style={{
+                  position: 'absolute',
+                  bottom: '45px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'rgba(0,0,0,0.9)',
+                  color: '#fff',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  zIndex: 20,
+                  border: '1px solid #FFD700'
+                }}
+              >
                 {bar.name}
                 {isEditMode && (
                   <div style={{ fontSize: '10px', color: '#00FF00' }}>
@@ -1238,6 +1452,43 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
           </div>
         </div>
       )}
+
+      <style>{`
+        .soibuakhao-bar-circle:focus {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+          box-shadow:
+            0 0 25px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .soibuakhao-bar-circle:focus-visible {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+        }
+
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+
+        @keyframes vipPulse {
+          0%, 100% {
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+          }
+        }
+      `}</style>
     </div>
   );
 };

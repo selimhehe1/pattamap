@@ -1,66 +1,114 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
+import { useEstablishment } from '../../hooks/useEstablishments';
 import GirlsGallery from './GirlsGallery';
 import BarInfoSidebar from './BarInfoSidebar';
-import EstablishmentForm from '../Forms/EstablishmentForm';
+import EstablishmentEditModal from '../Forms/EstablishmentEditModal';
+import TabNavigation from './TabNavigation';
 import { Employee, Establishment } from '../../types';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
+import LazyImage from '../Common/LazyImage';
+import { parseEstablishmentId, generateEstablishmentUrl } from '../../utils/slugify';
+import { SkeletonGallery } from '../Common/Skeleton';
+import '../../styles/components/employee-profile.css';
+import '../../styles/pages/establishment.css';
+import '../../styles/components/photos.css';
+import '../../styles/components/modals-app.css';
+import '../../styles/layout/page-layout.css';
 
 // Plus de données hardcodées - utilisation exclusive de l'API
 
 interface BarDetailPageProps {}
 
 const BarDetailPage: React.FC<BarDetailPageProps> = () => {
-  const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
+  const { id: legacyId, slug } = useParams<{ id?: string; zone?: string; slug?: string }>();
   const navigate = useNavigate();
-  const [selectedGirl, setSelectedGirl] = useState<Employee | null>(null);
-  const [bar, setBar] = useState<Establishment | null>(null);
-  const [girls, setGirls] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editedBar, setEditedBar] = useState<Establishment | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
 
-  // Logo upload states for Edit Mode
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  // Parse ID from slug or use legacy ID
+  const establishmentId = slug ? parseEstablishmentId(slug) : legacyId;
+  const id = establishmentId;
+
+  // ⚡ React Query hooks - Cache intelligent pour establishment
+  const { data: bar = null, isLoading: barLoading } = useEstablishment(id || null);
+
+  // Query pour les employees de cet établissement (includes freelances for nightclubs - v10.3)
+  // 🔧 FIX: Use public /api/employees endpoint instead of owner-only /api/establishments/:id/employees
+  const { data: girls = [], isLoading: girlsLoading } = useQuery({
+    queryKey: ['employees', 'establishment', id],
+    queryFn: async (): Promise<Employee[]> => {
+      if (!id) return [];
+      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees?establishment_id=${id}&status=approved`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.employees || [];
+    },
+    enabled: !!id && !!bar, // Ne charge que si on a un ID et que le bar est chargé
+    staleTime: 3 * 60 * 1000, // 3 minutes
+  });
+
+  // Local states
+  const [selectedGirl, setSelectedGirl] = useState<Employee | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isSubmittingModal, setIsSubmittingModal] = useState(false); // For modal form submission
+  const [activeTab, setActiveTab] = useState<'employees' | 'info'>('employees');
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth <= 768 || window.innerHeight <= 500
+  );
 
   const isAdmin = user?.role === 'admin';
 
-  // Initialize edited data when bar changes
+  // Redirect if no ID
   useEffect(() => {
-    if (bar) {
-      setEditedBar({ ...bar });
+    if (!id) {
+      logger.error('❌ No establishment ID provided, redirecting to home');
+      navigate('/');
     }
-  }, [bar]);
+  }, [id, navigate]);
 
-  const handleSaveChanges = async () => {
-    if (!editedBar || !id) return;
+  // Redirect if bar not found after loading
+  useEffect(() => {
+    if (!barLoading && !bar && id) {
+      logger.error('Bar not found:', id);
+      navigate('/');
+    }
+  }, [bar, barLoading, id, navigate]);
 
-    setIsSaving(true);
+  // 301 Redirect: Legacy URL → SEO URL
+  useEffect(() => {
+    if (bar && legacyId && !slug) {
+      // User accessed via old /bar/:id URL, redirect to new /bar/:zone/:slug URL
+      const seoUrl = generateEstablishmentUrl(bar.id, bar.name, bar.zone || 'other');
+      logger.info(`🔀 Redirecting legacy URL /bar/${legacyId} → ${seoUrl}`);
+      navigate(seoUrl, { replace: true }); // replace = 301 redirect
+    }
+  }, [bar, legacyId, slug, navigate]);
 
+  // Mobile detection - Update on window resize (includes landscape)
+  useEffect(() => {
+    const handleResize = () => {
+      // Mobile if: width ≤ 768px OR height ≤ 500px (landscape mode)
+      setIsMobile(window.innerWidth <= 768 || window.innerHeight <= 500);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
+  const handleEditSubmit = async (establishmentData: any) => {
+    if (!bar || !id) return;
+
+    setIsSubmittingModal(true);
     try {
-      // Upload logo first if there's a new file
-      let logoUrl = editedBar.logo_url;
-      if (logoFile) {
-        const uploadedUrl = await uploadLogoFile(logoFile);
-        if (uploadedUrl) {
-          logoUrl = uploadedUrl;
-          // Update editedBar with new logo URL
-          setEditedBar(prev => prev ? { ...prev, logo_url: logoUrl } : null);
-        } else {
-          setIsSaving(false);
-          return; // Abort save if logo upload failed
-        }
-      }
-
       // Helper to convert category_id from STRING back to INTEGER for DB
       const categoryIdToInt = (catId: string | number): number => {
         // If already a number, return it
@@ -71,173 +119,29 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
         return match ? parseInt(match[1], 10) : 1;
       };
 
-      // Clean the data before sending - only send allowed fields
+      // Clean and prepare data for API
       const cleanedData = {
-        name: editedBar.name,
-        address: editedBar.address,
-        description: editedBar.description,
-        phone: editedBar.phone,
-        website: editedBar.website,
-        logo_url: logoUrl, // Include uploaded logo URL
-        opening_hours: editedBar.opening_hours,
-        services: editedBar.services,
-        category_id: categoryIdToInt(editedBar.category_id), // Convert STRING → INTEGER
-        zone: editedBar.zone,
-        grid_row: editedBar.grid_row,
-        grid_col: editedBar.grid_col,
-        // Champs de pricing (nouveaux)
-        ladydrink: editedBar.ladydrink,
-        barfine: editedBar.barfine,
-        rooms: editedBar.rooms,
-        pricing: editedBar.pricing
+        name: establishmentData.name,
+        address: establishmentData.address,
+        description: establishmentData.description,
+        phone: establishmentData.phone,
+        website: establishmentData.website,
+        logo_url: establishmentData.logo_url,
+        opening_hours: establishmentData.opening_hours,
+        // Social media links (v10.1)
+        instagram: establishmentData.instagram || null,
+        twitter: establishmentData.twitter || null,
+        tiktok: establishmentData.tiktok || null,
+        category_id: categoryIdToInt(establishmentData.category_id), // Convert STRING → INTEGER
+        zone: establishmentData.zone,
+        grid_row: bar.grid_row, // Preserve map position
+        grid_col: bar.grid_col, // Preserve map position
+        ladydrink: establishmentData.pricing?.ladydrink || establishmentData.ladydrink,
+        barfine: establishmentData.pricing?.barfine || establishmentData.barfine,
+        rooms: establishmentData.pricing?.rooms?.price || establishmentData.rooms,
+        pricing: establishmentData.pricing
       };
-      if (isAdmin) {
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify(cleanedData)
-        });
 
-        if (response.ok) {
-          const updatedData = await response.json();
-
-          setBar(updatedData.establishment || editedBar);
-          setIsEditMode(false);
-
-          setShowSuccessMessage(true);
-          setTimeout(() => setShowSuccessMessage(false), 3000);
-        } else {
-          const errorData = await response.text();
-          logger.error('❌ Failed to update establishment - Status:', response.status);
-          logger.error('❌ Error response:', errorData);
-          alert(`Error saving changes: ${response.status} - ${errorData}`);
-        }
-      } else {
-        const currentValues = {
-          name: bar?.name,
-          address: bar?.address,
-          description: bar?.description,
-          phone: bar?.phone,
-          opening_hours: bar?.opening_hours,
-          ladydrink: bar?.ladydrink,
-          barfine: bar?.barfine,
-          rooms: bar?.rooms,
-          pricing: bar?.pricing
-        };
-
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/edit-proposals`, {
-          method: 'POST',
-          body: JSON.stringify({
-            item_type: 'establishment',
-            item_id: id,
-            proposed_changes: cleanedData,
-            current_values: currentValues
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.auto_approved) {
-            alert('✅ Modifications appliquées immédiatement !');
-            window.location.reload();
-          } else {
-            alert('✅ Merci ! Votre modification sera examinée par un modérateur.');
-          }
-          setIsEditMode(false);
-        } else {
-          alert('❌ Erreur lors de la création de la proposition');
-        }
-      }
-    } catch (error) {
-      logger.error('Error updating establishment:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    if (bar) {
-      setEditedBar({ ...bar }); // Reset to original data
-    }
-    setIsEditMode(false);
-    // Reset logo states
-    setLogoFile(null);
-    setLogoPreviewUrl(null);
-  };
-
-  // Logo handlers for Edit Mode
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (file) {
-      // Validation
-      if (!file.type.startsWith('image/')) {
-        alert('🖼️ Please select an image file (JPG, PNG, GIF)');
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        alert(`🚨 Logo file too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Please use an image under 2MB.`);
-        return;
-      }
-
-      setLogoFile(file);
-      const previewUrl = URL.createObjectURL(file);
-      setLogoPreviewUrl(previewUrl);
-      logger.debug('🖼️ Logo file selected:', file.name);
-    }
-  };
-
-  const uploadLogoFile = async (file: File): Promise<string | null> => {
-    setUploadingLogo(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      logger.debug('🎨 Uploading logo:', file.name);
-
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/establishment-logo`, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        logger.debug('✅ Logo uploaded successfully:', data.logo?.url);
-        return data.logo?.url || null;
-      } else {
-        const errorData = await response.json();
-        logger.error('❌ Logo upload failed:', errorData);
-        alert(`❌ Failed to upload logo: ${errorData.error || 'Unknown error'}`);
-        return null;
-      }
-    } catch (error) {
-      logger.error('❌ Logo upload error:', error);
-      alert('❌ Failed to upload logo. Please try again.');
-      return null;
-    } finally {
-      setUploadingLogo(false);
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    if (window.confirm('🗑️ Are you sure you want to remove the logo?')) {
-      updateEditedField('logo_url', '');
-      setLogoFile(null);
-      setLogoPreviewUrl(null);
-      logger.debug('🗑️ Logo removed');
-    }
-  };
-
-  const updateEditedField = (field: string, value: any) => {
-    if (!editedBar) return;
-    setEditedBar({
-      ...editedBar,
-      [field]: value
-    });
-  };
-
-  const handleEditSubmit = async (establishmentData: any) => {
-    if (!bar || !id) return;
-
-    try {
       const currentValues = {
         name: bar.name,
         address: bar.address,
@@ -246,7 +150,10 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
         website: bar.website,
         logo_url: bar.logo_url,
         opening_hours: bar.opening_hours,
-        services: bar.services,
+        // Social media links (v10.1)
+        instagram: bar.instagram || null,
+        twitter: bar.twitter || null,
+        tiktok: bar.tiktok || null,
         zone: bar.zone,
         category_id: bar.category_id,
         ladydrink: bar.ladydrink,
@@ -257,19 +164,33 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
 
       if (user?.role === 'admin' || user?.role === 'moderator') {
         // Admin/Moderator -> édition directe
+        logger.info('🔍 Sending PUT request with data:', {
+          cleanedData,
+          pricing: cleanedData.pricing,
+          consumablesCount: cleanedData.pricing?.consumables?.length || 0
+        });
+
         const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
           method: 'PUT',
-          body: JSON.stringify(establishmentData)
+          body: JSON.stringify(cleanedData) // Use cleanedData instead of raw establishmentData
         });
 
         if (response.ok) {
-          const data = await response.json();
-          setBar(data.establishment);
+          const responseData = await response.json();
+          logger.info('✅ PUT response received:', {
+            responseData,
+            responsePricing: responseData.establishment?.pricing,
+            responseConsumablesCount: responseData.establishment?.pricing?.consumables?.length || 0
+          });
+
           setShowEditModal(false);
-          alert('✅ Modifications appliquées immédiatement !');
+          toast.success(t('barDetailPage.toastSuccessApplied'));
+
+          // Attendre 2 secondes pour voir les logs avant reload
+          await new Promise(resolve => setTimeout(resolve, 2000));
           window.location.reload();
         } else {
-          throw new Error('Failed to update establishment');
+          throw new Error(t('barDetailPage.errorUpdateFailed'));
         }
       } else {
         // User normal -> création proposal
@@ -278,7 +199,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
           body: JSON.stringify({
             item_type: 'establishment',
             item_id: id,
-            proposed_changes: establishmentData,
+            proposed_changes: cleanedData, // Use cleanedData
             current_values: currentValues
           })
         });
@@ -286,71 +207,25 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.auto_approved) {
-            alert('✅ Modifications appliquées immédiatement !');
+            toast.success(t('barDetailPage.toastSuccessApplied'));
             window.location.reload();
           } else {
-            alert('✅ Merci ! Votre modification sera examinée par un modérateur.');
+            toast.success(t('barDetailPage.toastSuccessProposal'));
           }
           setShowEditModal(false);
         } else {
-          throw new Error('Failed to create proposal');
+          throw new Error(t('barDetailPage.errorCreateProposal'));
         }
       }
     } catch (error) {
       logger.error('Error submitting edit:', error);
-      alert('❌ Erreur lors de la soumission de la modification');
+      toast.error(t('barDetailPage.toastErrorSubmit'));
+    } finally {
+      setIsSubmittingModal(false);
     }
   };
 
-  useEffect(() => {
-    const loadBarData = async () => {
-      // Early return if no ID
-      if (!id) {
-        logger.error('❌ No establishment ID provided, redirecting to home');
-        navigate('/');
-        return;
-      }
-
-      setLoading(true);
-      try {
-        // Charger les données du bar depuis l'API
-        const barResponse = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`);
-        if (barResponse.ok) {
-          const barData = await barResponse.json();
-          setBar(barData.establishment);
-        } else {
-          logger.error('Bar not found:', id);
-          // No fallback - redirect to home if bar not found
-          navigate('/');
-          return;
-        }
-
-        // Charger les employées depuis l'API
-        const employeesResponse = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees?establishment_id=${id}`);
-        if (employeesResponse.ok) {
-          const employeesData = await employeesResponse.json();
-          setGirls(employeesData.employees || []);
-        } else {
-          logger.error('Failed to load employees');
-          // Plus de fallback sur données de test - utilisation exclusive de l'API
-          setGirls([]);
-        }
-      } catch (error) {
-        logger.error('Error loading bar data:', error);
-        logger.error('Failed to load bar data, redirecting to home');
-        navigate('/');
-        // Plus de fallback sur données d'employées - utilisation exclusive de l'API
-        setGirls([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadBarData();
-  }, [id, navigate]);
-
-
-  if (loading) {
+  if (barLoading) {
     return (
       <div className="loading-container-nightlife bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife">
         <div className="establishment-loading-container-nightlife">
@@ -358,7 +233,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
             💃
           </div>
           <div className="establishment-loading-text-nightlife">
-            Loading beautiful girls...
+            {t('barDetailPage.loadingText')}
           </div>
         </div>
       </div>
@@ -369,12 +244,13 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
     return (
       <div className="loading-container-nightlife bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife">
         <div className="establishment-empty-state-nightlife">
-          <h2 className="establishment-empty-title-nightlife">Bar not found</h2>
+          <h2 className="establishment-empty-title-nightlife">{t('barDetailPage.emptyStateTitle')}</h2>
           <button
             onClick={() => navigate('/')}
             className="btn-primary-nightlife"
+            aria-label={t('barDetailPage.ariaBackToMap')}
           >
-            Back to Map
+            {t('barDetailPage.buttonBackToMap')}
           </button>
         </div>
       </div>
@@ -382,7 +258,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
   }
 
   return (
-    <div className="bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife">
+    <div id="main-content" className="bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife" tabIndex={-1}>
       <style>
         {`
           @keyframes fadeInOut {
@@ -396,314 +272,143 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
 
       {/* Header du bar */}
       <div className="establishment-header-nightlife">
+        {/* Edit Button - Floating (position absolute, ne prend pas d'espace) */}
+        {user && (
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="establishment-edit-icon-floating-nightlife"
+            aria-label={isAdmin ? t('barDetailPage.ariaEditBar', { name: bar.name }) : t('barDetailPage.ariaSuggestEdit', { name: bar.name })}
+            title={isAdmin ? t('barDetailPage.titleEdit') : t('barDetailPage.titleSuggestEdit')}
+          >
+            ✏️
+          </button>
+        )}
+
         <div className="establishment-header-content-nightlife">
-          <div className="establishment-header-info-nightlife">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              {/* Logo - Editable in Edit Mode */}
-              {isEditMode && editedBar ? (
-                <div style={{ position: 'relative' }}>
-                  <div
-                    onClick={() => {
-                      if (!uploadingLogo) {
-                        const fileInput = document.getElementById('header-logo-upload') as HTMLInputElement;
-                        if (fileInput) fileInput.click();
-                      }
-                    }}
-                    className="establishment-logo-header-nightlife"
-                    style={{
-                      cursor: uploadingLogo ? 'not-allowed' : 'pointer',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!uploadingLogo) {
-                        const overlay = e.currentTarget.querySelector('.logo-hover-overlay') as HTMLElement;
-                        if (overlay) overlay.style.opacity = '1';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      const overlay = e.currentTarget.querySelector('.logo-hover-overlay') as HTMLElement;
-                      if (overlay) overlay.style.opacity = '0';
-                    }}
-                  >
-                    {uploadingLogo ? (
-                      <div style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'rgba(0,0,0,0.8)',
-                        color: '#00FFFF',
-                        fontSize: '24px'
-                      }}>
-                        ⏳
-                      </div>
-                    ) : (
-                      (logoPreviewUrl || editedBar.logo_url) && (
-                        <img
-                          src={logoPreviewUrl || editedBar.logo_url}
-                          alt={`${editedBar.name} logo`}
-                          className="establishment-logo-header-image-nightlife"
-                          onError={(e) => {
-                            const target = e.target as HTMLElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                      )
-                    )}
+          {/* Logo Hero - Gauche */}
+          {bar.logo_url && (
+            <div className="establishment-logo-hero-nightlife">
+              <LazyImage
+                src={bar.logo_url}
+                alt={`${bar.name} logo`}
+                cloudinaryPreset="establishmentLogo"
+                className="establishment-logo-header-image-nightlife"
+                objectFit="contain"
+              />
+            </div>
+          )}
 
-                    {/* Hover Overlay */}
-                    {!uploadingLogo && (
-                      <div
-                        className="logo-hover-overlay"
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: 'rgba(0,0,0,0.75)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          opacity: 0,
-                          transition: 'opacity 0.3s ease',
-                          pointerEvents: 'none',
-                          borderRadius: '12px'
-                        }}
-                      >
-                        <div style={{
-                          color: '#00FFFF',
-                          fontSize: '11px',
-                          fontWeight: '600',
-                          textAlign: 'center'
-                        }}>
-                          📸<br/>Click to<br/>change
-                        </div>
-                      </div>
-                    )}
-                  </div>
+          {/* Text content - Centre (occupe tout l'espace disponible) */}
+          <div className="establishment-text-content-nightlife">
+            <h1 className="establishment-name-nightlife">
+              {bar.name}
+            </h1>
+            <p className="establishment-meta-nightlife">
+              {bar.description || t('barDetailPage.defaultDescription')}
+            </p>
 
-                  {/* Hidden file input */}
-                  <input
-                    id="header-logo-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoFileChange}
-                    disabled={uploadingLogo}
-                    style={{ display: 'none' }}
-                  />
-
-                  {/* Remove Icon - Only if logo exists */}
-                  {!uploadingLogo && (logoPreviewUrl || editedBar.logo_url) && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleRemoveLogo();
-                      }}
-                      style={{
-                        position: 'absolute',
-                        top: '5px',
-                        right: '5px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #F44336, #D32F2F)',
-                        border: '2px solid white',
-                        color: 'white',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.3s ease',
-                        zIndex: 10,
-                        boxShadow: '0 2px 8px rgba(244,67,54,0.4)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.15)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(244,67,54,0.6)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(244,67,54,0.4)';
-                      }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ) : (
-                /* Logo Read-Only */
-                bar.logo_url && (
-                  <div className="establishment-logo-header-nightlife">
-                    <img
-                      src={bar.logo_url}
-                      alt={`${bar.name} logo`}
-                      className="establishment-logo-header-image-nightlife"
-                      onError={(e) => {
-                        // Hide logo if it fails to load
-                        const target = e.target as HTMLElement;
-                        const parent = target.parentElement?.parentElement;
-                        if (parent) {
-                          parent.style.display = 'none';
-                        }
-                      }}
-                    />
-                  </div>
-                )
-              )}
-
-              {/* Text content */}
-              <div>
-              {isEditMode && editedBar ? (
-                <input
-                  type="text"
-                  value={editedBar.name}
-                  onChange={(e) => updateEditedField('name', e.target.value)}
-                  className="establishment-name-input-nightlife"
-                />
-              ) : (
-                <h1 className="establishment-name-nightlife">
-                  {bar.name}
-                </h1>
-              )}
-
-              {isEditMode && editedBar ? (
-                <textarea
-                  value={editedBar.description || ''}
-                  onChange={(e) => updateEditedField('description', e.target.value)}
-                  placeholder="Add establishment description..."
-                  className="establishment-description-textarea-nightlife"
-                />
-              ) : (
-                <p className="establishment-meta-nightlife">
-                  {bar.description || 'Soi 6 Premium Experience'}
-                </p>
-              )}
-              </div>
+            {/* Status et Horaires */}
+            <div className="sidebar-status-container-nightlife">
+              <span className="sidebar-status-indicator-nightlife" />
+              <span className="sidebar-status-text-nightlife">
+                {t('barDetailPage.statusOpenNow')} • {bar.opening_hours?.open || '14:00'} - {bar.opening_hours?.close || '02:00'}
+              </span>
             </div>
           </div>
-
-          {/* Admin Edit/Save Buttons */}
-          {isAdmin && (
-            <div className="establishment-buttons-group-nightlife">
-              {isEditMode ? (
-                <>
-                  <button
-                    onClick={handleSaveChanges}
-                    disabled={isSaving}
-                    className="btn-secondary-nightlife"
-                    style={{
-                      background: isSaving ? 'rgba(76,175,80,0.5)' : undefined,
-                      cursor: isSaving ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {isSaving ? '⏳ Saving...' : '💾 Save Changes'}
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="btn-primary-nightlife"
-                    style={{
-                      background: 'linear-gradient(45deg, #f44336, #ff5722)'
-                    }}
-                  >
-                    ❌ Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setIsEditMode(true)}
-                  className="btn-accent-nightlife"
-                >
-                  ✏️ Edit Mode
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Public Suggest Edit Button */}
-          {user && !isAdmin && (
-            <div className="establishment-buttons-group-nightlife">
-              <button
-                onClick={() => setShowEditModal(true)}
-                className={user.role === 'admin' || user.role === 'moderator'
-                  ? 'btn-primary-nightlife'
-                  : 'btn-secondary-nightlife'
-                }
-              >
-                {user.role === 'admin' || user.role === 'moderator' ? '✏️ Edit' : '✏️ Suggest Edit'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
       {/* Message de succès */}
       {showSuccessMessage && (
         <div className="btn-secondary-nightlife establishment-success-message-nightlife">
-          ✅ Modifications sauvegardées avec succès !
+          ✅ {t('barDetailPage.successMessage')}
+        </div>
+      )}
+
+      {/* Tab Navigation - Mobile Only */}
+      {isMobile && (
+        <div style={{ padding: '0 var(--spacing-md)' }}>
+          <TabNavigation
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            employeeCount={girls.length}
+          />
         </div>
       )}
 
       {/* Contenu principal */}
-      <div className="establishment-layout-nightlife">
-        {/* Zone principale des serveuses (80%) */}
-        <div className="establishment-main-content-nightlife">
-          <GirlsGallery 
-            girls={girls}
-            onGirlClick={setSelectedGirl}
-            selectedGirl={selectedGirl}
-          />
-        </div>
-
-        {/* Sidebar infos bar (20%) */}
-        <div className="establishment-sidebar-nightlife">
-          {bar && (
-            <BarInfoSidebar
-              bar={bar}
-              isEditMode={isEditMode}
-              editedBar={editedBar}
-              onUpdateField={updateEditedField}
-            />
+      {isMobile ? (
+        // MOBILE: Show ONLY active tab content
+        <div style={{ padding: '0 var(--spacing-md) var(--spacing-md)' }}>
+          {activeTab === 'employees' ? (
+            // Employees Tab
+            <div className="establishment-main-content-nightlife">
+              {girlsLoading ? (
+                <SkeletonGallery count={6} variant="employee" />
+              ) : (
+                <GirlsGallery
+                  girls={girls}
+                  onGirlClick={setSelectedGirl}
+                  selectedGirl={selectedGirl}
+                />
+              )}
+            </div>
+          ) : (
+            // Bar Info Tab
+            <div className="establishment-sidebar-nightlife" style={{ position: 'static', top: 'auto' }}>
+              {bar && (
+                <BarInfoSidebar
+                  bar={bar}
+                  employees={girls}
+                  isEditMode={false}
+                  editedBar={null}
+                  onUpdateField={undefined}
+                />
+              )}
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Edit Establishment Modal */}
-      {showEditModal && bar && (
-        <div className="profile-overlay-nightlife">
-          <div className="establishment-container-nightlife establishment-edit-modal-content-nightlife">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowEditModal(false)}
-              className="profile-close-button"
-            >
-              ×
-            </button>
-
-            <div className="establishment-edit-modal-padding-nightlife">
-              <h2 className="establishment-section-title-nightlife establishment-edit-modal-title-nightlife">
-                {user?.role === 'admin' || user?.role === 'moderator'
-                  ? '✏️ Edit Establishment'
-                  : '✏️ Suggest Edit'}
-              </h2>
-              <p className="establishment-edit-modal-description-nightlife">
-                {user?.role === 'admin' || user?.role === 'moderator'
-                  ? 'Modify establishment information directly'
-                  : 'Propose changes to establishment information for review'}
-              </p>
-
-              <EstablishmentForm
-                onSubmit={handleEditSubmit}
-                onCancel={() => setShowEditModal(false)}
-                initialData={bar}
+      ) : (
+        // DESKTOP: Show both side by side (current behavior)
+        <div className="establishment-layout-nightlife">
+          {/* Zone principale des serveuses (80%) */}
+          <div className="establishment-main-content-nightlife">
+            {girlsLoading ? (
+              <SkeletonGallery count={6} variant="employee" />
+            ) : (
+              <GirlsGallery
+                girls={girls}
+                onGirlClick={setSelectedGirl}
+                selectedGirl={selectedGirl}
               />
-            </div>
+            )}
+          </div>
+
+          {/* Sidebar infos bar (20%) */}
+          <div className="establishment-sidebar-nightlife">
+            {bar && (
+              <BarInfoSidebar
+                bar={bar}
+                employees={girls}
+                isEditMode={false}
+                editedBar={null}
+                onUpdateField={undefined}
+              />
+            )}
           </div>
         </div>
+      )}
+
+      {/* Edit Establishment Modal - New EstablishmentEditModal */}
+      {showEditModal && bar && (
+        <EstablishmentEditModal
+          key={bar.id} // Force React to remount when bar changes (ensures useState re-initializes)
+          onSubmit={handleEditSubmit}
+          onCancel={() => setShowEditModal(false)}
+          initialData={bar}
+          isLoading={isSubmittingModal}
+          isSuggestion={!isAdmin && user?.role !== 'moderator'}
+        />
       )}
 
       {/* CSS pour les animations */}

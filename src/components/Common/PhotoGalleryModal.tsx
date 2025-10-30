@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import LazyImage from './LazyImage';
 
 interface PhotoGalleryModalProps {
   photos: string[];
   initialIndex?: number;
   employeeName: string;
-  onClose: () => void;
+  onClose?: () => void; // Optional - injected by openModal
 }
 
 const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   photos,
   initialIndex = 0,
   employeeName,
-  onClose
+  onClose = () => {}
 }) => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const goToNext = useCallback(() => {
@@ -45,8 +48,8 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   if (photos.length === 0) return null;
 
   return (
-    <div className="photo-gallery-simple-overlay-nightlife" onClick={onClose}>
-      <div className="photo-gallery-simple-container-nightlife" onClick={(e) => e.stopPropagation()}>
+    <div className="photo-gallery-simple-overlay-nightlife" onClick={onClose} role="button" tabIndex={0}>
+      <div className="photo-gallery-simple-container-nightlife" role="button" tabIndex={0} onClick={(e) => e.stopPropagation()}>
 
         {/* Header minimal */}
         <div className="photo-gallery-simple-header-nightlife">
@@ -56,7 +59,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
           <button
             onClick={onClose}
             className="photo-gallery-simple-close-nightlife"
-            aria-label="Close"
+            aria-label={t('photoGalleryModal.ariaClose')}
           >
             ✕
           </button>
@@ -64,10 +67,13 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
 
         {/* Image centrée */}
         <div className="photo-gallery-simple-content-nightlife">
-          <img
+          <LazyImage
             src={photos[currentIndex]}
-            alt={`${employeeName} - ${currentIndex + 1}`}
+            alt={t('photoGalleryModal.altTextPhoto', { employeeName, currentIndex: currentIndex + 1, totalPhotos: photos.length })}
+            cloudinaryPreset="galleryLarge"
             className="photo-gallery-simple-image-nightlife"
+            objectFit="contain"
+            showLoadingSpinner={true}
           />
         </div>
 
@@ -77,14 +83,14 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
             <button
               onClick={goToPrevious}
               className="photo-gallery-simple-arrow-nightlife photo-gallery-simple-arrow-left-nightlife"
-              aria-label="Previous"
+              aria-label={t('photoGalleryModal.ariaPrevious')}
             >
               ‹
             </button>
             <button
               onClick={goToNext}
               className="photo-gallery-simple-arrow-nightlife photo-gallery-simple-arrow-right-nightlife"
-              aria-label="Next"
+              aria-label={t('photoGalleryModal.ariaNext')}
             >
               ›
             </button>

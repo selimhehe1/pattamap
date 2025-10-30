@@ -54,16 +54,16 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
       {/* Header */}
       <div className="profile-header-bar" style={{
         padding: '20px 25px',
-        borderBottom: '1px solid rgba(255,27,141,0.3)',
-        background: 'linear-gradient(135deg, rgba(255,27,141,0.2), rgba(0,0,0,0.4))',
+        borderBottom: '1px solid rgba(193, 154, 107,0.3)',
+        background: 'linear-gradient(135deg, rgba(193, 154, 107,0.2), rgba(0,0,0,0.4))',
         borderRadius: '15px 15px 0 0'
       }}>
         <h2 style={{
-          color: '#FF1B8D',
+          color: '#C19A6B',
           fontSize: '24px',
           fontWeight: 'bold',
           margin: '0',
-          textShadow: '0 0 10px rgba(255,27,141,0.5)',
+          textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
           textAlign: 'center'
         }}>
           💬 All Reviews for {employeeName}
@@ -75,7 +75,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
         flex: 1,
         overflow: 'auto',
         padding: '25px',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(255,27,141,0.05))',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(193, 154, 107,0.05))',
         borderRadius: '0 0 15px 15px'
       }}>
         {reviews.length === 0 ? (
@@ -91,7 +91,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
               💬
             </div>
             <h3 style={{
-              color: '#FF1B8D',
+              color: '#C19A6B',
               fontSize: '20px',
               marginBottom: '10px'
             }}>
@@ -106,12 +106,12 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
               marginBottom: '30px',
               textAlign: 'center',
               padding: '15px',
-              background: 'rgba(255,27,141,0.1)',
+              background: 'rgba(193, 154, 107,0.1)',
               borderRadius: '10px',
-              border: '1px solid rgba(255,27,141,0.3)'
+              border: '1px solid rgba(193, 154, 107,0.3)'
             }}>
               <span style={{
-                color: '#00FFFF',
+                color: '#00E5FF',
                 fontSize: '18px',
                 fontWeight: 'bold'
               }}>
@@ -136,7 +136,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
       <div style={{
         padding: '15px 25px',
         textAlign: 'center',
-        borderTop: '1px solid rgba(255,27,141,0.3)',
+        borderTop: '1px solid rgba(193, 154, 107,0.3)',
         background: 'rgba(0,0,0,0.3)',
         borderRadius: '0 0 15px 15px'
       }}>

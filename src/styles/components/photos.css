@@ -1,0 +1,519 @@
+/**
+ * ============================================
+ * PHOTOS - Photo Management & Logo System
+ * ============================================
+ *
+ * Styles pour la gestion des photos et logos dans les formulaires.
+ * Inclut upload, preview, grid, actions (remove/restore), et système de logos.
+ *
+ * USAGE:
+ * - Upload de photos employées (EmployeeForm)
+ * - Upload de photos établissements (EstablishmentForm)
+ * - Galerie photos profil (GirlProfile)
+ * - Logos établissements (header, sidebar, map)
+ *
+ * COMPOSANTS UTILISANT:
+ * - EmployeeForm.tsx
+ * - EstablishmentForm.tsx
+ * - GirlProfile.tsx
+ * - BarDetailPage.tsx
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-01-09
+ * @migrated Phase 3B - Extraction depuis nightlife-theme.css (lignes 2129-2570)
+ */
+
+/* ============================================
+   PHOTO MANAGEMENT CONTAINER
+   ============================================ */
+
+.photo-management-container {
+  margin-bottom: var(--spacing-8);
+}
+
+.photo-management-header {
+  color: var(--color-secondary);
+  margin: 0 0 var(--spacing-5) 0;
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.photo-counter-badge {
+  font-size: var(--font-sm);
+  color: var(--color-accent);
+  background: rgba(255, 215, 0, 0.1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--border-radius-full);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+/* ============================================
+   PHOTO SECTIONS
+   ============================================ */
+
+.photo-section {
+  margin-bottom: var(--spacing-7);
+}
+
+.photo-section-title {
+  color: var(--color-accent);
+  font-size: var(--font-base);
+  margin: 0 0 var(--spacing-4) 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.photo-section-subtitle {
+  color: var(--color-secondary);
+  font-size: var(--font-sm);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+/* ============================================
+   PHOTO GRID
+   ============================================ */
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-4);
+}
+
+/* ============================================
+   PHOTO ITEMS
+   ============================================ */
+
+.photo-item {
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.photo-item.existing {
+  border: 2px solid var(--border-primary);
+}
+
+.photo-item.existing.marked-for-removal {
+  opacity: 0.5;
+  border: 2px solid var(--color-error);
+}
+
+.photo-item.new-photo {
+  border: 2px solid var(--border-secondary);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 7.5rem; /* 120px */
+  object-fit: cover;
+}
+
+/* ============================================
+   PHOTO ACTION BUTTONS
+   ============================================ */
+
+/**
+ * Bouton de suppression de photo
+ * Position statique par défaut, absolute dans contextes spécifiques
+ * WCAG: Tap target minimum 44px (via padding parent)
+ */
+.photo-remove-btn {
+  position: static;
+  background: rgba(255, 71, 87, 0.9);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-full);
+  width: 1.5625rem; /* 25px */
+  height: 1.5625rem;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+/* Position absolue seulement dans contextes photos */
+.photo-preview .photo-remove-btn,
+.image-preview .photo-remove-btn,
+.photo-container .photo-remove-btn {
+  position: absolute;
+  top: var(--spacing-1);
+  right: var(--spacing-1);
+}
+
+.photo-remove-btn.large {
+  width: 1.875rem; /* 30px */
+  height: 1.875rem;
+  font-size: var(--font-base);
+}
+
+.photo-remove-btn:hover {
+  background: rgb(255, 71, 87);
+  transform: scale(1.1);
+}
+
+.photo-remove-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/**
+ * Bouton de restauration de photo
+ */
+.photo-restore-btn {
+  position: absolute;
+  top: var(--spacing-1);
+  right: var(--spacing-1);
+  background: rgba(0, 255, 127, 0.9);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-full);
+  width: 1.875rem;
+  height: 1.875rem;
+  cursor: pointer;
+  font-size: var(--font-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.photo-restore-btn:hover {
+  background: rgb(0, 255, 127);
+  transform: scale(1.1);
+}
+
+.photo-restore-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============================================
+   PHOTO STATUS LABELS
+   ============================================ */
+
+.photo-status-label {
+  position: absolute;
+  color: var(--text-inverse);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.photo-status-label.removal-warning {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 71, 87, 0.9);
+}
+
+.photo-status-label.new-badge {
+  bottom: var(--spacing-1);
+  left: var(--spacing-1);
+  background: rgba(0, 255, 255, 0.9);
+  color: var(--text-inverse);
+  font-size: 0.625rem; /* 10px */
+  padding: 0.125rem var(--spacing-2);
+}
+
+/* ============================================
+   PHOTO UPLOAD ZONE
+   ============================================ */
+
+.photo-upload-zone {
+  border: 2px dashed var(--border-primary);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-10) var(--spacing-5);
+  text-align: center;
+  position: relative;
+  background: rgba(193, 154, 107, 0.05);
+  margin-bottom: var(--spacing-5);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  cursor: pointer;
+}
+
+.photo-upload-zone:hover {
+  border-color: rgba(193, 154, 107, 0.5);
+  background: rgba(193, 154, 107, 0.1);
+}
+
+.photo-upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.photo-upload-text {
+  color: var(--color-secondary);
+  font-size: var(--font-lg);
+  margin-bottom: var(--spacing-3);
+}
+
+.photo-upload-subtext {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+}
+
+/* ============================================
+   LOGO SYSTEM
+   ============================================ */
+
+/**
+ * Logo Upload Form
+ */
+.logo-upload-section-nightlife {
+  margin-bottom: var(--spacing-3);
+}
+
+.logo-preview-container-nightlife {
+  margin-bottom: var(--spacing-2);
+  padding: var(--spacing-3);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.logo-preview-layout-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.logo-preview-image-nightlife {
+  width: 3.75rem; /* 60px */
+  height: 3.75rem;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-secondary);
+}
+
+.logo-preview-info-nightlife {
+  flex: 1;
+}
+
+.logo-preview-filename-nightlife {
+  color: var(--color-secondary);
+  font-size: var(--font-sm);
+  margin-bottom: var(--spacing-1);
+}
+
+.logo-preview-size-nightlife {
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+}
+
+.logo-remove-btn-nightlife {
+  padding: var(--spacing-1) var(--spacing-2);
+  background: rgba(255, 71, 87, 0.2);
+  border: 1px solid var(--color-error);
+  border-radius: var(--border-radius-md);
+  color: var(--color-error);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  min-height: var(--tap-target-min); /* WCAG AAA */
+}
+
+.logo-remove-btn-nightlife:hover {
+  background: rgba(255, 71, 87, 0.3);
+  transform: scale(1.05);
+}
+
+.logo-remove-btn-nightlife:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.logo-upload-status-nightlife {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-3);
+  transform: translateY(-50%);
+  color: var(--color-secondary);
+  font-size: var(--font-xs);
+}
+
+.logo-upload-help-nightlife {
+  font-size: var(--font-xs);
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: var(--spacing-1);
+}
+
+/**
+ * Logo Display - Header (large)
+ */
+.establishment-logo-header-nightlife {
+  width: 7.5rem; /* 120px */
+  height: 7.5rem;
+  border-radius: var(--border-radius-xl);
+  background: radial-gradient(circle, white 45%, transparent 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-secondary);
+  flex-shrink: 0;
+}
+
+.establishment-logo-header-image-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-xl);
+}
+
+/**
+ * Logo Display - Sidebar (medium)
+ */
+.sidebar-logo-nightlife {
+  width: 3.75rem; /* 60px */
+  height: 3.75rem;
+  border-radius: var(--border-radius-lg);
+  background: radial-gradient(circle, white 45%, transparent 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-secondary);
+  flex-shrink: 0;
+  margin-bottom: var(--spacing-3);
+}
+
+.sidebar-logo-image-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+}
+
+/**
+ * Logo Display - Map marker (circular) with 3D sphere effect
+ * Logo "enroulé" sur la sphère comme une texture
+ */
+.map-logo-container-nightlife {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius-full);
+  /* Fond blanc pour contraste */
+  background: radial-gradient(circle, #ffffff 45%, #f5f5f5 70%, #e8e8e8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.map-logo-image-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-full);
+  position: relative;
+  z-index: 1;
+  /* Masquer le fond blanc du logo */
+  mix-blend-mode: darken;
+  /* Masque radial pour effet de courbure 3D */
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 50%,
+    rgba(0, 0, 0, 0.8) 70%,
+    rgba(0, 0, 0, 0.4) 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 50%,
+    rgba(0, 0, 0, 0.8) 70%,
+    rgba(0, 0, 0, 0.4) 90%,
+    transparent 100%
+  );
+}
+
+/* Overlay de courbure sphérique - assombrit les bords pour effet 3D */
+.map-logo-container-nightlife::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.1) 60%,
+    rgba(0, 0, 0, 0.3) 85%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  border-radius: var(--border-radius-full);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Mobile */
+@media (max-width: 48rem) {
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr));
+    gap: var(--spacing-3);
+  }
+
+  .photo-item img {
+    height: 6.25rem; /* 100px */
+  }
+
+  .photo-management-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+  }
+
+  .photo-upload-zone {
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .photo-remove-btn,
+  .photo-restore-btn,
+  .photo-upload-zone,
+  .logo-remove-btn-nightlife {
+    transition: none;
+  }
+
+  .photo-remove-btn:hover,
+  .photo-restore-btn:hover {
+    transform: none;
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: high) {
+  .photo-item.existing,
+  .photo-item.new-photo {
+    border-width: 3px;
+  }
+
+  .photo-upload-zone {
+    border-width: 3px;
+  }
+}

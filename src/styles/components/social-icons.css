@@ -1,0 +1,196 @@
+/**
+ * 📱 SOCIAL MEDIA ICONS
+ *
+ * Icônes et liens réseaux sociaux avec couleurs de marque:
+ * - Instagram, LINE, Telegram, WhatsApp, Facebook
+ * - Containers et layouts pour social media
+ * - Hover effects avec gradients de marque
+ *
+ * @uses design-system.css - Variables centralisées
+ * @wcag WCAG 2.1 Level AA/AAA - Tap targets 44px minimum
+ * @responsive Mobile-first design
+ * @migration Extrait de nightlife-theme.css Phase 3D (2025-01-09)
+ */
+
+/* ================================================================
+ * SOCIAL MEDIA CONTAINER
+ * ================================================================
+ * Container pour groupe d'icônes de réseaux sociaux
+ * Utilisé par: EmployeesAdmin.tsx, UserDashboard.tsx, GirlProfile.tsx
+ */
+
+.social-media-container-nightlife {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3-5);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ================================================================
+ * SOCIAL ICON BASE
+ * ================================================================
+ * Style de base pour toutes les icônes sociales
+ */
+
+.social-icon-nightlife {
+  font-size: var(--font-base);
+  padding: var(--spacing-2);
+  background: var(--color-surface-dark);
+  border-radius: var(--border-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  border: var(--border-width-thin) solid var(--color-border-subtle);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  /* WCAG tap target minimum */
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+}
+
+.social-icon-nightlife:hover {
+  transform: scale(1.1);
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.social-icon-nightlife:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus);
+  outline-offset: var(--spacing-1);
+}
+
+.social-icon-nightlife:active {
+  transform: scale(1.05);
+}
+
+/* ================================================================
+ * PLATFORM-SPECIFIC HOVER COLORS
+ * ================================================================
+ * Chaque plateforme a ses couleurs de marque officielles
+ */
+
+/* Instagram - Pink to Purple Gradient */
+.social-instagram-nightlife:hover {
+  background: linear-gradient(45deg, #E4405F, #C13584);
+  border-color: #E4405F;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3-5) rgba(228, 64, 95, 0.4);
+  color: var(--color-text-inverse);
+}
+
+/* LINE - Green Gradient */
+.social-line-nightlife:hover {
+  background: linear-gradient(45deg, #00B900, #00C300);
+  border-color: #00B900;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3-5) rgba(0, 185, 0, 0.4);
+  color: var(--color-text-inverse);
+}
+
+/* Telegram - Blue Gradient */
+.social-telegram-nightlife:hover {
+  background: linear-gradient(45deg, #0088CC, #229ED9);
+  border-color: #0088CC;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3-5) rgba(0, 136, 204, 0.4);
+  color: var(--color-text-inverse);
+}
+
+/* WhatsApp - Green Gradient */
+.social-whatsapp-nightlife:hover {
+  background: linear-gradient(45deg, #25D366, #128C7E);
+  border-color: #25D366;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3-5) rgba(37, 211, 102, 0.4);
+  color: var(--color-text-inverse);
+}
+
+/* Facebook - Blue Gradient */
+.social-facebook-nightlife:hover {
+  background: linear-gradient(45deg, #1877F2, #4267B2);
+  border-color: #1877F2;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3-5) rgba(24, 119, 242, 0.4);
+  color: var(--color-text-inverse);
+}
+
+/* ================================================================
+ * RESPONSIVE DESIGN
+ * ================================================================ */
+
+/* Mobile: max-width: 48rem (768px) */
+@media (max-width: 48rem) {
+  .social-media-container-nightlife {
+    gap: var(--spacing-1-5);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .social-icon-nightlife {
+    /* Tap targets optimisés mobile */
+    min-width: var(--tap-target-min);
+    min-height: var(--tap-target-min);
+    padding: var(--spacing-2-5);
+    font-size: var(--font-lg);
+  }
+}
+
+/* Small Mobile: max-width: 30rem (480px) */
+@media (max-width: 30rem) {
+  .social-media-container-nightlife {
+    justify-content: center;
+    gap: var(--spacing-1);
+  }
+
+  .social-icon-nightlife {
+    padding: var(--spacing-2);
+    font-size: var(--font-base);
+  }
+}
+
+/* ================================================================
+ * ACCESSIBILITY
+ * ================================================================ */
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .social-icon-nightlife {
+    transition: none;
+  }
+
+  .social-icon-nightlife:hover,
+  .social-icon-nightlife:active {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .social-icon-nightlife {
+    border-width: var(--border-width-normal);
+  }
+
+  .social-icon-nightlife:hover {
+    /* Force couleurs plus contrastées */
+    border-width: var(--border-width-thick);
+  }
+}
+
+/* Focus visible pour navigation clavier */
+.social-icon-nightlife:focus {
+  /* Remove default focus */
+  outline: none;
+}
+
+/* Screen Reader Text */
+.social-icon-nightlife .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

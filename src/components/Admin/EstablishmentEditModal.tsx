@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Establishment, EstablishmentCategory } from '../../types';
 import { logger } from '../../utils/logger';
+import LazyImage from '../Common/LazyImage';
 
 interface EstablishmentEditModalProps {
   establishment: Establishment;
@@ -15,6 +17,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   onClose,
   onUpdate
 }) => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const { secureFetch } = useSecureFetch();
   const [isLoading, setIsLoading] = useState(false);
@@ -128,7 +131,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload logo');
+        throw new Error(t('establishmentEditModal.errorUploadFailed'));
       }
 
       const uploadResult = await uploadResponse.json();
@@ -144,7 +147,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
 
     } catch (error) {
       logger.error('Logo upload error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload logo');
+      setError(error instanceof Error ? error.message : t('establishmentEditModal.errorUploadFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -157,13 +160,13 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
     // Validate file type
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      setError('Please select a PNG, JPG, or GIF image');
+      setError(t('establishmentEditModal.errorInvalidFileType'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be smaller than 5MB');
+      setError(t('establishmentEditModal.errorFileTooLarge'));
       return;
     }
 
@@ -183,7 +186,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update establishment');
+        throw new Error(t('establishmentEditModal.errorUpdateFailed'));
       }
 
       const result = await response.json();
@@ -201,7 +204,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
 
     } catch (error) {
       logger.error('Save error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save establishment');
+      setError(error instanceof Error ? error.message : t('establishmentEditModal.errorUpdateFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +225,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       justifyContent: 'center',
       zIndex: 1000,
       padding: '20px'
-    }}>
+    }} role="dialog" aria-modal="true">
       <div style={{
         background: 'linear-gradient(135deg, rgba(15,15,15,0.95), rgba(30,30,30,0.95))',
         borderRadius: '20px',
@@ -231,7 +234,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
         maxWidth: '800px',
         maxHeight: '90vh',
         overflow: 'auto',
-        border: '2px solid rgba(255,27,141,0.3)',
+        border: '2px solid rgba(193, 154, 107,0.3)',
         boxShadow: '0 20px 40px rgba(0,0,0,0.8)'
       }}>
         {/* Header */}
@@ -242,13 +245,13 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
           marginBottom: '25px'
         }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: 0,
-            textShadow: '0 0 10px rgba(255,27,141,0.5)'
+            textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
           }}>
-            ✏️ Edit {establishment.name}
+            ✏️ {t('establishmentEditModal.title', { name: establishment.name })}
           </h2>
 
           <button
@@ -267,7 +270,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               alignItems: 'center',
               justifyContent: 'center'
             }}
-          >
+           aria-label="Close">
             ✖️
           </button>
         </div>
@@ -304,7 +307,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🏷️ Logo
+                🏷️ {t('establishmentEditModal.logoLabel')}
               </label>
 
               <div style={{
@@ -322,15 +325,15 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    <img
+                    <LazyImage
                       src={currentLogoUrl}
                       alt="Logo preview"
                       style={{
                         width: '70%',
                         height: '70%',
-                        objectFit: 'contain',
                         borderRadius: '50%'
                       }}
+                      objectFit="contain"
                     />
                   </div>
                 )}
@@ -340,7 +343,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   disabled={isLoading}
                   style={{
                     padding: '8px 15px',
-                    background: isLoading ? '#666' : 'linear-gradient(45deg, #FF1B8D, #00FFFF)',
+                    background: isLoading ? '#666' : 'linear-gradient(45deg, #C19A6B, #00E5FF)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '6px',
@@ -349,7 +352,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                     fontWeight: 'bold'
                   }}
                 >
-                  {isLoading ? '⏳ Uploading...' : currentLogoUrl ? '🔄 Change' : '📷 Add Logo'}
+                  {isLoading ? `⏳ ${t('establishmentEditModal.buttonUploading')}` : currentLogoUrl ? `🔄 ${t('establishmentEditModal.buttonChange')}` : `📷 ${t('establishmentEditModal.buttonAddLogo')}`}
                 </button>
               </div>
 
@@ -371,7 +374,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                📝 Name
+                📝 {t('establishmentEditModal.nameLabel')}
               </label>
               <input
                 type="text"
@@ -381,7 +384,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px'
@@ -397,7 +400,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                📍 Address
+                📍 {t('establishmentEditModal.addressLabel')}
               </label>
               <input
                 type="text"
@@ -407,7 +410,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px'
@@ -423,7 +426,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                📞 Phone
+                📞 {t('establishmentEditModal.phoneLabel')}
               </label>
               <input
                 type="text"
@@ -433,7 +436,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px'
@@ -449,7 +452,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🌐 Website
+                🌐 {t('establishmentEditModal.websiteLabel')}
               </label>
               <input
                 type="text"
@@ -459,7 +462,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px'
@@ -475,7 +478,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🏷️ Category
+                🏷️ {t('establishmentEditModal.categoryLabel')}
               </label>
               <select
                 value={formData.category_id}
@@ -484,13 +487,13 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px'
                 }}
               >
-                <option value="">Select Category</option>
+                <option value="">{t('establishmentEditModal.selectCategory')}</option>
                 {categories.map(category => (
                   <option key={category.id} value={category.id} style={{ background: '#333' }}>
                     {category.icon} {category.name}
@@ -511,7 +514,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                📝 Description
+                📝 {t('establishmentEditModal.descriptionLabel')}
               </label>
               <textarea
                 value={formData.description}
@@ -521,7 +524,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   width: '100%',
                   padding: '10px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(255,27,141,0.3)',
+                  border: '1px solid rgba(193, 154, 107,0.3)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '14px',
@@ -539,24 +542,24 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                💰 Pricing
+                💰 {t('establishmentEditModal.pricingLabel')}
               </label>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ color: '#ccc', fontSize: '12px', display: 'block', marginBottom: '4px' }}>
-                    Lady Drink
+                    {t('establishmentEditModal.ladyDrink')}
                   </label>
                   <input
                     type="text"
                     value={formData.pricing.ladydrink}
                     onChange={(e) => handlePricingChange('ladydrink', e.target.value)}
-                    placeholder="e.g., 150 THB"
+                    placeholder={t('establishmentEditModal.ladyDrinkPlaceholder')}
                     style={{
                       width: '100%',
                       padding: '8px',
                       borderRadius: '6px',
-                      border: '1px solid rgba(255,27,141,0.3)',
+                      border: '1px solid rgba(193, 154, 107,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: '#fff',
                       fontSize: '12px'
@@ -566,18 +569,18 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
 
                 <div>
                   <label style={{ color: '#ccc', fontSize: '12px', display: 'block', marginBottom: '4px' }}>
-                    Barfine
+                    {t('establishmentEditModal.barfine')}
                   </label>
                   <input
                     type="text"
                     value={formData.pricing.barfine}
                     onChange={(e) => handlePricingChange('barfine', e.target.value)}
-                    placeholder="e.g., 500 THB"
+                    placeholder={t('establishmentEditModal.barfinePlaceholder')}
                     style={{
                       width: '100%',
                       padding: '8px',
                       borderRadius: '6px',
-                      border: '1px solid rgba(255,27,141,0.3)',
+                      border: '1px solid rgba(193, 154, 107,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: '#fff',
                       fontSize: '12px'
@@ -587,18 +590,18 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ color: '#ccc', fontSize: '12px', display: 'block', marginBottom: '4px' }}>
-                    Rooms
+                    {t('establishmentEditModal.rooms')}
                   </label>
                   <input
                     type="text"
                     value={formData.pricing.rooms}
                     onChange={(e) => handlePricingChange('rooms', e.target.value)}
-                    placeholder="e.g., 1000-1500 THB"
+                    placeholder={t('establishmentEditModal.roomsPlaceholder')}
                     style={{
                       width: '100%',
                       padding: '8px',
                       borderRadius: '6px',
-                      border: '1px solid rgba(255,27,141,0.3)',
+                      border: '1px solid rgba(193, 154, 107,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: '#fff',
                       fontSize: '12px'
@@ -617,7 +620,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🛠️ Services
+                🛠️ {t('establishmentEditModal.servicesLabel')}
               </label>
 
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
@@ -625,12 +628,12 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   type="text"
                   value={newService}
                   onChange={(e) => setNewService(e.target.value)}
-                  placeholder="Add service..."
+                  placeholder={t('establishmentEditModal.addServicePlaceholder')}
                   style={{
                     flex: 1,
                     padding: '8px',
                     borderRadius: '6px',
-                    border: '1px solid rgba(255,27,141,0.3)',
+                    border: '1px solid rgba(193, 154, 107,0.3)',
                     background: 'rgba(255,255,255,0.1)',
                     color: '#fff',
                     fontSize: '12px'
@@ -646,14 +649,14 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   onClick={handleAddService}
                   style={{
                     padding: '8px 12px',
-                    background: 'linear-gradient(45deg, #FF1B8D, #00FFFF)',
+                    background: 'linear-gradient(45deg, #C19A6B, #00E5FF)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '12px'
                   }}
-                >
+                 aria-label="Add">
                   ➕
                 </button>
               </div>
@@ -663,8 +666,8 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   <span
                     key={index}
                     style={{
-                      background: 'rgba(255,27,141,0.2)',
-                      color: '#FF1B8D',
+                      background: 'rgba(193, 154, 107,0.2)',
+                      color: '#C19A6B',
                       padding: '4px 8px',
                       borderRadius: '15px',
                       fontSize: '12px',
@@ -679,7 +682,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: '#FF1B8D',
+                        color: '#C19A6B',
                         cursor: 'pointer',
                         fontSize: '10px',
                         padding: 0
@@ -703,7 +706,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
             marginBottom: '12px',
             display: 'block'
           }}>
-            ⏰ Opening Hours
+            ⏰ {t('establishmentEditModal.openingHoursLabel')}
           </label>
 
           <div style={{
@@ -720,18 +723,18 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   marginBottom: '4px',
                   textTransform: 'capitalize'
                 }}>
-                  {day}
+                  {t(`establishmentEditModal.${day}`)}
                 </label>
                 <input
                   type="text"
                   value={formData.opening_hours[day] || ''}
                   onChange={(e) => handleOpeningHoursChange(day, e.target.value)}
-                  placeholder="e.g., 18:00-02:00"
+                  placeholder={t('establishmentEditModal.hoursPlaceholder')}
                   style={{
                     width: '100%',
                     padding: '8px',
                     borderRadius: '6px',
-                    border: '1px solid rgba(255,27,141,0.3)',
+                    border: '1px solid rgba(193, 154, 107,0.3)',
                     background: 'rgba(255,255,255,0.1)',
                     color: '#fff',
                     fontSize: '12px'
@@ -761,7 +764,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               fontWeight: 'bold'
             }}
           >
-            ❌ Cancel
+            ❌ {t('establishmentEditModal.buttonCancel')}
           </button>
 
           <button
@@ -769,17 +772,17 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
             disabled={isLoading}
             style={{
               padding: '12px 25px',
-              background: isLoading ? '#666' : 'linear-gradient(45deg, #FF1B8D, #00FFFF)',
+              background: isLoading ? '#666' : 'linear-gradient(45deg, #C19A6B, #00E5FF)',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               fontSize: '14px',
               fontWeight: 'bold',
-              boxShadow: '0 4px 12px rgba(255,27,141,0.3)'
+              boxShadow: '0 4px 12px rgba(193, 154, 107,0.3)'
             }}
           >
-            {isLoading ? '⏳ Saving...' : '💾 Save Changes'}
+            {isLoading ? `⏳ ${t('establishmentEditModal.buttonSaving')}` : `💾 ${t('establishmentEditModal.buttonSaveChanges')}`}
           </button>
         </div>
       </div>

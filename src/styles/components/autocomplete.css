@@ -1,0 +1,172 @@
+/**
+ * ============================================
+ * AUTOCOMPLETE - Dropdown Autocomplete Component
+ * ============================================
+ *
+ * Composant d'autocomplétion ultra-rapide pour les champs de recherche.
+ * Utilisé dans les formulaires pour les suggestions en temps réel.
+ *
+ * USAGE:
+ * <div class="autocomplete-container">
+ *   <input class="autocomplete-input" />
+ *   <div class="autocomplete-dropdown-nightlife">
+ *     <div class="autocomplete-item-nightlife">Suggestion</div>
+ *   </div>
+ * </div>
+ *
+ * COMPOSANTS UTILISANT:
+ * - EstablishmentForm (recherche établissements)
+ * - EmployeeForm (recherche employées)
+ * - Autres formulaires avec autocomplétion
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-01-09
+ * @migrated Phase 3A - Extraction depuis nightlife-theme.css (lignes 2611-2676)
+ */
+
+/* ============================================
+   AUTOCOMPLETE DROPDOWN
+   ============================================ */
+
+/**
+ * Container dropdown pour les suggestions
+ */
+.autocomplete-dropdown-nightlife {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  margin-top: var(--spacing-1);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown); /* 10 */
+  max-height: 12.5rem; /* 200px */
+  overflow-y: auto;
+  backdrop-filter: var(--backdrop-blur-md);
+}
+
+/* ============================================
+   AUTOCOMPLETE ITEMS
+   ============================================ */
+
+/**
+ * Item de suggestion individuel
+ * WCAG 2.1: Tap target minimum 44px (avec padding)
+ */
+.autocomplete-item-nightlife {
+  padding: var(--spacing-3) var(--spacing-4);
+  min-height: var(--tap-target-min); /* 44px - WCAG AAA */
+  cursor: pointer;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(193, 154, 107, 0.1);
+  transition: background-color var(--duration-fast) var(--ease-in-out);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.autocomplete-item-nightlife:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item-nightlife:hover {
+  background-color: var(--bg-hover);
+  color: var(--color-primary);
+}
+
+/* Focus visible pour accessibilité clavier */
+.autocomplete-item-nightlife:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+  box-shadow: var(--focus-ring);
+  background-color: var(--bg-hover);
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+/**
+ * Indicateur de chargement dans le dropdown
+ */
+.autocomplete-loading-nightlife {
+  position: absolute;
+  right: var(--spacing-3);
+  top: 2.1875rem;
+  color: var(--color-primary);
+  font-size: var(--font-xs);
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+/**
+ * Spinner de chargement
+ */
+.loading-spinner {
+  display: inline-block;
+  animation: spin 2s linear infinite;
+}
+
+/* ============================================
+   SUGGESTION TEXT
+   ============================================ */
+
+.suggestion-text {
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-base);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .autocomplete-item-nightlife {
+    transition: none;
+  }
+
+  .loading-spinner {
+    animation: spin 4s linear infinite; /* Slower for reduced motion */
+  }
+
+  .autocomplete-loading-nightlife {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .autocomplete-dropdown-nightlife {
+    border-width: 2px;
+  }
+
+  .autocomplete-item-nightlife {
+    border-bottom-width: 2px;
+  }
+}

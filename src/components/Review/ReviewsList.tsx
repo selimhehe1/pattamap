@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 // Note: StarRating retiré - commentaires sans étoiles
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
+import '../../styles/components/reviews.css';
 
 interface Review {
   id: string;
@@ -52,6 +54,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
   onOpenModal,
   maxReviews
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set());
 
@@ -74,17 +77,17 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
     if (diffInDays === 0) {
-      return 'Today';
+      return t('reviewsList.dateToday');
     } else if (diffInDays === 1) {
-      return 'Yesterday';
+      return t('reviewsList.dateYesterday');
     } else if (diffInDays < 7) {
-      return `${diffInDays} days ago`;
+      return t('reviewsList.dateDaysAgo', { count: diffInDays });
     } else if (diffInDays < 30) {
       const weeks = Math.floor(diffInDays / 7);
-      return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+      return t(weeks === 1 ? 'reviewsList.dateWeekAgo' : 'reviewsList.dateWeeksAgo', { count: weeks });
     } else if (diffInDays < 365) {
       const months = Math.floor(diffInDays / 30);
-      return `${months} month${months > 1 ? 's' : ''} ago`;
+      return t(months === 1 ? 'reviewsList.dateMonthAgo' : 'reviewsList.dateMonthsAgo', { count: months });
     } else {
       return date.toLocaleDateString();
     }
@@ -129,7 +132,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
       <div className="reviews-loading-nightlife">
         <div className="loading-spinner" />
         <p className="loading-text">
-          Loading reviews...
+          {t('reviewsList.loadingText')}
         </p>
       </div>
     );
@@ -139,10 +142,10 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
     return (
       <div className="reviews-empty-state-nightlife">
         <h3 className="empty-state-title">
-          💬 No Reviews Yet
+          💬 {t('reviewsList.emptyStateTitle')}
         </h3>
         <p className="empty-state-text">
-          Be the first to share your experience!
+          {t('reviewsList.emptyStateText')}
         </p>
       </div>
     );
@@ -158,9 +161,9 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
         <h3
           className={`reviews-title-nightlife ${onOpenModal ? 'reviews-title-clickable' : ''}`}
           onClick={onOpenModal}
-          title={onOpenModal ? 'Click to view all reviews in modal' : undefined}
+          title={onOpenModal ? t('reviewsList.titleViewAllModal') : undefined}
         >
-          💬 Reviews ({reviews.length})
+          💬 {t('reviewsList.titleReviews', { count: reviews.length })}
         </h3>
       )}
 
@@ -178,7 +181,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                 </div>
                 <div className="review-author-info">
                   <div className="review-author-name">
-                    {review.user?.pseudonym || 'Anonymous'}
+                    {review.user?.pseudonym || t('reviewsList.anonymous')}
                   </div>
                   <div className="review-date">
                     {formatDate(review.created_at)}
@@ -193,7 +196,8 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                   <button
                     onClick={() => setReportingReview(reportingReview === review.id ? null : review.id)}
                     className="review-report-btn-nightlife"
-                    title="Report this review"
+                    aria-label={t('reviewsList.ariaReportReview', { author: review.user?.pseudonym || t('reviewsList.anonymous') })}
+                    title={t('reviewsList.titleReportReview')}
                   >
                     ⚠️
                   </button>
@@ -212,8 +216,9 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                 <button
                   onClick={() => setReplyingTo(replyingTo === review.id ? null : review.id)}
                   className="review-reply-btn-nightlife"
+                  aria-label={t('reviewsList.ariaReplyToReview', { author: review.user?.pseudonym || t('reviewsList.anonymous') })}
                 >
-                  💬 Reply
+                  💬 {t('reviewsList.buttonReply')}
                 </button>
               )}
 
@@ -221,14 +226,19 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                 <button
                   onClick={() => toggleExpanded(review.id)}
                   className="review-expand-btn-nightlife"
+                  aria-label={t('reviewsList.ariaExpandReplies', {
+                    action: expandedReviews.has(review.id) ? t('reviewsList.collapseAction') : t('reviewsList.expandAction'),
+                    count: review.replies.length
+                  })}
+                  aria-expanded={expandedReviews.has(review.id)}
                 >
-                  {expandedReviews.has(review.id) ? '▼' : '▶'} {review.replies.length} replies
+                  {expandedReviews.has(review.id) ? '▼' : '▶'} {t(review.replies.length === 1 ? 'reviewsList.repliesCountSingular' : 'reviewsList.repliesCountPlural', { count: review.replies.length })}
                 </button>
               )}
 
               {review.replies && review.replies.length > 0 && autoExpandReplies && (
                 <span className="review-replies-counter">
-                  💬 {review.replies.length} replies
+                  💬 {t('reviewsList.repliesCounter', { count: review.replies.length })}
                 </span>
               )}
             </div>
@@ -239,22 +249,24 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Write your reply..."
+                  placeholder={t('reviewsList.placeholderReply')}
                   className="reply-textarea-nightlife"
                 />
                 <div className="reply-form-actions">
                   <button
                     onClick={() => setReplyingTo(null)}
                     className="reply-cancel-btn"
+                    aria-label={t('reviewsList.ariaCancelReply')}
                   >
-                    Cancel
+                    {t('reviewsList.buttonCancel')}
                   </button>
                   <button
                     onClick={() => handleReplySubmit(review.id)}
                     disabled={!replyContent.trim()}
                     className={`reply-submit-btn ${!replyContent.trim() ? 'disabled' : ''}`}
+                    aria-label={t('reviewsList.ariaSubmitReply')}
                   >
-                    Submit Reply
+                    {t('reviewsList.buttonSubmitReply')}
                   </button>
                 </div>
               </div>
@@ -264,27 +276,29 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
             {reportingReview === review.id && (
               <div className="report-form-container-nightlife">
                 <h4 className="report-form-title">
-                  Report this review
+                  {t('reviewsList.reportFormTitle')}
                 </h4>
                 <textarea
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  placeholder="Please describe why you're reporting this review..."
+                  placeholder={t('reviewsList.placeholderReportReason')}
                   className="report-textarea-nightlife"
                 />
                 <div className="report-form-actions">
                   <button
                     onClick={() => setReportingReview(null)}
                     className="report-cancel-btn"
+                    aria-label={t('reviewsList.ariaCancelReport')}
                   >
-                    Cancel
+                    {t('reviewsList.buttonCancel')}
                   </button>
                   <button
                     onClick={() => handleReportSubmit(review.id)}
                     disabled={!reportReason.trim()}
                     className={`report-submit-btn ${!reportReason.trim() ? 'disabled' : ''}`}
+                    aria-label={t('reviewsList.ariaSubmitReport')}
                   >
-                    Submit Report
+                    {t('reviewsList.buttonSubmitReport')}
                   </button>
                 </div>
               </div>
@@ -305,7 +319,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                       <div className="reply-author-info">
                         <div className="reply-author-name">
                           <span className="reply-indicator">↳</span>
-                          {reply.user?.pseudonym || 'Anonymous'}
+                          {reply.user?.pseudonym || t('reviewsList.anonymous')}
                         </div>
                         <div className="reply-date">
                           {formatDate(reply.created_at)}
@@ -329,8 +343,9 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
           <button
             onClick={onOpenModal}
             className="reviews-see-more-btn-nightlife"
+            aria-label={t('reviewsList.ariaViewAllReviews', { count: reviews.length })}
           >
-            📖 Voir tous les reviews ({reviews.length})
+            📖 {t('reviewsList.buttonViewAllReviews', { count: reviews.length })}
           </button>
         </div>
       )}

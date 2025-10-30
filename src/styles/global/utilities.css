@@ -1,0 +1,641 @@
+/**
+ * GLOBAL UTILITIES - CLASSES RÉUTILISABLES
+ * Version: 1.0.0
+ * Migration: Phase 2C - Extraction depuis nightlife-theme.css
+ *
+ * DESCRIPTION:
+ * Classes CSS globales et utilitaires utilisées dans toute l'application.
+ * Comprend les boutons, formulaires, modals, animations, typography, tabs et utilities.
+ *
+ * CONTENU:
+ * - Boutons globaux (primary, secondary, success, danger, pill)
+ * - Inputs & Forms (input, select, textarea, label, error messages)
+ * - WCAG Tap Targets (accessibilité mobile 44x44px)
+ * - Modals globaux (overlay, content)
+ * - Loading & Animations (keyframes, spinners)
+ * - Typography (gradients, glows, headers)
+ * - Tabs (container, active/inactive states)
+ * - Utilities (flex, spacing, sizing, opacity)
+ *
+ * USAGE:
+ * Importer dans App.tsx après design-system.css mais avant nightlife-theme.css
+ * Ces classes sont utilisées dans tous les composants de l'application
+ *
+ * @migrated Phase 2C - 2025-01-08
+ * @lines 407 lignes extraites depuis nightlife-theme.css L834-1244
+ */
+
+/* ========================================
+   BOUTONS GLOBAUX
+   ======================================== */
+
+.btn-nightlife-base {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-duration-normal) ease;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-normal);
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  min-height: var(--tap-target-min);
+}
+
+.btn-nightlife-base:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Primary Button */
+.btn-primary-nightlife {
+  background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+  border: 2px solid var(--color-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary-nightlife:hover {
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-primary-nightlife:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary-nightlife:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button */
+.btn-secondary-nightlife {
+  border: 2px solid var(--color-secondary);
+  background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.2));
+  color: var(--color-secondary);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  backdrop-filter: var(--backdrop-blur-md);
+}
+
+.btn-secondary-nightlife:hover {
+  background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0.3));
+  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Success Button */
+.btn-success-nightlife {
+  background: linear-gradient(45deg, var(--color-success), #00D851);
+  border: 2px solid var(--color-success);
+  color: var(--color-text-primary);
+}
+
+.btn-success-nightlife:hover {
+  background: linear-gradient(45deg, #00D851, var(--color-success));
+  box-shadow: 0 8px 25px rgba(0, 255, 127, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Danger Button */
+.btn-danger-nightlife {
+  background: linear-gradient(45deg, var(--color-error), #DC3545);
+  border: 2px solid var(--color-error);
+  color: var(--color-text-primary);
+}
+
+.btn-danger-nightlife:hover {
+  background: linear-gradient(45deg, #DC3545, var(--color-error));
+  box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Button Variants */
+.btn-pill-nightlife {
+  border-radius: var(--border-radius-full);
+}
+
+/* ========================================
+   INPUTS & FORMS
+   ======================================== */
+
+/* Input Field */
+.input-nightlife {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  outline: none;
+  transition: all var(--transition-duration-normal) ease;
+  backdrop-filter: var(--backdrop-blur-md);
+}
+
+.input-nightlife:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px rgba(193, 154, 107, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.input-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.input-nightlife:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.input-nightlife::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Select Field */
+.select-nightlife {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  outline: none;
+  transition: all var(--transition-duration-normal) ease;
+  cursor: pointer;
+  backdrop-filter: var(--backdrop-blur-md);
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent, transparent);
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+}
+
+.select-nightlife:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px rgba(193, 154, 107, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.select-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.select-nightlife option {
+  background: #1a1a2e;
+  color: var(--color-text-primary);
+}
+
+/* Textarea Field */
+.textarea-nightlife {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  outline: none;
+  transition: all var(--transition-duration-normal) ease;
+  resize: vertical;
+  min-height: 6.25rem;
+  font-family: inherit;
+}
+
+.textarea-nightlife:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px rgba(193, 154, 107, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.textarea-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Label */
+.label-nightlife {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(193, 154, 107, 0.3);
+}
+
+/* Error Message */
+.error-message-nightlife {
+  color: var(--color-error);
+  font-size: 0.6875rem;
+  margin-top: var(--spacing-2);
+  animation: shake-nightlife 0.5s ease-in-out;
+}
+
+/* ========================================
+   WCAG 2.1 LEVEL AAA - MOBILE TAP TARGETS
+   ======================================== */
+
+/* Ensure all interactive elements meet WCAG tap target size requirements on mobile */
+@media (max-width: var(--breakpoint-md)) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea,
+  button,
+  .input-nightlife,
+  .select-nightlife,
+  .textarea-nightlife,
+  .btn-nightlife-base,
+  .sidebar-search-input-nightlife,
+  .admin-search-input,
+  .social-media-input,
+  .input-focus-cyan {
+    min-height: var(--tap-target-min); /* 44px - WCAG 2.1 Level AAA compliant */
+    padding-top: var(--spacing-3);
+    padding-bottom: var(--spacing-3);
+  }
+
+  /* Textareas need more vertical space */
+  textarea,
+  .textarea-nightlife {
+    min-height: 6.25rem; /* 100px - maintain textarea usability */
+  }
+
+  /* Buttons should maintain comfortable tap size */
+  button,
+  .btn-nightlife-base {
+    min-height: var(--tap-target-min); /* 44px */
+    padding: var(--spacing-3) var(--spacing-5);
+  }
+}
+
+/* ========================================
+   MODALS GLOBAUX
+   ======================================== */
+
+.modal-overlay-nightlife {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.modal-content-nightlife {
+  background-color: #1a1a2e;
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-8);
+  width: 95vw; /* Full-width responsive avec marge 5% */
+  max-width: min(90vw, 75rem); /* Max 1200px ou 90% viewport sur ultra-wide */
+  max-height: 90vh;
+  overflow: auto;
+  border: 2px solid var(--color-primary);
+  box-shadow: var(--shadow-2xl);
+}
+
+/* Modal responsive - Tablet et mobile */
+@media (max-width: 48rem) {
+  .modal-content-nightlife {
+    width: 95vw;
+    max-width: 95vw;
+    padding: var(--spacing-6);
+  }
+}
+
+@media (max-width: 30rem) {
+  .modal-content-nightlife {
+    width: 100vw;
+    max-width: 100vw;
+    padding: var(--spacing-4);
+    border-radius: 0; /* Full screen sur petit mobile */
+  }
+}
+
+/* ========================================
+   LOADING & ANIMATIONS
+   ======================================== */
+
+/* Keyframes */
+@keyframes spin-nightlife {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideUp-nightlife {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn-nightlife {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glow-nightlife {
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(193, 154, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(193, 154, 107, 0.6);
+  }
+}
+
+@keyframes shake-nightlife {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Loading Spinners */
+.loading-spinner-nightlife {
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid rgba(193, 154, 107, 0.3);
+  border-top: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-full);
+  animation: spin-nightlife 1s linear infinite;
+}
+
+.loading-spinner-small-nightlife {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  border-top: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-full);
+  animation: spin-nightlife 1s linear infinite;
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+
+.text-gradient-nightlife {
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-glow-nightlife {
+  text-shadow: 0 0 20px rgba(193, 154, 107, 0.5);
+}
+
+.text-cyan-nightlife {
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.header-title-nightlife {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 900;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(193, 154, 107, 0.5);
+  letter-spacing: 0.0625rem;
+  font-family: "Orbitron", monospace;
+}
+
+/* ========================================
+   TABS
+   ======================================== */
+
+.tabs-container-nightlife {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-8);
+  flex-wrap: wrap;
+}
+
+.tab-nightlife {
+  padding: var(--spacing-md) var(--spacing-8);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-duration-normal) ease;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  border: 2px solid transparent;
+  min-height: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.tab-inactive-nightlife {
+  border-color: rgba(193, 154, 107, 0.3);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.1), rgba(0, 0, 0, 0.3));
+  color: var(--color-text-primary);
+}
+
+.tab-inactive-nightlife:hover {
+  border-color: rgba(193, 154, 107, 0.5);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(0, 0, 0, 0.4));
+}
+
+.tab-active-nightlife {
+  border-color: var(--color-primary);
+  background: linear-gradient(45deg, rgba(193, 154, 107, 0.2), rgba(255, 215, 0, 0.1));
+  color: var(--color-primary);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Text Alignment */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Flexbox */
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* Gap */
+.gap-xs {
+  gap: var(--spacing-xs);
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+/* Margin Bottom */
+.mb-xs {
+  margin-bottom: var(--spacing-xs);
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Margin Top */
+.mt-xs {
+  margin-top: var(--spacing-xs);
+}
+
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.mt-xl {
+  margin-top: var(--spacing-xl);
+}
+
+/* Padding */
+.p-xs {
+  padding: var(--spacing-xs);
+}
+
+.p-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-md {
+  padding: var(--spacing-md);
+}
+
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+/* Sizing */
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* Visibility */
+.hidden {
+  display: none;
+}
+
+/* Opacity */
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: var(--breakpoint-md)) {
+  .btn-nightlife-base {
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--font-size-small);
+  }
+
+  .header-title-nightlife {
+    font-size: 1.5rem;
+  }
+}

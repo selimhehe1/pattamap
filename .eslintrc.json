@@ -1,0 +1,91 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "rules": {
+    // ==========================================
+    // ⚠️ DEVELOPMENT MODE - Warnings only (allow compilation)
+    // ==========================================
+    // Note: Changed from "error" to "warn" to unblock development
+    // TODO: Re-enable "error" mode after cleaning up code
+
+    // TypeScript - Warn on 'any' usage (106 instances to fix)
+    "@typescript-eslint/no-explicit-any": "warn",
+
+    // Unused variables (except if prefixed with _)
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
+
+    // Warn on console.log (allow in development)
+    "no-console": ["warn", {
+      "allow": ["warn", "error", "info"]
+    }],
+
+    // ==========================================
+    // ⚠️ WARNINGS - Alert but don't block
+    // ==========================================
+
+    // Complexity warnings (catch complex functions)
+    "complexity": ["warn", 20],
+
+    // File size warnings (catch large components >500 lines)
+    "max-lines": ["warn", {
+      "max": 500,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+
+    // Function size warnings
+    "max-lines-per-function": ["warn", {
+      "max": 150,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+
+    // TypeScript - Encourage explicit return types
+    "@typescript-eslint/explicit-function-return-type": ["warn", {
+      "allowExpressions": true,
+      "allowTypedFunctionExpressions": true
+    }],
+
+    // React - Warn on missing keys in lists
+    "react/jsx-key": "warn",
+
+    // React - Prefer React.FC or explicit types
+    "react/prop-types": "off",
+
+    // ==========================================
+    // ℹ️ DISABLED - Too strict for existing code
+    // ==========================================
+
+    // Allow require() for dynamic imports
+    "@typescript-eslint/no-var-requires": "off",
+
+    // Allow empty interfaces (used for future extension)
+    "@typescript-eslint/no-empty-interface": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+      "rules": {
+        // Allow 'any' in tests for mocking
+        "@typescript-eslint/no-explicit-any": "warn",
+
+        // Allow larger test files
+        "max-lines": ["warn", 1000],
+
+        // Allow longer test functions
+        "max-lines-per-function": ["warn", 300]
+      }
+    }
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

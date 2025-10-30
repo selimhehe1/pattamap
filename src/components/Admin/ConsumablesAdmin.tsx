@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConsumableTemplate } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import { logger } from '../../utils/logger';
+import { getCategoryIcon } from '../../utils/iconMapper';
 
 interface ConsumablesAdminProps {
   activeTab: string;
@@ -9,6 +11,7 @@ interface ConsumablesAdminProps {
 }
 
 const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabChange }) => {
+  const { t } = useTranslation();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
   const [consumables, setConsumables] = useState<ConsumableTemplate[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -62,18 +65,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'beer': return '🍺';
-      case 'shot': return '🥃';
-      case 'cocktail': return '🍹';
-      case 'spirit': return '🥂';
-      case 'wine': return '🍷';
-      case 'soft': return '🥤';
-      default: return '🍺';
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,7 +148,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   };
 
   const handleDelete = async (consumable: ConsumableTemplate) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer "${consumable.name}" ? Cette action est irréversible.`)) {
+    if (!window.confirm(t('admin.confirmDeleteConsumable', { name: consumable.name }))) {
       return;
     }
 
@@ -186,12 +177,12 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   };
 
   const categories = [
-    { key: 'beer', label: '🍺 Bières', color: '#FFD700' },
-    { key: 'shot', label: '🥃 Shots', color: '#FF6B6B' },
-    { key: 'cocktail', label: '🍹 Cocktails', color: '#4ECDC4' },
-    { key: 'spirit', label: '🥂 Spiritueux', color: '#45B7D1' },
-    { key: 'wine', label: '🍷 Vins', color: '#96CEB4' },
-    { key: 'soft', label: '🥤 Softs', color: '#FFEAA7' }
+    { key: 'beer', label: `🍺 ${t('admin.beers')}`, color: '#FFD700' },
+    { key: 'shot', label: `🥃 ${t('admin.shots')}`, color: '#FF6B6B' },
+    { key: 'cocktail', label: `🍹 ${t('admin.cocktails')}`, color: '#4ECDC4' },
+    { key: 'spirit', label: `🥂 ${t('admin.spirits')}`, color: '#45B7D1' },
+    { key: 'wine', label: `🍷 ${t('admin.wines')}`, color: '#96CEB4' },
+    { key: 'soft', label: `🥤 ${t('admin.softs')}`, color: '#FFEAA7' }
   ];
 
   if (activeTab !== 'consumables') return null;
@@ -206,7 +197,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
-        currentSection="Gestion des Consommables"
+        currentSection={t('admin.consumablesManagement')}
         onBackToDashboard={() => onTabChange('overview')}
         icon="🍺"
       />
@@ -218,18 +209,18 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             fontSize: '28px',
             fontWeight: '900',
             margin: '0 0 5px 0',
-            background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+            background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             fontFamily: '"Orbitron", monospace'
           }}>
-            🍺 Gestion des Consommables
+            🍺 {t('admin.consumablesManagement')}
           </h1>
           <p style={{ fontSize: '14px', color: '#cccccc', margin: 0 }}>
-            Gérer la liste des boissons et consommables disponibles
+            {t('admin.manageConsumablesList')}
           </p>
         </div>
-        
+
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           style={{
@@ -244,32 +235,32 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             transition: 'all 0.3s ease'
           }}
         >
-          {showAddForm ? '❌ Annuler' : '➕ Ajouter Consommable'}
+          {showAddForm ? `❌ ${t('common.cancel')}` : `➕ ${t('admin.addConsumable')}`}
         </button>
       </div>
 
       {/* Add/Edit Form */}
       {showAddForm && (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '15px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '25px',
           marginBottom: '30px'
         }}>
           <h3 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '18px',
             fontWeight: 'bold',
             margin: '0 0 20px 0'
           }}>
-            {editingConsumable ? '✏️ Modifier Consommable' : '➕ Nouveau Consommable'}
+            {editingConsumable ? `✏️ ${t('admin.editConsumableTitle')}` : `➕ ${t('admin.newConsumableTitle')}`}
           </h3>
-          
+
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '15px', alignItems: 'end' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00FFFF' }}>
-                Nom du consommable
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
+                {t('admin.consumableName')}
               </label>
               <input
                 type="text"
@@ -281,20 +272,20 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                   width: '100%',
                   padding: '10px 12px',
                   background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
                   outline: 'none',
                   boxSizing: 'border-box'
                 }}
-                placeholder="Ex: Chang, Tequila..."
+                placeholder={t('admin.consumablePlaceholder')}
               />
             </div>
             
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00FFFF' }}>
-                Catégorie
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
+                {t('admin.category')}
               </label>
               <select
                 name="category"
@@ -304,7 +295,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                   width: '100%',
                   padding: '10px 12px',
                   background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -312,18 +303,18 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                   boxSizing: 'border-box'
                 }}
               >
-                <option value="beer" style={{ background: '#1a1a1a' }}>🍺 Bière</option>
-                <option value="shot" style={{ background: '#1a1a1a' }}>🥃 Shot</option>
-                <option value="cocktail" style={{ background: '#1a1a1a' }}>🍹 Cocktail</option>
-                <option value="spirit" style={{ background: '#1a1a1a' }}>🥂 Spiritueux</option>
-                <option value="wine" style={{ background: '#1a1a1a' }}>🍷 Vin</option>
-                <option value="soft" style={{ background: '#1a1a1a' }}>🥤 Soft</option>
+                <option value="beer" style={{ background: '#1a1a1a' }}>🍺 {t('admin.beer')}</option>
+                <option value="shot" style={{ background: '#1a1a1a' }}>🥃 {t('admin.shot')}</option>
+                <option value="cocktail" style={{ background: '#1a1a1a' }}>🍹 {t('admin.cocktail')}</option>
+                <option value="spirit" style={{ background: '#1a1a1a' }}>🥂 {t('admin.spirits')}</option>
+                <option value="wine" style={{ background: '#1a1a1a' }}>🍷 {t('admin.wine')}</option>
+                <option value="soft" style={{ background: '#1a1a1a' }}>🥤 {t('admin.soft')}</option>
               </select>
             </div>
             
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00FFFF' }}>
-                Prix par défaut (฿)
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
+                {t('admin.defaultPrice')}
               </label>
               <input
                 type="number"
@@ -334,7 +325,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                   width: '100%',
                   padding: '10px 12px',
                   background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -346,16 +337,16 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             </div>
             
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00FFFF' }}>
-                Aperçu
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
+                {t('admin.preview')}
               </label>
               <div style={{
                 padding: '10px 12px',
-                background: 'rgba(255,27,141,0.1)',
-                border: '2px solid rgba(255,27,141,0.3)',
+                background: 'rgba(193, 154, 107,0.1)',
+                border: '2px solid rgba(193, 154, 107,0.3)',
                 borderRadius: '8px',
                 fontSize: '14px',
-                color: '#00FFFF',
+                color: '#00E5FF',
                 textAlign: 'center'
               }}>
                 {getCategoryIcon(formData.category)} {formData.name || 'Nom'}
@@ -367,7 +358,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
               disabled={!formData.name.trim()}
               style={{
                 padding: '10px 15px',
-                background: 'linear-gradient(45deg, #FF1B8D, #9C27B0)',
+                background: 'linear-gradient(45deg, #C19A6B, #9C27B0)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -377,7 +368,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                 opacity: formData.name.trim() ? 1 : 0.5
               }}
             >
-              {editingConsumable ? '✏️ Modifier' : '➕ Ajouter'}
+              {editingConsumable ? `✏️ ${t('admin.editConsumableButton')}` : `➕ ${t('admin.addButton')}`}
             </button>
           </form>
         </div>
@@ -392,7 +383,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             <div
               key={category.key}
               style={{
-                background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
                 borderRadius: '15px',
                 border: `2px solid ${category.color}40`,
                 padding: '20px'
@@ -428,7 +419,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                     color: '#666',
                     fontStyle: 'italic'
                   }}>
-                    Aucun consommable dans cette catégorie
+                    {t('admin.noConsumablesInCategory')}
                   </div>
                 ) : (
                   categoryConsumables.map(consumable => (
@@ -459,7 +450,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                               fontSize: '12px',
                               color: category.color
                             }}>
-                              Prix par défaut: {consumable.default_price}฿
+                              {t('admin.defaultPriceLabel')}: {consumable.default_price}฿
                             </div>
                           )}
                         </div>
@@ -474,14 +465,14 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                           background: consumable.status === 'active' ? '#4CAF5020' : '#FF475720',
                           color: consumable.status === 'active' ? '#4CAF50' : '#FF4757'
                         }}>
-                          {consumable.status === 'active' ? '✅ Actif' : '❌ Inactif'}
+                          {consumable.status === 'active' ? `✅ ${t('admin.active')}` : `❌ ${t('admin.inactive')}`}
                         </div>
                         
                         <button
                           onClick={() => handleEdit(consumable)}
                           style={{
                             padding: '6px 10px',
-                            background: 'linear-gradient(45deg, #00FFFF, #0080FF)',
+                            background: 'linear-gradient(45deg, #00E5FF, #0080FF)',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',
@@ -498,7 +489,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                           style={{
                             padding: '6px 10px',
                             background: consumable.status === 'active' 
-                              ? 'linear-gradient(45deg, #FF4757, #FF1B8D)'
+                              ? 'linear-gradient(45deg, #FF4757, #C19A6B)'
                               : 'linear-gradient(45deg, #4CAF50, #00FF7F)',
                             color: 'white',
                             border: 'none',

@@ -1,0 +1,224 @@
+/**
+ * 🎨 FORM COMPONENTS - Sections, Photo Upload & Preview
+ *
+ * @file form-components.css
+ * @version 1.0.0
+ * @migrated Phase 3C - 2025-01-09
+ * @source nightlife-theme.css (Lignes 850-945)
+ *
+ * CONTENU:
+ * - Form Sections avec bordures nightlife
+ * - Headers de section
+ * - Zone de photos (photo-section)
+ * - Photo Upload Area avec hover effects
+ * - Photo Preview Grid avec images
+ * - Photo Remove Button
+ *
+ * UTILISÉ PAR:
+ * - EmployeeForm, EstablishmentForm
+ * - Tous les formulaires avec upload photos
+ * - Form sections avec styling nightlife
+ *
+ * MODERNISATIONS:
+ * - Variables design-system.css: --spacing-*, --color-*, --border-*
+ * - WCAG 2.1 Level AAA: Focus visible, tap targets 44px
+ * - Responsive: Grid adaptatif mobile
+ * - Box-sizing: border-box pour éviter débordements
+ * - Transitions smooth pour hover effects
+ */
+
+/* ===== FORM SECTIONS NIGHTLIFE ===== */
+
+/* Form Section avec bordure et background gradient */
+.form-section-nightlife {
+  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(193, 154, 107,0.3) */
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-5); /* --spacing-lg */
+  margin-bottom: var(--spacing-4); /* --spacing-md */
+  background: var(--gradient-overlay); /* Theme-aware gradient */
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+/* Form Section Hover - Border plus visible */
+.form-section-nightlife:hover {
+  border-color: var(--color-primary-50); /* rgba(193, 154, 107,0.5) */
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) var(--color-primary-20); /* 0 4px 15px rgba(193, 154, 107,0.2) */
+}
+
+/* ===== FORM SECTION HEADERS ===== */
+
+/* Header de Section avec text-shadow */
+.form-section-header {
+  color: var(--color-secondary); /* --nightlife-secondary, #2C3E50 */
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-4); /* --spacing-md */
+  text-shadow: 0 0 var(--spacing-2) var(--color-secondary-30); /* 0 0 10px rgba(0,255,255,0.3) */
+}
+
+/* ===== PHOTO SECTION ===== */
+
+/* Zone de photos - Center alignment */
+.photo-section {
+  text-align: center;
+  margin-bottom: var(--spacing-5); /* --spacing-lg */
+}
+
+/* ===== PHOTO UPLOAD AREA ===== */
+
+/* Photo Upload Area - Dashed border avec hover */
+.photo-upload-area {
+  border: var(--border-width-normal) dashed var(--color-secondary); /* 2px, #2C3E50 */
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-8); /* --spacing-xl, 2rem */
+  margin-bottom: var(--spacing-5); /* --spacing-lg */
+  background: var(--color-secondary-5); /* rgba(0,255,255,0.05) */
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  position: relative;
+}
+
+/* Photo Upload Area Hover - Background plus visible */
+.photo-upload-area:hover {
+  background: var(--color-secondary-10); /* rgba(0,255,255,0.1) */
+  border-color: var(--color-primary); /* --nightlife-primary */
+}
+
+/* Photo Upload Area Focus - Keyboard navigation */
+.photo-upload-area:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ===== PHOTO PREVIEW GRID ===== */
+
+/* Photo Preview Grid - Grid responsive */
+.photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); /* 80px minimum */
+  gap: var(--spacing-2); /* --spacing-sm */
+  margin-top: var(--spacing-4); /* --spacing-md */
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Photo Preview Item - Container pour image */
+.photo-preview-item {
+  position: relative;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(193, 154, 107,0.3) */
+}
+
+/* Photo Preview Image - Object-fit cover */
+.photo-preview-image {
+  width: 100%;
+  height: 5rem; /* 80px */
+  object-fit: cover;
+  display: block;
+  max-width: 100%;
+  border-radius: var(--border-radius-sm);
+}
+
+/* ===== PHOTO REMOVE BUTTON ===== */
+
+/* Photo Remove Button - Position absolute top-right */
+.photo-remove-button {
+  position: absolute;
+  top: var(--spacing-0-5); /* 0.125rem, 2px */
+  right: var(--spacing-0-5);
+  background: var(--color-error); /* --nightlife-error */
+  color: var(--text-primary); /* white */
+  border: none;
+  border-radius: 50%;
+  width: var(--spacing-5); /* 1.25rem, 20px */
+  height: var(--spacing-5);
+  min-width: var(--spacing-5);
+  min-height: var(--spacing-5);
+  cursor: pointer;
+  font-size: var(--font-size-small); /* 0.75rem */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  z-index: var(--z-interactive); /* 25 - Au-dessus de l'image */
+}
+
+/* Photo Remove Button Hover - Scale up */
+.photo-remove-button:hover {
+  background: var(--color-error-hover); /* Plus foncé */
+  transform: scale(1.1);
+}
+
+/* Photo Remove Button Focus - Keyboard navigation */
+.photo-remove-button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ===== RESPONSIVE MOBILE ===== */
+
+/* Mobile: Ajustements spacing et sizing */
+@media (max-width: 48rem) {
+  .form-section-nightlife {
+    padding: var(--spacing-4); /* Reduced padding */
+  }
+
+  .photo-upload-area {
+    padding: var(--spacing-6); /* 1.5rem instead of 2rem */
+  }
+
+  .photo-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr)); /* 64px minimum */
+    gap: var(--spacing-1-5); /* Reduced gap */
+  }
+
+  .photo-preview-image {
+    height: 4rem; /* 64px */
+  }
+}
+
+/* Small Mobile: Further adjustments */
+@media (max-width: 30rem) {
+  .form-section-nightlife {
+    padding: var(--spacing-3);
+  }
+
+  .form-section-header {
+    font-size: var(--font-size-normal); /* Slightly smaller */
+  }
+
+  .photo-upload-area {
+    padding: var(--spacing-5);
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* WCAG 2.1 Level AAA - High Contrast Mode */
+@media (prefers-contrast: high) {
+  .form-section-nightlife {
+    border-width: 3px;
+  }
+
+  .photo-upload-area {
+    border-width: 3px;
+  }
+
+  .photo-preview-item {
+    border-width: 3px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .form-section-nightlife,
+  .photo-upload-area,
+  .photo-remove-button {
+    transition: none;
+  }
+}

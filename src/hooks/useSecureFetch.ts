@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCSRF } from '../contexts/CSRFContext';
 import { logger } from '../utils/logger';
@@ -10,7 +11,7 @@ export const useSecureFetch = () => {
   const { logout } = useAuth();
   const { getCSRFHeaders, refreshToken, loading: csrfLoading } = useCSRF();
 
-  const secureFetch = async (url: string, options: SecureFetchOptions = {}) => {
+  const secureFetch = useCallback(async (url: string, options: SecureFetchOptions = {}) => {
     const { requireAuth = true, ...fetchOptions } = options;
 
     // Wait for CSRF token to be available if it's still loading
@@ -150,7 +151,7 @@ export const useSecureFetch = () => {
       logger.error('Secure fetch error:', error);
       throw error;
     }
-  };
+  }, [logout, getCSRFHeaders, refreshToken, csrfLoading]);
 
   return { secureFetch };
 };

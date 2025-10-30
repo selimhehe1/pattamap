@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Establishment, ConsumableTemplate } from '../../types';
+import { useTranslation } from 'react-i18next';
+import { FaInstagram, FaTiktok } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import { Establishment, ConsumableTemplate, Employee } from '../../types';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
+import LazyImage from '../Common/LazyImage';
+import '../../styles/components/establishment-ui.css';
+import '../../styles/components/sidebar-establishment.css';
 
 interface BarInfoSidebarProps {
   bar: Establishment;
+  employees?: Employee[]; // 🆕 v10.3 - For verification stats
   isEditMode?: boolean;
   editedBar?: Establishment | null;
   onUpdateField?: (field: string, value: any) => void;
@@ -11,10 +19,12 @@ interface BarInfoSidebarProps {
 
 const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
   bar,
+  employees = [],
   isEditMode = false,
   editedBar = null,
   onUpdateField
 }) => {
+  const { t } = useTranslation();
 
   const [consumableTemplates, setConsumableTemplates] = useState<Record<string, ConsumableTemplate[]>>({});
   const [templatesById, setTemplatesById] = useState<Record<string, ConsumableTemplate>>({});
@@ -66,12 +76,12 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           });
           setTemplatesById(byId);
         } else {
-          const errorMsg = `Erreur de chargement des templates (HTTP ${response.status})`;
+          const errorMsg = t('barInfoSidebar.errors.loadingTemplates', { status: response.status });
           logger.error('❌', errorMsg);
           setTemplatesError(errorMsg);
         }
       } catch (error) {
-        const errorMsg = 'Erreur réseau lors du chargement des templates';
+        const errorMsg = t('barInfoSidebar.errors.networkError');
         logger.error(errorMsg, error);
         setTemplatesError(errorMsg);
       } finally {
@@ -84,11 +94,11 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
 
   // Déterminer le type de bar selon la catégorie
   const getBarType = () => {
-    if (bar.category?.name?.toLowerCase().includes('gogo')) return 'GoGo Bar';
-    if (bar.category?.name?.toLowerCase().includes('nightclub')) return 'Nightclub';
-    if (bar.category?.name?.toLowerCase().includes('massage')) return 'Massage Salon';
-    if (bar.category?.name?.toLowerCase() === 'bar') return 'Bar';
-    return 'Bar'; // Default to Bar
+    if (bar.category?.name?.toLowerCase().includes('gogo')) return t('barInfoSidebar.barTypes.gogo');
+    if (bar.category?.name?.toLowerCase().includes('nightclub')) return t('barInfoSidebar.barTypes.nightclub');
+    if (bar.category?.name?.toLowerCase().includes('massage')) return t('barInfoSidebar.barTypes.massage');
+    if (bar.category?.name?.toLowerCase() === 'bar') return t('barInfoSidebar.barTypes.bar');
+    return t('barInfoSidebar.barTypes.bar'); // Default to Bar
   };
 
   // Récupérer les pricing depuis les données de l'établissement
@@ -144,7 +154,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     );
 
     if (existingConsumable) {
-      alert(`${template.name} est déjà dans la liste des prix`);
+      toast.warning(t('barInfoSidebar.toast.alreadyInList', { name: template.name }));
       return;
     }
 
@@ -198,109 +208,16 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
 
   return (
     <div className="establishment-section-nightlife sidebar-container-nightlife">
-      {/* Header du bar */}
-      <div className="establishment-header-nightlife">
-        <div className="sidebar-header-info-nightlife">
-          {/* Logo or icon */}
-          {bar.logo_url ? (
-            <div className="sidebar-logo-nightlife">
-              <img
-                src={bar.logo_url}
-                alt={`${bar.name} logo`}
-                className="sidebar-logo-image-nightlife"
-                onError={(e) => {
-                  // 🛡️ XSS SAFE: Using textContent instead of innerHTML
-                  const target = e.target as HTMLElement;
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.textContent = getBarIcon();
-                    parent.style.background = 'transparent';
-                    parent.style.fontSize = '24px';
-                    parent.style.border = 'none';
-                  }
-                }}
-              />
-            </div>
-          ) : (
-            <span className="sidebar-icon-nightlife">{getBarIcon()}</span>
-          )}
-          <div>
-            <h3 className="establishment-section-title-nightlife sidebar-title-nightlife">
-              {bar.name}
-            </h3>
-            <p className="establishment-meta-nightlife sidebar-meta-nightlife">
-              {isEditMode ? (
-                <select
-                  value={currentBar.category_id}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    onUpdateField && onUpdateField('category_id', selectedId);
-                  }}
-                  disabled={loadingCategories}
-                  className="sidebar-category-select-nightlife"
-                >
-                  {loadingCategories ? (
-                    <option>Loading...</option>
-                  ) : (
-                    categories.map(cat => {
-                      const catIdString = `cat-${String(cat.id).padStart(3, '0')}`;
-                      return (
-                        <option key={cat.id} value={catIdString}>
-                          {cat.icon} {cat.name}
-                        </option>
-                      );
-                    })
-                  )}
-                </select>
-              ) : (
-                `${getBarType()} • ${bar.zone || 'Soi 6'}`
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Status et heures */}
-        <div className="sidebar-status-container-nightlife">
-          <span className="sidebar-status-indicator-nightlife" />
-          <span className="sidebar-status-text-nightlife">
-            OPEN NOW • {isEditMode ? (
-              <span className="sidebar-time-inputs-nightlife">
-                <input
-                  type="time"
-                  value={currentBar.opening_hours?.open || '14:00'}
-                  onChange={(e) => onUpdateField && onUpdateField('opening_hours', {
-                    ...currentBar.opening_hours,
-                    open: e.target.value
-                  })}
-                  className="sidebar-time-input-nightlife"
-                />
-                -
-                <input
-                  type="time"
-                  value={currentBar.opening_hours?.close || '02:00'}
-                  onChange={(e) => onUpdateField && onUpdateField('opening_hours', {
-                    ...currentBar.opening_hours,
-                    close: e.target.value
-                  })}
-                  className="sidebar-time-input-nightlife"
-                />
-              </span>
-            ) : formatHours(currentBar.opening_hours)}
-          </span>
-        </div>
-      </div>
-
-      {/* Section pricing */}
+      {/* Section pricing - Header supprimé, commence directement ici */}
       <div className="sidebar-pricing-container-nightlife">
         <h4 className="establishment-section-title-nightlife">
-          💰 PRICING
+          💰 {t('barInfoSidebar.sections.pricing')}
         </h4>
 
-        {/* Consommations dynamiques */}
-        {(pricing.consumables.length > 0 || isEditMode) && (
-          <div className="sidebar-consumables-container-nightlife">
+        {/* Consommations dynamiques - toujours visible */}
+        <div className="sidebar-consumables-container-nightlife">
             <h5 className="price-value-nightlife sidebar-consumables-header-nightlife">
-              <span>🍺 CONSOMMATIONS</span>
+              <span>🍺 {t('barInfoSidebar.sections.consumables')}</span>
               {isEditMode && (
                 <div className="sidebar-consumables-controls-nightlife">
                   {templatesError ? (
@@ -317,7 +234,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       color: '#FFD700',
                       fontStyle: 'italic'
                     }}>
-                      Chargement...
+                      {t('barInfoSidebar.loading')}
                     </span>
                   ) : (
                     <select
@@ -325,7 +242,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       value=""
                       className="sidebar-add-select-nightlife"
                     >
-                      <option value="">+ Ajouter</option>
+                      <option value="">{t('barInfoSidebar.buttons.add')}</option>
                       {Object.entries(consumableTemplates)
                         .filter(([category]) => category !== 'service')
                         .map(([category, templates]) =>
@@ -381,14 +298,14 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 // Fonction pour obtenir le nom et l'icône de la catégorie
                 const getCategoryInfo = (category: string) => {
                   switch (category) {
-                    case 'beer': return { name: 'Bières', icon: '🍺' };
-                    case 'cocktail': return { name: 'Cocktails', icon: '🍸' };
-                    case 'shot': return { name: 'Shots', icon: '🥃' };
-                    case 'spirit': return { name: 'Spiritueux', icon: '🥂' };
-                    case 'soft': return { name: 'Boissons', icon: '🥤' };
-                    case 'wine': return { name: 'Vins', icon: '🍷' };
-                    case 'service': return { name: 'Services', icon: '💫' };
-                    default: return { name: 'Autres', icon: '🍹' };
+                    case 'beer': return { name: t('barInfoSidebar.categories.beers'), icon: '🍺' };
+                    case 'cocktail': return { name: t('barInfoSidebar.categories.cocktails'), icon: '🍸' };
+                    case 'shot': return { name: t('barInfoSidebar.categories.shots'), icon: '🥃' };
+                    case 'spirit': return { name: t('barInfoSidebar.categories.spirits'), icon: '🥂' };
+                    case 'soft': return { name: t('barInfoSidebar.categories.soft'), icon: '🥤' };
+                    case 'wine': return { name: t('barInfoSidebar.categories.wines'), icon: '🍷' };
+                    case 'service': return { name: t('barInfoSidebar.categories.services'), icon: '💫' };
+                    default: return { name: t('barInfoSidebar.categories.others'), icon: '🍹' };
                   }
                 };
 
@@ -419,7 +336,6 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                           return (
                             <div key={item.consumable_id} className="sidebar-consumable-item-nightlife">
                               <span className="sidebar-consumable-name-nightlife">
-                                <span>{template.icon}</span>
                                 <span>{template.name}</span>
                               </span>
                               <div className="sidebar-consumable-controls-nightlife">
@@ -431,7 +347,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                                       onChange={(e) => updateConsumablePrice(item.consumable_id, e.target.value)}
                                       className="sidebar-consumable-price-input-nightlife"
                                     />
-                                    <span style={{ color: '#00FFFF', fontWeight: 'bold', fontSize: '11px' }}>฿</span>
+                                    <span style={{ color: '#00E5FF', fontWeight: 'bold', fontSize: '11px' }}>฿</span>
                                     <button
                                       onClick={() => removeConsumable(item.consumable_id)}
                                       className="photo-remove-btn"
@@ -440,13 +356,14 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                                         width: '16px',
                                         height: '16px'
                                       }}
-                                      title="Supprimer"
+                                      title={t('barInfoSidebar.buttons.remove')}
+                                      aria-label={t('barInfoSidebar.aria.removeConsumable', { name: template.name })}
                                     >
                                       ×
                                     </button>
                                   </>
                                 ) : (
-                                  <span style={{ color: '#00FFFF', fontWeight: 'bold' }}>
+                                  <span className="sidebar-price-chip-nightlife sidebar-price-chip-small-nightlife">
                                     {item.price}฿
                                   </span>
                                 )}
@@ -459,20 +376,43 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                   });
               })()}
               {pricing.consumables.length === 0 && (
-                <div className="sidebar-empty-consumables-nightlife">
-                  {isEditMode ? 'Utilisez le menu "Ajouter..." pour ajouter des consommations' : 'Aucune consommation configurée'}
+                <div
+                  className="sidebar-empty-consumables-nightlife"
+                  style={{
+                    textAlign: 'center',
+                    padding: '20px 12px',
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: '13px',
+                    lineHeight: '1.6'
+                  }}
+                >
+                  {isEditMode ? (
+                    t('barInfoSidebar.emptyStates.editMode')
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: '8px', fontSize: '14px' }}>
+                        🍺 {t('barInfoSidebar.emptyStates.noItems')}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: '#00E5FF',
+                        fontStyle: 'italic'
+                      }}>
+                        💡 {t('barInfoSidebar.emptyStates.contributeCTA')}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
           </div>
-        )}
 
         {/* Autres prix */}
         <div className="sidebar-pricing-grid-nightlife">
           <div className="sidebar-price-card-nightlife sidebar-price-card-ladydrink-nightlife">
             <div className="sidebar-price-icon-nightlife">💃</div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-ladydrink-nightlife">
-              LADY DRINK
+              {t('barInfoSidebar.services.ladyDrink')}
             </div>
             <div className="sidebar-price-value-nightlife">
               {isEditMode ? (
@@ -486,7 +426,9 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                   <span>฿</span>
                 </div>
               ) : (
-                `${pricing.ladyDrink}฿`
+                <span className="sidebar-price-chip-nightlife">
+                  {pricing.ladyDrink}฿
+                </span>
               )}
             </div>
           </div>
@@ -494,7 +436,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           <div className="sidebar-price-card-nightlife sidebar-price-card-barfine-nightlife">
             <div className="sidebar-price-icon-nightlife">🎫</div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-barfine-nightlife">
-              BARFINE
+              {t('barInfoSidebar.services.barfine')}
             </div>
             <div className="sidebar-price-value-nightlife">
               {isEditMode ? (
@@ -508,7 +450,9 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                   <span>฿</span>
                 </div>
               ) : (
-                `${pricing.barfine}฿`
+                <span className="sidebar-price-chip-nightlife">
+                  {pricing.barfine}฿
+                </span>
               )}
             </div>
           </div>
@@ -519,7 +463,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           <div className="sidebar-price-card-nightlife sidebar-price-card-rooms-nightlife">
             <div className="sidebar-price-icon-nightlife">🏠</div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-rooms-nightlife">
-              ROOMS
+              {t('barInfoSidebar.services.rooms')}
             </div>
             <div className="sidebar-price-value-nightlife">
               {isEditMode ? (
@@ -540,13 +484,16 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       height: '20px',
                       marginLeft: '3px'
                     }}
-                    title="Supprimer Rooms"
+                    title={`${t('barInfoSidebar.buttons.remove')} ${t('barInfoSidebar.services.rooms')}`}
+                    aria-label={t('barInfoSidebar.aria.removeRooms')}
                   >
                     ×
                   </button>
                 </div>
               ) : (
-                `${pricing.rooms}฿`
+                <span className="sidebar-price-chip-nightlife">
+                  {pricing.rooms}฿
+                </span>
               )}
             </div>
           </div>
@@ -563,8 +510,9 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 fontSize: '11px',
                 padding: '8px 16px'
               }}
+              aria-label={t('barInfoSidebar.aria.addRooms')}
             >
-              🏠 Ajouter Rooms
+              🏠 {t('barInfoSidebar.buttons.addRooms')}
             </button>
           </div>
         )}
@@ -573,7 +521,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
       {/* Contact & Location */}
       <div className="sidebar-contact-container-nightlife">
         <h4 className="establishment-section-title-nightlife">
-          📍 CONTACT & LOCATION
+          📍 {t('barInfoSidebar.sections.contact')}
         </h4>
 
         <div className="sidebar-contact-list-nightlife">
@@ -584,7 +532,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 type="text"
                 value={currentBar.address || ''}
                 onChange={(e) => onUpdateField && onUpdateField('address', e.target.value)}
-                placeholder="Enter address..."
+                placeholder={t('barInfoSidebar.contact.addressPlaceholder')}
                 className="sidebar-contact-input-nightlife"
               />
             ) : (
@@ -599,7 +547,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 type="tel"
                 value={currentBar.phone || ''}
                 onChange={(e) => onUpdateField && onUpdateField('phone', e.target.value)}
-                placeholder="Enter phone number..."
+                placeholder={t('barInfoSidebar.contact.phonePlaceholder')}
                 className="sidebar-contact-input-nightlife sidebar-phone-input-nightlife"
               />
             ) : currentBar.phone ? (
@@ -610,9 +558,73 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 {currentBar.phone}
               </a>
             ) : (
-              <span className="sidebar-no-phone-nightlife">No phone number</span>
+              <span className="sidebar-no-phone-nightlife">{t('barInfoSidebar.contact.noPhone')}</span>
             )}
           </div>
+
+          {/* Social Media Links (v10.1) - One Line Layout */}
+          {(() => {
+            const socialLinks = [
+              { platform: 'instagram', url: currentBar.instagram, icon: FaInstagram, color: '#E1306C', hoverColor: '#C19A6B' },
+              { platform: 'twitter', url: currentBar.twitter, icon: FaXTwitter, color: '#000000', hoverColor: '#1DA1F2' },
+              { platform: 'tiktok', url: currentBar.tiktok, icon: FaTiktok, color: '#FE2C55', hoverColor: '#C19A6B' }
+            ].filter(link => link.url);
+
+            if (socialLinks.length === 0) return null;
+
+            // Adaptive sizing: 1 RS → 60px, 2 RS → 50px, 3 RS → 40px
+            const iconSize = socialLinks.length === 1 ? 60 : socialLinks.length === 2 ? 50 : 40;
+
+            return (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '20px',
+                padding: '15px 0',
+                marginTop: '10px',
+                borderTop: '1px solid rgba(0, 255, 255, 0.2)'
+              }}>
+                {socialLinks.map(({ platform, url, icon: Icon, color, hoverColor }) => (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: `${iconSize}px`,
+                      height: `${iconSize}px`,
+                      fontSize: `${iconSize * 0.6}px`,
+                      color: color,
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '50%',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                      border: `2px solid ${color}`
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.2) rotate(5deg)';
+                      e.currentTarget.style.boxShadow = `0 0 20px ${hoverColor}`;
+                      e.currentTarget.style.borderColor = hoverColor;
+                      e.currentTarget.style.color = hoverColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.borderColor = color;
+                      e.currentTarget.style.color = color;
+                    }}
+                    aria-label={t('barInfoSidebar.aria.visitSocial', { platform })}
+                  >
+                    <Icon />
+                  </a>
+                ))}
+              </div>
+            );
+          })()}
 
           <button
             onClick={() => {
@@ -620,24 +632,167 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentBar.address)}`;
                 window.open(mapsUrl, '_blank');
               } else {
-                alert('Aucune adresse disponible pour cet établissement');
+                toast.warning(t('barInfoSidebar.errors.noAddress'));
               }
             }}
             className="btn-secondary-nightlife sidebar-map-button-nightlife"
+            aria-label={t('barInfoSidebar.aria.viewOnMap', { name: currentBar.name })}
           >
-            🗺️ VIEW ON MAP
+            🗺️ {t('barInfoSidebar.buttons.viewOnMap')}
           </button>
         </div>
       </div>
 
+      {/* Verification Stats - 🆕 v10.3 - Staff Trust Metrics + Owner Badge */}
+      {employees.length > 0 && (
+        <div className="sidebar-verification-container-nightlife">
+          {/* 🆕 v10.3 - Verified Owner Badge (if establishment has owner) */}
+          {bar?.has_owner && (
+            <>
+              <div className="sidebar-owner-badge-nightlife">
+                <div className="owner-badge-icon-nightlife">🏆</div>
+                <div className="owner-badge-content-nightlife">
+                  <div className="owner-badge-title-nightlife">
+                    {t('barInfoSidebar.verification.verifiedOwner', 'Verified Establishment Owner')}
+                  </div>
+                  <div className="owner-badge-subtitle-nightlife">
+                    {t('barInfoSidebar.verification.managedByOwner', 'Managed by verified owner')}
+                  </div>
+                </div>
+              </div>
 
-      {/* CSS pour animations */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.8; }
-          50% { opacity: 1; }
-        }
-      `}</style>
+              {/* Separator */}
+              <div style={{ height: '20px' }} />
+            </>
+          )}
+
+          <h4 className="establishment-section-title-nightlife">
+            ✓ {t('barInfoSidebar.sections.staffVerification', 'Staff Verification')}
+          </h4>
+
+          {(() => {
+            const verifiedCount = employees.filter(emp => emp.is_verified).length;
+            const totalCount = employees.length;
+            const verificationRate = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
+
+            // Color based on verification rate
+            const getColorByRate = (rate: number) => {
+              if (rate >= 80) return '#00FF7F'; // Green (excellent)
+              if (rate >= 50) return '#FFD700'; // Gold (good)
+              if (rate >= 20) return '#FFA500'; // Orange (fair)
+              return '#FF6B6B'; // Red (low)
+            };
+
+            const color = getColorByRate(verificationRate);
+
+            return (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,0,0,0.3))',
+                borderRadius: '15px',
+                border: `2px solid ${color}33`,
+                padding: '20px'
+              }}>
+                {/* Circular Progress */}
+                <div className="sidebar-progress-wrapper-nightlife">
+                  <div
+                    className="sidebar-progress-circle-nightlife"
+                    style={{
+                      '--progress': verificationRate,
+                      '--progress-color': color
+                    } as React.CSSProperties}
+                  >
+                    <div className="sidebar-progress-value-nightlife">{verificationRate}%</div>
+                    <div className="sidebar-progress-check-nightlife">✓</div>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="sidebar-stats-grid-nightlife">
+                  <div className="sidebar-stat-card-nightlife" style={{ '--stat-color': color } as React.CSSProperties}>
+                    <div className="sidebar-stat-value-nightlife">{verifiedCount}</div>
+                    <div className="sidebar-stat-label-nightlife">
+                      {t('barInfoSidebar.verification.verified', 'Verified')}
+                    </div>
+                  </div>
+
+                  <div className="sidebar-stat-card-nightlife" style={{ '--stat-color': '#00E5FF' } as React.CSSProperties}>
+                    <div className="sidebar-stat-value-nightlife">{totalCount}</div>
+                    <div className="sidebar-stat-label-nightlife">
+                      {t('barInfoSidebar.verification.total', 'Total Staff')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust Level Badge */}
+                {verificationRate >= 80 && (
+                  <div
+                    className="sidebar-trust-badge-nightlife"
+                    style={{
+                      '--trust-color': '#00FF7F',
+                      '--trust-border': 'rgba(0,255,127,0.4)',
+                      '--trust-bg-start': 'rgba(0,255,127,0.15)',
+                      '--trust-bg-end': 'rgba(0,255,127,0.08)',
+                      '--trust-glow': 'rgba(0,255,127,0.1)',
+                      '--trust-shadow': 'rgba(0,255,127,0.25)'
+                    } as React.CSSProperties}
+                  >
+                    <span>⭐</span>
+                    <span>{t('barInfoSidebar.verification.excellentTrust', 'Excellent trust level')}</span>
+                  </div>
+                )}
+                {verificationRate >= 50 && verificationRate < 80 && (
+                  <div
+                    className="sidebar-trust-badge-nightlife"
+                    style={{
+                      '--trust-color': '#FFD700',
+                      '--trust-border': 'rgba(255,215,0,0.4)',
+                      '--trust-bg-start': 'rgba(255,215,0,0.15)',
+                      '--trust-bg-end': 'rgba(255,215,0,0.08)',
+                      '--trust-glow': 'rgba(255,215,0,0.1)',
+                      '--trust-shadow': 'rgba(255,215,0,0.25)'
+                    } as React.CSSProperties}
+                  >
+                    <span>👍</span>
+                    <span>{t('barInfoSidebar.verification.goodTrust', 'Good trust level')}</span>
+                  </div>
+                )}
+                {verificationRate >= 20 && verificationRate < 50 && (
+                  <div
+                    className="sidebar-trust-badge-nightlife"
+                    style={{
+                      '--trust-color': '#FFA500',
+                      '--trust-border': 'rgba(255,165,0,0.4)',
+                      '--trust-bg-start': 'rgba(255,165,0,0.15)',
+                      '--trust-bg-end': 'rgba(255,165,0,0.08)',
+                      '--trust-glow': 'rgba(255,165,0,0.1)',
+                      '--trust-shadow': 'rgba(255,165,0,0.25)'
+                    } as React.CSSProperties}
+                  >
+                    <span>⚠️</span>
+                    <span>{t('barInfoSidebar.verification.fairTrust', 'Fair trust level')}</span>
+                  </div>
+                )}
+                {verificationRate < 20 && (
+                  <div
+                    className="sidebar-trust-badge-nightlife"
+                    style={{
+                      '--trust-color': '#FF6B6B',
+                      '--trust-border': 'rgba(255,107,107,0.4)',
+                      '--trust-bg-start': 'rgba(255,107,107,0.15)',
+                      '--trust-bg-end': 'rgba(255,107,107,0.08)',
+                      '--trust-glow': 'rgba(255,107,107,0.1)',
+                      '--trust-shadow': 'rgba(255,107,107,0.25)'
+                    } as React.CSSProperties}
+                  >
+                    <span>ℹ️</span>
+                    <span>{t('barInfoSidebar.verification.lowTrust', 'Limited verification')}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 };

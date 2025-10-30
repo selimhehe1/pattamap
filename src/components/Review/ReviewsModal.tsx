@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ReviewsList from './ReviewsList';
 
 interface Review {
@@ -48,13 +49,15 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
   onReport,
   isLoading = false
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
   return (
     <div
       className="modal-app-overlay"
       onClick={onClose}
-    >
+     role="button" tabIndex={0}>
       <div
         className="profile-container-vertical-nightlife"
         style={{
@@ -65,24 +68,24 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
           display: 'flex',
           flexDirection: 'column'
         }}
-        onClick={(e) => e.stopPropagation()}
+        role="button" tabIndex={0} onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="profile-header-bar" style={{
           padding: '20px 25px',
-          borderBottom: '1px solid rgba(255,27,141,0.3)',
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.2), rgba(0,0,0,0.4))',
+          borderBottom: '1px solid rgba(193, 154, 107,0.3)',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.2), rgba(0,0,0,0.4))',
           borderRadius: '15px 15px 0 0'
         }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: '0',
-            textShadow: '0 0 10px rgba(255,27,141,0.5)',
+            textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
             textAlign: 'center'
           }}>
-            💬 All Reviews for {employeeName}
+            💬 {t('reviewsModal.title', { employeeName })}
           </h2>
 
           <button
@@ -93,26 +96,26 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
               top: '20px',
               right: '25px',
               background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,27,141,0.3)',
+              border: '1px solid rgba(193, 154, 107,0.3)',
               borderRadius: '50%',
               width: '40px',
               height: '40px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FF1B8D',
+              color: '#C19A6B',
               fontSize: '18px',
               fontWeight: 'bold',
               cursor: 'pointer',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,27,141,0.2)';
-              e.currentTarget.style.borderColor = '#FF1B8D';
+              e.currentTarget.style.background = 'rgba(193, 154, 107,0.2)';
+              e.currentTarget.style.borderColor = '#C19A6B';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-              e.currentTarget.style.borderColor = 'rgba(255,27,141,0.3)';
+              e.currentTarget.style.borderColor = 'rgba(193, 154, 107,0.3)';
             }}
           >
             ✕
@@ -124,7 +127,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
           flex: 1,
           overflow: 'auto',
           padding: '25px',
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(255,27,141,0.05))',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(193, 154, 107,0.05))',
           borderRadius: '0 0 15px 15px'
         }}>
           {reviews.length === 0 ? (
@@ -140,13 +143,13 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
                 💬
               </div>
               <h3 style={{
-                color: '#FF1B8D',
+                color: '#C19A6B',
                 fontSize: '20px',
                 marginBottom: '10px'
               }}>
-                No Reviews Yet
+                {t('reviewsModal.noReviewsTitle')}
               </h3>
-              <p>Be the first to share your experience with {employeeName}!</p>
+              <p>{t('reviewsModal.noReviewsText', { employeeName })}</p>
             </div>
           ) : (
             <div>
@@ -155,16 +158,16 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
                 marginBottom: '30px',
                 textAlign: 'center',
                 padding: '15px',
-                background: 'rgba(255,27,141,0.1)',
+                background: 'rgba(193, 154, 107,0.1)',
                 borderRadius: '10px',
-                border: '1px solid rgba(255,27,141,0.3)'
+                border: '1px solid rgba(193, 154, 107,0.3)'
               }}>
                 <span style={{
-                  color: '#00FFFF',
+                  color: '#00E5FF',
                   fontSize: '18px',
                   fontWeight: 'bold'
                 }}>
-                  📊 {reviews.length} Review{reviews.length > 1 ? 's' : ''} Total
+                  📊 {t(reviews.length === 1 ? 'reviewsModal.reviewsCountSingular' : 'reviewsModal.reviewsCountPlural', { count: reviews.length })}
                 </span>
               </div>
 
@@ -185,7 +188,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
         <div style={{
           padding: '15px 25px',
           textAlign: 'center',
-          borderTop: '1px solid rgba(255,27,141,0.3)',
+          borderTop: '1px solid rgba(193, 154, 107,0.3)',
           background: 'rgba(0,0,0,0.3)',
           borderRadius: '0 0 15px 15px'
         }}>
@@ -194,7 +197,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
             fontSize: '12px',
             margin: '0'
           }}>
-            💡 Tip: Use Ctrl+F to search specific reviews
+            💡 {t('reviewsModal.footerTip')}
           </p>
         </div>
       </div>

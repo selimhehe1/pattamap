@@ -1,0 +1,452 @@
+/* 🎨 DIALOG MODALS - CONFIRM & PROMPT MODALS WITH NIGHTLIFE THEME */
+/**
+ * Component: ConfirmModal.tsx, PromptModal.tsx
+ * Hook: useDialog.ts
+ *
+ * Features:
+ * - Confirm modal with danger/warning/info/success variants
+ * - Prompt modal with text input validation
+ * - Nightlife theme with neon gradients
+ * - Smooth animations with Framer Motion-compatible styles
+ * - WCAG 2.1 Level AA compliant
+ * - Responsive mobile/tablet/desktop
+ */
+
+/* ==================== BASE OVERLAY ==================== */
+.dialog-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 9999;
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==================== BASE MODAL ==================== */
+.dialog-modal {
+  background: var(--bg-modal);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==================== HEADER ==================== */
+.dialog-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  background: var(--bg-surface-alt);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dialog-modal-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dialog-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dialog-modal-header .close-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 28px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dialog-modal-header .close-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dialog-modal-header .close-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ==================== BODY ==================== */
+.dialog-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dialog-message {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ==================== FOOTER ==================== */
+.dialog-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  background: var(--bg-surface-alt);
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-dialog {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.938rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.btn-dialog:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn-dialog:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Cancel button */
+.btn-cancel {
+  background: var(--bg-surface-alt);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-primary);
+}
+
+.btn-cancel:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Confirm button - variants */
+.btn-confirm {
+  color: var(--text-inverse);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm-danger {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4);
+}
+
+.btn-confirm-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.5);
+}
+
+.btn-confirm-warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+}
+
+.btn-confirm-warning:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5);
+}
+
+.btn-confirm-success {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}
+
+.btn-confirm-success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+}
+
+.btn-confirm-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+}
+
+.btn-confirm-info:hover:not(:disabled) {
+  background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.5);
+}
+
+.btn-confirm:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Submit button - same variants as confirm */
+.btn-submit {
+  color: var(--text-inverse);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-submit-danger {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4);
+}
+
+.btn-submit-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.5);
+}
+
+.btn-submit-warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+}
+
+.btn-submit-warning:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5);
+}
+
+.btn-submit-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+}
+
+.btn-submit-info:hover:not(:disabled) {
+  background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.5);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ==================== PROMPT INPUT ==================== */
+.prompt-input-container {
+  margin-top: 16px;
+}
+
+.prompt-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease;
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.prompt-textarea.error {
+  border-color: #f44336;
+}
+
+.prompt-textarea.error:focus {
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+/* Prompt metadata */
+.prompt-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.813rem;
+  color: var(--text-muted);
+}
+
+.char-count {
+  color: var(--text-secondary);
+}
+
+.min-length-hint {
+  color: var(--text-muted);
+}
+
+/* Prompt error */
+.prompt-error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 6px;
+  color: #ff5252;
+  font-size: 0.875rem;
+}
+
+/* Prompt hint */
+.prompt-hint {
+  margin-top: 12px;
+  font-size: 0.813rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ==================== VARIANT STYLING ==================== */
+.confirm-modal-danger {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(244, 67, 54, 0.2);
+}
+
+.confirm-modal-warning {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(255, 152, 0, 0.2);
+}
+
+.confirm-modal-success {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(76, 175, 80, 0.2);
+}
+
+.confirm-modal-info {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(33, 150, 243, 0.2);
+}
+
+.prompt-modal-danger {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(244, 67, 54, 0.2);
+}
+
+.prompt-modal-warning {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(255, 152, 0, 0.2);
+}
+
+.prompt-modal-info {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              0 0 20px rgba(33, 150, 243, 0.2);
+}
+
+/* ==================== RESPONSIVE - MOBILE ==================== */
+@media (max-width: 640px) {
+  .dialog-modal {
+    max-width: calc(100vw - 2rem);
+    border-radius: 10px;
+  }
+
+  .dialog-modal-header {
+    padding: 16px 20px;
+  }
+
+  .dialog-modal-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .dialog-modal-body {
+    padding: 20px;
+  }
+
+  .dialog-modal-footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+    padding: 16px 20px;
+  }
+
+  .btn-dialog {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .prompt-textarea {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .dialog-modal-overlay,
+  .dialog-modal,
+  .btn-dialog,
+  .btn-cancel,
+  .btn-confirm,
+  .btn-submit,
+  .prompt-textarea {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ==================== HIGH CONTRAST MODE ==================== */
+@media (prefers-contrast: high) {
+  .dialog-modal {
+    border-width: 2px;
+  }
+
+  .btn-dialog:focus-visible {
+    outline-width: 3px;
+  }
+
+  .prompt-textarea:focus {
+    border-width: 2px;
+  }
+}

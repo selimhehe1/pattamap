@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SearchFilters from './SearchFilters';
 import SearchResults from './SearchResults';
-import { Employee, PaginatedResponse } from '../../types';
+import { Employee } from '../../types';
 import { useModal } from '../../contexts/ModalContext';
-import GirlProfile from '../Bar/GirlProfile';
+import { GirlProfile } from '../../routes/lazyComponents';
+import { useEmployeeSearch } from '../../hooks/useEmployees';
 import { logger } from '../../utils/logger';
+import '../../styles/layout/search-layout.css';
 
 // Development logging helper
 const isDev = process.env.NODE_ENV === 'development';
@@ -13,473 +16,179 @@ const debugLog = (message: string, data?: any) => {
   if (isDev) logger.debug(message, data);
 };
 
-interface SearchResponse extends PaginatedResponse<Employee> {
-  filters: {
-    availableNationalities: string[];
-    availableZones: string[];
-    availableEstablishments: Array<{ id: string; name: string; zone: string; }>;
-    availableCategories: Array<{ id: number; name: string; icon: string; }>;
-  };
-  sortOptions: Array<{ value: string; label: string; }>;
-}
-
 const SearchPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
+  const [urlParams, setUrlParams] = useSearchParams();
   const { openModal, closeModal } = useModal();
 
-  // Search state
-  const [searchResults, setSearchResults] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalResults, setTotalResults] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-
-  // Available filters (populated from API)
-  const [availableFilters, setAvailableFilters] = useState({
-    nationalities: [] as string[],
-    zones: [] as string[],
-    establishments: [] as Array<{ id: string; name: string; zone: string; }>,
-    categories: [] as Array<{ id: number; name: string; icon: string; }>
-  });
-
-  // Current filter values (including query)
+  // Current filter values from URL
   const [filters, setFilters] = useState({
-    query: searchParams.get('q') || '',
-    nationality: searchParams.get('nationality') || '',
-    zone: searchParams.get('zone') || '',
-    establishment_id: searchParams.get('establishment_id') || '',
-    category_id: searchParams.get('category_id') || '',
-    age_min: searchParams.get('age_min') || '',
-    age_max: searchParams.get('age_max') || '',
-    sort_by: searchParams.get('sort_by') || 'relevance',
-    sort_order: searchParams.get('sort_order') || 'desc'
+    q: urlParams.get('q') || '',
+    type: urlParams.get('type') || 'all', // 🆕 v10.3 - Employee type filter (all/freelance/regular)
+    nationality: urlParams.get('nationality') || '',
+    zone: urlParams.get('zone') || '',
+    establishment_id: urlParams.get('establishment_id') || '',
+    category_id: urlParams.get('category_id') || '',
+    age_min: urlParams.get('age_min') || '',
+    age_max: urlParams.get('age_max') || '',
+    is_verified: urlParams.get('is_verified') || '', // 🆕 v10.2 - Verified filter
+    sort_by: urlParams.get('sort_by') || 'relevance',
+    sort_order: urlParams.get('sort_order') || 'desc'
   });
 
-  // Typing state for better UX feedback
   const [isTyping, setIsTyping] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // 🆕 Pagination state
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Perform search API call
-  const performSearch = useCallback(async (page: number = 1, loadMore: boolean = false) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const params = new URLSearchParams();
-
-      // Add search parameters
-      if (filters.query) params.append('q', filters.query);
-      if (filters.nationality) params.append('nationality', filters.nationality);
-      if (filters.zone) params.append('zone', filters.zone);
-      if (filters.establishment_id) params.append('establishment_id', filters.establishment_id);
-      if (filters.category_id) params.append('category_id', filters.category_id);
-      if (filters.age_min) params.append('age_min', filters.age_min);
-      if (filters.age_max) params.append('age_max', filters.age_max);
-      if (filters.sort_by) params.append('sort_by', filters.sort_by);
-      if (filters.sort_order) params.append('sort_order', filters.sort_order);
-
-      params.append('page', page.toString());
-      params.append('limit', '20');
-
-      debugLog('🔍 Performing search with params:', params.toString());
-
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees/search?${params}`);
-
-      if (!response.ok) {
-        throw new Error(`Search failed: ${response.status} ${response.statusText}`);
+  // Cleanup debounce timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
       }
+    };
+  }, []);
 
-      const data: SearchResponse = await response.json();
-      debugLog('📊 Search results:', data);
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.type, filters.nationality, filters.zone, filters.establishment_id, filters.category_id, filters.age_min, filters.age_max, filters.is_verified, filters.sort_by, filters.sort_order, filters.q]);
 
-      // Update results
-      if (loadMore && page > 1) {
-        setSearchResults(prev => [...prev, ...data.data]);
-      } else {
-        setSearchResults(data.data);
-      }
-
-      setTotalResults(data.total);
-      setCurrentPage(data.page);
-      setHasMore(data.hasMore);
-
-      // Update available filters (only from first page)
-      if (page === 1 && data.filters) {
-        setAvailableFilters({
-          nationalities: data.filters.availableNationalities || [],
-          zones: data.filters.availableZones || [],
-          establishments: data.filters.availableEstablishments || [],
-          categories: data.filters.availableCategories || []
-        });
-      }
-
-    } catch (err) {
-      if (isDev) logger.error('❌ Search error:', err);
-      setError(err instanceof Error ? err.message : 'Search failed');
-    } finally {
-      setLoading(false);
+  // Scroll to top when filters or page change
+  useEffect(() => {
+    // Scroll main content container
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.scrollTop = 0;
     }
-  }, [filters]);
+
+    // Also scroll window to top (for better UX)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage, filters.type, filters.nationality, filters.zone, filters.establishment_id, filters.category_id, filters.age_min, filters.age_max, filters.is_verified, filters.sort_by, filters.sort_order]);
+
+  // ⚡ React Query hook with pagination - Retourne une seule page
+  const {
+    data,
+    isFetching,
+    error
+  } = useEmployeeSearch({
+    ...filters,
+    page: currentPage,
+    limit: 20
+  });
+
+  // Extract data from current page
+  const searchResults = data?.employees || [];
+  const totalResults = data?.total || 0;
+  const totalPages = Math.ceil(totalResults / 20);
+  const availableFilters = {
+    nationalities: data?.filters?.availableNationalities || [],
+    zones: data?.filters?.availableZones || [],
+    establishments: data?.filters?.availableEstablishments || [],
+    categories: data?.filters?.availableCategories || []
+  };
+
 
   // Update URL params
-  const updateUrlParams = useCallback(() => {
+  const updateUrlParams = useCallback((newFilters: typeof filters) => {
     const params = new URLSearchParams();
+    Object.entries(newFilters).forEach(([key, value]) => {
+      // ✅ Strict check to avoid removing valid falsy values like '0' or 'false'
+      if (value !== undefined && value !== null && value.toString().trim() !== '') {
+        // ✅ Skip default values to keep URLs clean and avoid cache key issues
+        if (key === 'type' && value === 'all') return;
+        if (key === 'sort_by' && value === 'relevance') return;
+        if (key === 'sort_order' && value === 'desc') return;
 
-    // Add all filter values to URL
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value && value.toString().trim()) {
         params.set(key, value.toString());
       }
     });
+    setUrlParams(params);
+  }, [setUrlParams]);
 
-    setSearchParams(params);
-  }, [filters, setSearchParams]);
+  // Synchronize URL params with filters state (debounced to avoid too many history entries)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      updateUrlParams(filters);
+    }, 150); // Debounce URL updates to avoid spamming browser history
 
-  // Handle text query changes with debounce - Scheduler optimized
+    return () => clearTimeout(timeoutId);
+  }, [filters, updateUrlParams]);
+
+  // Handle text query changes with debounce optimized
   const handleQueryChange = useCallback((value: string) => {
-    setFilters(prev => ({ ...prev, query: value }));
     setIsTyping(true);
 
-    // Use requestIdleCallback for non-urgent operations
-    const scheduleSearch = () => {
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          setIsTyping(false);
-          performSearch(1, false);
-          updateUrlParams();
-        });
-      } else {
-        // Fallback for browsers without requestIdleCallback
-        setTimeout(() => {
-          setIsTyping(false);
-          performSearch(1, false);
-          updateUrlParams();
-        }, 0);
-      }
-    };
+    // Clear previous timeout
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
 
-    // Increased debounce to avoid scheduler violations
-    setTimeout(scheduleSearch, 1000); // Increased from 800ms to 1000ms
-  }, [performSearch, updateUrlParams]);
+    // Set new timeout - 150ms pour réactivité instantanée
+    debounceTimeout.current = setTimeout(() => {
+      // ✅ Just update filters - useEffect will handle URL sync
+      setFilters(prev => ({ ...prev, q: value }));
+      setIsTyping(false);
+    }, 150); // ✅ Reduced from 500ms to 150ms pour expérience fluide
+  }, []);
 
   // Handle zone change with establishment reset
   const handleZoneChange = useCallback((zoneValue: string) => {
-    requestAnimationFrame(() => {
-      const newFilters = {
-        ...filters,
-        zone: zoneValue,
-        establishment_id: '' // Reset establishment when zone changes
-      };
+    // ✅ Just update filters - useEffect will handle URL sync
+    setFilters(prev => ({
+      ...prev,
+      zone: zoneValue,
+      establishment_id: '' // Reset establishment when zone changes
+    }));
+  }, []);
 
-      setFilters(newFilters);
-      setCurrentPage(1);
-
-      // Perform search with new filters
-      const performSearchWithNewFilters = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-          const params = new URLSearchParams();
-
-          if (newFilters.query) params.append('q', newFilters.query);
-          if (newFilters.nationality) params.append('nationality', newFilters.nationality);
-          if (newFilters.zone) params.append('zone', newFilters.zone);
-          if (newFilters.establishment_id) params.append('establishment_id', newFilters.establishment_id);
-          if (newFilters.category_id) params.append('category_id', newFilters.category_id);
-          if (newFilters.age_min) params.append('age_min', newFilters.age_min);
-          if (newFilters.age_max) params.append('age_max', newFilters.age_max);
-          if (newFilters.sort_by) params.append('sort_by', newFilters.sort_by);
-          if (newFilters.sort_order) params.append('sort_order', newFilters.sort_order);
-
-          params.append('page', '1');
-          params.append('limit', '20');
-
-          debugLog('🔍 Performing search with params:', params.toString());
-
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees/search?${params}`);
-
-          if (!response.ok) {
-            throw new Error(`Search failed: ${response.status} ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          debugLog('📊 Search results:', data);
-
-          setSearchResults(data.data);
-          setTotalResults(data.total);
-          setCurrentPage(data.page);
-          setHasMore(data.hasMore);
-
-          if (data.filters) {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => {
-                setAvailableFilters({
-                  nationalities: data.filters.availableNationalities || [],
-                  zones: data.filters.availableZones || [],
-                  establishments: data.filters.availableEstablishments || [],
-                  categories: data.filters.availableCategories || []
-                });
-              });
-            } else {
-              setAvailableFilters({
-                nationalities: data.filters.availableNationalities || [],
-                zones: data.filters.availableZones || [],
-                establishments: data.filters.availableEstablishments || [],
-                categories: data.filters.availableCategories || []
-              });
-            }
-          }
-
-        } catch (err) {
-          if (isDev) logger.error('❌ Search error:', err);
-          setError(err instanceof Error ? err.message : 'Search failed');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      performSearchWithNewFilters();
-
-      const updateUrl = () => {
-        const params = new URLSearchParams();
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value && value.toString().trim()) {
-            params.set(key, value.toString());
-          }
-        });
-        setSearchParams(params);
-      };
-
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(updateUrl);
-      } else {
-        setTimeout(updateUrl, 0);
-      }
-    });
-  }, [filters, setSearchParams]);
-
-  // Handle filter changes - Scheduler optimized
+  // Handle filter changes
   const handleFilterChange = useCallback((key: string, value: string) => {
-    // Use requestAnimationFrame for smooth state updates
-    requestAnimationFrame(() => {
+    // ✅ Just update filters - useEffect will handle URL sync
+    setFilters(prev => {
       let newFilters = {
-        ...filters,
+        ...prev,
         [key]: value
       };
 
-      // CRITICAL FIX: Auto-adjust sort_order based on sort_by for intuitive behavior
+      // Auto-adjust sort_order based on sort_by
       if (key === 'sort_by') {
-        if (value === 'name') {
-          // Name A-Z should be ascending by default
-          newFilters.sort_order = 'asc';
-          debugLog('🔤 Name sort selected - Auto-setting sort_order to asc');
-        } else if (value === 'oldest') {
-          // Oldest should be ascending (oldest first)
+        if (value === 'name' || value === 'oldest') {
           newFilters.sort_order = 'asc';
         } else {
-          // All others (relevance, popularity, newest) should be descending
           newFilters.sort_order = 'desc';
         }
       }
 
-      setFilters(newFilters);
-      setCurrentPage(1);
-
-      // Use performSearch directly with newFilters to avoid timing issues
-      const performSearchWithNewFilters = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-          const params = new URLSearchParams();
-
-          // Add search parameters using newFilters
-          if (newFilters.query) params.append('q', newFilters.query);
-          if (newFilters.nationality) params.append('nationality', newFilters.nationality);
-          if (newFilters.zone) params.append('zone', newFilters.zone);
-          if (newFilters.establishment_id) params.append('establishment_id', newFilters.establishment_id);
-          if (newFilters.category_id) params.append('category_id', newFilters.category_id);
-          if (newFilters.age_min) params.append('age_min', newFilters.age_min);
-          if (newFilters.age_max) params.append('age_max', newFilters.age_max);
-          if (newFilters.sort_by) params.append('sort_by', newFilters.sort_by);
-          if (newFilters.sort_order) params.append('sort_order', newFilters.sort_order);
-
-          params.append('page', '1');
-          params.append('limit', '20');
-
-          debugLog('🔍 Performing immediate search with params:', params.toString());
-
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees/search?${params}`);
-
-          if (!response.ok) {
-            throw new Error(`Search failed: ${response.status} ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          debugLog('📊 Search results:', data);
-
-          setSearchResults(data.data);
-          setTotalResults(data.total);
-          setCurrentPage(data.page);
-          setHasMore(data.hasMore);
-
-          // Update available filters using idle callback to avoid blocking
-          if (data.filters) {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => {
-                setAvailableFilters({
-                  nationalities: data.filters.availableNationalities || [],
-                  zones: data.filters.availableZones || [],
-                  establishments: data.filters.availableEstablishments || [],
-                  categories: data.filters.availableCategories || []
-                });
-              });
-            } else {
-              setAvailableFilters({
-                nationalities: data.filters.availableNationalities || [],
-                zones: data.filters.availableZones || [],
-                establishments: data.filters.availableEstablishments || [],
-                categories: data.filters.availableCategories || []
-              });
-            }
-          }
-
-        } catch (err) {
-          if (isDev) logger.error('❌ Search error:', err);
-          setError(err instanceof Error ? err.message : 'Search failed');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      // Execute search immediately
-      performSearchWithNewFilters();
-
-      // Update URL params using idle callback to avoid blocking
-      const updateUrl = () => {
-        const params = new URLSearchParams();
-        Object.entries(newFilters).forEach(([key, value]) => {
-          if (value && value.toString().trim()) {
-            params.set(key, value.toString());
-          }
-        });
-        setSearchParams(params);
-      };
-
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(updateUrl);
-      } else {
-        setTimeout(updateUrl, 0);
-      }
+      return newFilters;
     });
-  }, [filters, setSearchParams]);
+  }, []);
 
-  // Handle clearing all filters - Scheduler optimized
+  // Handle clearing all filters
   const handleClearFilters = useCallback(() => {
     debugLog('🗑️ CLEAR ALL FILTERS');
 
-    // Use requestAnimationFrame for smooth state updates
-    requestAnimationFrame(() => {
-      const clearedFilters = {
-        query: '',
-        nationality: '',
-        zone: '',
-        establishment_id: '',
-        category_id: '',
-        age_min: '',
-        age_max: '',
-        sort_by: 'relevance',
-        sort_order: 'desc'
-      };
-
-      setFilters(clearedFilters);
-      setCurrentPage(1);
-
-      // Execute search immediately with cleared filters
-      const performSearchWithClearedFilters = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-          const params = new URLSearchParams();
-
-          // Add search parameters using clearedFilters (all empty except defaults)
-          params.append('sort_by', 'relevance');
-          params.append('sort_order', 'desc');
-          params.append('page', '1');
-          params.append('limit', '20');
-
-          debugLog('🔍 Performing immediate search with cleared filters:', params.toString());
-
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees/search?${params}`);
-
-          if (!response.ok) {
-            throw new Error(`Search failed: ${response.status} ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          debugLog('📊 Search results after clear:', data);
-
-          setSearchResults(data.data);
-          setTotalResults(data.total);
-          setCurrentPage(data.page);
-          setHasMore(data.hasMore);
-
-          // Update available filters using idle callback
-          if (data.filters) {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => {
-                setAvailableFilters({
-                  nationalities: data.filters.availableNationalities || [],
-                  zones: data.filters.availableZones || [],
-                  establishments: data.filters.availableEstablishments || [],
-                  categories: data.filters.availableCategories || []
-                });
-              });
-            } else {
-              setAvailableFilters({
-                nationalities: data.filters.availableNationalities || [],
-                zones: data.filters.availableZones || [],
-                establishments: data.filters.availableEstablishments || [],
-                categories: data.filters.availableCategories || []
-              });
-            }
-          }
-
-        } catch (err) {
-          if (isDev) logger.error('❌ Search error after clear:', err);
-          setError(err instanceof Error ? err.message : 'Search failed');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      // Execute search immediately
-      performSearchWithClearedFilters();
-
-      // Update URL params to cleared state using idle callback
-      const updateUrl = () => {
-        const params = new URLSearchParams();
-        params.set('sort_by', 'relevance');
-        params.set('sort_order', 'desc');
-        setSearchParams(params);
-      };
-
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(updateUrl);
-      } else {
-        setTimeout(updateUrl, 0);
-      }
+    // ✅ Just update filters - useEffect will handle URL sync
+    setFilters({
+      q: '',
+      type: 'all', // 🆕 v10.3 - Reset type filter
+      nationality: '',
+      zone: '',
+      establishment_id: '',
+      category_id: '',
+      age_min: '',
+      age_max: '',
+      is_verified: '', // 🆕 v10.2 - Reset verified filter
+      sort_by: 'relevance',
+      sort_order: 'desc'
     });
-  }, [setSearchParams]);
+  }, []);
 
-  // Handle load more
-  const handleLoadMore = useCallback(() => {
-    if (!loading && hasMore) {
-      performSearch(currentPage + 1, true);
-    }
-  }, [loading, hasMore, currentPage, performSearch]);
+  // Handle page change - Update current page state
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
+    // Scroll already handled by useEffect above
+  }, []);
 
   // Handle employee profile navigation
   const handleEmployeeClick = useCallback((employee: Employee) => {
@@ -488,65 +197,42 @@ const SearchPage: React.FC = () => {
       girl: employee,
       onClose: () => closeModal('employee-profile')
     }, {
-      size: 'profile'
+      size: 'fullscreen',
+      showCloseButton: false
     });
   }, [openModal, closeModal]);
 
-
-  // Initial search on mount only
-  useEffect(() => {
-    debugLog('🚀 Initial search on mount');
-    performSearch(1, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only on mount
-
   return (
-    <div className="page-content-with-header-nightlife" style={{
-      background: 'linear-gradient(135deg, #0a0a2e, #16213e, #240046)',
-      color: '#ffffff'
-    }}>
-      {/* Header Section */}
-      <div style={{
+    <div id="main-content" className="bg-nightlife-gradient-main page-content-with-header-nightlife" tabIndex={-1}>
+      {/* Header Section - AVANT search-results-container pour éviter d'être caché par le padding-left de la sidebar */}
+      <div className="header-centered-nightlife" style={{
         padding: '30px 20px',
-        textAlign: 'center',
-        borderBottom: '2px solid rgba(255,27,141,0.3)'
+        marginBottom: '20px',
+        textAlign: 'center'
       }}>
-        <h1 style={{
-          fontSize: '36px',
-          fontWeight: '900',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 30px rgba(255,27,141,0.5)',
-          marginBottom: '10px',
-          fontFamily: '"Orbitron", monospace'
-        }}>
-          🔍 Advanced Employee Search
+        <h1 className="header-title-nightlife">
+          🔍 {t('search.title')}
         </h1>
-        <p style={{
-          fontSize: '16px',
-          color: '#00FFFF',
-          textShadow: '0 0 10px rgba(0,255,255,0.3)',
-          margin: '0'
-        }}>
-          Find employees by name, age, nationality, zone, and establishment
+        <p className="header-subtitle-nightlife">
+          {t('search.subtitle')}
         </p>
 
         {/* Results Summary */}
-        {!loading && totalResults > 0 && (
+        {!isFetching && totalResults > 0 && (
           <div style={{
             marginTop: '20px',
             padding: '10px 20px',
-            background: 'rgba(255,27,141,0.1)',
-            border: '1px solid rgba(255,27,141,0.3)',
+            background: 'rgba(193, 154, 107,0.1)',
+            border: '1px solid rgba(193, 154, 107,0.3)',
             borderRadius: '25px',
             display: 'inline-block',
             fontSize: '14px',
             fontWeight: 'bold',
-            color: '#FF1B8D'
+            color: '#C19A6B'
           }}>
-            📊 Found {totalResults} result{totalResults !== 1 ? 's' : ''}
-            {filters.query && ` for "${filters.query}"`}
+            📊 {filters.q
+              ? t('search.foundResultsFor', { count: totalResults, query: filters.q })
+              : t('search.foundResults', { count: totalResults })}
           </div>
         )}
       </div>
@@ -560,7 +246,7 @@ const SearchPage: React.FC = () => {
           onZoneChange={handleZoneChange}
           onQueryChange={handleQueryChange}
           onClearFilters={handleClearFilters}
-          loading={loading}
+          loading={isFetching}
           isTyping={isTyping}
         />
 
@@ -579,23 +265,24 @@ const SearchPage: React.FC = () => {
             }}>
               <div style={{ fontSize: '24px', marginBottom: '10px' }}>❌</div>
               <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#FF4757' }}>
-                Search Error
+                {t('search.error')}
               </div>
               <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '5px' }}>
-                {error}
+                {error.message}
               </div>
             </div>
           )}
 
           {!error && (
             <SearchResults
+              key={`${filters.type}-${filters.nationality}-${filters.zone}-${filters.establishment_id}-${filters.category_id}-${filters.is_verified}`}
               results={searchResults}
-              loading={loading}
-              hasMore={hasMore}
-              onLoadMore={handleLoadMore}
+              loading={isFetching}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
               onEmployeeClick={handleEmployeeClick}
               totalResults={totalResults}
-              currentPage={currentPage}
             />
           )}
         </div>

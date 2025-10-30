@@ -168,10 +168,10 @@ CREATE INDEX idx_employment_establishment_current ON employment_history (establi
 
 -- Insert default establishment categories
 INSERT INTO establishment_categories (name, icon, color) VALUES
-('Bar', 'beer', '#ff6b35'),
-('GoGo Bar', 'dancer', '#ff006e'),
-('Massage Salon', 'spa', '#06ffa5'),
-('Nightclub', 'music', '#7b2cbf');
+('Bar', '🍺', '#ff6b35'),
+('GoGo Bar', '👯‍♀️', '#ff006e'),
+('Massage Salon', '🧖‍♀️', '#06ffa5'),
+('Nightclub', '🎵', '#7b2cbf');
 
 -- ========================================
 -- PERFORMANCE OPTIMIZATIONS (Phase 2)

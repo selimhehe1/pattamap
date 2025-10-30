@@ -254,9 +254,9 @@ const StreetIntersection: React.FC<StreetIntersectionProps> = ({
                 left: '25%',
                 width: '3px',
                 height: '3px',
-                background: '#00FFFF',
+                background: '#00E5FF',
                 borderRadius: '50%',
-                boxShadow: '0 0 6px #00FFFF',
+                boxShadow: '0 0 6px #00E5FF',
                 animation: 'trafficSoiUp1 6s linear infinite'
               }}
             />
@@ -267,9 +267,9 @@ const StreetIntersection: React.FC<StreetIntersectionProps> = ({
                 right: '25%',
                 width: '2px',
                 height: '2px',
-                background: '#FF1B8D',
+                background: '#C19A6B',
                 borderRadius: '50%',
-                boxShadow: '0 0 4px #FF1B8D',
+                boxShadow: '0 0 4px #C19A6B',
                 animation: 'trafficSoiUp2 8s linear infinite'
               }}
             />

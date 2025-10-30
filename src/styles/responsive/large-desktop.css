@@ -1,0 +1,254 @@
+/* 🖥️ LARGE DESKTOP OPTIMIZATIONS - NIGHTLIFE THEME */
+/**
+ * @file Optimizations for large screens (1440px+) and ultra-wide (1920px+)
+ * @version 1.0.0
+ * @phase Phase 4D - Architecture Finale
+ * @date 2025-01-09
+ *
+ * CONTENU:
+ * - Large Desktop (90rem / 1440px+): Optimizations pour écrans larges
+ * - 4K / Ultra Wide (120rem / 1920px+): Optimizations pour très grands écrans
+ *
+ * DÉPENDANCES:
+ * - design-system.css (--width-container-*, --font-*, --spacing-*)
+ *
+ * UTILISATION:
+ * Chargé en dernier dans App.tsx pour optimisations progressive enhancement.
+ * Ne s'applique QUE sur écrans larges - mobile-first par défaut.
+ */
+
+/* ================================================================
+ * LARGE DESKTOP (1440px+) - Écrans larges standards
+ * ================================================================ */
+
+/**
+ * Media Query: min-width 90rem (1440px)
+ * Target: MacBook Pro 16", iMac 27", monitors 1440p
+ * Goal: Utiliser l'espace horizontal disponible sans étirer le contenu
+ */
+@media (min-width: 90rem) {
+
+  /* Modal Content - Largeur augmentée pour meilleure lisibilité */
+  .modal-content-unified {
+    max-width: 75rem; /* 1200px vs 900px default */
+  }
+
+  /* Page Content - FULL-WIDTH responsive (max-width supprimé) */
+  .page-content-with-header-nightlife {
+    /* max-width supprimé pour full-width responsive sur tous écrans */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Map Container - FULL-WIDTH responsive (max-width supprimé) */
+  .map-container-nightlife {
+    /* max-width supprimé pour full-width responsive sur tous écrans */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Search Results Grid - Plus de colonnes avec meilleur spacing */
+  .search-results-grid-nightlife {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.875rem; /* 30px vs 24px default */
+  }
+
+  /* Map Sidebar - Plus large pour meilleure lisibilité */
+  .map-sidebar-nightlife {
+    width: 23.75rem; /* 380px vs 320px default */
+  }
+}
+
+/* ================================================================
+ * 4K / ULTRA WIDE (1920px+) - Très grands écrans
+ * ================================================================ */
+
+/**
+ * Media Query: min-width 120rem (1920px)
+ * Target: 4K monitors, ultra-wide displays, large desktop setups
+ * Goal: Maximum lisibilité avec espacement généreux et tailles adaptées
+ *
+ * UX Reasoning:
+ * - 4K users sont souvent à ~1m de distance (vs 60cm pour laptop)
+ * - Besoin de texte plus large pour compenser distance
+ * - Utiliser largeur pour plus de colonnes, pas pour étirer contenu
+ */
+@media (min-width: 120rem) {
+
+  /* ──────────────────────────────────────────────────────────
+   * CONTAINERS - Maximum widths pour très grands écrans
+   * ────────────────────────────────────────────────────────── */
+
+  /* Modal Content - Large mais pas full-width */
+  .modal-content-unified {
+    max-width: 87.5rem; /* 1400px */
+  }
+
+  /* Page Content - FULL-WIDTH ultra-wide (max-width supprimé) */
+  .page-content-with-header-nightlife {
+    /* max-width supprimé pour full-width responsive sur 4K+ */
+    width: 100%;
+  }
+
+  /* Map Container - FULL-WIDTH ultra-wide (max-width supprimé) */
+  .map-container-nightlife {
+    /* max-width supprimé pour full-width responsive sur 4K+ */
+    width: 100%;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+   * GRIDS - Plus de colonnes pour utiliser l'espace
+   * ────────────────────────────────────────────────────────── */
+
+  /* Search Results - 4-5 colonnes sur ultra-wide */
+  .search-results-grid-nightlife {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.1875rem; /* 35px - Espacement généreux */
+  }
+
+  /* ──────────────────────────────────────────────────────────
+   * TYPOGRAPHY - Tailles augmentées pour distance de lecture
+   * ────────────────────────────────────────────────────────── */
+
+  /**
+   * Body text plus large
+   * Raison: Distance de lecture plus grande sur 4K
+   * 1.125rem = 18px (vs 16px default)
+   */
+  body {
+    font-size: 1.125rem;
+    line-height: 1.7; /* Espacement vertical augmenté */
+  }
+
+  /**
+   * Header titles plus imposants
+   * Raison: Utiliser hauteur verticale disponible
+   * 2rem = 32px (vs 20-24px default)
+   */
+  .header-title-nightlife {
+    font-size: 2rem;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+   * SIDEBAR - Largeur augmentée pour meilleure UX
+   * ────────────────────────────────────────────────────────── */
+
+  /**
+   * Map Sidebar extra large
+   * Raison: Évite scroll horizontal avec listes longues
+   * 26.25rem = 420px (vs 380px large desktop)
+   */
+  .map-sidebar-nightlife {
+    width: 26.25rem;
+  }
+}
+
+/* ================================================================
+ * PRINT STYLES - Optimisations pour impression
+ * ================================================================ */
+
+/**
+ * Media Query: print
+ * Goal: Layout optimisé pour PDF/impression papier
+ * Appliqué aux écrans larges car souvent utilisés pour générer PDFs
+ */
+@media print {
+
+  /* Remove max-widths pour utiliser pleine page */
+  .page-content-with-header-nightlife,
+  .modal-content-unified,
+  .map-container-nightlife {
+    max-width: none;
+    margin: 0;
+  }
+
+  /* Smaller font sizes pour économiser papier */
+  body {
+    font-size: 0.875rem; /* 14px */
+  }
+
+  /* Hide interactive elements */
+  .map-sidebar-nightlife {
+    display: none;
+  }
+}
+
+/* ================================================================
+ * ACCESSIBILITY & PERFORMANCE
+ * ================================================================ */
+
+/**
+ * WCAG 2.1 Compliance:
+ * ✅ 1.4.10 Reflow (Level AA): Content adapts without horizontal scroll
+ * ✅ 1.4.12 Text Spacing (Level AA): Line height 1.7 sur 4K
+ * ✅ 1.4.4 Resize Text (Level AA): Font size augmente proportionnellement
+ *
+ * Performance Considerations:
+ * - Media queries séparées: Browser charge seulement si viewport match
+ * - No JavaScript required: Pure CSS progressive enhancement
+ * - GPU-accelerated: Grid layouts natifs
+ *
+ * UX Guidelines:
+ * - Large Desktop (1440px): +20% width, +25% spacing
+ * - 4K (1920px): +50% width, +40% spacing, +12.5% font
+ * - Distance compensation: 4K users ~40% plus loin
+ * - Column count: Auto-fill adapte au contenu disponible
+ *
+ * Browser Support:
+ * - Modern browsers: 100% support (Chrome 90+, Firefox 88+, Safari 14+)
+ * - Legacy browsers: Graceful degradation (ignore media queries)
+ */
+
+/* ================================================================
+ * RESPONSIVE BREAKPOINTS CHART
+ * ================================================================ */
+
+/**
+ * VIEWPORT SIZES:
+ *
+ * Mobile           : 0px     → 768px   (48rem)   | Default styles
+ * Tablet           : 769px   → 1023px  (64rem)   | Intermediate
+ * Desktop          : 1024px  → 1439px  (90rem)   | Standard
+ * Large Desktop    : 1440px  → 1919px  (120rem)  | THIS FILE (part 1)
+ * 4K / Ultra Wide  : 1920px+ (120rem+)           | THIS FILE (part 2)
+ *
+ * COMMON RESOLUTIONS:
+ * - 1440x900  : MacBook Pro 16" (90rem)
+ * - 1920x1080 : Full HD desktop (120rem)
+ * - 2560x1440 : 2K / QHD (160rem)
+ * - 3840x2160 : 4K UHD (240rem)
+ *
+ * DESIGN PHILOSOPHY:
+ * Mobile First: Base styles pour mobile
+ * Progressive Enhancement: Améliore UX sur écrans plus larges
+ * Content First: Optimise lisibilité, pas remplissage espace
+ * Performance First: CSS pur, pas de JavaScript
+ */
+
+/* ================================================================
+ * EXEMPLES D'UTILISATION
+ * ================================================================ */
+
+/**
+ * Classes s'appliquent automatiquement selon viewport:
+ *
+ * Mobile (< 1440px):
+ * - .page-content-with-header-nightlife: Styles de base
+ * - .search-results-grid-nightlife: 2-3 colonnes
+ *
+ * Large Desktop (1440px - 1919px):
+ * - .page-content-with-header-nightlife: max-width 87.5rem
+ * - .search-results-grid-nightlife: 3-4 colonnes, gap 30px
+ * - .map-sidebar-nightlife: width 380px
+ *
+ * 4K / Ultra Wide (1920px+):
+ * - .page-content-with-header-nightlife: max-width 112.5rem
+ * - .search-results-grid-nightlife: 4-6 colonnes, gap 35px
+ * - body: font-size 18px (vs 16px)
+ * - .header-title-nightlife: font-size 32px (vs 20px)
+ * - .map-sidebar-nightlife: width 420px
+ *
+ * Aucun changement nécessaire dans JSX - tout automatique via CSS!
+ */

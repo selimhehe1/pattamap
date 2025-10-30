@@ -1,0 +1,912 @@
+/**
+ * ============================================
+ * LANGUAGE SELECTOR - Nightlife Premium
+ * ============================================
+ *
+ * Sélecteur de langue avec design cohérent nightlife:
+ * - Dropdown compact pour desktop
+ * - Liste inline pour mobile menu
+ * - Gradient cyan/violet
+ * - Glow effects
+ * - Animations smooth
+ * - Responsive (desktop, mobile, landscape)
+ *
+ * @dependencies design-system.css (variables)
+ */
+
+/* ============================================
+   DROPDOWN MODE (Compact)
+   ============================================ */
+
+.language-selector-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.language-selector-btn {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1-5); /* 6px entre flag et arrow */
+  min-width: 3.5rem; /* 56px */
+  min-height: 2.75rem; /* 44px WCAG touch target */
+  padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
+
+  /* Background nightlife */
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  border: 2px solid rgba(44, 62, 80, 0.4);
+  border-radius: var(--border-radius-lg);
+
+  /* Typography */
+  font-size: 1.5rem; /* Emoji flag size */
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+
+  /* Effects */
+  box-shadow:
+    0 4px 12px rgba(44, 62, 80, 0.2),
+    inset 0 0 15px rgba(44, 62, 80, 0.05);
+  backdrop-filter: var(--backdrop-blur-sm);
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+
+  /* Reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.language-selector-btn:hover {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
+  border-color: rgba(44, 62, 80, 0.6);
+  box-shadow:
+    0 6px 20px rgba(44, 62, 80, 0.4),
+    0 0 30px rgba(44, 62, 80, 0.3),
+    inset 0 0 20px rgba(44, 62, 80, 0.1);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.language-selector-btn:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.language-dropdown-arrow {
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-secondary);
+  transition: transform var(--duration-fast) var(--ease-in-out);
+}
+
+/* Language Code Display (replaces emoji flags) */
+.language-code {
+  display: inline-block;
+  font-size: 0.875rem; /* 14px for text codes */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--color-secondary); /* Cyan nightlife */
+  text-transform: uppercase;
+}
+
+/* Dropdown Menu */
+.language-dropdown-menu {
+  /* Position */
+  position: absolute;
+  top: calc(100% + var(--spacing-2)); /* 8px sous le bouton */
+  right: 0;
+  z-index: 1000;
+
+  /* Layout */
+  min-width: 12rem; /* 192px */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1); /* 4px entre items */
+  padding: var(--spacing-3); /* 12px */
+
+  /* Background nightlife */
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 40, 0.98),
+    rgba(30, 15, 45, 0.98)
+  );
+  border: 2px solid rgba(44, 62, 80, 0.4);
+  border-radius: var(--border-radius-lg);
+
+  /* Effects */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(44, 62, 80, 0.3),
+    inset 0 0 30px rgba(44, 62, 80, 0.05);
+  backdrop-filter: var(--backdrop-blur-md);
+
+  /* Animation */
+  animation: languageDropdownFadeIn var(--duration-normal) var(--ease-in-out);
+}
+
+@keyframes languageDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown Items */
+.language-dropdown-item {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2); /* 8px */
+  padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
+  width: 100%;
+
+  /* Background */
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+
+  /* Typography */
+  font-size: var(--font-sm); /* 14px */
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-align: left;
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-in-out);
+
+  /* Reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.language-dropdown-item .language-code {
+  min-width: 2rem; /* 32px - Fixed width for alignment */
+  text-align: center;
+}
+
+.language-dropdown-item .language-name {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.language-dropdown-item .language-check {
+  color: var(--color-primary);
+  font-size: 1rem; /* 16px */
+  font-weight: var(--font-weight-bold);
+}
+
+.language-dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  border-color: rgba(44, 62, 80, 0.3);
+  transform: translateX(4px);
+}
+
+.language-dropdown-item.active {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.2));
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.language-dropdown-item:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   INLINE MODE (Non-compact - Mobile Menu)
+   ============================================ */
+
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2); /* 8px entre les boutons */
+}
+
+/* ============================================
+   Buttons - Base Style
+   ============================================ */
+
+.language-btn {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1-5); /* 6px entre flag et nom */
+  min-width: 2.75rem; /* 44px WCAG touch target */
+  min-height: 2.75rem; /* 44px WCAG touch target */
+  padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
+
+  /* Background nightlife */
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  border: 2px solid rgba(44, 62, 80, 0.4);
+  border-radius: var(--border-radius-lg);
+
+  /* Typography */
+  font-size: 1.5rem; /* Emoji flag size */
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+
+  /* Effects */
+  box-shadow:
+    0 4px 12px rgba(44, 62, 80, 0.2),
+    inset 0 0 15px rgba(44, 62, 80, 0.05);
+  backdrop-filter: var(--backdrop-blur-sm);
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+
+  /* Reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+/* Language code for inline buttons inherits global .language-code */
+
+.language-name {
+  font-size: var(--font-sm); /* 14px */
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* ============================================
+   States - Hover
+   ============================================ */
+
+.language-btn:hover {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
+  border-color: rgba(44, 62, 80, 0.6);
+  box-shadow:
+    0 6px 20px rgba(44, 62, 80, 0.4),
+    0 0 30px rgba(44, 62, 80, 0.3),
+    inset 0 0 20px rgba(44, 62, 80, 0.1);
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* ============================================
+   States - Active (langue sélectionnée)
+   ============================================ */
+
+.language-btn.active {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(193, 154, 107, 0.25));
+  border-color: var(--color-primary);
+  box-shadow:
+    0 6px 25px rgba(193, 154, 107, 0.5),
+    0 0 35px rgba(193, 154, 107, 0.4),
+    inset 0 0 25px rgba(193, 154, 107, 0.15);
+}
+
+.language-btn.active:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow:
+    0 8px 30px rgba(193, 154, 107, 0.6),
+    0 0 40px rgba(193, 154, 107, 0.5),
+    inset 0 0 30px rgba(193, 154, 107, 0.2);
+}
+
+/* ============================================
+   States - Active (pressed)
+   ============================================ */
+
+.language-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 2px 10px rgba(44, 62, 80, 0.3),
+    inset 0 0 15px rgba(44, 62, 80, 0.15);
+}
+
+/* ============================================
+   States - Focus (accessibility)
+   ============================================ */
+
+.language-btn:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   RESPONSIVE - Tablet and Mobile
+   ============================================ */
+
+/* Tablet (max-width: 768px) */
+@media (max-width: 48rem) {
+  .language-selector {
+    gap: var(--spacing-1-5); /* 6px - Reduced spacing */
+  }
+
+  .language-btn {
+    min-width: 2.5rem; /* 40px */
+    min-height: 2.5rem; /* 40px */
+    padding: var(--spacing-1-5) var(--spacing-2); /* 6px 8px */
+  }
+
+  .language-name {
+    display: none; /* Hide text labels on mobile */
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 30rem) {
+  .language-selector {
+    gap: var(--spacing-1); /* 4px - Minimal spacing */
+  }
+
+  .language-btn {
+    min-width: 2.25rem; /* 36px */
+    min-height: 2.25rem; /* 36px */
+    padding: var(--spacing-1) var(--spacing-1-5); /* 4px 6px */
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Mobile Landscape
+   ============================================ */
+
+/* Large Landscape (height < 600px) */
+@media (max-height: 37.5rem) and (orientation: landscape) {
+  .language-selector {
+    gap: var(--spacing-1-5); /* 6px */
+  }
+
+  .language-btn {
+    min-width: 2.5rem; /* 40px */
+    min-height: 2.5rem; /* 40px */
+    padding: var(--spacing-1-5) var(--spacing-2); /* 6px 8px */
+  }
+
+  .language-name {
+    display: none; /* Hide labels in landscape */
+  }
+}
+
+/* Medium Landscape (height < 480px) */
+@media (max-height: 30rem) and (orientation: landscape) {
+  .language-selector {
+    gap: var(--spacing-1); /* 4px */
+  }
+
+  .language-btn {
+    min-width: 2.25rem; /* 36px */
+    min-height: 2.25rem; /* 36px */
+    padding: var(--spacing-1) var(--spacing-1-5); /* 4px 6px */
+  }
+}
+
+/* Small Landscape (height < 375px) */
+@media (max-height: 23.4375rem) and (orientation: landscape) {
+  .language-selector {
+    gap: var(--spacing-1); /* 4px */
+  }
+
+  .language-btn {
+    min-width: 2rem; /* 32px */
+    min-height: 2rem; /* 32px */
+    padding: var(--spacing-1) var(--spacing-1); /* 4px 4px */
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Dropdown Menu en Landscape
+   ============================================ */
+
+/* Dropdown menu responsive en landscape */
+@media (max-height: 31.313rem) and (orientation: landscape) {
+  .language-dropdown-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--spacing-2);
+    gap: 0.125rem;
+  }
+
+  .language-dropdown-item {
+    padding: var(--spacing-1-5) var(--spacing-2);
+    font-size: 0.813rem;
+  }
+
+  /* Custom scrollbar styling (Nightlife theme) */
+  .language-dropdown-menu::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .language-dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+
+  .language-dropdown-menu::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: 2px;
+  }
+
+  .language-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+  }
+}
+
+/* ============================================
+   MENU ITEM MODE (Inline Dropdown)
+   ============================================ */
+
+/* Container for menu item dropdown */
+.language-menu-item-container {
+  position: relative;
+  display: block;
+}
+
+/* Menu Dropdown (positioned to the left of the menu, overlaying) */
+.language-menu-dropdown {
+  /* Position - Fixed to escape menu's stacking context */
+  position: fixed;
+  /* Position will be calculated dynamically, but default values: */
+  right: auto;
+  top: auto;
+  z-index: 10001; /* Au-dessus du menu (z-index: 70) */
+
+  /* Layout - Compact vertical list */
+  min-width: 16rem; /* 256px - Plus compact */
+  padding: var(--spacing-2); /* 8px */
+
+  /* Background - Match menu principal (glassmorphism fort) */
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(193, 154, 107, 0.25);
+  border-radius: 16px;
+
+  /* Effects - Match menu principal */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(193, 154, 107, 0.1);
+
+  /* Animation - Slide in from left */
+  animation: languageMenuDropdownSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes languageMenuDropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px); /* Slide from right */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Language List - Vertical layout */
+.language-menu-dropdown-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Pas de gap, bordures entre items */
+}
+
+/* Language Option Button - List style */
+.language-menu-dropdown-option {
+  /* Layout */
+  position: relative;
+  display: flex;
+  flex-direction: row; /* Horizontal: flag | text */
+  align-items: center;
+  justify-content: flex-start; /* Aligné à gauche */
+  gap: var(--spacing-3); /* 12px entre code et nom */
+  min-height: 3rem; /* 48px - Cohérent avec menu items */
+  padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
+
+  /* Background - Transparent par défaut */
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(193, 154, 107, 0.1);
+
+  /* Typography */
+  font-size: var(--font-base);
+  color: var(--text-primary);
+  text-align: left;
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* Reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  width: 100%;
+}
+
+/* Remove border on last item */
+.language-menu-dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.language-menu-dropdown-option:hover {
+  background: rgba(193, 154, 107, 0.1);
+  border-bottom-color: rgba(193, 154, 107, 0.2);
+}
+
+.language-menu-dropdown-option.active {
+  background: rgba(193, 154, 107, 0.15);
+  border-bottom-color: rgba(193, 154, 107, 0.3);
+}
+
+.language-menu-dropdown-option.active:hover {
+  background: rgba(193, 154, 107, 0.2);
+}
+
+.language-menu-dropdown-option:active {
+  transform: scale(0.98);
+}
+
+.language-menu-dropdown-option:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Language Code (Flag/Icon area) */
+.language-menu-dropdown-code {
+  flex-shrink: 0;
+  width: 2rem; /* 32px - Fixed width for alignment */
+  font-size: var(--font-sm); /* 14px */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Native Language Name */
+.language-menu-dropdown-native {
+  flex: 1;
+  font-size: var(--font-base); /* 16px */
+  font-weight: var(--font-weight-normal);
+  color: var(--text-primary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Checkmark for Active Language */
+.language-menu-dropdown-check {
+  flex-shrink: 0;
+  font-size: var(--font-base); /* 16px */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-left: auto;
+}
+
+/* Responsive - Already vertical list */
+@media (max-width: 48rem) {
+  .language-menu-dropdown {
+    min-width: 14rem; /* 224px - Plus compact mobile */
+  }
+}
+
+@media (max-width: 30rem) {
+  .language-menu-dropdown {
+    min-width: 12rem; /* 192px - Very compact on small screens */
+    padding: var(--spacing-2);
+  }
+
+  .language-menu-dropdown-option {
+    min-height: 3.5rem; /* 56px */
+    padding: var(--spacing-1-5);
+  }
+
+  .language-menu-dropdown-code {
+    font-size: 0.875rem; /* 14px */
+  }
+
+  .language-menu-dropdown-native {
+    font-size: 0.75rem; /* 12px */
+  }
+}
+
+/* ============================================
+   MODAL MODE (Menu Item Variant) - DEPRECATED
+   ============================================ */
+
+/* Modal Overlay */
+.language-modal-overlay {
+  /* Position */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+
+  /* Layout - Default: centered (mobile) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+
+  /* Background */
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+
+  /* Animation */
+  animation: modalOverlayFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Desktop: Position modal top-right (near menu) */
+@media (min-width: 48rem) {
+  .language-modal-overlay {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 5rem; /* Below header */
+    padding-right: 1rem; /* 16px from right edge */
+  }
+}
+
+@keyframes modalOverlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Modal Box */
+.language-modal-box {
+  /* Layout */
+  width: 100%;
+  max-width: 28rem; /* 448px */
+  padding: var(--spacing-6);
+
+  /* Background nightlife glassmorphism */
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 40, 0.95),
+    rgba(30, 15, 45, 0.95)
+  );
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  border-radius: var(--border-radius-xl);
+
+  /* Effects */
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 80px rgba(193, 154, 107, 0.2),
+    inset 0 0 40px rgba(193, 154, 107, 0.05);
+  backdrop-filter: blur(24px);
+
+  /* Animation */
+  animation: modalBoxSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalBoxSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Title */
+.language-modal-title {
+  /* Typography */
+  font-size: var(--font-xl); /* 20px */
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 var(--spacing-5); /* 0 0 20px */
+
+  /* Gradient text effect */
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Language Grid */
+.language-modal-grid {
+  /* Layout */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-3); /* 12px */
+}
+
+/* Language Option Button */
+.language-modal-option {
+  /* Layout */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2); /* 8px */
+  min-height: 5rem; /* 80px */
+  padding: var(--spacing-3); /* 12px */
+
+  /* Background */
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  border: 2px solid rgba(44, 62, 80, 0.4);
+  border-radius: var(--border-radius-lg);
+
+  /* Typography */
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+
+  /* Effects */
+  box-shadow:
+    0 4px 12px rgba(44, 62, 80, 0.2),
+    inset 0 0 15px rgba(44, 62, 80, 0.05);
+  backdrop-filter: var(--backdrop-blur-sm);
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Reset button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.language-modal-option:hover {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
+  border-color: rgba(193, 154, 107, 0.5);
+  box-shadow:
+    0 6px 20px rgba(193, 154, 107, 0.3),
+    0 0 30px rgba(193, 154, 107, 0.2),
+    inset 0 0 20px rgba(193, 154, 107, 0.1);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.language-modal-option.active {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(193, 154, 107, 0.25));
+  border-color: var(--color-primary);
+  box-shadow:
+    0 8px 25px rgba(193, 154, 107, 0.5),
+    0 0 40px rgba(193, 154, 107, 0.3),
+    inset 0 0 25px rgba(193, 154, 107, 0.15);
+}
+
+.language-modal-option.active:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow:
+    0 10px 30px rgba(193, 154, 107, 0.6),
+    0 0 50px rgba(193, 154, 107, 0.4),
+    inset 0 0 30px rgba(193, 154, 107, 0.2);
+}
+
+.language-modal-option:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.language-modal-option:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Language Code */
+.language-modal-code {
+  /* Typography */
+  font-size: var(--font-lg); /* 18px */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+}
+
+/* Native Language Name */
+.language-modal-native {
+  /* Typography */
+  font-size: var(--font-sm); /* 14px */
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+/* Checkmark for Active Language */
+.language-modal-check {
+  /* Position */
+  position: absolute;
+  top: var(--spacing-2); /* 8px */
+  right: var(--spacing-2); /* 8px */
+
+  /* Typography */
+  font-size: var(--font-base); /* 16px */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+
+  /* Effect */
+  text-shadow: 0 0 10px rgba(193, 154, 107, 0.5);
+  animation: checkmarkPulse 2s ease-in-out infinite;
+}
+
+@keyframes checkmarkPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Modal
+   ============================================ */
+
+/* Mobile (max-width: 480px) */
+@media (max-width: 30rem) {
+  .language-modal-overlay {
+    padding: var(--spacing-3);
+  }
+
+  .language-modal-box {
+    padding: var(--spacing-4);
+  }
+
+  .language-modal-title {
+    font-size: var(--font-lg); /* 18px */
+    margin-bottom: var(--spacing-4);
+  }
+
+  .language-modal-grid {
+    gap: var(--spacing-2); /* 8px */
+  }
+
+  .language-modal-option {
+    min-height: 4.5rem; /* 72px */
+    padding: var(--spacing-2);
+  }
+
+  .language-modal-code {
+    font-size: var(--font-base); /* 16px */
+  }
+
+  .language-modal-native {
+    font-size: 0.813rem; /* 13px */
+  }
+}
+
+/* Landscape (height < 600px) */
+@media (max-height: 37.5rem) and (orientation: landscape) {
+  .language-modal-overlay {
+    padding: var(--spacing-2);
+  }
+
+  .language-modal-box {
+    padding: var(--spacing-3);
+    max-width: 32rem; /* 512px - Wider in landscape */
+  }
+
+  .language-modal-title {
+    font-size: var(--font-base);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .language-modal-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns in landscape */
+    gap: var(--spacing-2);
+  }
+
+  .language-modal-option {
+    min-height: 4rem; /* 64px */
+    padding: var(--spacing-2);
+  }
+
+  .language-modal-code {
+    font-size: var(--font-base);
+  }
+
+  .language-modal-native {
+    font-size: 0.813rem;
+  }
+}

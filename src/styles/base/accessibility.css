@@ -1,0 +1,310 @@
+/**
+ * ============================================
+ * ACCESSIBILITY - WCAG 2.1 Level AAA Compliance
+ * ============================================
+ *
+ * Styles d'accessibilité pour garantir une expérience utilisateur
+ * conforme aux normes WCAG 2.1 Level AAA.
+ *
+ * CONTENU:
+ * 1. Focus-visible (navigation clavier)
+ * 2. Skip to content (accessibility navigation)
+ * 3. Skeleton loaders (loading states)
+ * 4. Media queries (reduced motion, high contrast)
+ *
+ * STANDARDS:
+ * - WCAG 2.1 Level AAA
+ * - Focus indicators 3px minimum
+ * - Keyboard navigation support
+ * - Screen reader optimization
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-01-09
+ * @migrated Phase 3A - Extraction depuis nightlife-theme.css (lignes 2892-2980, 3050-3124)
+ */
+
+/* ============================================
+   FOCUS-VISIBLE STYLES (Navigation Clavier)
+   ============================================ */
+
+/**
+ * Focus visible pour tous les boutons et éléments interactifs
+ * WCAG 2.1: Focus indicator minimum 3px, high contrast
+ */
+
+/* Buttons and button-like elements */
+button:focus-visible,
+.btn-primary-nightlife:focus-visible,
+.btn-secondary-nightlife:focus-visible,
+.btn-accent-nightlife:focus-visible,
+.btn-danger-nightlife:focus-visible,
+.btn-icon-nightlife:focus-visible,
+.profile-action-button:focus-visible,
+.review-reply-btn-nightlife:focus-visible,
+.review-expand-btn-nightlife:focus-visible,
+.review-report-btn-nightlife:focus-visible,
+.reply-submit-btn:focus-visible,
+.reply-cancel-btn:focus-visible,
+.report-submit-btn:focus-visible,
+.report-cancel-btn:focus-visible,
+.reviews-see-more-btn-nightlife:focus-visible,
+.edit-icon-btn-nightlife:focus-visible,
+.photo-remove-btn:focus-visible,
+.profile-close-button:focus-visible,
+.profile-photo-nav:focus-visible,
+.profile-photo-dot:focus-visible,
+.profile-photo-favorite-btn:focus-visible,
+.sidebar-map-button-nightlife:focus-visible,
+.admin-save-btn:focus-visible,
+.admin-cancel-btn:focus-visible,
+.admin-delete-btn:focus-visible {
+  outline: 3px solid var(--border-focus); /* #FFD700 */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-ring-outer);
+  transition: outline var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+/* Links */
+a:focus-visible,
+.sidebar-phone-link-nightlife:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-ring-outer);
+  text-decoration: underline;
+}
+
+/* Interactive cards and clickable elements */
+.marker-card-nightlife:focus-visible,
+.establishment-card-nightlife:focus-visible,
+.employee-card-nightlife:focus-visible,
+.review-card-nightlife:focus-visible,
+.rating-card-nightlife:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px rgba(255, 215, 0, 0.15);
+}
+
+/* Clickable headers and titles */
+.reviews-title-clickable:focus-visible,
+h3[onclick]:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-ring-outer);
+}
+
+/* Modal keyboard navigation */
+.modal-overlay-nightlife:focus-within {
+  outline: none;
+}
+
+.modal-container-nightlife:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 4px;
+}
+
+/**
+ * Remove default focus for mouse users (only show for keyboard)
+ * Best practice: focus-visible shows only on keyboard nav
+ */
+*:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   SKIP TO CONTENT LINK
+   ============================================ */
+
+/**
+ * Skip to content link for keyboard navigation
+ * WCAG 2.1: Bypass blocks (2.4.1 Level A)
+ */
+.skip-to-content-link {
+  position: absolute;
+  top: -6.25rem; /* Hidden by default */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast); /* 9999 - Au-dessus de tout */
+  padding: var(--spacing-3) var(--spacing-6);
+  background: var(--color-accent);
+  color: var(--text-inverse);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-base);
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-xl);
+  transition: top var(--duration-normal) ease;
+}
+
+.skip-to-content-link:focus {
+  top: var(--spacing-5); /* Visible on focus */
+  outline: 3px solid var(--text-inverse);
+  outline-offset: 2px;
+}
+
+.skip-to-content-link:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Ensure main content can receive focus */
+main[id="main-content"]:focus {
+  outline: none;
+}
+
+/* ============================================
+   SKELETON LOADING STATES
+   ============================================ */
+
+/**
+ * Shimmer effect for skeleton loaders
+ * Used while content is loading
+ */
+.skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(193, 154, 107, 0.15) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+/**
+ * Pulse effect variant for skeleton loaders
+ */
+.skeleton-pulse {
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   MEDIA QUERIES - USER PREFERENCES
+   ============================================ */
+
+/**
+ * Reduced motion support
+ * WCAG 2.1: Animation from interactions (2.3.3 Level AAA)
+ */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable focus transitions */
+  *:focus-visible {
+    transition: none;
+  }
+
+  /* Disable skeleton animations */
+  .skeleton-shimmer {
+    animation: none;
+    background: rgba(193, 154, 107, 0.08);
+  }
+
+  .skeleton-pulse {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  /* Disable all animations and transitions globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/**
+ * High contrast mode support
+ * WCAG 2.1: Contrast (Minimum) (1.4.3 Level AA)
+ */
+@media (prefers-contrast: high) {
+  /* Stronger focus indicators */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 4px solid #FFFF00; /* Bright yellow for high contrast */
+    outline-offset: 3px;
+  }
+
+  /* Stronger borders */
+  .modal-container-nightlife,
+  .card,
+  .btn {
+    border-width: 2px;
+  }
+
+  /* Remove transparent backgrounds */
+  .skeleton-shimmer {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/**
+ * Dark color scheme preference
+ * (Already handled by design-system.css, but can be extended here)
+ */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode specific accessibility adjustments */
+  .skip-to-content-link {
+    /* Ensure sufficient contrast in dark mode */
+    background: #FFD700;
+    color: #000000;
+  }
+}
+
+/* ============================================
+   SCREEN READER ONLY
+   ============================================ */
+
+/**
+ * Utility class to hide content visually but keep it for screen readers
+ * WCAG 2.1: Name, Role, Value (4.1.2 Level A)
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/**
+ * Utility to show sr-only content on focus
+ */
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}

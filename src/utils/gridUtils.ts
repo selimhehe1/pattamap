@@ -162,7 +162,7 @@ export const categoryToBarType = (categoryId: string | number): 'gogo' | 'beer' 
  */
 export const getBarTypeStyle = (type: 'gogo' | 'beer' | 'pub' | 'nightclub' | 'massage') => {
   const typeStyles = {
-    gogo: { color: '#FF1B8D', icon: '💃' },
+    gogo: { color: '#C19A6B', icon: '💃' },
     beer: { color: '#FFD700', icon: '🍺' },
     pub: { color: '#8B4513', icon: '👑' },
     nightclub: { color: '#9B5DE5', icon: '🎵' },

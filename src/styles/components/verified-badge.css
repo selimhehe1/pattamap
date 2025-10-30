@@ -1,0 +1,64 @@
+/* ========================================
+   VERIFIED BADGE (v10.3 - Simple Admin Verification)
+   ======================================== */
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a1a1a;
+  font-weight: 700;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+  transition: all 0.3s ease;
+  cursor: help;
+}
+
+.verified-badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.7);
+}
+
+/* Size variants */
+.verified-badge-small {
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.verified-badge-medium {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.verified-badge-large {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .verified-badge-small {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+
+  .verified-badge-medium {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+
+  .verified-badge-large {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+}

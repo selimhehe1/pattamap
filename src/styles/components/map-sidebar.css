@@ -1,0 +1,582 @@
+/**
+ * MAP SIDEBAR STYLES
+ * Version: 1.0.0
+ * Migration: Phase 2G - Extraction depuis nightlife-theme.css
+ *
+ * Ce fichier contient tous les styles pour la sidebar de carte interactive,
+ * incluant la navigation par zones, les filtres, la recherche, et les catégories.
+ *
+ * @see src/components/Map/MapSidebar.tsx - Composant principal utilisant ces styles
+ * @see src/components/Map/PattayaMap.tsx - Composant map parent
+ * @see src/styles/design-system.css - Variables CSS utilisées
+ *
+ * SECTIONS:
+ * 1. Sidebar Container (3 classes)
+ * 2. Sidebar Header (7 classes)
+ * 3. Sections & Dividers (4 classes)
+ * 4. Zone List (5 classes)
+ * 5. Search (3 classes)
+ * 6. Categories (6 classes)
+ * 7. Footer (2 classes)
+ * 8. Map Layout & Content Area (3 classes)
+ * 9. Mobile Overlay (2 classes)
+ * 10. Responsive Design (2 breakpoints)
+ *
+ * MODERNISATIONS PHASE 2G (2025-01-08):
+ * - Variables design-system.css: --spacing-*, --color-*, --font-*, --radius-*, --z-*
+ * - WCAG 2.1 Level AAA: focus-visible states, tap targets 44x44px, contraste 7:1+
+ * - Responsive: 48rem (mobile full hide), 30rem (smaller sidebar)
+ * - Performance: GPU-accelerated transitions, backdrop-filter
+ */
+
+/* ================================================================
+ * 1. SIDEBAR CONTAINER
+ * ================================================================ */
+
+.map-sidebar-nightlife {
+  position: fixed;
+  left: 0;
+  top: 6.25rem; /* Sous le header */
+  height: calc(100vh - 6.25rem);
+  width: 20rem;
+  background: var(--gradient-header);
+  border-right: 2px solid var(--border-primary);
+  backdrop-filter: blur(20px);
+  z-index: var(--z-sidebar); /* 80 depuis design-system.css - Sous modals (100), au-dessus header (65) */
+
+  /* Modern animation with transform (GPU accelerated) */
+  transform: translateX(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  overflow-y: auto;
+  overflow-x: visible; /* Allow toggle button to extend beyond sidebar */
+  box-shadow: var(--shadow-lg);
+}
+
+.map-sidebar-nightlife.collapsed {
+  transform: translateX(-100%); /* Slide out to the left */
+}
+
+/* Scrollbar Styling: Supprimé - duplication de base/scrollbars.css */
+/* Les styles de scrollbar globaux s'appliquent automatiquement */
+
+/* ================================================================
+ * 2. SIDEBAR HEADER
+ * ================================================================ */
+
+.sidebar-header-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
+  background: var(--gradient-overlay);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.sidebar-title-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.sidebar-zone-icon-nightlife {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 8px rgba(193, 154, 107, 0.5));
+}
+
+.sidebar-zone-name-nightlife {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.sidebar-zone-subtitle-nightlife {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: var(--spacing-1) 0 0 0;
+}
+
+.sidebar-close-btn-nightlife {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  min-height: var(--tap-target-min); /* 44px WCAG */
+  min-width: var(--tap-target-min);
+}
+
+.sidebar-close-btn-nightlife:hover {
+  background: rgba(193, 154, 107, 0.3);
+  border-color: rgba(193, 154, 107, 0.5);
+  transform: rotate(90deg);
+}
+
+.sidebar-close-btn-nightlife:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ================================================================
+ * 2B. VIEW MODE TOGGLE (in header) - Single button like mobile
+ * ================================================================ */
+
+.sidebar-view-toggle-nightlife {
+  display: flex;
+  margin-bottom: var(--spacing-2);
+  width: 100%;
+}
+
+.sidebar-view-toggle-btn-nightlife {
+  /* Layout */
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  /* Background nightlife */
+  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  border: 2px solid rgba(193, 154, 107, 0.6);
+  border-radius: var(--radius-md);
+
+  /* Typography */
+  color: #ffffff;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+
+  /* Effects */
+  box-shadow:
+    0 4px 20px rgba(193, 154, 107, 0.4),
+    inset 0 0 15px rgba(193, 154, 107, 0.1);
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: var(--tap-target-min); /* 44px WCAG */
+}
+
+.sidebar-view-toggle-btn-nightlife:hover {
+  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  border-color: rgba(193, 154, 107, 0.8);
+  box-shadow:
+    0 6px 25px rgba(193, 154, 107, 0.5),
+    0 0 30px rgba(193, 154, 107, 0.4),
+    inset 0 0 20px rgba(193, 154, 107, 0.15);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.sidebar-view-toggle-btn-nightlife:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 2px 10px rgba(193, 154, 107, 0.3),
+    inset 0 0 15px rgba(193, 154, 107, 0.15);
+}
+
+.sidebar-view-toggle-btn-nightlife:focus-visible {
+  outline: 2px solid #FFD700;
+  outline-offset: 2px;
+}
+
+/* Mobile: Hide toggle in sidebar (already in MobileMapMenu) */
+@media (max-width: 768px) {
+  .sidebar-view-toggle-nightlife {
+    display: none;
+  }
+}
+
+/* ================================================================
+ * 3. SECTIONS & DIVIDERS
+ * ================================================================ */
+
+.sidebar-divider-nightlife {
+  height: 0.0625rem;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(193, 154, 107, 0.3),
+    transparent
+  );
+  margin: 0;
+}
+
+.sidebar-section-nightlife {
+  padding: var(--spacing-lg);
+}
+
+.sidebar-section-title-nightlife {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-black);
+  color: var(--color-text-muted);
+  letter-spacing: 0.0625rem;
+  margin: 0 0 var(--spacing-md) 0;
+  text-transform: uppercase;
+}
+
+/* Filters Header with Clear Button */
+.filters-header-nightlife {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.filters-header-nightlife .sidebar-section-title-nightlife {
+  margin: 0;
+}
+
+/* Clear Filters Button */
+.clear-filters-btn-nightlife {
+  background: rgba(193, 154, 107, 0.1);
+  border: 1px solid rgba(193, 154, 107, 0.3);
+  color: var(--color-primary);
+  padding: var(--spacing-1) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  white-space: nowrap;
+  min-height: var(--tap-target-min); /* 44px WCAG */
+}
+
+.clear-filters-btn-nightlife:hover {
+  background: rgba(193, 154, 107, 0.2);
+  border-color: rgba(193, 154, 107, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(193, 154, 107, 0.3);
+}
+
+.clear-filters-btn-nightlife:active {
+  transform: scale(0.95);
+}
+
+.clear-filters-btn-nightlife:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ================================================================
+ * 4. ZONE LIST
+ * ================================================================ */
+
+.zone-list-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.zone-list-item-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-md);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  min-height: var(--tap-target-min); /* 44px WCAG */
+}
+
+.zone-list-item-nightlife:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.zone-list-item-nightlife.active {
+  background: rgba(193, 154, 107, 0.1);
+  border-left-color: var(--zone-color);
+  border-color: rgba(193, 154, 107, 0.3);
+}
+
+.zone-list-item-nightlife:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.zone-item-icon-nightlife {
+  font-size: 1.25rem;
+  min-width: 1.5rem;
+}
+
+.zone-item-name-nightlife {
+  flex: 1;
+  font-weight: var(--font-weight-semibold);
+}
+
+.zone-item-badge-nightlife {
+  font-size: 1rem;
+  color: #00FF7F;
+}
+
+/* ================================================================
+ * 5. SEARCH
+ * ================================================================ */
+
+.sidebar-search-container-nightlife {
+  margin-bottom: var(--spacing-md);
+}
+
+.sidebar-search-input-nightlife {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  transition: all 0.3s ease;
+  min-height: var(--tap-target-min); /* 44px WCAG */
+}
+
+.sidebar-search-input-nightlife::placeholder {
+  color: var(--text-muted);
+}
+
+.sidebar-search-input-nightlife:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.sidebar-search-input-nightlife:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ================================================================
+ * 6. CATEGORIES
+ * ================================================================ */
+
+.sidebar-categories-nightlife {
+  margin-top: var(--spacing-md);
+}
+
+.sidebar-subsection-title-nightlife {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-sm) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.0313rem;
+}
+
+.category-list-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.category-item-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: var(--font-size-sm);
+  color: white;
+  min-height: var(--tap-target-min); /* 44px WCAG */
+}
+
+.category-item-nightlife:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.category-item-nightlife:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.category-checkbox-nightlife {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  min-height: 1rem;
+}
+
+.category-color-badge-nightlife {
+  width: 1.375rem;
+  height: 1.375rem;
+  min-width: 1.375rem;
+  min-height: 1.375rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  box-shadow: var(--shadow-sm);
+}
+
+.category-name-nightlife {
+  flex: 1;
+  font-weight: var(--font-weight-medium);
+}
+
+/* ================================================================
+ * 7. FOOTER
+ * ================================================================ */
+
+.sidebar-footer-nightlife {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface-alt);
+}
+
+.sidebar-legend-nightlife {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  text-align: center;
+}
+
+/* ================================================================
+ * 8. MAP LAYOUT & CONTENT AREA
+ * ================================================================ */
+
+.map-layout-nightlife {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.map-content-area-nightlife {
+  margin-left: 20rem; /* Sidebar ouverte */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+}
+
+.map-content-area-nightlife.sidebar-closed {
+  margin-left: 0; /* Full width quand sidebar fermée */
+}
+
+/* ================================================================
+ * 9. MOBILE OVERLAY
+ * ================================================================ */
+
+/* Overlay invisible sur desktop */
+.sidebar-overlay-nightlife {
+  display: none;
+}
+
+/* ================================================================
+ * 10. RESPONSIVE DESIGN
+ * ================================================================ */
+
+/* Mobile (max-width: 48rem / 768px) */
+@media (max-width: 48rem) {
+  /* Masquer la sidebar sur mobile - remplacée par le mobile menu */
+  .map-sidebar-nightlife {
+    display: none !important;
+  }
+
+  .map-content-area-nightlife {
+    margin-left: 0 !important; /* Full width sur mobile */
+  }
+
+  /* Overlay visible sur mobile quand sidebar ouverte */
+  .sidebar-overlay-nightlife {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 6.25rem;
+    background: var(--bg-overlay);
+    z-index: 49;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Small Mobile (max-width: 30rem / 480px) */
+@media (max-width: 30rem) {
+  .map-sidebar-nightlife {
+    width: 90vw;
+  }
+
+  .sidebar-header-nightlife {
+    padding: var(--spacing-md);
+  }
+
+  .sidebar-zone-name-nightlife {
+    font-size: var(--font-size-lg);
+  }
+
+  .sidebar-section-nightlife {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Desktop (min-width: 48.0625rem / 769px+) */
+@media (min-width: 48.0625rem) {
+  /* Position gérée par inline styles dans MapSidebar.tsx */
+  /* Inline styles ont la priorité pour positionnement précis */
+}
+
+/* ================================================================
+ * 11. LANDSCAPE ORIENTATION OPTIMIZATION
+ * ================================================================ */
+
+/**
+ * Améliorer lisibilité en mode paysage (smartphones/tablettes)
+ * Quick Win #2 - Audit CSS 2025-01-20
+ * Breakpoint: max-height 30rem (480px) + orientation landscape
+ */
+@media (max-height: 30rem) and (orientation: landscape) {
+  /* Sidebar title - Augmenter taille police */
+  .sidebar-title-nightlife {
+    font-size: var(--font-md, 1rem); /* 16px au lieu de 14px */
+    line-height: 1.4;
+  }
+
+  /* Zone buttons - Améliorer lisibilité */
+  .zone-button-nightlife,
+  .sidebar-zone-name-nightlife {
+    font-size: var(--font-base, 0.875rem); /* 14px au lieu de 12px */
+    padding: var(--spacing-2) var(--spacing-3);
+  }
+
+  /* Sidebar header - Réduire padding vertical */
+  .sidebar-header-nightlife {
+    padding: var(--spacing-2) var(--spacing-3);
+  }
+
+  /* Search input - Conserver touch target */
+  .sidebar-search-input-nightlife {
+    min-height: 2.75rem; /* 44px minimum WCAG */
+  }
+}

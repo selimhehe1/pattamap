@@ -1,0 +1,233 @@
+/**
+ * ThemeToggle Component Styles
+ * Phase 3C - Dark/Light Mode Toggle Implementation
+ */
+
+/* ============================================
+   BASE BUTTON STYLES
+   ============================================ */
+
+.theme-toggle {
+  /* Reset */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  border: 2px solid var(--border-color-strong);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  /* WCAG Touch Target */
+  min-width: 2.75rem; /* 44px */
+  min-height: 2.75rem; /* 44px */
+}
+
+/* Text variant */
+.theme-toggle--text {
+  border-radius: 1.25rem; /* Pill shape */
+  padding: 0.5rem 1rem;
+}
+
+/* ============================================
+   ICON WRAPPER
+   ============================================ */
+
+.theme-toggle__icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.theme-toggle__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  transform-origin: center;
+}
+
+/* ============================================
+   HOVER & FOCUS STATES
+   ============================================ */
+
+.theme-toggle:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-hover);
+  box-shadow: 0 0 0 4px var(--hover-glass-bg);
+  transform: translateY(-2px);
+}
+
+.theme-toggle:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px var(--hover-glass-bg-strong);
+}
+
+.theme-toggle:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
+.theme-toggle:focus-visible {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px var(--hover-glass-border);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 0 0 2px var(--hover-glass-bg-strong);
+}
+
+/* ============================================
+   THEME-SPECIFIC STYLES
+   ============================================ */
+
+/* Dark mode (moon icon) */
+.theme-toggle[data-theme="dark"] {
+  background: linear-gradient(135deg, var(--hover-glass-bg), rgba(0, 229, 255, 0.05));
+}
+
+.theme-toggle[data-theme="dark"]:hover {
+  background: linear-gradient(135deg, var(--hover-glass-bg-strong), rgba(0, 229, 255, 0.1));
+  box-shadow: var(--hover-glow);
+}
+
+.theme-toggle__icon--moon {
+  color: var(--color-secondary);
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.5));
+}
+
+/* Light mode (sun icon) */
+.theme-toggle[data-theme="light"] {
+  background: linear-gradient(135deg, rgba(217, 24, 117, 0.05), rgba(218, 165, 32, 0.05));
+}
+
+.theme-toggle[data-theme="light"]:hover {
+  background: linear-gradient(135deg, rgba(217, 24, 117, 0.1), rgba(218, 165, 32, 0.1));
+  box-shadow: 0 0 15px rgba(218, 165, 32, 0.3);
+}
+
+.theme-toggle__icon--sun {
+  color: var(--color-accent);
+  filter: drop-shadow(0 0 4px rgba(218, 165, 32, 0.5));
+}
+
+/* ============================================
+   ANIMATION - TOGGLE TRANSITION
+   ============================================ */
+
+.theme-toggle--animating .theme-toggle__icon {
+  animation: theme-toggle-spin 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes theme-toggle-spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(0.8);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Icon entrance animation */
+.theme-toggle__icon {
+  animation: theme-icon-enter 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes theme-icon-enter {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   TEXT VARIANT SPECIFIC
+   ============================================ */
+
+.theme-toggle--text .theme-toggle__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-toggle {
+    border-width: 3px;
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 3px solid var(--border-focus);
+    outline-offset: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle__icon {
+    transition: none;
+    animation: none;
+  }
+
+  .theme-toggle--animating .theme-toggle__icon {
+    animation: none;
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .theme-toggle--text {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .theme-toggle__icon-wrapper {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .theme-toggle__icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ============================================
+   TOOLTIP (Native title attribute)
+   ============================================ */
+
+/* Browsers will handle the native tooltip via the title attribute */
+/* No custom tooltip styling needed for MVP */

@@ -53,7 +53,7 @@ const ServicesForm: React.FC<ServicesFormProps> = ({
               flex: 1,
               padding: '10px 12px',
               background: '#1a1a1a',
-              border: '2px solid rgba(255,27,141,0.3)',
+              border: '2px solid rgba(193, 154, 107,0.3)',
               borderRadius: '8px',
               fontSize: '14px',
               color: 'white',
@@ -67,7 +67,7 @@ const ServicesForm: React.FC<ServicesFormProps> = ({
               e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+              e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
               e.target.style.boxShadow = 'none';
             }}
             placeholder="Ex: Billard, Karaoke, Terrasse..."
@@ -80,7 +80,7 @@ const ServicesForm: React.FC<ServicesFormProps> = ({
               padding: '10px 15px',
               backgroundColor: serviceInput.trim() ? 'var(--nightlife-secondary)' : 'rgba(0,0,0,0.5)',
               color: serviceInput.trim() ? '#000' : '#666',
-              border: '2px solid ' + (serviceInput.trim() ? 'var(--nightlife-secondary)' : 'rgba(255,27,141,0.3)'),
+              border: '2px solid ' + (serviceInput.trim() ? 'var(--nightlife-secondary)' : 'rgba(193, 154, 107,0.3)'),
               borderRadius: '8px',
               cursor: serviceInput.trim() ? 'pointer' : 'not-allowed',
               fontSize: '14px',

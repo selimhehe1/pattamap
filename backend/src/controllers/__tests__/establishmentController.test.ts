@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthRequest } from '../../middleware/auth';
+import { AuthRequest, isEstablishmentOwner } from '../../middleware/auth';
 import {
   getEstablishments,
   getEstablishment,
@@ -14,6 +14,10 @@ import { supabase } from '../../config/supabase';
 jest.mock('../../config/supabase');
 jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
+jest.mock('../../middleware/auth', () => ({
+  ...jest.requireActual('../../middleware/auth'),
+  isEstablishmentOwner: jest.fn()
+}));
 jest.mock('../../config/redis', () => ({
   cacheDel: jest.fn(),
   cacheInvalidatePattern: jest.fn(),
@@ -21,6 +25,9 @@ jest.mock('../../config/redis', () => ({
     ESTABLISHMENT: (id: string) => `establishment:${id}`,
     CATEGORIES: 'categories'
   }
+}));
+jest.mock('../../utils/notificationHelper', () => ({
+  notifyAdminsPendingContent: jest.fn()
 }));
 
 describe('EstablishmentController', () => {
@@ -224,13 +231,17 @@ describe('EstablishmentController', () => {
         error: null
       });
 
-      // Mock employment query
+      // Mock employment query (all current employees)
       const employmentBuilder = createQueryBuilder({ data: [], error: null });
+
+      // Mock approved employment query (approved employees only)
+      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(countBuilder)
         .mockReturnValueOnce(dataBuilder)
-        .mockReturnValueOnce(employmentBuilder);
+        .mockReturnValueOnce(employmentBuilder)
+        .mockReturnValueOnce(approvedEmploymentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -270,41 +281,35 @@ describe('EstablishmentController', () => {
     it('should search establishments by name', async () => {
       mockRequest.query = { search: 'Test Bar', status: 'approved' };
 
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        or: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
-          data: [mockEstablishment],
-          error: null
-        })
-      };
+      // Mock count query
+      const countBuilder = createQueryBuilder({ count: 1, error: null });
 
-      const mockCountQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        or: jest.fn().mockResolvedValue({
-          count: 1,
-          error: null
-        })
-      };
+      // Mock data query
+      const dataBuilder = createQueryBuilder({
+        data: [mockEstablishment],
+        error: null
+      });
+
+      // Mock employment query (all current employees)
+      const employmentBuilder = createQueryBuilder({ data: [], error: null });
+
+      // Mock approved employment query (approved employees only)
+      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockCountQuery)
-        .mockReturnValueOnce(mockQuery);
-
-      // Mock employment query
-      (supabase.from as jest.Mock).mockReturnValueOnce({
-        select: jest.fn().mockReturnThis(),
-        in: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({ data: [], error: null })
-      });
+        .mockReturnValueOnce(countBuilder)
+        .mockReturnValueOnce(dataBuilder)
+        .mockReturnValueOnce(employmentBuilder)
+        .mockReturnValueOnce(approvedEmploymentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
-      expect(mockQuery.or).toHaveBeenCalled();
-      expect(jsonMock).toHaveBeenCalled();
+      expect(jsonMock).toHaveBeenCalledWith({
+        establishments: expect.arrayContaining([
+          expect.objectContaining({ id: 'est123', name: 'Test Bar' })
+        ]),
+        pagination: expect.any(Object)
+      });
     });
   });
 
@@ -340,27 +345,28 @@ describe('EstablishmentController', () => {
     it('should return establishment by ID', async () => {
       mockRequest.params = { id: 'est123' };
 
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockQuery);
+      // Mock establishments query
+      const establishmentBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
 
       // Mock consumables query
-      const mockConsumablesQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: [],
-          error: null
-        })
-      };
+      const consumablesBuilder = createQueryBuilder({
+        data: [],
+        error: null
+      });
 
-      (supabase.from as jest.Mock).mockReturnValueOnce(mockQuery).mockReturnValueOnce(mockConsumablesQuery);
+      // Mock establishment_owners query
+      const ownerBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(establishmentBuilder)
+        .mockReturnValueOnce(consumablesBuilder)
+        .mockReturnValueOnce(ownerBuilder);
 
       await getEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -368,7 +374,7 @@ describe('EstablishmentController', () => {
         establishment: expect.objectContaining({
           id: 'est123',
           name: 'Test Bar',
-          category_id: 'cat-001', // Transformed from integer 1
+          category_id: 1, // Keep as integer (Bug #3 fix)
           pricing: expect.any(Object)
         })
       });
@@ -377,16 +383,13 @@ describe('EstablishmentController', () => {
     it('should return 404 for non-existent establishment', async () => {
       mockRequest.params = { id: 'nonexistent' };
 
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'Not found' }
-        })
-      };
+      // Mock establishments query returning error
+      const establishmentBuilder = createQueryBuilder({
+        data: null,
+        error: { message: 'Not found' }
+      });
 
-      (supabase.from as jest.Mock).mockReturnValue(mockQuery);
+      (supabase.from as jest.Mock).mockReturnValue(establishmentBuilder);
 
       await getEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -431,22 +434,28 @@ describe('EstablishmentController', () => {
         category: { id: 1, name: 'Bar', icon: '🍺' }
       };
 
-      const mockInsertQuery = {
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: createdEstablishment,
-          error: null
-        })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockInsertQuery);
+      // Mock establishments insert
+      const insertBuilder = createQueryBuilder({
+        data: createdEstablishment,
+        error: null
+      });
 
       // Mock moderation_queue insert
-      const mockModerationQuery = {
-        insert: jest.fn().mockResolvedValue({ data: null, error: null })
-      };
-      (supabase.from as jest.Mock).mockReturnValueOnce(mockInsertQuery).mockReturnValueOnce(mockModerationQuery);
+      const moderationBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
+
+      // Mock users query (for submitter pseudonym)
+      const userBuilder = createQueryBuilder({
+        data: { pseudonym: 'testuser' },
+        error: null
+      });
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(insertBuilder)
+        .mockReturnValueOnce(moderationBuilder)
+        .mockReturnValueOnce(userBuilder);
 
       await createEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -472,21 +481,28 @@ describe('EstablishmentController', () => {
         created_by: 'user123'
       };
 
-      const mockInsertQuery = {
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: createdEstablishment,
-          error: null
-        })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockInsertQuery);
-
-      // Mock moderation queue
-      (supabase.from as jest.Mock).mockReturnValueOnce(mockInsertQuery).mockReturnValueOnce({
-        insert: jest.fn().mockResolvedValue({ data: null, error: null })
+      // Mock establishments insert
+      const insertBuilder = createQueryBuilder({
+        data: createdEstablishment,
+        error: null
       });
+
+      // Mock moderation_queue insert
+      const moderationBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
+
+      // Mock users query (for submitter pseudonym)
+      const userBuilder = createQueryBuilder({
+        data: { pseudonym: 'testuser' },
+        error: null
+      });
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(insertBuilder)
+        .mockReturnValueOnce(moderationBuilder)
+        .mockReturnValueOnce(userBuilder);
 
       await createEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -517,16 +533,13 @@ describe('EstablishmentController', () => {
     it('should handle database errors', async () => {
       mockRequest.body = validEstablishmentData;
 
-      const mockInsertQuery = {
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'Database error' }
-        })
-      };
+      // Mock establishments insert returning error
+      const insertBuilder = createQueryBuilder({
+        data: null,
+        error: { message: 'Database error' }
+      });
 
-      (supabase.from as jest.Mock).mockReturnValue(mockInsertQuery);
+      (supabase.from as jest.Mock).mockReturnValue(insertBuilder);
 
       await createEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -554,40 +567,31 @@ describe('EstablishmentController', () => {
     it('should allow admin to update any establishment', async () => {
       mockRequest.user!.role = 'admin';
 
+      // Mock isEstablishmentOwner
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
+
       // Mock select query for authorization
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
 
       // Mock update query
-      const mockUpdateQuery = {
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: { ...mockEstablishment, ...updateData },
-          error: null
-        })
-      };
+      const updateBuilder = createQueryBuilder({
+        data: { ...mockEstablishment, ...updateData },
+        error: null
+      });
 
       // Mock consumables query
-      const mockConsumablesQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: [],
-          error: null
-        })
-      };
+      const consumablesBuilder = createQueryBuilder({
+        data: [],
+        error: null
+      });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockSelectQuery)
-        .mockReturnValueOnce(mockUpdateQuery)
-        .mockReturnValueOnce(mockConsumablesQuery);
+        .mockReturnValueOnce(selectBuilder)
+        .mockReturnValueOnce(updateBuilder)
+        .mockReturnValueOnce(consumablesBuilder);
 
       await updateEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -603,37 +607,31 @@ describe('EstablishmentController', () => {
       mockRequest.user!.id = 'user123'; // Same as created_by
       mockRequest.user!.role = 'user';
 
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      // Mock isEstablishmentOwner
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
 
-      const mockUpdateQuery = {
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: { ...mockEstablishment, ...updateData, status: 'pending' },
-          error: null
-        })
-      };
+      // Mock select query for authorization
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
 
-      const mockConsumablesQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: [],
-          error: null
-        })
-      };
+      // Mock update query
+      const updateBuilder = createQueryBuilder({
+        data: { ...mockEstablishment, ...updateData, status: 'pending' },
+        error: null
+      });
+
+      // Mock consumables query
+      const consumablesBuilder = createQueryBuilder({
+        data: [],
+        error: null
+      });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockSelectQuery)
-        .mockReturnValueOnce(mockUpdateQuery)
-        .mockReturnValueOnce(mockConsumablesQuery);
+        .mockReturnValueOnce(selectBuilder)
+        .mockReturnValueOnce(updateBuilder)
+        .mockReturnValueOnce(consumablesBuilder);
 
       await updateEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -650,16 +648,16 @@ describe('EstablishmentController', () => {
       mockRequest.user!.id = 'different-user'; // Different from created_by
       mockRequest.user!.role = 'user';
 
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      // Mock isEstablishmentOwner - returns false (not owner)
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
 
-      (supabase.from as jest.Mock).mockReturnValue(mockSelectQuery);
+      // Mock select query for authorization
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
+
+      (supabase.from as jest.Mock).mockReturnValue(selectBuilder);
 
       await updateEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -671,16 +669,13 @@ describe('EstablishmentController', () => {
     });
 
     it('should return 404 for non-existent establishment', async () => {
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: null,
-          error: null
-        })
-      };
+      // Mock select query returning null (not found)
+      const selectBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
 
-      (supabase.from as jest.Mock).mockReturnValue(mockSelectQuery);
+      (supabase.from as jest.Mock).mockReturnValue(selectBuilder);
 
       await updateEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -702,26 +697,24 @@ describe('EstablishmentController', () => {
     it('should allow admin to delete any establishment', async () => {
       mockRequest.user!.role = 'admin';
 
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      // Mock isEstablishmentOwner
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
 
-      const mockDeleteQuery = {
-        delete: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: null,
-          error: null
-        })
-      };
+      // Mock select query for authorization
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
+
+      // Mock delete query
+      const deleteBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockSelectQuery)
-        .mockReturnValueOnce(mockDeleteQuery);
+        .mockReturnValueOnce(selectBuilder)
+        .mockReturnValueOnce(deleteBuilder);
 
       await deleteEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -734,26 +727,24 @@ describe('EstablishmentController', () => {
       mockRequest.user!.id = 'user123'; // Same as created_by
       mockRequest.user!.role = 'user';
 
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      // Mock isEstablishmentOwner
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
 
-      const mockDeleteQuery = {
-        delete: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: null,
-          error: null
-        })
-      };
+      // Mock select query for authorization
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
+
+      // Mock delete query
+      const deleteBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockSelectQuery)
-        .mockReturnValueOnce(mockDeleteQuery);
+        .mockReturnValueOnce(selectBuilder)
+        .mockReturnValueOnce(deleteBuilder);
 
       await deleteEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -766,16 +757,16 @@ describe('EstablishmentController', () => {
       mockRequest.user!.id = 'different-user';
       mockRequest.user!.role = 'user';
 
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: mockEstablishment,
-          error: null
-        })
-      };
+      // Mock isEstablishmentOwner - returns false (not owner)
+      (isEstablishmentOwner as jest.Mock).mockResolvedValue(false);
 
-      (supabase.from as jest.Mock).mockReturnValue(mockSelectQuery);
+      // Mock select query for authorization
+      const selectBuilder = createQueryBuilder({
+        data: mockEstablishment,
+        error: null
+      });
+
+      (supabase.from as jest.Mock).mockReturnValue(selectBuilder);
 
       await deleteEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -787,16 +778,13 @@ describe('EstablishmentController', () => {
     });
 
     it('should return 404 for non-existent establishment', async () => {
-      const mockSelectQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: null,
-          error: null
-        })
-      };
+      // Mock select query returning null (not found)
+      const selectBuilder = createQueryBuilder({
+        data: null,
+        error: null
+      });
 
-      (supabase.from as jest.Mock).mockReturnValue(mockSelectQuery);
+      (supabase.from as jest.Mock).mockReturnValue(selectBuilder);
 
       await deleteEstablishment(mockRequest as AuthRequest, mockResponse as Response);
 

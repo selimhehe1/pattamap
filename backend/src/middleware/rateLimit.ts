@@ -215,4 +215,40 @@ export const commentRateLimit = createRateLimit({
   message: 'Too many comments, please wait before posting again'
 });
 
+// Establishment employees rate limit (v10.3 Phase 0)
+export const establishmentEmployeesRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 30, // Max 30 requests per minute
+  message: 'Too many requests to view employees',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `est-employees:${userIdFromToken}:${ip}`;
+  }
+});
+
+// VIP purchase rate limit (v10.3 Phase 1)
+export const vipPurchaseRateLimit = createRateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  maxRequests: 5, // Max 5 VIP purchases per hour (prevent spam)
+  message: 'Too many VIP purchase attempts, please try again later',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `vip-purchase:${userIdFromToken}:${ip}`;
+  }
+});
+
+// VIP status check rate limit (v10.3 Phase 1)
+export const vipStatusCheckRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 60, // Max 60 requests per minute (frequent checks allowed)
+  message: 'Too many VIP status check requests',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `vip-status:${userIdFromToken}:${ip}`;
+  }
+});
+
 export { store as rateLimitStore };

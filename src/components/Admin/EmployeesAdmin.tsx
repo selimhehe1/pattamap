@@ -1,17 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import EmployeeForm from '../Forms/EmployeeForm';
-import GirlProfile from '../Bar/GirlProfile';
+import { useDialog } from '../../hooks/useDialog';
+import { EmployeeForm } from '../../routes/lazyComponents';
+import { GirlProfile } from '../../routes/lazyComponents';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
+import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
+import LazyImage from '../Common/LazyImage';
+import '../../styles/components/employee-profile.css';
+import '../../styles/components/social-icons.css';
+import '../../styles/pages/user-dashboard.css';
 
 interface AdminEmployee {
   id: string;
   name: string;
   nickname?: string;
   age: number;
-  nationality: string;
+  nationality: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
   description?: string;
   photos: string[];
   social_media?: {
@@ -23,6 +31,8 @@ interface AdminEmployee {
   };
   status: 'pending' | 'approved' | 'rejected';
   self_removal_requested: boolean;
+  is_verified?: boolean; // 🆕 v10.2 - Verification status
+  verified_at?: string | null; // 🆕 v10.2 - Verification timestamp
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -66,6 +76,8 @@ interface EmployeesAdminProps {
 }
 
 const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
+  const { t } = useTranslation();
+  const dialog = useDialog();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
   const [employees, setEmployees] = useState<AdminEmployee[]>([]);
@@ -271,7 +283,91 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       }
     } catch (error) {
       logger.error('Failed to save employee:', error);
-      alert('Failed to update employee');
+      toast.error('Failed to update employee');
+    }
+  };
+
+  // 🆕 v10.3 - Verify employee profile (mark as verified)
+  const handleVerifyEmployee = async (employeeId: string, employeeName: string) => {
+    const confirmed = window.confirm(
+      `Verify profile for ${employeeName}?\n\nThis will add a verified badge to their profile.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setProcessingIds(prev => new Set(prev).add(employeeId));
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      // Use the verify endpoint (POST /:id/verify)
+      const response = await secureFetch(`${API_URL}/api/verifications/${employeeId}/verify`, {
+        method: 'POST',
+        body: JSON.stringify({
+          selfie_url: '', // Admin verification doesn't require selfie
+          admin_approved: true // Flag to bypass face recognition
+        })
+      });
+
+      if (response.ok) {
+        toast.success(`Profile verified for ${employeeName}`);
+        await loadEmployees();
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to verify profile');
+      }
+    } catch (error: any) {
+      logger.error('Failed to verify profile:', error);
+      toast.error(error.message || 'Failed to verify profile');
+    } finally {
+      setProcessingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(employeeId);
+        return newSet;
+      });
+    }
+  };
+
+  // 🆕 v10.2 - Revoke verification
+  const handleRevokeVerification = async (employeeId: string, employeeName: string) => {
+    const reason = await dialog.prompt(
+      t('admin.revokeVerificationPrompt', `Revoke verification for ${employeeName}?\n\nPlease provide a reason:`),
+      {
+        required: true,
+        minLength: 10,
+        variant: 'danger',
+        placeholder: t('admin.enterRevocationReason', 'Enter revocation reason...')
+      }
+    );
+
+    if (!reason) {
+      return; // User cancelled
+    }
+
+    setProcessingIds(prev => new Set(prev).add(employeeId));
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await secureFetch(`${API_URL}/api/verifications/employees/${employeeId}/verification`, {
+        method: 'DELETE',
+        body: JSON.stringify({ reason })
+      });
+
+      if (response.ok) {
+        toast.success(`Verification revoked for ${employeeName}`);
+        await loadEmployees();
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to revoke verification');
+      }
+    } catch (error: any) {
+      logger.error('Failed to revoke verification:', error);
+      toast.error(error.message || 'Failed to revoke verification');
+    } finally {
+      setProcessingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(employeeId);
+        return newSet;
+      });
     }
   };
 
@@ -324,22 +420,22 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         padding: '30px'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 Access Denied
+            🚫 {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
-            You don't have permission to access this area.
+            {t('admin.accessDeniedArea')}
           </p>
         </div>
       </div>
@@ -355,32 +451,32 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
     }}>
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
-        currentSection="Gestion des Employées"
+        currentSection={t('admin.employeesManagement')}
         onBackToDashboard={() => onTabChange('overview')}
         icon="👥"
       />
 
       {/* Header */}
       <div style={{ marginBottom: '30px' }}>
-        
+
         <h1 style={{
           fontSize: '32px',
           fontWeight: '900',
           margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(255,27,141,0.5)',
+          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          👥 Employees Management
+          👥 {t('admin.employeesManagement')}
         </h1>
         <p style={{
           fontSize: '16px',
           color: '#cccccc',
           margin: 0
         }}>
-          Review and approve employee profile submissions
+          {t('admin.reviewApproveEmployees')}
         </p>
       </div>
 
@@ -392,11 +488,11 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         overflowX: 'auto'
       }}>
         {[
-          { key: 'pending', label: 'New Pending', icon: '🆕' },
-          { key: 'pending-edits', label: 'Pending Edits', icon: '✏️' },
-          { key: 'approved', label: 'Approved', icon: '✅' },
-          { key: 'rejected', label: 'Rejected', icon: '❌' },
-          { key: 'all', label: 'All', icon: '📋' }
+          { key: 'pending', label: t('admin.filterNewPending'), icon: '🆕' },
+          { key: 'pending-edits', label: t('admin.filterPendingEdits'), icon: '✏️' },
+          { key: 'approved', label: t('admin.filterApproved'), icon: '✅' },
+          { key: 'rejected', label: t('admin.filterRejected'), icon: '❌' },
+          { key: 'all', label: t('admin.filterAll'), icon: '📋' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -404,11 +500,11 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
             style={{
               padding: '12px 20px',
               borderRadius: '12px',
-              border: filter === tab.key ? '2px solid #FF1B8D' : '2px solid rgba(255,27,141,0.3)',
+              border: filter === tab.key ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
               background: filter === tab.key 
-                ? 'linear-gradient(45deg, rgba(255,27,141,0.2), rgba(255,215,0,0.1))'
-                : 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
-              color: filter === tab.key ? '#FF1B8D' : '#ffffff',
+                ? 'linear-gradient(45deg, rgba(193, 154, 107,0.2), rgba(255,215,0,0.1))'
+                : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
+              color: filter === tab.key ? '#C19A6B' : '#ffffff',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               fontSize: '14px',
@@ -423,43 +519,28 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
 
       {/* Employees List */}
       {isLoading ? (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '300px'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(255,27,141,0.3)',
-            borderTop: '4px solid #FF1B8D',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-        </div>
+        <LoadingFallback message={t('admin.loadingEmployees')} variant="inline" />
       ) : filter === 'pending-edits' && editProposals.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h3 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '20px',
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            ✅ No Pending Edits
+            ✅ {t('admin.noPendingEdits')}
           </h3>
           <p style={{
             color: '#cccccc',
             fontSize: '16px'
           }}>
-            All edit proposals have been reviewed.
+            {t('admin.allEditsReviewed')}
           </p>
         </div>
       ) : filter === 'pending-edits' ? (
@@ -491,15 +572,15 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 fontSize: '12px',
                 fontWeight: 'bold'
               }}>
-                ✏️ EDIT PROPOSAL
+                ✏️ {t('admin.editProposal')}
               </div>
 
               <div style={{ marginBottom: '15px' }}>
                 <h3 style={{ color: '#FFD700', fontSize: '18px', margin: '0 0 5px 0' }}>
-                  Edit for: {proposal.current_values?.name || 'Employee'}
+                  {t('admin.editFor')} {proposal.current_values?.name || t('admin.employees')}
                 </h3>
                 <p style={{ color: '#cccccc', fontSize: '14px', margin: 0 }}>
-                  Proposed by: <strong style={{ color: '#00FFFF' }}>{proposal.proposed_by_user?.pseudonym || 'Unknown'}</strong>
+                  {t('admin.proposedBy')} <strong style={{ color: '#00E5FF' }}>{proposal.proposed_by_user?.pseudonym || t('admin.unknown')}</strong>
                 </p>
               </div>
 
@@ -518,7 +599,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                   fontWeight: 'bold'
                 }}
               >
-                {selectedProposal?.id === proposal.id ? '▲ Hide Changes' : '▼ View Changes'}
+                {selectedProposal?.id === proposal.id ? `▲ ${t('admin.hideChanges')}` : `▼ ${t('admin.viewChanges')}`}
               </button>
 
               {selectedProposal?.id === proposal.id && (
@@ -530,7 +611,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     borderBottom: '2px solid rgba(255,215,0,0.3)',
                     paddingBottom: '10px'
                   }}>
-                    📊 Proposed Changes
+                    📊 {t('admin.proposedChanges')}
                   </h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {Object.keys(proposal.proposed_changes).map(key => {
@@ -625,7 +706,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                                   textTransform: 'uppercase',
                                   letterSpacing: '1px'
                                 }}>
-                                  Before
+                                  {t('admin.before')}
                                 </span>
                               </div>
                               <div style={{
@@ -670,7 +751,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                                   textTransform: 'uppercase',
                                   letterSpacing: '1px'
                                 }}>
-                                  After
+                                  {t('admin.after')}
                                 </span>
                               </div>
                               <div style={{
@@ -710,7 +791,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                         fontWeight: 'bold'
                       }}
                     >
-                      {processingIds.has(proposal.id) ? '⏳ Processing...' : '✅ Approve & Apply'}
+                      {processingIds.has(proposal.id) ? `⏳ ${t('admin.processing')}` : `✅ ${t('admin.approveAndApply')}`}
                     </button>
 
                     <button
@@ -728,7 +809,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                         fontWeight: 'bold'
                       }}
                     >
-                      {processingIds.has(proposal.id) ? '⏳ Processing...' : '❌ Reject'}
+                      {processingIds.has(proposal.id) ? `⏳ ${t('admin.processing')}` : `❌ ${t('admin.reject')}`}
                     </button>
                   </div>
                 </div>
@@ -738,25 +819,25 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         </div>
       ) : employees.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h3 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '20px',
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 No Employees Found
+            📭 {t('admin.noEmployeesFound')}
           </h3>
           <p style={{
             color: '#cccccc',
             fontSize: '16px'
           }}>
-            No employees match the current filter.
+            {t('admin.noEmployeesMatch')}
           </p>
         </div>
       ) : (
@@ -765,6 +846,8 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
             <div
               key={employee.id}
               className="employee-card-nightlife"
+              role="button"
+              tabIndex={0}
               style={{
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
@@ -779,7 +862,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(255,27,141,0.2)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.2)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
@@ -811,11 +894,11 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
               {/* Content Area - Flex 1 to push buttons to bottom */}
               <div style={{ flex: 1, paddingTop: '10px' }}>
                 {/* Main Employee Info - Horizontal Layout */}
-                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
                   {/* Circular Photo with Status-Colored Border */}
                   <div style={{
-                    width: '80px',
-                    height: '80px',
+                    width: '60px',
+                    height: '60px',
                     borderRadius: '50%',
                     overflow: 'hidden',
                     border: `3px solid ${getStatusColor(employee.status)}`,
@@ -823,16 +906,18 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     position: 'relative'
                   }}>
                     {employee.photos && employee.photos.length > 0 ? (
-                      <img
+                      <LazyImage
                         src={employee.photos[0]}
                         alt={`${employee.name}, ${employee.age} years old from ${employee.nationality}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        cloudinaryPreset="thumbnail"
+                        style={{ width: '100%', height: '100%' }}
+                        objectFit="cover"
                       />
                     ) : (
                       <div style={{
                         width: '100%',
                         height: '100%',
-                        background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+                        background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -862,14 +947,38 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
 
                   {/* Employee Details */}
                   <div style={{ flex: 1 }}>
-                    {/* Name without Status Badge (now in top right) */}
+                    {/* Name with Verified Badge - 🆕 v10.2 */}
                     <h3 style={{
                       color: '#ffffff',
-                      fontSize: '20px',
+                      fontSize: '16px',
                       fontWeight: 'bold',
-                      margin: '0 0 5px 0'
+                      margin: '0 0 5px 0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
                     }}>
-                      {employee.name}
+                      <span>{employee.name}</span>
+                      {employee.is_verified && (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '18px',
+                            height: '18px',
+                            background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+                            borderRadius: '50%',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            color: '#fff',
+                            boxShadow: '0 2px 8px rgba(0, 212, 255, 0.4)',
+                            flexShrink: 0
+                          }}
+                          title={`Verified ${employee.verified_at ? `on ${new Date(employee.verified_at).toLocaleDateString()}` : ''}`}
+                        >
+                          ✓
+                        </span>
+                      )}
                       {employee.nickname && (
                         <span className="text-accent-nightlife nickname-text-nightlife">
                           "{employee.nickname}"
@@ -878,8 +987,8 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     </h3>
 
                     {/* Age and Nationality */}
-                    <div style={{ color: '#00FFFF', fontSize: '14px', marginBottom: '8px' }}>
-                      {employee.age} years • {employee.nationality}
+                    <div style={{ color: '#00E5FF', fontSize: '12px', marginBottom: '8px' }}>
+                      {employee.age} {t('admin.years')} • {employee.nationality}
                     </div>
 
                     {/* Submission Info */}
@@ -891,7 +1000,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                       marginBottom: '8px'
                     }}>
                       <span>📅 {formatDate(employee.created_at)}</span>
-                      <span style={{ color: '#FFD700' }}>👤 {employee.user?.pseudonym || 'Unknown'}</span>
+                      <span style={{ color: '#FFD700' }}>👤 {employee.user?.pseudonym || t('admin.unknown')}</span>
                     </div>
                   </div>
                 </div>
@@ -909,10 +1018,10 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     {/* Current Employment */}
                     {currentJob ? (
                       <div className="status-card-nightlife status-employed-nightlife" style={{ marginBottom: pastJobs.length > 0 ? '10px' : '0px' }}>
-                        <div style={{ color: '#00FFFF', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                          📍 CURRENTLY WORKING AT:
+                        <div style={{ color: '#00E5FF', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
+                          📍 {t('admin.currentlyWorkingAt')}
                         </div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#00FF7F', marginBottom: '2px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#00FF7F', marginBottom: '2px' }}>
                           {currentJob.establishment_name}
                         </div>
                         {currentJob.position && (
@@ -929,7 +1038,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                       </div>
                     ) : (
                       <div className="status-card-nightlife status-unemployed-nightlife" style={{ marginBottom: pastJobs.length > 0 ? '10px' : '0px' }}>
-                        ⚠️ Not currently employed
+                        ⚠️ {t('admin.notCurrentlyEmployed')}
                       </div>
                     )}
 
@@ -939,7 +1048,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                         background: 'rgba(255, 215, 0, 0.05)',
                         border: '1px solid rgba(255, 215, 0, 0.2)',
                         borderRadius: '8px',
-                        padding: '10px'
+                        padding: '6px'
                       }}>
                         <div style={{
                           color: '#FFD700',
@@ -950,7 +1059,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                           alignItems: 'center',
                           gap: '4px'
                         }}>
-                          📋 EMPLOYMENT HISTORY ({pastJobs.length} previous job{pastJobs.length > 1 ? 's' : ''}):
+                          📋 {t('admin.employmentHistory')} ({pastJobs.length} {t('admin.previousJob', { count: pastJobs.length })}):
                         </div>
                         {pastJobs.map((job, index) => (
                           <div key={job.id || index} style={{
@@ -978,7 +1087,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 );
               })() : (
                 <div className="status-card-nightlife status-unemployed-nightlife" style={{ marginBottom: '15px' }}>
-                  ⚠️ No employment history available
+                  ⚠️ {t('admin.noEmploymentHistory')}
                 </div>
               )}
 
@@ -1037,13 +1146,13 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     className="btn-nightlife-base btn-primary-nightlife"
                     style={{
                       flex: 1,
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 'bold',
-                      padding: '14px 12px',
+                      padding: '10px 8px',
                       borderRadius: '10px'
                     }}
                   >
-                    👁️ View Profile
+                    👁️ {t('admin.viewProfile')}
                   </button>
 
                   <button
@@ -1056,15 +1165,73 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                       flex: 1,
                       background: 'linear-gradient(45deg, #FFD700, #FFA500)',
                       color: '#000',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 'bold',
-                      padding: '14px 12px',
+                      padding: '10px 8px',
                       borderRadius: '10px'
                     }}
                   >
-                    ✏️ Edit
+                    ✏️ {t('common.edit')}
                   </button>
                 </div>
+
+                {/* Verify Profile Button - 🆕 v10.3 - Only for non-verified approved employees */}
+                {!employee.is_verified && employee.status === 'approved' && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVerifyEmployee(employee.id, employee.name);
+                      }}
+                      disabled={processingIds.has(employee.id)}
+                      className="btn-nightlife-base"
+                      style={{
+                        width: '100%',
+                        background: processingIds.has(employee.id)
+                          ? 'linear-gradient(45deg, #666666, #888888)'
+                          : 'linear-gradient(45deg, #00D4FF, #0099CC)',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        padding: '10px 8px',
+                        borderRadius: '10px',
+                        opacity: processingIds.has(employee.id) ? 0.7 : 1,
+                        cursor: processingIds.has(employee.id) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {processingIds.has(employee.id) ? `⏳ ${t('admin.processing')}` : `✓ ${t('admin.verifyProfile', 'Verify Profile')}`}
+                    </button>
+                  </div>
+                )}
+
+                {/* Revoke Verification Button - 🆕 v10.2 - Only for verified employees */}
+                {employee.is_verified && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRevokeVerification(employee.id, employee.name);
+                      }}
+                      disabled={processingIds.has(employee.id)}
+                      className="btn-nightlife-base"
+                      style={{
+                        width: '100%',
+                        background: processingIds.has(employee.id)
+                          ? 'linear-gradient(45deg, #666666, #888888)'
+                          : 'linear-gradient(45deg, #FF6B00, #FF4500)',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        padding: '10px 8px',
+                        borderRadius: '10px',
+                        opacity: processingIds.has(employee.id) ? 0.7 : 1,
+                        cursor: processingIds.has(employee.id) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {processingIds.has(employee.id) ? `⏳ ${t('admin.processing')}` : `⛔ ${t('admin.revokeVerification', 'Revoke Verification')}`}
+                    </button>
+                  </div>
+                )}
 
                 {/* Second Line: Approve/Reject - Only for pending - Perfect 50-50 */}
                 {employee.status === 'pending' && (
@@ -1082,15 +1249,15 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                           ? 'linear-gradient(45deg, #666666, #888888)'
                           : 'linear-gradient(45deg, #00FF7F, #00CC65)',
                         color: 'white',
-                        fontSize: '14px',
+                        fontSize: '12px',
                         fontWeight: 'bold',
-                        padding: '14px 12px',
+                        padding: '10px 8px',
                         borderRadius: '10px',
                         opacity: processingIds.has(employee.id) ? 0.7 : 1,
                         cursor: processingIds.has(employee.id) ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      {processingIds.has(employee.id) ? '⏳ Processing...' : '✅ Approve'}
+                      {processingIds.has(employee.id) ? `⏳ ${t('admin.processing')}` : `✅ ${t('admin.approve')}`}
                     </button>
 
                     <button
@@ -1106,15 +1273,15 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                           ? 'linear-gradient(45deg, #666666, #888888)'
                           : 'linear-gradient(45deg, #FF4757, #FF3742)',
                         color: 'white',
-                        fontSize: '14px',
+                        fontSize: '12px',
                         fontWeight: 'bold',
-                        padding: '14px 12px',
+                        padding: '10px 8px',
                         borderRadius: '10px',
                         opacity: processingIds.has(employee.id) ? 0.7 : 1,
                         cursor: processingIds.has(employee.id) ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      {processingIds.has(employee.id) ? '⏳ Processing...' : '❌ Reject'}
+                      {processingIds.has(employee.id) ? `⏳ ${t('admin.processing')}` : `❌ ${t('admin.reject')}`}
                     </button>
                   </div>
                 )}
@@ -1139,12 +1306,12 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
           justifyContent: 'center',
           padding: '20px',
           backdropFilter: 'blur(10px)'
-        }}>
+        }} role="dialog" aria-modal="true">
           <div style={{
             background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
             borderRadius: '25px',
-            border: '2px solid #FF1B8D',
-            boxShadow: '0 20px 60px rgba(255,27,141,0.3)',
+            border: '2px solid #C19A6B',
+            boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
             maxWidth: '800px',
             width: '100%',
             maxHeight: '90vh',
@@ -1161,9 +1328,9 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'rgba(255,27,141,0.2)',
-                border: '2px solid #FF1B8D',
-                color: '#FF1B8D',
+                background: 'rgba(193, 154, 107,0.2)',
+                border: '2px solid #C19A6B',
+                color: '#C19A6B',
                 fontSize: '20px',
                 cursor: 'pointer',
                 zIndex: 10,
@@ -1176,7 +1343,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
             <div style={{ padding: '30px' }}>
               {/* Detailed view content here - similar to GirlProfile but for admin */}
               <h2 style={{
-                color: '#FF1B8D',
+                color: '#C19A6B',
                 fontSize: '28px',
                 fontWeight: 'bold',
                 margin: '0 0 20px 0'
@@ -1198,15 +1365,17 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 {/* Photos */}
                 <div>
                   {selectedEmployee.photos.map((photo, index) => (
-                    <img
+                    <LazyImage
                       key={index}
                       src={photo}
                       alt={`${selectedEmployee.name}, ${selectedEmployee.age} years old from ${selectedEmployee.nationality} - ${index + 1}`}
+                      cloudinaryPreset="employeePhoto"
                       style={{
                         width: '100%',
                         marginBottom: '10px',
                         borderRadius: '10px'
                       }}
+                      objectFit="cover"
                     />
                   ))}
                 </div>
@@ -1214,16 +1383,16 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 {/* Details */}
                 <div style={{ color: 'white' }}>
                   <div style={{ marginBottom: '20px' }}>
-                    <strong style={{ color: '#FF1B8D' }}>Age:</strong> {selectedEmployee.age}
+                    <strong style={{ color: '#C19A6B' }}>Age:</strong> {selectedEmployee.age}
                   </div>
                   <div style={{ marginBottom: '20px' }}>
-                    <strong style={{ color: '#FF1B8D' }}>Nationality:</strong> {selectedEmployee.nationality}
+                    <strong style={{ color: '#C19A6B' }}>Nationality:</strong> {selectedEmployee.nationality}
                   </div>
 
                   {/* Current Employment Detail */}
                   {selectedEmployee.employment_history && selectedEmployee.employment_history.find(job => job.is_current) && (
                     <div style={{ marginBottom: '20px' }}>
-                      <strong style={{ color: '#FF1B8D' }}>Current Employment:</strong>
+                      <strong style={{ color: '#C19A6B' }}>{t('admin.currentEmployment')}</strong>
                       {(() => {
                         const currentJob = selectedEmployee.employment_history.find(job => job.is_current);
                         return (
@@ -1248,7 +1417,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                               </div>
                             )}
                             <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                              📅 Started: {new Date(currentJob?.start_date || '').toLocaleDateString('en-US', {
+                              📅 {t('admin.started')} {new Date(currentJob?.start_date || '').toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
@@ -1261,7 +1430,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                                 marginTop: '8px',
                                 fontStyle: 'italic'
                               }}>
-                                📝 Notes: {currentJob?.notes}
+                                📝 {t('admin.notes')} {currentJob?.notes}
                               </div>
                             )}
                           </div>
@@ -1272,7 +1441,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
 
                   {selectedEmployee.description && (
                     <div style={{ marginBottom: '20px' }}>
-                      <strong style={{ color: '#FF1B8D' }}>Description:</strong>
+                      <strong style={{ color: '#C19A6B' }}>Description:</strong>
                       <p style={{ marginTop: '5px', lineHeight: '1.6' }}>{selectedEmployee.description}</p>
                     </div>
                   )}
@@ -1280,7 +1449,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                   {/* Social media details */}
                   {selectedEmployee.social_media && (
                     <div style={{ marginBottom: '20px' }}>
-                      <strong style={{ color: '#FF1B8D' }}>Social Media:</strong>
+                      <strong style={{ color: '#C19A6B' }}>Social Media:</strong>
                       <div style={{ marginTop: '10px' }}>
                         {Object.entries(selectedEmployee.social_media).map(([platform, username]) => {
                           if (!username) return null;
@@ -1314,7 +1483,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                           cursor: 'pointer'
                         }}
                       >
-                        ✅ Approve
+                        ✅ {t('admin.approve')}
                       </button>
                       <button
                         onClick={() => {
@@ -1333,7 +1502,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                           cursor: 'pointer'
                         }}
                       >
-                        ❌ Reject
+                        ❌ {t('admin.reject')}
                       </button>
                     </div>
                   )}
@@ -1347,8 +1516,9 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       {/* GirlProfile Modal for Employee View */}
       {showEmployeeProfile && profileEmployee && (
         <div className="profile-overlay-nightlife">
-          <GirlProfile
-            girl={{
+          <Suspense fallback={<LoadingFallback message="Loading profile..." variant="modal" />}>
+            <GirlProfile
+              girl={{
               id: profileEmployee.id,
               name: profileEmployee.name,
               nickname: profileEmployee.nickname || undefined,
@@ -1373,7 +1543,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                     id: '1',
                     name: 'Bar',
                     icon: '🍻',
-                    color: '#FF1B8D',
+                    color: '#C19A6B',
                     created_at: new Date().toISOString()
                   },
                   status: 'approved' as const,
@@ -1393,34 +1563,37 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
               created_at: profileEmployee.created_at,
               updated_at: profileEmployee.updated_at || profileEmployee.created_at
             }}
-            onClose={() => {
-              setShowEmployeeProfile(false);
-              setProfileEmployee(null);
-            }}
-          />
+              onClose={() => {
+                setShowEmployeeProfile(false);
+                setProfileEmployee(null);
+              }}
+            />
+          </Suspense>
         </div>
       )}
 
       {/* Edit Employee Form */}
       {editingEmployee && (
-        <EmployeeForm
-          initialData={{
-            ...editingEmployee,
-            current_establishment_id: (() => {
-              const fromEmploymentHistory = editingEmployee.employment_history?.find(eh => eh.is_current)?.establishment_id;
-              const result = fromEmploymentHistory || '';
+        <Suspense fallback={<LoadingFallback message="Loading employee form..." variant="modal" />}>
+          <EmployeeForm
+            initialData={{
+              ...editingEmployee,
+              current_establishment_id: (() => {
+                const fromEmploymentHistory = editingEmployee.employment_history?.find(eh => eh.is_current)?.establishment_id;
+                const result = fromEmploymentHistory || '';
 
-              logger.debug('🔧 EmployeesAdmin Debug for:', editingEmployee.name);
-              logger.debug('fromEmploymentHistory:', fromEmploymentHistory);
-              logger.debug('employment_history:', editingEmployee.employment_history);
-              logger.debug('Final result:', result);
+                logger.debug('🔧 EmployeesAdmin Debug for:', editingEmployee.name);
+                logger.debug('fromEmploymentHistory:', fromEmploymentHistory);
+                logger.debug('employment_history:', editingEmployee.employment_history);
+                logger.debug('Final result:', result);
 
-              return result;
-            })()
-          }}
-          onSubmit={handleSaveEmployee}
-          onCancel={() => setEditingEmployee(null)}
-        />
+                return result;
+              })()
+            }}
+            onSubmit={handleSaveEmployee}
+            onCancel={() => setEditingEmployee(null)}
+          />
+        </Suspense>
       )}
 
       {/* Loading Animation CSS */}

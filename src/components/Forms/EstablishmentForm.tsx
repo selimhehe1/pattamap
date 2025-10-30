@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
+import { useAutoSave } from '../../hooks/useAutoSave';
 import { EstablishmentCategory, ConsumableTemplate } from '../../types';
 import BasicInfoForm from './EstablishmentFormSections/BasicInfoForm';
 import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
-import ServicesForm from './EstablishmentFormSections/ServicesForm';
+import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
+import '../../styles/components/modal-forms.css';
+import '../../styles/components/photos.css';
+import '../../styles/utilities/layout-utilities.css';
+import '../../styles/components/form-components.css';
 
 interface EstablishmentFormProps {
   onSubmit: (establishmentData: any) => void;
@@ -17,7 +22,7 @@ interface EstablishmentFormProps {
 }
 
 const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCancel, isLoading = false, initialData }) => {
-  const { token } = useAuth();
+  const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
   const [formData, setFormData] = useState({
@@ -29,7 +34,10 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
     phone: initialData?.phone || '',
     website: initialData?.website || '',
     logo_url: initialData?.logo_url || '',
-    services: initialData?.services || [] as string[],
+    // Social media links (v10.1)
+    instagram: initialData?.instagram || '',
+    twitter: initialData?.twitter || '',
+    tiktok: initialData?.tiktok || '',
     opening_hours: {
       open: initialData?.opening_hours?.open || '14:00',
       close: initialData?.opening_hours?.close || '02:00'
@@ -39,14 +47,16 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       ladydrink: initialData?.ladydrink || initialData?.pricing?.ladydrink || '130',
       barfine: initialData?.barfine || initialData?.pricing?.barfine || '400',
       rooms: {
-        available: initialData?.pricing?.rooms?.available || false,
+        // Auto-check toggle if rooms price exists (fix: detect existing rooms price)
+        available:
+          initialData?.pricing?.rooms?.available ??
+          (initialData?.rooms && initialData.rooms !== 'N/A' ? true : false),
         price: initialData?.rooms && initialData?.rooms !== 'N/A' ? initialData.rooms : (initialData?.pricing?.rooms?.price || '600')
       }
     }
   });
 
   const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
-  const [serviceInput, setServiceInput] = useState('');
   const [consumableTemplates, setConsumableTemplates] = useState<ConsumableTemplate[]>([]);
   const [selectedConsumable, setSelectedConsumable] = useState({ template_id: '', price: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,9 +65,29 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
+  // 💾 Auto-save hook
+  const { isDraft, clearDraft, restoreDraft, lastSaved, isSaving } = useAutoSave({
+    key: initialData ? `establishment-form-edit-${initialData.id}` : 'establishment-form-new',
+    data: formData,
+    debounceMs: 2000,
+    enabled: !isLoading,
+  });
+
   useEffect(() => {
     fetchCategories();
     fetchConsumableTemplates();
+  }, []);
+
+  // 💾 Restore draft on mount if exists
+  useEffect(() => {
+    if (!initialData && isDraft) {
+      const draft = restoreDraft();
+      if (draft) {
+        setFormData(draft);
+        logger.info('📥 Draft restored from localStorage');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCategories = async () => {
@@ -72,19 +102,21 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
 
   const fetchConsumableTemplates = async () => {
     try {
-      const mockTemplates: ConsumableTemplate[] = [
-        { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-004', name: 'Leo', category: 'beer', icon: '🍺', default_price: 65, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-005', name: 'Tequila Shot', category: 'shot', icon: '🥃', default_price: 150, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-006', name: 'Vodka Shot', category: 'shot', icon: '🥃', default_price: 140, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-007', name: 'Mojito', category: 'cocktail', icon: '🍹', default_price: 200, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-008', name: 'Cosmopolitan', category: 'cocktail', icon: '🍹', default_price: 220, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-009', name: 'Whisky', category: 'spirit', icon: '🥂', default_price: 180, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-010', name: 'Coca Cola', category: 'soft', icon: '🥤', default_price: 50, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
-      ];
-      setConsumableTemplates(mockTemplates.filter(t => t.status === 'active'));
+      // Fetch real consumable templates from API (returns UUIDs)
+      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/consumables`);
+
+      if (!response.ok) {
+        logger.error('Failed to fetch consumables:', response.status);
+        return;
+      }
+
+      const data = await response.json();
+      const templates = data.consumables || [];
+
+      logger.debug(`✅ Fetched ${templates.length} consumable templates from API`);
+
+      // Filter only active consumables
+      setConsumableTemplates(templates.filter((t: ConsumableTemplate) => t.status === 'active'));
     } catch (error) {
       logger.error('Error fetching consumable templates:', error);
     }
@@ -131,20 +163,11 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
     }
   };
 
-  const addService = () => {
-    if (serviceInput.trim() && !formData.services.includes(serviceInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        services: [...prev.services, serviceInput.trim()]
-      }));
-      setServiceInput('');
-    }
-  };
-
-  const removeService = (service: string) => {
+  // Social media change handler (v10.1)
+  const handleSocialMediaChange = (platform: 'instagram' | 'twitter' | 'tiktok', value: string) => {
     setFormData(prev => ({
       ...prev,
-      services: prev.services.filter((s: string) => s !== service)
+      [platform]: value
     }));
   };
 
@@ -251,7 +274,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       return data.logo?.url || null;
     } catch (error) {
       logger.error('❌ Logo upload error:', error);
-      setErrors(prev => ({ ...prev, logo_url: `Failed to upload logo: ${error instanceof Error ? error.message : 'Unknown error'}` }));
+      setErrors(prev => ({ ...prev, logo_url: t('establishment.errorLogoUploadFailed', { error: error instanceof Error ? error.message : 'Unknown error' }) }));
       return null;
     } finally {
       setUploadingLogo(false);
@@ -261,10 +284,10 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Nom requis';
-    if (!formData.address.trim()) newErrors.address = 'Adresse requise';
-    if (!formData.zone) newErrors.zone = 'Zone requise';
-    if (!formData.category_id) newErrors.category_id = 'Catégorie requise';
+    if (!formData.name.trim()) newErrors.name = t('establishment.errorNameRequired');
+    if (!formData.address.trim()) newErrors.address = t('establishment.errorAddressRequired');
+    if (!formData.zone) newErrors.zone = t('establishment.errorZoneRequired');
+    if (!formData.category_id) newErrors.category_id = t('establishment.errorCategoryRequired');
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -302,9 +325,13 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       }
 
       await onSubmit(finalFormData);
+
+      // ✅ Clear draft after successful submission
+      clearDraft();
+      logger.info('🗑️ Draft cleared after successful submission');
     } catch (error) {
       logger.error('Error submitting form:', error);
-      setErrors(prev => ({ ...prev, submit: 'Failed to submit form' }));
+      setErrors(prev => ({ ...prev, submit: t('establishment.errorSubmitFailed') }));
     }
   };
 
@@ -322,7 +349,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       alignItems: 'center',
       justifyContent: 'center',
       padding: '10px'
-    }}>
+    }} role="dialog" aria-modal="true">
       <div className="modal-form-container">
         {/* Bouton fermeture */}
         <button
@@ -334,11 +361,33 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
 
         <div className="modal-header">
           <h2 className="header-title-nightlife">
-            {initialData ? '✏️ Edit Establishment' : '🏮 Add New Establishment'}
+            {initialData ? `✏️ ${t('establishment.editTitle')}` : `🏮 ${t('establishment.addTitle')}`}
           </h2>
           <p className="modal-subtitle">
-            {initialData ? 'Modify establishment information' : 'Create a new establishment profile'}
+            {initialData ? t('establishment.editSubtitle') : t('establishment.createSubtitle')}
           </p>
+
+          {/* Auto-save indicator */}
+          {!initialData && (
+            <div style={{
+              fontSize: '0.75rem',
+              color: isSaving ? '#00E5FF' : isDraft ? '#4ADE80' : '#6B7280',
+              marginTop: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
+            }}>
+              {isSaving ? (
+                <>⏳ {t('establishment.savingDraft')}</>
+              ) : isDraft && lastSaved ? (
+                <>
+                  ✓ {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}
+                </>
+              ) : (
+                <>💾 {t('establishment.autoSaveEnabled')}</>
+              )}
+            </div>
+          )}
         </div>
 
       <form onSubmit={handleSubmit} className="form-layout">
@@ -362,12 +411,9 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
         </div>
 
         <div className="form-section">
-          <ServicesForm
+          <SocialMediaForm
             formData={formData}
-            serviceInput={serviceInput}
-            onServiceInputChange={setServiceInput}
-            onAddService={addService}
-            onRemoveService={removeService}
+            onSocialMediaChange={handleSocialMediaChange}
           />
         </div>
 
@@ -392,7 +438,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
             onClick={onCancel}
             className="btn-nightlife-base btn-secondary-nightlife"
           >
-            ❌ Cancel
+            ❌ {t('establishment.buttonCancel')}
           </button>
 
           <button
@@ -403,10 +449,10 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
             {isLoading ? (
               <span className="loading-flex">
                 <span className="loading-spinner-small-nightlife"></span>
-                ⏳ Submitting...
+                ⏳ {t('establishment.buttonSubmitting')}
               </span>
             ) : (
-              initialData ? '💾 Save Changes' : '✨ Add Establishment'
+              initialData ? `💾 ${t('establishment.buttonSaveChanges')}` : `✨ ${t('establishment.buttonAddEstablishment')}`
             )}
           </button>
         </div>

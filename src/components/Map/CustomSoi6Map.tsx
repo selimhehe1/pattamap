@@ -4,9 +4,17 @@ import { Establishment, CustomBar } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import GenericRoadCanvas from './GenericRoadCanvas';
 import { getZoneConfig } from '../../utils/zoneConfig';
+import { MAP_CONFIG } from '../../utils/constants';
 import DragDropIndicator from './DragDropIndicator';
+import ScreenReaderEstablishmentList from './ScreenReaderEstablishmentList';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
 import { useContainerSize } from '../../hooks/useContainerSize';
+import LazyImage from '../Common/LazyImage';
+import { generateEstablishmentUrl } from '../../utils/slugify';
+import '../../styles/components/map-components.css';
+import '../../styles/components/maps.css';
+import './CustomSoi6Map.css';
 
 export interface Bar {
   id: string;
@@ -28,9 +36,9 @@ interface CustomSoi6MapProps {
 }
 
 const TYPE_STYLES = {
-  gogo: { color: '#FF1B8D', icon: '💃', shadow: 'rgba(255, 27, 141, 0.5)' },
+  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
   beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00FFFF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
+  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
   massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
   nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
 };
@@ -55,15 +63,29 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
   const zoneConfig = getZoneConfig('soi6');
 
   if (isMobile) {
-    // Mobile - Vertical layout
-    // Row 1 = Beach Road side (bottom), Row 2 = Second Road side (top)
-    const totalWidth = 350; // Mobile container width estimate
-    const usableWidth = totalWidth * 0.9; // 90% of width usable
-    const barWidth = Math.min(40, usableWidth / zoneConfig.maxCols - 4); // Dynamic bar size
-    const spacing = (usableWidth - (zoneConfig.maxCols * barWidth)) / (zoneConfig.maxCols + 1);
+    // Mobile - VERTICAL layout like Walking Street
+    // Row 1 = Beach Road side (LEFT), Row 2 = Second Road side (RIGHT)
+    // Road runs vertically down the center, bars on each side
+    const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : 600;
+    const containerWidth = containerElement ? containerElement.getBoundingClientRect().width : 350;
 
-    const x = spacing + (col - 1) * (barWidth + spacing);
-    const y = row === 1 ? 480 : 60; // Beach Road (bottom) vs Second Road (top)
+    const centerX = containerWidth * 0.5;
+    const roadWidth = 80; // Vertical road width (matches GenericRoadCanvas)
+    const barWidth = 32; // Optimized size for 20 positions without scroll
+
+    // X position: LEFT side (row 1) or RIGHT side (row 2) of vertical road
+    const offsetFromCenter = roadWidth / 2 + 12; // 12px gap from road edge
+    const x = row === 1
+      ? centerX - offsetFromCenter  // Left side (Beach Road)
+      : centerX + offsetFromCenter; // Right side (Second Road)
+
+    // Y position: Distribute bars vertically along the road - starts from top
+    const topMargin = 10; // Just 10px from top (road starts at 0%)
+    const bottomMargin = 10; // 10px from bottom
+    const usableHeight = containerHeight - topMargin - bottomMargin;
+    const spacing = usableHeight / (zoneConfig.maxCols + 1);
+    const y = topMargin + col * spacing; // Use col for vertical distribution
+
     return { x, y, barWidth };
   } else {
     // PC - Horizontal layout using full width
@@ -88,7 +110,7 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
     const x = startX + spacing + (col - 1) * (idealBarWidth + spacing);
 
     // Calculate Y position using zoneConfig
-    const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : 500;
+    const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : MAP_CONFIG.DEFAULT_HEIGHT;
     const topY = containerHeight * zoneConfig.startY / 100;
     const bottomY = containerHeight * zoneConfig.endY / 100;
     const y = row === 1 ? topY : bottomY; // Second Road (top) vs Beach Road (bottom)
@@ -162,8 +184,13 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
+  // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
+  const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
+  const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // Monitor container size changes to recalculate positions
-  const containerDimensions = useContainerSize(containerRef, 150);
+  // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
+  const containerDimensions = useContainerSize(containerRef, 300);
 
   // OPTIMISTIC UI: Store temporary positions during API calls to prevent disappearing bars
   const [optimisticPositions, setOptimisticPositions] = useState<Map<string, { row: number; col: number }>>(new Map());
@@ -179,6 +206,14 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
   const [dropAction, setDropAction] = useState<'move' | 'swap' | 'blocked' | null>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
+  // Duplicate positions detection for visual indicators
+  const [duplicatePositions, setDuplicatePositions] = useState<Array<{
+    row: number;
+    col: number;
+    count: number;
+    establishments: Establishment[];
+  }>>([]);
+
   // Mobile detection
   useEffect(() => {
     const checkMobile = () => {
@@ -191,13 +226,46 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Orientation detection (for landscape responsive design)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+
+    const handleOrientationChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      // Orientation change detected - CSS media queries will handle styling
+      logger.debug('Orientation changed', {
+        isPortrait: e.matches,
+        isLandscape: !e.matches
+      });
+    };
+
+    // Initial check
+    handleOrientationChange(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleOrientationChange);
+
+    // Also listen for orientationchange event (for iOS Safari)
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => handleOrientationChange(mediaQuery), 100);
+    });
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleOrientationChange);
+      window.removeEventListener('orientationchange', () => handleOrientationChange(mediaQuery));
+    };
+  }, []);
+
   // Detect duplicate positions on load
+  // Detect and store duplicate positions for visual indicators
   useEffect(() => {
     const soi6Establishments = establishments.filter(
       est => est.zone === 'soi6' && est.grid_row && est.grid_col
     );
 
-    if (soi6Establishments.length === 0) return;
+    if (soi6Establishments.length === 0) {
+      setDuplicatePositions([]);
+      return;
+    }
 
     // Group by position
     const positionMap = new Map<string, typeof soi6Establishments>();
@@ -209,16 +277,28 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       positionMap.get(key)!.push(est);
     });
 
-    // Find duplicates
-    const duplicates = Array.from(positionMap.entries()).filter(([_, ests]) => ests.length > 1);
+    // Find duplicates and store them for visual indicators
+    const duplicates = Array.from(positionMap.entries())
+      .filter(([_, ests]) => ests.length > 1)
+      .map(([position, ests]) => {
+        const [row, col] = position.split(',').map(Number);
+        return {
+          row,
+          col,
+          count: ests.length,
+          establishments: ests
+        };
+      });
+
+    setDuplicatePositions(duplicates);
 
     if (duplicates.length > 0) {
       logger.warn(`Duplicate positions detected on Soi6 map`, {
         duplicateCount: duplicates.length,
-        positions: duplicates.map(([position, ests]) => ({
-          position,
-          count: ests.length,
-          establishments: ests.map(e => e.name)
+        positions: duplicates.map(dup => ({
+          position: `${dup.row},${dup.col}`,
+          count: dup.count,
+          establishments: dup.establishments.map(e => e.name)
         })),
         message: 'Some establishments are hidden behind others. Fix positions in admin panel.'
       });
@@ -304,8 +384,8 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       };
       onBarClick(customBar);
     } else {
-      // Default navigation
-      navigate(`/bar/${bar.id}`);
+      // Default navigation - SEO-friendly URL
+      navigate(generateEstablishmentUrl(bar.id, bar.name, establishment?.zone || 'soi6'));
     }
   }, [establishments, onEstablishmentClick, onBarClick, navigate, isEditMode]);
 
@@ -329,52 +409,84 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
     return null;
   }, [allBars, establishments]);
 
-  // Convert mouse position to grid position - Updated to use zoneConfig
-  const getGridFromMousePosition = useCallback((event: React.DragEvent) => {
+  // ✅ HAPTIC FEEDBACK: Vibration for touch interactions
+  const triggerHapticFeedback = useCallback((pattern: number | number[]) => {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (error) {
+        // Vibration API not supported or blocked - fail silently
+        logger.debug('Vibration API not available', error);
+      }
+    }
+  }, []);
+
+  // ✅ TOUCH SUPPORT: Extract coordinates from both drag and touch events
+  const getEventCoordinates = (event: React.DragEvent | React.TouchEvent): { clientX: number; clientY: number } | null => {
+    if ('touches' in event && event.touches.length > 0) {
+      // TouchEvent
+      return {
+        clientX: event.touches[0].clientX,
+        clientY: event.touches[0].clientY
+      };
+    } else if ('clientX' in event) {
+      // DragEvent or MouseEvent
+      return {
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+    }
+    return null;
+  };
+
+  // Convert mouse/touch position to grid position - Updated to use zoneConfig
+  const getGridFromMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return null;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return null;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
     const zoneConfig = getZoneConfig('soi6');
 
 
     let row: number, col: number;
 
     if (isMobile) {
-      // Mobile - Row 1 = Beach Road (bottom), Row 2 = Second Road (top)
-      const totalWidth = rect.width;
-      const usableWidth = totalWidth * 0.9;
-      const barWidth = Math.min(40, usableWidth / zoneConfig.maxCols - 4);
-      const spacing = (usableWidth - (zoneConfig.maxCols * barWidth)) / (zoneConfig.maxCols + 1);
+      // Mobile - VERTICAL layout
+      // Row 1 = LEFT side (Beach Road), Row 2 = RIGHT side (Second Road)
+      const containerHeight = rect.height;
+      const containerWidth = rect.width;
 
-      // IMPROVED: Detect bar by clickable surface for mobile
-      const barRadius = barWidth / 2;
-      let detectedCol = 1;
+      const centerX = containerWidth * 0.5;
+      const roadWidth = 80; // Match GenericRoadCanvas
+
+      // Determine row based on X position (left or right of vertical road)
+      row = relativeX < centerX ? 1 : 2; // Left = Beach Road (row 1), Right = Second Road (row 2)
+
+      // Determine col based on Y position (vertical distribution)
+      const topMargin = 10; // Match calculateResponsivePosition
+      const bottomMargin = 10;
+      const usableHeight = containerHeight - topMargin - bottomMargin;
+      const spacing = usableHeight / (zoneConfig.maxCols + 1);
+
+      // Find closest column position vertically
+      let closestCol = 1;
+      let closestDistance = Infinity;
 
       for (let testCol = 1; testCol <= zoneConfig.maxCols; testCol++) {
-        const barCenterX = spacing + (testCol - 1) * (barWidth + spacing);
-        const barLeftEdge = barCenterX - barRadius;
-        const barRightEdge = barCenterX + barRadius;
+        const barY = topMargin + testCol * spacing;
+        const distance = Math.abs(relativeY - barY);
 
-        if (relativeX >= barLeftEdge && relativeX <= barRightEdge) {
-          detectedCol = testCol;
-          break;
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestCol = testCol;
         }
       }
 
-      // Fallback for gaps between bars - Use correct formula
-      if (detectedCol === 1 && relativeX > spacing + barRadius) {
-        // Formula: N = (X - spacing) / (barWidth + spacing) + 1
-        const clickSlot = (relativeX - spacing) / (barWidth + spacing);
-        detectedCol = Math.max(1, Math.min(zoneConfig.maxCols, Math.floor(clickSlot) + 1));
-      }
-
-      col = detectedCol;
-
-      // Determine row based on Y position
-      const midPoint = rect.height / 2;
-      row = relativeY > midPoint ? 1 : 2; // Bottom = Beach Road (row 1), Top = Second Road (row 2)
+      col = closestCol;
     } else {
       // PC - Use zoneConfig for calculations
       const containerWidth = rect.width;
@@ -445,33 +557,40 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
           width: '100%',
           height: '100%',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, white 45%, transparent 60%)',
+          background: 'radial-gradient(circle, #ffffff 45%, #f5f5f5 70%, #e8e8e8 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative'
         }}>
-          <img
+          <LazyImage
             src={establishment.logo_url}
             alt={establishment.name}
+            cloudinaryPreset="establishmentLogo"
             style={{
-              width: '70%',
-              height: '70%',
-              objectFit: 'contain',
-              borderRadius: '50%'
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              position: 'relative',
+              zIndex: 1,
+              mixBlendMode: 'darken',
+              maskImage: 'radial-gradient(circle at 50% 50%, black 0%, black 50%, rgba(0, 0, 0, 0.8) 70%, rgba(0, 0, 0, 0.4) 90%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 0%, black 50%, rgba(0, 0, 0, 0.8) 70%, rgba(0, 0, 0, 0.4) 90%, transparent 100%)'
             }}
-            onError={(e) => {
-              // 🛡️ XSS SAFE: Using textContent instead of innerHTML
-              const target = e.target as HTMLElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                parent.textContent = fallbackIcon;
-                parent.style.background = 'transparent';
-                parent.style.fontSize = '16px';
-              }
-            }}
+            objectFit="cover"
           />
+          {/* Overlay de courbure sphérique - assombrit les bords pour effet 3D */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'radial-gradient(circle at 50% 50%, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.1) 60%, rgba(0, 0, 0, 0.3) 85%, rgba(0, 0, 0, 0.5) 100%)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 3
+          }} />
         </div>
       );
     }
@@ -483,12 +602,15 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
   // Throttled version of handleDragOver for performance
   const throttleTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMousePosition = useCallback((event: React.DragEvent) => {
+  const updateMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     // Update mouse position immediately for smooth tracking
     setMousePosition({ x: relativeX, y: relativeY });
@@ -650,6 +772,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -687,7 +810,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
               userMessage = `❌ Move failed: ${response.status} ${response.statusText}`;
             }
 
-            alert(userMessage);
+            toast.error(userMessage);
           }
         } else {
           logger.error('Move failed - missing establishment or token');
@@ -726,6 +849,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
           // Use single atomic swap API call instead of parallel calls
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -766,7 +890,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
               userMessage = `❌ Swap failed: ${response.status} ${response.statusText}`;
             }
 
-            alert(userMessage);
+            toast.error(userMessage);
           }
         } else {
           logger.error('Swap failed - missing establishments or token');
@@ -811,6 +935,249 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
     }
   }, []);
 
+  // ✅ TOUCH SUPPORT: Touch event handlers for mobile/tablet drag&drop
+  const handleTouchStart = useCallback((bar: Bar, event: React.TouchEvent) => {
+    const now = Date.now();
+
+    // STRICT CHECK: Block if locked OR loading
+    if (!isEditMode || isLoading || now < operationLockUntil) {
+      event.preventDefault();
+      return;
+    }
+
+    // Prevent default to avoid scrolling during drag
+    event.preventDefault();
+
+    // ✅ HAPTIC FEEDBACK: Short vibration on drag start
+    triggerHapticFeedback(10);
+
+    setDraggedBar(bar);
+    setIsDragging(true);
+  }, [isEditMode, isLoading, operationLockUntil, triggerHapticFeedback]);
+
+  const handleTouchMove = useCallback((event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !draggedBar || !containerRef.current) return;
+
+    event.preventDefault(); // Prevent scrolling
+
+    updateMousePosition(event);
+  }, [isEditMode, isDragging, draggedBar, updateMousePosition]);
+
+  const handleTouchEnd = useCallback(async (event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !dragOverPosition || !draggedBar || dropAction === 'blocked') {
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      return;
+    }
+
+    event.preventDefault();
+
+    // ✅ HAPTIC FEEDBACK: Double vibration pattern on successful drop
+    triggerHapticFeedback([20, 10, 20]);
+
+    const { row, col } = dragOverPosition;
+
+    // RE-CHECK position at drop time
+    const conflictBar = findBarAtPosition(row, col);
+
+    // Get original position of dragged establishment
+    const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+    const originalPosition = draggedEstablishment ? {
+      row: draggedEstablishment.grid_row,
+      col: draggedEstablishment.grid_col
+    } : null;
+
+    // Safety check: If trying to drop on same position, cancel
+    if (originalPosition && originalPosition.row === row && originalPosition.col === col) {
+      logger.debug('Dropping on same position, cancelling');
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+      return;
+    }
+
+    // Add timeout safety measure for loading state (10 seconds)
+    const loadingTimeout = setTimeout(() => {
+      logger.warn('Loading timeout - resetting drag states');
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+    }, 10000);
+
+    try {
+      setIsLoading(true);
+
+      // Determine actual action based on RE-CHECKED position
+      const actualAction = conflictBar ? 'swap' : 'move';
+
+      if (actualAction === 'move') {
+        // Simple move to empty position
+        const establishment = establishments.find(est => est.id === draggedBar.id);
+
+        if (establishment) {
+          // OPTIMISTIC UI: Store the new position immediately
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(establishment.id, { row, col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: establishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'soi6'
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('Position updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Move failed', {
+              status: response.status,
+              error: errorText
+            });
+
+            // OPTIMISTIC UI: Clear failed position
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(establishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            let userMessage = 'Failed to move establishment';
+            if (response.status === 400 && errorText.includes('Column position out of bounds')) {
+              userMessage = `❌ Invalid position: Column ${col} is out of bounds (1-20 allowed)`;
+            } else if (response.status === 400 && errorText.includes('Database constraint')) {
+              userMessage = '❌ Database constraint error - please try a different position';
+            } else {
+              userMessage = `❌ Move failed: ${response.status} ${response.statusText}`;
+            }
+
+            toast.error(userMessage);
+          }
+        } else {
+          logger.error('Move failed - missing establishment');
+        }
+
+      } else if (actualAction === 'swap' && conflictBar) {
+        // Swap positions between two bars using atomic backend swap API
+        const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+        const conflictEstablishment = establishments.find(est => est.id === conflictBar.id);
+
+        if (draggedEstablishment && conflictEstablishment) {
+          const draggedOriginalPos = {
+            row: draggedEstablishment.grid_row || 1,
+            col: draggedEstablishment.grid_col || 1
+          };
+
+          // OPTIMISTIC UI: Store both swapped positions immediately
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(draggedEstablishment.id, { row, col });
+            newMap.set(conflictEstablishment.id, { row: draggedOriginalPos.row, col: draggedOriginalPos.col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: draggedEstablishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'soi6',
+            swap_with_id: conflictEstablishment.id
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('Swap updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Atomic swap failed', {
+              status: response.status,
+              error: errorText
+            });
+
+            // OPTIMISTIC UI: Clear failed swap positions
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(draggedEstablishment.id);
+              newMap.delete(conflictEstablishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            let userMessage = 'Failed to swap establishments';
+            if (response.status === 400 && errorText.includes('Column position out of bounds')) {
+              userMessage = `❌ Invalid swap position: Column ${col} is out of bounds (1-20 allowed)`;
+            } else if (response.status === 400 && errorText.includes('Database constraint')) {
+              userMessage = '❌ Database constraint error - swap not possible at this position';
+            } else if (response.status === 500) {
+              userMessage = '❌ Swap failed due to server error - please try again';
+            } else {
+              userMessage = `❌ Swap failed: ${response.status} ${response.statusText}`;
+            }
+
+            toast.error(userMessage);
+          }
+        } else {
+          logger.error('Swap failed - missing establishments');
+        }
+      }
+
+    } catch (error) {
+      logger.error('Touch drop operation error', error);
+    } finally {
+      clearTimeout(loadingTimeout);
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+
+      // Clear throttle timeout
+      if (throttleTimeout.current) {
+        clearTimeout(throttleTimeout.current);
+        throttleTimeout.current = null;
+      }
+    }
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments]);
+
   // Toggle edit mode
   const toggleEditMode = useCallback(() => {
     setIsEditMode(!isEditMode);
@@ -827,6 +1194,88 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       throttleTimeout.current = null;
     }
   }, [isEditMode]);
+
+  // ✅ KEYBOARD NAVIGATION: Arrow key handler for navigating between establishments
+  const handleKeyboardNavigation = useCallback((e: React.KeyboardEvent) => {
+    // Only handle arrow keys
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      return;
+    }
+
+    // Don't interfere with edit mode or if no bars exist
+    if (isEditMode || allBars.length === 0) {
+      return;
+    }
+
+    e.preventDefault();
+
+    // Initialize focus if not set
+    let currentIndex = focusedBarIndex;
+    if (currentIndex === -1 || currentIndex >= allBars.length) {
+      currentIndex = 0;
+      setFocusedBarIndex(0);
+      const firstBar = allBars[0];
+      barRefs.current.get(firstBar.id)?.focus();
+      return;
+    }
+
+    const currentBar = allBars[currentIndex];
+    const currentRow = currentBar.grid_row || 1;
+    const currentCol = currentBar.grid_col || 1;
+
+    let targetBar: Bar | null = null;
+    let targetIndex = -1;
+
+    switch (e.key) {
+      case 'ArrowRight':
+        // Find next bar in same row (higher column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) > currentCol)
+          .sort((a, b) => (a.bar.grid_col || 1) - (b.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowLeft':
+        // Find previous bar in same row (lower column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) < currentCol)
+          .sort((a, b) => (b.bar.grid_col || 1) - (a.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowUp':
+        // Find bar in row above (row 2 if currently row 1), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) !== currentRow)
+          .sort((a, b) => {
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowDown':
+        // Find bar in row below (row 1 if currently row 2), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) !== currentRow)
+          .sort((a, b) => {
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+    }
+
+    // Focus target bar if found
+    if (targetBar && targetIndex !== -1) {
+      setFocusedBarIndex(targetIndex);
+      barRefs.current.get(targetBar.id)?.focus();
+    }
+  }, [allBars, focusedBarIndex, isEditMode]);
 
   // Cleanup on component unmount
   useEffect(() => {
@@ -856,16 +1305,17 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       const { barWidth } = calculateResponsivePosition(1, 1, isMobile, containerRef.current);
       return barWidth;
     }
-    return isMobile ? 35 : 40; // fallback sizes
+    return isMobile ? 32 : 40; // fallback sizes
   }, [isMobile, containerDimensions]);
 
   // Render debug grid overlay (yellow squares)
   const renderGridDebug = () => {
-    if (!isEditMode || !containerRef.current || isMobile) return null;
+    if (!isEditMode || !containerRef.current) return null;
 
     const zoneConfig = getZoneConfig('soi6');
     const gridCells: React.ReactElement[] = [];
-    const fixedGridSize = 40; // Taille fixe uniforme pour toutes les grilles
+    // Responsive grid size: match bar size
+    const fixedGridSize = isMobile ? 32 : 40;
 
     for (let row = 1; row <= zoneConfig.maxRows; row++) {
       for (let col = 1; col <= zoneConfig.maxCols; col++) {
@@ -880,14 +1330,14 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
               top: `${y - fixedGridSize/2}px`,
               width: `${fixedGridSize}px`,
               height: `${fixedGridSize}px`,
-              border: '2px dashed #FFD700',
-              background: 'rgba(255, 215, 0, 0.1)',
+              border: isMobile ? '2px dashed rgba(0, 255, 255, 0.4)' : '2px dashed #FFD700',
+              background: isMobile ? 'rgba(0, 255, 255, 0.05)' : 'rgba(255, 215, 0, 0.1)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '8px',
-              color: '#FFD700',
+              fontSize: isMobile ? '10px' : '8px',
+              color: isMobile ? '#00E5FF' : '#FFD700',
               fontWeight: 'bold',
               pointerEvents: 'none',
               zIndex: 5,
@@ -909,7 +1359,24 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       className={`map-container-nightlife map-bg-soi6 ${isEditMode ? 'edit-mode' : ''}`}
       onDragOver={isEditMode ? handleDragOver : undefined}
       onDrop={isEditMode ? handleDrop : undefined}
+      onKeyDown={handleKeyboardNavigation}
+      role="region"
+      aria-label="Interactive map of Soi 6 establishments"
+      aria-describedby="soi6-map-description"
     >
+      {/* Screen Reader Accessible Description */}
+      <p id="soi6-map-description" className="sr-only">
+        Interactive map displaying {allBars.length} establishments in Soi 6.
+        {isEditMode ? ' Edit mode active: drag establishments to reposition them.' : ' Click on establishments to view details.'}
+        For keyboard navigation, press Tab to focus establishments, then use Arrow keys to navigate between them, Enter or Space to select.
+      </p>
+
+      {/* Screen Reader Only Establishment List */}
+      <ScreenReaderEstablishmentList
+        establishments={establishments}
+        zone="soi6"
+        onEstablishmentSelect={(est) => onEstablishmentClick?.(est)}
+      />
       {/* Central Road Component - Canvas Rendering */}
       <GenericRoadCanvas
         config={{
@@ -918,9 +1385,9 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
           // Horizontal road (desktop): full width centered
           startX: 1,
           endX: 99,
-          // Vertical road (mobile): full height centered
-          startY: 10,
-          endY: 90
+          // Vertical road (mobile): starts from top (0%) to bottom (100%)
+          startY: 0,
+          endY: 100
         }}
         style={{
           baseColor: '#2d2d2d',
@@ -942,6 +1409,8 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
         }}>
           <button
             onClick={toggleEditMode}
+            aria-label={isEditMode ? 'Exit edit mode and save changes' : 'Enter edit mode to reposition establishments'}
+            aria-pressed={isEditMode}
             style={{
               background: isEditMode ? 'linear-gradient(135deg, #FF6B6B, #FF8E53)' : 'linear-gradient(135deg, #4ECDC4, #44A08D)',
               color: 'white',
@@ -955,7 +1424,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            {isEditMode ? (<>🔒<span className="edit-mode-text"> Exit Edit</span></>) : (<>✏️<span className="edit-mode-text"> Edit Mode</span></>)}
           </button>
         </div>
       )}
@@ -968,48 +1437,6 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
 
       {/* Debug Grid Overlay (Yellow Circles) */}
       {renderGridDebug()}
-
-      {/* Beach Road Label (Left Extremity of Road) */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '5%',
-        transform: 'translate(-50%, -50%)',
-        color: '#00FFFF',
-        fontSize: isMobile ? '14px' : '18px',
-        fontWeight: 'bold',
-        textShadow: '0 0 12px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-        zIndex: 15,
-        pointerEvents: 'none',
-        textAlign: 'center',
-        background: 'rgba(0,0,0,0.4)',
-        padding: '6px 12px',
-        borderRadius: '15px',
-        border: '1px solid rgba(0,255,255,0.3)'
-      }}>
-        🏖️ BEACH ROAD ←
-      </div>
-
-      {/* Second Road Label (Right Extremity of Road) */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        right: '5%',
-        transform: 'translate(50%, -50%)',
-        color: '#FFD700',
-        fontSize: isMobile ? '14px' : '18px',
-        fontWeight: 'bold',
-        textShadow: '0 0 12px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-        zIndex: 15,
-        pointerEvents: 'none',
-        textAlign: 'center',
-        background: 'rgba(0,0,0,0.4)',
-        padding: '6px 12px',
-        borderRadius: '15px',
-        border: '1px solid rgba(255,215,0,0.3)'
-      }}>
-        → SECOND ROAD 🛣️
-      </div>
 
       {/* Edit Mode Indicator (if needed) */}
       {isEditMode && (
@@ -1031,33 +1458,84 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       )}
 
       {/* Bars */}
-      {allBars.map((bar) => {
+      {allBars.map((bar, index) => {
         const isSelected = selectedEstablishment === bar.id;
         const isHovered = hoveredBar === bar.id;
         const isBeingDragged = isDragging && draggedBar?.id === bar.id;
 
+        // Get establishment details for aria-label
+        const establishment = establishments.find(est => est.id === bar.id);
+        const categoryName = establishment?.category_id === 2 ? 'GoGo Bar'
+          : establishment?.category_id === 1 ? 'Bar'
+          : establishment?.category_id === 3 ? 'Massage Salon'
+          : establishment?.category_id === 4 ? 'Nightclub'
+          : 'Establishment';
+
+        // 🆕 v10.3 Phase 6 - Check VIP status
+        const isVIP = establishment?.is_vip && establishment?.vip_expires_at &&
+          new Date(establishment.vip_expires_at) > new Date();
+
+        const ariaLabel = `${bar.name}, ${categoryName}${isVIP ? ', VIP establishment' : ''}, click to view details`;
+
+        // 🆕 v10.3 Ultra Premium - VIP establishments are larger (responsive)
+        // Desktop: +35%, Tablet: +25%, Mobile: +15%
+        const vipSizeMultiplier = window.innerWidth < 480 ? 1.15
+                                : window.innerWidth < 768 ? 1.25
+                                : 1.35;
+        const vipBarSize = Math.round(currentBarSize * vipSizeMultiplier);
+        const finalBarSize = isVIP ? vipBarSize : currentBarSize;
+
         return (
           <div
             key={bar.id}
-            className={`soi6-bar-circle ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${isBeingDragged ? 'dragging' : ''}`}
+            ref={(el) => {
+              if (el) {
+                barRefs.current.set(bar.id, el);
+              } else {
+                barRefs.current.delete(bar.id);
+              }
+            }}
+            className={`soi6-bar-circle ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${isBeingDragged ? 'dragging' : ''} ${isVIP ? 'vip-establishment-marker' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={ariaLabel}
+            aria-pressed={isSelected}
+            aria-describedby={isHovered ? `tooltip-${bar.id}` : undefined}
             onClick={() => handleBarClick(bar)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBarClick(bar);
+              }
+            }}
             onMouseEnter={() => setHoveredBar(bar.id)}
             onMouseLeave={() => setHoveredBar(null)}
+            onFocus={() => {
+              setHoveredBar(bar.id);
+              setFocusedBarIndex(index);
+            }}
+            onBlur={() => setHoveredBar(null)}
             draggable={isEditMode && isAdmin && !isLoading ? true : false}
             onDragStart={(e) => handleDragStart(bar, e)}
             onDragEnd={handleDragEnd}
+            onTouchStart={isEditMode && isAdmin && !isLoading ? (e) => handleTouchStart(bar, e) : undefined}
+            onTouchMove={isEditMode && isAdmin && !isLoading ? handleTouchMove : undefined}
+            onTouchEnd={isEditMode && isAdmin && !isLoading ? handleTouchEnd : undefined}
             style={{
+              touchAction: isEditMode ? 'none' : 'auto',
               position: 'absolute',
-              left: `${bar.position.x - currentBarSize/2}px`,
-              top: `${bar.position.y - currentBarSize/2}px`,
-              width: `${currentBarSize}px`,
-              height: `${currentBarSize}px`,
+              left: `${bar.position.x - finalBarSize/2}px`,
+              top: `${bar.position.y - finalBarSize/2}px`,
+              width: `${finalBarSize}px`,
+              height: `${finalBarSize}px`,
               borderRadius: '50%',
               background: `
                 radial-gradient(circle at 30% 30%, ${bar.color}FF, ${bar.color}DD 60%, ${bar.color}AA 100%),
                 linear-gradient(45deg, ${bar.color}22, ${bar.color}44)
               `,
-              border: isSelected
+              border: isVIP
+                ? '5px solid #FFD700'  // VIP: Ultra thick gold border
+                : isSelected
                 ? '3px solid #FFD700'
                 : isEditMode
                   ? '2px solid #00FF00'
@@ -1068,8 +1546,10 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
               justifyContent: 'center',
               fontSize: '16px',
               transform: isHovered && !isBeingDragged ? 'scale(1.2)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              boxShadow: isHovered
+              transition: isVIP ? 'none' : 'all 0.3s ease', // VIP animation handled by CSS
+              boxShadow: isVIP
+                ? undefined  // VIP: Glow handled by CSS animation
+                : isHovered
                 ? `
                     0 0 25px ${TYPE_STYLES[bar.type].shadow},
                     0 0 40px ${TYPE_STYLES[bar.type].shadow}66,
@@ -1089,24 +1569,52 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
             {/* Logo ou emoji fallback */}
             {getEstablishmentIcon(bar.id, establishments, bar.icon)}
 
+            {/* 🆕 v10.3 Ultra Premium - VIP Grande Couronne (x3 taille) */}
+            {isVIP && (
+              <div
+                className="vip-crown"
+                style={{
+                  position: 'absolute',
+                  top: '-35px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 5,
+                  pointerEvents: 'none'
+                }}
+                title={`VIP until ${new Date(establishment.vip_expires_at!).toLocaleDateString()}`}
+              >
+                👑
+              </div>
+            )}
+
+            {/* 🆕 v10.3 Ultra Premium - VIP Badge texte */}
+            {isVIP && (
+              <div className="vip-badge">
+                VIP
+              </div>
+            )}
 
             {/* Tooltip */}
             {isHovered && !isDragging && (
-              <div style={{
-                position: 'absolute',
-                bottom: '45px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.9)',
-                color: '#fff',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                zIndex: 20,
-                border: '1px solid #FFD700'
-              }}>
+              <div
+                id={`tooltip-${bar.id}`}
+                role="tooltip"
+                style={{
+                  position: 'absolute',
+                  bottom: '45px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'rgba(0,0,0,0.9)',
+                  color: '#fff',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  zIndex: 20,
+                  border: '1px solid #FFD700'
+                }}
+              >
                 {bar.name}
                 {isEditMode && (
                   <div style={{ fontSize: '10px', color: '#00FF00' }}>
@@ -1130,6 +1638,103 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
         );
       })}
 
+      {/* Duplicate Position Indicators - Visual Warning for Overlapping Establishments */}
+      {isAdmin && isEditMode && duplicatePositions.map((dup) => {
+        // Calculate visual position for the duplicate indicator
+        const { x, y } = calculateResponsivePosition(
+          dup.row,
+          dup.col,
+          isMobile,
+          containerRef.current || undefined
+        );
+
+        return (
+          <div
+            key={`duplicate-${dup.row}-${dup.col}`}
+            className="duplicate-indicator-wrapper"
+            style={{
+              position: 'absolute',
+              left: `${x}px`,
+              top: `${y}px`,
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none',
+              zIndex: 18
+            }}
+          >
+            {/* Pulsing Warning Circle */}
+            <div
+              className="duplicate-pulse-circle"
+              style={{
+                width: `${currentBarSize * 1.8}px`,
+                height: `${currentBarSize * 1.8}px`,
+                borderRadius: '50%',
+                border: '3px solid #FF4444',
+                background: 'rgba(255, 68, 68, 0.15)',
+                animation: 'duplicatePulse 2s infinite',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {/* Count Badge */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #FF4444, #FF6B6B)',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: `${currentBarSize * 0.6}px`,
+                  height: `${currentBarSize * 0.6}px`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: `${currentBarSize * 0.35}px`,
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 8px rgba(255, 68, 68, 0.5)',
+                  border: '2px solid white'
+                }}
+                title={`${dup.count} establishments at same position: ${dup.establishments.map(e => e.name).join(', ')}`}
+              >
+                ⚠️{dup.count}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Drop Zone Indicator - Shows where bar will land */}
+      {isEditMode && isDragging && dragOverPosition && dropAction !== 'blocked' && containerRef.current && (
+        (() => {
+          const { x, y } = calculateResponsivePosition(
+            dragOverPosition.row,
+            dragOverPosition.col,
+            isMobile,
+            containerRef.current!
+          );
+          const size = isMobile ? 32 : 40;
+          const isSwap = dropAction === 'swap';
+
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${x - size/2}px`,
+                top: `${y - size/2}px`,
+                width: `${size}px`,
+                height: `${size}px`,
+                borderRadius: '50%',
+                border: isSwap ? '3px solid rgba(255, 215, 0, 0.8)' : '3px solid rgba(0, 255, 255, 0.8)',
+                background: isSwap ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0, 255, 255, 0.15)',
+                boxShadow: isSwap
+                  ? '0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.2)'
+                  : '0 0 20px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 255, 255, 0.2)',
+                pointerEvents: 'none',
+                zIndex: 8,
+                animation: 'dropZonePulse 1s ease-in-out infinite'
+              }}
+            />
+          );
+        })()
+      )}
 
       {/* Drag & Drop Visual Indicators */}
       <DragDropIndicator
@@ -1185,13 +1790,64 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
 
         @keyframes dropZonePulse {
           0%, 100% {
-            transform: translate(-25px, -20px) scale(1);
-            opacity: 0.8;
+            transform: scale(1);
+            opacity: 0.7;
           }
           50% {
-            transform: translate(-25px, -20px) scale(1.1);
+            transform: scale(1.15);
             opacity: 1;
           }
+        }
+
+        @keyframes duplicatePulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.4;
+            box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 1;
+            box-shadow: 0 0 20px 10px rgba(255, 68, 68, 0);
+          }
+        }
+
+        /* 🆕 v10.3 Phase 6 - VIP Crown Pulse Animation */
+        @keyframes vipPulse {
+          0%, 100% {
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+          }
+        }
+
+        /* Accessibility: Focus visible for keyboard navigation */
+        .soi6-bar-circle:focus {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+          box-shadow:
+            0 0 25px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .soi6-bar-circle:focus-visible {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+        }
+
+        /* Screen reader only class */
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
         }
 
         @keyframes neonFlicker {
@@ -1281,7 +1937,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
           right: 0;
           bottom: 0;
           background-image:
-            radial-gradient(circle at 25% 25%, rgba(255, 27, 141, 0.05) 0%, transparent 25%),
+            radial-gradient(circle at 25% 25%, rgba(193, 154, 107, 0.05) 0%, transparent 25%),
             radial-gradient(circle at 75% 75%, rgba(0, 255, 255, 0.05) 0%, transparent 25%);
           background-size: 200px 200px, 150px 150px;
           background-position: 0 0, 100px 100px;

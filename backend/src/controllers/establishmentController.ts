@@ -1,11 +1,12 @@
 import { Response } from 'express';
 import { supabase } from '../config/supabase';
-import { AuthRequest } from '../middleware/auth';
+import { AuthRequest, isEstablishmentOwner } from '../middleware/auth';
 import { CreateEstablishmentRequest, Establishment } from '../types';
 import { validateTextInput, validateNumericInput, prepareFilterParams } from '../utils/validation';
 import { logger } from '../utils/logger';
 import { paginateQuery, validatePaginationParams, offsetFromPage, buildOffsetPaginationMeta } from '../utils/pagination';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
+import { notifyAdminsPendingContent } from '../utils/notificationHelper';
 
 export const getEstablishments = async (req: AuthRequest, res: Response) => {
   try {
@@ -30,8 +31,8 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Validate limit
-    const limitValidation = validateNumericInput(validatedParams.limit, 1, 100);
+    // Validate limit (increased to 200 to support loading all 153 establishments)
+    const limitValidation = validateNumericInput(validatedParams.limit, 1, 200);
     if (!limitValidation.valid) {
       return res.status(400).json({
         error: limitValidation.error,
@@ -81,12 +82,17 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
         grid_row,
         grid_col,
         category_id,
+        description,
         phone,
         website,
         location,
         opening_hours,
-        services,
+        instagram,
+        twitter,
+        tiktok,
         status,
+        is_vip,
+        vip_expires_at,
         created_at,
         updated_at,
         logo_url,
@@ -141,13 +147,52 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: error.message });
     }
 
-    // Helper function to convert category_id INTEGER to STRING format
-    const categoryIdToString = (categoryId: number): string => {
-      if (!categoryId) return 'cat-001'; // default fallback
-      return `cat-${String(categoryId).padStart(3, '0')}`;
-    };
+    // Get employee counts for all establishments
+    let employeeCounts: { [key: string]: number } = {};
+    let approvedEmployeeCounts: { [key: string]: number } = {};
+    if (establishments && establishments.length > 0) {
+      const establishmentIds = establishments.map((est: any) => est.id);
 
-    // Extract coordinates and transform category_id INTEGER → STRING
+      // Count all current employees
+      const { data: employmentData, error: employmentError } = await supabase
+        .from('employment_history')
+        .select('establishment_id')
+        .in('establishment_id', establishmentIds)
+        .eq('is_current', true);
+
+      if (!employmentError && employmentData) {
+        // Count employees per establishment
+        employmentData.forEach((emp: any) => {
+          const estId = emp.establishment_id;
+          employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
+        });
+      }
+
+      // Count only approved employees (for sorting priority)
+      const { data: approvedEmploymentData, error: approvedEmploymentError } = await supabase
+        .from('employment_history')
+        .select('establishment_id, employees!inner(status)')
+        .in('establishment_id', establishmentIds)
+        .eq('is_current', true)
+        .eq('employees.status', 'approved');
+
+      if (!approvedEmploymentError && approvedEmploymentData) {
+        // Count approved employees per establishment
+        approvedEmploymentData.forEach((emp: any) => {
+          const estId = emp.establishment_id;
+          approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
+        });
+      }
+    }
+
+    // ========================================
+    // BUG #3 FIX - Keep category_id as INTEGER (no transformation)
+    // ========================================
+    // Issue: Transforming INTEGER → STRING 'cat-XXX' created frontend complexity
+    // Frontend had to convert back STRING → INTEGER for DB queries
+    // Fix: Keep native INTEGER format for consistency (DB INTEGER ↔ API INTEGER)
+
+    // Extract coordinates only (no category_id transformation)
     const establishmentsWithCoords = establishments?.map((est: any) => {
       let latitude = null;
       let longitude = null;
@@ -165,15 +210,13 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
         }
       }
 
-      // Transform category_id from DB INTEGER to API STRING
-      const originalCategoryId = est.category_id;
-      const transformedCategoryId = categoryIdToString(originalCategoryId);
-
       return {
         ...est,
-        category_id: transformedCategoryId, // ALWAYS STRING format 'cat-001'
+        // Keep category_id as native INTEGER (no transformation)
         latitude,
-        longitude
+        longitude,
+        employee_count: employeeCounts[est.id] || 0, // Total employee count
+        approved_employee_count: approvedEmployeeCounts[est.id] || 0 // Approved employee count (for sorting)
       };
     }) || [];
 
@@ -266,12 +309,17 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
         grid_row,
         grid_col,
         category_id,
+        description,
         phone,
         website,
         location,
         opening_hours,
-        services,
+        instagram,
+        twitter,
+        tiktok,
         status,
+        is_vip,
+        vip_expires_at,
         created_at,
         updated_at,
         created_by,
@@ -308,22 +356,26 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Helper function to convert category_id INTEGER to STRING format
-    const categoryIdToString = (categoryId: number): string => {
-      if (!categoryId) return 'cat-001'; // default fallback
-      return `cat-${String(categoryId).padStart(3, '0')}`;
-    };
+    // ========================================
+    // BUG #3 FIX - Keep category_id as INTEGER (no transformation)
+    // ========================================
+    // Removed categoryIdToString transformation for consistency
 
-    // Transform category_id from INTEGER to STRING (same as getEstablishments)
-    const originalCategoryId = establishment.category_id;
-    const transformedCategoryId = categoryIdToString(originalCategoryId);
-
-    logger.debug(`🔥 getEstablishment - TRANSFORM ${establishment.name}: category_id ${originalCategoryId} → ${transformedCategoryId}`);
-
-    // Load consumables for this establishment
+    // Load consumables for this establishment with details from consumable_templates
     const { data: consumables, error: consumablesError } = await supabase
       .from('establishment_consumables')
-      .select('consumable_id, price')
+      .select(`
+        id,
+        consumable_id,
+        price,
+        consumable:consumable_templates(
+          id,
+          name,
+          category,
+          icon,
+          default_price
+        )
+      `)
       .eq('establishment_id', id);
 
     if (consumablesError) {
@@ -331,19 +383,37 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
     }
 
     // Format consumables for frontend (pricing.consumables format)
+    const formattedConsumables = (consumables || []).map((ec: any) => ({
+      id: ec.id,
+      consumable_id: ec.consumable_id,
+      name: ec.consumable?.name,
+      category: ec.consumable?.category,
+      icon: ec.consumable?.icon,
+      price: ec.price
+    }));
+
     const pricing = {
-      consumables: consumables || [],
+      consumables: formattedConsumables,
       ladydrink: establishment.ladydrink || '130',
       barfine: establishment.barfine || '400',
       rooms: establishment.rooms || 'N/A'
     };
 
+    // 🆕 v10.3 - Check if establishment has verified owner
+    const { data: ownerCheck } = await supabase
+      .from('establishment_owners')
+      .select('id')
+      .eq('establishment_id', id)
+      .limit(1)
+      .maybeSingle(); // Use maybeSingle instead of single to avoid error if no owner
+
     const transformedEstablishment = {
       ...establishment,
-      category_id: transformedCategoryId, // 🔥 ALWAYS STRING format 'cat-XXX'
+      // Keep category_id as native INTEGER (consistent with DB)
       latitude,
       longitude,
-      pricing // Add pricing with consumables
+      pricing, // Add pricing with consumables
+      has_owner: !!ownerCheck // 🆕 v10.3 - True if establishment has verified owner
     };
 
     res.json({ establishment: transformedEstablishment });
@@ -356,14 +426,49 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
 export const createEstablishment = async (req: AuthRequest, res: Response) => {
   try {
     logger.debug('🔥 CREATE ESTABLISHMENT V3 - FINAL RELOAD FORCE - Body:', req.body);
-    const { name, address, zone, category_id, description, phone, website, opening_hours, services, pricing, logo_url }: any = req.body;
+    const { name, address, zone, category_id, description, phone, website, opening_hours, instagram, twitter, tiktok, pricing, logo_url, latitude, longitude }: any = req.body;
     logger.debug('🏢 CREATE ESTABLISHMENT - Extracted logo_url:', logo_url);
 
     if (!name || !address || !zone || !category_id) {
       return res.status(400).json({ error: 'Name, address, zone and category are required' });
     }
 
-    // Generate default coordinates based on zone
+    // ========================================
+    // BUG #2 FIX - Validate coordinates if provided
+    // ========================================
+    // Validate latitude/longitude if provided by user
+    if (latitude !== undefined || longitude !== undefined) {
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+
+      // Validate latitude range (-90 to 90)
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({
+          error: 'Invalid latitude. Must be a number between -90 and 90',
+          code: 'INVALID_LATITUDE'
+        });
+      }
+
+      // Validate longitude range (-180 to 180)
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({
+          error: 'Invalid longitude. Must be a number between -180 and 180',
+          code: 'INVALID_LONGITUDE'
+        });
+      }
+
+      // Validate Pattaya area (rough bounds: 12.8-13.1 lat, 100.8-101.0 lng)
+      // This prevents obviously wrong coordinates outside Pattaya region
+      if (lat < 12.8 || lat > 13.1 || lng < 100.8 || lng > 101.0) {
+        logger.warn('Coordinates outside Pattaya region', { lat, lng });
+        return res.status(400).json({
+          error: 'Coordinates are outside Pattaya region (12.8-13.1 lat, 100.8-101.0 lng)',
+          code: 'COORDINATES_OUT_OF_RANGE'
+        });
+      }
+    }
+
+    // Generate default coordinates based on zone if not provided
     const getZoneCoordinates = (zone: string) => {
       switch (zone) {
         case 'Soi 6': return { latitude: 12.9342, longitude: 100.8779 };
@@ -374,7 +479,11 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
       }
     };
 
-    const coords = getZoneCoordinates(zone);
+    // Use provided coordinates or generate defaults
+    const coords = (latitude !== undefined && longitude !== undefined)
+      ? { latitude: parseFloat(latitude), longitude: parseFloat(longitude) }
+      : getZoneCoordinates(zone);
+
     // Create location point for PostGIS
     const location = `POINT(${coords.longitude} ${coords.latitude})`;
 
@@ -391,10 +500,12 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
         website,
         logo_url, // Include logo URL for establishment branding
         opening_hours,
-        services,
+        instagram,
+        twitter,
+        tiktok,
         ladydrink: pricing?.ladydrink || null,
         barfine: pricing?.barfine || null,
-        rooms: pricing?.rooms?.available ? pricing.rooms.price : null,
+        rooms: pricing?.rooms?.available ? pricing.rooms.price : 'N/A',
         status: req.user!.role === 'admin' ? 'approved' : 'pending', // Auto-approve for admins
         created_by: req.user!.id
       })
@@ -410,8 +521,12 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
         website,
         location,
         opening_hours,
-        services,
+        instagram,
+        twitter,
+        tiktok,
         status,
+        is_vip,
+        vip_expires_at,
         created_at,
         updated_at,
         created_by,
@@ -436,6 +551,28 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
         submitted_by: req.user!.id,
         status: 'pending'
       });
+
+    // 🔔 Notify admins of new pending content
+    try {
+      // Get submitter pseudonym
+      const { data: submitterData } = await supabase
+        .from('users')
+        .select('pseudonym')
+        .eq('id', req.user!.id)
+        .single();
+
+      const submitterName = submitterData?.pseudonym || 'A user';
+
+      await notifyAdminsPendingContent(
+        'establishment',
+        establishment.name,
+        submitterName,
+        establishment.id
+      );
+    } catch (notifyError) {
+      // Log error but don't fail the request if notification fails
+      logger.error('Admin notification error:', notifyError);
+    }
 
     // Invalidate cache after creation
     await cacheInvalidatePattern('establishments:*');
@@ -462,7 +599,7 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-    // Check if user owns this establishment or is admin/moderator
+    // Check authorization: admin/moderator OR creator OR establishment owner (v10.1)
     const { data: establishment } = await supabase
       .from('establishments')
       .select('created_by')
@@ -473,8 +610,113 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Establishment not found' });
     }
 
-    if (establishment.created_by !== req.user!.id && !['admin', 'moderator'].includes(req.user!.role)) {
-      return res.status(403).json({ error: 'Not authorized to update this establishment' });
+    // Authorization hierarchy:
+    // 1. Admin/Moderator → Full access
+    // 2. Creator → Can update own establishment
+    // 3. Establishment Owner (via establishment_owners table) → Can update assigned establishment
+    const isAdmin = ['admin', 'moderator'].includes(req.user!.role);
+    const isCreator = establishment.created_by === req.user!.id;
+    const isOwner = await isEstablishmentOwner(req.user!.id, id);
+
+    if (!isAdmin && !isCreator && !isOwner) {
+      logger.warn('Unauthorized establishment update attempt', {
+        userId: req.user!.id,
+        establishmentId: id,
+        role: req.user!.role
+      });
+      return res.status(403).json({
+        error: 'Not authorized to update this establishment',
+        code: 'ESTABLISHMENT_UPDATE_FORBIDDEN'
+      });
+    }
+
+    logger.debug('Establishment update authorized', {
+      userId: req.user!.id,
+      establishmentId: id,
+      authReason: isAdmin ? 'admin/moderator' : isCreator ? 'creator' : 'owner'
+    });
+
+    // ========================================
+    // BUG #8 FIX - Enforce granular permissions for owners
+    // ========================================
+    // Security Issue: Owners could modify fields they don't have permission for
+    // Check permissions only for owners (admin/creator have full access)
+    if (isOwner && !isAdmin && !isCreator) {
+      logger.debug('🔒 Checking granular permissions for owner');
+
+      // Fetch owner permissions
+      const { data: ownership, error: ownershipError } = await supabase
+        .from('establishment_owners')
+        .select('permissions, owner_role')
+        .eq('user_id', req.user!.id)
+        .eq('establishment_id', id)
+        .single();
+
+      if (ownershipError || !ownership) {
+        logger.error('Failed to fetch ownership permissions:', ownershipError);
+        return res.status(403).json({
+          error: 'Failed to verify ownership permissions',
+          code: 'OWNERSHIP_VERIFICATION_FAILED'
+        });
+      }
+
+      const permissions = ownership.permissions;
+      logger.debug('📋 Owner permissions:', permissions);
+
+      // Define field → permission mapping
+      const infoFields = ['name', 'address', 'description', 'phone', 'website', 'opening_hours', 'instagram', 'twitter', 'tiktok'];
+      const pricingFields = ['ladydrink', 'barfine', 'rooms', 'pricing'];
+      const photoFields = ['logo_url', 'photos'];
+
+      // Check if owner is trying to modify fields they don't have permission for
+      const attemptedFields = Object.keys(updates);
+
+      // Check INFO permission
+      const modifyingInfo = attemptedFields.some(field => infoFields.includes(field));
+      if (modifyingInfo && !permissions.can_edit_info) {
+        logger.warn('Owner attempted to edit info without permission', {
+          userId: req.user!.id,
+          establishmentId: id,
+          attemptedFields
+        });
+        return res.status(403).json({
+          error: 'You do not have permission to edit establishment information',
+          code: 'MISSING_EDIT_INFO_PERMISSION',
+          requiredPermission: 'can_edit_info'
+        });
+      }
+
+      // Check PRICING permission
+      const modifyingPricing = attemptedFields.some(field => pricingFields.includes(field));
+      if (modifyingPricing && !permissions.can_edit_pricing) {
+        logger.warn('Owner attempted to edit pricing without permission', {
+          userId: req.user!.id,
+          establishmentId: id,
+          attemptedFields
+        });
+        return res.status(403).json({
+          error: 'You do not have permission to edit pricing information',
+          code: 'MISSING_EDIT_PRICING_PERMISSION',
+          requiredPermission: 'can_edit_pricing'
+        });
+      }
+
+      // Check PHOTOS permission
+      const modifyingPhotos = attemptedFields.some(field => photoFields.includes(field));
+      if (modifyingPhotos && !permissions.can_edit_photos) {
+        logger.warn('Owner attempted to edit photos without permission', {
+          userId: req.user!.id,
+          establishmentId: id,
+          attemptedFields
+        });
+        return res.status(403).json({
+          error: 'You do not have permission to edit establishment photos',
+          code: 'MISSING_EDIT_PHOTOS_PERMISSION',
+          requiredPermission: 'can_edit_photos'
+        });
+      }
+
+      logger.debug('✅ All permission checks passed for owner');
     }
 
     // If location is being updated, recreate the PostGIS point
@@ -515,6 +757,26 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Transform pricing object to flat database columns (same as createEstablishment)
+    if (updates.pricing) {
+      // Handle rooms toggle: available=true → save price, available=false → save 'N/A'
+      if (updates.pricing.rooms !== undefined) {
+        updates.rooms = updates.pricing.rooms.available ? updates.pricing.rooms.price : 'N/A';
+        logger.debug('🏠 Rooms transformation:', {
+          input: updates.pricing.rooms,
+          output: updates.rooms
+        });
+      }
+
+      // Handle ladydrink and barfine from pricing object
+      if (updates.pricing.ladydrink !== undefined) {
+        updates.ladydrink = updates.pricing.ladydrink;
+      }
+      if (updates.pricing.barfine !== undefined) {
+        updates.barfine = updates.pricing.barfine;
+      }
+    }
+
     // Filter only allowed fields to prevent database errors
     const allowedFields = {
       name: updates.name,
@@ -523,7 +785,9 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
       phone: updates.phone,
       website: updates.website,
       opening_hours: updates.opening_hours,
-      services: updates.services,
+      instagram: updates.instagram,
+      twitter: updates.twitter,
+      tiktok: updates.tiktok,
       category_id: updates.category_id,
       zone: updates.zone,
       grid_row: updates.grid_row,
@@ -569,8 +833,12 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
         website,
         location,
         opening_hours,
-        services,
+        instagram,
+        twitter,
+        tiktok,
         status,
+        is_vip,
+        vip_expires_at,
         created_at,
         updated_at,
         created_by,
@@ -589,16 +857,37 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
     // Load consumables for the updated establishment (same as GET)
     const { data: consumables, error: consumablesError } = await supabase
       .from('establishment_consumables')
-      .select('consumable_id, price')
+      .select(`
+        id,
+        consumable_id,
+        price,
+        consumable:consumable_templates(
+          id,
+          name,
+          category,
+          icon,
+          default_price
+        )
+      `)
       .eq('establishment_id', id);
 
     if (consumablesError) {
       logger.warn('Could not load consumables after update:', consumablesError);
     }
 
+    // Format consumables for frontend
+    const formattedConsumables = (consumables || []).map((ec: any) => ({
+      id: ec.id,
+      consumable_id: ec.consumable_id,
+      name: ec.consumable?.name,
+      category: ec.consumable?.category,
+      icon: ec.consumable?.icon,
+      price: ec.price
+    }));
+
     // Format response with pricing (including consumables)
     const pricing = {
-      consumables: consumables || [],
+      consumables: formattedConsumables,
       ladydrink: updatedEstablishment.ladydrink || '130',
       barfine: updatedEstablishment.barfine || '400',
       rooms: updatedEstablishment.rooms || 'N/A'
@@ -626,7 +915,7 @@ export const deleteEstablishment = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Check permissions
+    // Check authorization: admin/moderator OR creator OR establishment owner (v10.1)
     const { data: establishment } = await supabase
       .from('establishments')
       .select('created_by')
@@ -637,9 +926,28 @@ export const deleteEstablishment = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Establishment not found' });
     }
 
-    if (establishment.created_by !== req.user!.id && !['admin', 'moderator'].includes(req.user!.role)) {
-      return res.status(403).json({ error: 'Not authorized to delete this establishment' });
+    // Authorization hierarchy (same as update)
+    const isAdmin = ['admin', 'moderator'].includes(req.user!.role);
+    const isCreator = establishment.created_by === req.user!.id;
+    const isOwner = await isEstablishmentOwner(req.user!.id, id);
+
+    if (!isAdmin && !isCreator && !isOwner) {
+      logger.warn('Unauthorized establishment delete attempt', {
+        userId: req.user!.id,
+        establishmentId: id,
+        role: req.user!.role
+      });
+      return res.status(403).json({
+        error: 'Not authorized to delete this establishment',
+        code: 'ESTABLISHMENT_DELETE_FORBIDDEN'
+      });
     }
+
+    logger.debug('Establishment delete authorized', {
+      userId: req.user!.id,
+      establishmentId: id,
+      authReason: isAdmin ? 'admin/moderator' : isCreator ? 'creator' : 'owner'
+    });
 
     const { error } = await supabase
       .from('establishments')
@@ -902,6 +1210,200 @@ export const getEstablishmentCategories = async (req: AuthRequest, res: Response
     res.json({ categories });
   } catch (error) {
     logger.error('Get categories error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /api/establishments/:id/employees
+ *
+ * Returns all employees working at an establishment.
+ * Only accessible by establishment owners/managers.
+ *
+ * @param req.params.id - Establishment ID
+ * @param req.user.id - Current user ID
+ * @returns { employees[], total, establishment }
+ */
+export const getEstablishmentEmployees = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params; // establishment_id
+    const user_id = req.user?.id;
+
+    // 1. Check ownership
+    const { data: ownership, error: ownershipError } = await supabase
+      .from('establishment_owners')
+      .select('*')
+      .eq('user_id', user_id)
+      .eq('establishment_id', id)
+      .single();
+
+    if (ownershipError || !ownership) {
+      logger.warn('Unauthorized employee list access attempt', {
+        userId: user_id,
+        establishmentId: id
+      });
+      return res.status(403).json({
+        error: 'You are not authorized to view employees of this establishment'
+      });
+    }
+
+    logger.debug('Establishment employee list access authorized', {
+      userId: user_id,
+      establishmentId: id,
+      ownerRole: ownership.owner_role
+    });
+
+    // 2. Fetch establishment info (v10.3: include category to check if nightclub)
+    const { data: establishment, error: estError } = await supabase
+      .from('establishments')
+      .select(`
+        id,
+        name,
+        zone,
+        category:establishment_categories(name)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (estError) {
+      logger.error('Establishment not found:', estError);
+      return res.status(404).json({ error: 'Establishment not found' });
+    }
+
+    const isNightclub = (establishment.category as any)?.name === 'Nightclub';
+
+    // 3. Fetch employees via current_employment
+    const { data: employments, error: empError } = await supabase
+      .from('current_employment')
+      .select(`
+        employee_id,
+        start_date,
+        employee:employees!current_employment_employee_id_fkey(
+          id,
+          name,
+          age,
+          nationality,
+          photos,
+          status,
+          average_rating,
+          comment_count,
+          is_freelance
+        )
+      `)
+      .eq('establishment_id', id);
+
+    if (empError) {
+      logger.error('Failed to fetch employees:', empError);
+      return res.status(500).json({ error: 'Failed to fetch employees' });
+    }
+
+    // 4. Extract regular employees and add current_employment info
+    let employees = employments
+      .filter(emp => emp.employee) // Filter out null employees
+      .map(emp => ({
+        ...(emp.employee as any),
+        current_employment: {
+          establishment_id: id,
+          establishment_name: establishment.name,
+          start_date: emp.start_date
+        },
+        employee_type: (emp.employee as any).is_freelance ? 'freelance' : 'regular'
+      }));
+
+    // 5. v10.3: If nightclub, also fetch associated freelances
+    if (isNightclub) {
+      logger.debug('Nightclub detected, fetching associated freelances', { establishmentId: id });
+
+      const { data: freelanceEmployments, error: freelanceError } = await supabase
+        .from('employment_history')
+        .select(`
+          employee_id,
+          start_date,
+          employee:employees(
+            id,
+            name,
+            age,
+            nationality,
+            photos,
+            status,
+            average_rating,
+            comment_count,
+            is_freelance
+          )
+        `)
+        .eq('establishment_id', id)
+        .eq('is_current', true);
+
+      if (!freelanceError && freelanceEmployments) {
+        const freelances = freelanceEmployments
+          .filter(emp => emp.employee && (emp.employee as any).is_freelance === true)
+          .map(emp => ({
+            ...(emp.employee as any),
+            current_employment: {
+              establishment_id: id,
+              establishment_name: establishment.name,
+              start_date: emp.start_date
+            },
+            employee_type: 'freelance'
+          }));
+
+        // Merge freelances with regular employees (avoid duplicates by employee_id)
+        const existingIds = new Set(employees.map((e: any) => e.id));
+        const newFreelances = freelances.filter((f: any) => !existingIds.has(f.id));
+
+        employees = [...employees, ...newFreelances];
+
+        logger.debug('Freelances merged', {
+          regularCount: employees.length - newFreelances.length,
+          freelanceCount: newFreelances.length,
+          totalCount: employees.length
+        });
+      }
+    }
+
+    // 5. Fetch VIP status for each employee (parallel)
+    const employeesWithVIP = await Promise.all(
+      employees.map(async (emp: any) => {
+        // Check if employee_vip_subscriptions table exists (will in Phase 1-3)
+        // For now, return default values
+        try {
+          const { data: vipSub } = await supabase
+            .from('employee_vip_subscriptions')
+            .select('id, expires_at, status')
+            .eq('employee_id', emp.id)
+            .eq('status', 'active')
+            .gte('expires_at', new Date().toISOString())
+            .maybeSingle();
+
+          return {
+            ...emp,
+            is_vip: !!vipSub,
+            vip_expires_at: vipSub?.expires_at || null
+          };
+        } catch (error) {
+          // Table doesn't exist yet (VIP not implemented)
+          return {
+            ...emp,
+            is_vip: false,
+            vip_expires_at: null
+          };
+        }
+      })
+    );
+
+    logger.debug('Successfully fetched employees', {
+      establishmentId: id,
+      employeeCount: employeesWithVIP.length
+    });
+
+    res.json({
+      employees: employeesWithVIP,
+      total: employeesWithVIP.length,
+      establishment
+    });
+
+  } catch (error) {
+    logger.error('Get establishment employees error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

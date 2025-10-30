@@ -1,0 +1,441 @@
+/**
+ * ============================================
+ * PAGE LAYOUT - Structures de page globales
+ * ============================================
+ *
+ * Styles pour les containers de page, wrappers et layouts globaux.
+ * Gère principalement le padding pour compenser le header fixe.
+ * Extrait depuis nightlife-theme.css (lignes 55-135)
+ *
+ * STRUCTURE:
+ * - Compensation du header fixe
+ * - Containers et wrappers
+ * - Responsive padding pour tous breakpoints
+ *
+ * @dependencies
+ * - design-system.css (variables, breakpoints)
+ * - layout/header.css (header heights)
+ */
+
+/* ============================================
+   PAGE CONTENT - Compensation Header Fixe
+   ============================================ */
+
+/**
+ * Classe globale pour compenser le header fixe
+ * Ajoute padding-top pour éviter que le contenu soit caché sous le header
+ *
+ * Usage: Appliquer à la div principale de chaque page
+ * <div class="page-content-with-header-nightlife">
+ *   ... Page content ...
+ * </div>
+ */
+.page-content-with-header-nightlife {
+  /* Desktop: Header 80px + 20px margin */
+  padding-top: 6.25rem; /* 100px */
+  min-height: calc(100vh - 6.25rem);
+}
+
+/* ============================================
+   PAGE CONTAINERS
+   ============================================ */
+
+/**
+ * Container principal - Full-width responsive
+ * max-width automatiquement 100% via --max-width-content (design-system.css)
+ */
+.page-container {
+  width: 100%; /* Full-width responsive */
+  max-width: var(--max-width-content); /* 100% depuis design-system.css */
+  margin: 0 auto;
+  padding: var(--padding-page-desktop, 2rem); /* Padding responsive */
+}
+
+.page-container--narrow {
+  /* Conservé pour lisibilité texte long */
+  max-width: var(--max-width-text); /* 720px */
+}
+
+.page-container--wide {
+  /* Maintenant comportement par défaut */
+  max-width: 100%;
+}
+
+/**
+ * Section de page
+ */
+.page-section {
+  margin-bottom: var(--spacing-12);
+}
+
+.page-section--compact {
+  margin-bottom: var(--spacing-6);
+}
+
+/**
+ * Page header (titre + description)
+ */
+.page-header {
+  margin-bottom: var(--spacing-8);
+  text-align: center;
+}
+
+.page-header--left {
+  text-align: left;
+}
+
+.page-header__title {
+  font-size: var(--font-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-4);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-header__description {
+  font-size: var(--font-lg);
+  color: var(--text-secondary);
+  max-width: var(--max-width-text);
+  margin: 0 auto;
+}
+
+/* ============================================
+   GRID LAYOUTS
+   ============================================ */
+
+/**
+ * Simple 2-column grid
+ */
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
+  gap: var(--spacing-6);
+}
+
+.page-grid--3-col {
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.page-grid--4-col {
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+}
+
+/**
+ * Sidebar layout (main content + sidebar)
+ */
+.page-sidebar-layout {
+  display: grid;
+  grid-template-columns: 1fr 20rem;
+  gap: var(--spacing-8);
+}
+
+.page-sidebar-layout__main {
+  min-width: 0; /* Prevent grid overflow */
+}
+
+.page-sidebar-layout__sidebar {
+  position: sticky;
+  top: calc(var(--height-header-desktop) + var(--spacing-4));
+  height: fit-content;
+}
+
+/* ============================================
+   RESPONSIVE - Tablet Landscape
+   ============================================ */
+
+/**
+ * Tablet landscape (1024px and below)
+ * Header: ~95px
+ */
+@media (max-width: 64rem) {
+  .page-content-with-header-nightlife {
+    padding-top: 5.9375rem; /* 95px */
+    min-height: calc(100vh - 5.9375rem);
+  }
+
+  .page-container {
+    padding: var(--padding-page-tablet, 1.5rem); /* Padding responsive tablet */
+  }
+
+  .page-header__title {
+    font-size: var(--font-3xl);
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Tablet Portrait
+   ============================================ */
+
+/**
+ * Tablet portrait (768px and below)
+ * Header: ~90px (75px header + 15px margin)
+ */
+@media (max-width: 48rem) {
+  .page-content-with-header-nightlife {
+    padding-top: 5.625rem; /* 90px */
+    min-height: calc(100vh - 5.625rem);
+  }
+
+  .page-container {
+    padding: var(--padding-page-mobile, 0.75rem); /* Padding responsive mobile */
+  }
+
+  .page-header {
+    margin-bottom: var(--spacing-6);
+  }
+
+  .page-header__title {
+    font-size: var(--font-2xl);
+  }
+
+  .page-header__description {
+    font-size: var(--font-base);
+  }
+
+  /* Sidebar becomes stacked on mobile */
+  .page-sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .page-sidebar-layout__sidebar {
+    position: static;
+  }
+
+  /* Grids become single column on mobile */
+  .page-grid,
+  .page-grid--3-col,
+  .page-grid--4-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Large Phones
+   ============================================ */
+
+/**
+ * Large phones / iPhone 14 Pro (640px and below)
+ * Header: ~75px (header + margin)
+ * Gained 25px vertical space
+ */
+@media (max-width: 40rem) {
+  .page-content-with-header-nightlife {
+    padding-top: 4.6875rem; /* 75px */
+    min-height: calc(100vh - 4.6875rem);
+  }
+
+  .page-section {
+    margin-bottom: var(--spacing-8);
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Small Phones
+   ============================================ */
+
+/**
+ * Small phones / iPhone SE (480px and below)
+ * Header: ~70px (header + margin)
+ * Maximum vertical space optimization
+ */
+@media (max-width: 30rem) {
+  .page-content-with-header-nightlife {
+    padding-top: 4.375rem; /* 70px */
+    min-height: calc(100vh - 4.375rem);
+  }
+
+  .page-container {
+    padding: var(--padding-page-mobile, 0.75rem); /* Padding responsive small mobile */
+  }
+
+  .page-header {
+    margin-bottom: var(--spacing-4);
+  }
+
+  .page-header__title {
+    font-size: var(--font-xl);
+  }
+
+  .page-section {
+    margin-bottom: var(--spacing-6);
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Very Small Phones
+   ============================================ */
+
+/**
+ * Very small phones (<375px)
+ * Header: ~68px
+ * Absolute maximum vertical space for smallest devices
+ */
+@media (max-width: 23.4375rem) {
+  .page-content-with-header-nightlife {
+    padding-top: 4.25rem; /* 68px */
+    min-height: calc(100vh - 4.25rem);
+  }
+
+  .page-container {
+    padding: var(--padding-page-mobile, 0.75rem); /* Padding responsive very small mobile */
+  }
+
+  .page-header__title {
+    font-size: var(--font-lg);
+  }
+
+  .page-header__description {
+    font-size: var(--font-sm);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/**
+ * Full width page (no max-width)
+ */
+.page-full-width {
+  max-width: none;
+  padding: 0;
+}
+
+/**
+ * Centered content
+ */
+.page-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--height-header-desktop));
+}
+
+/**
+ * Scroll container
+ */
+.page-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - var(--height-header-desktop));
+}
+
+/**
+ * Padding utilities for specific pages
+ */
+.page-no-padding {
+  padding: 0 !important;
+}
+
+.page-padding-sm {
+  padding: var(--spacing-4);
+}
+
+.page-padding-lg {
+  padding: var(--spacing-8);
+}
+
+/* ============================================
+   SPECIAL LAYOUTS
+   ============================================ */
+
+/**
+ * Split screen layout (50/50)
+ */
+.page-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - var(--height-header-desktop));
+}
+
+@media (max-width: 48rem) {
+  .page-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/**
+ * Hero section (full viewport height)
+ */
+.page-hero {
+  min-height: calc(100vh - var(--height-header-desktop));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12) var(--spacing-4);
+}
+
+/**
+ * Sticky footer layout
+ */
+.page-with-footer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-with-footer__content {
+  flex: 1;
+}
+
+.page-with-footer__footer {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/**
+ * Skip to main content link
+ */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--border-radius-md);
+  z-index: var(--z-tooltip);
+  transition: top var(--duration-fast) var(--ease-out);
+}
+
+.skip-to-content:focus {
+  top: var(--spacing-2);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .page-content-with-header-nightlife {
+    padding-top: 0;
+  }
+
+  .page-container {
+    max-width: none;
+    padding: 0;
+  }
+
+  .page-grid,
+  .page-sidebar-layout {
+    display: block;
+  }
+
+  .page-sidebar-layout__sidebar {
+    display: none;
+  }
+}
+
+/* ============================================
+   LEGACY SUPPORT
+   ============================================ */
+
+/**
+ * TODO: Migrer vers les nouvelles classes après refactoring complet
+ * Les anciennes classes restent pour compatibilité
+ */

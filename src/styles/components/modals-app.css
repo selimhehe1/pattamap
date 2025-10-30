@@ -1,0 +1,198 @@
+/**
+ * ============================================
+ * MODALS APP - Main Application Modals
+ * ============================================
+ *
+ * Styles pour les modales principales de l'application (App.tsx).
+ * Inclut overlay, containers, et gestion du scroll body.
+ *
+ * USAGE:
+ * <div className="modal-app-overlay">
+ *   <div className="modal-app-employee-container">
+ *     <EmployeeForm ... />
+ *   </div>
+ * </div>
+ *
+ * COMPOSANTS UTILISANT:
+ * - App.tsx (toutes les modales principales)
+ * - HomePage (register modal)
+ *
+ * MODALES CONCERNÉES:
+ * - Employee Form Modal
+ * - Establishment Form Modal
+ * - Login Form Modal (auth.css)
+ * - Register Form Modal (auth.css)
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-01-09
+ * @migrated Phase 3B - Extraction depuis nightlife-theme.css (lignes 470-498, 1147-1197)
+ */
+
+/* ============================================
+   BODY MODAL OPEN - Prevent Scroll
+   ============================================ */
+
+/**
+ * Empêche le scroll quand une modale est ouverte
+ * IMPORTANT: Utilise overflow:hidden SANS position:fixed
+ * pour éviter les problèmes de positionnement du header
+ */
+body.modal-open {
+  overflow: hidden;
+  touch-action: none; /* Empêche scroll tactile mobile */
+}
+
+/* Sélecteur supplémentaire pour forcer l'application */
+html.modal-open,
+html body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/**
+ * USAGE JAVASCRIPT:
+ *
+ * // Ouvrir modal
+ * document.body.classList.add('modal-open');
+ *
+ * // Fermer modal
+ * document.body.classList.remove('modal-open');
+ */
+
+/* ============================================
+   MODAL OVERLAY BASE
+   ============================================ */
+
+/**
+ * Classe utilitaire pour standardiser les overlays de modal
+ * Utilisée comme base pour tous les overlays
+ */
+.modal-overlay-base {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: var(--z-modal-important); /* 85 */
+}
+
+/* ============================================
+   MODAL APP OVERLAY
+   ============================================ */
+
+/**
+ * Overlay générique pour les modales de App.tsx
+ * Z-index: 85 (au-dessus du header qui est à 80)
+ */
+.modal-app-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: var(--z-modal-important); /* 85 - Au-dessus du header */
+  backdrop-filter: none !important;
+  touch-action: none !important;
+}
+
+/* ============================================
+   MODAL CONTAINERS
+   ============================================ */
+
+/**
+ * Container pour employee form modal
+ */
+.modal-app-employee-container {
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-5);
+  max-width: 90vw;
+  width: 37.5rem; /* 600px */
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 2px solid var(--border-primary);
+  box-shadow: var(--shadow-2xl);
+  position: relative;
+  margin: var(--spacing-5);
+}
+
+/**
+ * Container pour establishment form modal
+ */
+.modal-app-establishment-container {
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-5);
+  max-width: 90vw;
+  width: 37.5rem; /* 600px */
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 2px solid var(--border-accent);
+  box-shadow: var(--shadow-2xl);
+  position: relative;
+  margin: var(--spacing-5);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Mobile: Full width modals */
+@media (max-width: 48rem) {
+  .modal-app-employee-container,
+  .modal-app-establishment-container {
+    width: calc(100vw - 2rem);
+    margin: var(--spacing-2);
+    padding: var(--spacing-4);
+    max-height: 90vh;
+  }
+}
+
+/* Small mobile: Even more compact */
+@media (max-width: 30rem) {
+  .modal-app-employee-container,
+  .modal-app-establishment-container {
+    width: calc(100vw - 1rem);
+    margin: var(--spacing-1);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-lg);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Focus trap for modals */
+.modal-app-overlay:focus {
+  outline: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .modal-app-overlay {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .modal-app-employee-container,
+  .modal-app-establishment-container {
+    border-width: 3px;
+  }
+}

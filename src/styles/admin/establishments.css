@@ -1,0 +1,1218 @@
+/**
+ * ADMIN ESTABLISHMENTS MANAGEMENT STYLES
+ * Version: 1.0.0
+ * Migration: Phase 2B - Extraction depuis nightlife-theme.css
+ *
+ * DESCRIPTION:
+ * Styles pour la page de gestion des établissements en administration.
+ * Inclut l'UI complète pour reviewer, approuver, rejeter et éditer les
+ * établissements soumis par les utilisateurs.
+ *
+ * COMPOSANTS STYLISÉS:
+ * - Container principal & access denied
+ * - Header avec titre et sous-titre
+ * - Tabs de filtrage (pending, approved, rejected, all, pending-edits)
+ * - Bouton "Add New Establishment"
+ * - États loading et empty
+ * - Grid layout pour les cartes
+ * - Cartes d'établissements (logo, infos, statut, actions)
+ * - Propositions d'édition (edit proposals)
+ * - Modal overlay pour formulaire
+ * - Responsive design (tablet 64rem, mobile 48rem)
+ *
+ * FEATURES:
+ * - Design moderne avec gradients et glassmorphism
+ * - Animations smooth sur hover et transitions
+ * - Accessibilité WCAG 2.1 AA (focus-visible, tap targets 44x44px)
+ * - Variables design-system.css pour cohérence globale
+ * - Layout flexible avec cards grid responsive
+ * - États visuels distincts (pending/approved/rejected)
+ * - Support complet des edit proposals
+ *
+ * USAGE:
+ * @see src/components/Admin/EstablishmentsAdmin.tsx - Composant principal
+ *
+ * @migrated Phase 2B - 2025-01-08
+ * @lines 703 lignes extraites depuis nightlife-theme.css L4335-5038
+ */
+
+/* ========================================
+   CONTAINER & ACCESS DENIED
+   ======================================== */
+
+/* Main container for establishments admin */
+.admin-establishments-container-nightlife {
+  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
+  min-height: 100vh;
+  padding: var(--spacing-8);
+  color: var(--color-text-primary);
+}
+
+/* Access denied container */
+.admin-access-denied-container-nightlife {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--spacing-8);
+}
+
+.admin-access-denied-card-nightlife {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.1), rgba(0, 0, 0, 0.3));
+  border-radius: var(--border-radius-2xl);
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  padding: var(--spacing-12);
+  text-align: center;
+}
+
+.admin-access-denied-title-nightlife {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+.admin-access-denied-text-nightlife {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+}
+
+/* ========================================
+   HEADER & TITLE
+   ======================================== */
+
+/* Header section */
+.admin-establishments-header-nightlife {
+  margin-bottom: var(--spacing-8);
+}
+
+.admin-establishments-title-nightlife {
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 0 0 var(--spacing-3) 0;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(193, 154, 107, 0.5);
+  font-family: "Orbitron", monospace;
+}
+
+.admin-establishments-subtitle-nightlife {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ========================================
+   FILTER TABS
+   ======================================== */
+
+/* Filter tabs */
+.admin-establishments-tabs-nightlife {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-8);
+  overflow-x: auto;
+}
+
+.admin-establishments-tab-nightlife {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius-xl);
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.1), rgba(0, 0, 0, 0.3));
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-duration-normal) ease;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  min-height: var(--tap-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-establishments-tab-nightlife:hover {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(0, 0, 0, 0.4));
+  transform: translateY(-1px);
+}
+
+.admin-establishments-tab-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.admin-establishments-tab-nightlife.active {
+  border: 2px solid var(--color-primary);
+  background: linear-gradient(45deg, rgba(193, 154, 107, 0.2), rgba(255, 215, 0, 0.1));
+  color: var(--color-primary);
+}
+
+/* ========================================
+   ADD ESTABLISHMENT BUTTON
+   ======================================== */
+
+/* Add establishment button */
+.admin-add-establishment-center-nightlife {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.admin-add-establishment-button-nightlife {
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid var(--color-success);
+  background: linear-gradient(45deg, rgba(0, 255, 127, 0.2), rgba(76, 175, 80, 0.1));
+  color: var(--color-success);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all var(--transition-duration-normal) ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: var(--tap-target-min);
+}
+
+.admin-add-establishment-button-nightlife:hover {
+  background: linear-gradient(45deg, rgba(0, 255, 127, 0.3), rgba(76, 175, 80, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 255, 127, 0.3);
+}
+
+.admin-add-establishment-button-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   LOADING & EMPTY STATES
+   ======================================== */
+
+/* Loading state */
+.admin-establishments-loading-nightlife {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 18.75rem;
+}
+
+.admin-establishments-spinner-nightlife {
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid rgba(193, 154, 107, 0.3);
+  border-top: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 1s linear infinite;
+}
+
+/* Empty state */
+.admin-establishments-empty-nightlife {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.1), rgba(0, 0, 0, 0.3));
+  border-radius: var(--border-radius-2xl);
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  padding: var(--spacing-12);
+  text-align: center;
+}
+
+.admin-establishments-empty-title-nightlife {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+.admin-establishments-empty-text-nightlife {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+}
+
+/* ========================================
+   GRID LAYOUT
+   ======================================== */
+
+/* Establishments grid - 2025 Modern: 4 columns for better card proportions */
+.admin-establishments-grid-nightlife {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+/* ========================================
+   ESTABLISHMENT CARD
+   ======================================== */
+
+/* Individual establishment card - 2025 Modern Design */
+.admin-establishment-card-nightlife {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(193, 154, 107, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.admin-establishment-card-nightlife:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(193, 154, 107, 0.5);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(193, 154, 107, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(193, 154, 107, 0.15);
+}
+
+/* Animated gradient border on hover */
+.admin-establishment-card-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--color-primary),
+    var(--color-secondary),
+    var(--color-primary));
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  animation: gradientShift 3s linear infinite;
+}
+
+.admin-establishment-card-nightlife:hover::before {
+  opacity: 1;
+}
+
+/* Subtle glow effect */
+.admin-establishment-card-nightlife::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.3), rgba(0, 255, 255, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.admin-establishment-card-nightlife:hover::after {
+  opacity: 1;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Status badge - 2025 Small Circular Icon Design */
+.admin-establishment-status-badge-nightlife {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-interactive);
+  transition: all 0.3s ease;
+  cursor: help;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-establishment-status-badge-nightlife:hover {
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Pulse animation for pending status (yellow) */
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 0 0 12px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 20px currentColor, 0 0 0 4px rgba(255, 215, 0, 0.3);
+  }
+}
+
+/* Apply pulse to pending badges (contains yellow color) */
+.admin-establishment-status-badge-nightlife[style*="rgb(255, 215, 0)"],
+.admin-establishment-status-badge-nightlife[style*="#FFD700"] {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Main content area - flex layout */
+.admin-establishment-content-nightlife {
+  flex: 1;
+  padding-top: var(--spacing-3);
+}
+
+/* ========================================
+   CARD COMPONENTS: LOGO & INFO
+   ======================================== */
+
+/* Horizontal layout for logo + info */
+.admin-establishment-main-info-nightlife {
+  display: flex;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Logo container - 2025 Enhanced with Glow */
+.admin-establishment-logo-container-nightlife {
+  width: 8.75rem;
+  height: 8.75rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(193, 154, 107, 0.25), rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.5));
+  border: 2.5px solid rgba(193, 154, 107, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.admin-establishment-logo-container-nightlife:hover {
+  transform: scale(1.05) rotate(2deg);
+  border-color: rgba(193, 154, 107, 0.7);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.4),
+    0 0 40px rgba(193, 154, 107, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Animated border glow */
+.admin-establishment-logo-container-nightlife::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 20px;
+  background: linear-gradient(45deg,
+    var(--color-primary),
+    var(--color-secondary),
+    var(--color-primary));
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  animation: logoGlow 3s linear infinite;
+  z-index: -1;
+}
+
+.admin-establishment-logo-container-nightlife:hover::before {
+  opacity: 0.6;
+}
+
+@keyframes logoGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.admin-establishment-logo-image-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.admin-establishment-logo-container-nightlife:hover .admin-establishment-logo-image-nightlife {
+  transform: scale(1.05);
+}
+
+.admin-establishment-logo-placeholder-nightlife {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--color-text-primary);
+  text-shadow: 0 0 20px rgba(193, 154, 107, 0.7);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Info section */
+.admin-establishment-info-nightlife {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-establishment-name-nightlife {
+  color: var(--color-text-primary);
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.admin-establishment-details-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-establishment-detail-row-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  transition: transform 0.2s ease;
+}
+
+.admin-establishment-detail-row-nightlife:hover {
+  transform: translateX(2px);
+}
+
+.admin-establishment-detail-icon-nightlife {
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-bold);
+  min-width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-establishment-detail-text-nightlife {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  flex: 1;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.admin-establishment-detail-link-nightlife {
+  color: var(--color-secondary);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.admin-establishment-detail-link-nightlife:hover {
+  text-decoration: underline;
+}
+
+.admin-establishment-detail-link-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* ========================================
+   CARD COMPONENTS: SERVICES & DESCRIPTION
+   ======================================== */
+
+/* Services tags */
+.admin-establishment-services-nightlife {
+  margin-bottom: 0.5rem;
+}
+
+.admin-establishment-services-tags-nightlife {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.admin-establishment-service-tag-nightlife {
+  background: rgba(0, 255, 255, 0.2);
+  color: var(--color-secondary);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--border-radius-lg);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.admin-establishment-service-more-nightlife {
+  color: var(--color-text-tertiary);
+  font-size: 0.6875rem;
+}
+
+/* Description */
+.admin-establishment-description-nightlife {
+  margin-bottom: var(--spacing-3);
+}
+
+.admin-establishment-description-text-nightlife {
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  flex: 1;
+  max-height: 2.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Timestamps - 2025 Enhanced */
+.admin-establishment-timestamps-nightlife {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   CARD COMPONENTS: ACTION BUTTONS
+   ======================================== */
+
+/* Action buttons section - 2025 Modern */
+.admin-establishment-actions-nightlife {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.admin-establishment-actions-pending-nightlife {
+  flex-direction: column;
+}
+
+.admin-establishment-actions-approved-nightlife {
+  flex-direction: row;
+}
+
+/* Edit button - 2025 Vibrant Design */
+.admin-establishment-edit-button-nightlife {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 128, 255, 0.25));
+  border: 2px solid rgba(0, 255, 255, 0.5);
+  color: var(--color-secondary);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  min-height: var(--tap-target-min);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+  letter-spacing: 0.02em;
+}
+
+.admin-establishment-edit-button-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-establishment-edit-button-nightlife:hover::before {
+  left: 100%;
+}
+
+.admin-establishment-edit-button-nightlife:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 128, 255, 0.4));
+  border-color: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 255, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.2);
+}
+
+.admin-establishment-edit-button-nightlife:active {
+  transform: translateY(0);
+}
+
+.admin-establishment-edit-button-nightlife:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Edit & Delete buttons row */
+.admin-establishment-edit-delete-row-nightlife {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* Delete button - 2025 Vibrant Red */
+.admin-establishment-delete-button-nightlife {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.25), rgba(255, 23, 68, 0.25));
+  border: 2px solid rgba(255, 71, 87, 0.5);
+  color: var(--color-error);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  min-height: var(--tap-target-min);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+  letter-spacing: 0.02em;
+}
+
+.admin-establishment-delete-button-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-establishment-delete-button-nightlife:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.admin-establishment-delete-button-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.4), rgba(255, 23, 68, 0.4));
+  border-color: var(--color-error);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 71, 87, 0.4), 0 0 40px rgba(255, 71, 87, 0.2);
+}
+
+.admin-establishment-delete-button-nightlife:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-establishment-delete-button-nightlife:focus-visible {
+  outline: 3px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+.admin-establishment-delete-button-nightlife:disabled {
+  background: rgba(102, 102, 102, 0.3);
+  border-color: rgba(102, 102, 102, 0.5);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Approval buttons container */
+.admin-establishment-approval-buttons-nightlife {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* Approve button - 2025 Vibrant Green */
+.admin-establishment-approve-button-nightlife {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, rgba(0, 255, 127, 0.3), rgba(0, 204, 101, 0.3));
+  border: 2px solid rgba(0, 255, 127, 0.6);
+  color: var(--color-success);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  min-height: var(--tap-target-min);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 255, 127, 0.3);
+}
+
+.admin-establishment-approve-button-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-establishment-approve-button-nightlife:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.admin-establishment-approve-button-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 255, 127, 0.5), rgba(0, 204, 101, 0.5));
+  border-color: var(--color-success);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 255, 127, 0.5), 0 0 40px rgba(0, 255, 127, 0.3);
+}
+
+.admin-establishment-approve-button-nightlife:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+}
+
+.admin-establishment-approve-button-nightlife:focus-visible {
+  outline: 3px solid var(--color-success);
+  outline-offset: 2px;
+}
+
+.admin-establishment-approve-button-nightlife:disabled {
+  background: rgba(102, 102, 102, 0.3);
+  border-color: rgba(102, 102, 102, 0.5);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Reject button - 2025 Vibrant Red */
+.admin-establishment-reject-button-nightlife {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.3), rgba(255, 55, 66, 0.3));
+  border: 2px solid rgba(255, 71, 87, 0.6);
+  color: var(--color-error);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  min-height: var(--tap-target-min);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.admin-establishment-reject-button-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.admin-establishment-reject-button-nightlife:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.admin-establishment-reject-button-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.5), rgba(255, 55, 66, 0.5));
+  border-color: var(--color-error);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255, 71, 87, 0.5), 0 0 40px rgba(255, 71, 87, 0.3);
+}
+
+.admin-establishment-reject-button-nightlife:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+}
+
+.admin-establishment-reject-button-nightlife:focus-visible {
+  outline: 3px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+.admin-establishment-reject-button-nightlife:disabled {
+  background: rgba(102, 102, 102, 0.3);
+  border-color: rgba(102, 102, 102, 0.5);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========================================
+   EDIT PROPOSALS
+   ======================================== */
+
+/* Edit proposals specific styles */
+.admin-edit-proposal-card-nightlife {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.3));
+  border-radius: var(--border-radius-2xl);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  padding: var(--spacing-6);
+  position: relative;
+}
+
+.admin-edit-proposal-badge-nightlife {
+  position: absolute;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
+  padding: 0.5rem 0.9375rem;
+  border-radius: var(--border-radius-2xl);
+  background: rgba(255, 215, 0, 0.2);
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.admin-edit-proposal-header-nightlife {
+  margin-bottom: var(--spacing-4);
+}
+
+.admin-edit-proposal-title-nightlife {
+  color: var(--color-accent);
+  font-size: 1.125rem;
+  margin: 0 0 0.3125rem 0;
+}
+
+.admin-edit-proposal-author-nightlife {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.admin-edit-proposal-author-name-nightlife {
+  color: var(--color-secondary);
+  font-weight: var(--font-weight-bold);
+}
+
+.admin-edit-proposal-toggle-nightlife {
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-accent);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--transition-duration-normal) ease;
+  min-height: var(--tap-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-edit-proposal-toggle-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.admin-edit-proposal-toggle-nightlife.collapsed {
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+  color: var(--color-accent);
+}
+
+.admin-edit-proposal-toggle-nightlife.expanded {
+  background: linear-gradient(45deg, var(--color-accent), #FFA500);
+  color: #000;
+}
+
+.admin-edit-proposal-changes-nightlife {
+  margin-top: var(--spacing-5);
+  padding: var(--spacing-5);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--border-radius-xl);
+}
+
+.admin-edit-proposal-changes-title-nightlife {
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+.admin-edit-proposal-change-item-nightlife {
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--border-radius-lg);
+}
+
+.admin-edit-proposal-change-field-nightlife {
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+}
+
+.admin-edit-proposal-change-values-nightlife {
+  display: flex;
+  gap: var(--spacing-5);
+  margin-top: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.admin-edit-proposal-before-nightlife {
+  flex: 1;
+  min-width: 12.5rem;
+  padding: var(--spacing-3);
+  background: rgba(255, 71, 87, 0.1);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.admin-edit-proposal-before-label-nightlife {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.3125rem;
+}
+
+.admin-edit-proposal-before-value-nightlife {
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  word-break: break-word;
+}
+
+.admin-edit-proposal-after-nightlife {
+  flex: 1;
+  min-width: 12.5rem;
+  padding: var(--spacing-3);
+  background: rgba(0, 255, 127, 0.1);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(0, 255, 127, 0.3);
+}
+
+.admin-edit-proposal-after-label-nightlife {
+  color: var(--color-success);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.3125rem;
+}
+
+.admin-edit-proposal-after-value-nightlife {
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  word-break: break-word;
+}
+
+.admin-edit-proposal-actions-nightlife {
+  display: flex;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-5);
+}
+
+.admin-edit-proposal-approve-nightlife {
+  flex: 1;
+  padding: var(--spacing-4) var(--spacing-6);
+  background: linear-gradient(45deg, var(--color-success), #00D4AA);
+  color: #000;
+  border: none;
+  border-radius: var(--border-radius-xl);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--transition-duration-normal) ease;
+  min-height: var(--tap-target-min);
+}
+
+.admin-edit-proposal-approve-nightlife:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 255, 127, 0.4);
+}
+
+.admin-edit-proposal-approve-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.admin-edit-proposal-approve-nightlife:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-edit-proposal-reject-nightlife {
+  flex: 1;
+  padding: var(--spacing-4) var(--spacing-6);
+  background: linear-gradient(45deg, var(--color-error), #FF1744);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--border-radius-xl);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--transition-duration-normal) ease;
+  min-height: var(--tap-target-min);
+}
+
+.admin-edit-proposal-reject-nightlife:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
+
+.admin-edit-proposal-reject-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.admin-edit-proposal-reject-nightlife:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ========================================
+   MODAL OVERLAY
+   ======================================== */
+
+/* Modal styles */
+.admin-establishments-modal-overlay-nightlife {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Loading animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Large Desktop - 4 columns (default, no override needed) */
+@media (min-width: 1920px) {
+  .admin-establishments-grid-nightlife {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Large Tablet - 3 columns */
+@media (max-width: 80rem) {  /* 1280px - Large Tablet */
+  .admin-establishments-grid-nightlife {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Small Tablet - 1 colonne */
+@media (max-width: 64rem) {  /* 1024px - Tablet */
+  .admin-establishments-grid-nightlife {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .admin-establishment-logo-container-nightlife {
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+}
+
+/* Mobile - 1 colonne optimisée */
+@media (max-width: 48rem) {  /* 768px - Mobile */
+  .admin-establishments-container-nightlife {
+    padding: 1rem;
+  }
+
+  .admin-establishments-grid-nightlife {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .admin-establishment-card-nightlife {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+
+  .admin-establishment-card-nightlife:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+
+  .admin-establishment-logo-container-nightlife {
+    width: 6rem;
+    height: 6rem;
+  }
+
+  .admin-establishment-name-nightlife {
+    font-size: 1.125rem;
+  }
+
+  .admin-establishment-info-nightlife {
+    padding-right: 5rem;
+  }
+
+  .admin-establishments-tabs-nightlife {
+    flex-direction: column;
+  }
+
+  .admin-establishment-status-badge-nightlife {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+  }
+
+  /* Approve/Reject buttons en icônes seulement sur mobile */
+  .admin-establishment-approve-button-nightlife,
+  .admin-establishment-reject-button-nightlife {
+    font-size: 1.5rem;
+    padding: 0.75rem;
+  }
+
+  /* Masquer texte "Edit" et "Delete" sur mobile - afficher uniquement icônes */
+  .edit-text-desktop,
+  .delete-text-desktop {
+    display: none !important;
+  }
+
+  /* Ajuster padding boutons Edit et Delete pour icônes seules */
+  .admin-establishment-edit-button-nightlife,
+  .admin-establishment-delete-button-nightlife {
+    min-width: 44px !important;  /* Maintenir tap target WCAG */
+    padding: 0.75rem !important;
+    font-size: 1.25rem;
+  }
+}

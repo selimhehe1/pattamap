@@ -3,37 +3,54 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@sentry/react": "^10.17.0",
-    "@supabase/supabase-js": "^2.57.4",
+    "@sentry/react": "^10.19.0",
+    "@supabase/supabase-js": "^2.75.0",
+    "@tanstack/react-query": "^5.90.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.12.2",
+    "framer-motion": "^12.23.24",
+    "i18next": "^25.6.0",
+    "i18next-browser-languagedetector": "^8.2.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.545.0",
     "node-fetch": "^2.7.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-ga4": "^2.1.0",
+    "react-helmet-async": "^2.0.5",
+    "react-hot-toast": "^2.6.0",
+    "react-i18next": "^16.0.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.9.4",
     "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.5",
+    "react-zoom-pan-pinch": "^3.7.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:desktop": "playwright test --project=chromium-desktop",
+    "test:e2e:mobile": "playwright test --project=chromium-mobile",
+    "test:screenshots": "playwright test --grep @screenshot",
+    "test:report": "playwright show-report tests/e2e/reports/html",
+    "eject": "react-scripts eject",
+    "analyze": "npm run build && npx source-map-explorer 'build/static/js/*.js'",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 50",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },
   "browserslist": {
     "production": [
@@ -48,6 +65,12 @@
     ]
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@playwright/test": "^1.56.1",
+    "playwright": "^1.56.0",
+    "purgecss": "^7.0.2",
+    "source-map-explorer": "^2.5.3",
+    "typescript": "^5.9.3",
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

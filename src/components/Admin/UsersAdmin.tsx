@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import EditUserModal from './EditUserModal';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
+import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
+
+// Lazy load EditUserModal for better performance
+const EditUserModal = lazy(() => import('./EditUserModal'));
 
 interface AdminUser {
   id: string;
@@ -26,6 +30,7 @@ interface UsersAdminProps {
 }
 
 const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -148,7 +153,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
     switch (role) {
       case 'admin': return '#FF4757';
       case 'moderator': return '#FFD700';
-      case 'user': return '#00FFFF';
+      case 'user': return '#00E5FF';
       default: return '#cccccc';
     }
   };
@@ -177,22 +182,22 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
         padding: '30px'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 Access Denied
+            🚫 {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
-            Only administrators can access user management.
+            {t('admin.accessDeniedArea')}
           </p>
         </div>
       </div>
@@ -208,32 +213,32 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
     }}>
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
-        currentSection="Gestion des Utilisateurs"
+        currentSection={t('admin.usersManagement')}
         onBackToDashboard={() => onTabChange('overview')}
         icon="👤"
       />
 
       {/* Header */}
       <div style={{ marginBottom: '30px' }}>
-        
+
         <h1 style={{
           fontSize: '32px',
           fontWeight: '900',
           margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(255,27,141,0.5)',
+          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          👤 Users Management
+          👤 {t('admin.usersManagement')}
         </h1>
         <p style={{
           fontSize: '16px',
           color: '#cccccc',
           margin: 0
         }}>
-          Manage user accounts, roles, and permissions
+          {t('admin.manageUserAccounts')}
         </p>
       </div>
 
@@ -248,7 +253,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
         {/* Search Input */}
         <input
           type="text"
-          placeholder="Search users by name or email..."
+          placeholder={t('admin.searchUsers')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -256,28 +261,28 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
             minWidth: '300px',
             padding: '12px 20px',
             borderRadius: '12px',
-            border: '2px solid rgba(255,27,141,0.3)',
+            border: '2px solid rgba(193, 154, 107,0.3)',
             background: 'rgba(0,0,0,0.3)',
             color: '#ffffff',
             fontSize: '14px',
             transition: 'border-color 0.3s ease'
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#FF1B8D';
+            e.target.style.borderColor = '#C19A6B';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+            e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
           }}
         />
 
         {/* Filter Tabs */}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           {[
-            { key: 'all', label: 'All', icon: '📋' },
-            { key: 'admin', label: 'Admins', icon: '👑' },
-            { key: 'moderator', label: 'Moderators', icon: '🛡️' },
-            { key: 'user', label: 'Users', icon: '👤' },
-            { key: 'inactive', label: 'Inactive', icon: '🚫' }
+            { key: 'all', label: t('admin.filterAll'), icon: '📋' },
+            { key: 'admin', label: t('admin.filterAdmins'), icon: '👑' },
+            { key: 'moderator', label: t('admin.filterModerators'), icon: '🛡️' },
+            { key: 'user', label: t('admin.filterUsers'), icon: '👤' },
+            { key: 'inactive', label: t('admin.filterInactive'), icon: '🚫' }
           ].map((tab) => (
             <button
               key={tab.key}
@@ -285,11 +290,11 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
               style={{
                 padding: '10px 16px',
                 borderRadius: '10px',
-                border: filter === tab.key ? '2px solid #FF1B8D' : '2px solid rgba(255,27,141,0.3)',
+                border: filter === tab.key ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
                 background: filter === tab.key 
-                  ? 'linear-gradient(45deg, rgba(255,27,141,0.2), rgba(255,215,0,0.1))'
-                  : 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
-                color: filter === tab.key ? '#FF1B8D' : '#ffffff',
+                  ? 'linear-gradient(45deg, rgba(193, 154, 107,0.2), rgba(255,215,0,0.1))'
+                  : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
+                color: filter === tab.key ? '#C19A6B' : '#ffffff',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 fontSize: '12px',
@@ -305,43 +310,28 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       {/* Users List */}
       {isLoading ? (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '300px'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(255,27,141,0.3)',
-            borderTop: '4px solid #FF1B8D',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-        </div>
+        <LoadingFallback message={t('admin.loadingUsers')} variant="inline" />
       ) : filteredUsers.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h3 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '20px',
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 No Users Found
+            📭 {t('admin.noUsersFound')}
           </h3>
           <p style={{
             color: '#cccccc',
             fontSize: '16px'
           }}>
-            No users match the current filter or search term.
+            {t('admin.noUsersMatch')}
           </p>
         </div>
       ) : (
@@ -354,10 +344,10 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
             <div
               key={userData.id}
               style={{
-                background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
                 borderRadius: '20px',
                 border: userData.is_active 
-                  ? '2px solid rgba(255,27,141,0.3)' 
+                  ? '2px solid rgba(193, 154, 107,0.3)' 
                   : '2px solid rgba(255,71,87,0.5)',
                 padding: '20px',
                 position: 'relative',
@@ -366,7 +356,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(255,27,141,0.3)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
@@ -451,9 +441,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                   color: '#888888',
                   marginBottom: '10px'
                 }}>
-                  Joined: {formatDate(userData.created_at)}
+                  {t('admin.joined')} {formatDate(userData.created_at)}
                   {userData.last_login && (
-                    <div>Last login: {formatDate(userData.last_login)}</div>
+                    <div>{t('admin.lastLogin')} {formatDate(userData.last_login)}</div>
                   )}
                 </div>
 
@@ -472,7 +462,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                       textAlign: 'center'
                     }}>
                       <div style={{
-                        color: '#FF1B8D',
+                        color: '#C19A6B',
                         fontSize: '14px',
                         fontWeight: 'bold'
                       }}>
@@ -482,10 +472,10 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         color: '#cccccc',
                         fontSize: '10px'
                       }}>
-                        Bars
+                        {t('admin.bars')}
                       </div>
                     </div>
-                    
+
                     <div style={{
                       background: 'rgba(0,0,0,0.3)',
                       borderRadius: '8px',
@@ -493,7 +483,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                       textAlign: 'center'
                     }}>
                       <div style={{
-                        color: '#00FFFF',
+                        color: '#00E5FF',
                         fontSize: '14px',
                         fontWeight: 'bold'
                       }}>
@@ -503,10 +493,10 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         color: '#cccccc',
                         fontSize: '10px'
                       }}>
-                        Profiles
+                        {t('admin.profiles')}
                       </div>
                     </div>
-                    
+
                     <div style={{
                       background: 'rgba(0,0,0,0.3)',
                       borderRadius: '8px',
@@ -524,7 +514,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         color: '#cccccc',
                         fontSize: '10px'
                       }}>
-                        Reviews
+                        {t('admin.reviews')}
                       </div>
                     </div>
                   </div>
@@ -538,7 +528,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                   flexDirection: 'column',
                   gap: '8px',
                   paddingTop: '15px',
-                  borderTop: '1px solid rgba(255,27,141,0.3)'
+                  borderTop: '1px solid rgba(193, 154, 107,0.3)'
                 }}>
                   {/* Role Selection */}
                   <div style={{
@@ -595,11 +585,11 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                       opacity: processingIds.has(userData.id) ? 0.7 : 1
                     }}
                   >
-                    {processingIds.has(userData.id) 
-                      ? '⏳ Processing...' 
-                      : userData.is_active 
-                      ? '🚫 Deactivate' 
-                      : '✅ Activate'
+                    {processingIds.has(userData.id)
+                      ? `⏳ ${t('admin.processing')}`
+                      : userData.is_active
+                      ? `🚫 ${t('admin.deactivate')}`
+                      : `✅ ${t('admin.activate')}`
                     }
                   </button>
 
@@ -620,14 +610,14 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      ✏️ Edit
+                      ✏️ {t('common.edit')}
                     </button>
                     <button
                       onClick={() => setSelectedUser(userData)}
                       style={{
                         flex: 1,
                         padding: '8px',
-                        background: 'linear-gradient(45deg, #00FFFF, #0080FF)',
+                        background: 'linear-gradient(45deg, #00E5FF, #0080FF)',
                         color: 'white',
                         border: 'none',
                         borderRadius: '8px',
@@ -637,7 +627,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      👁️ View
+                      👁️ {t('admin.view')}
                     </button>
                   </div>
                 </div>
@@ -647,7 +637,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
               {userData.id === user.id && (
                 <div style={{
                   paddingTop: '15px',
-                  borderTop: '1px solid rgba(255,27,141,0.3)',
+                  borderTop: '1px solid rgba(193, 154, 107,0.3)',
                   textAlign: 'center'
                 }}>
                   <span style={{
@@ -659,7 +649,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                     borderRadius: '15px',
                     border: '1px solid #FFD700'
                   }}>
-                    👤 This is you
+                    👤 {t('admin.thisIsYou')}
                   </span>
                 </div>
               )}
@@ -683,12 +673,12 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
           justifyContent: 'center',
           padding: '20px',
           backdropFilter: 'blur(10px)'
-        }}>
+        }} role="dialog" aria-modal="true">
           <div style={{
             background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
             borderRadius: '25px',
-            border: '2px solid #FF1B8D',
-            boxShadow: '0 20px 60px rgba(255,27,141,0.3)',
+            border: '2px solid #C19A6B',
+            boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
             maxWidth: '500px',
             width: '100%',
             maxHeight: '90vh',
@@ -706,9 +696,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'rgba(255,27,141,0.2)',
-                border: '2px solid #FF1B8D',
-                color: '#FF1B8D',
+                background: 'rgba(193, 154, 107,0.2)',
+                border: '2px solid #C19A6B',
+                color: '#C19A6B',
                 fontSize: '20px',
                 cursor: 'pointer',
                 zIndex: 10
@@ -718,51 +708,51 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
             </button>
 
             <h2 style={{
-              color: '#FF1B8D',
+              color: '#C19A6B',
               fontSize: '24px',
               fontWeight: 'bold',
               margin: '0 0 20px 0'
             }}>
-              User Details
+              {t('admin.userDetails')}
             </h2>
 
             <div style={{ color: 'white' }}>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>ID:</strong> {selectedUser.id}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.id')}</strong> {selectedUser.id}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Pseudonym:</strong> {selectedUser.pseudonym}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.pseudonym')}</strong> {selectedUser.pseudonym}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Email:</strong> {selectedUser.email}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.email')}</strong> {selectedUser.email}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Role:</strong> {getRoleIcon(selectedUser.role)} {selectedUser.role}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.role')}</strong> {getRoleIcon(selectedUser.role)} {selectedUser.role}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Status:</strong> {selectedUser.is_active ? '✅ Active' : '🚫 Inactive'}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.status')}</strong> {selectedUser.is_active ? `✅ ${t('admin.active')}` : `🚫 ${t('admin.inactive')}`}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Member since:</strong> {formatDate(selectedUser.created_at)}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.memberSince')}</strong> {formatDate(selectedUser.created_at)}
               </div>
               {selectedUser.last_login && (
                 <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#FF1B8D' }}>Last login:</strong> {formatDate(selectedUser.last_login)}
+                  <strong style={{ color: '#C19A6B' }}>{t('admin.lastLogin')}</strong> {formatDate(selectedUser.last_login)}
                 </div>
               )}
-              
+
               {selectedUser.stats && (
                 <div style={{ marginTop: '20px' }}>
-                  <strong style={{ color: '#FF1B8D' }}>Activity Statistics:</strong>
+                  <strong style={{ color: '#C19A6B' }}>{t('admin.activityStatistics')}</strong>
                   <div style={{
                     background: 'rgba(0,0,0,0.3)',
                     borderRadius: '10px',
                     padding: '15px',
                     marginTop: '10px'
                   }}>
-                    <div>🏢 Establishments submitted: {selectedUser.stats.establishments_submitted}</div>
-                    <div>👥 Employee profiles submitted: {selectedUser.stats.employees_submitted}</div>
-                    <div>💬 Reviews made: {selectedUser.stats.comments_made}</div>
+                    <div>🏢 {t('admin.establishmentsSubmitted')}: {selectedUser.stats.establishments_submitted}</div>
+                    <div>👥 {t('admin.employeeProfilesSubmitted')} {selectedUser.stats.employees_submitted}</div>
+                    <div>💬 {t('admin.reviews')}: {selectedUser.stats.comments_made}</div>
                   </div>
                 </div>
               )}
@@ -773,12 +763,14 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       {/* Edit User Modal */}
       {editingUser && (
-        <EditUserModal
-          user={editingUser}
-          isOpen={!!editingUser}
-          onClose={() => setEditingUser(null)}
-          onSave={handleSaveUser}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <EditUserModal
+            user={editingUser}
+            isOpen={!!editingUser}
+            onClose={() => setEditingUser(null)}
+            onSave={handleSaveUser}
+          />
+        </Suspense>
       )}
 
       {/* Loading Animation CSS */}

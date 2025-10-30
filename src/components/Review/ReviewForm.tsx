@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface ReviewFormProps {
@@ -19,6 +20,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   onCancel,
   isLoading = false
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [comment, setComment] = useState<string>('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -28,11 +30,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     const newErrors: {[key: string]: string} = {};
 
     if (!comment.trim()) {
-      newErrors.comment = 'Please write a comment';
+      newErrors.comment = t('review.form.errorCommentRequired');
     } else if (comment.trim().length < 10) {
-      newErrors.comment = 'Comment must be at least 10 characters long';
+      newErrors.comment = t('review.form.errorCommentMinLength');
     } else if (comment.trim().length > 1000) {
-      newErrors.comment = 'Comment must be less than 1000 characters';
+      newErrors.comment = t('review.form.errorCommentMaxLength');
     }
 
     setErrors(newErrors);
@@ -57,34 +59,34 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       setComment('');
       setErrors({});
     } catch (error) {
-      setErrors({ submit: 'Failed to submit review. Please try again.' });
+      setErrors({ submit: t('review.form.errorSubmitFailed') });
     }
   };
 
   if (!user) {
     return (
       <div style={{
-        background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+        background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
         borderRadius: '15px',
         padding: '30px',
-        border: '1px solid rgba(255,27,141,0.3)',
+        border: '1px solid rgba(193, 154, 107,0.3)',
         textAlign: 'center'
       }}>
         <h3 style={{
-          color: '#FF1B8D',
+          color: '#C19A6B',
           fontSize: '20px',
           fontWeight: 'bold',
           margin: '0 0 15px 0',
-          textShadow: '0 0 10px rgba(255,27,141,0.5)'
+          textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
         }}>
-          🔒 Login Required
+          🔒 {t('review.form.loginRequired')}
         </h3>
         <p style={{
           color: '#cccccc',
           fontSize: '14px',
           lineHeight: '1.6'
         }}>
-          You need to be logged in to leave a review. Please log in or create an account to share your experience.
+          {t('review.form.loginRequiredMessage')}
         </p>
       </div>
     );
@@ -92,27 +94,27 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+      background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
       borderRadius: '15px',
       padding: '25px',
-      border: '1px solid rgba(255,27,141,0.3)',
+      border: '1px solid rgba(193, 154, 107,0.3)',
       marginTop: '20px'
     }}>
       <h3 style={{
-        color: '#FF1B8D',
+        color: '#C19A6B',
         fontSize: '20px',
         fontWeight: 'bold',
         margin: '0 0 20px 0',
-        textShadow: '0 0 10px rgba(255,27,141,0.5)'
+        textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
       }}>
-        💬 Add Comment
+        💬 {t('review.form.addComment')}
       </h3>
 
       <form onSubmit={handleSubmit}>
 
         {/* Comment Section */}
         <div style={{ marginBottom: '20px' }}>
-          <label 
+          <label
             htmlFor="comment"
             style={{
               display: 'block',
@@ -122,20 +124,20 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               marginBottom: '8px'
             }}
           >
-            Your Comment *
+            {t('review.form.yourCommentLabel')} *
           </label>
           <textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Share your experience... (minimum 10 characters)"
+            placeholder={t('review.form.commentPlaceholder')}
             disabled={isLoading}
             style={{
               width: '100%',
               minHeight: '100px',
               padding: '12px',
               borderRadius: '8px',
-              border: errors.comment ? '2px solid #ff4444' : '2px solid rgba(255,27,141,0.3)',
+              border: errors.comment ? '2px solid #ff4444' : '2px solid rgba(193, 154, 107,0.3)',
               background: 'rgba(0,0,0,0.5)',
               color: '#ffffff',
               fontSize: '14px',
@@ -146,12 +148,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             }}
             onFocus={(e) => {
               if (!errors.comment) {
-                e.target.style.borderColor = '#FF1B8D';
+                e.target.style.borderColor = '#C19A6B';
               }
             }}
             onBlur={(e) => {
               if (!errors.comment) {
-                e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
               }
             }}
           />
@@ -175,7 +177,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               fontSize: '12px',
               marginLeft: 'auto'
             }}>
-              {comment.length}/1000
+              {t('review.form.characterCount', { count: comment.length })}
             </span>
           </div>
         </div>
@@ -233,7 +235,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               }
             }}
           >
-            Cancel
+            {t('review.form.cancelButton')}
           </button>
 
           <button
@@ -241,9 +243,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             disabled={isLoading}
             style={{
               padding: '12px 24px',
-              background: isLoading 
+              background: isLoading
                 ? 'linear-gradient(45deg, #666666, #888888)'
-                : 'linear-gradient(45deg, #FF1B8D, #E91E63)',
+                : 'linear-gradient(45deg, #C19A6B, #E91E63)',
               color: 'white',
               border: 'none',
               borderRadius: '25px',
@@ -257,7 +259,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             onMouseEnter={(e) => {
               if (!isLoading) {
                 e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(255,27,141,0.4)';
+                e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.4)';
               }
             }}
             onMouseLeave={(e) => {
@@ -279,10 +281,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                   animation: 'spin 1s linear infinite',
                   marginRight: '8px'
                 }} />
-                Submitting...
+                {t('review.form.submittingButton')}
               </>
             ) : (
-              'Submit Comment'
+              t('review.form.submitButton')
             )}
           </button>
         </div>

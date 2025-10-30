@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import StarRating from '../Common/StarRating';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { logger } from '../../utils/logger';
+import '../../styles/components/user-rating.css';
 
 interface UserRatingProps {
   employeeId: string;
@@ -22,6 +24,7 @@ const UserRating: React.FC<UserRatingProps> = ({
   onRatingUpdate,
   className = ''
 }) => {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const { secureFetch } = useSecureFetch();
   const [userRating, setUserRating] = useState<UserRatingData | null>(null);
@@ -69,7 +72,7 @@ const UserRating: React.FC<UserRatingProps> = ({
 
   const handleRatingSubmit = async () => {
     if (!user || newRating < 1 || newRating > 5) {
-      setError('Please select a valid rating (1-5 stars)');
+      setError(t('userRating.errorInvalidRating'));
       return;
     }
 
@@ -110,11 +113,11 @@ const UserRating: React.FC<UserRatingProps> = ({
       } else {
         const errorData = await response.json();
         logger.debug('❌ Rating submission failed:', errorData);
-        setError(errorData.error || 'Failed to save rating');
+        setError(errorData.error || t('userRating.errorSaveFailed'));
       }
     } catch (error) {
       logger.error('Failed to submit rating:', error);
-      setError('Network error. Please try again.');
+      setError(t('userRating.errorNetworkFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +139,7 @@ const UserRating: React.FC<UserRatingProps> = ({
     return (
       <div className={`user-rating-container-nightlife ${className}`}>
         <p className="login-prompt-nightlife">
-          <a href="/auth">Log in</a> to rate this employee
+          <a href="/auth">{t('userRating.loginLink')}</a> {t('userRating.loginPrompt')}
         </p>
       </div>
     );
@@ -145,7 +148,7 @@ const UserRating: React.FC<UserRatingProps> = ({
   return (
     <div className={`user-rating-container-nightlife ${className}`}>
       <h4 className="user-rating-title-nightlife">
-        ⭐ Your Rating
+        ⭐ {t('userRating.title')}
       </h4>
 
       {/* Display existing rating */}
@@ -153,13 +156,13 @@ const UserRating: React.FC<UserRatingProps> = ({
         <div className="existing-rating-nightlife">
           <div className="rating-display">
             <StarRating rating={userRating.rating} readonly={true} size="medium" />
-            <span className="rating-value">{userRating.rating}/5</span>
+            <span className="rating-value">{t('userRating.ratingValue', { rating: userRating.rating })}</span>
           </div>
           <button
             onClick={handleEditClick}
             className="edit-rating-btn-nightlife"
           >
-            ✏️ Update Rating
+            ✏️ {t('userRating.buttonUpdateRating')}
           </button>
         </div>
       )}
@@ -169,7 +172,7 @@ const UserRating: React.FC<UserRatingProps> = ({
         <div className="rating-form-nightlife">
           <div className="rating-input-section">
             <label className="rating-label">
-              {userRating ? "Update your rating:" : "Rate this employee:"}
+              {userRating ? t('userRating.labelUpdateRating') : t('userRating.labelRateEmployee')}
             </label>
             <StarRating
               rating={newRating}
@@ -194,7 +197,7 @@ const UserRating: React.FC<UserRatingProps> = ({
                 className="cancel-rating-btn"
                 disabled={isLoading}
               >
-                Cancel
+                {t('userRating.buttonCancel')}
               </button>
             )}
             <button
@@ -202,7 +205,7 @@ const UserRating: React.FC<UserRatingProps> = ({
               disabled={isLoading || newRating < 1}
               className={`submit-rating-btn ${isLoading || newRating < 1 ? 'disabled' : ''}`}
             >
-              {isLoading ? 'Saving...' : (userRating ? 'Update Rating' : 'Submit Rating')}
+              {isLoading ? t('userRating.buttonSaving') : (userRating ? t('userRating.buttonUpdate') : t('userRating.buttonSubmit'))}
             </button>
           </div>
         </div>

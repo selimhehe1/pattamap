@@ -1,0 +1,385 @@
+/**
+ * 👤 USER DASHBOARD PAGE STYLES
+ *
+ * Styles spécifiques à la page UserDashboard:
+ * - Employee cards avec hover effects
+ * - Status cards (employed/unemployed)
+ * - Rating containers et displays
+ * - Back button avec animations
+ * - Establishment links et zone text
+ * - Header centered
+ *
+ * @uses design-system.css - Variables centralisées
+ * @wcag WCAG 2.1 Level AA/AAA
+ * @responsive Mobile-first (48rem, 30rem breakpoints)
+ * @migration Extrait de nightlife-theme.css Phase 3D (2025-01-09)
+ */
+
+/* ================================================================
+ * USER INFO DISPLAY
+ * ================================================================ */
+
+.nickname-text-nightlife {
+  font-size: var(--font-sm);
+  margin-left: var(--spacing-2);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.rating-container-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.rating-text-nightlife {
+  font-size: var(--font-2xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ================================================================
+ * STATUS CARDS
+ * ================================================================ */
+
+.status-card-nightlife {
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-3);
+  margin-bottom: var(--spacing-3-5);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.status-card-nightlife:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Status Employed */
+.status-employed-nightlife {
+  background: var(--color-secondary-10);
+  border: var(--border-width-thin) solid var(--color-secondary-30);
+  text-align: center;
+  color: var(--color-secondary);
+}
+
+/* Status Unemployed */
+.status-unemployed-nightlife {
+  background: var(--color-warning-10);
+  border: var(--border-width-thin) solid var(--color-warning-30);
+  text-align: center;
+  color: var(--color-warning);
+  font-size: var(--font-sm);
+}
+
+.status-label-nightlife {
+  font-size: var(--font-2xs);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-1-5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ================================================================
+ * ESTABLISHMENT INFO
+ * ================================================================ */
+
+.establishment-link-nightlife {
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-bold);
+  padding: var(--spacing-1) 0;
+  text-align: left;
+  width: 100%;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-in-out);
+}
+
+.establishment-link-nightlife:hover {
+  color: var(--color-primary-bright);
+  text-decoration: underline;
+}
+
+.establishment-link-nightlife:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus);
+  outline-offset: var(--spacing-1);
+  border-radius: var(--border-radius-sm);
+}
+
+.zone-text-nightlife {
+  font-size: var(--font-2xs);
+  margin-top: var(--spacing-0-5);
+  color: var(--color-text-muted);
+}
+
+/* ================================================================
+ * EMPLOYEE CARD
+ * ================================================================
+ * Card pour affichage employée dans le dashboard
+ */
+
+.employee-card-nightlife {
+  background: var(--color-surface-glass);
+  backdrop-filter: var(--backdrop-blur-md);
+  border: var(--border-width-thin) solid var(--color-border-subtle);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-4);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.employee-card-nightlife:hover {
+  transform: translateY(-0.3125rem);
+  border-color: var(--color-primary-30);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Top Border Glow Effect */
+.employee-card-nightlife::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.1875rem; /* 3px */
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-in-out);
+}
+
+.employee-card-nightlife:hover::before {
+  opacity: 1;
+}
+
+/* ================================================================
+ * NAVIGATION & LAYOUT
+ * ================================================================ */
+
+/* Back Button avec position absolute */
+.back-button-absolute-nightlife {
+  position: absolute;
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+  z-index: var(--z-interactive);
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-80),
+    var(--color-secondary-60)
+  );
+  backdrop-filter: var(--backdrop-blur-lg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-2-5) var(--spacing-4-5);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  /* WCAG tap target */
+  min-height: var(--tap-target-min);
+}
+
+.back-button-absolute-nightlife::before {
+  content: '←';
+  font-size: var(--font-base);
+  transition: transform var(--duration-normal) var(--ease-in-out);
+}
+
+.back-button-absolute-nightlife:hover {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-90),
+    var(--color-secondary-80)
+  );
+  border-color: var(--color-border-bright);
+  color: var(--color-text-inverse);
+  transform: translateY(-0.125rem) scale(1.02);
+  box-shadow: var(--shadow-lg), 0 0 var(--spacing-5) var(--color-secondary-30);
+}
+
+.back-button-absolute-nightlife:hover::before {
+  transform: translateX(-0.125rem);
+}
+
+.back-button-absolute-nightlife:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+.back-button-absolute-nightlife:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus);
+  outline-offset: var(--spacing-1);
+}
+
+/* Header Centered */
+.header-centered-nightlife {
+  text-align: center;
+  margin-top: var(--spacing-9);
+  margin-bottom: var(--spacing-6);
+}
+
+/* ================================================================
+ * BUTTON UTILITIES
+ * ================================================================ */
+
+.btn-flex-nightlife {
+  flex: 1;
+  padding: var(--spacing-2-5);
+  font-size: var(--font-xs);
+  min-height: var(--tap-target-min);
+}
+
+.btn-danger-nightlife {
+  background: linear-gradient(45deg, var(--color-error), var(--color-error-bright));
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-shadow: var(--shadow-sm);
+  min-height: var(--tap-target-min);
+}
+
+.btn-danger-nightlife:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-danger-nightlife:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-error);
+  outline-offset: var(--spacing-1);
+}
+
+.btn-danger-nightlife:active {
+  transform: scale(0.98);
+}
+
+/* ================================================================
+ * GRID LAYOUT
+ * ================================================================ */
+
+.grid-enhanced-nightlife {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 320px));
+  gap: var(--spacing-6); /* 24px gap entre cards */
+}
+
+/* ================================================================
+ * RESPONSIVE DESIGN
+ * ================================================================ */
+
+/* Mobile: max-width: 48rem (768px) */
+@media (max-width: 48rem) {
+  .grid-enhanced-nightlife {
+    grid-template-columns: 1fr; /* 1 colonne sur mobile */
+    gap: var(--spacing-4); /* 16px gap entre cards */
+  }
+
+  .employee-card-nightlife {
+    padding: var(--spacing-3);
+    margin-bottom: var(--spacing-2); /* Marge supplémentaire pour séparation claire */
+    border: 2px solid var(--border-primary); /* Bordure visible pour démarcation */
+    box-shadow: var(--shadow-md); /* Ombre prononcée pour séparation */
+  }
+
+  .back-button-absolute-nightlife {
+    top: var(--spacing-3);
+    left: var(--spacing-3);
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-xs);
+  }
+
+  .header-centered-nightlife {
+    margin-top: var(--spacing-7);
+    margin-bottom: var(--spacing-5);
+  }
+
+  .status-card-nightlife {
+    padding: var(--spacing-2-5);
+    margin-bottom: var(--spacing-3);
+  }
+}
+
+/* Small Mobile: max-width: 30rem (480px) */
+@media (max-width: 30rem) {
+  .grid-enhanced-nightlife {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur mobile */
+    gap: var(--spacing-2); /* 8px gap - Plus compact pour 2 colonnes */
+  }
+
+  .employee-card-nightlife {
+    padding: var(--spacing-2-5);
+  }
+
+  .employee-card-nightlife:hover {
+    transform: translateY(-0.125rem);
+  }
+
+  .back-button-absolute-nightlife {
+    top: var(--spacing-2);
+    left: var(--spacing-2);
+    padding: var(--spacing-1-5) var(--spacing-2-5);
+  }
+
+  .header-centered-nightlife {
+    margin-top: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .btn-flex-nightlife {
+    padding: var(--spacing-2);
+    font-size: var(--font-2xs);
+  }
+}
+
+/* ================================================================
+ * ACCESSIBILITY
+ * ================================================================ */
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .employee-card-nightlife,
+  .back-button-absolute-nightlife,
+  .status-card-nightlife,
+  .btn-danger-nightlife,
+  .establishment-link-nightlife {
+    transition: none;
+  }
+
+  .employee-card-nightlife:hover,
+  .back-button-absolute-nightlife:hover,
+  .back-button-absolute-nightlife:active,
+  .btn-danger-nightlife:hover,
+  .btn-danger-nightlife:active {
+    transform: none;
+  }
+
+  .employee-card-nightlife::before,
+  .back-button-absolute-nightlife::before {
+    transition: none;
+  }
+
+  .back-button-absolute-nightlife:hover::before {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .employee-card-nightlife,
+  .status-card-nightlife,
+  .back-button-absolute-nightlife {
+    border-width: var(--border-width-normal);
+  }
+
+  .status-employed-nightlife,
+  .status-unemployed-nightlife {
+    border-width: var(--border-width-thick);
+  }
+}

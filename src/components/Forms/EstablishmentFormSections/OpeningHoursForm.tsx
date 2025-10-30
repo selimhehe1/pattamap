@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface OpeningHoursFormProps {
   formData: {
@@ -11,6 +12,8 @@ interface OpeningHoursFormProps {
 }
 
 const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange }) => {
+  const { t } = useTranslation();
+
   return (
     <div style={{ marginBottom: '15px' }}>
       <h3 className="text-cyan-nightlife" style={{
@@ -21,13 +24,13 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
         alignItems: 'center',
         gap: '6px'
       }}>
-        🕐 Heures d'Ouverture
+        🕐 {t('establishment.openingHours.sectionTitle')}
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         <div>
           <label className="label-nightlife">
-            Heure d'ouverture
+            {t('establishment.openingHours.openLabel')}
           </label>
           <input
             type="time"
@@ -38,7 +41,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
               width: '100%',
               padding: '10px 12px',
               background: '#1a1a1a',
-              border: '2px solid rgba(255,27,141,0.3)',
+              border: '2px solid rgba(193, 154, 107,0.3)',
               borderRadius: '8px',
               fontSize: '14px',
               color: 'white',
@@ -52,7 +55,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
               e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+              e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
               e.target.style.boxShadow = 'none';
             }}
           />
@@ -60,7 +63,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
 
         <div>
           <label className="label-nightlife">
-            Heure de fermeture
+            {t('establishment.openingHours.closeLabel')}
           </label>
           <input
             type="time"
@@ -71,7 +74,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
               width: '100%',
               padding: '10px 12px',
               background: '#1a1a1a',
-              border: '2px solid rgba(255,27,141,0.3)',
+              border: '2px solid rgba(193, 154, 107,0.3)',
               borderRadius: '8px',
               fontSize: '14px',
               color: 'white',
@@ -85,7 +88,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
               e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+              e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
               e.target.style.boxShadow = 'none';
             }}
           />
@@ -102,7 +105,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(0,255,255,0.3)'
       }}>
-        💡 Conseil: La plupart des bars de Pattaya ouvrent vers 14h et ferment vers 2h du matin
+        💡 {t('establishment.openingHours.tipText')}
       </div>
     </div>
   );

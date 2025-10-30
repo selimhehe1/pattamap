@@ -22,6 +22,7 @@ const requireModeratorOrAdmin = (req: any, res: any, next: any) => {
 };
 
 // Routes publiques (authentification requise)
+// Note: csrfProtection is applied globally at mount level in server.ts (line 755)
 router.post('/', authenticateToken, createProposal);                      // Créer une proposition (tous users)
 router.get('/my', authenticateToken, getMyProposals);                     // Mes propositions (tous users)
 

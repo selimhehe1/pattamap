@@ -1,158 +1,543 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Edit,
+  Search,
+  Star,
+  Trophy,
+  Sparkles,
+  Building2,
+  Settings,
+  LogOut,
+  Rocket,
+  ChevronDown,
+  User,
+  Crown,
+  Zap,
+  BarChart3,
+  FileEdit,
+  ClipboardList,
+  Building
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useGamification } from '../../contexts/GamificationContext';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { createPreloadHandler } from '../../utils/routePreloader';
+import {
+  importSearchPage,
+  importUserDashboard,
+  importAdminPanel,
+  importMyEstablishmentsPage, // 🆕 v10.1 - Owner Dashboard preload
+  importMyOwnershipRequests, // 🆕 v10.2 - Ownership Requests preload
+  importEmployeeDashboard, // 🆕 v10.2 - Employee Dashboard preload
+  importMyAchievementsPage // 🆕 v10.3 - Gamification preload
+} from '../../routes/lazyComponents';
+import ThemeToggle from '../Common/ThemeToggle';
+import AnimatedButton from '../Common/AnimatedButton';
+import LanguageSelector from '../Common/LanguageSelector';
+import LazyImage from '../Common/LazyImage';
+import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
+import { useSidebar } from '../../contexts/SidebarContext';
+import { useMapControls } from '../../contexts/MapControlsContext';
+import '../../styles/layout/header.css';
 
 interface HeaderProps {
   onAddEmployee: () => void;
   onAddEstablishment: () => void;
   onShowLogin: () => void;
+  onEditMyProfile?: () => void; // 🆕 v10.0 - Edit employee profile
+  onShowUserInfo?: () => void; // 🆕 Show user info modal (for regular users)
 }
 
-const Header: React.FC<HeaderProps> = ({ onAddEmployee, onAddEstablishment, onShowLogin }) => {
-  const { user, logout } = useAuth();
+const Header: React.FC<HeaderProps> = ({
+  onAddEmployee,
+  onAddEstablishment,
+  onShowLogin,
+  onEditMyProfile,
+  onShowUserInfo
+}) => {
+  const { t } = useTranslation();
+  const { user, logout, linkedEmployeeProfile } = useAuth();
+  const { userProgress } = useGamification();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Detect if we're on the home page
+  const isHomePage = location.pathname === '/';
+
+  // Sidebar state from context
+  const { sidebarOpen, toggleSidebar } = useSidebar();
+
+  // Map controls from context (only used on homepage)
+  const { viewMode, setViewMode } = useMapControls();
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node) &&
+        menuButtonRef.current &&
+        !menuButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   return (
-    <header
-      role="banner"
-      aria-label="Main navigation"
-      className="header-main-nightlife">
-      {/* Section gauche avec bouton retour et titre */}
-      <div className="header-logo-section-nightlife">
-        {/* Bouton retour avec style cohérent */}
-        <button
-          onClick={() => navigate('/')}
-          aria-label="Return to home page"
-          tabIndex={0}
-          className="btn-nightlife-base btn-secondary-nightlife btn-pill-nightlife"
-          style={{ marginRight: '20px' }}
-        >
-          ← Home
-        </button>
+    <>
+      <header
+        role="banner"
+        aria-label="Main navigation"
+        className="header-modern">
+        {/* Section gauche avec bouton retour et titre */}
+        <div className="header-logo-section">
+          {/* Bouton retour - masqué sur la page d'accueil */}
+          {!isHomePage && (
+            <AnimatedButton
+              onClick={() => navigate('/')}
+              ariaLabel="Return to map page"
+              tabIndex={0}
+              enableHaptic
+              hapticLevel="light"
+              className="header-back-btn"
+            >
+              <span className="header-back-icon">←</span>
+            </AnimatedButton>
+          )}
 
-        <div>
-          <h1 className="header-title-nightlife">
-            PATTAMAP
-          </h1>
-          <p className="text-cyan-nightlife header-subtitle-nightlife">
-            🎯 Premium Nightlife • Entertainment Directory
-          </p>
+          <div className="header-branding">
+            <h1 className="header-title">
+              {t('header.title')}
+            </h1>
+            <p className="header-subtitle">
+              {t('header.subtitle')}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Navigation avec style premium */}
-      <nav role="navigation" aria-label="Main actions" className="header-nav-nightlife">
-        {/* Search Button - Always visible */}
-        <button
-          onClick={() => navigate('/search')}
-          aria-label="Search employees"
-          tabIndex={0}
-          className="btn-nightlife-base btn-secondary-nightlife btn-pill-nightlife"
-        >
-          🔍 Search
-        </button>
+        {/* Navigation moderne et épurée */}
+        <nav role="navigation" aria-label="Main actions" className="header-nav">
+          {/* Notification Bell - visible seulement pour utilisateurs connectés */}
+          {user && <NotificationBell />}
 
-        {user ? (
-          <>
-            {/* My Favorites Button */}
-            <button
-              onClick={() => navigate('/dashboard')}
-              aria-label="My favorites"
-              tabIndex={0}
-              className="btn-pill-nightlife btn-favorites-nightlife"
-            >
-              ⭐ My Favorites
-            </button>
+          {/* Map Controls - visible seulement sur homepage + desktop */}
+          {isHomePage && (
+            <div className="header-map-controls">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`header-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  aria-label={t('map.viewList')}
+                  title={t('map.viewList')}
+                  aria-current={viewMode === 'list' ? 'page' : undefined}
+                >
+                  <span className="header-view-icon" role="img" aria-hidden="true">📋</span>
+                  <span className="header-view-label">{t('map.viewList')}</span>
+                </button>
 
-            {/* Boutons d'action stylés */}
-            <button
-              onClick={onAddEmployee}
-              aria-label="Add new employee to the directory"
-              tabIndex={0}
-              className="btn-pill-nightlife btn-add-employee-nightlife"
-            >
-              ✨ Add Employee
-            </button>
-            
-            <button
-              onClick={onAddEstablishment}
-              aria-label="Add new establishment to the directory"
-              tabIndex={0}
-              className="btn-pill-nightlife btn-add-establishment-nightlife"
-            >
-              🏢 Add Establishment
-            </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`header-view-btn header-view-btn--primary ${viewMode === 'map' ? 'active' : ''}`}
+                  aria-label={t('map.viewMap')}
+                  title={t('map.viewMap')}
+                  aria-current={viewMode === 'map' ? 'page' : undefined}
+                >
+                  <span className="header-view-icon header-view-icon--large" role="img" aria-hidden="true">🗺️</span>
+                  <span className="header-view-label">{t('map.viewMap')}</span>
+                </button>
 
-            {/* Menu utilisateur premium */}
-            <div style={{ position: 'relative' }}>
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                aria-label={`User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu`}
-                aria-expanded={showUserMenu}
-                aria-haspopup="menu"
-                tabIndex={0}
-                className="btn-pill-nightlife btn-user-menu-nightlife"
+                onClick={() => setViewMode('employees')}
+                className={`header-view-btn ${viewMode === 'employees' ? 'active' : ''}`}
+                aria-label={t('map.lineup')}
+                title={t('map.lineup')}
+                aria-current={viewMode === 'employees' ? 'page' : undefined}
               >
-                👤 {user.pseudonym}
+                <span className="header-view-icon" role="img" aria-hidden="true">👥</span>
+                <span className="header-view-label">{t('map.lineup')}</span>
               </button>
+            </div>
+          )}
 
-              {showUserMenu && (
-                <div className="user-menu-dropdown-nightlife">
-                  <div className="user-info-section-nightlife">
-                    <div className="user-info-name-nightlife">
-                      {user.pseudonym}
+          {/* XP Indicator - visible seulement sur desktop */}
+          {user && userProgress && (() => {
+            // Calculate progress to next level
+            const currentLevelXP = (userProgress.current_level - 1) * 100;
+            const xpInCurrentLevel = userProgress.total_xp - currentLevelXP;
+            const xpNeededForNextLevel = userProgress.current_level * 100;
+            const progressPercentage = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+
+            return (
+              <div
+                className="header-xp-pill"
+                title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
+                onClick={() => navigate('/achievements')}
+              >
+                <span className="header-xp-level">Lvl {userProgress.current_level}</span>
+                <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
+                <div className="header-xp-progress">
+                  <div className="header-xp-progress-fill" style={{ width: `${progressPercentage}%` }} />
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Menu Button/Avatar */}
+          <AnimatedButton
+            ref={menuButtonRef}
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            ariaLabel={user ? `User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu` : showUserMenu ? 'Close menu' : 'Open menu'}
+            tabIndex={0}
+            enableHaptic
+            hapticLevel="light"
+            className="header-menu-btn"
+          >
+            <span className="header-menu-icon">{showUserMenu ? '✕' : '☰'}</span>
+          </AnimatedButton>
+
+          {/* Shared Dropdown - Accessible from hamburger button */}
+          <div style={{ position: 'relative' }} ref={userMenuRef}>
+            {showUserMenu && user && (
+                    <div className="user-menu-dropdown-modern">
+                      {/* User Info - Compact */}
+                      <div className="user-menu-header">
+                        <div
+                          className="user-menu-avatar-small"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            if (user.account_type === 'employee' && onEditMyProfile) {
+                              onEditMyProfile();
+                            } else if (onShowUserInfo) {
+                              onShowUserInfo();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={
+                            user.account_type === 'employee'
+                              ? 'Click to edit your profile'
+                              : 'Click to view your profile'
+                          }
+                        >
+                          {user.account_type === 'employee' && user.linked_employee_id && linkedEmployeeProfile?.photos?.[0] ? (
+                            <LazyImage
+                              src={linkedEmployeeProfile.photos[0]}
+                              alt={linkedEmployeeProfile.name}
+                              className="user-menu-avatar-image"
+                              objectFit="cover"
+                            />
+                          ) : (
+                            <div className="user-menu-avatar-icon">👤</div>
+                          )}
+                        </div>
+                        <div className="user-menu-info">
+                          <span className="user-menu-name">{user.pseudonym}</span>
+                          <span className="user-menu-badge">
+                            {user.role === 'admin' ? (
+                              <><Crown size={12} /> ADMIN</>
+                            ) : user.role === 'moderator' ? (
+                              <><Zap size={12} /> MOD</>
+                            ) : (
+                              <><User size={12} /> USER</>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Navigation Section */}
+                      <div className="menu-section">
+                        <div className="menu-section-label">NAVIGATION</div>
+                        <AnimatedButton
+                          ariaLabel="Search employees"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            navigate('/search');
+                          }}
+                        >
+                          <span className="menu-item-icon"><Search size={18} /></span>
+                          <span className="menu-item-text">{t('header.search')}</span>
+                        </AnimatedButton>
+
+                        <AnimatedButton
+                          ariaLabel="My favorites"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onMouseEnter={createPreloadHandler(importUserDashboard, 'UserDashboard')}
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            navigate('/dashboard');
+                          }}
+                        >
+                          <span className="menu-item-icon"><Star size={18} /></span>
+                          <span className="menu-item-text">{t('header.favorites')}</span>
+                        </AnimatedButton>
+
+                        <AnimatedButton
+                          ariaLabel="View my achievements and progress"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onMouseEnter={createPreloadHandler(importMyAchievementsPage, 'MyAchievementsPage')}
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            navigate('/achievements');
+                          }}
+                        >
+                          <span className="menu-item-icon"><Trophy size={18} /></span>
+                          <span className="menu-item-text">{t('header.achievements')}</span>
+                        </AnimatedButton>
+                      </div>
+
+                      {/* Actions Section */}
+                      <div className="menu-section">
+                        <div className="menu-section-label">ACTIONS</div>
+                        <AnimatedButton
+                          ariaLabel="Add new employee to the directory"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            onAddEmployee();
+                          }}
+                        >
+                          <span className="menu-item-icon"><Sparkles size={18} /></span>
+                          <span className="menu-item-text">{t('header.addEmployee')}</span>
+                        </AnimatedButton>
+
+                        <AnimatedButton
+                          ariaLabel="Add new establishment to the directory"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            onAddEstablishment();
+                          }}
+                        >
+                          <span className="menu-item-icon"><Building2 size={18} /></span>
+                          <span className="menu-item-text">{t('header.addEstablishment')}</span>
+                        </AnimatedButton>
+                      </div>
+
+                      {/* Admin Section */}
+                      {(user.role === 'admin' || user.role === 'moderator' || user.account_type === 'establishment_owner' || user.account_type === 'employee') && (
+                        <div className="menu-section">
+                          <div className="menu-section-label">
+                            {user.role === 'admin' || user.role === 'moderator' ? 'ADMIN' : 'MANAGEMENT'}
+                          </div>
+
+                          {(user.role === 'admin' || user.role === 'moderator') && (
+                            <AnimatedButton
+                              ariaLabel="Navigate to admin dashboard"
+                              tabIndex={0}
+                              enableHaptic
+                              hapticLevel="light"
+                              className="menu-item-modern"
+                              onMouseEnter={createPreloadHandler(importAdminPanel, 'AdminPanel')}
+                              onClick={() => {
+                                setShowUserMenu(false);
+                                navigate('/admin');
+                              }}
+                            >
+                              <span className="menu-item-icon"><Settings size={18} /></span>
+                              <span className="menu-item-text">{t('header.admin')}</span>
+                            </AnimatedButton>
+                          )}
+
+                          {user.account_type === 'establishment_owner' && (
+                            <>
+                              <AnimatedButton
+                                ariaLabel="Manage my establishments"
+                                tabIndex={0}
+                                enableHaptic
+                                hapticLevel="light"
+                                className="menu-item-modern"
+                                onMouseEnter={createPreloadHandler(importMyEstablishmentsPage, 'MyEstablishmentsPage')}
+                                onClick={() => {
+                                  setShowUserMenu(false);
+                                  navigate('/my-establishments');
+                                }}
+                              >
+                                <span className="menu-item-icon"><Building size={18} /></span>
+                                <span className="menu-item-text">{t('header.myEstablishments', 'My Establishments')}</span>
+                              </AnimatedButton>
+
+                              <AnimatedButton
+                                ariaLabel="View my ownership requests"
+                                tabIndex={0}
+                                enableHaptic
+                                hapticLevel="light"
+                                className="menu-item-modern"
+                                onMouseEnter={createPreloadHandler(importMyOwnershipRequests, 'MyOwnershipRequests')}
+                                onClick={() => {
+                                  setShowUserMenu(false);
+                                  navigate('/my-ownership-requests');
+                                }}
+                              >
+                                <span className="menu-item-icon"><ClipboardList size={18} /></span>
+                                <span className="menu-item-text">{t('header.myOwnershipRequests', 'My Ownership Requests')}</span>
+                              </AnimatedButton>
+                            </>
+                          )}
+
+                          {user.account_type === 'employee' && (
+                            <>
+                              <AnimatedButton
+                                ariaLabel="My employee dashboard"
+                                tabIndex={0}
+                                enableHaptic
+                                hapticLevel="light"
+                                className="menu-item-modern"
+                                onMouseEnter={createPreloadHandler(importEmployeeDashboard, 'EmployeeDashboard')}
+                                onClick={() => {
+                                  setShowUserMenu(false);
+                                  navigate('/employee/dashboard');
+                                }}
+                              >
+                                <span className="menu-item-icon"><BarChart3 size={18} /></span>
+                                <span className="menu-item-text">{t('header.employeeDashboard', 'My Dashboard')}</span>
+                              </AnimatedButton>
+
+                              {linkedEmployeeProfile && onEditMyProfile && (
+                                <AnimatedButton
+                                  ariaLabel="Edit my employee profile"
+                                  tabIndex={0}
+                                  enableHaptic
+                                  hapticLevel="light"
+                                  className="menu-item-modern"
+                                  onClick={() => {
+                                    setShowUserMenu(false);
+                                    onEditMyProfile();
+                                  }}
+                                >
+                                  <span className="menu-item-icon"><FileEdit size={18} /></span>
+                                  <span className="menu-item-text">{t('header.editMyProfile', 'Edit My Profile')}</span>
+                                </AnimatedButton>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Settings Section */}
+                      <div className="menu-section">
+                        <div className="menu-section-label">SETTINGS</div>
+
+                        {/* Dark Mode Toggle as Menu Item */}
+                        <div className="menu-item-wrapper">
+                          <ThemeToggle variant="menu-item" />
+                        </div>
+
+                        {/* Language Selector as Menu Item */}
+                        <div className="menu-item-wrapper">
+                          <LanguageSelector variant="menu-item" />
+                        </div>
+                      </div>
+
+                      {/* Logout Section */}
+                      <div className="menu-section menu-section-footer">
+                        <AnimatedButton
+                          ariaLabel="Logout from your account"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern menu-item-logout"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            logout();
+                          }}
+                        >
+                          <span className="menu-item-icon"><LogOut size={18} /></span>
+                          <span className="menu-item-text">{t('header.logout')}</span>
+                        </AnimatedButton>
+                      </div>
                     </div>
-                    <div className="user-info-email-nightlife">{user.email}</div>
-                    <div className="user-info-role-nightlife">
-                      Role: {user.role.toUpperCase()}
-                    </div>
-                  </div>
-                  
-                  {(user.role === 'admin' || user.role === 'moderator') && (
-                    <button
-                      aria-label="Navigate to admin dashboard"
-                      role="menuitem"
-                      tabIndex={0}
-                      className="btn-admin-menu-nightlife"
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        navigate('/admin');
-                      }}
-                    >
-                      🛠️ Admin Dashboard
-                    </button>
                   )}
-                  
-                  <button
-                    aria-label="Logout from your account"
-                    role="menuitem"
+
+            {/* Non-logged users dropdown */}
+            {showUserMenu && !user && (
+              <div className="user-menu-dropdown-modern">
+                {/* Navigation Section */}
+                <div className="menu-section">
+                  <div className="menu-section-label">NAVIGATION</div>
+                  <AnimatedButton
+                    ariaLabel="Search employees"
                     tabIndex={0}
-                    className="btn-logout-menu-nightlife"
+                    enableHaptic
+                    hapticLevel="light"
+                    className="menu-item-modern"
+                    onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
                     onClick={() => {
                       setShowUserMenu(false);
-                      logout();
+                      navigate('/search');
                     }}
                   >
-                    🚪 Logout
-                  </button>
+                    <span className="menu-item-icon"><Search size={18} /></span>
+                    <span className="menu-item-text">{t('header.search')}</span>
+                  </AnimatedButton>
                 </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <button
-            onClick={onShowLogin}
-            aria-label="Login to your account"
-            tabIndex={0}
-            className="btn-pill-nightlife btn-login-nightlife"
-          >
-            🚀 Login / Register
-          </button>
-        )}
-      </nav>
 
-    </header>
+                {/* Settings Section */}
+                <div className="menu-section">
+                  <div className="menu-section-label">SETTINGS</div>
+
+                  {/* Dark Mode Toggle as Menu Item */}
+                  <div className="menu-item-wrapper">
+                    <ThemeToggle variant="menu-item" />
+                  </div>
+
+                  {/* Language Selector as Menu Item */}
+                  <div className="menu-item-wrapper">
+                    <LanguageSelector variant="menu-item" />
+                  </div>
+                </div>
+
+                {/* Login Section */}
+                <div className="menu-section menu-section-footer">
+                  <AnimatedButton
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onShowLogin();
+                    }}
+                    ariaLabel="Login to your account"
+                    tabIndex={0}
+                    enableHaptic
+                    hapticLevel="medium"
+                    className="menu-item-modern menu-item-login"
+                  >
+                    <span className="menu-item-icon"><Rocket size={18} /></span>
+                    <span className="menu-item-text">{t('header.login')} / {t('header.register')}</span>
+                  </AnimatedButton>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
+      </header>
+    </>
   );
 };
 

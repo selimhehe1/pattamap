@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Establishment, CustomBar } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getZoneConfig } from '../../utils/zoneConfig';
+import { MAP_CONFIG } from '../../utils/constants';
 import WalkingStreetRoad from './WalkingStreetRoad';
 import DragDropIndicator from './DragDropIndicator';
+import ScreenReaderEstablishmentList from './ScreenReaderEstablishmentList';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
 import { useContainerSize } from '../../hooks/useContainerSize';
+import { useMapHeight } from '../../hooks/useMapHeight';
+import { getMapContainerStyle } from '../../utils/mapStyles';
+import LazyImage from '../Common/LazyImage';
+import { generateEstablishmentUrl } from '../../utils/slugify';
+import '../../styles/components/map-components.css';
+import '../../styles/components/maps.css';
 
 export interface Bar {
   id: string;
@@ -28,9 +37,9 @@ interface CustomWalkingStreetMapProps {
 }
 
 const TYPE_STYLES = {
-  gogo: { color: '#FF1B8D', icon: '💃', shadow: 'rgba(255, 27, 141, 0.5)' },
+  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
   beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00FFFF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
+  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
   massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
   nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
 };
@@ -176,22 +185,99 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
   const streetConfig = getStreetConfig(row);
 
   const containerWidth = containerElement ? containerElement.clientWidth : (window.innerWidth > 1200 ? 1200 : window.innerWidth - 40);
-  const containerHeight = containerElement ? containerElement.clientHeight : 600;
+  const containerHeight = containerElement ? containerElement.clientHeight : MAP_CONFIG.DEFAULT_HEIGHT;
 
   if (isMobile) {
-    // Mobile: Simple layout for now (will be improved later)
-    const totalWidth = 350, usableWidth = totalWidth * 0.9;
-    const barWidth = Math.min(40, usableWidth / zoneConfig.maxCols - 4);
-    const spacing = (usableWidth - (zoneConfig.maxCols * barWidth)) / (zoneConfig.maxCols + 1);
-    const x = spacing + (col - 1) * (barWidth + spacing);
+    // MOBILE: Vertical Walking Street + Horizontal perpendicular streets
+    // Same proportions as desktop but rotated 90°
 
-    const topMargin = containerHeight * 0.15;
-    const bottomMargin = containerHeight * 0.15;
-    const usableHeight = containerHeight - topMargin - bottomMargin;
-    const rowHeight = usableHeight / zoneConfig.maxRows;
-    const y = topMargin + (row - 1) * rowHeight;
+    const centerX = containerWidth * 0.5;
+    const mainRoadWidth = 80;
+    const barWidth = 35;
 
-    return { x, y, barWidth };
+    if (streetConfig.type === 'main') {
+      // Main Walking Street (Rows 1-2): Along vertical center road
+      const offsetFromCenter = 50;
+      const x = streetConfig.wsSide === 'north'
+        ? centerX - offsetFromCenter
+        : centerX + offsetFromCenter;
+
+      // Distribute establishments vertically
+      const topMargin = 60;
+      const bottomMargin = 60;
+      const usableHeight = containerHeight - topMargin - bottomMargin;
+      const spacing = usableHeight / (zoneConfig.maxCols + 1);
+      const y = topMargin + col * spacing;
+
+      return { x, y, barWidth };
+
+    } else {
+      // Perpendicular streets (Rows 3+): Along horizontal streets
+      // Map street names to Y positions (matching Canvas)
+      const streetYPositions: { [key: string]: number } = {
+        'Diamond': 0.12,
+        'Republic': 0.22,
+        'Myst': 0.28,
+        'Soi 15': 0.52,
+        'Soi 16': 0.68,
+        'BJ Alley': 0.82
+      };
+
+      const streetY = containerHeight * (streetYPositions[streetConfig.street!] || 0.5);
+
+      // Offset from street based on side
+      const streetWidths: { [key: string]: number } = {
+        'Diamond': 35,
+        'Republic': 12,
+        'Myst': 6,
+        'Soi 15': 35,
+        'Soi 16': 35,
+        'BJ Alley': 25
+      };
+
+      const roadWidth = streetWidths[streetConfig.street!] || 35;
+      const sideOffset = (roadWidth / 2) + 12;
+
+      // west=above, east=below (horizontal streets)
+      const y = streetConfig.side === 'west' ? streetY - sideOffset : streetY + sideOffset;
+
+      // Distribute establishments horizontally along the street
+      // Right side only (stops at Walking Street)
+      const leftBoundary = centerX + mainRoadWidth/2 + 10;
+      const rightMargin = 20;
+      const usableWidth = containerWidth - rightMargin - leftBoundary;
+
+      // Street groups from desktop
+      const streetGroups: { [key: string]: { startRow: number; count: number } } = {
+        'Diamond': { startRow: 3, count: 6 },
+        'Republic': { startRow: 9, count: 2 },
+        'Myst': { startRow: 11, count: 2 },
+        'Soi 15': { startRow: 13, count: 6 },
+        'Soi 16': { startRow: 19, count: 6 },
+        'BJ Alley': { startRow: 25, count: 6 }
+      };
+
+      const group = streetGroups[streetConfig.street!];
+      if (!group) return { x: 100, y: 100, barWidth };
+
+      const indexInStreet = row - group.startRow;
+
+      // Special cases
+      if (streetConfig.street === 'Republic' || streetConfig.street === 'Myst') {
+        // Stacked horizontally
+        const spacing = usableWidth / (group.count + 1);
+        const x = leftBoundary + (indexInStreet + 1) * spacing;
+        return { x, y, barWidth };
+      } else {
+        // Face-to-face pairs
+        const pairIndex = Math.floor(indexInStreet / 2);
+        const numPairs = Math.ceil(group.count / 2);
+        const spacing = usableWidth / (numPairs + 1);
+        const x = leftBoundary + (pairIndex + 1) * spacing;
+
+        return { x, y, barWidth };
+      }
+    }
   }
 
   // DESKTOP: Use street-based positioning
@@ -292,14 +378,21 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
 
 const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // ✅ RESPONSIVE: Use custom hook for mobile detection and dynamic screen height
+  const { isMobile, screenHeight } = useMapHeight();
+
+  // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
+  const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
+  const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // Monitor container size changes to recalculate positions
-  const containerDimensions = useContainerSize(containerRef, 150);
+  // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
+  const containerDimensions = useContainerSize(containerRef, 300);
 
   // Drag and drop states
   const [isLoading, setIsLoading] = useState(false);
@@ -317,11 +410,33 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
   // Throttle reference
   const throttleTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Orientation detection (for landscape responsive design)
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+
+    const handleOrientationChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      // Orientation change detected - CSS media queries will handle styling
+      logger.debug('Orientation changed', {
+        isPortrait: e.matches,
+        isLandscape: !e.matches
+      });
+    };
+
+    // Initial check
+    handleOrientationChange(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleOrientationChange);
+
+    // Also listen for orientationchange event (for iOS Safari)
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => handleOrientationChange(mediaQuery), 100);
+    });
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleOrientationChange);
+      window.removeEventListener('orientationchange', () => handleOrientationChange(mediaQuery));
+    };
   }, []);
 
   const allBars = useMemo(() => {
@@ -390,7 +505,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     } else if (onBarClick) {
       onBarClick({ id: bar.id, name: bar.name, type: bar.type, position: bar.position, color: bar.color });
     } else {
-      navigate(`/bar/${bar.id}`);
+      navigate(generateEstablishmentUrl(bar.id, bar.name, establishment?.zone || 'walkingstreet'));
     }
   }, [establishments, onEstablishmentClick, onBarClick, navigate, isEditMode]);
 
@@ -400,26 +515,27 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     const yPercent = (relativeY / containerHeight) * 100;
 
     if (isMobile) {
-      // Mobile: Vertical CentralRoad + 7 horizontal intersections
-      // CentralRoad vertical (x: 48%-52%)
+      // Mobile: Vertical road (x: 48%-52%)
       if (xPercent >= 48 && xPercent <= 52) {
         return true;
       }
 
-      // 7 horizontal Sois cutting through Walking Street
-      const horizontalIntersections = [
-        { name: 'Soi JP', y: 10 },
-        { name: 'Soi VC', y: 22 },
-        { name: 'Soi 16', y: 30 },
-        { name: 'Soi 15', y: 45 },
-        { name: 'Soi Marine', y: 60 },
-        { name: 'Soi Diamond', y: 75 },
-        { name: 'Soi 13', y: 90 }
+      // Perpendicular horizontal streets (RIGHT SIDE ONLY - same Y positions as Canvas)
+      const perpendicularStreets = [
+        { y: 12, tolerance: 2 },  // Diamond
+        { y: 22, tolerance: 1 },  // Republic
+        { y: 28, tolerance: 0.5 }, // Myst
+        { y: 52, tolerance: 2 },  // Soi 15
+        { y: 68, tolerance: 2 },  // Soi 16
+        { y: 82, tolerance: 1.5 } // BJ Alley
       ];
 
-      for (const intersection of horizontalIntersections) {
-        if (yPercent >= intersection.y - 2 && yPercent <= intersection.y + 2) {
-          return true;
+      for (const street of perpendicularStreets) {
+        if (Math.abs(yPercent - street.y) <= street.tolerance) {
+          // Only block if on RIGHT side (stops at Walking Street)
+          if (xPercent >= 52) {
+            return true;
+          }
         }
       }
     } else {
@@ -463,22 +579,69 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     if (establishment?.logo_url) {
       return (
         <div className="map-logo-container-nightlife">
-          <img src={establishment.logo_url} alt={establishment.name} className="map-logo-image-nightlife"
-            onError={(e) => {
-              const target = e.target as HTMLElement;
-              target.style.display = 'none';
-              if (target.parentElement) {
-                target.parentElement.textContent = fallbackIcon;
-                target.parentElement.style.background = 'transparent';
-                target.parentElement.style.fontSize = '16px';
-              }
-            }}
+          <LazyImage
+            src={establishment.logo_url}
+            alt={establishment.name}
+            cloudinaryPreset="establishmentLogo"
+            className="map-logo-image-nightlife"
+            objectFit="contain"
           />
         </div>
       );
     }
     return fallbackIcon;
   }, []);
+
+  // ✅ KEYBOARD NAVIGATION: Arrow key handler for navigating between establishments (30-row complex grid)
+  const handleKeyboardNavigation = useCallback((e: React.KeyboardEvent) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+    if (isEditMode || allBars.length === 0) return;
+    e.preventDefault();
+
+    let currentIndex = focusedBarIndex;
+    if (currentIndex === -1 || currentIndex >= allBars.length) {
+      currentIndex = 0;
+      setFocusedBarIndex(0);
+      barRefs.current.get(allBars[0].id)?.focus();
+      return;
+    }
+
+    const currentBar = allBars[currentIndex];
+    const currentRow = currentBar.grid_row || 1;
+    const currentCol = currentBar.grid_col || 1;
+    let targetBar: Bar | null = null;
+
+    switch (e.key) {
+      case 'ArrowRight':
+        targetBar = allBars.filter(b => b.grid_row === currentRow && (b.grid_col || 1) > currentCol).sort((a, b) => (a.grid_col || 1) - (b.grid_col || 1))[0] || null;
+        break;
+      case 'ArrowLeft':
+        targetBar = allBars.filter(b => b.grid_row === currentRow && (b.grid_col || 1) < currentCol).sort((a, b) => (b.grid_col || 1) - (a.grid_col || 1))[0] || null;
+        break;
+      case 'ArrowUp':
+        targetBar = allBars.filter(b => (b.grid_row || 1) < currentRow).sort((a, b) => {
+          const rowDiff = (b.grid_row || 1) - (a.grid_row || 1);
+          if (rowDiff !== 0) return rowDiff;
+          return Math.abs((a.grid_col || 1) - currentCol) - Math.abs((b.grid_col || 1) - currentCol);
+        })[0] || null;
+        break;
+      case 'ArrowDown':
+        targetBar = allBars.filter(b => (b.grid_row || 1) > currentRow).sort((a, b) => {
+          const rowDiff = (a.grid_row || 1) - (b.grid_row || 1);
+          if (rowDiff !== 0) return rowDiff;
+          return Math.abs((a.grid_col || 1) - currentCol) - Math.abs((b.grid_col || 1) - currentCol);
+        })[0] || null;
+        break;
+    }
+
+    if (targetBar) {
+      const targetIndex = allBars.findIndex(b => b.id === targetBar.id);
+      if (targetIndex !== -1) {
+        setFocusedBarIndex(targetIndex);
+        barRefs.current.get(targetBar.id)?.focus();
+      }
+    }
+  }, [allBars, focusedBarIndex, isEditMode]);
 
   // Find bar at specific grid position
   const findBarAtPosition = useCallback((row: number, col: number): Bar | null => {
@@ -500,37 +663,115 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     return null;
   }, [allBars, establishments]);
 
-  // Convert mouse position to grid position with NEW STREET-BASED DETECTION
-  const getGridFromMousePosition = useCallback((event: React.DragEvent) => {
+  // ✅ TOUCH SUPPORT: Extract coordinates from both drag and touch events
+  const getEventCoordinates = (event: React.DragEvent | React.TouchEvent): { clientX: number; clientY: number } | null => {
+    if ('touches' in event && event.touches.length > 0) {
+      return {
+        clientX: event.touches[0].clientX,
+        clientY: event.touches[0].clientY
+      };
+    } else if ('clientX' in event) {
+      return {
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+    }
+    return null;
+  };
+
+  // Convert mouse/touch position to grid position with NEW STREET-BASED DETECTION
+  const getGridFromMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return null;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return null;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     const containerWidth = rect.width;
     const containerHeight = rect.height;
     const zoneConfig = getZoneConfig('walkingstreet');
 
     if (isMobile) {
-      // Mobile: Simple layout (à améliorer plus tard)
-      const totalWidth = 350, usableWidth = totalWidth * 0.9;
-      const barWidth = Math.min(40, usableWidth / zoneConfig.maxCols - 4);
-      const spacing = (usableWidth - (zoneConfig.maxCols * barWidth)) / (zoneConfig.maxCols + 1);
+      // MOBILE: Vertical Walking Street + Horizontal perpendicular streets
+      const centerX = containerWidth * 0.5;
+      const mainRoadWidth = 80;
+      const yPercent = (relativeY / containerHeight) * 100;
 
-      let col = 1;
-      for (let testCol = 1; testCol <= zoneConfig.maxCols; testCol++) {
-        const barCenterX = spacing + (testCol - 1) * (barWidth + spacing);
-        if (Math.abs(relativeX - barCenterX) < barWidth / 2) {
-          col = testCol;
-          break;
+      // Check perpendicular streets first
+      const perpendicularStreets = [
+        { name: 'Diamond', y: 12, tolerance: 2, rowStart: 3, count: 6 },
+        { name: 'Republic', y: 22, tolerance: 1, rowStart: 9, count: 2 },
+        { name: 'Myst', y: 28, tolerance: 0.5, rowStart: 11, count: 2 },
+        { name: 'Soi 15', y: 52, tolerance: 2, rowStart: 13, count: 6 },
+        { name: 'Soi 16', y: 68, tolerance: 2, rowStart: 19, count: 6 },
+        { name: 'BJ Alley', y: 82, tolerance: 1.5, rowStart: 25, count: 6 }
+      ];
+
+      for (const street of perpendicularStreets) {
+        if (Math.abs(yPercent - street.y) <= street.tolerance) {
+          // On a perpendicular street!
+          // Check if right side only (streets don't extend to the left)
+          if (relativeX <= centerX + mainRoadWidth/2) {
+            return null; // On road or left side (no street there)
+          }
+
+          // Determine side (west=above, east=below)
+          const streetY = containerHeight * (street.y / 100);
+          const side: 'west' | 'east' = relativeY < streetY ? 'west' : 'east';
+
+          // Special: Republic and Myst are east-only
+          if ((street.name === 'Republic' || street.name === 'Myst') && side === 'west') {
+            return null;
+          }
+
+          // Find horizontal position
+          const leftBoundary = centerX + mainRoadWidth/2 + 10;
+          const rightMargin = 20;
+          const usableWidth = containerWidth - rightMargin - leftBoundary;
+
+          let row: number;
+          if (street.name === 'Republic' || street.name === 'Myst') {
+            // Stacked
+            const spacing = usableWidth / (street.count + 1);
+            const clickIndex = Math.floor((relativeX - leftBoundary) / spacing);
+            const indexInStreet = Math.max(0, Math.min(street.count - 1, clickIndex));
+            row = street.rowStart + indexInStreet;
+          } else {
+            // Face-to-face
+            const numPairs = Math.ceil(street.count / 2);
+            const spacing = usableWidth / (numPairs + 1);
+            const clickPair = Math.floor((relativeX - leftBoundary) / spacing);
+            const pairIndex = Math.max(0, Math.min(numPairs - 1, clickPair));
+            const indexInStreet = pairIndex * 2 + (side === 'west' ? 0 : 1);
+            row = street.rowStart + indexInStreet;
+          }
+
+          return { row, col: 1 };
         }
       }
 
-      const topMargin = containerHeight * 0.15;
-      const usableHeight = containerHeight * 0.70;
-      const rowHeight = usableHeight / zoneConfig.maxRows;
-      const row = Math.max(1, Math.min(zoneConfig.maxRows, Math.floor((relativeY - topMargin) / rowHeight) + 1));
+      // Not on perpendicular street, check main Walking Street
+      if (relativeX >= centerX - mainRoadWidth/2 && relativeX <= centerX + mainRoadWidth/2) {
+        return null; // On the road
+      }
+
+      // Main Walking Street (rows 1-2)
+      const row = relativeX < centerX ? 1 : 2; // north=left=1, south=right=2
+
+      // Calculate column from Y position
+      const topMargin = 60;
+      const bottomMargin = 60;
+      const usableHeight = containerHeight - topMargin - bottomMargin;
+      const spacing = usableHeight / (zoneConfig.maxCols + 1);
+
+      if (relativeY < topMargin || relativeY > containerHeight - bottomMargin) {
+        return null;
+      }
+
+      const col = Math.max(1, Math.min(zoneConfig.maxCols, Math.floor((relativeY - topMargin) / spacing) + 1));
 
       return { row, col };
     }
@@ -695,12 +936,15 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
   }, [isMobile, containerRef]);
 
   // Throttled version of handleDragOver for performance
-  const updateMousePosition = useCallback((event: React.DragEvent) => {
+  const updateMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     // Update mouse position immediately for smooth tracking
     setMousePosition({ x: relativeX, y: relativeY });
@@ -774,6 +1018,214 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     setDropAction(null);
     setMousePosition(null);
   }, []);
+
+  // ✅ TOUCH SUPPORT: Touch event handlers for mobile/tablet drag&drop
+  const handleTouchStart = useCallback((bar: Bar, event: React.TouchEvent) => {
+    const now = Date.now();
+
+    // STRICT CHECK: Block if locked OR loading
+    if (!isEditMode || isLoading || now < operationLockUntil) {
+      return;
+    }
+
+    // Haptic feedback for touch start
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Short 10ms vibration
+    }
+
+    setDraggedBar(bar);
+    setIsDragging(true);
+  }, [isEditMode, isLoading, operationLockUntil]);
+
+  const handleTouchMove = useCallback((event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !draggedBar || !containerRef.current) return;
+
+    updateMousePosition(event);
+  }, [isEditMode, isDragging, draggedBar, updateMousePosition]);
+
+  const handleTouchEnd = useCallback(async (event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !dragOverPosition || !draggedBar || dropAction === 'blocked') {
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      return;
+    }
+
+    event.preventDefault();
+
+    // Haptic feedback for successful drop
+    if (navigator.vibrate) {
+      navigator.vibrate([20, 10, 20]); // Double vibration pattern
+    }
+
+    const { row, col } = dragOverPosition;
+
+    // RE-CHECK position at drop time
+    const conflictBar = findBarAtPosition(row, col);
+
+    // Determine action: move to empty or swap with existing
+    const actualAction = conflictBar ? 'swap' : 'move';
+
+    // Get original position of dragged establishment
+    const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+    const originalPosition = draggedEstablishment ? {
+      row: draggedEstablishment.grid_row,
+      col: draggedEstablishment.grid_col
+    } : null;
+
+    // Safety check: If trying to drop on same position, cancel
+    if (originalPosition && originalPosition.row === row && originalPosition.col === col) {
+      logger.warn('⚠️ Dropping on same position, cancelling');
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+      return;
+    }
+
+    // Add timeout safety measure for loading state (10 seconds)
+    const loadingTimeout = setTimeout(() => {
+      logger.warn('⚠️ Loading timeout - resetting states');
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+    }, 10000);
+
+    try {
+      setIsLoading(true);
+
+      if (actualAction === 'move') {
+        // Simple move to empty position
+        const establishment = establishments.find(est => est.id === draggedBar.id);
+
+        if (establishment) {
+          // OPTIMISTIC UI: Store temporary position IMMEDIATELY for instant feedback
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(establishment.id, { row, col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: establishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'walkingstreet'
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Position updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Move failed', { status: response.status, error: errorText });
+
+            // OPTIMISTIC UI: Clear failed position (automatic rollback)
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(establishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            toast.error(`Move failed: ${response.status} ${response.statusText}`);
+          }
+        }
+
+      } else if (actualAction === 'swap' && conflictBar) {
+        // Swap positions between two bars
+        const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+        const conflictEstablishment = establishments.find(est => est.id === conflictBar.id);
+
+        if (draggedEstablishment && conflictEstablishment) {
+          const draggedOriginalPos = {
+            row: draggedEstablishment.grid_row || 1,
+            col: draggedEstablishment.grid_col || 1
+          };
+
+          // OPTIMISTIC UI: Store BOTH swapped positions immediately for instant feedback
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(draggedEstablishment.id, { row, col });
+            newMap.set(conflictEstablishment.id, {
+              row: draggedOriginalPos.row,
+              col: draggedOriginalPos.col
+            });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: draggedEstablishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'walkingstreet',
+            swap_with_id: conflictEstablishment.id
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Swap updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            const errorText = await response.text();
+            logger.error('Atomic swap failed', { status: response.status, error: errorText });
+
+            // OPTIMISTIC UI: Clear both failed positions (automatic rollback)
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(draggedEstablishment.id);
+              newMap.delete(conflictEstablishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            toast.error(`Swap failed: ${response.status} ${response.statusText}`);
+          }
+        }
+      }
+
+    } catch (error) {
+      logger.error('Touch drop operation error', error);
+    } finally {
+      clearTimeout(loadingTimeout);
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+    }
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments]);
 
   // Handle drop
   const handleDrop = useCallback(async (event: React.DragEvent) => {
@@ -850,6 +1302,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -874,7 +1327,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             });
             setWaitingForDataUpdate(false);
 
-            alert(`❌ Move failed: ${response.status} ${response.statusText}`);
+            toast.error(`Move failed: ${response.status} ${response.statusText}`);
           }
         }
 
@@ -912,6 +1365,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -937,13 +1391,13 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             });
             setWaitingForDataUpdate(false);
 
-            alert(`❌ Swap failed: ${response.status} ${response.statusText}`);
+            toast.error(`Swap failed: ${response.status} ${response.statusText}`);
           }
         }
       }
     } catch (error) {
       logger.error('Drop operation failed', error);
-      alert(`❌ Operation failed: ${error}`);
+      toast.error(`Operation failed: ${error}`);
     } finally {
       clearTimeout(loadingTimeout);
       setIsLoading(false);
@@ -1050,21 +1504,42 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
       className={`map-container-nightlife ${isEditMode ? 'edit-mode' : ''}`}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      style={{
-        position: 'relative', width: '100%',
-        background: 'linear-gradient(135deg, rgba(255,0,64,0.3) 0%, rgba(220,20,60,0.4) 50%, rgba(139,0,0,0.3) 100%), linear-gradient(135deg, rgba(13,0,25,0.95), rgba(26,0,51,0.95))',
-        overflow: 'hidden'
-      }}
+      onKeyDown={handleKeyboardNavigation}
+      role="region"
+      aria-label="Interactive map of Walking Street establishments"
+      aria-describedby="walkingstreet-map-description"
+      style={getMapContainerStyle(
+        isMobile,
+        screenHeight,
+        'linear-gradient(135deg, rgba(255,0,64,0.3) 0%, rgba(220,20,60,0.4) 50%, rgba(139,0,0,0.3) 100%), linear-gradient(135deg, rgba(13,0,25,0.95), rgba(26,0,51,0.95))'
+      )}
     >
+      {/* Screen Reader Accessible Description */}
+      <p id="walkingstreet-map-description" className="sr-only">
+        Interactive map displaying {allBars.length} establishments in Walking Street.
+        {isEditMode ? ' Edit mode active: drag establishments to reposition them.' : ' Click on establishments to view details.'}
+        For keyboard navigation, press Tab to focus establishments, then use Arrow keys to navigate between them, Enter or Space to select.
+      </p>
+
+      {/* Screen Reader Only Establishment List */}
+      <ScreenReaderEstablishmentList
+        establishments={establishments}
+        zone="walkingstreet"
+        onEstablishmentSelect={(est) => onEstablishmentClick?.(est)}
+      />
       {isAdmin && (
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20 }}>
-          <button onClick={() => setIsEditMode(!isEditMode)}
+          <button
+            onClick={() => setIsEditMode(!isEditMode)}
+            aria-label={isEditMode ? 'Exit edit mode and save changes' : 'Enter edit mode to reposition establishments'}
+            aria-pressed={isEditMode}
             style={{
               background: isEditMode ? 'linear-gradient(135deg, #FF6B6B, #FF8E53)' : 'linear-gradient(135deg, #4ECDC4, #44A08D)',
               color: 'white', border: 'none', padding: '8px 16px', borderRadius: '20px',
               fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-            }}>
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            }}
+          >
+            {isEditMode ? (<>🔒<span className="edit-mode-text"> Exit Edit</span></>) : (<>✏️<span className="edit-mode-text"> Edit Mode</span></>)}
           </button>
         </div>
       )}
@@ -1083,79 +1558,83 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
       {/* GRID DEBUG VISUALIZATION - Shows all grid positions with dynamic offsets */}
       {renderGridDebug()}
 
-      {/* Directional Labels - Responsive */}
-      {!isMobile ? (
-        <>
-          {/* Desktop - Horizontal orientation */}
-          <div style={{
-            position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
-            color: '#FFD700', fontSize: '14px', fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.6)', zIndex: 14,
-            pointerEvents: 'none', background: 'rgba(0,0,0,0.4)', padding: '4px 10px',
-            borderRadius: '8px'
-          }}>
-            ↑ NORTH (Inland/Second Road)
-          </div>
-
-          <div style={{
-            position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)',
-            color: '#FFD700', fontSize: '14px', fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.6)', zIndex: 14,
-            pointerEvents: 'none', background: 'rgba(0,0,0,0.4)', padding: '4px 10px',
-            borderRadius: '8px'
-          }}>
-            ↓ SOUTH (Beach Road/Sea 🌊)
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Mobile - Vertical orientation */}
-          <div style={{
-            position: 'absolute', top: '50px', left: '50%', transform: 'translateX(-50%)',
-            color: '#FFD700', fontSize: '12px', fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.6)', zIndex: 14,
-            pointerEvents: 'none', background: 'rgba(0,0,0,0.4)', padding: '4px 10px',
-            borderRadius: '8px'
-          }}>
-            ↑ NORTH (South Pattaya Rd)
-          </div>
-
-          <div style={{
-            position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)',
-            color: '#FFD700', fontSize: '12px', fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.6)', zIndex: 14,
-            pointerEvents: 'none', background: 'rgba(0,0,0,0.4)', padding: '4px 10px',
-            borderRadius: '8px'
-          }}>
-            ↓ SOUTH (Bali Hai Pier 🌊)
-          </div>
-        </>
-      )}
-
-      {allBars.map((bar) => {
+      {allBars.map((bar, index) => {
         const isSelected = selectedEstablishment === bar.id;
         const isHovered = hoveredBar === bar.id;
         const isBeingDragged = isDragging && draggedBar?.id === bar.id;
+
+        // Get establishment details for aria-label
+        const establishment = establishments.find(est => est.id === bar.id);
+        const categoryName = establishment?.category_id === 2 ? 'GoGo Bar'
+          : establishment?.category_id === 1 ? 'Bar'
+          : establishment?.category_id === 3 ? 'Massage Salon'
+          : establishment?.category_id === 4 ? 'Nightclub'
+          : 'Establishment';
+
+        // 🆕 v10.3 Phase 5 - VIP Status Check
+        const isVIP = establishment?.is_vip && establishment?.vip_expires_at &&
+          new Date(establishment.vip_expires_at) > new Date();
+
+        const ariaLabel = `${bar.name}, ${categoryName}${isVIP ? ', VIP establishment' : ''}, click to view details`;
+
+        // 🆕 v10.3 Ultra Premium - VIP establishments are larger (responsive)
+        // Desktop: +35%, Tablet: +25%, Mobile: +15%
+        const vipSizeMultiplier = window.innerWidth < 480 ? 1.15
+                                : window.innerWidth < 768 ? 1.25
+                                : 1.35;
+        const vipBarSize = Math.round(currentBarSize * vipSizeMultiplier);
+        const finalBarSize = isVIP ? vipBarSize : currentBarSize;
+
         return (
           <div key={bar.id}
+            ref={(el) => {
+              if (el) {
+                barRefs.current.set(bar.id, el);
+              } else {
+                barRefs.current.delete(bar.id);
+              }
+            }}
+            className={isVIP ? 'vip-establishment-marker' : ''}
+            role="button"
+            tabIndex={0}
+            aria-label={ariaLabel}
+            aria-pressed={isSelected}
+            aria-describedby={isHovered ? `tooltip-ws-${bar.id}` : undefined}
             onClick={() => handleBarClick(bar)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBarClick(bar);
+              }
+            }}
             onMouseEnter={() => setHoveredBar(bar.id)}
             onMouseLeave={() => setHoveredBar(null)}
+            onFocus={() => {
+              setHoveredBar(bar.id);
+              setFocusedBarIndex(index);
+            }}
+            onBlur={() => setHoveredBar(null)}
             draggable={!!(isEditMode && isAdmin && !isLoading)}
             onDragStart={(e) => handleDragStart(bar, e)}
             onDragEnd={handleDragEnd}
+            onTouchStart={isEditMode && isAdmin && !isLoading ? (e) => handleTouchStart(bar, e) : undefined}
+            onTouchMove={isEditMode && isAdmin && !isLoading ? handleTouchMove : undefined}
+            onTouchEnd={isEditMode && isAdmin && !isLoading ? handleTouchEnd : undefined}
             style={{
+              touchAction: isEditMode ? 'none' : 'auto',
               position: 'absolute',
-              left: `${bar.position.x - currentBarSize/2}px`,
-              top: `${bar.position.y - currentBarSize/2}px`,
-              width: `${currentBarSize}px`, height: `${currentBarSize}px`, borderRadius: '50%',
+              left: `${bar.position.x - finalBarSize/2}px`,
+              top: `${bar.position.y - finalBarSize/2}px`,
+              width: `${finalBarSize}px`, height: `${finalBarSize}px`, borderRadius: '50%',
               background: `radial-gradient(circle at 30% 30%, ${bar.color}FF, ${bar.color}DD 60%, ${bar.color}AA 100%)`,
-              border: isSelected ? '3px solid #FFD700' : isEditMode ? '2px solid #00FF00' : '2px solid rgba(255,255,255,0.6)',
+              border: isVIP ? '5px solid #FFD700' : isSelected ? '3px solid #FFD700' : isEditMode ? '2px solid #00FF00' : '2px solid rgba(255,255,255,0.6)',
               cursor: isLoading ? 'not-allowed' : isEditMode ? (isBeingDragged ? 'grabbing' : 'grab') : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '16px', transform: isHovered && !isBeingDragged ? 'scale(1.2)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              boxShadow: isHovered
+              transition: isVIP ? 'none' : 'all 0.3s ease',
+              boxShadow: isVIP
+                ? undefined  // CSS animation handles VIP glow
+                : isHovered
                 ? `0 0 25px ${TYPE_STYLES[bar.type].shadow}`
                 : isEditMode
                   ? '0 0 15px rgba(0,255,0,0.5)'
@@ -1165,13 +1644,39 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             }}
           >
             {getEstablishmentIcon(bar.id, establishments, bar.icon)}
+
+            {/* 🆕 v10.3 Phase 5 - VIP Ultra Premium Effects */}
+            {isVIP && (
+              <div
+                className="vip-crown"
+                style={{
+                  position: 'absolute',
+                  top: '-35px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 5,
+                  pointerEvents: 'none'
+                }}
+                title={`VIP until ${new Date(establishment.vip_expires_at!).toLocaleDateString()}`}
+              >
+                👑
+              </div>
+            )}
+            {isVIP && (
+              <div className="vip-badge">VIP</div>
+            )}
+
             {isHovered && (
-              <div style={{
-                position: 'absolute', bottom: '45px', left: '50%', transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.9)', color: '#fff', padding: '5px 10px',
-                borderRadius: '5px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap',
-                zIndex: 20, border: '1px solid #FF0040'
-              }}>
+              <div
+                id={`tooltip-ws-${bar.id}`}
+                role="tooltip"
+                style={{
+                  position: 'absolute', bottom: '45px', left: '50%', transform: 'translateX(-50%)',
+                  background: 'rgba(0,0,0,0.9)', color: '#fff', padding: '5px 10px',
+                  borderRadius: '5px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap',
+                  zIndex: 20, border: '1px solid #FF0040'
+                }}
+              >
                 {bar.name}
               </div>
             )}
@@ -1189,6 +1694,46 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
         dragOverPosition={dragOverPosition}
         currentBarSize={currentBarSize}
       />
+
+      {/* Accessibility Styles */}
+      <style>{`
+        /* Focus visible for keyboard navigation */
+        [role="button"]:focus {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+          box-shadow:
+            0 0 25px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        [role="button"]:focus-visible {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+        }
+
+        /* Screen reader only class */
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+
+        @keyframes vipPulse {
+          0%, 100% {
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+          }
+        }
+      `}</style>
     </div>
   );
 };

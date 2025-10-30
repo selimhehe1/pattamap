@@ -1,0 +1,306 @@
+/**
+ * 📐 PAGE LAYOUT COMPONENTS
+ *
+ * Classes de layout pour pages:
+ * - Background gradients
+ * - Page containers avec max-width
+ * - Grid containers pour listes
+ * - Loading states
+ * - Empty states
+ *
+ * @uses design-system.css - Variables centralisées
+ * @uses page.css - Page content compensation header fixe
+ * @wcag WCAG 2.1 Level AA/AAA
+ * @responsive Mobile-first (48rem, 30rem, 23.4375rem breakpoints)
+ * @migration Extrait de nightlife-theme.css Phase 3D (2025-01-09)
+ */
+
+/* Import page.css pour compensation header fixe */
+@import './page.css';
+
+/* ================================================================
+ * BACKGROUND GRADIENTS
+ * ================================================================
+ * Backgrounds avec gradients nightlife pour pages complètes
+ */
+
+.bg-nightlife-gradient-main {
+  background: var(--gradient-main); /* Utilise le gradient centralisé du design system */
+  min-height: calc(100vh - var(--spacing-15));
+}
+
+/* ================================================================
+ * PAGE CONTAINERS
+ * ================================================================
+ * Containers principaux pour contenu de page avec max-width
+ */
+
+.page-container-nightlife {
+  padding: var(--padding-page-desktop); /* Responsive: 2rem desktop */
+  color: var(--color-text-primary);
+  width: 100%;
+  /* max-width supprimé pour full-width responsive */
+  margin: 0 auto;
+}
+
+.page-header-nightlife {
+  margin-bottom: var(--spacing-7);
+}
+
+/* ================================================================
+ * GRID CONTAINERS - Premium Responsive System
+ * ================================================================
+ * Grilles professionnelles pour listes de cards (employees, establishments, etc.)
+ * Desktop XL (>1400px) : 4 colonnes
+ * Desktop (1200-1400px) : 4 colonnes
+ * Desktop SM (992-1200px) : 3 colonnes
+ * Tablet (768-992px) : 3 colonnes
+ * Tablet SM (576-768px) : 2 colonnes
+ * Mobile (<576px) : 1 colonne
+ */
+
+.grid-container-nightlife {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 colonnes desktop par défaut */
+  gap: var(--grid-gap-desktop); /* 24px espacement premium */
+  width: 100%;
+}
+
+/* ================================================================
+ * STATE CONTAINERS
+ * ================================================================
+ * Loading et empty states pour feedback utilisateur
+ */
+
+/* Loading State */
+.loading-container-nightlife {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  gap: var(--spacing-4);
+  color: var(--color-text-secondary);
+}
+
+/* Empty State */
+.empty-state-container-nightlife {
+  background: var(--color-surface-glass);
+  backdrop-filter: var(--backdrop-blur-md);
+  border: var(--border-width-thin) solid var(--color-border-subtle);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-9) var(--spacing-6);
+  text-align: center;
+  margin: var(--spacing-6) auto;
+  max-width: var(--width-container-sm); /* 31.25rem / 500px */
+  box-shadow: var(--shadow-md);
+}
+
+.empty-state-container-nightlife h2 {
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-3);
+  font-size: var(--font-2xl);
+}
+
+.empty-state-container-nightlife p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-base);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ================================================================
+ * RESPONSIVE DESIGN - Premium Grid System
+ * ================================================================ */
+
+/* Desktop Small: 992-1200px (3 colonnes) */
+@media (max-width: 75rem) { /* 1200px */
+  .grid-container-nightlife {
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+  }
+}
+
+/* Tablet: 768-992px (3 colonnes) */
+@media (max-width: 62rem) { /* 992px */
+  .page-container-nightlife {
+    padding: var(--padding-page-tablet); /* 1.5rem = 24px */
+  }
+
+  .page-header-nightlife {
+    margin-bottom: var(--spacing-5);
+  }
+
+  .grid-container-nightlife {
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+    gap: var(--grid-gap-desktop); /* Garde 24px gap */
+  }
+
+  .empty-state-container-nightlife {
+    padding: var(--spacing-6) var(--spacing-5);
+    margin: var(--spacing-4) auto;
+  }
+
+  .empty-state-container-nightlife h2 {
+    font-size: var(--font-xl);
+  }
+
+  .empty-state-container-nightlife p {
+    font-size: var(--font-sm);
+  }
+}
+
+/* Tablet Small: 576-768px (2 colonnes) */
+@media (max-width: 48rem) { /* 768px */
+  .grid-container-nightlife {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+    gap: var(--grid-gap-mobile); /* 16px gap */
+  }
+}
+
+/* Mobile: max-width: 576px (1 colonne) */
+@media (max-width: 36rem) { /* 576px */
+  .page-container-nightlife {
+    padding: var(--padding-page-mobile); /* 0.75rem = 12px */
+  }
+
+  .page-header-nightlife {
+    margin-bottom: var(--spacing-4);
+  }
+
+  .grid-container-nightlife {
+    grid-template-columns: 1fr; /* 1 colonne */
+    gap: var(--grid-gap-mobile); /* 16px gap */
+  }
+
+  .empty-state-container-nightlife {
+    padding: var(--spacing-7) var(--spacing-4);
+    margin: var(--spacing-3) auto;
+  }
+
+  .empty-state-container-nightlife h2 {
+    font-size: var(--font-lg);
+  }
+
+  .empty-state-container-nightlife p {
+    font-size: var(--font-xs);
+  }
+}
+
+/* Very Small Mobile: max-width: 375px */
+@media (max-width: 23.4375rem) { /* 375px */
+  .page-container-nightlife {
+    padding: var(--padding-page-mobile); /* Conserve 0.75rem sur très petits écrans */
+  }
+
+  .grid-container-nightlife {
+    gap: var(--grid-gap-compact); /* 12px gap très compact */
+  }
+
+  .empty-state-container-nightlife {
+    padding: var(--spacing-6) var(--spacing-3);
+  }
+}
+
+/* ================================================================
+ * ACCESSIBILITY
+ * ================================================================ */
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  /* Remove any transitions */
+  .empty-state-container-nightlife {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .bg-nightlife-gradient-main {
+    /* Simplify gradient for high contrast */
+    background: var(--color-surface-darkest);
+  }
+
+  .empty-state-container-nightlife {
+    border-width: var(--border-width-normal);
+    background: var(--color-surface);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .bg-nightlife-gradient-main {
+    background: white;
+    color: black;
+  }
+
+  .page-container-nightlife {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .loading-container-nightlife,
+  .empty-state-container-nightlife {
+    display: none;
+  }
+}
+
+/* ================================================================
+ * UTILITY VARIANTS
+ * ================================================================
+ * Variantes pour différents contextes
+ */
+
+/* Page Container - Narrow variant (deprecated - use padding modifiers instead) */
+.page-container-nightlife.narrow {
+  /* Variant supprimée - tous les containers sont maintenant full-width */
+  /* Si besoin de réduire la largeur, utiliser un padding plus grand */
+}
+
+/* Page Container - Wide variant (default behavior now) */
+.page-container-nightlife.wide {
+  /* Comportement par défaut - full-width responsive */
+  /* Cette classe peut être supprimée, conservée pour rétrocompatibilité */
+}
+
+/* Grid Container - Dense variant (plus de colonnes - 5 au lieu de 4) */
+.grid-container-nightlife.dense {
+  grid-template-columns: repeat(5, 1fr); /* 5 colonnes desktop */
+  gap: var(--grid-gap-compact); /* Gap réduit 12px */
+}
+
+/* Grid Container - Loose variant (moins de colonnes - 3 au lieu de 4) */
+.grid-container-nightlife.loose {
+  grid-template-columns: repeat(3, 1fr); /* 3 colonnes desktop */
+  gap: var(--section-spacing-md); /* Gap large 32px */
+}
+
+/* Responsive variants */
+@media (max-width: 75rem) { /* 1200px */
+  .grid-container-nightlife.dense {
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+  }
+  .grid-container-nightlife.loose {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+  }
+}
+
+@media (max-width: 62rem) { /* 992px */
+  .grid-container-nightlife.dense {
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+  }
+}
+
+@media (max-width: 48rem) { /* 768px */
+  .grid-container-nightlife.dense,
+  .grid-container-nightlife.loose {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+    gap: var(--grid-gap-mobile);
+  }
+}
+
+@media (max-width: 36rem) { /* 576px */
+  .grid-container-nightlife.dense,
+  .grid-container-nightlife.loose {
+    grid-template-columns: 1fr; /* 1 colonne mobile */
+  }
+}

@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Establishment } from '../../types';
 import { logger } from '../../utils/logger';
+import LazyImage from '../Common/LazyImage';
+import NationalityTagsInput from './NationalityTagsInput';
+import '../../styles/components/modal-forms.css';
+import '../../styles/components/employee-form.css';
 
 interface EmployeeFormContentProps {
   onSubmit: (employeeData: any) => void;
-  onClose: () => void;
+  onClose?: () => void; // Optional - injected by openModal
   isLoading?: boolean;
   initialData?: any;
+  isSelfProfile?: boolean; // 🆕 v10.0 - Self-managed employee profile mode
 }
 
 const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   onSubmit,
-  onClose,
+  onClose = () => {},
   isLoading = false,
-  initialData
+  initialData,
+  isSelfProfile = false // 🆕 v10.0
 }) => {
-  const { token } = useAuth();
   const { secureFetch } = useSecureFetch();
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -42,6 +46,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Freelance Mode (v10.3: multi-nightclub support)
+  const [isFreelanceMode, setIsFreelanceMode] = useState(false);
+  const [selectedNightclubs, setSelectedNightclubs] = useState<string[]>([]);
+
   useEffect(() => {
     fetchEstablishments();
   }, []);
@@ -50,6 +58,20 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   useEffect(() => {
     if (initialData?.photos) {
       setExistingPhotos(initialData.photos);
+    }
+  }, [initialData]);
+
+  // Initialize freelance mode from initialData
+  useEffect(() => {
+    if (initialData?.is_freelance) {
+      setIsFreelanceMode(true);
+      // v10.3: Load associated nightclubs if any
+      if (initialData?.current_employment) {
+        const nightclubIds = initialData.current_employment
+          .filter((emp: any) => emp.establishment?.category?.name === 'Nightclub')
+          .map((emp: any) => emp.establishment_id);
+        setSelectedNightclubs(nightclubIds);
+      }
     }
   }, [initialData]);
 
@@ -179,6 +201,8 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     if (formData.age && (parseInt(formData.age) < 18 || parseInt(formData.age) > 80)) {
       newErrors.age = 'Age must be between 18 and 80';
     }
+    // v10.3: Freelances can be "free" (no nightclub) or associated with nightclubs
+    // No validation needed for selectedNightclubs - it's optional
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -197,7 +221,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       const keptExistingPhotos = existingPhotos.filter(url => !photosToRemove.includes(url));
       const finalPhotoUrls = [...keptExistingPhotos, ...uploadedPhotoUrls];
 
-      const employeeData = {
+      const employeeData: any = {
         ...formData,
         age: formData.age ? parseInt(formData.age) : undefined,
         photos: finalPhotoUrls,
@@ -205,6 +229,15 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           Object.entries(formData.social_media).filter(([_, value]) => value.trim() !== '')
         )
       };
+
+      // v10.3: Handle freelance mode with multi-nightclub support
+      if (isFreelanceMode) {
+        employeeData.is_freelance = true;
+        if (selectedNightclubs.length > 0) {
+          employeeData.current_establishment_ids = selectedNightclubs;
+        }
+        delete employeeData.current_establishment_id; // Remove single establishment if in freelance mode
+      }
 
       onSubmit(employeeData);
     } catch (error) {
@@ -216,52 +249,34 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   };
 
   return (
-    <div style={{ padding: '30px' }}>
+    <div className="employee-form-container">
       {/* Header */}
-      <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-        <h2 style={{
-          fontSize: '28px',
-          fontWeight: 'bold',
-          margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          fontFamily: '"Orbitron", monospace'
-        }}>
-          {initialData ? '✏️ Edit Employee' : '👥 Add New Employee'}
+      <div className="employee-form-header">
+        <h2 className="employee-form-title">
+          {initialData
+            ? '✏️ Edit Employee'
+            : isSelfProfile
+              ? '✨ Create Your Profile'
+              : '👥 Add New Employee'}
         </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          fontSize: '16px',
-          margin: 0
-        }}>
-          {initialData ? 'Propose changes to employee profile' : 'Create a new employee profile'}
+        <p className="employee-form-subtitle">
+          {initialData
+            ? 'Propose changes to employee profile'
+            : isSelfProfile
+              ? 'Set up your self-managed employee profile'
+              : 'Create a new employee profile'}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <form onSubmit={handleSubmit}>
         {/* Basic Information */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{
-            color: '#00FFFF',
-            margin: '0 0 20px 0',
-            fontSize: '18px',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+        <div className="employee-form-section">
+          <h3 className="employee-form-section-title">
             📝 Basic Information
           </h3>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#FFD700',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginBottom: '8px'
-            }}>
+          <div className="employee-form-field">
+            <label className="employee-form-label">
               👤 Name *
             </label>
             <input
@@ -269,32 +284,18 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,27,141,0.3)',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '16px'
-              }}
+              className="employee-form-input"
               placeholder="Enter full name"
             />
             {errors.name && (
-              <div style={{ color: '#FF4757', fontSize: '14px', marginTop: '5px' }}>
+              <div className="employee-form-error">
                 ⚠️ {errors.name}
               </div>
             )}
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#FFD700',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginBottom: '8px'
-            }}>
+          <div className="employee-form-field">
+            <label className="employee-form-label">
               🎭 Nickname
             </label>
             <input
@@ -302,28 +303,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               name="nickname"
               value={formData.nickname}
               onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,27,141,0.3)',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '16px'
-              }}
+              className="employee-form-input"
               placeholder="Nickname or stage name"
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-            <div>
-              <label style={{
-                display: 'block',
-                color: '#FFD700',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px'
-              }}>
+          <div className="employee-form-grid-2">
+            <div className="employee-form-field">
+              <label className="employee-form-label">
                 🎂 Age
               </label>
               <input
@@ -331,80 +318,41 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                 name="age"
                 value={formData.age}
                 onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '2px solid rgba(255,27,141,0.3)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '16px'
-                }}
+                className="employee-form-input"
                 min="18"
                 max="80"
                 placeholder="Age"
               />
               {errors.age && (
-                <div style={{ color: '#FF4757', fontSize: '14px', marginTop: '5px' }}>
+                <div className="employee-form-error">
                   ⚠️ {errors.age}
                 </div>
               )}
             </div>
 
-            <div>
-              <label style={{
-                display: 'block',
-                color: '#FFD700',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px'
-              }}>
+            <div className="employee-form-field">
+              <label className="employee-form-label">
                 🌍 Nationality
               </label>
-              <input
-                type="text"
-                name="nationality"
+              <NationalityTagsInput
                 value={formData.nationality}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '2px solid rgba(255,27,141,0.3)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '16px'
+                onChange={(nationalities) => {
+                  setFormData(prev => ({ ...prev, nationality: nationalities }));
                 }}
-                placeholder="e.g., Thai, Filipino"
+                disabled={isLoading}
               />
             </div>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#FFD700',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginBottom: '8px'
-            }}>
+          <div className="employee-form-field">
+            <label className="employee-form-label">
               📝 Description
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,27,141,0.3)',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '16px',
-                minHeight: '100px',
-                resize: 'vertical'
-              }}
+              className="employee-form-textarea"
               placeholder="Brief description..."
             />
           </div>
@@ -432,9 +380,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                     key={`existing-${index}`}
                     className={`photo-item existing ${photosToRemove.includes(photoUrl) ? 'marked-for-removal' : ''}`}
                   >
-                    <img
+                    <LazyImage
                       src={photoUrl}
                       alt={`Existing ${index + 1}`}
+                      objectFit="cover"
                     />
 
                     {photosToRemove.includes(photoUrl) ? (
@@ -504,9 +453,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                 <div className="photo-grid">
                   {photos.map((photo, index) => (
                     <div key={`new-${index}`} className="photo-item new-photo">
-                      <img
+                      <LazyImage
                         src={URL.createObjectURL(photo)}
                         alt={`New ${index + 1}`}
+                        objectFit="cover"
                       />
                       <button
                         type="button"
@@ -526,42 +476,117 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           </div>
         </div>
 
+        {/* Freelance Mode Toggle */}
+        <div className="freelance-mode-container">
+          <h3 className="freelance-mode-section-title">
+            💃 Employment Mode
+          </h3>
+
+          <div className="freelance-toggle-box">
+            <label className="freelance-toggle-label">
+              <input
+                type="checkbox"
+                checked={isFreelanceMode}
+                onChange={(e) => {
+                  setIsFreelanceMode(e.target.checked);
+                  if (e.target.checked) {
+                    setFormData(prev => ({ ...prev, current_establishment_id: '' }));
+                  } else {
+                    setSelectedNightclubs([]);
+                  }
+                }}
+              />
+              <span>💃 Freelance Mode</span>
+            </label>
+            {isFreelanceMode && (
+              <span className="freelance-active-badge">
+                ACTIVE
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Freelance Nightclubs Selector (v10.3) */}
+        {isFreelanceMode && (
+          <div className="nightclubs-selector">
+            <h3 className="freelance-mode-section-title">
+              🎵 Nightclubs (Optional)
+            </h3>
+
+            <div className="employee-form-field">
+              <label className="nightclubs-selector-label">
+                🏢 Select Nightclubs (you can work at multiple)
+              </label>
+
+              {/* Filter nightclubs only */}
+              {establishments.filter(est => est.category?.name === 'Nightclub').length > 0 ? (
+                <div className="nightclubs-list">
+                  {establishments
+                    .filter(est => est.category?.name === 'Nightclub')
+                    .map(nightclub => (
+                      <label
+                        key={nightclub.id}
+                        className={`nightclub-option ${selectedNightclubs.includes(nightclub.id) ? 'selected' : ''}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedNightclubs.includes(nightclub.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedNightclubs(prev => [...prev, nightclub.id]);
+                            } else {
+                              setSelectedNightclubs(prev => prev.filter(id => id !== nightclub.id));
+                            }
+                          }}
+                        />
+                        <span className="nightclub-name">
+                          {nightclub.name}
+                        </span>
+                        {nightclub.zone && (
+                          <span className="nightclub-zone">
+                            📍 {nightclub.zone}
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                </div>
+              ) : (
+                <div className="nightclubs-empty-state">
+                  ⚠️ No nightclubs available yet. You can still register as a free freelance!
+                </div>
+              )}
+
+              {selectedNightclubs.length > 0 && (
+                <div className="nightclubs-selected-count">
+                  ✓ {selectedNightclubs.length} nightclub(s) selected
+                </div>
+              )}
+            </div>
+
+            <div className="freelance-info-note">
+              💡 <strong>Note:</strong> As a freelance, you can work at multiple nightclubs or be completely independent. Select the nightclubs where you regularly work, or leave it empty to be listed as a free freelance.
+            </div>
+          </div>
+        )}
+
         {/* Current Employment */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{
-            color: '#00FFFF',
-            margin: '0 0 20px 0',
-            fontSize: '18px',
-            fontWeight: '600'
-          }}>
+        {!isFreelanceMode && (
+          <div className="employee-form-section">
+          <h3 className="employee-form-section-title">
             🏢 Current Employment (Optional)
           </h3>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#FFD700',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginBottom: '8px'
-            }}>
+          <div className="employee-form-field">
+            <label className="employee-form-label">
               🏪 Current Establishment
             </label>
             <select
               name="current_establishment_id"
               value={formData.current_establishment_id}
               onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,27,141,0.3)',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '16px'
-              }}
+              className="employee-form-select"
             >
-              <option value="" style={{ background: '#1a1a1a', color: 'white' }}>Select establishment</option>
+              <option value="">Select establishment</option>
               {(() => {
                 // Zone name mapping
                 const zoneNames: Record<string, string> = {
@@ -601,13 +626,11 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                   <optgroup
                     key={zone}
                     label={zoneNames[zone] || zone}
-                    style={{ background: '#2a2a2a', color: '#999999' }}
                   >
                     {groupedByZone[zone].map(est => (
                       <option
                         key={est.id}
                         value={est.id}
-                        style={{ background: '#1a1a1a', color: 'white', paddingLeft: '20px' }}
                       >
                         {est.name} - {est.category?.name}
                       </option>
@@ -618,19 +641,15 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             </select>
           </div>
         </div>
+        )}
 
         {/* Social Media */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{
-            color: '#00FFFF',
-            margin: '0 0 20px 0',
-            fontSize: '18px',
-            fontWeight: '600'
-          }}>
+        <div className="employee-form-section">
+          <h3 className="employee-form-section-title">
             📱 Social Media (Optional)
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+          <div className="employee-form-grid-social">
             {Object.keys(formData.social_media).map(platform => {
               const labels = {
                 ig: '📷 Instagram',
@@ -641,14 +660,8 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               };
 
               return (
-                <div key={platform}>
-                  <label style={{
-                    display: 'block',
-                    color: '#FFD700',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    marginBottom: '8px'
-                  }}>
+                <div key={platform} className="employee-form-field">
+                  <label className="employee-form-label">
                     {labels[platform as keyof typeof labels]}
                   </label>
                   <input
@@ -656,15 +669,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                     name={`social_media.${platform}`}
                     value={formData.social_media[platform as keyof typeof formData.social_media]}
                     onChange={handleInputChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px 15px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '2px solid rgba(255,27,141,0.3)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      fontSize: '16px'
-                    }}
+                    className="employee-form-input"
                     placeholder={`${labels[platform as keyof typeof labels].split(' ')[1]} username`}
                   />
                 </div>
@@ -674,35 +679,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         </div>
 
         {errors.submit && (
-          <div style={{
-            background: 'rgba(255,71,87,0.1)',
-            border: '1px solid rgba(255,71,87,0.3)',
-            padding: '15px 20px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            color: '#FF4757',
-            marginBottom: '30px'
-          }}>
+          <div className="employee-form-error-box">
             ⚠️ {errors.submit}
           </div>
         )}
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+        <div className="employee-form-actions">
           <button
             type="button"
             onClick={onClose}
-            style={{
-              padding: '15px 30px',
-              background: 'transparent',
-              border: '2px solid #00FFFF',
-              color: '#00FFFF',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
+            className="employee-form-btn employee-form-btn-cancel"
           >
             ❌ Cancel
           </button>
@@ -710,18 +697,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           <button
             type="submit"
             disabled={isLoading || uploadingPhotos}
-            style={{
-              padding: '15px 30px',
-              background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
-              border: 'none',
-              color: 'white',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: isLoading || uploadingPhotos ? 'not-allowed' : 'pointer',
-              opacity: isLoading || uploadingPhotos ? 0.7 : 1,
-              transition: 'all 0.3s ease'
-            }}
+            className="employee-form-btn employee-form-btn-submit"
           >
             {uploadingPhotos ? (
               '📤 Uploading Photos...'

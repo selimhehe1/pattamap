@@ -1,0 +1,316 @@
+/**
+ * USER RATING COMPONENT STYLES
+ *
+ * Styles pour le composant UserRating qui permet aux utilisateurs
+ * de noter les employés (1-5 étoiles).
+ *
+ * Version: 1.0.0
+ * Créé: 2025-01-08
+ * Migration: Phase 2B - Extraction depuis nightlife-theme.css
+ * Composant: src/components/Review/UserRating.tsx
+ *
+ * Utilise: design-system.css pour toutes les variables CSS
+ */
+
+/* ===== CONTAINER PRINCIPAL ===== */
+
+.user-rating-container-nightlife {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-primary-alpha-30);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-5);
+  margin-bottom: var(--spacing-6);
+}
+
+.user-rating-title-nightlife {
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-5);
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px rgba(193, 154, 107, 0.3);
+  text-transform: uppercase;
+}
+
+/* ===== LOGIN PROMPT ===== */
+
+.login-prompt-nightlife {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.login-prompt-nightlife a {
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  transition: var(--transition-base);
+}
+
+.login-prompt-nightlife a:hover {
+  text-decoration: underline;
+  color: var(--color-secondary-light);
+}
+
+/* ===== EXISTING RATING DISPLAY ===== */
+
+.existing-rating-nightlife {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) 0;
+  gap: var(--spacing-3);
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.rating-value {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+}
+
+.edit-rating-btn-nightlife {
+  background: rgba(193, 154, 107, 0.15);
+  border: 2px solid rgba(193, 154, 107, 0.5);
+  color: #D4AF37;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: var(--transition-base);
+  min-height: var(--tap-target-min);
+  letter-spacing: 0.3px;
+}
+
+.edit-rating-btn-nightlife:hover {
+  background: rgba(193, 154, 107, 0.25);
+  border-color: #D4AF37;
+  color: #FFD700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+}
+
+.edit-rating-btn-nightlife:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ===== RATING FORM ===== */
+
+.rating-form-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.rating-input-section {
+  text-align: center;
+}
+
+.rating-label,
+.content-label {
+  display: block;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-2);
+  font-size: var(--font-size-sm);
+}
+
+.rating-content-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.rating-textarea-nightlife {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-primary-alpha-30);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-3);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  resize: vertical;
+  min-height: 3.75rem;
+  transition: var(--transition-base);
+}
+
+.rating-textarea-nightlife:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-alpha-20);
+}
+
+.rating-textarea-nightlife::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ===== ERROR DISPLAY ===== */
+
+.rating-error-nightlife {
+  background: var(--color-error-alpha-10);
+  border: 1px solid var(--color-error-alpha-30);
+  color: var(--color-error);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ===== FORM ACTIONS ===== */
+
+.rating-form-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.submit-rating-btn,
+.cancel-rating-btn {
+  padding: var(--spacing-2-5) var(--spacing-5);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: var(--transition-base);
+  border: none;
+  min-height: var(--tap-target-min);
+  min-width: 120px;
+}
+
+.submit-rating-btn {
+  background: linear-gradient(135deg, var(--color-primary), #D4AF37);
+  color: white;
+  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: var(--font-size-sm);
+}
+
+.submit-rating-btn:hover:not(.disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(193, 154, 107, 0.6);
+}
+
+.submit-rating-btn:focus-visible:not(.disabled) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.submit-rating-btn.disabled {
+  background: var(--color-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cancel-rating-btn {
+  background: transparent;
+  border: 2px solid rgba(255, 68, 68, 0.3);
+  color: #FF4444;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.cancel-rating-btn:hover {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: #FF4444;
+  transform: translateY(-2px);
+}
+
+.cancel-rating-btn:focus-visible {
+  outline: 2px solid var(--color-text-secondary);
+  outline-offset: 2px;
+}
+
+/* ===== NO RATING PROMPT ===== */
+
+.no-rating-prompt-nightlife {
+  text-align: center;
+  padding: var(--spacing-5) 0;
+}
+
+.no-rating-prompt-nightlife p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-4);
+  font-style: italic;
+}
+
+.add-rating-btn-nightlife {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-text-inverse);
+  border: none;
+  padding: var(--spacing-3) var(--spacing-6);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: var(--transition-base);
+  min-height: var(--tap-target-min);
+  box-shadow: var(--shadow-md);
+}
+
+.add-rating-btn-nightlife:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.add-rating-btn-nightlife:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .user-rating-container-nightlife {
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-5);
+  }
+
+  .existing-rating-nightlife {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-3);
+  }
+
+  .rating-display {
+    justify-content: center;
+  }
+
+  .edit-rating-btn-nightlife {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .rating-form-actions {
+    flex-direction: column;
+  }
+
+  .submit-rating-btn,
+  .cancel-rating-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-rating-container-nightlife {
+    padding: var(--spacing-3);
+  }
+
+  .user-rating-title-nightlife {
+    font-size: var(--font-size-base);
+  }
+
+  .rating-value {
+    font-size: var(--font-size-sm);
+  }
+}

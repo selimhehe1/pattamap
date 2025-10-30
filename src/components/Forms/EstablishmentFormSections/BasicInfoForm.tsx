@@ -1,7 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EstablishmentCategory } from '../../../types';
 import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
+import toast from '../../../utils/toast';
+import LazyImage from '../../Common/LazyImage';
+import '../../../styles/components/modal-forms.css';
 
 interface BasicInfoFormProps {
   formData: {
@@ -10,8 +14,6 @@ interface BasicInfoFormProps {
     zone: string;
     category_id: string;
     description: string;
-    phone: string;
-    website: string;
     logo_url?: string;
   };
   categories: EstablishmentCategory[];
@@ -34,18 +36,20 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   onLogoChange,
   uploadingLogo
 }) => {
+  const { t } = useTranslation();
+
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       // Enhanced validation
       if (!file.type.startsWith('image/')) {
-        alert('🖼️ Please select an image file (JPG, PNG, GIF)');
+        toast.error(t('establishment.basicInfo.logoErrorType'));
         return;
       }
 
       // More restrictive file size for logos (2MB max)
       if (file.size > 2 * 1024 * 1024) {
-        alert(`🚨 Logo file too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Please use an image under 2MB.`);
+        toast.error(t('establishment.basicInfo.logoErrorSize', { size: (file.size / 1024 / 1024).toFixed(2) }));
         return;
       }
 
@@ -63,7 +67,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   };
 
   const removeLogo = () => {
-    if (window.confirm('🗑️ Are you sure you want to remove the logo?')) {
+    if (window.confirm(`🗑️ ${t('establishment.basicInfo.logoRemoveConfirm')}`)) {
       onLogoChange(null);
       logger.debug('🗑️ Logo removed');
     }
@@ -78,13 +82,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         alignItems: 'center',
         gap: '6px'
       }}>
-        📍 Basic Information
+        📍 {t('establishment.basicInfo.sectionTitle')}
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
         <div>
           <label className="label-nightlife">
-            🏪 Name *
+            🏪 {t('establishment.basicInfo.nameLabel')} *
           </label>
           <input
             type="text"
@@ -95,7 +99,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             style={{
               ...(errors.name && { borderColor: '#FF4757' })
             }}
-            placeholder="Ex: Ruby Club"
+            placeholder={t('establishment.basicInfo.namePlaceholder')}
           />
           {errors.name && (
             <div className="error-message-nightlife">
@@ -106,7 +110,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
         <div>
           <label className="label-nightlife">
-            📍 Zone *
+            📍 {t('establishment.basicInfo.zoneLabel')} *
           </label>
           <select
             name="zone"
@@ -117,7 +121,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               ...(errors.zone && { borderColor: '#FF4757' })
             }}
           >
-            <option value="">Sélectionnez une zone</option>
+            <option value="">{t('establishment.basicInfo.selectZonePlaceholder')}</option>
             {ZONE_OPTIONS.map(zone => (
               <option key={zone.value} value={zone.value}>{zone.label}</option>
             ))}
@@ -132,7 +136,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
       <div style={{ marginBottom: '12px' }}>
         <label className="label-nightlife">
-          📍 Address *
+          📍 {t('establishment.basicInfo.addressLabel')} *
         </label>
         <input
           type="text"
@@ -143,7 +147,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           style={{
             ...(errors.address && { borderColor: '#FF4757' })
           }}
-          placeholder="Ex: Soi 6, North Pattaya"
+          placeholder={t('establishment.basicInfo.addressPlaceholder')}
         />
         {errors.address && (
           <div className="error-message-nightlife">
@@ -154,7 +158,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
       <div style={{ marginBottom: '12px' }}>
         <label className="label-nightlife">
-          🏷️ Category *
+          🏷️ {t('establishment.basicInfo.categoryLabel')} *
         </label>
         <select
           name="category_id"
@@ -165,7 +169,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             ...(errors.category_id && { borderColor: '#FF4757' })
           }}
         >
-          <option value="">Select category</option>
+          <option value="">{t('establishment.basicInfo.selectCategoryPlaceholder')}</option>
           {categories.map(category => (
             <option key={category.id} value={category.id.toString()}>
               {category.icon} {category.name}
@@ -182,7 +186,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       {/* Logo Upload Section */}
       <div className="logo-upload-section-nightlife">
         <label className="label-nightlife">
-          🖼️ Logo
+          🖼️ {t('establishment.basicInfo.logoLabel')}
         </label>
 
         {/* Logo Preview or Upload Zone */}
@@ -194,7 +198,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             marginBottom: '10px'
           }}>
             <div
-              onClick={() => {
+              role="button" tabIndex={0} onClick={() => {
                 if (!uploadingLogo) {
                   const fileInput = document.getElementById('basic-logo-upload') as HTMLInputElement;
                   if (fileInput) fileInput.click();
@@ -207,7 +211,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 height: '120px',
                 borderRadius: '12px',
                 overflow: 'hidden',
-                border: '2px solid #00FFFF',
+                border: '2px solid #00E5FF',
                 boxShadow: '0 4px 12px rgba(0,255,255,0.3)',
                 cursor: uploadingLogo ? 'not-allowed' : 'pointer'
               }}
@@ -222,21 +226,14 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 if (overlay) overlay.style.opacity = '0';
               }}
             >
-              <img
-                src={logoFile ? URL.createObjectURL(logoFile) : formData.logo_url}
+              <LazyImage
+                src={logoFile ? URL.createObjectURL(logoFile) : (formData.logo_url || '')}
                 alt="Logo preview"
                 style={{
                   width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
+                  height: '100%'
                 }}
-                onError={(e) => {
-                  logger.warn('Logo preview failed to load:', e.currentTarget.src);
-                  e.currentTarget.style.display = 'none';
-                }}
-                onLoad={(e) => {
-                  logger.debug('✅ Logo preview loaded successfully');
-                }}
+                objectFit="cover"
               />
 
               {/* Hover Overlay */}
@@ -259,12 +256,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   }}
                 >
                   <div style={{
-                    color: '#00FFFF',
+                    color: '#00E5FF',
                     fontSize: '13px',
                     fontWeight: '600',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    lineHeight: '1.3'
                   }}>
-                    📸<br/>Click to<br/>change
+                    📸<br/>{t('establishment.basicInfo.logoClickToChange')}
                   </div>
                 </div>
               )}
@@ -281,7 +279,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#00FFFF',
+                  color: '#00E5FF',
                   fontSize: '24px'
                 }}>
                   ⏳
@@ -347,7 +345,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               marginTop: '8px',
               textAlign: 'center'
             }}>
-              {logoFile ? `📁 ${logoFile.name} (${(logoFile.size / 1024 / 1024).toFixed(2)} MB)` : 'Click to change logo'}
+              {logoFile ? `📁 ${logoFile.name} (${(logoFile.size / 1024 / 1024).toFixed(2)} MB)` : t('establishment.basicInfo.logoClickToChangeFull')}
             </div>
           </div>
         ) : (
@@ -355,7 +353,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           <label style={{
             display: 'block',
             padding: '30px 20px',
-            border: '2px dashed #00FFFF',
+            border: '2px dashed #00E5FF',
             borderRadius: '12px',
             background: 'rgba(0,255,255,0.05)',
             textAlign: 'center',
@@ -371,7 +369,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'rgba(0,255,255,0.05)';
-            e.currentTarget.style.borderColor = '#00FFFF';
+            e.currentTarget.style.borderColor = '#00E5FF';
           }}
           >
             <div style={{
@@ -381,18 +379,18 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               {uploadingLogo ? '⏳' : '🖼️'}
             </div>
             <div style={{
-              color: '#00FFFF',
+              color: '#00E5FF',
               fontSize: '16px',
               fontWeight: '600',
               marginBottom: '8px'
             }}>
-              {uploadingLogo ? 'Uploading logo...' : 'Click to upload logo'}
+              {uploadingLogo ? t('establishment.basicInfo.logoUploading') : t('establishment.basicInfo.logoClickToUpload')}
             </div>
             <div style={{
               color: 'rgba(255,255,255,0.6)',
               fontSize: '13px'
             }}>
-              JPG, PNG, GIF up to 2MB
+              {t('establishment.basicInfo.logoFormats')}
             </div>
 
             {/* Hidden file input */}
@@ -407,8 +405,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         )}
 
         <div className="logo-upload-help-nightlife">
-          📏 Recommended: 200x200px square, max 2MB (JPG, PNG, GIF)<br/>
-          🔄 Will be automatically optimized to 64x64px for maps
+          📏 {t('establishment.basicInfo.logoRecommendation')}<br/>
+          🔄 {t('establishment.basicInfo.logoOptimizationNote')}
         </div>
 
         {errors.logo_url && (
@@ -420,7 +418,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
       <div style={{ marginBottom: '12px' }}>
         <label className="label-nightlife">
-          📄 Description
+          📄 {t('establishment.basicInfo.descriptionLabel')}
         </label>
         <textarea
           name="description"
@@ -428,38 +426,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           onChange={onChange}
           rows={3}
           className="textarea-nightlife"
-          placeholder="Describe the establishment..."
+          placeholder={t('establishment.basicInfo.descriptionPlaceholder')}
         />
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        <div>
-          <label className="label-nightlife">
-            📱 Phone
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={onChange}
-            className="input-nightlife"
-            placeholder="Ex: +66 123 456 789"
-          />
-        </div>
-
-        <div>
-          <label className="label-nightlife">
-            🌐 Website
-          </label>
-          <input
-            type="url"
-            name="website"
-            value={formData.website}
-            onChange={onChange}
-            className="input-nightlife"
-            placeholder="https://..."
-          />
-        </div>
       </div>
     </div>
   );

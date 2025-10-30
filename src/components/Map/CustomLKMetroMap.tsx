@@ -3,10 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Establishment, CustomBar } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { getZoneConfig } from '../../utils/zoneConfig';
+import { MAP_CONFIG } from '../../utils/constants';
 import { useContainerSize } from '../../hooks/useContainerSize';
 import { logger } from '../../utils/logger';
+import toast from '../../utils/toast';
 import GenericRoadCanvas from './GenericRoadCanvas';
 import DragDropIndicator from './DragDropIndicator';
+import ScreenReaderEstablishmentList from './ScreenReaderEstablishmentList';
+import LazyImage from '../Common/LazyImage';
+import { generateEstablishmentUrl } from '../../utils/slugify';
 
 export interface Bar {
   id: string;
@@ -28,9 +33,9 @@ interface CustomLKMetroMapProps {
 }
 
 const TYPE_STYLES = {
-  gogo: { color: '#FF1B8D', icon: '💃', shadow: 'rgba(255, 27, 141, 0.5)' },
+  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
   beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00FFFF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
+  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
   massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
   nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
 };
@@ -100,7 +105,7 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
   // Desktop - Layout L-shaped (simple inline calculations like Soi 6)
   const containerWidth = containerElement ? containerElement.getBoundingClientRect().width :
                         (window.innerWidth > 1200 ? 1200 : window.innerWidth - 40);
-  const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : 600;
+  const containerHeight = containerElement ? containerElement.getBoundingClientRect().height : MAP_CONFIG.DEFAULT_HEIGHT;
 
   if (segment === 'horizontal') {
     // SEGMENT HORIZONTAL (Rows 1-2) - 9 colonnes
@@ -199,13 +204,17 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+
+  // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
+  const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
+  const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // OPTIMISTIC UI: Store temporary positions during API calls to prevent disappearing bars
   const [optimisticPositions, setOptimisticPositions] = useState<
@@ -223,13 +232,43 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
   // Monitor container size changes
-  const containerDimensions = useContainerSize(containerRef, 150);
+  // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
+  const containerDimensions = useContainerSize(containerRef, 300);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Orientation detection (for landscape responsive design)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(orientation: portrait)');
+
+    const handleOrientationChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      // Orientation change detected - CSS media queries will handle styling
+      logger.debug('Orientation changed', {
+        isPortrait: e.matches,
+        isLandscape: !e.matches
+      });
+    };
+
+    // Initial check
+    handleOrientationChange(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleOrientationChange);
+
+    // Also listen for orientationchange event (for iOS Safari)
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => handleOrientationChange(mediaQuery), 100);
+    });
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleOrientationChange);
+      window.removeEventListener('orientationchange', () => handleOrientationChange(mediaQuery));
+    };
   }, []);
 
   const allBars = useMemo(() => {
@@ -292,7 +331,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
     } else if (onBarClick) {
       onBarClick({ id: bar.id, name: bar.name, type: bar.type, position: bar.position, color: bar.color });
     } else {
-      navigate(`/bar/${bar.id}`);
+      navigate(generateEstablishmentUrl(bar.id, bar.name, establishment?.zone || 'lkmetro'));
     }
   }, [establishments, onEstablishmentClick, onBarClick, navigate, isEditMode]);
 
@@ -314,12 +353,31 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   }, [allBars, establishments]);
 
   // Convert mouse position to grid position (L-shaped detection)
-  const getGridFromMousePosition = useCallback((event: React.DragEvent) => {
+  // ✅ TOUCH SUPPORT: Extract coordinates from both drag and touch events
+  const getEventCoordinates = (event: React.DragEvent | React.TouchEvent): { clientX: number; clientY: number } | null => {
+    if ('touches' in event && event.touches.length > 0) {
+      return {
+        clientX: event.touches[0].clientX,
+        clientY: event.touches[0].clientY
+      };
+    } else if ('clientX' in event) {
+      return {
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+    }
+    return null;
+  };
+
+  const getGridFromMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return null;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return null;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     let row: number, col: number;
 
@@ -474,20 +532,12 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
     if (establishment?.logo_url) {
       return (
         <div className="map-logo-container-nightlife">
-          <img
+          <LazyImage
             src={establishment.logo_url}
             alt={establishment.name}
+            cloudinaryPreset="establishmentLogo"
             className="map-logo-image-nightlife"
-            onError={(e) => {
-              const target = e.target as HTMLElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                parent.textContent = fallbackIcon;
-                parent.style.background = 'transparent';
-                parent.style.fontSize = '16px';
-              }
-            }}
+            objectFit="contain"
           />
         </div>
       );
@@ -496,15 +546,104 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
     return fallbackIcon;
   }, []);
 
+  // ✅ KEYBOARD NAVIGATION: Arrow key handler for navigating between establishments (4-row L-shaped grid)
+  const handleKeyboardNavigation = useCallback((e: React.KeyboardEvent) => {
+    // Only handle arrow keys
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      return;
+    }
+
+    // Don't interfere with edit mode or if no bars exist
+    if (isEditMode || allBars.length === 0) {
+      return;
+    }
+
+    e.preventDefault();
+
+    // Initialize focus if not set
+    let currentIndex = focusedBarIndex;
+    if (currentIndex === -1 || currentIndex >= allBars.length) {
+      currentIndex = 0;
+      setFocusedBarIndex(0);
+      const firstBar = allBars[0];
+      barRefs.current.get(firstBar.id)?.focus();
+      return;
+    }
+
+    const currentBar = allBars[currentIndex];
+    const currentRow = currentBar.grid_row || 1;
+    const currentCol = currentBar.grid_col || 1;
+
+    let targetBar: Bar | null = null;
+    let targetIndex = -1;
+
+    switch (e.key) {
+      case 'ArrowRight':
+        // Find next bar in same row (higher column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) > currentCol)
+          .sort((a, b) => (a.bar.grid_col || 1) - (b.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowLeft':
+        // Find previous bar in same row (lower column)
+        targetBar = allBars
+          .map((bar, idx) => ({ bar, idx }))
+          .filter(({ bar }) => bar.grid_row === currentRow && (bar.grid_col || 1) < currentCol)
+          .sort((a, b) => (b.bar.grid_col || 1) - (a.bar.grid_col || 1))[0]?.bar || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowUp':
+        // Find bar in row above (lower row number), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) < currentRow)
+          .sort((a, b) => {
+            const rowDiff = (b.grid_row || 1) - (a.grid_row || 1); // Prefer closest (higher row number)
+            if (rowDiff !== 0) return rowDiff;
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+
+      case 'ArrowDown':
+        // Find bar in row below (higher row number), closest column
+        targetBar = allBars
+          .filter(bar => (bar.grid_row || 1) > currentRow)
+          .sort((a, b) => {
+            const rowDiff = (a.grid_row || 1) - (b.grid_row || 1); // Prefer closest (lower row number)
+            if (rowDiff !== 0) return rowDiff;
+            const aDist = Math.abs((a.grid_col || 1) - currentCol);
+            const bDist = Math.abs((b.grid_col || 1) - currentCol);
+            return aDist - bDist;
+          })[0] || null;
+        targetIndex = targetBar ? allBars.findIndex(b => b.id === targetBar!.id) : -1;
+        break;
+    }
+
+    // Focus target bar if found
+    if (targetBar && targetIndex !== -1) {
+      setFocusedBarIndex(targetIndex);
+      barRefs.current.get(targetBar.id)?.focus();
+    }
+  }, [allBars, focusedBarIndex, isEditMode]);
+
   // Throttled drag over handler
   const throttleTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMousePosition = useCallback((event: React.DragEvent) => {
+  const updateMousePosition = useCallback((event: React.DragEvent | React.TouchEvent) => {
     if (!containerRef.current) return;
 
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+
     const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = event.clientX - rect.left;
-    const relativeY = event.clientY - rect.top;
+    const relativeX = coords.clientX - rect.left;
+    const relativeY = coords.clientY - rect.top;
 
     setMousePosition({ x: relativeX, y: relativeY });
 
@@ -630,6 +769,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -655,7 +795,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             });
             setWaitingForDataUpdate(false);
 
-            alert(`❌ Move failed: ${response.status} ${response.statusText}`);
+            toast.error(`Move failed: ${response.status} ${response.statusText}`);
           }
         }
 
@@ -692,6 +832,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
 
           const response = await fetch(requestUrl, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -718,7 +859,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             });
             setWaitingForDataUpdate(false);
 
-            alert(`❌ Swap failed: ${response.status} ${response.statusText}`);
+            toast.error(`Swap failed: ${response.status} ${response.statusText}`);
           }
         }
       }
@@ -754,6 +895,202 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
       throttleTimeout.current = null;
     }
   }, []);
+
+  // ✅ TOUCH SUPPORT: Touch event handlers for mobile/tablet drag&drop
+  const handleTouchStart = useCallback((bar: Bar, event: React.TouchEvent) => {
+    const now = Date.now();
+
+    if (!isEditMode || isLoading || now < operationLockUntil) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+
+    setDraggedBar(bar);
+    setIsDragging(true);
+  }, [isEditMode, isLoading, operationLockUntil]);
+
+  const handleTouchMove = useCallback((event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !draggedBar || !containerRef.current) return;
+
+    event.preventDefault();
+
+    updateMousePosition(event);
+  }, [isEditMode, isDragging, draggedBar, updateMousePosition]);
+
+  const handleTouchEnd = useCallback(async (event: React.TouchEvent) => {
+    if (!isEditMode || !isDragging || !dragOverPosition || !draggedBar || dropAction === 'blocked') {
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      return;
+    }
+
+    event.preventDefault();
+
+    if (navigator.vibrate) {
+      navigator.vibrate([20, 10, 20]);
+    }
+
+    const { row, col } = dragOverPosition;
+    const conflictBar = findBarAtPosition(row, col);
+    const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+    const originalPosition = draggedEstablishment ? {
+      row: draggedEstablishment.grid_row,
+      col: draggedEstablishment.grid_col
+    } : null;
+
+    if (originalPosition && originalPosition.row === row && originalPosition.col === col) {
+      logger.warn('⚠️ Dropping on same position, cancelling');
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+      return;
+    }
+
+    const loadingTimeout = setTimeout(() => {
+      logger.warn('⚠️ Loading timeout - resetting states');
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+    }, 10000);
+
+    try {
+      setIsLoading(true);
+
+      const actualAction = conflictBar ? 'swap' : 'move';
+
+      if (actualAction === 'move') {
+        const establishment = establishments.find(est => est.id === draggedBar.id);
+
+        if (establishment) {
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(establishment.id, { row, col });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: establishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'lkmetro'
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Position updated successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(establishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            toast.error(`Move failed: ${response.status} ${response.statusText}`);
+          }
+        }
+
+      } else if (actualAction === 'swap' && conflictBar) {
+        const draggedEstablishment = establishments.find(est => est.id === draggedBar.id);
+        const conflictEstablishment = establishments.find(est => est.id === conflictBar.id);
+
+        if (draggedEstablishment && conflictEstablishment) {
+          const draggedOriginalPos = {
+            row: draggedEstablishment.grid_row || 1,
+            col: draggedEstablishment.grid_col || 1
+          };
+
+          setWaitingForDataUpdate(true);
+          setOptimisticPositions(prev => {
+            const newMap = new Map(prev);
+            newMap.set(draggedEstablishment.id, { row, col });
+            newMap.set(conflictEstablishment.id, {
+              row: draggedOriginalPos.row,
+              col: draggedOriginalPos.col
+            });
+            return newMap;
+          });
+
+          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestBody = {
+            establishmentId: draggedEstablishment.id,
+            grid_row: row,
+            grid_col: col,
+            zone: 'lkmetro',
+            swap_with_id: conflictEstablishment.id
+          };
+
+          const response = await fetch(requestUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            logger.debug('✅ Swap completed successfully on server');
+            setWaitingForDataUpdate(false);
+            const lockUntil = Date.now() + 500;
+            setOperationLockUntil(lockUntil);
+          } else {
+            setOptimisticPositions(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(draggedEstablishment.id);
+              newMap.delete(conflictEstablishment.id);
+              return newMap;
+            });
+            setWaitingForDataUpdate(false);
+
+            toast.error(`Swap failed: ${response.status} ${response.statusText}`);
+          }
+        }
+      }
+
+    } catch (error) {
+      logger.error('Touch drop operation error', error);
+    } finally {
+      clearTimeout(loadingTimeout);
+      setIsLoading(false);
+      setDraggedBar(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setDropAction(null);
+      setMousePosition(null);
+
+      if (throttleTimeout.current) {
+        clearTimeout(throttleTimeout.current);
+        throttleTimeout.current = null;
+      }
+    }
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments]);
 
   // Toggle edit mode
   const toggleEditMode = useCallback(() => {
@@ -815,9 +1152,9 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
 
         // Different colors for horizontal vs vertical segments
         const segment = getSegmentType(row);
-        const borderColor = segment === 'horizontal' ? '#FFD700' : '#00FFFF'; // Gold vs Cyan
+        const borderColor = segment === 'horizontal' ? '#FFD700' : '#00E5FF'; // Gold vs Cyan
         const bgColor = segment === 'horizontal' ? 'rgba(255, 215, 0, 0.1)' : 'rgba(0, 255, 255, 0.1)';
-        const textColor = segment === 'horizontal' ? '#FFD700' : '#00FFFF';
+        const textColor = segment === 'horizontal' ? '#FFD700' : '#00E5FF';
 
         // Label with orientation indicator
         const label = segment === 'horizontal'
@@ -868,7 +1205,25 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
         background: 'linear-gradient(135deg, rgba(138,43,226,0.3) 0%, rgba(75,0,130,0.4) 50%, rgba(148,0,211,0.3) 100%), linear-gradient(135deg, rgba(13,0,25,0.95), rgba(26,0,51,0.95))',
         overflow: 'hidden'
       }}
+      onKeyDown={handleKeyboardNavigation}
+      role="region"
+      aria-label="Interactive L-shaped map of LK Metro establishments"
+      aria-describedby="lkmetro-map-description"
     >
+      {/* Screen Reader Accessible Description */}
+      <p id="lkmetro-map-description" className="sr-only">
+        Interactive L-shaped map displaying {allBars.length} establishments in LK Metro.
+        {isEditMode ? ' Edit mode active: drag establishments to reposition them.' : ' Click on establishments to view details.'}
+        For keyboard navigation, press Tab to focus establishments, then use Arrow keys to navigate between them, Enter or Space to select.
+      </p>
+
+      {/* Screen Reader Only Establishment List */}
+      <ScreenReaderEstablishmentList
+        establishments={establishments}
+        zone="lkmetro"
+        onEstablishmentSelect={(est) => onEstablishmentClick?.(est)}
+      />
+
       {/* L-Shaped Road Component - Canvas Rendering */}
       <GenericRoadCanvas
         config={{
@@ -894,6 +1249,8 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20 }}>
           <button
             onClick={toggleEditMode}
+            aria-label={isEditMode ? 'Exit edit mode and save changes' : 'Enter edit mode to reposition establishments'}
+            aria-pressed={isEditMode}
             style={{
               background: isEditMode ? 'linear-gradient(135deg, #FF6B6B, #FF8E53)' : 'linear-gradient(135deg, #4ECDC4, #44A08D)',
               color: 'white',
@@ -907,7 +1264,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            {isEditMode ? (<>🔒<span className="edit-mode-text"> Exit Edit</span></>) : (<>✏️<span className="edit-mode-text"> Edit Mode</span></>)}
           </button>
         </div>
       )}
@@ -921,136 +1278,92 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
         🏙️ LK METRO
       </div>
 
-      {/* Geographic Labels */}
-      {/* Second Road Label */}
-      <div style={{
-        position: 'absolute',
-        top: '30%',
-        left: '5%',
-        transform: 'translateY(-50%)',
-        color: '#00FFFF',
-        fontSize: isMobile ? '10px' : '12px',
-        fontWeight: 'bold',
-        textShadow: '0 0 12px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-        zIndex: 15,
-        pointerEvents: 'none',
-        textAlign: 'center',
-        background: 'rgba(0,0,0,0.4)',
-        padding: '4px 8px',
-        borderRadius: '8px',
-        border: '1px solid rgba(0,255,255,0.3)',
-        whiteSpace: 'nowrap'
-      }}>
-        ← Second Road
-      </div>
-
-      {/* Soi Buakhao Label */}
-      <div style={{
-        position: 'absolute',
-        bottom: '5%',
-        left: '55%',
-        transform: 'translateX(-50%)',
-        color: '#FFD700',
-        fontSize: isMobile ? '10px' : '12px',
-        fontWeight: 'bold',
-        textShadow: '0 0 12px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-        zIndex: 15,
-        pointerEvents: 'none',
-        textAlign: 'center',
-        background: 'rgba(0,0,0,0.4)',
-        padding: '4px 8px',
-        borderRadius: '8px',
-        border: '1px solid rgba(255,215,0,0.3)',
-        whiteSpace: 'nowrap'
-      }}>
-        Soi Buakhao ↓
-      </div>
-
-      {/* Segment Labels - Only visible in Edit Mode */}
-      {isEditMode && !isMobile && (
-        <>
-          {/* Horizontal Segment Label */}
-          <div style={{
-            position: 'absolute',
-            left: '40%',
-            top: '28%',
-            transform: 'translateX(-50%)',
-            color: '#FFD700',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(255,215,0,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '4px 10px',
-            borderRadius: '8px',
-            border: '1px solid rgba(255,215,0,0.5)',
-            whiteSpace: 'nowrap'
-          }}>
-            ← Horizontal Segment (Rows 1-2) →
-          </div>
-
-          {/* Vertical Segment Label */}
-          <div style={{
-            position: 'absolute',
-            left: '58%',
-            top: '60%',
-            transform: 'rotate(90deg)',
-            transformOrigin: 'center',
-            color: '#00FFFF',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            textShadow: '0 0 10px rgba(0,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8)',
-            zIndex: 15,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            background: 'rgba(0,0,0,0.6)',
-            padding: '4px 10px',
-            borderRadius: '8px',
-            border: '1px solid rgba(0,255,255,0.5)',
-            whiteSpace: 'nowrap'
-          }}>
-            ↑ Vertical Segment (Rows 3-4) ↓
-          </div>
-        </>
-      )}
-
       {/* Debug Grid Overlay (L-shaped colored circles) */}
       {renderGridDebug()}
 
       {/* Bars */}
-      {allBars.map((bar) => {
+      {allBars.map((bar, index) => {
         const isSelected = selectedEstablishment === bar.id;
         const isHovered = hoveredBar === bar.id;
         const isBeingDragged = isDragging && draggedBar?.id === bar.id;
 
+        // Get establishment details for aria-label
+        const establishment = establishments.find(est => est.id === bar.id);
+        const categoryName = establishment?.category_id === 2 ? 'GoGo Bar'
+          : establishment?.category_id === 1 ? 'Bar'
+          : establishment?.category_id === 3 ? 'Massage Salon'
+          : establishment?.category_id === 4 ? 'Nightclub'
+          : 'Establishment';
+
+        // 🆕 v10.3 Phase 5 - VIP Status Check
+        const isVIP = establishment?.is_vip && establishment?.vip_expires_at &&
+          new Date(establishment.vip_expires_at) > new Date();
+
+        // Responsive VIP sizing: Mobile +15%, Tablet +25%, Desktop +35%
+        const vipSizeMultiplier = window.innerWidth < 480 ? 1.15
+                                : window.innerWidth < 768 ? 1.25
+                                : 1.35;
+        const vipBarSize = Math.round(currentBarSize * vipSizeMultiplier);
+        const finalBarSize = isVIP ? vipBarSize : currentBarSize;
+
+        const ariaLabel = `${bar.name}, ${categoryName}${isVIP ? ', VIP establishment' : ''}, click to view details`;
+
         return (
           <div
             key={bar.id}
+            className={isVIP ? 'vip-establishment-marker' : ''}
+            ref={(el) => {
+              if (el) {
+                barRefs.current.set(bar.id, el);
+              } else {
+                barRefs.current.delete(bar.id);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={ariaLabel}
+            aria-pressed={isSelected}
+            aria-describedby={isHovered ? `tooltip-lk-${bar.id}` : undefined}
             onClick={() => handleBarClick(bar)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBarClick(bar);
+              }
+            }}
             onMouseEnter={() => setHoveredBar(bar.id)}
             onMouseLeave={() => setHoveredBar(null)}
+            onFocus={() => {
+              setHoveredBar(bar.id);
+              setFocusedBarIndex(index);
+            }}
+            onBlur={() => setHoveredBar(null)}
             draggable={isEditMode && isAdmin && !isLoading ? true : false}
             onDragStart={(e) => handleDragStart(bar, e)}
             onDragEnd={handleDragEnd}
+            onTouchStart={isEditMode && isAdmin && !isLoading ? (e) => handleTouchStart(bar, e) : undefined}
+            onTouchMove={isEditMode && isAdmin && !isLoading ? handleTouchMove : undefined}
+            onTouchEnd={isEditMode && isAdmin && !isLoading ? handleTouchEnd : undefined}
             style={{
+              touchAction: isEditMode ? 'none' : 'auto',
               position: 'absolute',
-              left: `${bar.position.x - currentBarSize/2}px`,
-              top: `${bar.position.y - currentBarSize/2}px`,
-              width: `${currentBarSize}px`,
-              height: `${currentBarSize}px`,
+              left: `${bar.position.x - finalBarSize/2}px`,
+              top: `${bar.position.y - finalBarSize/2}px`,
+              width: `${finalBarSize}px`,
+              height: `${finalBarSize}px`,
               borderRadius: '50%',
               background: `radial-gradient(circle at 30% 30%, ${bar.color}FF, ${bar.color}DD 60%, ${bar.color}AA 100%)`,
-              border: isSelected ? '3px solid #FFD700' : isEditMode ? '2px solid #00FF00' : '2px solid rgba(255,255,255,0.6)',
+              border: isVIP ? '5px solid #FFD700' : isSelected ? '3px solid #FFD700' : isEditMode ? '2px solid #00FF00' : '2px solid rgba(255,255,255,0.6)',
               cursor: isLoading ? 'not-allowed' : isEditMode ? (isBeingDragged ? 'grabbing' : 'grab') : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '16px',
               transform: isHovered && !isBeingDragged ? 'scale(1.2)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              boxShadow: isHovered
+              transition: isVIP ? 'none' : 'all 0.3s ease',
+              boxShadow: isVIP
+                ? undefined  // CSS animation handles VIP glow
+                : isHovered
                 ? `0 0 25px ${TYPE_STYLES[bar.type].shadow}, 0 0 40px ${TYPE_STYLES[bar.type].shadow}66`
                 : isEditMode
                   ? '0 0 15px rgba(0,255,0,0.5), 0 0 25px rgba(0,255,0,0.2)'
@@ -1061,23 +1374,48 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
           >
             {getEstablishmentIcon(bar.id, establishments, bar.icon)}
 
+            {/* 🆕 v10.3 Phase 5 - VIP Ultra Premium Effects */}
+            {isVIP && (
+              <div
+                className="vip-crown"
+                style={{
+                  position: 'absolute',
+                  top: '-35px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 5,
+                  pointerEvents: 'none'
+                }}
+                title={`VIP until ${new Date(establishment.vip_expires_at!).toLocaleDateString()}`}
+              >
+                👑
+              </div>
+            )}
+            {isVIP && (
+              <div className="vip-badge">VIP</div>
+            )}
+
             {/* Tooltip */}
             {isHovered && !isDragging && (
-              <div style={{
-                position: 'absolute',
-                bottom: '45px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(0,0,0,0.9)',
-                color: '#fff',
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                zIndex: 20,
-                border: '1px solid #9370DB'
-              }}>
+              <div
+                id={`tooltip-lk-${bar.id}`}
+                role="tooltip"
+                style={{
+                  position: 'absolute',
+                  bottom: '45px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'rgba(0,0,0,0.9)',
+                  color: '#fff',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  zIndex: 20,
+                  border: '1px solid #9370DB'
+                }}
+              >
                 {bar.name}
                 {isEditMode && (
                   <div style={{ fontSize: '10px', color: '#00FF00' }}>
@@ -1151,6 +1489,41 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        [role="button"]:focus {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+          box-shadow:
+            0 0 25px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        [role="button"]:focus-visible {
+          outline: 3px solid #FFD700;
+          outline-offset: 4px;
+        }
+
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+
+        @keyframes vipPulse {
+          0%, 100% {
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+          }
         }
       `}</style>
     </div>

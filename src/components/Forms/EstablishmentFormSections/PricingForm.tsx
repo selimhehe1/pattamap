@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConsumableTemplate } from '../../../types';
+import '../../../styles/components/establishment-ui.css';
 
 // Force recompile 3
 
@@ -38,21 +40,26 @@ const PricingForm: React.FC<PricingFormProps> = ({
   getConsumableTemplate,
   selectedCategoryName
 }) => {
+  const { t } = useTranslation();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editPrice, setEditPrice] = useState<string>('');
 
   // Détermine si les options "special pricing" doivent être affichées
-  const shouldShowSpecialPricing = selectedCategoryName === 'Bar' || selectedCategoryName === 'GoGo Bar';
+  // Afficher par défaut (catégorie vide) et pour Bar/GoGo Bar
+  const shouldShowSpecialPricing =
+    selectedCategoryName === '' || // Pas encore sélectionné → afficher par défaut
+    selectedCategoryName === 'Bar' ||
+    selectedCategoryName === 'GoGo Bar';
 
   // Fonction pour obtenir le nom lisible de la catégorie
   const getCategoryDisplayName = (category: string) => {
     const categoryMap: { [key: string]: string } = {
-      beer: 'Bières',
-      shot: 'Shots',
-      cocktail: 'Cocktails',
-      spirit: 'Spiritueux',
-      wine: 'Vins',
-      soft: 'Boissons non-alcoolisées'
+      beer: t('establishment.pricing.categories.beer'),
+      shot: t('establishment.pricing.categories.shot'),
+      cocktail: t('establishment.pricing.categories.cocktail'),
+      spirit: t('establishment.pricing.categories.spirit'),
+      wine: t('establishment.pricing.categories.wine'),
+      soft: t('establishment.pricing.categories.soft')
     };
     return categoryMap[category] || category;
   };
@@ -85,12 +92,12 @@ const PricingForm: React.FC<PricingFormProps> = ({
         alignItems: 'center',
         gap: '6px'
       }}>
-        💰 Tarifs
+        💰 {t('establishment.pricing.sectionTitle')}
       </h3>
 
       {/* Consommations */}
       <div style={{ marginBottom: '15px' }}>
-        <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>🍺 Consommations</h4>
+        <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>🍺 {t('establishment.pricing.consumablesTitle')}</h4>
 
         <div style={{ marginBottom: '12px' }}>
           <label style={{
@@ -100,7 +107,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
             fontWeight: '600',
             color: 'var(--nightlife-secondary)'
           }}>
-            Ajouter une consommation
+            {t('establishment.pricing.addConsumableLabel')}
           </label>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
             <div style={{ flex: 1 }}>
@@ -111,7 +118,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   width: '100%',
                   padding: '10px 12px',
                   background: '#1a1a1a',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -125,11 +132,11 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                  e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
                   e.target.style.boxShadow = 'none';
                 }}
               >
-                <option value="">Sélectionnez une boisson</option>
+                <option value="">{t('establishment.pricing.selectDrinkPlaceholder')}</option>
                 {consumableTemplates
                   .sort((a, b) => {
                     // Trier par catégorie puis par nom
@@ -155,7 +162,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                     <optgroup key={group.category} label={`📂 ${group.displayName}`}>
                       {group.templates.map((template: any) => (
                         <option key={template.id} value={template.id.toString()}>
-                          {template.icon} {template.name} (défaut: {template.default_price}฿)
+                          {template.icon} {template.name} ({t('establishment.pricing.defaultLabel')}: {template.default_price}฿)
                         </option>
                       ))}
                     </optgroup>
@@ -168,12 +175,12 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 type="number"
                 value={selectedConsumable.price}
                 onChange={(e) => onSelectedConsumableChange('price', e.target.value)}
-                placeholder="Prix ฿"
+                placeholder={t('establishment.pricing.pricePlaceholder')}
                 style={{
                   width: '100%',
                   padding: '10px 12px',
                   background: '#1a1a1a',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -187,7 +194,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                  e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
                   e.target.style.boxShadow = 'none';
                 }}
               />
@@ -200,7 +207,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 padding: '10px 15px',
                 backgroundColor: selectedConsumable.template_id && selectedConsumable.price ? 'var(--nightlife-secondary)' : 'rgba(0,0,0,0.5)',
                 color: selectedConsumable.template_id && selectedConsumable.price ? '#000' : '#666',
-                border: '2px solid ' + (selectedConsumable.template_id && selectedConsumable.price ? 'var(--nightlife-secondary)' : 'rgba(255,27,141,0.3)'),
+                border: '2px solid ' + (selectedConsumable.template_id && selectedConsumable.price ? 'var(--nightlife-secondary)' : 'rgba(193, 154, 107,0.3)'),
                 borderRadius: '8px',
                 cursor: selectedConsumable.template_id && selectedConsumable.price ? 'pointer' : 'not-allowed',
                 fontSize: '14px',
@@ -208,7 +215,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)'
               }}
-            >
+             aria-label="Add">
               ➕
             </button>
           </div>
@@ -223,10 +230,10 @@ const PricingForm: React.FC<PricingFormProps> = ({
               fontWeight: '600',
               color: 'var(--nightlife-secondary)'
             }}>
-              Consommations ajoutées:
+              {t('establishment.pricing.addedConsumablesLabel')}
             </label>
             <div style={{
-              border: '2px solid rgba(255,27,141,0.3)',
+              border: '2px solid rgba(193, 154, 107,0.3)',
               borderRadius: '8px',
               overflow: 'hidden',
               backgroundColor: '#1a1a1a',
@@ -239,7 +246,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                     key={index}
                     className="consumable-item-nightlife"
                     style={{
-                      borderBottom: index < formData.pricing.consumables.length - 1 ? '1px solid rgba(255,27,141,0.2)' : 'none',
+                      borderBottom: index < formData.pricing.consumables.length - 1 ? '1px solid rgba(193, 154, 107,0.2)' : 'none',
                       backgroundColor: index % 2 === 0 ? 'rgba(0,255,255,0.1)' : 'transparent'
                     }}
                   >
@@ -283,7 +290,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                               alignItems: 'center',
                               justifyContent: 'center'
                             }}
-                            title="Sauvegarder"
+                            title={t('establishment.pricing.saveButton')}
                           >
                             ✓
                           </button>
@@ -303,7 +310,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                               alignItems: 'center',
                               justifyContent: 'center'
                             }}
-                            title="Annuler"
+                            title={t('establishment.pricing.cancelButton')}
                           >
                             ✕
                           </button>
@@ -318,7 +325,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                             type="button"
                             onClick={() => handleEditConsumable(index, consumable.price)}
                             className="consumable-edit-btn-nightlife"
-                            title="Modifier le prix"
+                            title={t('establishment.pricing.editPriceButton')}
                           >
                             ✏️
                           </button>
@@ -332,7 +339,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
                             }}
-                            title="Supprimer"
+                            title={t('establishment.pricing.deleteButton')}
                           >
                             🗑️
                           </button>
@@ -350,7 +357,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
       {/* Tarifs spéciaux - Uniquement pour Bar et GoGo Bar */}
       {shouldShowSpecialPricing && (
         <div style={{ marginBottom: '15px' }}>
-          <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>💎 Tarifs Spéciaux</h4>
+          <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>💎 {t('establishment.pricing.specialPricingTitle')}</h4>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
@@ -372,7 +379,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   width: '100%',
                   padding: '10px 12px',
                   background: '#1a1a1a',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -386,7 +393,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                  e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
                   e.target.style.boxShadow = 'none';
                 }}
                 placeholder="130"
@@ -412,7 +419,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   width: '100%',
                   padding: '10px 12px',
                   background: '#1a1a1a',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -426,7 +433,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                  e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
                   e.target.style.boxShadow = 'none';
                 }}
                 placeholder="400"
@@ -439,16 +446,16 @@ const PricingForm: React.FC<PricingFormProps> = ({
       {/* Chambres - Uniquement pour Bar et GoGo Bar */}
       {shouldShowSpecialPricing && (
         <div>
-          <h4 className="text-cyan-nightlife" style={{ marginBottom: '15px', fontSize: '14px', fontWeight: '600' }}>🏨 Chambres</h4>
+          <h4 className="text-cyan-nightlife" style={{ marginBottom: '15px', fontSize: '14px', fontWeight: '600' }}>🏨 {t('establishment.pricing.roomsTitle')}</h4>
 
           <div className="rooms-toggle-container-nightlife">
             <div className="rooms-toggle-label-nightlife">
               <span>🏨</span>
-              <span>Chambres disponibles</span>
+              <span>{t('establishment.pricing.roomsAvailableLabel')}</span>
             </div>
             <div
               className={`rooms-toggle-switch-nightlife ${formData.pricing.rooms.available ? 'active' : ''}`}
-              onClick={() => {
+              role="button" tabIndex={0} onClick={() => {
                 const event = {
                   target: {
                     name: 'pricing.rooms.available',
@@ -471,7 +478,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 fontWeight: '600',
                 color: 'var(--nightlife-secondary)'
               }}>
-                Prix par chambre (฿)
+                {t('establishment.pricing.roomPriceLabel')}
               </label>
               <input
                 type="number"
@@ -482,7 +489,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   width: '200px',
                   padding: '10px 12px',
                   background: '#1a1a1a',
-                  border: '2px solid rgba(255,27,141,0.3)',
+                  border: '2px solid rgba(193, 154, 107,0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   color: 'white',
@@ -496,7 +503,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   e.target.style.boxShadow = '0 0 15px rgba(0,255,255,0.3)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,27,141,0.3)';
+                  e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
                   e.target.style.boxShadow = 'none';
                 }}
                 placeholder="600"
@@ -517,7 +524,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(0,255,255,0.3)'
         }}>
-          💡 Conseils tarifs: Lady Drinks 120-150฿, Barfines 300-500฿, Chambres 500-800฿
+          💡 {t('establishment.pricing.pricingTipText')}
         </div>
       )}
     </div>

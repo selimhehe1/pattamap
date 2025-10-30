@@ -55,6 +55,14 @@ import favoriteRoutes from './routes/favorites';
 import editProposalRoutes from './routes/editProposals';
 import debugRoutes from './routes/debug';
 import independentPositionRoutes from './routes/independentPositions';
+import freelanceRoutes from './routes/freelances';
+import notificationRoutes from './routes/notifications';
+import pushRoutes from './routes/push';
+import verificationsRoutes from './routes/verifications';
+import vipRoutes from './routes/vip';
+import gamificationRoutes from './routes/gamification';
+import employeeValidationRoutes from './routes/employeeValidation';
+import ownershipRequestRoutes from './routes/ownershipRequests';
 import {
   apiRateLimit,
   authRateLimit,
@@ -62,6 +70,8 @@ import {
   adminRateLimit,
   commentRateLimit
 } from './middleware/rateLimit';
+import { initRedis } from './config/redis';
+import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -121,6 +131,14 @@ app.use(compression({
 }));
 
 // CORS configuration - Strict whitelist
+// 🔒 SECURITY FIX: Fail fast in production if CORS_ORIGIN not configured
+if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+  console.error('❌ FATAL ERROR: CORS_ORIGIN must be set in production');
+  console.error('💡 Set CORS_ORIGIN environment variable with your production domain(s)');
+  console.error('💡 Example: CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com');
+  process.exit(1);
+}
+
 const corsOptions = {
   origin: process.env.CORS_ORIGIN?.split(',') || [
     'http://localhost:3000',
@@ -546,79 +564,146 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
 
         logger.debug('📍 Source original position:', sourceData);
 
-        // Perform 3-step sequential swap
+        // ========================================
+        // BUG #7 FIX - Atomic Swap with Rollback
+        // ========================================
+        // Try atomic RPC function first, fallback to sequential swap with rollback protection
+
+        // ATTEMPT 1: Atomic RPC Function (Best - Transaction-safe)
+        logger.debug('🔄 Attempting atomic RPC swap...');
+        const { data: rpcData, error: rpcError } = await supabase
+          .rpc('swap_establishment_positions', {
+            p_source_id: establishmentId,
+            p_target_id: existingAtTarget.id,
+            p_new_zone: zone
+          });
+
+        if (!rpcError && rpcData && rpcData.length > 0 && rpcData[0].success) {
+          logger.debug('✅ ATOMIC RPC SWAP SUCCESS:', rpcData[0]);
+          return res.json({
+            success: true,
+            message: 'Auto-swap operation completed successfully (atomic)',
+            establishments: {
+              source: rpcData[0].source_establishment,
+              target: rpcData[0].target_establishment
+            }
+          });
+        }
+
+        // ATTEMPT 2: Sequential Swap with Rollback Protection (Fallback)
+        logger.warn('⚠️ RPC swap failed, falling back to sequential swap with rollback protection:', rpcError);
+        logger.debug('🔄 Starting sequential swap with rollback protection...');
+
         const now = new Date().toISOString();
+        let step1Success = false;
+        let step2Success = false;
 
-        // STEP 1: Move source to temporary position (NULL, NULL, zone)
-        logger.debug('🔄 STEP 1: Moving source to temporary position (NULL, NULL, \'' + zone + '\')');
-        const { data: step1Data, error: step1Error } = await supabase
-          .from('establishments')
-          .update({
-            grid_row: null,
-            grid_col: null,
-            zone: zone,
-            updated_at: now
-          })
-          .eq('id', establishmentId)
-          .select();
+        try {
+          // STEP 1: Move source to temporary position (NULL, NULL, zone)
+          logger.debug('🔄 STEP 1: Moving source to temporary position (NULL, NULL, \'' + zone + '\')');
+          const { data: step1Data, error: step1Error } = await supabase
+            .from('establishments')
+            .update({
+              grid_row: null,
+              grid_col: null,
+              zone: zone,
+              updated_at: now
+            })
+            .eq('id', establishmentId)
+            .select();
 
-        if (step1Error) {
-          logger.error('❌ STEP 1 FAILED:', step1Error);
-          return res.status(500).json({ error: 'Failed to move source to temporary position' });
-        }
-        logger.debug('✅ STEP 1 SUCCESS:', step1Data[0]);
-
-        // STEP 2: Move target to source's original position
-        logger.debug('🔄 STEP 2: Moving target to source original position:', sourceData);
-        const { data: step2Data, error: step2Error } = await supabase
-          .from('establishments')
-          .update({
-            grid_row: sourceData.grid_row,
-            grid_col: sourceData.grid_col,
-            zone: sourceData.zone,
-            updated_at: now
-          })
-          .eq('id', existingAtTarget.id)
-          .select();
-
-        if (step2Error) {
-          logger.error('❌ STEP 2 FAILED:', step2Error);
-          return res.status(500).json({ error: 'Failed to move target to source position' });
-        }
-        logger.debug('✅ STEP 2 SUCCESS:', step2Data[0]);
-
-        // STEP 3: Move source to target's final position
-        logger.debug('🔄 STEP 3: Moving source to target position:', { grid_row, grid_col, zone });
-        const { data: step3Data, error: step3Error } = await supabase
-          .from('establishments')
-          .update({
-            grid_row,
-            grid_col,
-            zone,
-            updated_at: now
-          })
-          .eq('id', establishmentId)
-          .select();
-
-        if (step3Error) {
-          logger.error('❌ STEP 3 FAILED:', step3Error);
-          return res.status(500).json({ error: 'Failed to move source to final position' });
-        }
-        logger.debug('✅ STEP 3 SUCCESS:', step3Data[0]);
-
-        logger.debug('✅ AUTO-SWAP completed successfully:', {
-          establishment1: step3Data[0],
-          establishment2: step2Data[0]
-        });
-
-        return res.json({
-          success: true,
-          message: 'Auto-swap operation completed successfully',
-          establishments: {
-            source: step3Data[0],
-            target: step2Data[0]
+          if (step1Error) {
+            logger.error('❌ STEP 1 FAILED:', step1Error);
+            throw new Error('Failed to move source to temporary position');
           }
-        });
+          logger.debug('✅ STEP 1 SUCCESS:', step1Data[0]);
+          step1Success = true;
+
+          // STEP 2: Move target to source's original position
+          logger.debug('🔄 STEP 2: Moving target to source original position:', sourceData);
+          const { data: step2Data, error: step2Error } = await supabase
+            .from('establishments')
+            .update({
+              grid_row: sourceData.grid_row,
+              grid_col: sourceData.grid_col,
+              zone: sourceData.zone,
+              updated_at: now
+            })
+            .eq('id', existingAtTarget.id)
+            .select();
+
+          if (step2Error) {
+            logger.error('❌ STEP 2 FAILED:', step2Error);
+            throw new Error('Failed to move target to source position');
+          }
+          logger.debug('✅ STEP 2 SUCCESS:', step2Data[0]);
+          step2Success = true;
+
+          // STEP 3: Move source to target's final position
+          logger.debug('🔄 STEP 3: Moving source to target position:', { grid_row, grid_col, zone });
+          const { data: step3Data, error: step3Error } = await supabase
+            .from('establishments')
+            .update({
+              grid_row,
+              grid_col,
+              zone,
+              updated_at: now
+            })
+            .eq('id', establishmentId)
+            .select();
+
+          if (step3Error) {
+            logger.error('❌ STEP 3 FAILED:', step3Error);
+            throw new Error('Failed to move source to final position');
+          }
+          logger.debug('✅ STEP 3 SUCCESS:', step3Data[0]);
+
+          logger.debug('✅ AUTO-SWAP completed successfully (sequential):', {
+            establishment1: step3Data[0],
+            establishment2: step2Data[0]
+          });
+
+          return res.json({
+            success: true,
+            message: 'Auto-swap operation completed successfully (sequential)',
+            establishments: {
+              source: step3Data[0],
+              target: step2Data[0]
+            }
+          });
+
+        } catch (swapError) {
+          // ROLLBACK: Restore source to original position if any step failed
+          logger.error('🔄 SWAP FAILED - Initiating rollback...', swapError);
+
+          if (step1Success) {
+            logger.debug('🔄 Rolling back STEP 1: Restoring source to original position:', sourceData);
+            const { error: rollbackError } = await supabase
+              .from('establishments')
+              .update({
+                grid_row: sourceData.grid_row,
+                grid_col: sourceData.grid_col,
+                zone: sourceData.zone,
+                updated_at: now
+              })
+              .eq('id', establishmentId);
+
+            if (rollbackError) {
+              logger.error('❌ ROLLBACK FAILED - DATA CORRUPTION RISK:', rollbackError);
+              return res.status(500).json({
+                error: 'Swap failed and rollback failed - please contact support',
+                details: 'Source establishment may be at (NULL, NULL)'
+              });
+            }
+
+            logger.debug('✅ ROLLBACK SUCCESS - Source restored to original position');
+          }
+
+          return res.status(500).json({
+            error: 'Failed to swap establishments',
+            details: swapError instanceof Error ? swapError.message : 'Unknown error'
+          });
+        }
 
       } else {
         // TARGET EMPTY - Continue with simple MOVE
@@ -669,6 +754,13 @@ app.use('/api/upload', uploadRateLimit, uploadRoutes); // CSRF handled internall
 app.use('/api/favorites', csrfProtection, favoriteRoutes);
 app.use('/api/edit-proposals', csrfProtection, editProposalRoutes);
 app.use('/api/independent-positions', csrfProtection, independentPositionRoutes);
+app.use('/api/freelances', freelanceRoutes); // No CSRF protection for GET-only routes
+app.use('/api/notifications', authenticateToken, notificationRoutes);
+app.use('/api/push', pushRoutes);
+app.use('/api/verifications', authenticateToken, verificationsRoutes);
+app.use('/api/vip', vipRoutes); // VIP subscriptions (rate limiters + CSRF handled in routes)
+app.use('/api/gamification', gamificationRoutes); // Gamification system (auth + CSRF handled in routes)
+app.use('/api/employees', employeeValidationRoutes); // Employee community validation (auth + CSRF handled in routes)
 app.use('/api/moderation',
   process.env.NODE_ENV === 'production' ? adminRateLimit : (req, res, next) => next(),
   csrfProtection,
@@ -684,6 +776,7 @@ app.use('/api/admin',
   csrfProtection,
   adminRoutes
 );
+app.use('/api/ownership-requests', csrfProtection, ownershipRequestRoutes);
 
 // Remove unsafe debug and temp routes in production
 if (NODE_ENV === 'development') {
@@ -724,10 +817,41 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`, {
-    environment: NODE_ENV,
-    version: '2.0.0-secure'
+// Initialize Redis cache before starting server
+(async () => {
+  try {
+    await initRedis();
+  } catch (error) {
+    logger.error('Failed to initialize Redis, server will start with fallback cache:', error);
+  }
+
+  // Start mission reset cron jobs
+  try {
+    startMissionResetJobs();
+  } catch (error) {
+    logger.error('Failed to start mission reset cron jobs:', error);
+    logger.warn('Server will continue without automatic mission resets');
+  }
+
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`, {
+      environment: NODE_ENV,
+      version: '2.0.0-secure'
+    });
   });
+})();
+
+// Graceful shutdown - stop cron jobs
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully...');
+  stopMissionResetJobs();
+  process.exit(0);
 });
-// trigger restart - v4
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully...');
+  stopMissionResetJobs();
+  process.exit(0);
+});
+
+// trigger restart - v6
