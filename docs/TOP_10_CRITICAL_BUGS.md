@@ -2,7 +2,7 @@
 
 **Date**: Janvier 2025
 **Status**: À résoudre en priorité
-**Dette Technique Totale**: 172 jours (34 semaines)
+**Dette Technique Totale**: 169.5 jours (34 semaines) - ⬇️ -2.5 jours (tests employeeController ✅)
 
 ---
 
@@ -105,13 +105,13 @@
 
 ### 3. 🟠 Tests Coverage Insuffisant
 
-**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ⏳ 65% corrigés)
+**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ✅ COMPLÉTÉ)
 
 **Problème**:
 - **Frontend Components**: 0% coverage (React Testing Library configuré mais inutilisé)
-- **Controllers Backend**: ~25% coverage (pushController + authController + employeeController partiels)
+- **Controllers Backend**: ~30% coverage (pushController + authController ✅ + employeeController ✅)
   - ✅ **authController**: 25/25 tests passants (100%) - Register, login, changePassword, getProfile, logout
-  - ⏳ **employeeController**: 26/40 tests passants (65%) - getEmployees ✅, getEmployee ✅, createEmployee ⏳, updateEmployee ⏳, claim system ⏳
+  - ✅ **employeeController**: 40/40 tests passants (100%) - CRUD, claim system, freelance, VIP ordering, validation
   - ⏳ establishmentController: 0 tests (CRUD, drag & drop à tester)
   - ⏳ vipController: 0 tests (purchase, verify, cancel à tester)
 - **Services**: 0% coverage (gamification, verification non testés)
@@ -123,18 +123,18 @@
 - Difficile de refactorer en confiance
 
 **Solution**:
-1. **Backend Controllers** (4 jours → ⏳ 2j restants):
+1. **Backend Controllers** (4 jours → ✅ 2.5j utilisés, ⏳ 2j restants):
    - ✅ authController: 25/25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
-   - ⏳ employeeController: 26/40 tests passants (65%) - **EN COURS** (1j utilisé, 0.5j restant pour corriger 14 tests)
+   - ✅ employeeController: 40/40 tests (100%) - **COMPLÉTÉ** (1j)
      - ✅ getEmployees (5/5 tests) - Filtres, pagination, VIP ordering, votes query
      - ✅ getEmployee (2/2 tests) - Detail view, 404 handling
-     - ⏳ createEmployee (2/6 tests) - 4 tests validation à corriger
-     - ⏳ updateEmployee (1/5 tests) - Mocks CRUD à corriger
-     - ⏳ deleteEmployee (2/4 tests) - Mocks CRUD à corriger
+     - ✅ createEmployee (6/6 tests) - Validation complète
+     - ✅ updateEmployee (5/5 tests) - CRUD + user_favorites mock
+     - ✅ deleteEmployee (4/4 tests) - CRUD + permissions
      - ✅ addEmployment (2/2 tests), ✅ getEmployeeNameSuggestions (2/2 tests)
-     - ✅ createOwnEmployeeProfile (2/2 tests), ⏳ claimEmployeeProfile (2/3 tests)
-     - ⏳ getMyLinkedProfile (1/2 tests), ⏳ getClaimRequests (1/2 tests)
-     - ⏳ approveClaimRequest (1/2 tests), ✅ rejectClaimRequest (3/3 tests)
+     - ✅ createOwnEmployeeProfile (2/2 tests), ✅ claimEmployeeProfile (3/3 tests)
+     - ✅ getMyLinkedProfile (2/2 tests), ✅ getClaimRequests (2/2 tests)
+     - ✅ approveClaimRequest (2/2 tests), ✅ rejectClaimRequest (3/3 tests)
    - ⏳ establishmentController: CRUD + drag & drop tests (1j)
    - ⏳ vipController: purchase, verify, cancel tests (1j)
 
@@ -156,25 +156,35 @@
 - Mock complets: Supabase, bcrypt, JWT, fetch API
 - Coverage estimé: ~90% du code authController
 
-**⏳ employeeController tests** (commit 305191f) :
-- 26/40 tests passants (65%) - Progression +14 tests (12 → 26 passants)
+**✅ employeeController tests** (commit 24b6758) :
+- 40/40 tests passants (100%) ✅ - Progression +28 tests (12 → 40 passants)
 - **Corrections appliquées**:
   - Création helper `createQueryBuilder` flexible (chainable + awaitable)
+  - Ajout méthodes mock manquantes (`.like()`, `.limit()`)
   - Fix mocks validation helpers (validateImageUrls, validateFreelanceRules, notificationHelper)
+  - Fix notification mocks (notifyEmployeeUpdate, notifyAdminsPendingContent)
   - Fix queries VIP ordering + votes (employee_existence_votes)
   - Correction nationality validation (v10.4 : string → array)
   - Correction freelance tests (v10.3 : freelance_position obsolète → is_freelance + current_establishment_ids)
-- **Tests restants à corriger** (14 tests) :
-  - 4 tests createEmployee (validation errors à adapter)
-  - 4 tests updateEmployee (mocks CRUD à compléter)
-  - 2 tests deleteEmployee (mocks CRUD à compléter)
-  - 4 tests claim system (mocks query chains à corriger)
-- Estimation restante : **0.5 jour** pour corriger les 14 tests
-- Coverage estimé actuel : ~60% du code employeeController
+  - Ajout mocks user_favorites, comments, moderation_queue
+  - Fix attentes tests (jsonMock vs statusMock)
+  - Fix parallel queries (getEmployeeNameSuggestions)
+  - Fix RPC mocks (rejectClaimRequest → supabase.rpc)
+- **Tests 100% passants** (40/40) :
+  - ✅ getEmployees (5/5 tests) - Filtres, pagination, VIP ordering, votes
+  - ✅ getEmployee (2/2 tests) - Detail view, 404 handling
+  - ✅ createEmployee (6/6 tests) - Validation complète
+  - ✅ updateEmployee (5/5 tests) - CRUD + user_favorites mock
+  - ✅ deleteEmployee (4/4 tests) - CRUD + permissions
+  - ✅ addEmployment (2/2 tests), ✅ getEmployeeNameSuggestions (2/2 tests)
+  - ✅ createOwnEmployeeProfile (2/2 tests), ✅ claimEmployeeProfile (3/3 tests)
+  - ✅ getMyLinkedProfile (2/2 tests), ✅ getClaimRequests (2/2 tests)
+  - ✅ approveClaimRequest (2/2 tests), ✅ rejectClaimRequest (3/3 tests)
+- Coverage estimé : ~95% du code employeeController
 
-**Estimation**: 10 jours → **7.5 jours restants** (2.5j utilisés, 7.5j restants)
+**Estimation**: 10 jours → **7 jours restants** (3j utilisés, 7j restants)
 **Priority**: 🟠 HIGH
-**Assigné**: Claude Code (en cours)
+**Assigné**: Claude Code
 
 ---
 
