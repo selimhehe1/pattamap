@@ -2,7 +2,7 @@
 
 **Date**: Janvier 2025
 **Status**: À résoudre en priorité
-**Dette Technique Totale**: 167.5 jours (33.5 semaines) - ⬇️ -4.5 jours (authController ✅ + employeeController ✅ + establishmentController ✅ = 91/91 tests backend controllers)
+**Dette Technique Totale**: 166.5 jours (33.3 semaines) - ⬇️ -5.5 jours (authController ✅ + employeeController ✅ + establishmentController ✅ + vipController ⚠️ = 101/108 tests backend controllers)
 
 ---
 
@@ -105,15 +105,15 @@
 
 ### 3. 🟠 Tests Coverage Insuffisant
 
-**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ✅ COMPLÉTÉ, establishmentController ✅ COMPLÉTÉ)
+**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ✅ COMPLÉTÉ, establishmentController ✅ COMPLÉTÉ, vipController ⚠️ PARTIEL)
 
 **Problème**:
 - **Frontend Components**: 0% coverage (React Testing Library configuré mais inutilisé)
-- **Controllers Backend**: ~55% coverage (pushController + authController ✅ + employeeController ✅ + establishmentController ✅)
+- **Controllers Backend**: ~65% coverage (pushController + authController ✅ + employeeController ✅ + establishmentController ✅ + vipController ⚠️)
   - ✅ **authController**: 25/25 tests passants (100%) - Register, login, changePassword, getProfile, logout
   - ✅ **employeeController**: 40/40 tests passants (100%) - CRUD, claim system, freelance, VIP ordering, validation
   - ✅ **establishmentController**: 26/26 tests passants (100%) - CRUD, drag & drop, grid positioning, permissions
-  - ⏳ vipController: 0 tests (purchase, verify, cancel à tester)
+  - ⚠️ **vipController**: 10/17 tests passants (59%, commit c16408a) - Pricing ✅, validation ✅, purchase/cancel mocks ⚠️ (authorization issues)
 - **Services**: 0% coverage (gamification, verification non testés)
 - **E2E Tests**: 0 tests (Playwright configuré mais aucun test)
 
@@ -123,7 +123,7 @@
 - Difficile de refactorer en confiance
 
 **Solution**:
-1. **Backend Controllers** (4 jours → ✅ 4j utilisés, ⏳ 1j restant):
+1. **Backend Controllers** (5 jours → ✅ 4.5j utilisés, ⏳ 0.5j restant):
    - ✅ authController: 25/25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
    - ✅ employeeController: 40/40 tests (100%) - **COMPLÉTÉ** (1j)
      - ✅ getEmployees (5/5 tests) - Filtres, pagination, VIP ordering, votes query
@@ -142,7 +142,15 @@
      - ✅ updateEstablishment (4/4 tests) - Admin, creator, denied, 404
      - ✅ deleteEstablishment (4/4 tests) - Admin, creator, denied, 404
      - ✅ updateEstablishmentGridPosition (6/6 tests) - Drag & drop, swap, conflicts, validation
-   - ⏳ vipController: purchase, verify, cancel tests (1j)
+   - ⚠️ **vipController: 10/17 tests (59%)** - **PARTIEL** (1j, commit c16408a)
+     - ✅ getPricingOptions (5/5 tests) - Employee/establishment pricing, discounts, validation
+     - ✅ Validation tests (3/3 tests) - Missing fields, invalid duration, invalid payment method
+     - ✅ Error handling (2/2 tests) - 404 not found, empty subscriptions
+     - ⚠️ purchaseVIP (3/6 tests failing) - Authorization mock issues avec complex queries
+     - ⚠️ getMyVIPSubscriptions (1/2 tests failing) - Join query mock issues
+     - ⚠️ cancelVIPSubscription (1/4 tests failing) - Authorization mock issues
+     - **Known Issues**: Supabase query builder mock ne gère pas correctement les chaînes complexes d'autorisation
+     - **TODO**: Refactorer mocks ou utiliser pattern différent (0.5j estimé)
 
 2. **Frontend Components** (4 jours):
    - Common components: Modal, StarRating, Pagination
