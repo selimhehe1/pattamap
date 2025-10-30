@@ -2,7 +2,7 @@
 
 **Date**: Janvier 2025
 **Status**: À résoudre en priorité
-**Dette Technique Totale**: 169 jours (33.8 semaines) - ⬇️ -3 jours (authController ✅ + employeeController ✅ + establishmentController ⏳ 77%)
+**Dette Technique Totale**: 167.5 jours (33.5 semaines) - ⬇️ -4.5 jours (authController ✅ + employeeController ✅ + establishmentController ✅ = 91/91 tests backend controllers)
 
 ---
 
@@ -105,14 +105,14 @@
 
 ### 3. 🟠 Tests Coverage Insuffisant
 
-**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ✅ COMPLÉTÉ, establishmentController ⏳ 77%)
+**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ✅ COMPLÉTÉ, establishmentController ✅ COMPLÉTÉ)
 
 **Problème**:
 - **Frontend Components**: 0% coverage (React Testing Library configuré mais inutilisé)
-- **Controllers Backend**: ~35% coverage (pushController + authController ✅ + employeeController ✅ + establishmentController ⏳)
+- **Controllers Backend**: ~55% coverage (pushController + authController ✅ + employeeController ✅ + establishmentController ✅)
   - ✅ **authController**: 25/25 tests passants (100%) - Register, login, changePassword, getProfile, logout
   - ✅ **employeeController**: 40/40 tests passants (100%) - CRUD, claim system, freelance, VIP ordering, validation
-  - ⏳ **establishmentController**: 20/26 tests passants (77%) - updateEstablishment ✅, deleteEstablishment ✅, gridPosition ✅
+  - ✅ **establishmentController**: 26/26 tests passants (100%) - CRUD, drag & drop, grid positioning, permissions
   - ⏳ vipController: 0 tests (purchase, verify, cancel à tester)
 - **Services**: 0% coverage (gamification, verification non testés)
 - **E2E Tests**: 0 tests (Playwright configuré mais aucun test)
@@ -123,7 +123,7 @@
 - Difficile de refactorer en confiance
 
 **Solution**:
-1. **Backend Controllers** (4 jours → ✅ 3j utilisés, ⏳ 1.5j restants):
+1. **Backend Controllers** (4 jours → ✅ 4j utilisés, ⏳ 1j restant):
    - ✅ authController: 25/25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
    - ✅ employeeController: 40/40 tests (100%) - **COMPLÉTÉ** (1j)
      - ✅ getEmployees (5/5 tests) - Filtres, pagination, VIP ordering, votes query
@@ -135,13 +135,13 @@
      - ✅ createOwnEmployeeProfile (2/2 tests), ✅ claimEmployeeProfile (3/3 tests)
      - ✅ getMyLinkedProfile (2/2 tests), ✅ getClaimRequests (2/2 tests)
      - ✅ approveClaimRequest (2/2 tests), ✅ rejectClaimRequest (3/3 tests)
-   - ⏳ **establishmentController: 20/26 tests (77%)** - **EN COURS** (0.5j, commit 5c045e8)
+   - ✅ **establishmentController: 26/26 tests (100%)** - **COMPLÉTÉ** (1.5j, commits 5c045e8 + 19cbc28)
+     - ✅ getEstablishments (6/6 tests) - Pagination, zone, category, search, validation
+     - ✅ getEstablishment (2/2 tests) - By ID, 404 handling, consumables, owners
+     - ✅ createEstablishment (4/4 tests) - Admin auto-approve, user pending, validation, errors
      - ✅ updateEstablishment (4/4 tests) - Admin, creator, denied, 404
      - ✅ deleteEstablishment (4/4 tests) - Admin, creator, denied, 404
-     - ✅ updateEstablishmentGridPosition (6/6 tests) - Drag & drop, swap, conflicts
-     - ⏳ getEstablishments (4/6 tests) - 2 tests restants (query mocks à compléter)
-     - ⏳ getEstablishment (0/2 tests) - 2 tests à fixer
-     - ⏳ createEstablishment (1/4 tests) - 3 tests à fixer
+     - ✅ updateEstablishmentGridPosition (6/6 tests) - Drag & drop, swap, conflicts, validation
    - ⏳ vipController: purchase, verify, cancel tests (1j)
 
 2. **Frontend Components** (4 jours):
