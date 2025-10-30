@@ -105,13 +105,13 @@
 
 ### 3. 🟠 Tests Coverage Insuffisant
 
-**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ - 25 tests)
+**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ, employeeController ⏳ 65% corrigés)
 
 **Problème**:
 - **Frontend Components**: 0% coverage (React Testing Library configuré mais inutilisé)
-- **Controllers Backend**: ~20% coverage (pushController + authController testés)
-  - ✅ **authController**: 25 tests, 100% passing (register, login, changePassword, getProfile, logout)
-  - ⏳ employeeController: 0 tests (CRUD, grid positioning à tester)
+- **Controllers Backend**: ~25% coverage (pushController + authController + employeeController partiels)
+  - ✅ **authController**: 25/25 tests passants (100%) - Register, login, changePassword, getProfile, logout
+  - ⏳ **employeeController**: 26/40 tests passants (65%) - getEmployees ✅, getEmployee ✅, createEmployee ⏳, updateEmployee ⏳, claim system ⏳
   - ⏳ establishmentController: 0 tests (CRUD, drag & drop à tester)
   - ⏳ vipController: 0 tests (purchase, verify, cancel à tester)
 - **Services**: 0% coverage (gamification, verification non testés)
@@ -123,9 +123,18 @@
 - Difficile de refactorer en confiance
 
 **Solution**:
-1. **Backend Controllers** (3 jours → ⏳ 1.5j restants):
-   - ✅ authController: 25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
-   - ⏳ employeeController: CRUD + grid positioning tests (1j)
+1. **Backend Controllers** (4 jours → ⏳ 2j restants):
+   - ✅ authController: 25/25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
+   - ⏳ employeeController: 26/40 tests passants (65%) - **EN COURS** (1j utilisé, 0.5j restant pour corriger 14 tests)
+     - ✅ getEmployees (5/5 tests) - Filtres, pagination, VIP ordering, votes query
+     - ✅ getEmployee (2/2 tests) - Detail view, 404 handling
+     - ⏳ createEmployee (2/6 tests) - 4 tests validation à corriger
+     - ⏳ updateEmployee (1/5 tests) - Mocks CRUD à corriger
+     - ⏳ deleteEmployee (2/4 tests) - Mocks CRUD à corriger
+     - ✅ addEmployment (2/2 tests), ✅ getEmployeeNameSuggestions (2/2 tests)
+     - ✅ createOwnEmployeeProfile (2/2 tests), ⏳ claimEmployeeProfile (2/3 tests)
+     - ⏳ getMyLinkedProfile (1/2 tests), ⏳ getClaimRequests (1/2 tests)
+     - ⏳ approveClaimRequest (1/2 tests), ✅ rejectClaimRequest (3/3 tests)
    - ⏳ establishmentController: CRUD + drag & drop tests (1j)
    - ⏳ vipController: purchase, verify, cancel tests (1j)
 
@@ -140,12 +149,30 @@
    - VIP flows: Purchase → Verify → Check placement
 
 **Progression**:
-- ✅ authController tests: 25 tests, 100% passing (commit b10a0b3)
-  - Tests couvrent: validation inputs, HaveIBeenPwned API, user_points init, CSRF regeneration, JWT creation
-  - Mock complets: Supabase, bcrypt, JWT, fetch API
-  - Coverage estimé: ~90% du code authController
 
-**Estimation**: 10 jours → **8.5 jours restants**
+**✅ authController tests** (commit b10a0b3) :
+- 25/25 tests passants (100%)
+- Tests couvrent: validation inputs, HaveIBeenPwned API, user_points init, CSRF regeneration, JWT creation
+- Mock complets: Supabase, bcrypt, JWT, fetch API
+- Coverage estimé: ~90% du code authController
+
+**⏳ employeeController tests** (commit 305191f) :
+- 26/40 tests passants (65%) - Progression +14 tests (12 → 26 passants)
+- **Corrections appliquées**:
+  - Création helper `createQueryBuilder` flexible (chainable + awaitable)
+  - Fix mocks validation helpers (validateImageUrls, validateFreelanceRules, notificationHelper)
+  - Fix queries VIP ordering + votes (employee_existence_votes)
+  - Correction nationality validation (v10.4 : string → array)
+  - Correction freelance tests (v10.3 : freelance_position obsolète → is_freelance + current_establishment_ids)
+- **Tests restants à corriger** (14 tests) :
+  - 4 tests createEmployee (validation errors à adapter)
+  - 4 tests updateEmployee (mocks CRUD à compléter)
+  - 2 tests deleteEmployee (mocks CRUD à compléter)
+  - 4 tests claim system (mocks query chains à corriger)
+- Estimation restante : **0.5 jour** pour corriger les 14 tests
+- Coverage estimé actuel : ~60% du code employeeController
+
+**Estimation**: 10 jours → **7.5 jours restants** (2.5j utilisés, 7.5j restants)
 **Priority**: 🟠 HIGH
 **Assigné**: Claude Code (en cours)
 
@@ -442,7 +469,7 @@ self.addEventListener('fetch', (event) => {
 |---|-------|----------|------------|--------|
 | 1 | CSRF Bypass | 🔴 CRITICAL | 1j | ✅ RESOLVED |
 | 2 | Password Policy | 🔴 CRITICAL | 1j | ✅ RESOLVED |
-| 3 | Tests Coverage | 🟠 HIGH | 10j → 8.5j | ⏳ IN PROGRESS (authController ✅) |
+| 3 | Tests Coverage | 🟠 HIGH | 10j → 7.5j | ⏳ IN PROGRESS (authController ✅, employeeController ⏳ 65%) |
 | 4 | TypeScript `any` | 🟠 HIGH | 10j | ⏳ TODO |
 | 5 | God Components | 🟠 HIGH | 3j | ⏳ TODO |
 | 6 | Map Performance | 🟡 MEDIUM | 2j | ⏳ TODO |
@@ -451,11 +478,14 @@ self.addEventListener('fetch', (event) => {
 | 9 | Accessibilité | 🟡 MEDIUM | 6j | ⏳ TODO |
 | 10 | Features Incomp. | 🟡 MEDIUM | 18j | ⏳ TODO |
 
-**Total Dette**: 53.5 jours → **52 jours** (10.4 semaines) - **3.5 jours résolus ! 🎉**
+**Total Dette**: 53.5 jours → **51 jours** (10.2 semaines) - **4.5 jours résolus ! 🎉**
 
 **Vulnérabilités Critiques**: 2/2 RÉSOLUES (100%) ✅
 
-**Tests Coverage**: 1/4 controllers testés (authController ✅ 25 tests)
+**Tests Coverage**:
+- authController: ✅ 25/25 tests (100%)
+- employeeController: ⏳ 26/40 tests (65%)
+- **Total**: 51/65 tests controllers passants (78%)
 
 ---
 
