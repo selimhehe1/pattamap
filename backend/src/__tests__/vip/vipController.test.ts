@@ -9,15 +9,20 @@
  *
  * CURRENT STATUS: 10/17 tests passing (59%)
  *
- * ⚠️ KNOWN ISSUES:
- * - Authorization mocks in complex queries (purchase, cancel) are not working correctly
- * - Subscription queries with joins are not properly mocked
- * - Admin endpoints (verifyPayment, getVIPTransactions, rejectPayment) need tests
+ * ⚠️ KNOWN ISSUES (Day 2 Sprint - To be fixed in Day 3):
+ * - Complex authorization queries with joins not properly mocked
+ * - Supabase mock query builder doesn't handle chained authorization checks correctly
+ * - Issue: Controller checks employees table, then establishment_owners with join
+ * - Mock setup with mockReturnValueOnce and mockImplementation both fail
+ * - Root cause: Mock isn't being invoked by the actual controller (imports issue?)
  *
- * TODO:
- * - Debug and fix authorization mock setup for purchase/cancel flows
- * - Add tests for admin endpoints
- * - Investigate supabase mock query builder thenable implementation
+ * 📋 TODO (Day 3 - Tests Critical Controllers):
+ * - [ ] Refactor Supabase mock to support complex authorization queries
+ * - [ ] Add integration tests with real Supabase test instance (alternative approach)
+ * - [ ] Add tests for admin endpoints (verifyPayment, getTransactions, rejectPayment)
+ * - [ ] Consider using msw (Mock Service Worker) for more reliable mocking
+ *
+ * 🎯 DECISION: Moving to other Day 2 tasks (Sentry, rate limiting) - Higher priority for production
  */
 
 import request from 'supertest';
@@ -60,8 +65,9 @@ describe('VIP Controller Tests', () => {
   let app: express.Application;
 
   beforeEach(() => {
-    // Re-initialize supabase.from with default behavior (don't clear mocks to preserve jest.mock() implementations)
-    supabase.from = jest.fn((table: string) => createMockQueryBuilder());
+    // Re-initialize supabase.from as a plain mock (no default implementation)
+    // This allows tests to use mockReturnValueOnce for custom mock chains
+    supabase.from = jest.fn();
 
     // Setup Express app for testing
     app = express();
@@ -156,20 +162,46 @@ describe('VIP Controller Tests', () => {
       const subscription = mockVIPSubscription('sub-123', employeeId, 'employee');
       const transaction = mockPaymentTransaction('txn-123', userId, 'employee', 3600);
 
-      // Chain all mocks in order
-      (supabase.from as jest.Mock)
-        // Mock 1: employees query (line 152-157)
-        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
-        // Mock 2: establishment_owners query (line 168-178)
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(ownership)))
-        // Mock 3: existing subscription check (line 220-226)
-        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
-        // Mock 4: subscription insert (line 277-281)
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(subscription)))
-        // Mock 5: transaction insert (line 296-313)
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(transaction)))
-        // Mock 6: subscription update (line 328-331)
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(subscription)));
+      // ⚠️ KNOWN ISSUE: This mock setup doesn't work due to Supabase mock limitations
+      // The authorization flow requires complex queries with joins that aren't properly mocked
+      // TODO: Refactor to use integration tests with real Supabase test instance
+      let callCount = 0;
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        callCount++;
+
+        // Call 1: employees query (authorization check)
+        if (callCount === 1 && table === 'employees') {
+          return createMockQueryBuilder(mockNotFound());
+        }
+
+        // Call 2: establishment_owners query (authorization check)
+        if (callCount === 2 && table === 'establishment_owners') {
+          return createMockQueryBuilder(mockSuccess(ownership));
+        }
+
+        // Call 3: existing subscription check
+        if (callCount === 3 && table === 'employee_vip_subscriptions') {
+          return createMockQueryBuilder(mockNotFound());
+        }
+
+        // Call 4: subscription insert
+        if (callCount === 4 && table === 'employee_vip_subscriptions') {
+          return createMockQueryBuilder(mockSuccess(subscription));
+        }
+
+        // Call 5: transaction insert
+        if (callCount === 5 && table === 'vip_payment_transactions') {
+          return createMockQueryBuilder(mockSuccess(transaction));
+        }
+
+        // Call 6: subscription update
+        if (callCount === 6 && table === 'employee_vip_subscriptions') {
+          return createMockQueryBuilder(mockSuccess(subscription));
+        }
+
+        // Default: return empty mock
+        return createMockQueryBuilder(mockNotFound());
+      });
 
       const response = await request(app)
         .post('/api/vip/purchase')
