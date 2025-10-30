@@ -10,13 +10,28 @@ import {
   getUserRating,
   updateUserRating
 } from '../commentController';
-import { supabase } from '../../config/supabase';
 import { logger } from '../../utils/logger';
 
-// Mock dependencies
-jest.mock('../../config/supabase');
+// Import mock helpers
+import { createMockQueryBuilder, mockSuccess, mockNotFound } from '../../config/__mocks__/supabase';
+
+// Mock dependencies with explicit factory for supabase
+jest.mock('../../config/supabase', () => {
+  const mockModule = jest.requireActual('../../config/__mocks__/supabase');
+  return {
+    supabase: mockModule.supabase,
+    supabaseClient: mockModule.supabaseClient,
+    createMockQueryBuilder: mockModule.createMockQueryBuilder,
+    mockSuccess: mockModule.mockSuccess,
+    mockNotFound: mockModule.mockNotFound,
+  };
+});
+
 jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
+
+// Import supabase AFTER jest.mock
+import { supabase } from '../../config/supabase';
 
 describe('CommentController', () => {
   let mockRequest: Partial<AuthRequest>;
@@ -324,23 +339,10 @@ describe('CommentController', () => {
         })
       });
 
-      // Mock existing rating found
-      (supabase.from as jest.Mock).mockReturnValueOnce({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              not: jest.fn().mockReturnValue({
-                is: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({
-                    data: { id: 'existing-rating', rating: 5 },
-                    error: null
-                  })
-                })
-              })
-            })
-          })
-        })
-      });
+      // Mock existing rating found (returns array, not single)
+      (supabase.from as jest.Mock).mockReturnValueOnce(
+        createMockQueryBuilder(mockSuccess([{ id: 'existing-rating', rating: 5 }]))
+      );
 
       await createComment(mockRequest as AuthRequest, mockResponse as Response);
 
