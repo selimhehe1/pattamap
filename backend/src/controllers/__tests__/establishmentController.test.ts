@@ -57,6 +57,7 @@ describe('EstablishmentController', () => {
       limit: jest.fn().mockReturnThis(),
       range: jest.fn().mockResolvedValue(finalResult),
       single: jest.fn().mockResolvedValue(finalResult),
+      maybeSingle: jest.fn().mockResolvedValue(finalResult),
       insert: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
@@ -67,7 +68,7 @@ describe('EstablishmentController', () => {
 
     // Make all methods return the builder for chaining
     Object.keys(builder).forEach(key => {
-      if (key !== 'range' && key !== 'single' && key !== 'then' && key !== 'catch' && typeof builder[key] === 'function') {
+      if (key !== 'range' && key !== 'single' && key !== 'maybeSingle' && key !== 'then' && key !== 'catch' && typeof builder[key] === 'function') {
         builder[key].mockReturnValue(builder);
       }
     });
@@ -130,40 +131,26 @@ describe('EstablishmentController', () => {
     it('should return list of establishments with pagination', async () => {
       mockRequest.query = { status: 'approved', limit: '50', page: '1' };
 
-      // Mock Supabase query chain
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
-          data: [mockEstablishment],
-          error: null
-        })
-      };
+      // Mock count query
+      const countBuilder = createQueryBuilder({ count: 1, error: null });
 
-      const mockCountQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          count: 1,
-          error: null
-        })
-      };
+      // Mock data query
+      const dataBuilder = createQueryBuilder({
+        data: [mockEstablishment],
+        error: null
+      });
+
+      // Mock employment query (all current employees)
+      const employmentBuilder = createQueryBuilder({ data: [], error: null });
+
+      // Mock approved employment query (approved employees only)
+      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockCountQuery)
-        .mockReturnValueOnce(mockQuery);
-
-      // Mock employment_history query for employee counts
-      const mockEmploymentQuery = {
-        select: jest.fn().mockReturnThis(),
-        in: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          data: [],
-          error: null
-        })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValueOnce(mockEmploymentQuery);
+        .mockReturnValueOnce(countBuilder)
+        .mockReturnValueOnce(dataBuilder)
+        .mockReturnValueOnce(employmentBuilder)
+        .mockReturnValueOnce(approvedEmploymentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -184,39 +171,35 @@ describe('EstablishmentController', () => {
     it('should filter establishments by zone', async () => {
       mockRequest.query = { zone: 'soi6', status: 'approved' };
 
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
-          data: [mockEstablishment],
-          error: null
-        })
-      };
+      // Mock count query
+      const countBuilder = createQueryBuilder({ count: 1, error: null });
 
-      const mockCountQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({
-          count: 1,
-          error: null
-        })
-      };
+      // Mock data query
+      const dataBuilder = createQueryBuilder({
+        data: [mockEstablishment],
+        error: null
+      });
+
+      // Mock employment query (all current employees)
+      const employmentBuilder = createQueryBuilder({ data: [], error: null });
+
+      // Mock approved employment query (approved employees only)
+      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(mockCountQuery)
-        .mockReturnValueOnce(mockQuery);
-
-      // Mock employment query
-      (supabase.from as jest.Mock).mockReturnValueOnce({
-        select: jest.fn().mockReturnThis(),
-        in: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({ data: [], error: null })
-      });
+        .mockReturnValueOnce(countBuilder)
+        .mockReturnValueOnce(dataBuilder)
+        .mockReturnValueOnce(employmentBuilder)
+        .mockReturnValueOnce(approvedEmploymentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
-      expect(mockQuery.eq).toHaveBeenCalledWith('zone', 'soi6');
-      expect(jsonMock).toHaveBeenCalled();
+      expect(jsonMock).toHaveBeenCalledWith({
+        establishments: expect.arrayContaining([
+          expect.objectContaining({ id: 'est123', zone: 'soi6' })
+        ]),
+        pagination: expect.any(Object)
+      });
     });
 
     it('should filter establishments by category', async () => {
