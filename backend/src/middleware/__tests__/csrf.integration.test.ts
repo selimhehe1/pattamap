@@ -209,21 +209,25 @@ describe('CSRF Protection Integration Tests', () => {
     });
   });
 
-  describe('Admin Route CSRF Bypass', () => {
-    it('should bypass CSRF for admin routes with auth cookie', async () => {
+  describe('Admin Route CSRF Protection', () => {
+    it('should enforce CSRF protection on admin routes (NO BYPASS)', async () => {
       app.post('/api/admin/test', csrfProtection, (req, res) => {
         res.json({ success: true });
       });
 
-      // Simulate admin request with auth-token cookie
+      // Admin routes now require CSRF token (security fix - CVSS 7.5)
+      // Previously bypassed CSRF if auth cookie present - VULNERABILITY FIXED
       await request(app)
         .post('/api/admin/test')
         .set('Cookie', ['auth-token=admin-jwt-token'])
         .send({ data: 'admin action' })
-        .expect(200);
+        .expect(403)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('code', 'CSRF_TOKEN_MISSING');
+        });
     });
 
-    it('should not bypass CSRF for non-admin routes even with auth cookie', async () => {
+    it('should also enforce CSRF for non-admin routes with auth cookie', async () => {
       await request(app)
         .post('/protected')
         .set('Cookie', ['auth-token=user-jwt-token'])
