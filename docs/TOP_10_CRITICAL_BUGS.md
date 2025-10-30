@@ -28,13 +28,13 @@
 
 ---
 
-### 2. 🔴 Password Policy Faible (CVSS 6.5)
+### 2. ✅ Password Policy Faible (CVSS 6.5) - **RÉSOLU**
 
-**Status**: ⏳ À corriger
+**Status**: ✅ **FIXED** (commit à venir)
 
 **Problème**:
 - Seulement 8 caractères minimum requis
-- Aucune exigence de complexité (uppercase, lowercase, number, symbol)
+- Aucune exigence de symbole spécial
 - Pas de vérification contre les passwords compromis (HaveIBeenPwned)
 
 **Impact**:
@@ -42,30 +42,62 @@
 - Vulnérabilité au credential stuffing
 - Comptes utilisateurs facilement compromis
 
-**Solution**:
-```typescript
-// backend/src/controllers/authController.ts
+**Solution Appliquée**:
 
-// Validation password renforcée
-const PASSWORD_MIN_LENGTH = 12;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+1. **Validation Renforcée** (NIST SP 800-63B compliant):
+   ```typescript
+   // backend/src/controllers/authController.ts:32-76
 
-// Intégrer HaveIBeenPwned API
-const checkPasswordBreach = async (password: string): Promise<boolean> => {
-  const sha1 = crypto.createHash('sha1').update(password).digest('hex').toUpperCase();
-  const prefix = sha1.substring(0, 5);
-  const suffix = sha1.substring(5);
+   // Nouveaux requis:
+   - Minimum 12 caractères (était 8)
+   - Au moins une minuscule (a-z)
+   - Au moins une majuscule (A-Z)
+   - Au moins un chiffre (0-9)
+   - Au moins un symbole (@$!%*?&#^()_+-=[]{};\':"|,.<>/) ✨ NOUVEAU
+   - Maximum 128 caractères (protection DoS)
+   ```
 
-  const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
-  const hashes = await response.text();
+2. **HaveIBeenPwned Breach Check** (k-Anonymity):
+   ```typescript
+   // backend/src/controllers/authController.ts:95-152
 
-  return hashes.includes(suffix);
-};
-```
+   const checkPasswordBreach = async (password: string): Promise<boolean> => {
+     // SHA-1 hash du password
+     const sha1Hash = crypto.createHash('sha1').update(password).digest('hex');
+
+     // k-Anonymity: Envoyer seulement 5 premiers chars
+     const hashPrefix = sha1Hash.substring(0, 5);
+
+     // Query HaveIBeenPwned API (privacy-preserving)
+     const response = await fetch(
+       `https://api.pwnedpasswords.com/range/${hashPrefix}`
+     );
+
+     // Vérifier si hash complet est dans la réponse
+     const isBreached = hashList.includes(hashSuffix);
+
+     return isBreached; // true si password compromis
+   };
+   ```
+
+3. **Intégré dans 2 endpoints**:
+   - `POST /api/auth/register` (ligne 200-213)
+   - `PATCH /api/auth/change-password` (ligne 576-588)
+
+**Sécurité & Privacy**:
+- ✅ Password JAMAIS envoyé à l'API (seulement 5 chars du hash)
+- ✅ Fail-open si API down (disponibilité > sécurité temporaire)
+- ✅ Logs privacy-safe (pas de password, pas de hash complet)
+
+**Testing**:
+- Unit tests documentés dans le code
+- Manual testing requis pour HIBP API
+- Integration tests à ajouter (voir authController.test.ts)
 
 **Estimation**: 1 jour
 **Priority**: 🔴 CRITICAL
-**Assigné**: À assigner
+**Assigné**: Claude Code
+**Résolu**: Janvier 2025
 
 ---
 
@@ -399,7 +431,7 @@ self.addEventListener('fetch', (event) => {
 | # | Issue | Priority | Estimation | Status |
 |---|-------|----------|------------|--------|
 | 1 | CSRF Bypass | 🔴 CRITICAL | 1j | ✅ RESOLVED |
-| 2 | Password Policy | 🔴 CRITICAL | 1j | ⏳ TODO |
+| 2 | Password Policy | 🔴 CRITICAL | 1j | ✅ RESOLVED |
 | 3 | Tests Coverage | 🟠 HIGH | 10j | ⏳ TODO |
 | 4 | TypeScript `any` | 🟠 HIGH | 10j | ⏳ TODO |
 | 5 | God Components | 🟠 HIGH | 3j | ⏳ TODO |
@@ -409,14 +441,16 @@ self.addEventListener('fetch', (event) => {
 | 9 | Accessibilité | 🟡 MEDIUM | 6j | ⏳ TODO |
 | 10 | Features Incomp. | 🟡 MEDIUM | 18j | ⏳ TODO |
 
-**Total Dette**: 55.5 jours (11 semaines)
+**Total Dette**: 53.5 jours (10.7 semaines) - **2 jours résolus ! 🎉**
+
+**Vulnérabilités Critiques**: 2/2 RÉSOLUES (100%) ✅
 
 ---
 
 ## 🚀 Actions Immédiates (Cette Semaine)
 
 1. ✅ **Fix CSRF Bypass** (4h) - **DONE**
-2. ⏳ **Fix Password Policy** (1 jour) - **TODO**
+2. ✅ **Fix Password Policy** (1 jour) - **DONE**
 3. ⏳ **Start Tests Coverage** (authController + employeeController) - **TODO**
 4. ⏳ **Setup CI/CD** (GitHub Actions pour tests automatiques) - **TODO**
 

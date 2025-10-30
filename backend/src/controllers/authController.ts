@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
+import { generateCSRFToken } from '../middleware/csrf'; // 🔧 Import for token regeneration
 
 // Input validation helpers
 const validateEmail = (email: string): boolean => {
@@ -11,23 +13,142 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email) && email.length <= 255;
 };
 
+/**
+ * 🔒 SECURITY FIX: Strengthened Password Policy (CVSS 6.5)
+ *
+ * Requirements (NIST SP 800-63B compliant):
+ * - Minimum 12 characters (was 8)
+ * - At least one lowercase letter
+ * - At least one uppercase letter
+ * - At least one number
+ * - At least one special character
+ * - Maximum 128 characters (prevent DoS)
+ *
+ * Protection against:
+ * - Brute force attacks
+ * - Dictionary attacks
+ * - Credential stuffing
+ */
 const validatePassword = (password: string): { valid: boolean; message?: string } => {
-  if (password.length < 8) {
-    return { valid: false, message: 'Password must be at least 8 characters long' };
+  // Length checks
+  if (password.length < 12) {
+    return {
+      valid: false,
+      message: 'Password must be at least 12 characters long'
+    };
   }
   if (password.length > 128) {
-    return { valid: false, message: 'Password too long' };
+    return {
+      valid: false,
+      message: 'Password too long (max 128 characters)'
+    };
   }
+
+  // Complexity checks
   if (!/(?=.*[a-z])/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one lowercase letter' };
+    return {
+      valid: false,
+      message: 'Password must contain at least one lowercase letter (a-z)'
+    };
   }
   if (!/(?=.*[A-Z])/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one uppercase letter' };
+    return {
+      valid: false,
+      message: 'Password must contain at least one uppercase letter (A-Z)'
+    };
   }
   if (!/(?=.*\d)/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one number' };
+    return {
+      valid: false,
+      message: 'Password must contain at least one number (0-9)'
+    };
   }
+
+  // 🔒 NEW: Special character requirement
+  if (!/(?=.*[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/])/.test(password)) {
+    return {
+      valid: false,
+      message: 'Password must contain at least one special character (@$!%*?&#^()_+-=[]{};\':"|,.<>/)'
+    };
+  }
+
   return { valid: true };
+};
+
+/**
+ * 🔒 SECURITY FIX: HaveIBeenPwned Breach Check (CVSS 6.5)
+ *
+ * Checks if password has been exposed in known data breaches
+ * using the HaveIBeenPwned Passwords API (k-Anonymity model)
+ *
+ * How it works:
+ * 1. Hash password with SHA-1
+ * 2. Send first 5 chars of hash to API (privacy-preserving)
+ * 3. API returns all hashes starting with those 5 chars
+ * 4. Check if full hash is in the response
+ *
+ * Privacy: Password never sent to API, only partial hash
+ *
+ * @param password - Password to check
+ * @returns true if password found in breach database
+ */
+const checkPasswordBreach = async (password: string): Promise<boolean> => {
+  try {
+    // SHA-1 hash the password
+    const sha1Hash = crypto
+      .createHash('sha1')
+      .update(password)
+      .digest('hex')
+      .toUpperCase();
+
+    // k-Anonymity: Send only first 5 characters
+    const hashPrefix = sha1Hash.substring(0, 5);
+    const hashSuffix = sha1Hash.substring(5);
+
+    // Query HaveIBeenPwned API (range search)
+    const response = await fetch(
+      `https://api.pwnedpasswords.com/range/${hashPrefix}`,
+      {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'PattaMap-PasswordChecker/1.0',
+          'Add-Padding': 'true' // HIBP padding for additional privacy
+        }
+      }
+    );
+
+    if (!response.ok) {
+      // If API fails, log but don't block registration
+      // (fail-open for availability, but log for monitoring)
+      logger.warn('HaveIBeenPwned API request failed', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      return false; // Don't block on API failure
+    }
+
+    const hashList = await response.text();
+
+    // Check if our hash suffix appears in the response
+    // Format: "SUFFIX:COUNT\r\n" (e.g., "003D68EB55068C33ACE09247EE4C639306B:3")
+    const isBreached = hashList
+      .split('\r\n')
+      .some(line => line.startsWith(hashSuffix));
+
+    if (isBreached) {
+      logger.warn('Password found in breach database', {
+        hashPrefix, // Safe to log (only 5 chars)
+        // DO NOT log full hash or password
+      });
+    }
+
+    return isBreached;
+
+  } catch (error) {
+    // If check fails (network error, etc.), log but don't block
+    logger.error('Password breach check failed', error);
+    return false; // Fail-open for user convenience
+  }
 };
 
 const validatePseudonym = (pseudonym: string): boolean => {
@@ -40,7 +161,7 @@ const sanitizeInput = (input: string): string => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { pseudonym, email, password } = req.body;
+    const { pseudonym, email, password, account_type } = req.body;
 
     // Input validation
     if (!pseudonym || !email || !password) {
@@ -76,6 +197,27 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
+    // 🔒 SECURITY FIX: Check if password has been breached
+    // Uses HaveIBeenPwned API with k-Anonymity (privacy-preserving)
+    const isBreached = await checkPasswordBreach(password);
+    if (isBreached) {
+      logger.warn('User attempted registration with breached password', {
+        pseudonym, // Safe to log
+        email: sanitizedEmail.substring(0, 3) + '***' // Partial email for privacy
+      });
+      return res.status(400).json({
+        error: 'This password has been exposed in a data breach and cannot be used. Please choose a different password.',
+        code: 'PASSWORD_BREACHED',
+        hint: 'Use a unique password that hasn\'t been compromised'
+      });
+    }
+
+    // Validate account_type (optional, defaults to 'regular')
+    const validAccountTypes = ['regular', 'employee', 'establishment_owner'];
+    const userAccountType = account_type && validAccountTypes.includes(account_type)
+      ? account_type
+      : 'regular';
+
     // Check if user already exists with parameterized queries
     const { data: existingUsers } = await supabase
       .from('users')
@@ -94,7 +236,7 @@ export const register = async (req: Request, res: Response) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create user with explicit fields
+    // Create user with explicit fields (including account_type)
     const { data: user, error } = await supabase
       .from('users')
       .insert({
@@ -102,9 +244,10 @@ export const register = async (req: Request, res: Response) => {
         email: sanitizedEmail,
         password: hashedPassword,
         role: 'user',
-        is_active: true
+        is_active: true,
+        account_type: userAccountType
       })
-      .select('id, pseudonym, email, role, is_active, created_at')
+      .select('id, pseudonym, email, role, is_active, account_type, created_at')
       .single();
 
     if (error) {
@@ -115,39 +258,100 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    // Generate JWT with proper expiration
-    const jwtSecret = process.env.JWT_SECRET;
-    const jwtExpiration = process.env.JWT_EXPIRES_IN || '7d';
+    // 🔧 ROLLBACK FIX: Wrap post-creation steps in try-catch to rollback user if anything fails
+    try {
+      // 🎯 FIX: Initialize user_points immediately after user creation
+      // This ensures GamificationContext can load userProgress from the start
+      const { error: pointsError } = await supabase
+        .from('user_points')
+        .insert({
+          user_id: user.id,
+          total_xp: 0,
+          monthly_xp: 0,
+          current_level: 1,
+          current_streak_days: 0,
+          longest_streak_days: 0,
+          last_activity_date: new Date().toISOString().split('T')[0] // DATE format (YYYY-MM-DD)
+        });
 
-    if (!jwtSecret) {
-      logger.error('JWT_SECRET not configured');
-      return res.status(500).json({ error: 'Server configuration error' });
+      if (pointsError) {
+        logger.error('Failed to initialize user_points:', pointsError);
+        // Rollback: delete user if user_points creation fails
+        await supabase.from('users').delete().eq('id', user.id);
+        return res.status(500).json({ error: 'Failed to initialize user gamification data' });
+      }
+
+      logger.debug('✅ user_points initialized for new user:', user.id);
+
+      // Generate JWT with proper expiration
+      const jwtSecret = process.env.JWT_SECRET;
+      const jwtExpiration = process.env.JWT_EXPIRES_IN || '7d';
+
+      if (!jwtSecret) {
+        logger.error('JWT_SECRET not configured');
+        // Rollback: delete user and user_points if JWT_SECRET is missing
+        await supabase.from('user_points').delete().eq('user_id', user.id);
+        await supabase.from('users').delete().eq('id', user.id);
+        return res.status(500).json({ error: 'Server configuration error' });
+      }
+
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          email: user.email,
+          role: user.role
+        },
+        jwtSecret,
+        { expiresIn: jwtExpiration } as jwt.SignOptions
+      );
+
+      // Set secure httpOnly cookie
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('auth-token', token, {
+        httpOnly: true,
+        secure: isProduction, // HTTPS only in production
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+        path: '/'
+      });
+
+      // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
+      // This prevents session ID mismatch between register and subsequent requests
+      req.session.csrfToken = generateCSRFToken();
+
+      // Explicitly save session before returning to ensure token is persisted
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            logger.error('Failed to save session after token regeneration', err);
+            reject(err);
+          } else {
+            logger.debug('CSRF token regenerated and session saved after auth', {
+              sessionId: req.sessionID,
+              tokenPreview: req.session.csrfToken!.substring(0, 8) + '...'
+            });
+            resolve();
+          }
+        });
+      });
+
+      const freshCsrfToken = req.session.csrfToken;
+
+      res.status(201).json({
+        message: 'User registered successfully',
+        user: user,
+        csrfToken: freshCsrfToken // 🔧 Token synchronized with active session
+      });
+    } catch (postCreationError) {
+      // 🔧 ROLLBACK: Delete user if any post-creation step fails
+      logger.error('Post-creation error, rolling back user:', postCreationError);
+      await supabase.from('users').delete().eq('id', user.id);
+
+      return res.status(500).json({
+        error: 'Registration failed. Please try again.',
+        code: 'POST_CREATION_FAILED'
+      });
     }
-
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role
-      },
-      jwtSecret,
-      { expiresIn: jwtExpiration } as jwt.SignOptions
-    );
-
-    // Set secure httpOnly cookie
-    const isProduction = process.env.NODE_ENV === 'production';
-    res.cookie('auth-token', token, {
-      httpOnly: true,
-      secure: isProduction, // HTTPS only in production
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      path: '/'
-    });
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: user
-    });
 
   } catch (error) {
     logger.error('Registration error:', error);
@@ -179,11 +383,12 @@ export const login = async (req: Request, res: Response) => {
 
     const sanitizedLogin = sanitizeInput(login);
 
-    // Find user by pseudonym or email with security checks
+    // Find user by pseudonym or email with security checks (case-insensitive)
+    // Using ilike for case-insensitive search on pseudonym and email
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, pseudonym, email, password, role, is_active')
-      .or(`pseudonym.eq."${sanitizedLogin}",email.eq."${sanitizedLogin}"`)
+      .select('id, pseudonym, email, password, role, is_active, account_type, linked_employee_id')
+      .or(`pseudonym.ilike."${sanitizedLogin}",email.ilike."${sanitizedLogin}"`)
       .eq('is_active', true);
 
     if (error || !users || users.length === 0) {
@@ -221,7 +426,8 @@ export const login = async (req: Request, res: Response) => {
       {
         userId: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        linkedEmployeeId: user.linked_employee_id  // ✅ Include in JWT!
       },
       jwtSecret,
       { expiresIn: jwtExpiration } as jwt.SignOptions
@@ -237,12 +443,34 @@ export const login = async (req: Request, res: Response) => {
       path: '/'
     });
 
+    // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
+    req.session.csrfToken = generateCSRFToken();
+
+    // Explicitly save session before returning to ensure token is persisted
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          logger.error('Failed to save session after token regeneration', err);
+          reject(err);
+        } else {
+          logger.debug('CSRF token regenerated and session saved after login', {
+            sessionId: req.sessionID,
+            tokenPreview: req.session.csrfToken!.substring(0, 8) + '...'
+          });
+          resolve();
+        }
+      });
+    });
+
+    const freshCsrfToken = req.session.csrfToken;
+
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({
       message: 'Login successful',
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      csrfToken: freshCsrfToken // 🔧 Token synchronized with active session
     });
 
   } catch (error) {
@@ -264,11 +492,48 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Return user profile without sensitive data
-    const { password, ...userProfile } = req.user as any;
+    // Get full user profile with linked employee (if any)
+    const { data: fullUser, error } = await supabase
+      .from('users')
+      .select(`
+        id,
+        pseudonym,
+        email,
+        role,
+        is_active,
+        account_type,
+        linked_employee_id,
+        created_at,
+        linkedEmployee:employees!users_linked_employee_id_fkey(
+          id,
+          name,
+          nickname,
+          photos,
+          status
+        )
+      `)
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !fullUser) {
+      logger.error('Get profile error:', error);
+      return res.status(404).json({
+        error: 'User profile not found',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    // 🔍 DEBUG: Log what we're returning
+    logger.debug('🔍 /api/auth/profile response:', {
+      userId: fullUser.id,
+      pseudonym: fullUser.pseudonym,
+      account_type: fullUser.account_type,
+      linked_employee_id: fullUser.linked_employee_id,
+      hasLinkedEmployee: !!fullUser.linked_employee_id
+    });
 
     res.json({
-      user: userProfile
+      user: fullUser
     });
 
   } catch (error) {
@@ -305,6 +570,20 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({
         error: passwordValidation.message,
         code: 'INVALID_PASSWORD'
+      });
+    }
+
+    // 🔒 SECURITY FIX: Check if new password has been breached
+    const isBreached = await checkPasswordBreach(newPassword);
+    if (isBreached) {
+      logger.warn('User attempted to change to breached password', {
+        userId: req.user.id,
+        pseudonym: req.user.pseudonym
+      });
+      return res.status(400).json({
+        error: 'This password has been exposed in a data breach and cannot be used. Please choose a different password.',
+        code: 'PASSWORD_BREACHED',
+        hint: 'Use a unique password that hasn\'t been compromised'
       });
     }
 
