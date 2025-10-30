@@ -105,11 +105,15 @@
 
 ### 3. 🟠 Tests Coverage Insuffisant
 
-**Status**: ⏳ À corriger
+**Status**: ⏳ En cours (authController ✅ COMPLÉTÉ - 25 tests)
 
 **Problème**:
 - **Frontend Components**: 0% coverage (React Testing Library configuré mais inutilisé)
-- **Controllers Backend**: <10% coverage (seul pushController testé)
+- **Controllers Backend**: ~20% coverage (pushController + authController testés)
+  - ✅ **authController**: 25 tests, 100% passing (register, login, changePassword, getProfile, logout)
+  - ⏳ employeeController: 0 tests (CRUD, grid positioning à tester)
+  - ⏳ establishmentController: 0 tests (CRUD, drag & drop à tester)
+  - ⏳ vipController: 0 tests (purchase, verify, cancel à tester)
 - **Services**: 0% coverage (gamification, verification non testés)
 - **E2E Tests**: 0 tests (Playwright configuré mais aucun test)
 
@@ -119,11 +123,11 @@
 - Difficile de refactorer en confiance
 
 **Solution**:
-1. **Backend Controllers** (3 jours):
-   - authController: login, register, refresh token tests
-   - employeeController: CRUD + grid positioning tests
-   - establishmentController: CRUD + drag & drop tests
-   - vipController: purchase, verify, cancel tests
+1. **Backend Controllers** (3 jours → ⏳ 1.5j restants):
+   - ✅ authController: 25 tests (register, login, changePassword, getProfile, logout) - **COMPLÉTÉ** (1.5j)
+   - ⏳ employeeController: CRUD + grid positioning tests (1j)
+   - ⏳ establishmentController: CRUD + drag & drop tests (1j)
+   - ⏳ vipController: purchase, verify, cancel tests (1j)
 
 2. **Frontend Components** (4 jours):
    - Common components: Modal, StarRating, Pagination
@@ -135,9 +139,15 @@
    - Admin flows: Login → Approve → Position on map
    - VIP flows: Purchase → Verify → Check placement
 
-**Estimation**: 10 jours
+**Progression**:
+- ✅ authController tests: 25 tests, 100% passing (commit b10a0b3)
+  - Tests couvrent: validation inputs, HaveIBeenPwned API, user_points init, CSRF regeneration, JWT creation
+  - Mock complets: Supabase, bcrypt, JWT, fetch API
+  - Coverage estimé: ~90% du code authController
+
+**Estimation**: 10 jours → **8.5 jours restants**
 **Priority**: 🟠 HIGH
-**Assigné**: À assigner
+**Assigné**: Claude Code (en cours)
 
 ---
 
@@ -432,7 +442,7 @@ self.addEventListener('fetch', (event) => {
 |---|-------|----------|------------|--------|
 | 1 | CSRF Bypass | 🔴 CRITICAL | 1j | ✅ RESOLVED |
 | 2 | Password Policy | 🔴 CRITICAL | 1j | ✅ RESOLVED |
-| 3 | Tests Coverage | 🟠 HIGH | 10j | ⏳ TODO |
+| 3 | Tests Coverage | 🟠 HIGH | 10j → 8.5j | ⏳ IN PROGRESS (authController ✅) |
 | 4 | TypeScript `any` | 🟠 HIGH | 10j | ⏳ TODO |
 | 5 | God Components | 🟠 HIGH | 3j | ⏳ TODO |
 | 6 | Map Performance | 🟡 MEDIUM | 2j | ⏳ TODO |
@@ -441,18 +451,21 @@ self.addEventListener('fetch', (event) => {
 | 9 | Accessibilité | 🟡 MEDIUM | 6j | ⏳ TODO |
 | 10 | Features Incomp. | 🟡 MEDIUM | 18j | ⏳ TODO |
 
-**Total Dette**: 53.5 jours (10.7 semaines) - **2 jours résolus ! 🎉**
+**Total Dette**: 53.5 jours → **52 jours** (10.4 semaines) - **3.5 jours résolus ! 🎉**
 
 **Vulnérabilités Critiques**: 2/2 RÉSOLUES (100%) ✅
+
+**Tests Coverage**: 1/4 controllers testés (authController ✅ 25 tests)
 
 ---
 
 ## 🚀 Actions Immédiates (Cette Semaine)
 
-1. ✅ **Fix CSRF Bypass** (4h) - **DONE**
-2. ✅ **Fix Password Policy** (1 jour) - **DONE**
-3. ⏳ **Start Tests Coverage** (authController + employeeController) - **TODO**
-4. ⏳ **Setup CI/CD** (GitHub Actions pour tests automatiques) - **TODO**
+1. ✅ **Fix CSRF Bypass** (4h) - **DONE** (commit 9011edb)
+2. ✅ **Fix Password Policy** (1 jour) - **DONE** (commit 9df4878)
+3. ✅ **authController Tests** (1.5j) - **DONE** (commit b10a0b3) - 25 tests, 100% passing
+4. ⏳ **employeeController Tests** (1j) - **IN PROGRESS** (CRUD, grid positioning)
+5. ⏳ **Setup CI/CD** (GitHub Actions pour tests automatiques) - **TODO**
 
 ---
 
