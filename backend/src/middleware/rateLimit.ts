@@ -251,4 +251,16 @@ export const vipStatusCheckRateLimit = createRateLimit({
   }
 });
 
+// Health check rate limit (Day 2 Sprint - Security)
+// Prevents health endpoint from being used as DDoS vector
+export const healthCheckRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 100, // Max 100 requests per minute per IP
+  message: 'Too many health check requests. Please try again later.',
+  keyGenerator: (req: Request) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `health:${ip}`;
+  }
+});
+
 export { store as rateLimitStore };

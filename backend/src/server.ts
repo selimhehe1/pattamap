@@ -68,7 +68,8 @@ import {
   authRateLimit,
   uploadRateLimit,
   adminRateLimit,
-  commentRateLimit
+  commentRateLimit,
+  healthCheckRateLimit
 } from './middleware/rateLimit';
 import { initRedis } from './config/redis';
 import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
@@ -242,8 +243,8 @@ if (NODE_ENV === 'development') {
 // CSRF token endpoint (no protection needed for GET)
 app.get('/api/csrf-token', getCSRFToken);
 
-// Health check route
-app.get('/api/health', (req, res) => {
+// Health check route (with rate limiting to prevent DDoS)
+app.get('/api/health', healthCheckRateLimit, (req, res) => {
   res.json({
     message: 'PattaMap API is running!',
     timestamp: new Date().toISOString(),
