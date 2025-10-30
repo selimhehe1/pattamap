@@ -248,7 +248,7 @@ CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com
 # Sentry
 SENTRY_DSN=https://xxx@sentry.io/xxx
 SENTRY_ENVIRONMENT=production
-SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_TRACES_SAMPLE_RATE=0.5
 
 # Rate Limiting
 RATE_LIMIT_WHITELIST=1.2.3.4,5.6.7.8

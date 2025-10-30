@@ -135,7 +135,7 @@ SENTRY_DSN=your-sentry-dsn-here
 SENTRY_ENVIRONMENT=development  # or production
 
 # Optional Performance
-SENTRY_TRACES_SAMPLE_RATE=0.1      # 10% des transactions
+SENTRY_TRACES_SAMPLE_RATE=0.5      # 10% des transactions
 SENTRY_PROFILES_SAMPLE_RATE=0.1    # 10% de profiling
 SENTRY_ENABLE_PROFILING=false      # Activer le profiling CPU
 ```

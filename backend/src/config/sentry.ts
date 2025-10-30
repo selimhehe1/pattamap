@@ -17,7 +17,8 @@ export const initSentry = () => {
   const dsn = process.env.SENTRY_DSN;
   const environment = process.env.SENTRY_ENVIRONMENT || 'development';
   const enableProfiling = process.env.SENTRY_ENABLE_PROFILING === 'true';
-  const tracesSampleRate = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1');
+  // 🎯 Default 50% sample rate for good production visibility without excessive quota usage
+  const tracesSampleRate = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.5');
   const profilesSampleRate = parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || '0.1');
 
   // Don't initialize if no DSN provided

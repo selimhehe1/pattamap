@@ -380,8 +380,8 @@ logger.debug(`Query took ${Date.now() - start}ms`);
 USE_REDIS=true
 REDIS_URL=redis://:password@production-redis.example.com:6379
 
-# Sentry performance
-SENTRY_TRACES_SAMPLE_RATE=0.1
+# Sentry performance (🎯 Recommended: 0.5 for good visibility)
+SENTRY_TRACES_SAMPLE_RATE=0.5
 SENTRY_ENABLE_PROFILING=false  # Coûteux, activer seulement si nécessaire
 ```
 
