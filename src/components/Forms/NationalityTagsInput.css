@@ -1,0 +1,353 @@
+/* Nationality Tags Input Component Styles (Gmail-style) */
+
+.nationality-tags-input-wrapper {
+  width: 100%;
+  position: relative;
+  /* Ensure dropdown can overflow */
+  overflow: visible;
+}
+
+/* Container (Input + Tags) */
+.nationality-tags-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  min-height: 44px;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  font-family: var(--font-family-base);
+}
+
+.nationality-tags-input-container::after {
+  content: '▼';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(193, 154, 107, 0.6);
+  font-size: 10px;
+  pointer-events: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nationality-tags-input-focused::after {
+  transform: translateY(-50%) rotate(180deg);
+  color: rgba(193, 154, 107, 1);
+}
+
+.nationality-tags-input-container:hover {
+  border-color: rgba(193, 154, 107, 0.6);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nationality-tags-input-container:hover::after {
+  color: rgba(193, 154, 107, 0.8);
+}
+
+.nationality-tags-input-focused {
+  border-color: rgba(193, 154, 107, 0.8) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 0 0 3px rgba(193, 154, 107, 0.2);
+}
+
+.nationality-tags-input-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(30, 30, 30, 0.5);
+}
+
+.nationality-tags-input-disabled:hover {
+  border-color: #444;
+  background: rgba(30, 30, 30, 0.5);
+}
+
+/* Selected Nationality Tags (Badges) */
+.nationality-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  animation: tagAppear 0.2s ease;
+  transition: transform 0.15s ease;
+}
+
+.nationality-tag:hover {
+  transform: scale(1.05);
+}
+
+@keyframes tagAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nationality-tag-text {
+  line-height: 1.2;
+}
+
+.nationality-tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease;
+}
+
+.nationality-tag-remove:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Input Field */
+.nationality-tags-input-field {
+  flex: 1;
+  min-width: 120px;
+  max-width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 15px;
+  outline: none;
+  padding: 6px 0;
+  height: 28px;
+}
+
+.nationality-tags-input-field::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.nationality-tags-input-field:disabled {
+  cursor: not-allowed;
+}
+
+/* Max selection indicator */
+.nationality-tags-input-max {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-style: italic;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Suggestions Dropdown */
+.nationality-suggestions {
+  background: rgba(20, 20, 20, 0.98);
+  border: 2px solid rgba(193, 154, 107, 0.6);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  animation: slideDown 0.2s ease;
+  font-family: var(--font-family-base);
+}
+
+/* Portal dropdown (rendered in document.body with fixed positioning) */
+.nationality-suggestions-portal {
+  /* Position is set via inline styles: position: fixed, top, left, width */
+  /* This ensures dropdown appears above all content and isn't cut by overflow: hidden */
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar */
+.nationality-suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nationality-suggestions::-webkit-scrollbar-track {
+  background: rgba(30, 30, 30, 0.5);
+  border-radius: 4px;
+}
+
+.nationality-suggestions::-webkit-scrollbar-thumb {
+  background: rgba(193, 154, 107, 0.6);
+  border-radius: 4px;
+}
+
+.nationality-suggestions::-webkit-scrollbar-thumb:hover {
+  background: rgba(193, 154, 107, 0.8);
+}
+
+/* Suggestion Item */
+.nationality-suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nationality-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.nationality-suggestion-item:hover,
+.nationality-suggestion-item-focused {
+  background: rgba(193, 154, 107, 0.15);
+}
+
+.nationality-suggestion-item-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(50, 50, 50, 0.3);
+  text-align: center;
+  font-style: italic;
+}
+
+.nationality-suggestion-item-disabled:hover {
+  background: rgba(50, 50, 50, 0.3);
+}
+
+/* Helper Text */
+.nationality-helper-text {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Error Text */
+.nationality-error-text {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff4444;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .nationality-tags-input-container {
+    padding: 12px;
+    min-height: 48px;
+  }
+
+  .nationality-tag {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .nationality-tag-remove {
+    width: 20px;
+    height: 20px;
+    font-size: 18px;
+  }
+
+  .nationality-tags-input-field {
+    min-width: 100px;
+    font-size: 16px;
+  }
+
+  .nationality-suggestions {
+    max-height: 180px;
+  }
+
+  .nationality-suggestion-item {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .nationality-tags-input-container {
+    padding: 10px;
+    gap: 4px;
+  }
+
+  .nationality-tag {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .nationality-tags-input-field {
+    min-width: 80px;
+    font-size: 15px;
+  }
+
+  .nationality-suggestions {
+    max-height: 160px;
+  }
+
+  .nationality-suggestion-item {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+}
+
+/* Accessibility - Focus States */
+.nationality-tags-input-field:focus {
+  outline: none;
+}
+
+.nationality-tag-remove:focus {
+  outline: 2px solid #ff69b4;
+  outline-offset: 2px;
+}
+
+/* Dark Mode Support (already dark by default) */
+@media (prefers-color-scheme: light) {
+  /* Light mode styles (if needed in future) */
+}
+
+/* Animation for tag removal */
+.nationality-tag-removing {
+  animation: tagRemove 0.2s ease forwards;
+}
+
+@keyframes tagRemove {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}

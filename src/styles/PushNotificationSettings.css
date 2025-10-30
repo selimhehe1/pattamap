@@ -1,0 +1,362 @@
+/* Push Notification Settings Component */
+
+.push-notification-settings {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Loading State */
+.push-loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.push-loading .spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 20px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent-pink);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.push-loading p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Not Supported / Not Configured / Permission Denied */
+.push-not-supported,
+.push-not-configured,
+.push-permission-denied {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.warning-icon,
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.push-not-supported h3,
+.push-not-configured h3,
+.push-permission-denied h3 {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.push-not-supported p,
+.push-not-configured p,
+.push-permission-denied p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.help-text {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 12px;
+}
+
+/* Help Steps */
+.help-steps {
+  margin-top: 24px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.help-steps h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.help-steps ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.help-steps li {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+/* Header */
+.push-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.push-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.push-title h3 {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.push-description {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Status Card */
+.push-status-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-row:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-value {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-badge.inactive {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* Permission Badge */
+.permission-badge {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.permission-badge.granted {
+  color: #22c55e;
+}
+
+.permission-badge.default {
+  color: #f59e0b;
+}
+
+.permission-badge.denied {
+  color: #ef4444;
+}
+
+/* Actions */
+.push-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.push-button {
+  flex: 1;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.push-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.push-button.subscribe {
+  background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-purple) 100%);
+  color: white;
+}
+
+.push-button.subscribe:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(236, 72, 153, 0.3);
+}
+
+.push-button.test {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.push-button.test:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.push-button.unsubscribe {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.push-button.unsubscribe:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Info Section */
+.push-info {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.push-info h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.push-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.push-info li {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.push-info li:last-child {
+  margin-bottom: 0;
+}
+
+/* Privacy */
+.push-privacy {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.privacy-text {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .push-notification-settings {
+    padding: 16px;
+  }
+
+  .push-header {
+    gap: 12px;
+  }
+
+  .push-icon {
+    font-size: 28px;
+  }
+
+  .push-title h3 {
+    font-size: 18px;
+  }
+
+  .push-actions {
+    flex-direction: column;
+  }
+
+  .push-button {
+    width: 100%;
+  }
+
+  .status-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .status-badge,
+  .permission-badge {
+    align-self: flex-start;
+  }
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .push-notification-settings {
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+  }
+}

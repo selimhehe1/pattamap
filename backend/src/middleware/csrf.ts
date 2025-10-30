@@ -17,6 +17,7 @@ declare module 'express-session' {
 }
 
 // Générer un token CSRF sécurisé
+// 🔧 Exported for use in authController to regenerate token after auth
 export const generateCSRFToken = (): string => {
   return crypto.randomBytes(32).toString('hex');
 };
@@ -34,24 +35,32 @@ export const csrfTokenGenerator = (req: Request, res: Response, next: NextFuncti
   if (!req.session.csrfToken) {
     req.session.csrfToken = generateCSRFToken();
 
-    // Explicitly save the session to ensure token persistence
+    // Explicitly save the session to ensure token persistence BEFORE proceeding
     req.session.save((err) => {
       if (err) {
         logger.error('Failed to save CSRF session', err);
-      } else {
-        logger.debug('CSRF token generated and session saved', {
-          tokenLength: req.session.csrfToken!.length
-        });
+        return next(err); // Pass error to error handler
       }
+
+      logger.debug('CSRF token generated and session saved', {
+        tokenLength: req.session.csrfToken!.length
+      });
+
+      // Rendre le token disponible pour les vues/API
+      (req as any).csrfToken = req.session.csrfToken;
+
+      // ✅ Call next() ONLY after session is saved
+      next();
     });
   } else {
     logger.debug('CSRF token reused from session');
+
+    // Rendre le token disponible pour les vues/API
+    (req as any).csrfToken = req.session.csrfToken;
+
+    // ✅ Call next() for existing token case
+    next();
   }
-
-  // Rendre le token disponible pour les vues/API
-  (req as any).csrfToken = req.session.csrfToken;
-
-  next();
 };
 
 // Middleware de validation CSRF pour les routes sensibles
@@ -67,19 +76,39 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  // Check if user is admin authenticated - bypass CSRF for admin operations with auth token
-  if (req.originalUrl.includes('/api/admin/') && req.headers.cookie && req.headers.cookie.includes('auth-token=')) {
-    logger.debug('CSRF check bypassed for authenticated admin route');
-    return next();
-  }
+  // ========================================
+  // 🔒 CSRF BYPASS REMOVED - SECURITY FIX
+  // ========================================
+  // CRITICAL SECURITY ISSUE FIXED:
+  // - Previous code bypassed CSRF for ALL /api/admin/* routes (CVSS 7.5)
+  // - This allowed potential CSRF attacks from malicious sites/subdomains
+  // - Even with httpOnly cookies, CSRF protection is REQUIRED because:
+  //   * Browsers send cookies automatically on cross-site requests
+  //   * Attacker can forge requests from evil.com → pattamap.com/api/admin/users/delete
+  //   * CSRF token is the ONLY defense (attacker cannot access it)
+  //
+  // ✅ FIX: NO BYPASS - All mutations (POST/PUT/DELETE) require CSRF token
+  // Frontend already sends X-CSRF-Token header via useSecureFetch
+  //
+  // If CSRF errors occur on admin routes:
+  // 1. Verify frontend includes X-CSRF-Token header
+  // 2. Check CSRFContext is wrapping AdminPanel
+  // 3. Ensure session persistence (cookies enabled)
+  // ========================================
 
   const sessionToken = req.session.csrfToken;
   const requestToken = req.headers['x-csrf-token'] || req.body._csrf || req.query._csrf;
 
   logger.debug('CSRF tokens check', {
+    method: req.method,
+    url: req.originalUrl,
+    sessionId: req.sessionID, // 🔍 Track session ID to detect session changes
+    sessionToken: sessionToken ? `${sessionToken.substring(0,8)}...` : null, // 🔍 Show token preview
+    requestToken: requestToken ? `${String(requestToken).substring(0,8)}...` : null, // 🔍 Show token preview
     hasSessionToken: !!sessionToken,
     hasRequestToken: !!requestToken,
-    requestTokenSource: req.headers['x-csrf-token'] ? 'header' : (req.body._csrf ? 'body' : 'query')
+    requestTokenSource: req.headers['x-csrf-token'] ? 'header' : (req.body._csrf ? 'body' : 'query'),
+    tokensMatch: sessionToken && requestToken ? sessionToken === String(requestToken) : false // 🔍 Quick check
   });
 
   // Vérifier que les tokens existent

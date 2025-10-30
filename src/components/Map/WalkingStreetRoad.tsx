@@ -45,7 +45,8 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
       if (!canvas || !ctx || !parent) return;
 
       const width = parent.clientWidth;
-      const height = parent.clientHeight;
+      // Use window.innerHeight on mobile for accurate full-screen height
+      const height = isMobile ? window.innerHeight : parent.clientHeight;
 
       // Set canvas size (high resolution for crisp rendering)
       canvas.width = width * 2;
@@ -58,63 +59,72 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
       ctx.clearRect(0, 0, width, height);
 
       if (isMobile) {
-        // === MOBILE LAYOUT: Vertical Walking Street + Horizontal intersections ===
+        // === MOBILE LAYOUT: Vertical Walking Street + Horizontal perpendicular streets ===
+        // Rotation 90° from desktop - same proportions
         const mainRoadWidth = 80;
-        const intersectionWidth = 35;
         const centerX = width * 0.5;
 
-        // Horizontal intersections positions (Y percentages)
-        const intersections = [
-          { y: 0.10, label: 'Soi JP' },
-          { y: 0.22, label: 'Soi VC' },
-          { y: 0.30, label: 'Soi 16' },
-          { y: 0.45, label: 'Soi 15' },
-          { y: 0.60, label: 'Soi Marine' },
-          { y: 0.75, label: 'Soi Diamond' },
-          { y: 0.90, label: 'Soi 13' }
+        // Perpendicular streets - Desktop X positions become Mobile Y positions
+        // Keeping same relative positions from desktop
+        const perpendicularStreets = [
+          { yPercent: 0.12, label: 'Diamond', width: 35 },    // Was x:12% on desktop
+          { yPercent: 0.22, label: 'Republic', width: 12 },   // Was x:22% on desktop
+          { yPercent: 0.28, label: 'Myst', width: 6 },        // Was x:28% on desktop
+          { yPercent: 0.52, label: 'Soi 15', width: 35 },     // Was x:52% on desktop
+          { yPercent: 0.68, label: 'Soi 16', width: 35 },     // Was x:68% on desktop
+          { yPercent: 0.82, label: 'BJ Alley', width: 25 }    // Was x:82% on desktop
         ];
 
-        // Step 1: Draw all roads in one path (base layer)
+        // Step 1: Draw all roads base layer
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Draw perpendicular streets first (RIGHT SIDE ONLY - stops at Walking Street)
+        perpendicularStreets.forEach(({ yPercent, width: streetWidth }) => {
+          const yPos = height * yPercent;
+          ctx.strokeStyle = '#2d2d2d';
+          ctx.lineWidth = streetWidth;
+
+          ctx.beginPath();
+          // Right segment ONLY (stops at Walking Street)
+          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
+          ctx.lineTo(width, yPos);
+          ctx.stroke();
+        });
+
+        // Main vertical Walking Street (on top)
         ctx.lineWidth = mainRoadWidth;
         ctx.strokeStyle = '#2d2d2d';
-        ctx.lineJoin = 'round';
         ctx.lineCap = 'butt';
 
         ctx.beginPath();
-        // Main vertical Walking Street
         ctx.moveTo(centerX, 0);
         ctx.lineTo(centerX, height);
-
-        // Horizontal intersections - split into segments that stop at Walking Street
-        intersections.forEach(({ y }) => {
-          const yPos = height * y;
-          // Left segment (before Walking Street)
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(centerX - mainRoadWidth/2, yPos);
-          // Right segment (after Walking Street)
-          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
-          ctx.lineTo(width, yPos);
-        });
         ctx.stroke();
 
         // Step 2: Asphalt overlay
+        ctx.lineCap = 'round';
+
+        // Perpendicular streets overlay (RIGHT SIDE ONLY)
+        perpendicularStreets.forEach(({ yPercent, width: streetWidth }) => {
+          const yPos = height * yPercent;
+          ctx.strokeStyle = '#1a1a1a';
+          ctx.lineWidth = streetWidth - 4;
+
+          ctx.beginPath();
+          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
+          ctx.lineTo(width, yPos);
+          ctx.stroke();
+        });
+
+        // Main road overlay
         ctx.lineWidth = mainRoadWidth - 4;
         ctx.strokeStyle = '#1a1a1a';
-        ctx.lineJoin = 'round';
+        ctx.lineCap = 'butt';
 
         ctx.beginPath();
         ctx.moveTo(centerX, 0);
         ctx.lineTo(centerX, height);
-
-        intersections.forEach(({ y }) => {
-          const yPos = height * y;
-          // Left segment
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(centerX - mainRoadWidth/2, yPos);
-          // Right segment
-          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
-          ctx.lineTo(width, yPos);
-        });
         ctx.stroke();
 
         // Step 3: Asphalt grain texture
@@ -126,16 +136,16 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
           // Check if on vertical Walking Street
           const isOnMain = grainX >= centerX - mainRoadWidth/2 && grainX <= centerX + mainRoadWidth/2;
 
-          // Check if on any horizontal intersection (split segments)
-          const isOnIntersection = intersections.some(({ y }) => {
-            const yPos = height * y;
-            // Check if grain is on left segment OR right segment
-            const leftSegment = grainX <= centerX - mainRoadWidth/2 && grainY >= yPos - intersectionWidth/2 && grainY <= yPos + intersectionWidth/2;
-            const rightSegment = grainX >= centerX + mainRoadWidth/2 && grainY >= yPos - intersectionWidth/2 && grainY <= yPos + intersectionWidth/2;
-            return leftSegment || rightSegment;
+          // Check if on perpendicular streets (RIGHT SIDE ONLY)
+          const isOnPerpendicular = perpendicularStreets.some(({ yPercent, width: streetWidth }) => {
+            const yPos = height * yPercent;
+            const onStreet = grainY >= yPos - streetWidth/2 && grainY <= yPos + streetWidth/2;
+            // Only on right side (stops at Walking Street)
+            const onRightSide = grainX >= centerX + mainRoadWidth/2;
+            return onStreet && onRightSide;
           });
 
-          if (isOnMain || isOnIntersection) {
+          if (isOnMain || isOnPerpendicular) {
             const grainSize = Math.random() * 3 + 1;
             ctx.fillStyle = Math.random() > 0.5 ? 'rgba(70,70,70,0.9)' : 'rgba(40,40,40,1.0)';
             ctx.fillRect(grainX, grainY, grainSize, grainSize);
@@ -145,44 +155,55 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
 
         // Step 4: Golden edges
         ctx.setLineDash([]);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Perpendicular streets golden edges (RIGHT SIDE ONLY)
+        perpendicularStreets.forEach(({ yPercent, width: streetWidth }) => {
+          const yPos = height * yPercent;
+          ctx.globalAlpha = 0.6;
+          ctx.lineWidth = streetWidth + 3;
+          ctx.strokeStyle = '#FFD700';
+
+          ctx.beginPath();
+          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
+          ctx.lineTo(width, yPos);
+          ctx.stroke();
+        });
+
+        // Main road golden edge
         ctx.globalAlpha = 0.6;
         ctx.lineWidth = mainRoadWidth + 3;
         ctx.strokeStyle = '#FFD700';
-        ctx.lineJoin = 'round';
+        ctx.lineCap = 'butt';
 
         ctx.beginPath();
         ctx.moveTo(centerX, 0);
         ctx.lineTo(centerX, height);
-
-        intersections.forEach(({ y }) => {
-          const yPos = height * y;
-          // Left segment
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(centerX - mainRoadWidth/2, yPos);
-          // Right segment
-          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
-          ctx.lineTo(width, yPos);
-        });
         ctx.stroke();
 
-        // Redraw roads on top
+        // Redraw roads on top (RIGHT SIDE ONLY)
+        ctx.globalAlpha = 1.0;
+        ctx.lineCap = 'round';
+
+        perpendicularStreets.forEach(({ yPercent, width: streetWidth }) => {
+          const yPos = height * yPercent;
+          ctx.strokeStyle = '#1a1a1a';
+          ctx.lineWidth = streetWidth - 4;
+
+          ctx.beginPath();
+          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
+          ctx.lineTo(width, yPos);
+          ctx.stroke();
+        });
+
         ctx.lineWidth = mainRoadWidth - 4;
         ctx.strokeStyle = '#1a1a1a';
-        ctx.globalAlpha = 1.0;
+        ctx.lineCap = 'butt';
 
         ctx.beginPath();
         ctx.moveTo(centerX, 0);
         ctx.lineTo(centerX, height);
-
-        intersections.forEach(({ y }) => {
-          const yPos = height * y;
-          // Left segment
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(centerX - mainRoadWidth/2, yPos);
-          // Right segment
-          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
-          ctx.lineTo(width, yPos);
-        });
         ctx.stroke();
 
         // Step 5: Center lines (dashed)
@@ -190,20 +211,23 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
         ctx.lineWidth = 3;
         ctx.strokeStyle = '#FFD700';
         ctx.globalAlpha = 0.9;
+        ctx.lineCap = 'round';
 
+        // Perpendicular streets center lines (RIGHT SIDE ONLY)
+        perpendicularStreets.forEach(({ yPercent }) => {
+          const yPos = height * yPercent;
+
+          ctx.beginPath();
+          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
+          ctx.lineTo(width, yPos);
+          ctx.stroke();
+        });
+
+        // Main road center line
+        ctx.lineCap = 'butt';
         ctx.beginPath();
         ctx.moveTo(centerX, 0);
         ctx.lineTo(centerX, height);
-
-        intersections.forEach(({ y }) => {
-          const yPos = height * y;
-          // Left segment
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(centerX - mainRoadWidth/2, yPos);
-          // Right segment
-          ctx.moveTo(centerX + mainRoadWidth/2, yPos);
-          ctx.lineTo(width, yPos);
-        });
         ctx.stroke();
 
       } else {
@@ -509,16 +533,48 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
     // Initial draw
     drawRoadNetwork();
 
-    // ResizeObserver for responsive redraw
-    const resizeObserver = new ResizeObserver(() => {
+    // Force redraw after a short delay to ensure container has correct size
+    const forceRedrawTimeout = setTimeout(() => {
       drawRoadNetwork();
+    }, 100);
+
+    // ResizeObserver for responsive redraw with debounce
+    let resizeTimeout: NodeJS.Timeout;
+    const resizeObserver = new ResizeObserver(() => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        drawRoadNetwork();
+      }, 50); // 50ms debounce
     });
 
     resizeObserver.observe(parent);
 
+    // Mobile: Also listen to window resize for orientation changes
+    let windowResizeTimeout: NodeJS.Timeout;
+    const handleWindowResize = () => {
+      if (isMobile) {
+        clearTimeout(windowResizeTimeout);
+        windowResizeTimeout = setTimeout(() => {
+          drawRoadNetwork();
+        }, 100);
+      }
+    };
+
+    if (isMobile) {
+      window.addEventListener('resize', handleWindowResize);
+      window.addEventListener('orientationchange', handleWindowResize);
+    }
+
     // Cleanup
     return () => {
+      clearTimeout(forceRedrawTimeout);
+      clearTimeout(resizeTimeout);
+      clearTimeout(windowResizeTimeout);
       resizeObserver.disconnect();
+      if (isMobile) {
+        window.removeEventListener('resize', handleWindowResize);
+        window.removeEventListener('orientationchange', handleWindowResize);
+      }
     };
 
   }, [isEditMode, isMobile]);

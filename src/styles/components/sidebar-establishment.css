@@ -1,0 +1,1282 @@
+/**
+ * 🏢 SIDEBAR ESTABLISHMENT - MODERN DESIGN
+ *
+ * Style moderne et cohérent pour la sidebar d'information des établissements
+ * Harmonisé avec establishment-list-view.css (cartes modernisées)
+ *
+ * Structure:
+ * 1. Container & Base
+ * 2. Header (Logo, Nom, Catégorie, Status)
+ * 3. Pricing Section (Consumables groupés + Services)
+ * 4. Contact & Location
+ * 5. Edit Mode Inputs
+ * 6. Responsive
+ * 7. Accessibility
+ *
+ * @version 1.0.0
+ * @created 2025-01-11
+ * @uses design-system.css
+ */
+
+/* ========================================
+   1. CONTAINER & BASE
+   ======================================== */
+
+.sidebar-container-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background:
+    linear-gradient(145deg, rgba(20, 10, 40, 0.97), rgba(30, 20, 50, 0.95)),
+    linear-gradient(180deg, rgba(193, 154, 107, 0.03) 0%, rgba(193, 154, 107, 0.03) 100%);
+  border-radius: 20px;
+  border: 2px solid;
+  border-image: linear-gradient(135deg, rgba(193, 154, 107, 0.3), rgba(193, 154, 107, 0.3)) 1;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(193, 154, 107, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: slideUpFade 0.6s ease-out;
+}
+
+/* ========================================
+   2. HEADER (Logo, Nom, Catégorie, Status)
+   ======================================== */
+
+.establishment-header-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-header-info-nightlife {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* Logo */
+.sidebar-logo-nightlife {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1)),
+    radial-gradient(circle at top left, rgba(193, 154, 107, 0.1), transparent);
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  box-shadow:
+    0 4px 16px rgba(193, 154, 107, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-logo-nightlife:hover {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-logo-image-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sidebar-icon-nightlife {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.75rem;
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.3), rgba(193, 154, 107, 0.3));
+  border-radius: 16px;
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  box-shadow:
+    0 4px 16px rgba(193, 154, 107, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-icon-nightlife:hover {
+  transform: scale(1.05) rotate(-2deg);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Title & Meta */
+.sidebar-title-nightlife {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+  text-shadow:
+    0 2px 8px rgba(255, 215, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-meta-nightlife {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Category Select (Edit Mode) */
+.sidebar-category-select-nightlife {
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  max-width: 100%;
+}
+
+.sidebar-category-select-nightlife:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.sidebar-category-select-nightlife:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Status Indicator */
+.sidebar-status-container-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 204, 85, 0.1), rgba(0, 204, 85, 0.05));
+  border: 1.5px solid rgba(0, 204, 85, 0.3);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 204, 85, 0.15);
+}
+
+.sidebar-status-indicator-nightlife {
+  width: 12px;
+  height: 12px;
+  background: var(--color-success);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(0, 204, 85, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.sidebar-status-text-nightlife {
+  font-size: 0.9375rem;
+  color: var(--color-success);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Time Inputs (Edit Mode) */
+.sidebar-time-inputs-nightlife {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-time-input-nightlife {
+  padding: 0.375rem 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sidebar-time-input-nightlife:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 204, 85, 0.4);
+}
+
+.sidebar-time-input-nightlife:focus {
+  outline: 2px solid var(--color-success);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   3. PRICING SECTION
+   ======================================== */
+
+.sidebar-pricing-container-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-pricing-container-nightlife .establishment-section-title-nightlife {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 1px 3px rgba(255, 215, 0, 0.15);
+  letter-spacing: 0.02em;
+}
+
+/* Consumables Section */
+.sidebar-consumables-container-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-consumables-header-nightlife {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.sidebar-consumables-controls-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-add-select-nightlife {
+  padding: 0.375rem 0.75rem;
+  background: rgba(193, 154, 107, 0.1);
+  border: 1.5px solid rgba(193, 154, 107, 0.3);
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sidebar-add-select-nightlife:hover {
+  background: rgba(193, 154, 107, 0.15);
+  border-color: rgba(193, 154, 107, 0.5);
+}
+
+.sidebar-add-select-nightlife:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Consumables List */
+.sidebar-consumables-list-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Category Group */
+.sidebar-category-group-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1.25rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.05), transparent);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.sidebar-category-group-nightlife:hover {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.08), transparent);
+  border-color: rgba(193, 154, 107, 0.2);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(193, 154, 107, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-category-header-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.25), rgba(193, 154, 107, 0.25));
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
+}
+
+.sidebar-category-icon-nightlife {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.sidebar-category-name-nightlife {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: #FFD700;
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.sidebar-category-count-nightlife {
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  background: rgba(193, 154, 107, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(193, 154, 107, 0.3);
+}
+
+/* Consumable Item */
+.sidebar-consumable-item-nightlife {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.125rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at left, rgba(44, 62, 80, 0.05), transparent);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-consumable-item-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+    radial-gradient(circle at left, rgba(44, 62, 80, 0.1), transparent);
+  border-color: rgba(44, 62, 80, 0.4);
+  transform: translateX(4px) scale(1.02);
+  box-shadow:
+    0 4px 12px rgba(44, 62, 80, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-consumable-name-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sidebar-consumable-controls-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-consumable-price-input-nightlife {
+  width: 70px;
+  padding: 0.375rem 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(44, 62, 80, 0.3);
+  border-radius: 8px;
+  color: #2C3E50;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.sidebar-consumable-price-input-nightlife:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(44, 62, 80, 0.5);
+}
+
+.sidebar-consumable-price-input-nightlife:focus {
+  outline: 2px solid #2C3E50;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-empty-consumables-nightlife {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  font-style: italic;
+}
+
+/* Pricing Grid (Lady Drink, Barfine, Rooms) */
+.sidebar-pricing-grid-nightlife {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.sidebar-price-card-nightlife {
+  padding: 1.75rem;
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.12), rgba(193, 154, 107, 0.12)),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.05), transparent);
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 4px 12px rgba(193, 154, 107, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transform: perspective(1000px) rotateX(2deg);
+  animation: cardPulse 3s ease-in-out infinite;
+}
+
+.sidebar-price-card-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.18), rgba(193, 154, 107, 0.18)),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent);
+  border-color: rgba(193, 154, 107, 0.5);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(193, 154, 107, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.sidebar-price-icon-nightlife {
+  font-size: 2.25rem;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+.sidebar-price-card-nightlife:hover .sidebar-price-icon-nightlife {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.sidebar-price-label-nightlife {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sidebar-price-value-nightlife {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  text-shadow:
+    0 2px 8px rgba(255, 215, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Lady Drink specific */
+.sidebar-price-card-ladydrink-nightlife {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.08)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.1), transparent);
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.sidebar-price-card-ladydrink-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.22), rgba(193, 154, 107, 0.12)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.15), transparent);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.35),
+    0 0 20px rgba(193, 154, 107, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-price-label-ladydrink-nightlife {
+  color: var(--color-primary);
+}
+
+/* Barfine specific */
+.sidebar-price-card-barfine-nightlife {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.08)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.1), transparent);
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.sidebar-price-card-barfine-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.22), rgba(193, 154, 107, 0.12)),
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.15), transparent);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.35),
+    0 0 20px rgba(193, 154, 107, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-price-label-barfine-nightlife {
+  color: #C19A6B;
+}
+
+/* Rooms specific */
+.sidebar-price-card-rooms-nightlife {
+  grid-column: 1 / -1; /* Full width */
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.08)),
+    radial-gradient(ellipse at center, rgba(193, 154, 107, 0.1), transparent);
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.sidebar-price-card-rooms-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(193, 154, 107, 0.22), rgba(193, 154, 107, 0.12)),
+    radial-gradient(ellipse at center, rgba(193, 154, 107, 0.15), transparent);
+  box-shadow:
+    0 8px 24px rgba(193, 154, 107, 0.35),
+    0 0 20px rgba(193, 154, 107, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-price-label-rooms-nightlife {
+  color: #C19A6B;
+}
+
+/* Price Input Groups (Edit Mode) */
+.sidebar-price-input-group-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-price-input-ladydrink-nightlife,
+.sidebar-price-input-barfine-nightlife,
+.sidebar-price-input-rooms-nightlife {
+  width: 80px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid;
+  border-radius: 10px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.sidebar-price-input-ladydrink-nightlife {
+  border-color: rgba(193, 154, 107, 0.4);
+  color: var(--color-primary);
+}
+
+.sidebar-price-input-barfine-nightlife {
+  border-color: rgba(193, 154, 107, 0.4);
+  color: #C19A6B;
+}
+
+.sidebar-price-input-rooms-nightlife {
+  border-color: rgba(193, 154, 107, 0.4);
+  color: #C19A6B;
+}
+
+.sidebar-price-input-ladydrink-nightlife:hover,
+.sidebar-price-input-barfine-nightlife:hover,
+.sidebar-price-input-rooms-nightlife:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-price-input-ladydrink-nightlife:focus,
+.sidebar-price-input-barfine-nightlife:focus,
+.sidebar-price-input-rooms-nightlife:focus {
+  outline: 2px solid;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-price-input-ladydrink-nightlife:focus {
+  outline-color: var(--color-primary);
+}
+
+.sidebar-price-input-barfine-nightlife:focus {
+  outline-color: #C19A6B;
+}
+
+.sidebar-price-input-rooms-nightlife:focus {
+  outline-color: #C19A6B;
+}
+
+/* ========================================
+   4. CONTACT & LOCATION
+   ======================================== */
+
+.sidebar-contact-container-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-contact-container-nightlife .establishment-section-title-nightlife {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 1px 3px rgba(255, 215, 0, 0.15);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-contact-list-nightlife {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sidebar-contact-item-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.125rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at left, rgba(44, 62, 80, 0.05), transparent);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-contact-item-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+    radial-gradient(circle at left, rgba(44, 62, 80, 0.1), transparent);
+  border-color: rgba(44, 62, 80, 0.4);
+  transform: translateX(4px);
+  box-shadow:
+    0 4px 12px rgba(44, 62, 80, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-contact-input-nightlife {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  transition: all 0.25s ease;
+}
+
+.sidebar-contact-input-nightlife:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-contact-input-nightlife:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-phone-link-nightlife {
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.sidebar-phone-link-nightlife:hover {
+  color: var(--color-secondary-bright);
+  text-decoration: underline;
+}
+
+.sidebar-no-phone-nightlife {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sidebar-map-button-nightlife {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(44, 62, 80, 1), rgba(44, 62, 80, 0.8)),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.1), transparent);
+  border: 2px solid rgba(44, 62, 80, 0.6);
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 6px 20px rgba(44, 62, 80, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-map-button-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(0, 170, 210, 1), rgba(44, 62, 80, 0.9)),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.15), transparent);
+  border-color: rgba(0, 170, 210, 0.8);
+  box-shadow:
+    0 10px 32px rgba(44, 62, 80, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(44, 62, 80, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.sidebar-map-button-nightlife:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* ========================================
+   5. COMMON ELEMENTS
+   ======================================== */
+
+.establishment-section-title-nightlife {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0 0 0.75rem 0;
+  text-shadow: 0 1px 3px rgba(255, 215, 0, 0.15);
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   6. RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .sidebar-container-nightlife {
+    padding: 1.125rem;
+    gap: 1.125rem;
+  }
+
+  .sidebar-logo-nightlife,
+  .sidebar-icon-nightlife {
+    width: 60px;
+    height: 60px;
+    font-size: 2.25rem;
+    border-radius: 11px;
+  }
+
+  .sidebar-title-nightlife {
+    font-size: 1.125rem;
+  }
+
+  .sidebar-pricing-grid-nightlife {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-price-card-rooms-nightlife {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-container-nightlife {
+    padding: 1rem;
+    gap: 1rem;
+    border-radius: 14px;
+  }
+
+  .sidebar-logo-nightlife,
+  .sidebar-icon-nightlife {
+    width: 56px;
+    height: 56px;
+    font-size: 2rem;
+    border-radius: 10px;
+  }
+
+  .sidebar-title-nightlife {
+    font-size: 1.125rem;
+  }
+
+  .establishment-section-title-nightlife {
+    font-size: 1rem;
+  }
+
+  .sidebar-consumables-header-nightlife {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sidebar-price-icon-nightlife {
+    font-size: 1.5rem;
+  }
+
+  .sidebar-price-value-nightlife {
+    font-size: 1rem;
+  }
+
+  /* Owner Badge - Mobile responsive */
+  .sidebar-owner-badge-nightlife {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .owner-badge-icon-nightlife {
+    font-size: 2rem;
+  }
+
+  .owner-badge-title-nightlife {
+    font-size: 0.875rem;
+  }
+
+  .owner-badge-subtitle-nightlife {
+    font-size: 0.6875rem;
+  }
+}
+
+/* ========================================
+   6. MODERN UX ENHANCEMENTS (v10.3+)
+   ======================================== */
+
+/* 🎨 Subtle Price Enhancement - Respects nightlife theme */
+.sidebar-price-chip-nightlife {
+  display: inline-block;
+  color: #FFD700;
+  font-weight: 800;
+  font-size: 1.5rem;
+  text-shadow:
+    0 2px 8px rgba(255, 215, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Small variant for consumables */
+.sidebar-price-chip-small-nightlife {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #00E5FF;
+  text-shadow: 0 1px 3px rgba(0, 229, 255, 0.4);
+}
+
+/* ========================================
+   🏆 VERIFIED OWNER BADGE (v10.3)
+   ======================================== */
+
+.sidebar-owner-badge-nightlife {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.08));
+  border: 2px solid rgba(255,215,0,0.4);
+  border-radius: 15px;
+  box-shadow:
+    0 4px 12px rgba(255,215,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: ownerBadgePulse 3s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.sidebar-owner-badge-nightlife:hover {
+  box-shadow:
+    0 6px 20px rgba(255,215,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+.owner-badge-icon-nightlife {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 2px 8px rgba(255,215,0,0.4));
+  animation: ownerIconRotate 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.owner-badge-content-nightlife {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.owner-badge-title-nightlife {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(255,215,0,0.3);
+  line-height: 1.2;
+}
+
+.owner-badge-subtitle-nightlife {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Animations for Owner Badge */
+@keyframes ownerBadgePulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 12px rgba(255,215,0,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  50% {
+    box-shadow:
+      0 6px 20px rgba(255,215,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+}
+
+@keyframes ownerIconRotate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-5deg) scale(1.05);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.05);
+  }
+}
+
+/* 📊 Circular Progress for Staff Verification */
+.sidebar-progress-wrapper-nightlife {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+}
+
+.sidebar-progress-circle-nightlife {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background:
+    linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 0, 0, 0.3)),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.05), transparent);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.5s ease;
+}
+
+.sidebar-progress-circle-nightlife::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(
+    var(--progress-color, #00FF7F) calc(var(--progress, 0) * 1%),
+    rgba(255, 255, 255, 0.1) 0
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rotateProgress 3s ease-in-out;
+}
+
+.sidebar-progress-value-nightlife {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--progress-color, #00FF7F);
+  text-shadow:
+    0 2px 8px var(--progress-color, #00FF7F),
+    0 0 20px rgba(0, 255, 127, 0.4);
+  z-index: 1;
+}
+
+.sidebar-progress-check-nightlife {
+  font-size: 1.5rem;
+  color: var(--progress-color, #00FF7F);
+  filter: drop-shadow(0 2px 6px var(--progress-color, #00FF7F));
+  z-index: 1;
+}
+
+/* Stats Grid for Verification */
+.sidebar-stats-grid-nightlife {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar-stat-card-nightlife {
+  padding: 1rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
+    radial-gradient(circle at top, rgba(0, 212, 255, 0.08), transparent);
+  border: 2px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-stat-card-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+    radial-gradient(circle at top, rgba(0, 212, 255, 0.12), transparent);
+  border-color: rgba(0, 212, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 16px rgba(0, 212, 255, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-stat-value-nightlife {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--stat-color, #00E5FF);
+  text-shadow: 0 2px 8px rgba(0, 229, 255, 0.4);
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-stat-label-nightlife {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Trust Level Badge */
+.sidebar-trust-badge-nightlife {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
+  background:
+    linear-gradient(135deg, var(--trust-bg-start, rgba(0,255,127,0.15)), var(--trust-bg-end, rgba(0,255,127,0.08))),
+    radial-gradient(circle at left, var(--trust-glow, rgba(0,255,127,0.1)), transparent);
+  border: 2px solid var(--trust-border, rgba(0,255,127,0.4));
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--trust-color, #00FF7F);
+  text-align: center;
+  box-shadow: 0 4px 12px var(--trust-shadow, rgba(0,255,127,0.25));
+  animation: trustGlow 2s ease-in-out infinite;
+}
+
+/* 📞 Enhanced Contact Link */
+.sidebar-phone-link-nightlife {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem;
+  background:
+    linear-gradient(135deg, rgba(0, 255, 127, 0.12), rgba(0, 255, 127, 0.06)),
+    radial-gradient(circle at left, rgba(0, 255, 127, 0.08), transparent);
+  border: 2px solid rgba(0, 255, 127, 0.3);
+  border-radius: 12px;
+  color: #00FF7F !important;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 255, 127, 0.2);
+}
+
+.sidebar-phone-link-nightlife::before {
+  content: '📞';
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 255, 127, 0.4));
+  animation: phoneRing 1.5s ease-in-out infinite;
+}
+
+.sidebar-phone-link-nightlife:hover {
+  background:
+    linear-gradient(135deg, rgba(0, 255, 127, 0.18), rgba(0, 255, 127, 0.10)),
+    radial-gradient(circle at left, rgba(0, 255, 127, 0.12), transparent);
+  border-color: rgba(0, 255, 127, 0.5);
+  color: #00FF7F !important;
+  transform: translateX(4px) scale(1.02);
+  box-shadow:
+    0 4px 16px rgba(0, 255, 127, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(0, 255, 127, 0.2);
+}
+
+/* ========================================
+   7. ANIMATIONS
+   ======================================== */
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Card pulse glow effect */
+@keyframes cardPulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 12px rgba(193, 154, 107, 0.15),
+      0 2px 6px rgba(0, 0, 0, 0.2),
+      0 0 20px rgba(193, 154, 107, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 6px 16px rgba(193, 154, 107, 0.25),
+      0 3px 8px rgba(0, 0, 0, 0.25),
+      0 0 40px rgba(193, 154, 107, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Chip pulse glow for price badges */
+@keyframes chipPulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 12px rgba(255, 215, 0, 0.5),
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 215, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 6px 16px rgba(255, 215, 0, 0.6),
+      0 3px 8px rgba(0, 0, 0, 0.35),
+      0 0 30px rgba(255, 215, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* Trust badge glow */
+@keyframes trustGlow {
+  0%, 100% {
+    box-shadow: 0 4px 12px var(--trust-shadow, rgba(0,255,127,0.25));
+  }
+  50% {
+    box-shadow: 0 6px 18px var(--trust-shadow, rgba(0,255,127,0.4));
+  }
+}
+
+/* Phone ring animation */
+@keyframes phoneRing {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30% {
+    transform: rotate(-10deg);
+  }
+  20%, 40% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Progress circle rotation */
+@keyframes rotateProgress {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   8. ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-container-nightlife,
+  .sidebar-status-indicator-nightlife,
+  .sidebar-price-card-nightlife,
+  .sidebar-map-button-nightlife,
+  .sidebar-consumable-item-nightlife,
+  .sidebar-logo-nightlife,
+  .sidebar-icon-nightlife,
+  .sidebar-contact-item-nightlife {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .sidebar-container-nightlife {
+    border-width: 2px;
+  }
+
+  .sidebar-price-card-nightlife,
+  .sidebar-contact-item-nightlife {
+    border-width: 2px;
+  }
+}

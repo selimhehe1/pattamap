@@ -1,0 +1,375 @@
+import express from 'express';
+import { authenticateToken } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
+import * as gamificationController from '../controllers/gamificationController';
+
+const router = express.Router();
+
+// ========================================
+// XP & POINTS (Protected)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/award-xp:
+ *   post:
+ *     summary: Award XP to a user
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - xpAmount
+ *               - reason
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 format: uuid
+ *               xpAmount:
+ *                 type: integer
+ *                 minimum: 1
+ *               reason:
+ *                 type: string
+ *                 example: "review_created"
+ *               entityType:
+ *                 type: string
+ *                 example: "comment"
+ *               entityId:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       200:
+ *         description: XP awarded successfully
+ *       400:
+ *         description: Missing required fields
+ */
+router.post('/award-xp', authenticateToken, csrfProtection, gamificationController.awardXP);
+
+/**
+ * @swagger
+ * /api/gamification/user-progress/{userId}:
+ *   get:
+ *     summary: Get user's gamification progress
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User progress retrieved
+ */
+router.get('/user-progress/:userId', authenticateToken, gamificationController.getUserProgress);
+
+/**
+ * @swagger
+ * /api/gamification/my-progress:
+ *   get:
+ *     summary: Get current user's gamification progress
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User progress retrieved
+ */
+router.get('/my-progress', authenticateToken, gamificationController.getMyProgress);
+
+// ========================================
+// BADGES (Protected)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/badges:
+ *   get:
+ *     summary: Get all available badges
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: [exploration, contribution, social, quality, temporal, secret]
+ *       - in: query
+ *         name: rarity
+ *         schema:
+ *           type: string
+ *           enum: [common, rare, epic, legendary]
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       200:
+ *         description: Badges retrieved
+ */
+router.get('/badges', authenticateToken, gamificationController.getBadges);
+
+/**
+ * @swagger
+ * /api/gamification/badges/user/{userId}:
+ *   get:
+ *     summary: Get user's earned badges
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User badges retrieved
+ */
+router.get('/badges/user/:userId', authenticateToken, gamificationController.getUserBadges);
+
+/**
+ * @swagger
+ * /api/gamification/my-badges:
+ *   get:
+ *     summary: Get current user's badges
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User badges retrieved
+ */
+router.get('/my-badges', authenticateToken, gamificationController.getMyBadges);
+
+// ========================================
+// LEADERBOARDS (Protected)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/leaderboard/{type}:
+ *   get:
+ *     summary: Get leaderboard by type
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [global, monthly, zone]
+ *       - in: query
+ *         name: zone
+ *         schema:
+ *           type: string
+ *           example: "Soi 6"
+ *         description: Required if type is "zone"
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *     responses:
+ *       200:
+ *         description: Leaderboard retrieved
+ */
+router.get('/leaderboard/:type', authenticateToken, gamificationController.getLeaderboard);
+
+// ========================================
+// CHECK-INS (Protected, CSRF)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/check-in:
+ *   post:
+ *     summary: Create a check-in at an establishment (geolocation)
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - establishmentId
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               establishmentId:
+ *                 type: string
+ *                 format: uuid
+ *               latitude:
+ *                 type: number
+ *                 example: 12.9305
+ *               longitude:
+ *                 type: number
+ *                 example: 100.8830
+ *     responses:
+ *       200:
+ *         description: Check-in created (verified if within 100m)
+ *       400:
+ *         description: Missing required fields
+ */
+router.post('/check-in', authenticateToken, csrfProtection, gamificationController.checkIn);
+
+/**
+ * @swagger
+ * /api/gamification/my-check-ins:
+ *   get:
+ *     summary: Get current user's check-in history
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *     responses:
+ *       200:
+ *         description: Check-ins retrieved
+ */
+router.get('/my-check-ins', authenticateToken, gamificationController.getMyCheckIns);
+
+// ========================================
+// MISSIONS (Protected)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/missions:
+ *   get:
+ *     summary: Get available missions
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, event, narrative]
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       200:
+ *         description: Missions retrieved
+ */
+router.get('/missions', authenticateToken, gamificationController.getMissions);
+
+/**
+ * @swagger
+ * /api/gamification/my-missions:
+ *   get:
+ *     summary: Get current user's mission progress
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Mission progress retrieved
+ */
+router.get('/my-missions', authenticateToken, gamificationController.getMyMissions);
+
+// ========================================
+// SOCIAL (Protected, CSRF for mutations)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/follow/{userId}:
+ *   post:
+ *     summary: Follow a user
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User followed successfully
+ *       400:
+ *         description: Cannot follow yourself or already following
+ */
+router.post('/follow/:userId', authenticateToken, csrfProtection, gamificationController.followUser);
+
+/**
+ * @swagger
+ * /api/gamification/follow/{userId}:
+ *   delete:
+ *     summary: Unfollow a user
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User unfollowed successfully
+ */
+router.delete('/follow/:userId', authenticateToken, csrfProtection, gamificationController.unfollowUser);
+
+/**
+ * @swagger
+ * /api/gamification/reviews/{reviewId}/vote:
+ *   post:
+ *     summary: Vote on a review (helpful/not_helpful)
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               voteType:
+ *                 type: string
+ *                 enum: [helpful, not_helpful]
+ *                 default: helpful
+ *     responses:
+ *       200:
+ *         description: Vote recorded successfully
+ */
+router.post('/reviews/:reviewId/vote', authenticateToken, csrfProtection, gamificationController.voteOnReview);
+
+export default router;

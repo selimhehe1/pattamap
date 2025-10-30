@@ -1,0 +1,186 @@
+/**
+ * ============================================
+ * AUTH - Authentication Component Styles
+ * ============================================
+ *
+ * Styles pour les composants d'authentification (Login/Register).
+ * Inclut les inputs, boutons, animations et modal containers.
+ *
+ * USAGE:
+ * Utilisé dans:
+ * - LoginForm.tsx
+ * - RegisterForm.tsx
+ *
+ * CONTENU:
+ * - Input focus cyan (highlight on focus)
+ * - Error shake animation
+ * - Auth switch (lien toggle Login/Register)
+ * - Modal containers (login & register)
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-01-09
+ * @migrated Phase 3A - Extraction depuis nightlife-theme.css (lignes 1107-1156, 1210-1239)
+ */
+
+/* ============================================
+   INPUT FOCUS STYLES
+   ============================================ */
+
+/**
+ * Input avec focus cyan spécial pour les formulaires d'authentification
+ */
+.input-focus-cyan {
+  transition: all var(--duration-normal) var(--ease-in-out);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+.input-focus-cyan:focus {
+  border-color: var(--color-secondary) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3) !important;
+}
+
+/* ============================================
+   ERROR ANIMATIONS
+   ============================================ */
+
+/**
+ * Animation shake pour les messages d'erreur
+ */
+.error-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* ============================================
+   AUTH MODE SWITCH
+   ============================================ */
+
+/**
+ * Zone de switch entre Login et Register
+ */
+.auth-switch-text {
+  text-align: center;
+  font-size: var(--font-sm);
+  margin-top: var(--spacing-3);
+}
+
+.auth-switch-label {
+  color: var(--text-muted);
+}
+
+.auth-switch-button {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  padding: var(--spacing-1) var(--spacing-2);
+  min-height: var(--tap-target-min); /* WCAG AAA */
+}
+
+.auth-switch-button:hover {
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.auth-switch-button:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============================================
+   MODAL CONTAINERS
+   ============================================ */
+
+/**
+ * Container pour login form modal
+ */
+.modal-app-login-container {
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-5);
+  max-width: 90vw;
+  width: 25rem; /* 400px */
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 2px solid var(--border-primary);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  margin: var(--spacing-5);
+}
+
+/**
+ * Container pour register form modal
+ */
+.modal-app-register-container {
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-5);
+  max-width: 90vw;
+  width: 25rem; /* 400px */
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 2px solid var(--border-secondary);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  margin: var(--spacing-5);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Mobile: Full width modals */
+@media (max-width: 30rem) {
+  .modal-app-login-container,
+  .modal-app-register-container {
+    width: calc(100vw - 2rem);
+    margin: var(--spacing-2);
+    padding: var(--spacing-4);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .error-shake {
+    animation: none;
+  }
+
+  .input-focus-cyan,
+  .auth-switch-button {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .modal-app-login-container,
+  .modal-app-register-container {
+    border-width: 3px;
+  }
+
+  .input-focus-cyan:focus {
+    border-width: 3px !important;
+  }
+}

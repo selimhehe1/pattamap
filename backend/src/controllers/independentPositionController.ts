@@ -1,3 +1,23 @@
+/**
+ * @deprecated since v10.3
+ *
+ * ⚠️ DEPRECATED: This controller is deprecated as of v10.3
+ *
+ * The independent_positions table is no longer used for freelances.
+ * Freelances are now managed through the standard employment_history table
+ * with multi-nightclub association support.
+ *
+ * Migration: Freelances now:
+ * - Use is_freelance flag on employees table
+ * - Associate with nightclubs via employment_history (can_work_multiple = true)
+ * - Appear in dedicated /freelances page
+ * - Filter via search with type=freelance
+ *
+ * See: backend/database/migrations/013_refactor_freelance_nightclub_system.sql
+ *
+ * This file is kept for backward compatibility but should not be used for new features.
+ */
+
 import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
@@ -6,6 +26,7 @@ import { logger } from '../utils/logger';
 
 /**
  * Get independent position for a specific employee
+ * @deprecated since v10.3 - Use /api/employees?type=freelance instead
  */
 export const getIndependentPosition = async (req: AuthRequest, res: Response) => {
   try {
@@ -32,6 +53,7 @@ export const getIndependentPosition = async (req: AuthRequest, res: Response) =>
 
 /**
  * Get all active freelances for the map
+ * @deprecated since v10.3 - Use /api/freelances instead
  */
 export const getFreelancesForMap = async (req: AuthRequest, res: Response) => {
   try {
@@ -77,6 +99,7 @@ export const getFreelancesForMap = async (req: AuthRequest, res: Response) => {
 
 /**
  * Create an independent position for an employee (freelance mode)
+ * @deprecated since v10.3 - Freelances now use employment_history with is_freelance flag
  */
 export const createIndependentPosition = async (req: AuthRequest, res: Response) => {
   try {
@@ -118,8 +141,16 @@ export const createIndependentPosition = async (req: AuthRequest, res: Response)
       .eq('is_active', true)
       .single();
 
+    // ========================================
+    // BUG #11 FIX - Use 422 instead of 409 for business rule violations
+    // ========================================
+    // 409 Conflict = resource state conflict (edit conflict, optimistic locking)
+    // 422 Unprocessable Entity = valid request but business rule prevents processing
     if (existingPosition) {
-      return res.status(409).json({ error: 'This position is already occupied' });
+      return res.status(422).json({
+        error: 'This position is already occupied',
+        code: 'POSITION_OCCUPIED'
+      });
     }
 
     // Deactivate any existing active position for this employee
@@ -157,6 +188,7 @@ export const createIndependentPosition = async (req: AuthRequest, res: Response)
 
 /**
  * Update an independent position
+ * @deprecated since v10.3 - Freelances now use employment_history with is_freelance flag
  */
 export const updateIndependentPosition = async (req: AuthRequest, res: Response) => {
   try {
@@ -204,8 +236,12 @@ export const updateIndependentPosition = async (req: AuthRequest, res: Response)
         .neq('id', currentPosition.id)
         .single();
 
+      // BUG #11 FIX - Use 422 for business rule violation
       if (existingPosition) {
-        return res.status(409).json({ error: 'This position is already occupied' });
+        return res.status(422).json({
+          error: 'This position is already occupied',
+          code: 'POSITION_OCCUPIED'
+        });
       }
     }
 
@@ -237,6 +273,7 @@ export const updateIndependentPosition = async (req: AuthRequest, res: Response)
 
 /**
  * Delete (deactivate) an independent position
+ * @deprecated since v10.3 - Freelances now use employment_history with is_freelance flag
  */
 export const deleteIndependentPosition = async (req: AuthRequest, res: Response) => {
   try {

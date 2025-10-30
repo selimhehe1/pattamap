@@ -110,6 +110,91 @@ export const validateURL = (url: string): boolean => {
   }
 };
 
+// ========================================
+// BUG #12 FIX - Validate image URLs
+// ========================================
+// Validates that a URL is a secure image URL (HTTPS + valid extension)
+// Prevents XSS attacks (javascript:, data:, etc.) and malformed URLs
+export const isValidImageUrl = (url: string): boolean => {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(url);
+
+    // 1. Protocol must be HTTPS (secure) or HTTP (for local dev)
+    // Production should enforce HTTPS only
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return false;
+    }
+
+    // 2. Must have valid domain (prevent javascript:, data:, file: schemes)
+    if (!parsed.hostname || parsed.hostname.length === 0) {
+      return false;
+    }
+
+    // 3. Pathname must end with valid image extension
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const hasValidExtension = validExtensions.some(ext =>
+      parsed.pathname.toLowerCase().endsWith(ext)
+    );
+
+    if (!hasValidExtension) {
+      return false;
+    }
+
+    // 4. Prevent XSS vectors (script tags, event handlers in URL)
+    const xssPatterns = [
+      /javascript:/i,
+      /data:/i,
+      /vbscript:/i,
+      /<script/i,
+      /onerror/i,
+      /onload/i
+    ];
+
+    if (xssPatterns.some(pattern => pattern.test(url))) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    // Invalid URL format
+    return false;
+  }
+};
+
+// Validate array of image URLs
+export const validateImageUrls = (
+  urls: string[],
+  minCount: number = 1,
+  maxCount: number = 5
+): { valid: boolean; error?: string } => {
+  if (!Array.isArray(urls)) {
+    return { valid: false, error: 'URLs must be an array' };
+  }
+
+  if (urls.length < minCount) {
+    return { valid: false, error: `At least ${minCount} photo(s) required` };
+  }
+
+  if (urls.length > maxCount) {
+    return { valid: false, error: `Maximum ${maxCount} photos allowed` };
+  }
+
+  const invalidUrls = urls.filter(url => !isValidImageUrl(url));
+
+  if (invalidUrls.length > 0) {
+    return {
+      valid: false,
+      error: `Invalid image URL(s): ${invalidUrls.join(', ')}`
+    };
+  }
+
+  return { valid: true };
+};
+
 // Sanitize for PostgreSQL queries (escape single quotes)
 export const escapeSQLString = (input: string): string => {
   return input.replace(/'/g, "''");

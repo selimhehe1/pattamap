@@ -3,6 +3,10 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { CreateCommentRequest } from '../types';
 import { logger } from '../utils/logger';
+import { notifyCommentReply, notifyCommentMention, notifyModeratorsNewReport } from '../utils/notificationHelper';
+import { missionTrackingService } from '../services/missionTrackingService';
+import { awardXP } from '../services/gamificationService';
+import { badgeAwardService } from '../services/badgeAwardService';
 
 export const getComments = async (req: AuthRequest, res: Response) => {
   try {
@@ -91,26 +95,39 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 
     // 🎯 FIXED: Check if user already rated this employee (only for parent comments with rating)
     // Using the same logic as updateUserRating for consistency
+    // ========================================
+    // BUG #6 FIX - Robust duplicate rating validation
+    // ========================================
+    // Issue: .single() fails if multiple duplicates exist (DB corruption case)
+    // Fix: Use .select() to handle all cases (0, 1, or >1 ratings)
     if (rating && !parent_comment_id) {
-      const { data: existingRating, error: checkError } = await supabase
+      const { data: existingRatings, error: checkError } = await supabase
         .from('comments')
         .select('id, rating')
         .eq('user_id', req.user!.id)
         .eq('employee_id', employee_id)
         .not('rating', 'is', null)
-        .is('parent_comment_id', null)
-        .single();
+        .is('parent_comment_id', null);
 
-      // Handle both found ratings and query errors (except no rows found)
-      if (checkError && checkError.code !== 'PGRST116') {
+      if (checkError) {
         logger.error('Error checking existing rating:', checkError);
         return res.status(500).json({ error: 'Failed to check existing rating' });
       }
 
-      if (existingRating) {
+      if (existingRatings && existingRatings.length > 0) {
+        // Log warning if multiple ratings found (DB corruption case)
+        if (existingRatings.length > 1) {
+          logger.warn('Multiple ratings found for same user/employee (DB corruption)', {
+            userId: req.user!.id,
+            employeeId: employee_id,
+            count: existingRatings.length,
+            ratingIds: existingRatings.map(r => r.id)
+          });
+        }
+
         return res.status(400).json({
           error: 'You have already rated this employee. You can update your rating using the rating section above, or add a review without rating.',
-          existing_rating: existingRating.rating
+          existing_rating: existingRatings[0].rating
         });
       }
     }
@@ -140,6 +157,135 @@ export const createComment = async (req: AuthRequest, res: Response) => {
         });
       }
       return res.status(400).json({ error: error.message });
+    }
+
+    // Notify parent comment author if this is a reply
+    if (parent_comment_id) {
+      try {
+        // Get parent comment author
+        const { data: parentComment } = await supabase
+          .from('comments')
+          .select('user_id, user:users(pseudonym)')
+          .eq('id', parent_comment_id)
+          .single();
+
+        // Get employee name
+        const { data: employeeData } = await supabase
+          .from('employees')
+          .select('id, name')
+          .eq('id', employee_id)
+          .single();
+
+        // Only notify if parent comment author is different from reply author
+        if (parentComment && employeeData && parentComment.user_id !== req.user!.id) {
+          await notifyCommentReply(
+            parentComment.user_id,
+            req.user!.pseudonym,
+            employeeData.name,
+            comment.id,
+            employeeData.id
+          );
+        }
+      } catch (notifyError) {
+        // Log error but don't fail the request if notification fails
+        logger.error('Comment reply notification error:', notifyError);
+      }
+    }
+
+    // 🔔 Detect and notify mentioned users (@username)
+    try {
+      // Extract mentions from content using regex (e.g., @john_doe, @user123)
+      const mentionRegex = /@([a-zA-Z0-9_-]+)/g;
+      const mentions = [...content.matchAll(mentionRegex)].map(match => match[1]);
+
+      if (mentions.length > 0) {
+        // Get employee name for notification
+        const { data: employeeData } = await supabase
+          .from('employees')
+          .select('id, name')
+          .eq('id', employee_id)
+          .single();
+
+        if (employeeData) {
+          // Find users with these pseudonyms (case-insensitive)
+          // Build OR condition for each mention
+          const orConditions = mentions
+            .map(m => `pseudonym.ilike.${m.toLowerCase()}`)
+            .join(',');
+
+          const { data: mentionedUsers } = await supabase
+            .from('users')
+            .select('id, pseudonym')
+            .or(orConditions);
+
+          // Notify each mentioned user (except the comment author)
+          if (mentionedUsers && mentionedUsers.length > 0) {
+            const notifyPromises = mentionedUsers
+              .filter(user => user.id !== req.user!.id) // Don't notify self
+              .map(user =>
+                notifyCommentMention(
+                  user.id,
+                  req.user!.pseudonym,
+                  employeeData.name,
+                  comment.id,
+                  employeeData.id
+                )
+              );
+
+            await Promise.all(notifyPromises);
+            logger.info(`Notified ${notifyPromises.length} mentioned users in comment ${comment.id}`);
+          }
+        }
+      }
+    } catch (mentionError) {
+      // Log error but don't fail the request if mention notifications fail
+      logger.error('Mention notification error:', mentionError);
+    }
+
+    // Track mission progress for reviews (only for parent comments, not replies)
+    if (!parent_comment_id) {
+      try {
+        const reviewLength = content?.length || 0;
+        // TODO Phase 3: Check if comment has photos (via user_photo_uploads table)
+        const hasPhotos = false; // Placeholder until Phase 3 photo tracking
+        await missionTrackingService.onReviewCreated(req.user!.id, comment.id, reviewLength, hasPhotos);
+      } catch (missionError) {
+        // Log error but don't fail the request if mission tracking fails
+        logger.error('Mission tracking error for review:', missionError);
+      }
+    }
+
+    // 🏅 Check and award badges for review creation (only for parent comments, not replies)
+    if (!parent_comment_id) {
+      try {
+        const newBadges = await badgeAwardService.checkAndAwardBadges(req.user!.id, 'review_created');
+        if (newBadges.length > 0) {
+          logger.info(`🎉 Awarded ${newBadges.length} badge(s) to user ${req.user!.id}: ${newBadges.join(', ')}`);
+        }
+      } catch (badgeError) {
+        // Log error but don't fail the request if badge award fails
+        logger.error('Badge award error for review:', badgeError);
+      }
+    }
+
+    // ✅ Award XP for review creation (only for parent comments with content)
+    // Replies don't award XP to avoid spam
+    if (!parent_comment_id && content) {
+      try {
+        // Award 50 XP for creating a review
+        await awardXP(
+          req.user!.id,
+          50,
+          'review_created',
+          'comment',
+          comment.id
+        );
+        logger.info(`✅ XP awarded: +50 XP for review ${comment.id} by user ${req.user!.id}`);
+      } catch (xpError) {
+        // Log error but don't fail the request if XP attribution fails
+        // This ensures comment creation succeeds even if gamification system has issues
+        logger.error('XP attribution error (non-critical):', xpError);
+      }
     }
 
     res.status(201).json({
@@ -244,10 +390,14 @@ export const reportComment = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Reason is required' });
     }
 
-    // Check if comment exists
+    // Check if comment exists and get details for notification
     const { data: comment } = await supabase
       .from('comments')
-      .select('id')
+      .select(`
+        id,
+        content,
+        employee:employees(name)
+      `)
       .eq('id', id)
       .single();
 
@@ -281,6 +431,25 @@ export const reportComment = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       return res.status(400).json({ error: error.message });
+    }
+
+    // 🔔 Notify moderators about the new report
+    try {
+      const employeeName = (comment.employee as any)?.name || 'Unknown';
+      const commentPreview = comment.content.length > 50
+        ? comment.content.substring(0, 50) + '...'
+        : comment.content;
+
+      const reportedContent = `comment on ${employeeName}: "${commentPreview}"`;
+
+      await notifyModeratorsNewReport(
+        reason,
+        reportedContent,
+        report.id
+      );
+    } catch (notifyError) {
+      // Log error but don't fail the request if notification fails
+      logger.error('Report notification error:', notifyError);
     }
 
     res.status(201).json({

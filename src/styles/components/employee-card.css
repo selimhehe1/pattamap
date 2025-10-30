@@ -1,0 +1,600 @@
+/* 🌃 EMPLOYEE CARD - TINDER STYLE */
+/**
+ * Full image card with gradient overlay (Tinder-like)
+ * Used in: GirlsGallery, SearchResults, EmployeesGridView
+ */
+
+/* ========================================
+   CARD CONTAINER
+   ======================================== */
+
+.employee-card-tinder {
+  position: relative;
+  aspect-ratio: 3/4; /* Vertical card like Tinder */
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+}
+
+.employee-card-tinder:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* VIP Card - Gold Border with Pulse (v10.3 Phase 4 - Option A) */
+.employee-card-tinder.employee-card-vip {
+  border: 3px solid rgba(255, 215, 0, 0.9);
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.6),
+    0 0 50px rgba(255, 165, 0, 0.4),
+    0 4px 25px rgba(193, 154, 107, 0.5),
+    var(--shadow-lg);
+  animation: vipBorderPulse 2s ease-in-out infinite;
+}
+
+.employee-card-tinder.employee-card-vip:hover {
+  border-color: rgba(255, 215, 0, 1);
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.8),
+    0 0 60px rgba(255, 165, 0, 0.6),
+    0 6px 30px rgba(193, 154, 107, 0.7),
+    var(--hover-glass-shadow);
+}
+
+@keyframes vipBorderPulse {
+  0%, 100% {
+    border-color: rgba(255, 215, 0, 0.8);
+    box-shadow:
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 50px rgba(255, 165, 0, 0.4),
+      0 4px 25px rgba(193, 154, 107, 0.5),
+      var(--shadow-lg);
+  }
+  50% {
+    border-color: rgba(255, 215, 0, 1);
+    box-shadow:
+      0 0 50px rgba(255, 215, 0, 0.9),
+      0 0 70px rgba(255, 165, 0, 0.6),
+      0 6px 30px rgba(193, 154, 107, 0.7),
+      var(--shadow-lg);
+  }
+}
+
+/* ========================================
+   IMAGE SECTION
+   ======================================== */
+
+.employee-card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.employee-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.employee-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-overlay);
+}
+
+.employee-card-placeholder-icon {
+  font-size: 80px;
+  color: var(--text-muted);
+}
+
+/* ========================================
+   BADGES (Top Corners)
+   ======================================== */
+
+.employee-card-rating-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: var(--shadow-glow-primary);
+  backdrop-filter: blur(10px);
+}
+
+/* VIP Badge - v10.3 Phase 4 - Option 5 (Bottom Right) - Format horizontal rectangulaire */
+.employee-card-vip-badge {
+  position: absolute;
+  bottom: 10px; /* Bottom-right corner */
+  right: 10px;
+  z-index: 3;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.95) 0%,
+    rgba(255, 165, 0, 0.95) 100%
+  );
+  color: var(--text-primary);
+  padding: 2px 14px; /* Format horizontal - réduit vertical, allongé horizontal */
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 4px 15px rgba(255, 165, 0, 0.4);
+  backdrop-filter: blur(10px);
+  animation: vipPulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+/* VIP Crown Icon - Cercle plus petit pour format horizontal */
+.employee-card-vip-badge::before {
+  content: '👑';
+  font-size: 12px; /* Réduit de 14px */
+  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; /* Réduit de 20px - cercle plus compact */
+  height: 16px;
+  background: rgba(255, 255, 255, 0.9); /* White circular background for maximum contrast */
+  border-radius: 50%; /* Perfect circle */
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6); /* Gold glow around the circle */
+}
+
+.employee-card-vip-badge:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.8),
+    0 6px 20px rgba(255, 165, 0, 0.6);
+}
+
+@keyframes vipPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 4px 15px rgba(255, 165, 0, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(255, 215, 0, 0.8),
+      0 6px 20px rgba(255, 165, 0, 0.6);
+  }
+}
+
+.employee-card-photo-count {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  background: var(--bg-surface);
+  color: #FFD700;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+}
+
+/* Verified Badge - Simple Blue (Top Left) - v10.3 */
+.employee-card-verified-corner {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(29, 161, 242, 0.95); /* Bleu Twitter vif */
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(29, 161, 242, 0.3);
+}
+
+.employee-card-verified-corner .verified-icon {
+  font-size: 13px;
+  /* Cercle blanc supprimé - checkmark simple */
+}
+
+/* Vote Badge - Top Left (below Verified) - v10.3 - Simple style */
+.employee-card-vote-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3; /* Below Verified badge (z-index: 4) */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(128, 128, 128, 0.7); /* Simple gray background */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+/* Offset when Verified badge is present */
+.employee-card-vote-badge.employee-card-vote-badge-offset {
+  top: 52px; /* Position below Verified badge (10px + 36px height + 6px gap) */
+}
+
+/* ========================================
+   OVERLAY GRADIENT (Bottom)
+   ======================================== */
+
+.employee-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  background: transparent !important;
+  padding: 10px 8px 8px 8px; /* Réduit de 20px 15px 15px 15px */
+  transition: all 0.3s ease;
+}
+
+/* Hover effect: keep transparent */
+.employee-card-tinder:hover .employee-card-overlay {
+  background: transparent !important;
+}
+
+/* Strong text shadows for ALL cards - readability without overlay */
+.employee-card-name,
+.employee-card-details,
+.employee-card-establishment,
+.employee-card-type {
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 4px 8px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   INFO SECTION (Inside Overlay)
+   ======================================== */
+
+.employee-card-info {
+  position: relative; /* Pour positionner le badge VIP par rapport à l'encadré noir */
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Réduit de 6px */
+  color: white;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 8px; /* Réduit de 12px */
+}
+
+/* Optimisation quand pas de VIP - réduit encore le padding bas */
+.employee-card-info--no-vip {
+  padding-bottom: 6px;
+}
+
+/* Two-column layout for reduced height */
+.employee-card-info-columns {
+  display: flex;
+  gap: 8px; /* Réduit de 12px */
+  align-items: flex-start;
+  margin-bottom: 3px; /* Réduit de 6px */
+}
+
+/* Left column: Name + Nickname */
+.employee-card-info-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Réduit de 2px */
+}
+
+/* Right column: Details stacked vertically */
+.employee-card-info-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Réduit de 4px */
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Nickname style */
+.employee-card-nickname {
+  font-size: 13px; /* Agrandi de 10px pour meilleure visibilité */
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.2;
+  text-align: left; /* Explicitement aligné à gauche */
+}
+
+.employee-card-name {
+  margin: 0;
+  font-size: 16px; /* Réduit de 20px */
+  font-weight: bold;
+  color: var(--text-primary);
+  text-shadow: var(--text-shadow);
+  line-height: 1.1; /* Réduit de 1.2 */
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Réduit de 8px */
+}
+
+/* Verified Badge - Badge supprimé (non utilisé dans l'encadré noir) */
+
+.employee-card-details {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  flex-wrap: wrap;
+}
+
+.employee-card-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px; /* Réduit de 13px */
+  color: var(--text-primary);
+}
+
+.employee-card-icon {
+  font-size: 12px; /* Réduit de 14px */
+  opacity: 0.9;
+}
+
+.employee-card-establishment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px; /* Réduit de 12px */
+  color: var(--text-secondary);
+}
+
+.employee-card-establishment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px; /* Limite la largeur pour éviter débordement */
+}
+
+.employee-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.employee-card-rating-stars {
+  color: #FFD700;
+  font-size: 13px;
+}
+
+.employee-card-rating-count {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ========================================
+   EMPLOYEE TYPE BADGE (Freelance/Regular) - v10.3
+   Replaces duplicate rating in bottom overlay
+   ======================================== */
+.employee-card-type {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Réduit de 6px */
+  font-size: 11px; /* Réduit de 13px */
+  margin-top: 2px; /* Réduit de 4px */
+  padding: 3px 8px; /* Réduit de 4px 10px */
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.employee-card-type-icon {
+  font-size: 12px; /* Réduit de 14px */
+}
+
+.employee-card-type-label {
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 9px; /* Réduit de 11px */
+  letter-spacing: 0.5px;
+}
+
+/* Freelance badge - Gold Rose theme (Luxe) */
+.employee-card-type-freelance {
+  background: var(--gradient-overlay);
+  border: 1px solid var(--border-primary);
+  color: var(--color-primary);
+}
+
+/* Regular employee badge - Blue theme with bright color */
+.employee-card-type-regular {
+  background: rgba(52, 152, 219, 0.2);
+  border: 1px solid rgba(52, 152, 219, 0.6);
+  color: #5DADE2;
+}
+
+/* ========================================
+   RESPONSIVE ADAPTATIONS
+   ======================================== */
+
+/* Tablet: Compact text */
+@media (max-width: 768px) {
+  .employee-card-name {
+    font-size: 15px; /* Réduit de 18px pour cohérence avec desktop 16px */
+  }
+
+  .employee-card-nickname {
+    font-size: 12px; /* Agrandi pour tablet */
+  }
+
+  .employee-card-details {
+    font-size: 12px; /* Réduit de 13px */
+  }
+
+  .employee-card-overlay {
+    padding: 10px 8px 8px 8px; /* Cohérent avec desktop optimisé */
+  }
+
+  .employee-card-info {
+    padding: 7px; /* Entre desktop (8px) et mobile (6px) */
+  }
+
+  .employee-card-placeholder-icon {
+    font-size: 60px;
+  }
+}
+
+/* Small mobile: Ultra compact layout - GARDE 2 COLONNES */
+@media (max-width: 480px) {
+  /* Encadré noir encore plus compact */
+  .employee-card-info {
+    padding: 6px; /* Réduit de 8px */
+  }
+
+  .employee-card-overlay {
+    padding: 8px 6px 6px 6px; /* Réduit encore */
+  }
+
+  /* Réduction des fonts */
+  .employee-card-name {
+    font-size: 14px; /* Réduit de 16px */
+    gap: 4px;
+  }
+
+  .employee-card-nickname {
+    font-size: 11px; /* Agrandi de 9px pour meilleure visibilité mobile */
+  }
+
+  .employee-card-detail,
+  .employee-card-establishment {
+    font-size: 10px; /* Réduit de 11px et 10px */
+  }
+
+  .employee-card-icon {
+    font-size: 11px; /* Réduit de 12px */
+  }
+
+  .employee-card-details {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  /* Réduction des gaps - GARDE 2 COLONNES */
+  .employee-card-info-columns {
+    gap: 6px; /* Réduit de 8px */
+    margin-bottom: 2px; /* Réduit de 3px */
+    /* PAS de flex-direction: column - on garde 2 colonnes ! */
+  }
+
+  .employee-card-info-left,
+  .employee-card-info-right {
+    gap: 1px; /* Réduit au minimum */
+  }
+
+  /* GARDE l'alignement à droite même sur mobile */
+  .employee-card-info-right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* Badges ultra compacts */
+  .employee-card-type {
+    padding: 2px 6px; /* Réduit de 3px 8px */
+    font-size: 9px; /* Réduit de 11px */
+    margin-top: 1px;
+  }
+
+  .employee-card-type-label {
+    font-size: 8px; /* Réduit de 9px */
+  }
+
+  .employee-card-type-icon {
+    font-size: 10px; /* Réduit de 12px */
+  }
+
+  /* Badge vérifié réduit */
+  .employee-card-verified-badge {
+    width: 18px; /* Réduit de 22px */
+    height: 18px;
+    font-size: 11px; /* Réduit de 13px */
+  }
+
+  /* Badge VIP - Format horizontal ultra compact mobile */
+  .employee-card-vip-badge {
+    padding: 2px 12px; /* Encore plus plat, légèrement moins long */
+    font-size: 10px; /* Réduit légèrement */
+  }
+
+  .employee-card-vip-badge::before {
+    font-size: 11px; /* Couronne réduite */
+    width: 14px; /* Cercle encore plus petit */
+    height: 14px;
+    margin-right: 3px; /* Espacement réduit */
+  }
+
+  /* Badges rating/photo */
+  .employee-card-rating-badge,
+  .employee-card-photo-count {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .employee-card-placeholder-icon {
+    font-size: 50px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .employee-card-tinder,
+  .employee-card-overlay {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .employee-card-tinder {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .employee-card-tinder:hover {
+    border: 3px solid #C19A6B;
+  }
+
+  .employee-card-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.9) 40%,
+      transparent 100%
+    );
+  }
+}

@@ -1,0 +1,168 @@
+/**
+ * 🎨 LAYOUT UTILITIES - Form Layouts, Grids & Button Groups
+ *
+ * @file layout-utilities.css
+ * @version 1.0.0
+ * @migrated Phase 3C - 2025-01-09
+ * @source nightlife-theme.css (Lignes 771-849)
+ *
+ * CONTENU:
+ * - Form Layouts (form-layout, form-row-2-cols, form-input-group)
+ * - Social Media Grid
+ * - Button Groups (center, spread)
+ * - Loading States avec Flexbox
+ * - Select Options dark
+ *
+ * UTILISÉ PAR:
+ * - EmployeeForm, EstablishmentForm, BasicInfoForm
+ * - Tous les formulaires de l'application
+ * - Layouts génériques réutilisables
+ *
+ * MODERNISATIONS:
+ * - Variables design-system.css: --spacing-*, --color-*
+ * - WCAG 2.1 Level AA: Touch targets minimum 44px
+ * - Responsive: breakpoints standardisés
+ * - Box-sizing: border-box pour éviter débordements
+ */
+
+/* ===== FORM LAYOUTS ===== */
+
+/* Form Layout Vertical avec Gap */
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2); /* 0.625rem */
+}
+
+/* Form Row 2 Colonnes */
+.form-row-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4); /* --spacing-md */
+  margin-bottom: var(--spacing-3); /* 0.9375rem */
+}
+
+/* Éviter débordement sur petites colonnes */
+.form-row-2-cols > div {
+  min-width: 0; /* Permet la contraction des flex items */
+  overflow: hidden;
+}
+
+/* Inputs dans form-row-2-cols */
+.form-row-2-cols input,
+.form-row-2-cols select,
+.form-row-2-cols textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 7.5rem; /* Largeur minimale pour lisibilité (120px) */
+}
+
+/* Form Input Groups */
+.form-input-group {
+  margin-bottom: var(--spacing-4); /* --spacing-md */
+}
+
+.form-input-group-lg {
+  margin-bottom: var(--spacing-3); /* 0.9375rem */
+}
+
+/* ===== SOCIAL MEDIA LAYOUT ===== */
+
+/* Social Media Grid - 1 colonne pour inputs sociaux */
+.social-media-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2); /* 0.625rem */
+}
+
+/* Social Media Input - Full width */
+.social-media-input {
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%; /* Évite débordement */
+}
+
+/* ===== BUTTON GROUPS ===== */
+
+/* Button Group Center - Centré avec gap */
+.button-group-center {
+  display: flex;
+  gap: var(--spacing-3); /* 0.9375rem */
+  justify-content: center;
+  margin-top: var(--spacing-5); /* --spacing-lg */
+}
+
+/* Button Group Spread - Space between */
+.button-group-spread {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-4); /* --spacing-md */
+}
+
+/* ===== LOADING STATES ===== */
+
+/* Loading Flex - Center avec icon + text */
+.loading-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2); /* 0.625rem */
+}
+
+/* ===== SELECT OPTIONS ===== */
+
+/* Select Option Dark - Pour select avec background sombre */
+.select-option-dark {
+  background: var(--bg-elevated); /* #1a1a1a */
+  color: var(--text-primary); /* white */
+}
+
+/* ===== RESPONSIVE MOBILE ===== */
+
+/* Mobile: Form row devient 1 colonne */
+@media (max-width: 48rem) {
+  .form-row-2-cols {
+    grid-template-columns: 1fr; /* Stack vertical */
+    gap: var(--spacing-3);
+  }
+
+  .button-group-center {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .button-group-spread {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* WCAG 2.1 Level AA - Focus visible states */
+.form-input-group input:focus-visible,
+.form-input-group select:focus-visible,
+.form-input-group textarea:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .form-row-2-cols {
+    gap: var(--spacing-5);
+  }
+
+  .button-group-center,
+  .button-group-spread {
+    gap: var(--spacing-4);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .button-group-center,
+  .button-group-spread {
+    transition: none;
+  }
+}

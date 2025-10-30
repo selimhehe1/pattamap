@@ -1,5 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Zone } from './ZoneSelector';
+import '../../styles/components/map-sidebar.css';
 
 interface EstablishmentCategory {
   id: string;
@@ -7,6 +9,8 @@ interface EstablishmentCategory {
   color: string;
   icon: string;
 }
+
+type ViewMode = 'map' | 'list' | 'employees';
 
 interface MapSidebarProps {
   isOpen: boolean;
@@ -21,6 +25,9 @@ interface MapSidebarProps {
   searchTerm?: string;
   onSearchChange?: (search: string) => void;
   onClearFilters?: () => void;
+  establishmentCount?: number;
+  viewMode?: ViewMode;
+  onViewModeToggle?: (mode: ViewMode) => void;
 }
 
 const MapSidebar: React.FC<MapSidebarProps> = ({
@@ -35,28 +42,35 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   onCategoryToggle,
   searchTerm = '',
   onSearchChange,
-  onClearFilters
+  onClearFilters,
+  establishmentCount,
+  viewMode = 'map',
+  onViewModeToggle
 }) => {
+  const { t } = useTranslation();
+
+  // Helper to map zone IDs to translation keys
+  const getZoneTranslationKey = (zoneId: string): string => {
+    const mapping: Record<string, string> = {
+      'jomtiencomplex': 'jomtien',
+      'soi78': 'soi7and8'
+    };
+    return mapping[zoneId] || zoneId;
+  };
+
   return (
     <>
       {/* Sidebar Container */}
       <div className={`map-sidebar-nightlife ${isOpen ? '' : 'collapsed'}`}>
-        {/* Header avec titre et bouton close */}
+        {/* Header avec titre */}
         <div className="sidebar-header-nightlife">
           <div className="sidebar-title-nightlife">
             <span className="sidebar-zone-icon-nightlife">{currentZone.icon}</span>
             <div>
-              <h2 className="sidebar-zone-name-nightlife">{currentZone.name}</h2>
-              <p className="sidebar-zone-subtitle-nightlife">Select a zone to explore</p>
+              <h2 className="sidebar-zone-name-nightlife">{t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`)}</h2>
+              <p className="sidebar-zone-subtitle-nightlife">{t('map.selectZone')}</p>
             </div>
           </div>
-          <button
-            onClick={onToggle}
-            className="sidebar-close-btn-nightlife"
-            aria-label="Toggle sidebar"
-          >
-            ✕
-          </button>
         </div>
 
         {/* Divider */}
@@ -64,7 +78,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
 
         {/* Zone Selector List */}
         <div className="sidebar-section-nightlife">
-          <h3 className="sidebar-section-title-nightlife">🗺️ ZONES</h3>
+          <h3 className="sidebar-section-title-nightlife">🗺️ {t('map.zones').toUpperCase()}</h3>
           <div className="zone-list-nightlife">
             {zones.map((zone) => (
               <button
@@ -76,7 +90,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
                 } as React.CSSProperties}
               >
                 <span className="zone-item-icon-nightlife">{zone.icon}</span>
-                <span className="zone-item-name-nightlife">{zone.name}</span>
+                <span className="zone-item-name-nightlife">{t(`map.zoneNames.${getZoneTranslationKey(zone.id)}`)}</span>
                 {currentZone.id === zone.id && (
                   <span className="zone-item-badge-nightlife">✓</span>
                 )}
@@ -91,13 +105,13 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
             <div className="sidebar-divider-nightlife"></div>
             <div className="sidebar-section-nightlife">
               <div className="filters-header-nightlife">
-                <h3 className="sidebar-section-title-nightlife">🔍 FILTERS</h3>
+                <h3 className="sidebar-section-title-nightlife">🔍 {t('search.filters').toUpperCase()}</h3>
                 <button
                   onClick={onClearFilters}
                   className="clear-filters-btn-nightlife"
-                  title="Clear all filters"
+                  title={t('search.clearFilters')}
                 >
-                  🔄 Clear
+                  🔄 {t('search.clearFilters')}
                 </button>
               </div>
 
@@ -105,7 +119,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
               <div className="sidebar-search-container-nightlife">
                 <input
                   type="text"
-                  placeholder="Search establishments..."
+                  placeholder={t('search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => onSearchChange?.(e.target.value)}
                   className="sidebar-search-input-nightlife"
@@ -115,7 +129,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
               {/* Category Filters */}
               {categories.length > 0 && (
                 <div className="sidebar-categories-nightlife">
-                  <h4 className="sidebar-subsection-title-nightlife">Types:</h4>
+                  <h4 className="sidebar-subsection-title-nightlife">{t('search.types')}:</h4>
                   <div className="category-list-nightlife">
                     {categories.map((category) => (
                       <label
@@ -146,25 +160,30 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
 
         {/* Footer Legend */}
         <div className="sidebar-footer-nightlife">
+          {establishmentCount !== undefined && (
+            <p className="sidebar-count-nightlife" style={{
+              color: '#FFD700',
+              fontWeight: 'bold',
+              fontSize: '0.875rem',
+              marginBottom: '0.5rem',
+              textAlign: 'center'
+            }}>
+              📍 {t('map.establishmentCount', { count: establishmentCount, zone: t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`) })}
+            </p>
+          )}
           <p className="sidebar-legend-nightlife">
-            💡 Click on establishments to view details
+            💡 {t('map.clickToView')}
           </p>
         </div>
-      </div>
 
-      {/* Toggle Button (toujours visible) */}
-      <button
-        onClick={onToggle}
-        className={`sidebar-toggle-btn-nightlife ${isOpen ? '' : 'collapsed'}`}
-        aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
-      >
-        {isOpen ? '◀' : '☰'}
-      </button>
+      </div>
 
       {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="sidebar-overlay-nightlife"
+          role="button"
+          tabIndex={0}
           onClick={onToggle}
         />
       )}

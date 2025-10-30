@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User } from '../../types';
 import { logger } from '../../utils/logger';
 
@@ -25,6 +26,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   onClose,
   onSave
 }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     pseudonym: '',
     email: '',
@@ -69,7 +71,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     switch (role) {
       case 'admin': return '#FF4757';
       case 'moderator': return '#FFD700';
-      case 'user': return '#00FFFF';
+      case 'user': return '#00E5FF';
       default: return '#cccccc';
     }
   };
@@ -109,12 +111,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       justifyContent: 'center',
       padding: '20px',
       backdropFilter: 'blur(10px)'
-    }}>
+    }} role="dialog" aria-modal="true">
       <div style={{
         background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
         borderRadius: '25px',
-        border: '2px solid #FF1B8D',
-        boxShadow: '0 20px 60px rgba(255,27,141,0.3)',
+        border: '2px solid #C19A6B',
+        boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
         width: '90%',
         maxWidth: '600px',
         maxHeight: '90vh',
@@ -124,10 +126,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         {/* Header */}
         <div style={{
           padding: '30px 30px 20px 30px',
-          borderBottom: '1px solid rgba(255,27,141,0.3)'
+          borderBottom: '1px solid rgba(193, 154, 107,0.3)'
         }}>
           <button
             onClick={onClose}
+            aria-label="Close"
             style={{
               position: 'absolute',
               top: '20px',
@@ -135,9 +138,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              background: 'rgba(255,27,141,0.2)',
-              border: '2px solid #FF1B8D',
-              color: '#FF1B8D',
+              background: 'rgba(193, 154, 107,0.2)',
+              border: '2px solid #C19A6B',
+              color: '#C19A6B',
               fontSize: '20px',
               cursor: 'pointer',
               zIndex: 10,
@@ -148,20 +151,20 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           </button>
 
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '28px',
             fontWeight: 'bold',
             margin: '0 0 10px 0',
             fontFamily: '"Orbitron", monospace'
           }}>
-            👤 Edit User Profile
+            👤 {t('admin.editUserProfile')}
           </h2>
           <p style={{
             color: '#cccccc',
             fontSize: '16px',
             margin: 0
           }}>
-            Modify user account details and permissions
+            {t('admin.modifyUserDetails')}
           </p>
         </div>
 
@@ -191,7 +194,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 fontWeight: 'bold',
                 fontSize: '48px',
                 marginBottom: '15px',
-                border: '3px solid rgba(255,27,141,0.3)'
+                border: '3px solid rgba(193, 154, 107,0.3)'
               }}>
                 {user.pseudonym.charAt(0).toUpperCase()}
               </div>
@@ -226,7 +229,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     textAlign: 'center'
                   }}>
                     <div style={{
-                      color: '#FF1B8D',
+                      color: '#C19A6B',
                       fontSize: '16px',
                       fontWeight: 'bold'
                     }}>
@@ -236,10 +239,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       color: '#cccccc',
                       fontSize: '10px'
                     }}>
-                      Establishments
+                      {t('admin.establishmentsSubmitted')}
                     </div>
                   </div>
-                  
+
                   <div style={{
                     background: 'rgba(0,0,0,0.3)',
                     borderRadius: '8px',
@@ -247,7 +250,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     textAlign: 'center'
                   }}>
                     <div style={{
-                      color: '#00FFFF',
+                      color: '#00E5FF',
                       fontSize: '16px',
                       fontWeight: 'bold'
                     }}>
@@ -257,10 +260,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       color: '#cccccc',
                       fontSize: '10px'
                     }}>
-                      Profiles
+                      {t('admin.profiles')}
                     </div>
                   </div>
-                  
+
                   <div style={{
                     background: 'rgba(0,0,0,0.3)',
                     borderRadius: '8px',
@@ -278,7 +281,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       color: '#cccccc',
                       fontSize: '10px'
                     }}>
-                      Reviews
+                      {t('admin.reviews')}
                     </div>
                   </div>
                 </div>
@@ -290,14 +293,14 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               {/* User Information */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{
-                  color: '#FF1B8D',
+                  color: '#C19A6B',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  📋 Account Information
+                  📋 {t('admin.accountInformation')}
                 </h3>
-                
+
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{
                     display: 'block',
@@ -306,7 +309,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    User ID
+                    {t('admin.userId')}
                   </label>
                   <div style={{
                     padding: '10px 15px',
@@ -327,7 +330,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    Member Since
+                    {t('admin.memberSince')}
                   </label>
                   <div style={{
                     padding: '10px 15px',
@@ -349,7 +352,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       fontWeight: 'bold',
                       marginBottom: '5px'
                     }}>
-                      Last Login
+                      {t('admin.lastLogin')}
                     </label>
                     <div style={{
                       padding: '10px 15px',
@@ -367,24 +370,24 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               {/* Editable Fields */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{
-                  color: '#FF1B8D',
+                  color: '#C19A6B',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  ✏️ Editable Fields
+                  ✏️ {t('admin.editableFields')}
                 </h3>
 
                 {/* Pseudonym */}
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{
                     display: 'block',
-                    color: '#00FFFF',
+                    color: '#00E5FF',
                     fontSize: '12px',
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    👤 Pseudonym *
+                    👤 {t('admin.pseudonym')}
                   </label>
                   <input
                     type="text"
@@ -401,7 +404,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       transition: 'border-color 0.3s ease'
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = '#00FFFF';
+                      e.target.style.borderColor = '#00E5FF';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'rgba(0,255,255,0.3)';
@@ -413,12 +416,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{
                     display: 'block',
-                    color: '#00FFFF',
+                    color: '#00E5FF',
                     fontSize: '12px',
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    ✉️ Email *
+                    ✉️ {t('admin.email')}
                   </label>
                   <input
                     type="email"
@@ -435,7 +438,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       transition: 'border-color 0.3s ease'
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = '#00FFFF';
+                      e.target.style.borderColor = '#00E5FF';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'rgba(0,255,255,0.3)';
@@ -447,12 +450,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{
                     display: 'block',
-                    color: '#00FFFF',
+                    color: '#00E5FF',
                     fontSize: '12px',
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    🔐 Role
+                    🔐 {t('admin.role')}
                   </label>
                   <select
                     value={formData.role}
@@ -468,9 +471,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="user" style={{ background: '#1a0033' }}>👤 User</option>
-                    <option value="moderator" style={{ background: '#1a0033' }}>🛡️ Moderator</option>
-                    <option value="admin" style={{ background: '#1a0033' }}>👑 Admin</option>
+                    <option value="user" style={{ background: '#1a0033' }}>👤 {t('admin.filterUsers')}</option>
+                    <option value="moderator" style={{ background: '#1a0033' }}>🛡️ {t('admin.filterModerators')}</option>
+                    <option value="admin" style={{ background: '#1a0033' }}>👑 {t('admin.filterAdmins')}</option>
                   </select>
                 </div>
 
@@ -493,11 +496,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       }}
                     />
                     <span style={{
-                      color: '#00FFFF',
+                      color: '#00E5FF',
                       fontSize: '12px',
                       fontWeight: 'bold'
                     }}>
-                      ✅ Account Active
+                      ✅ {t('admin.accountActive')}
                     </span>
                   </label>
                 </div>
@@ -506,18 +509,18 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{
                     display: 'block',
-                    color: '#00FFFF',
+                    color: '#00E5FF',
                     fontSize: '12px',
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    📝 Admin Notes (Optional)
+                    📝 {t('admin.adminNotesOptional')}
                   </label>
                   <textarea
                     value={formData.notes}
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     rows={3}
-                    placeholder="Internal notes about this user..."
+                    placeholder={t('admin.adminNotesPlaceholder')}
                     style={{
                       width: '100%',
                       padding: '10px 15px',
@@ -540,7 +543,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             gap: '15px',
             marginTop: '30px',
             paddingTop: '20px',
-            borderTop: '1px solid rgba(255,27,141,0.3)'
+            borderTop: '1px solid rgba(193, 154, 107,0.3)'
           }}>
             <button
               onClick={onClose}
@@ -548,24 +551,24 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 flex: 1,
                 padding: '15px',
                 borderRadius: '12px',
-                border: '2px solid rgba(255,27,141,0.5)',
+                border: '2px solid rgba(193, 154, 107,0.5)',
                 background: 'transparent',
-                color: '#FF1B8D',
+                color: '#C19A6B',
                 fontSize: '14px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,27,141,0.1)';
+                e.currentTarget.style.background = 'rgba(193, 154, 107,0.1)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
-            
+
             <button
               onClick={handleSave}
               disabled={isSaving || !formData.pseudonym || !formData.email}
@@ -597,7 +600,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 }
               }}
             >
-              {isSaving ? '⏳ Saving...' : '💾 Save Changes'}
+              {isSaving ? `⏳ ${t('admin.saving')}` : `💾 ${t('admin.saveChanges')}`}
             </button>
           </div>
         </div>

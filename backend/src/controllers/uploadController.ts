@@ -2,6 +2,8 @@ import { Response } from 'express';
 import cloudinary from '../config/cloudinary';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
+import { supabase } from '../config/supabase';
+import { missionTrackingService } from '../services/missionTrackingService';
 
 export const uploadImages = async (req: AuthRequest, res: Response) => {
   try {
@@ -47,6 +49,41 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
 
     const uploadResults = await Promise.all(uploadPromises);
 
+    // Track photos for gamification (Phase 3)
+    if (req.user?.id) {
+      try {
+        for (const result of uploadResults) {
+          // Type guard: ensure result has expected properties
+          if (typeof result === 'object' && result !== null && 'url' in result && 'width' in result && 'height' in result) {
+            const uploadResult = result as { url: string; public_id: string; width: number; height: number };
+
+            // Insert into user_photo_uploads table
+            await supabase.from('user_photo_uploads').insert({
+              user_id: req.user.id,
+              photo_url: uploadResult.url,
+              entity_type: 'employee',
+              entity_id: null, // Will be set later when photo is attached to employee
+              width: uploadResult.width,
+              height: uploadResult.height,
+              uploaded_at: new Date().toISOString()
+            });
+
+            // Trigger mission tracking (Photo Hunter, Photo Marathon, badges)
+            await missionTrackingService.onPhotoUploaded(
+              req.user.id,
+              uploadResult.url,
+              'employee',
+              null
+            );
+          }
+        }
+        logger.info('Photo uploads tracked for gamification', { userId: req.user.id, count: uploadResults.length });
+      } catch (trackingError) {
+        // Don't fail the upload if tracking fails
+        logger.error('Failed to track photo uploads for gamification:', trackingError);
+      }
+    }
+
     res.json({
       message: 'Images uploaded successfully',
       images: uploadResults
@@ -75,6 +112,32 @@ export const uploadSingleImage = async (req: AuthRequest, res: Response) => {
         { format: 'auto' }
       ]
     });
+
+    // Track photo for gamification (Phase 3)
+    if (req.user?.id) {
+      try {
+        await supabase.from('user_photo_uploads').insert({
+          user_id: req.user.id,
+          photo_url: result.secure_url,
+          entity_type: 'review', // Single images typically for reviews
+          entity_id: null,
+          width: result.width,
+          height: result.height,
+          uploaded_at: new Date().toISOString()
+        });
+
+        await missionTrackingService.onPhotoUploaded(
+          req.user.id,
+          result.secure_url,
+          'review',
+          null
+        );
+
+        logger.info('Single photo upload tracked for gamification', { userId: req.user.id });
+      } catch (trackingError) {
+        logger.error('Failed to track single photo upload:', trackingError);
+      }
+    }
 
     res.json({
       message: 'Image uploaded successfully',
@@ -135,6 +198,32 @@ export const uploadEstablishmentLogo = async (req: AuthRequest, res: Response) =
         { format: 'png' }
       ]
     });
+
+    // Track photo for gamification (Phase 3)
+    if (req.user?.id) {
+      try {
+        await supabase.from('user_photo_uploads').insert({
+          user_id: req.user.id,
+          photo_url: result.secure_url,
+          entity_type: 'establishment',
+          entity_id: null, // Will be set when logo is attached to establishment
+          width: result.width,
+          height: result.height,
+          uploaded_at: new Date().toISOString()
+        });
+
+        await missionTrackingService.onPhotoUploaded(
+          req.user.id,
+          result.secure_url,
+          'establishment',
+          null
+        );
+
+        logger.info('Establishment logo tracked for gamification', { userId: req.user.id });
+      } catch (trackingError) {
+        logger.error('Failed to track establishment logo upload:', trackingError);
+      }
+    }
 
     res.json({
       message: 'Establishment logo uploaded successfully',

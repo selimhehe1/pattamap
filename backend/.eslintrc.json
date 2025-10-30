@@ -1,0 +1,110 @@
+{
+  "env": {
+    "node": true,
+    "es2020": true,
+    "jest": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    // ==========================================
+    // 🔴 ERRORS - Block commits
+    // ==========================================
+
+    // TypeScript - Prevent 'any' usage (45 instances found in audit)
+    "@typescript-eslint/no-explicit-any": "error",
+
+    // Unused variables (except if prefixed with _)
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
+
+    // Prevent console.log (use logger instead)
+    "no-console": ["error", {
+      "allow": ["warn", "error"]
+    }],
+
+    // ==========================================
+    // ⚠️ WARNINGS - Alert but don't block
+    // ==========================================
+
+    // Complexity warnings
+    "complexity": ["warn", 20],
+
+    // File size warnings (catch large controllers >500 lines)
+    "max-lines": ["warn", {
+      "max": 500,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+
+    // Function size warnings
+    "max-lines-per-function": ["warn", {
+      "max": 100,
+      "skipBlankLines": true,
+      "skipComments": true,
+      "IIFEs": true
+    }],
+
+    // Explicit return types encouraged
+    "@typescript-eslint/explicit-function-return-type": ["warn", {
+      "allowExpressions": true,
+      "allowTypedFunctionExpressions": true,
+      "allowHigherOrderFunctions": true
+    }],
+
+    // Explicit module boundary types
+    "@typescript-eslint/explicit-module-boundary-types": "warn",
+
+    // ==========================================
+    // ℹ️ DISABLED - Too strict for existing code
+    // ==========================================
+
+    // Allow require() for dynamic imports
+    "@typescript-eslint/no-var-requires": "off",
+
+    // Allow empty interfaces
+    "@typescript-eslint/no-empty-interface": "off",
+
+    // Allow namespace usage (for Express types)
+    "@typescript-eslint/no-namespace": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+      "rules": {
+        // Allow 'any' in tests
+        "@typescript-eslint/no-explicit-any": "warn",
+
+        // Allow larger test files
+        "max-lines": ["warn", 1000],
+
+        // Allow longer test functions
+        "max-lines-per-function": ["warn", 300],
+
+        // Tests don't need explicit return types
+        "@typescript-eslint/explicit-function-return-type": "off"
+      }
+    },
+    {
+      "files": ["src/server.ts"],
+      "rules": {
+        // server.ts can be larger (it's the main entry point)
+        "max-lines": ["warn", 1000]
+      }
+    }
+  ]
+}

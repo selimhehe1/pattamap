@@ -1,0 +1,193 @@
+/**
+ * ============================================
+ * CUSTOM SOI 6 MAP - STYLES
+ * ============================================
+ *
+ * Styles spécifiques pour la carte interactive Soi 6
+ * Extrait de App.css (2025-01-08)
+ *
+ * @component CustomSoi6Map
+ * @dependencies design-system.css (variables)
+ */
+
+/* ============================================
+   MAP CONTAINER
+   ============================================ */
+
+.soi6-map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  overflow: hidden;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ============================================
+   BAR CIRCLES - Établissements
+   ============================================ */
+
+.soi6-bar-circle {
+  transition: all var(--duration-normal) var(--ease-in-out);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  cursor: pointer;
+}
+
+.soi6-bar-circle:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
+}
+
+.soi6-bar-circle.edit-mode {
+  cursor: grab;
+  transform: scale(1.05);
+}
+
+.soi6-bar-circle.edit-mode:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 8px 25px rgba(255, 215, 0, 0.4));
+}
+
+.soi6-bar-circle.dragging {
+  cursor: grabbing;
+  opacity: 0.8;
+  transform: scale(0.9);
+}
+
+/* ============================================
+   LABELS
+   ============================================ */
+
+.soi6-bar-label {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.soi6-zone-title {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.soi6-type-button {
+  backdrop-filter: var(--backdrop-blur-sm);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  font-family: var(--font-family-base);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.soi6-type-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.soi6-type-button.active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.soi6-edit-toggle {
+  backdrop-filter: var(--backdrop-blur-md);
+  transition: all 0.4s var(--ease-in-out);
+  font-family: var(--font-family-base);
+}
+
+.soi6-edit-toggle:hover {
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   DRAG & DROP
+   ============================================ */
+
+.soi6-drag-instruction {
+  backdrop-filter: var(--backdrop-blur-sm);
+  animation: soi6-pulse 2s ease-in-out infinite;
+  font-family: var(--font-family-base);
+}
+
+@keyframes soi6-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.soi6-drop-zone {
+  animation: soi6-drop-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes soi6-drop-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+  }
+}
+
+/* ============================================
+   STREET ELEMENTS
+   ============================================ */
+
+.soi6-street-line {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.soi6-row-indicator {
+  opacity: 0.6;
+  transition: opacity var(--duration-normal) var(--ease-in-out);
+}
+
+.soi6-row-indicator:hover {
+  opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 75rem) { /* 1200px */
+  .soi6-bar-circle {
+    r: 18;
+  }
+
+  .soi6-bar-label {
+    font-size: 9px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 48rem) { /* 768px */
+  .soi6-bar-circle {
+    r: 15;
+  }
+
+  .soi6-bar-label {
+    font-size: 8px;
+  }
+
+  .soi6-type-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

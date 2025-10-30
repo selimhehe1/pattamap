@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Zone {
   id: string;
@@ -22,7 +23,7 @@ const ZONES: Zone[] = [
     center: [12.9422, 100.8865],
     zoom: 25, // ZOOM GOOGLE MAPS STYLE - ultra détaillé
     bounds: [[12.9410, 100.8850], [12.9430, 100.8885]],
-    color: '#FF1B8D',
+    color: '#C19A6B',
     icon: '🍺'
   },
   {
@@ -100,6 +101,17 @@ const ZONES: Zone[] = [
 ];
 
 const ZoneSelector: React.FC<ZoneSelectorProps> = ({ currentZone, onZoneChange }) => {
+  const { t } = useTranslation();
+
+  // Helper to map zone IDs to translation keys
+  const getZoneTranslationKey = (zoneId: string): string => {
+    const mapping: Record<string, string> = {
+      'jomtiencomplex': 'jomtien',
+      'soi78': 'soi7and8'
+    };
+    return mapping[zoneId] || zoneId;
+  };
+
   return (
     <div style={{
       position: 'absolute',
@@ -144,7 +156,7 @@ const ZoneSelector: React.FC<ZoneSelectorProps> = ({ currentZone, onZoneChange }
           }}
         >
           <span>{zone.icon}</span>
-          <span>{zone.name}</span>
+          <span>{t(`map.zoneNames.${getZoneTranslationKey(zone.id)}`)}</span>
         </button>
       ))}
       

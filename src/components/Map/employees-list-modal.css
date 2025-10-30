@@ -1,0 +1,562 @@
+/**
+ * ============================================
+ * EMPLOYEES LIST MODAL - Component Styles
+ * ============================================
+ *
+ * Fullscreen modal for listing zone employees.
+ * Uses overlays.css patterns + nightlife theme.
+ *
+ * @component EmployeesListModal
+ * @dependencies
+ * - ../../styles/design-system.css (variables)
+ * - ../../styles/utils/overlays.css (patterns overlay/menu)
+ */
+
+/* ============================================
+   MODAL CONTAINER
+   ============================================ */
+
+.employees-modal {
+  /* Inherit from menu--fullscreen in overlays.css */
+}
+
+/* ============================================
+   HEADER ICON
+   ============================================ */
+
+.employees-modal__header-icon {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.8));
+}
+
+/* ============================================
+   SEARCH BAR
+   ============================================ */
+
+.employees-modal__search {
+  position: relative;
+  margin-bottom: var(--spacing-4);
+  padding: 0 var(--spacing-5);
+}
+
+.employees-modal__search-input {
+  width: 100%;
+  padding: var(--spacing-4) var(--spacing-4);
+  padding-right: 3rem;
+  background: linear-gradient(135deg, rgb(10, 0, 30), rgb(36, 0, 70));
+  backdrop-filter: var(--backdrop-blur-sm);
+  border: 2px solid rgba(0, 229, 255, 0.3);
+  border-radius: var(--border-radius-lg);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  outline: none;
+}
+
+.employees-modal__search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.employees-modal__search-input:focus {
+  border-color: rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.employees-modal__search-icon {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-base);
+  color: rgba(0, 229, 255, 0.7);
+  pointer-events: none;
+}
+
+/* ============================================
+   RESULTS COUNT
+   ============================================ */
+
+.employees-modal__count {
+  padding: var(--spacing-3) var(--spacing-5);
+  margin: 0 var(--spacing-5) var(--spacing-4) var(--spacing-5);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(155, 93, 229, 0.1));
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.employees-modal__count-icon {
+  font-size: var(--font-xl);
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+}
+
+.employees-modal__count-text {
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  color: rgba(0, 229, 255, 0.95);
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.employees-modal__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: 0 var(--spacing-5);
+}
+
+.employees-modal__skeleton {
+  height: 120px;
+  background: linear-gradient(135deg, rgb(25, 0, 45), rgb(45, 0, 85));
+  border-radius: var(--border-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(193, 154, 107, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.employees-modal__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8) var(--spacing-5);
+  text-align: center;
+}
+
+.employees-modal__empty-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-5);
+  filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+  opacity: 0.7;
+}
+
+.employees-modal__empty-title {
+  font-size: var(--font-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-3) 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.employees-modal__empty-description {
+  font-size: var(--font-base);
+  color: var(--text-muted);
+  line-height: var(--line-height-relaxed);
+  max-width: 400px;
+}
+
+/* ============================================
+   EMPLOYEES GRID
+   ============================================ */
+
+.employees-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 col par défaut mobile */
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-5);
+}
+
+/* ============================================
+   EMPLOYEE CARD
+   ============================================ */
+
+.employees-modal__card {
+  background: linear-gradient(135deg, rgb(25, 0, 45), rgb(45, 0, 85));
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  position: relative;
+  display: flex;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+}
+
+.employees-modal__card:hover,
+.employees-modal__card:focus {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(155, 93, 229, 0.1));
+  border-color: rgba(0, 229, 255, 0.4);
+  transform: translateX(4px);
+  box-shadow:
+    0 8px 30px rgba(0, 229, 255, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.employees-modal__card:focus {
+  outline: 2px solid rgba(0, 229, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   CARD PHOTO
+   ============================================ */
+
+.employees-modal__card-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  background: linear-gradient(135deg, rgb(10, 0, 30), rgb(36, 0, 70));
+  border: 2px solid rgba(0, 229, 255, 0.3);
+}
+
+.employees-modal__card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-normal) var(--ease-in-out);
+}
+
+.employees-modal__card:hover .employees-modal__card-img {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   CARD BODY
+   ============================================ */
+
+.employees-modal__card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.employees-modal__card-name {
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.employees-modal__card-nickname {
+  font-size: var(--font-sm);
+  color: rgba(0, 229, 255, 0.9);
+  font-style: italic;
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+/* ============================================
+   CARD DETAILS
+   ============================================ */
+
+.employees-modal__card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.employees-modal__card-detail {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  padding: 0.125rem 0.5rem;
+  background: rgba(0, 229, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+/* ============================================
+   CARD ESTABLISHMENT
+   ============================================ */
+
+.employees-modal__card-establishment {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: rgba(155, 93, 229, 0.1);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(155, 93, 229, 0.2);
+}
+
+.employees-modal__card-establishment-icon {
+  font-size: var(--font-sm);
+}
+
+.employees-modal__card-establishment-name {
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
+  color: rgba(155, 93, 229, 0.95);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   CARD RATING
+   ============================================ */
+
+.employees-modal__card-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  width: fit-content;
+}
+
+.employees-modal__card-rating-stars {
+  font-size: var(--font-xs);
+  line-height: 1;
+}
+
+.employees-modal__card-rating-value {
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  color: #FFD700;
+}
+
+.employees-modal__card-rating-count {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+/* ============================================
+   CARD ARROW
+   ============================================ */
+
+.employees-modal__card-arrow {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-4);
+  transform: translateY(-50%);
+  font-size: var(--font-xl);
+  color: rgba(0, 229, 255, 0.5);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  font-weight: bold;
+}
+
+.employees-modal__card:hover .employees-modal__card-arrow {
+  color: rgba(0, 229, 255, 0.9);
+  transform: translateY(-50%) translateX(4px);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.employees-modal__footer-text {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-align: center;
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Tablet: 2 columns */
+@media (min-width: 480px) {
+  .employees-modal__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Modal hidden (not mobile, but show on landscape) */
+@media (min-width: 769px) and (min-height: 501px) {
+  .employees-modal {
+    display: none;
+  }
+}
+
+/* Mobile portrait: Hero card avec photo background */
+@media (max-width: 479px) {
+  .employees-modal__card {
+    flex-direction: column;
+    padding: 0;
+    height: 280px; /* Card height fixe */
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius-xl);
+
+    /* BORDURE AMÉLIORÉE - Délimitation claire */
+    border: 2px solid rgba(193, 154, 107, 0.6); /* Rose vif 2px */
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.8), /* Contour noir fin extérieur */
+      0 0 20px rgba(193, 154, 107, 0.4), /* Glow rose nightlife */
+      0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow profonde */
+  }
+
+  /* PHOTO EN BACKGROUND FULL CARD */
+  .employees-modal__card-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    z-index: 1;
+  }
+
+  .employees-modal__card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Crop intelligent tous ratios */
+    object-position: center top; /* Focus visage si portrait */
+  }
+
+  /* GRADIENT OVERLAY pour lisibilité texte */
+  .employees-modal__card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75%; /* Gradient sur 75% du bas */
+    background: linear-gradient(
+      to top,
+      rgba(10, 0, 30, 0.98) 0%,
+      rgba(25, 0, 45, 0.92) 25%,
+      rgba(25, 0, 45, 0.75) 50%,
+      rgba(25, 0, 45, 0.4) 75%,
+      transparent 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* CONTENU PAR-DESSUS GRADIENT */
+  .employees-modal__card-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-4);
+    z-index: 3;
+    gap: var(--spacing-2);
+    align-items: flex-start;
+  }
+
+  /* TEXTE BLANC avec shadow pour lisibilité */
+  .employees-modal__card-name {
+    color: #ffffff;
+    font-size: var(--font-lg);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9),
+                 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  .employees-modal__card-nickname {
+    color: rgba(0, 229, 255, 1); /* Cyan vif */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  }
+
+  /* DETAILS: Texte blanc */
+  .employees-modal__card-detail {
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* ÉTABLISSEMENT: Badge ROSE translucide */
+  .employees-modal__card-establishment {
+    background: rgba(193, 154, 107, 0.85); /* Rose nightlife */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(193, 154, 107, 0.6);
+    box-shadow: 0 4px 15px rgba(193, 154, 107, 0.3);
+  }
+
+  .employees-modal__card-establishment-icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  }
+
+  .employees-modal__card-establishment-name {
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* RATING: Badge semi-transparent */
+  .employees-modal__card-rating {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+  }
+
+  .employees-modal__card-rating-value {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  /* PAS DE FLÈCHE sur mobile */
+  .employees-modal__card-arrow {
+    display: none;
+  }
+
+  /* Hover effect subtil */
+  .employees-modal__card:hover::after {
+    background: linear-gradient(
+      to top,
+      rgba(10, 0, 30, 0.95) 0%,
+      rgba(25, 0, 45, 0.88) 25%,
+      rgba(25, 0, 45, 0.7) 50%,
+      rgba(25, 0, 45, 0.35) 75%,
+      transparent 100%
+    );
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .employees-modal__card,
+  .employees-modal__card-img,
+  .employees-modal__card-arrow,
+  .skeleton-shimmer {
+    transition: none;
+    animation: none;
+  }
+
+  .employees-modal__card:hover,
+  .employees-modal__card:hover .employees-modal__card-img,
+  .employees-modal__card:hover .employees-modal__card-arrow {
+    transform: none;
+  }
+}

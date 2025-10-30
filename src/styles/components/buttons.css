@@ -1,0 +1,595 @@
+/**
+ * ============================================
+ * BUTTONS - Système de boutons réutilisables
+ * ============================================
+ *
+ * Système de boutons complet avec variantes et états.
+ * Extrait et amélioré depuis nightlife-theme.css (lignes 822-909)
+ *
+ * USAGE:
+ * <button class="btn btn--primary">Click me</button>
+ * <button class="btn btn--secondary">Cancel</button>
+ * <button class="btn btn--success btn--pill">Save</button>
+ *
+ * @dependencies design-system.css (variables)
+ */
+
+/* ============================================
+   BASE BUTTON
+   ============================================ */
+
+/**
+ * Classe de base pour tous les boutons
+ * Respecte WCAG 2.1 Level AAA (44px touch target)
+ */
+.btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  /* Sizing */
+  min-height: var(--height-button); /* 44px - WCAG touch target */
+  padding: var(--spacing-3) var(--spacing-6);
+
+  /* Typography */
+  font-family: var(--font-family-base);
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-decoration: none;
+  line-height: var(--line-height-tight);
+
+  /* Visual */
+  border-radius: var(--border-radius-lg);
+  border: 2px solid transparent;
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  /* Animation */
+  transition: all var(--duration-normal) var(--ease-in-out);
+
+  /* Prevent text selection */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove default button styles */
+.btn::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Focus state (accessibility) */
+.btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-ring);
+}
+
+/* Disabled state */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   BUTTON VARIANTS
+   ============================================ */
+
+/**
+ * Primary button - Main actions
+ * Pink gradient with hover lift effect
+ */
+.btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-color: var(--color-primary);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  box-shadow: var(--shadow-glow-primary);
+  transform: translateY(-2px);
+}
+
+.btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+}
+
+/**
+ * Secondary button - Secondary actions
+ * Cyan outline with glass effect
+ */
+.btn--secondary {
+  border: 2px solid var(--color-secondary);
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.2));
+  color: var(--color-secondary);
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+  text-shadow: 0 0 10px rgba(44, 62, 80, 0.5);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(44, 62, 80, 0.3));
+  box-shadow: var(--shadow-glow-secondary);
+  transform: translateY(-2px);
+}
+
+.btn--secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+}
+
+/**
+ * Success button - Positive actions (save, confirm)
+ * Green gradient
+ */
+.btn--success {
+  background: linear-gradient(135deg, var(--color-success), #00D851);
+  border-color: var(--color-success);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
+}
+
+.btn--success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00D851, var(--color-success));
+  box-shadow: var(--shadow-glow-success);
+  transform: translateY(-2px);
+}
+
+.btn--success:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
+}
+
+/**
+ * Danger/Error button - Destructive actions (delete, cancel)
+ * Red gradient
+ */
+.btn--danger,
+.btn--error {
+  background: linear-gradient(135deg, var(--color-error), #DC3545);
+  border-color: var(--color-error);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+.btn--danger:hover:not(:disabled),
+.btn--error:hover:not(:disabled) {
+  background: linear-gradient(135deg, #DC3545, var(--color-error));
+  box-shadow: var(--shadow-glow-error);
+  transform: translateY(-2px);
+}
+
+.btn--danger:active:not(:disabled),
+.btn--error:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+/**
+ * Warning button - Caution actions
+ * Orange gradient
+ */
+.btn--warning {
+  background: linear-gradient(135deg, var(--color-warning), #FF8C00);
+  border-color: var(--color-warning);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.2);
+}
+
+.btn--warning:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FF8C00, var(--color-warning));
+  box-shadow: 0 8px 25px rgba(255, 165, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn--warning:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.2);
+}
+
+/**
+ * Ghost button - Minimal style, transparent background
+ * Useful for tertiary actions
+ */
+.btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/**
+ * Link button - Looks like text, behaves like button
+ */
+.btn--link {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  padding: var(--spacing-2) var(--spacing-4);
+  min-height: auto;
+  text-decoration: underline;
+}
+
+.btn--link:hover:not(:disabled) {
+  color: var(--color-secondary);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   BUTTON SIZES
+   ============================================ */
+
+/**
+ * Small button - Compact size
+ */
+.btn--sm {
+  min-height: 2.25rem; /* 36px */
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-sm);
+}
+
+/**
+ * Large button - Prominent size
+ */
+.btn--lg {
+  min-height: 3.5rem; /* 56px */
+  padding: var(--spacing-4) var(--spacing-8);
+  font-size: var(--font-lg);
+}
+
+/**
+ * Extra large button - Hero size
+ */
+.btn--xl {
+  min-height: 4rem; /* 64px */
+  padding: var(--spacing-5) var(--spacing-10);
+  font-size: var(--font-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============================================
+   BUTTON SHAPES
+   ============================================ */
+
+/**
+ * Pill button - Fully rounded corners
+ */
+.btn--pill {
+  border-radius: var(--border-radius-full);
+}
+
+/**
+ * Square button - Sharp corners
+ */
+.btn--square {
+  border-radius: 0;
+}
+
+/**
+ * Circle button - Perfect circle (icon only)
+ */
+.btn--circle {
+  border-radius: var(--border-radius-full);
+  padding: 0;
+  width: var(--height-button);
+  height: var(--height-button);
+}
+
+.btn--circle.btn--sm {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.btn--circle.btn--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/* ============================================
+   BUTTON MODIFIERS
+   ============================================ */
+
+/**
+ * Full width button
+ */
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/**
+ * Loading state
+ */
+.btn--loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.btn--loading::after {
+  content: '';
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  top: 50%;
+  left: 50%;
+  margin-left: -0.5rem;
+  margin-top: -0.5rem;
+  border: 2px solid var(--text-primary);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: btn-spin 0.6s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/**
+ * Icon in button
+ */
+.btn__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.btn__icon--left {
+  margin-right: var(--spacing-2);
+}
+
+.btn__icon--right {
+  margin-left: var(--spacing-2);
+}
+
+/* ============================================
+   BUTTON GROUPS
+   ============================================ */
+
+/**
+ * Group of buttons (horizontal)
+ */
+.btn-group {
+  display: inline-flex;
+  gap: var(--spacing-2);
+}
+
+.btn-group--attached {
+  gap: 0;
+}
+
+.btn-group--attached .btn:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-group--attached .btn:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+/* Vertical group */
+.btn-group--vertical {
+  flex-direction: column;
+}
+
+.btn-group--vertical.btn-group--attached .btn:not(:first-child) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.btn-group--vertical.btn-group--attached .btn:not(:last-child) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: none;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Mobile: Full width buttons by default in small screens */
+@media (max-width: 30rem) {
+  .btn-mobile-block {
+    display: flex;
+    width: 100%;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn {
+    border-width: 3px;
+  }
+
+  .btn--primary,
+  .btn--success,
+  .btn--danger,
+  .btn--warning {
+    border-color: currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ============================================
+   LEGACY SUPPORT
+   ============================================ */
+
+/**
+ * Mapping ancien système → nouveau système
+ * Pour compatibilité pendant la migration
+ * TODO: Supprimer après migration complète des composants
+ */
+
+/* Base button - Styles complets pour compatibilité */
+.btn-nightlife-base {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  /* Sizing */
+  min-height: var(--height-button); /* 44px - WCAG touch target */
+  padding: var(--spacing-3) var(--spacing-6);
+
+  /* Typography */
+  font-family: var(--font-family-base);
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-decoration: none;
+  line-height: var(--line-height-tight);
+
+  /* Visual */
+  border-radius: var(--border-radius-lg);
+  border: 2px solid transparent;
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  /* Animation */
+  transition: all var(--duration-normal) var(--ease-in-out);
+
+  /* Prevent text selection */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove default button styles */
+.btn-nightlife-base::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Focus state (accessibility) */
+.btn-nightlife-base:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-ring);
+}
+
+/* Disabled state */
+.btn-nightlife-base:disabled,
+.btn-nightlife-base[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Primary variant */
+.btn-primary-nightlife {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-color: var(--color-primary);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+}
+
+.btn-primary-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  box-shadow: var(--shadow-glow-primary);
+  transform: translateY(-2px);
+}
+
+.btn-primary-nightlife:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+}
+
+/* Secondary variant */
+.btn-secondary-nightlife {
+  border: 2px solid var(--color-secondary);
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.2));
+  color: var(--color-secondary);
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+  text-shadow: 0 0 10px rgba(44, 62, 80, 0.5);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+.btn-secondary-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(44, 62, 80, 0.3));
+  box-shadow: var(--shadow-glow-secondary);
+  transform: translateY(-2px);
+}
+
+.btn-secondary-nightlife:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+}
+
+/* Success variant */
+.btn-success-nightlife {
+  background: linear-gradient(135deg, var(--color-success), #00D851);
+  border-color: var(--color-success);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
+}
+
+.btn-success-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00D851, var(--color-success));
+  box-shadow: var(--shadow-glow-success);
+  transform: translateY(-2px);
+}
+
+.btn-success-nightlife:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
+}
+
+/* Danger variant */
+.btn-danger-nightlife {
+  background: linear-gradient(135deg, var(--color-error), #DC3545);
+  border-color: var(--color-error);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+.btn-danger-nightlife:hover:not(:disabled) {
+  background: linear-gradient(135deg, #DC3545, var(--color-error));
+  box-shadow: var(--shadow-glow-error);
+  transform: translateY(-2px);
+}
+
+.btn-danger-nightlife:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+/* Pill shape */
+.btn-pill-nightlife {
+  border-radius: var(--border-radius-full);
+}

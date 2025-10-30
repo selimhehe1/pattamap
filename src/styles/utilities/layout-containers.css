@@ -1,0 +1,202 @@
+/* 📐 LAYOUT CONTAINERS & GRIDS - NIGHTLIFE THEME */
+/**
+ * @file Utility classes for responsive containers and grid layouts
+ * @version 1.0.0
+ * @phase Phase 4B - Architecture Finale
+ * @date 2025-01-09
+ *
+ * CONTENU:
+ * - Responsive Containers (2 classes): Small et Extra Large
+ * - Grid Columns (4 classes): 1, 2, 3, 4 colonnes
+ * - Responsive Breakpoint (48rem): Auto-collapse to single column
+ *
+ * DÉPENDANCES:
+ * - design-system.css (--width-container-*, --spacing-*)
+ *
+ * UTILISATION:
+ * Classes utilitaires pour layouts de conteneurs et grilles.
+ * Responsive mobile-first avec auto-collapse sur petits écrans.
+ */
+
+/* ================================================================
+ * RESPONSIVE CONTAINERS - Largeurs max centrées
+ * ================================================================ */
+
+/**
+ * Container Small - Full-width responsive
+ * Usage: Formulaires, contenu étroit, single-column layouts
+ * Idéal pour: Login forms, narrow articles, focused content
+ * Note: max-width supprimé pour design full-width
+ */
+.container-sm {
+  width: 100%; /* Full-width responsive */
+  /* max-width supprimé pour full-width */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--padding-page-desktop, 2rem);
+  padding-right: var(--padding-page-desktop, 2rem);
+}
+
+/**
+ * Container Extra Large - Full-width responsive
+ * Usage: Wide layouts, dashboards, multi-column content
+ * Idéal pour: Admin panels, data tables, complex UIs
+ * Note: max-width supprimé pour design full-width
+ */
+.container-xl {
+  width: 100%; /* Full-width responsive */
+  /* max-width supprimé pour full-width */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--padding-page-desktop, 2rem);
+  padding-right: var(--padding-page-desktop, 2rem);
+}
+
+/* ================================================================
+ * GRID COLUMNS - Layouts en grille responsive
+ * ================================================================ */
+
+/**
+ * Grid 1 Column
+ * Usage: Single column layout, stacked content
+ * Mobile: Reste à 1 colonne
+ */
+.grid-cols-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4, 1rem);
+}
+
+/**
+ * Grid 2 Columns
+ * Usage: Two-column layouts, side-by-side content
+ * Mobile (≤48rem): Auto-collapse to 1 column
+ */
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4, 1rem);
+}
+
+/**
+ * Grid 3 Columns
+ * Usage: Triple-column layouts, card grids
+ * Mobile (≤48rem): Auto-collapse to 1 column
+ */
+.grid-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4, 1rem);
+}
+
+/**
+ * Grid 4 Columns
+ * Usage: Four-column layouts, dense card grids
+ * Mobile (≤48rem): Auto-collapse to 1 column
+ */
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4, 1rem);
+}
+
+/* ================================================================
+ * RESPONSIVE BEHAVIOR - Mobile First
+ * ================================================================ */
+
+/**
+ * Mobile & Tablet (≤768px)
+ * Auto-collapse multi-column grids to single column
+ * Container padding réduit pour maximiser l'espace
+ */
+@media (max-width: 48rem) {
+  /* Collapse all multi-column grids to single column */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3, 0.75rem);
+  }
+
+  /* Reduce container padding on mobile - padding responsive */
+  .container-sm,
+  .container-xl {
+    padding-left: var(--padding-page-mobile, 0.75rem);
+    padding-right: var(--padding-page-mobile, 0.75rem);
+  }
+
+  /* Legacy form classes (from nightlife-theme.css) */
+  .form-row-2-cols {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .button-group-center,
+  .button-group-spread {
+    flex-direction: column;
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .social-media-input {
+    width: 100%;
+  }
+}
+
+/* ================================================================
+ * ACCESSIBILITY & BEST PRACTICES
+ * ================================================================ */
+
+/**
+ * WCAG 2.1 Level AA Compliance:
+ * - Gap minimum: 1rem (16px) pour espacement tactile
+ * - Mobile gap: 0.75rem (12px) pour économiser l'espace
+ * - Padding containers: Évite le contenu collé aux bords
+ *
+ * Performance Guidelines:
+ * - CSS Grid natif (GPU-accelerated)
+ * - Mobile-first: Défaut 1 colonne, enhance pour desktop
+ * - No JavaScript required
+ *
+ * Usage Best Practices:
+ * - Préférer .grid-cols-* pour layouts statiques
+ * - Utiliser .container-* pour centrage automatique
+ * - Combiner: <div className="container-xl grid-cols-3">
+ * - Gap personnalisable via inline styles si besoin
+ */
+
+/* ================================================================
+ * EXEMPLES D'UTILISATION
+ * ================================================================ */
+
+/**
+ * Simple Centered Container:
+ * <div className="container-sm">
+ *   <form>...</form>
+ * </div>
+ *
+ * Wide Dashboard Layout:
+ * <div className="container-xl">
+ *   <div className="grid-cols-3">
+ *     <div>Card 1</div>
+ *     <div>Card 2</div>
+ *     <div>Card 3</div>
+ *   </div>
+ * </div>
+ *
+ * Responsive Card Grid (auto-collapse sur mobile):
+ * <div className="grid-cols-4">
+ *   {items.map(item => <Card key={item.id} {...item} />)}
+ * </div>
+ *
+ * Two-Column Form Layout:
+ * <div className="grid-cols-2">
+ *   <div>
+ *     <label>First Name</label>
+ *     <input type="text" />
+ *   </div>
+ *   <div>
+ *     <label>Last Name</label>
+ *     <input type="text" />
+ *   </div>
+ * </div>
+ */

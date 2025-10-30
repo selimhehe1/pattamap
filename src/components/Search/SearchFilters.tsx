@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { getZoneLabel } from '../../utils/constants';
 import { logger } from '../../utils/logger';
+import '../../styles/layout/search-layout.css';
 
 // Development logging helper
 const isDev = process.env.NODE_ENV === 'development';
@@ -9,13 +11,15 @@ const debugLog = (message: string, data?: any) => {
 };
 
 export interface FilterValues {
-  query: string;
+  q: string; // Query text search (matches API parameter)
+  type: string; // 🆕 v10.3 - Employee type (all/freelance/regular)
   nationality: string;
   zone: string;
   establishment_id: string;
   category_id: string;
   age_min: string;
   age_max: string;
+  is_verified: string; // 🆕 v10.2 - Verified filter
   sort_by: string;
   sort_order: string;
 }
@@ -46,6 +50,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   loading,
   isTyping
 }) => {
+  const { t } = useTranslation();
+
   // 🚀 État unifié pour autocomplétion optimisée
   const [autocompleteState, setAutocompleteState] = React.useState({
     suggestions: [] as string[],
@@ -57,6 +63,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   const [localAgeMin, setLocalAgeMin] = React.useState(filters.age_min);
   const [localAgeMax, setLocalAgeMax] = React.useState(filters.age_max);
 
+  // 🎯 État local pour search query (instant feedback, 0ms lag)
+  const [localQuery, setLocalQuery] = React.useState(filters.q);
+
+  // 📱 Mobile filters collapse state
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
+
+  // ⚠️ Age validation error state
+  const [ageError, setAgeError] = React.useState<string>('');
+
   // 🎯 Références pour gestion focus et requêtes
   const inputRef = React.useRef<HTMLInputElement>(null);
   const ageMinRef = React.useRef<HTMLInputElement>(null);
@@ -66,14 +82,72 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   const abortControllerRef = React.useRef<AbortController | null>(null);
   const wasTypingRef = React.useRef<boolean>(false);
   const wasTypingAgeRef = React.useRef<{ min: boolean; max: boolean }>({ min: false, max: false });
-  // Sort options
-  const sortOptions = [
-    { value: 'relevance', label: '🎯 Relevance' },
-    { value: 'popularity', label: '⭐ Popularity' },
-    { value: 'newest', label: '🆕 Newest First' },
-    { value: 'oldest', label: '📅 Oldest First' },
-    { value: 'name', label: '📝 Name A-Z' }
-  ];
+
+  // 🎯 Refs to track latest age values without causing effect re-runs (fix infinite loop)
+  const localAgeMinRef = React.useRef<string>(localAgeMin);
+  const localAgeMaxRef = React.useRef<string>(localAgeMax);
+
+  // 🏢 Establishment autocomplete state
+  const [establishmentSearch, setEstablishmentSearch] = React.useState('');
+  const [showEstablishmentSuggestions, setShowEstablishmentSuggestions] = React.useState(false);
+  const establishmentInputRef = React.useRef<HTMLInputElement>(null);
+
+  // 🏢 Filter establishments by search query and group by zone
+  const filterEstablishmentsByQuery = React.useCallback((query: string) => {
+    const zoneNames: Record<string, string> = {
+      soi6: 'Soi 6',
+      walkingstreet: 'Walking Street',
+      beachroad: 'Beach Road',
+      lkmetro: 'LK Metro',
+      treetown: 'Tree Town',
+      soibuakhao: 'Soi Buakhao',
+      jomtiencomplex: 'Jomtien Complex',
+      boyztown: 'BoyzTown',
+      soi78: 'Soi 7 & 8'
+    };
+
+    // Filter establishments by selected zone if any
+    let filtered = filters.zone
+      ? availableFilters.establishments.filter(est => est.zone === filters.zone)
+      : availableFilters.establishments.filter(est => est.zone);
+
+    // Apply search filter if query exists
+    if (query.trim().length > 0) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter(est =>
+        est.name.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // Group by zone
+    const groupedByZone = filtered.reduce((acc, est) => {
+      const zone = est.zone || 'other';
+      if (!acc[zone]) acc[zone] = [];
+      acc[zone].push(est);
+      return acc;
+    }, {} as Record<string, typeof filtered>);
+
+    // Sort each group alphabetically
+    Object.keys(groupedByZone).forEach(zone => {
+      groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
+    });
+
+    // Sort zones alphabetically
+    const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
+      (zoneNames[a] || a).localeCompare(zoneNames[b] || b)
+    );
+
+    return { groupedByZone, sortedZones, zoneNames };
+  }, [filters.zone, availableFilters.establishments]);
+
+  // Sort options - Using translations
+  const sortOptions = React.useMemo(() => [
+    { value: 'relevance', label: `🎯 ${t('search.sortOptions.relevance')}` },
+    { value: 'popularity', label: `⭐ ${t('search.sortOptions.popular')}` },
+    { value: 'newest', label: `🆕 ${t('search.sortOptions.newest')}` },
+    { value: 'oldest', label: `📅 ${t('search.sortOptions.oldest')}` },
+    { value: 'name', label: `📝 ${t('search.sortOptions.name')}` }
+  ], [t]);
 
   // 🚀 Styles supprimés - remplacés par CSS pur .input-nightlife et .select-nightlife
 
@@ -85,6 +159,47 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   React.useEffect(() => {
     setLocalAgeMax(filters.age_max);
   }, [filters.age_max]);
+
+  // 🎯 Keep refs in sync with state (for cleanup without causing re-runs)
+  React.useEffect(() => {
+    localAgeMinRef.current = localAgeMin;
+  }, [localAgeMin]);
+
+  React.useEffect(() => {
+    localAgeMaxRef.current = localAgeMax;
+  }, [localAgeMax]);
+
+  // 🎯 Synchronisation search query local avec parent (one-way: parent → local)
+  React.useEffect(() => {
+    setLocalQuery(filters.q);
+  }, [filters.q]);
+
+  // 📱 Detect mobile viewport and update state
+  React.useEffect(() => {
+    const mobileMediaQuery = window.matchMedia('(max-width: 48rem)'); // 768px
+
+    const handleMobileChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      const isMobileViewport = e.matches;
+      setIsMobile(isMobileViewport);
+      // On desktop, always keep filters open
+      if (!isMobileViewport) {
+        setIsFiltersOpen(true);
+      } else {
+        // On mobile, default to closed
+        setIsFiltersOpen(false);
+      }
+    };
+
+    // Initial check
+    handleMobileChange(mobileMediaQuery);
+
+    // Add listener for changes
+    mobileMediaQuery.addEventListener('change', handleMobileChange);
+
+    return () => {
+      mobileMediaQuery.removeEventListener('change', handleMobileChange);
+    };
+  }, []);
 
   // 🎯 Hook pour restaurer le focus après re-renders
   React.useEffect(() => {
@@ -111,8 +226,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       const timeoutId = setTimeout(() => {
         if (ageMinRef.current && wasTypingAgeRef.current.min) {
           ageMinRef.current.focus();
-          const length = ageMinRef.current.value.length;
-          ageMinRef.current.setSelectionRange(length, length);
+          // Note: setSelectionRange is not supported on input[type="number"]
         }
       }, 10);
       return () => clearTimeout(timeoutId);
@@ -124,20 +238,46 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       const timeoutId = setTimeout(() => {
         if (ageMaxRef.current && wasTypingAgeRef.current.max) {
           ageMaxRef.current.focus();
-          const length = ageMaxRef.current.value.length;
-          ageMaxRef.current.setSelectionRange(length, length);
+          // Note: setSelectionRange is not supported on input[type="number"]
         }
       }, 10);
       return () => clearTimeout(timeoutId);
     }
   }, [loading]);
 
+  // 🏢 Sync establishment search input with selected establishment
+  React.useEffect(() => {
+    if (filters.establishment_id) {
+      const selectedEst = availableFilters.establishments.find(
+        est => est.id === filters.establishment_id
+      );
+      if (selectedEst) {
+        setEstablishmentSearch(selectedEst.name);
+      }
+    } else {
+      setEstablishmentSearch('');
+    }
+  }, [filters.establishment_id, availableFilters.establishments]);
+
   // Clear all filters - use the optimized parent function
   const handleClearFilters = () => {
-    // Clear local age states immediately for instant UI feedback
+    // ✅ Clear all local states immediately for instant UI feedback
+    setLocalQuery('');
     setLocalAgeMin('');
     setLocalAgeMax('');
+    wasTypingRef.current = false;
     wasTypingAgeRef.current = { min: false, max: false };
+
+    // ✅ Reset establishment search states
+    setEstablishmentSearch('');
+    setShowEstablishmentSuggestions(false);
+
+    // ✅ Reset autocomplete states
+    setAutocompleteState({
+      suggestions: [],
+      visible: false,
+      loading: false
+    });
 
     if (onClearFilters) {
       onClearFilters();
@@ -183,10 +323,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(query)}`,
         {
-          signal: abortControllerRef.current.signal,
-          headers: {
-            'Cache-Control': 'max-age=300' // 5 min cache browser
-          }
+          signal: abortControllerRef.current.signal
+          // Browser handles caching automatically for GET requests
         }
       );
 
@@ -215,8 +353,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   };
 
-  // 🚀 Debouncing intelligent optimisé (200ms pour suggestions) - Optimized for scheduler
+  // 🚀 Debouncing intelligent optimisé avec local state (0ms lag visuel, 150ms debounce parent)
   const handleSearchInputChange = React.useCallback((value: string) => {
+    // ✅ Update local state IMMEDIATELY (0ms lag - instant visual feedback)
+    setLocalQuery(value);
+
     // 🎯 Marquer que l'utilisateur est en train de taper
     wasTypingRef.current = true;
 
@@ -237,10 +378,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       }, 0);
     }
 
-    // Utilise la nouvelle fonction optimisée du parent
+    // ✅ Debounce parent call (150ms - SearchPage already handles this, but keep for safety)
+    // This ensures smooth typing even if parent has additional debounce
     onQueryChange(value);
 
-    // Cancel timeout précédent
+    // Cancel autocomplete timeout précédent
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
@@ -279,6 +421,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     wasTypingAgeRef.current.min = true;
     setLocalAgeMin(value);
 
+    // ⚠️ Age validation (18-60 years)
+    if (value !== '' && value !== '0') {
+      const age = parseInt(value, 10);
+      if (isNaN(age) || age < 18 || age > 60) {
+        setAgeError(t('search.ageValidation.outOfRange'));
+        return; // Don't update parent if invalid
+      }
+    }
+
+    // Clear error if valid
+    setAgeError('');
+
     // Clear previous timeout
     if (ageDebounceTimeoutRef.current) {
       clearTimeout(ageDebounceTimeoutRef.current);
@@ -289,11 +443,23 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       onFilterChange('age_min', value);
       wasTypingAgeRef.current.min = false;
     }, 500); // 🎯 Increased from 300ms to 500ms
-  }, [onFilterChange]);
+  }, [onFilterChange, t]);
 
   const handleAgeMaxChange = React.useCallback((value: string) => {
     wasTypingAgeRef.current.max = true;
     setLocalAgeMax(value);
+
+    // ⚠️ Age validation (18-60 years)
+    if (value !== '' && value !== '0') {
+      const age = parseInt(value, 10);
+      if (isNaN(age) || age < 18 || age > 60) {
+        setAgeError(t('search.ageValidation.outOfRange'));
+        return; // Don't update parent if invalid
+      }
+    }
+
+    // Clear error if valid
+    setAgeError('');
 
     // Clear previous timeout
     if (ageDebounceTimeoutRef.current) {
@@ -305,103 +471,173 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       onFilterChange('age_max', value);
       wasTypingAgeRef.current.max = false;
     }, 500); // 🎯 Increased from 300ms to 500ms
-  }, [onFilterChange]);
+  }, [onFilterChange, t]);
+
+  // ✅ Cleanup debounce on unmount - Flush pending age values to avoid data loss
+  // 🐛 FIX: Use refs instead of state in deps to prevent infinite loop
+  React.useEffect(() => {
+    return () => {
+      if (ageDebounceTimeoutRef.current) {
+        clearTimeout(ageDebounceTimeoutRef.current);
+        // Flush pending values immediately before unmount (only non-empty values)
+        // Use refs to access latest values without causing effect re-runs
+        if (wasTypingAgeRef.current.min && localAgeMinRef.current !== '') {
+          onFilterChange('age_min', localAgeMinRef.current);
+        }
+        if (wasTypingAgeRef.current.max && localAgeMaxRef.current !== '') {
+          onFilterChange('age_max', localAgeMaxRef.current);
+        }
+      }
+    };
+  }, [onFilterChange]); // ✅ Only onFilterChange in deps - prevents infinite loop
 
   // Count active filters - Memoized to prevent recalculation on every render
+  // ✅ Exclude default values to prevent showing "Clear (1)" when no real filters active
   const activeFiltersCount = React.useMemo(() =>
-    Object.entries(filters).filter(([key, value]) =>
-      key !== 'sort_by' && key !== 'sort_order' && value && value.trim()
-    ).length,
+    Object.entries(filters).filter(([key, value]) => {
+      // Exclude sort fields (not user-facing filters)
+      if (key === 'sort_by' || key === 'sort_order') return false;
+
+      // Exclude empty/falsy values
+      if (!value || !value.trim()) return false;
+
+      // ✅ Exclude default value 'all' for type filter
+      if (key === 'type' && value === 'all') return false;
+
+      return true;
+    }).length,
     [filters]
   );
 
+  // ✅ Handle zone change with immediate establishment reset (fixes visual desync)
+  const handleZoneChangeInternal = React.useCallback((zoneValue: string) => {
+    // Reset establishment search state immediately (before parent update)
+    setEstablishmentSearch('');
+    setShowEstablishmentSuggestions(false);
+    // Notify parent
+    onZoneChange(zoneValue);
+  }, [onZoneChange]);
+
+  // 🏢 Memoized filtered establishments (moved outside conditional render)
+  const filteredEstablishments = React.useMemo(() => {
+    return filterEstablishmentsByQuery(establishmentSearch);
+  }, [establishmentSearch, filterEstablishmentsByQuery]);
+
   return (
     <div className="search-filters-fixed-nightlife">
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '25px'
-      }}>
-        <h3 style={{
-          margin: 0,
-          fontSize: '20px',
-          fontWeight: 'bold',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(255,27,141,0.3)'
-        }}>
-          🔍 Search Filters
-        </h3>
+      {/* Mobile Toggle Button */}
+      {isMobile && (
+        <button
+          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+          className={`search-filters-toggle-btn ${isFiltersOpen ? 'search-filters-toggle-btn--expanded' : ''}`}
+          aria-expanded={isFiltersOpen}
+        >
+          <span>
+            🔍 {t('search.filters')}
+            {activeFiltersCount > 0 && ` (${activeFiltersCount})`}
+          </span>
+          <span style={{
+            fontSize: '20px',
+            transform: isFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease'
+          }}>
+            ▼
+          </span>
+        </button>
+      )}
 
-        {activeFiltersCount > 0 && (
-          <button
-            onClick={handleClearFilters}
-            disabled={loading}
-            style={{
-              padding: '6px 12px',
-              border: '1px solid rgba(255,71,87,0.5)',
-              background: 'rgba(255,71,87,0.1)',
-              color: '#FF4757',
-              borderRadius: '15px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              transition: 'all 0.3s ease',
-              opacity: loading ? 0.5 : 1
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                e.currentTarget.style.background = 'rgba(255,71,87,0.2)';
-                e.currentTarget.style.borderColor = '#FF4757';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) {
-                e.currentTarget.style.background = 'rgba(255,71,87,0.1)';
-                e.currentTarget.style.borderColor = 'rgba(255,71,87,0.5)';
-              }
-            }}
-          >
-            🗑️ Clear ({activeFiltersCount})
-          </button>
-        )}
+      {/* Filters Content - Collapsible on mobile */}
+      <div className={`filters-content ${isMobile && !isFiltersOpen ? 'filters-content--closed' : ''}`}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '25px'
+        }}>
+          <h3 className="header-title-nightlife">
+            🔍 {t('search.filters')}
+          </h3>
+
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={handleClearFilters}
+              disabled={loading}
+              className="btn-clear-filters-nightlife"
+            >
+              🗑️ {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
+            </button>
+          )}
+      </div>
+
+      {/* Verified Filter - PRIORITAIRE - v10.3 Enhanced */}
+      <div style={{ marginBottom: '25px' }}>
+        <button
+          type="button"
+          onClick={() => onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true')}
+          disabled={loading}
+          className={`verified-filter-nightlife ${filters.is_verified === 'true' ? 'verified-filter-active' : ''} ${loading ? 'verified-filter-disabled' : ''}`}
+        >
+          <span className={`verified-badge-icon-nightlife ${filters.is_verified === 'true' ? 'verified-badge-icon-active' : 'verified-badge-icon-inactive'}`}>
+            ✓
+          </span>
+          <span className={`verified-filter-text-nightlife ${filters.is_verified === 'true' ? 'verified-filter-text-active' : ''}`}>
+            {t('search.verifiedOnly', 'Verified Profiles Only')}
+          </span>
+        </button>
+      </div>
+
+      {/* Employee Type Filter - 🆕 v10.3 - Freelance vs Regular */}
+      <div style={{ marginBottom: '20px' }}>
+        <label className="label-nightlife">
+          👤 {t('search.employeeType')}
+        </label>
+        <select
+          value={filters.type}
+          onChange={(e) => onFilterChange('type', e.target.value)}
+          disabled={loading}
+          className="select-nightlife"
+        >
+          <option value="all" style={{ background: '#1a1a2e', color: '#ffffff' }}>
+            {t('search.allEmployeeTypes')}
+          </option>
+          <option value="freelance" style={{ background: '#1a1a2e', color: '#ffffff' }}>
+            💎 {t('search.freelances')}
+          </option>
+          <option value="regular" style={{ background: '#1a1a2e', color: '#ffffff' }}>
+            🏢 {t('search.regularEmployees')}
+          </option>
+        </select>
       </div>
 
       {/* Search Query with Autocomplete */}
       <div style={{ marginBottom: '20px', position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <label className="label-nightlife">
-            🔎 Search Name
+            🔎 {t('search.searchName')}
           </label>
           {isTyping && (
             <span style={{
               fontSize: '12px',
-              color: '#00FFFF',
+              color: '#00E5FF',
               background: 'rgba(0,255,255,0.1)',
               padding: '2px 6px',
               borderRadius: '8px',
               border: '1px solid rgba(0,255,255,0.3)',
               animation: 'pulse 1.5s ease-in-out infinite'
             }}>
-              ✏️ Typing...
+              ✏️ {t('search.typing')}
             </span>
           )}
         </div>
         <input
           ref={inputRef}
           type="text"
-          value={filters.query}
+          value={localQuery}
           onChange={(e) => handleSearchInputChange(e.target.value)}
-          placeholder="Enter employee name..."
+          placeholder={t('search.enterName')}
           disabled={loading}
           className="input-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'text'
-          }}
           onFocus={() => {
             // Réafficher suggestions si disponibles
             if (autocompleteState.suggestions.length > 0) {
@@ -452,7 +688,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Age Range */}
       <div style={{ marginBottom: '20px' }}>
         <label className="label-nightlife">
-          🎂 Age Range
+          🎂 {t('search.ageRange')}
         </label>
         <div style={{ display: 'flex', gap: '10px' }}>
           <input
@@ -460,50 +696,75 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             type="number"
             value={localAgeMin}
             onChange={(e) => handleAgeMinChange(e.target.value)}
-            placeholder="Min"
+            placeholder={t('search.ageMin')}
             min="18"
             max="60"
             disabled={loading}
             className="input-nightlife"
-            style={{
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'text'
-            }}
           />
           <input
             ref={ageMaxRef}
             type="number"
             value={localAgeMax}
             onChange={(e) => handleAgeMaxChange(e.target.value)}
-            placeholder="Max"
+            placeholder={t('search.ageMax')}
             min="18"
             max="60"
             disabled={loading}
             className="input-nightlife"
-            style={{
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'text'
-            }}
           />
+        </div>
+
+        {/* ⚠️ Age validation error message */}
+        {ageError && (
+          <div style={{
+            marginTop: '8px',
+            padding: '10px 12px',
+            background: 'rgba(255, 71, 87, 0.1)',
+            border: '1px solid rgba(255, 71, 87, 0.4)',
+            borderRadius: 'var(--border-radius-lg)',
+            color: 'var(--color-error)',
+            fontSize: 'var(--font-xs)',
+            fontWeight: 'var(--font-weight-semibold)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '16px' }}>⚠️</span>
+            <span>{ageError}</span>
+          </div>
+        )}
+
+        {/* 💡 Age range info (always visible) */}
+        <div style={{
+          marginTop: '8px',
+          padding: '8px 12px',
+          background: 'rgba(193, 154, 107, 0.1)',
+          border: '1px solid rgba(193, 154, 107, 0.3)',
+          borderRadius: 'var(--border-radius-lg)',
+          color: 'var(--color-primary)',
+          fontSize: 'var(--font-xs)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span style={{ fontSize: '14px' }}>💡</span>
+          <span>{t('search.ageValidation.minimum')} - {t('search.ageValidation.maximum')}</span>
         </div>
       </div>
 
       {/* Nationality */}
       <div style={{ marginBottom: '20px' }}>
         <label className="label-nightlife">
-          🌍 Nationality
+          🌍 {t('search.nationality')}
         </label>
         <select
           value={filters.nationality}
           onChange={(e) => onFilterChange('nationality', e.target.value)}
           disabled={loading}
           className="select-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
         >
-          <option value="">All Nationalities</option>
+          <option value="">{t('search.allNationalities')}</option>
           {availableFilters.nationalities.map(nationality => (
             <option key={nationality} value={nationality} style={{ background: '#1a1a2e', color: '#ffffff' }}>
               {nationality}
@@ -515,19 +776,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Zone */}
       <div style={{ marginBottom: '20px' }}>
         <label className="label-nightlife">
-          📍 Zone
+          📍 {t('search.zone')}
         </label>
         <select
           value={filters.zone}
-          onChange={(e) => onZoneChange(e.target.value)}
+          onChange={(e) => handleZoneChangeInternal(e.target.value)}
           disabled={loading}
           className="select-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
         >
-          <option value="">All Zones</option>
+          <option value="">{t('search.allZones')}</option>
           {availableFilters.zones.map(zone => (
             <option key={zone} value={zone} style={{ background: '#1a1a2e', color: '#ffffff' }}>
               {getZoneLabel(zone)}
@@ -539,19 +796,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Establishment Type */}
       <div style={{ marginBottom: '20px' }}>
         <label className="label-nightlife">
-          🏷️ Establishment Type
+          🏷️ {t('search.establishmentType')}
         </label>
         <select
           value={filters.category_id}
           onChange={(e) => onFilterChange('category_id', e.target.value)}
           disabled={loading}
           className="select-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
         >
-          <option value="">All Types</option>
+          <option value="">{t('search.allTypes')}</option>
           {availableFilters.categories.map(category => (
             <option key={category.id} value={category.id} style={{ background: '#1a1a2e', color: '#ffffff' }}>
               {category.icon} {category.name}
@@ -561,65 +814,159 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Establishment */}
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '20px', position: 'relative' }}>
         <label className="label-nightlife">
-          🏢 Establishment
+          🏢 {t('search.establishment')}
         </label>
-        <select
-          value={filters.establishment_id}
-          onChange={(e) => onFilterChange('establishment_id', e.target.value)}
-          disabled={loading}
-          className="select-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <option value="">All Establishments</option>
-          {React.useMemo(() => {
-            // Filter establishments by selected zone if any
-            const filteredEstablishments = filters.zone
-              ? availableFilters.establishments.filter(est => est.zone === filters.zone)
-              : availableFilters.establishments;
+        <div style={{ position: 'relative' }}>
+          <input
+            ref={establishmentInputRef}
+            type="text"
+            value={establishmentSearch}
+            onChange={(e) => {
+              setEstablishmentSearch(e.target.value);
+              setShowEstablishmentSuggestions(true);
+            }}
+            onFocus={() => setShowEstablishmentSuggestions(true)}
+            onBlur={() => {
+              setTimeout(() => setShowEstablishmentSuggestions(false), 200);
+            }}
+            placeholder={t('search.allEstablishments')}
+            disabled={loading}
+            className="input-nightlife"
+            style={{
+              paddingRight: filters.establishment_id ? '40px' : '12px'
+            }}
+          />
 
-            // Group establishments by zone
-            const groupedByZone = filteredEstablishments.reduce((acc, est) => {
-              const zone = est.zone || 'Other';
-              if (!acc[zone]) acc[zone] = [];
-              acc[zone].push(est);
-              return acc;
-            }, {} as Record<string, typeof filteredEstablishments>);
+          {/* Clear button */}
+          {filters.establishment_id && (
+            <button
+              type="button"
+              onClick={() => {
+                onFilterChange('establishment_id', '');
+                setEstablishmentSearch('');
+                setShowEstablishmentSuggestions(false);
+              }}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                color: '#C19A6B',
+                fontSize: '20px',
+                cursor: 'pointer',
+                padding: '0',
+                width: '24px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          )}
 
-            // Render grouped options
-            return Object.entries(groupedByZone)
-              .sort(([a], [b]) => a.localeCompare(b))
-              .map(([zone, establishments]) => (
-                <optgroup key={zone} label={`📍 ${zone.charAt(0).toUpperCase() + zone.slice(1)}`}>
-                  {establishments.map(establishment => (
-                    <option key={establishment.id} value={establishment.id} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-                      {establishment.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ));
-          }, [filters.zone, availableFilters.establishments])}
-        </select>
+          {/* Autocomplete Dropdown */}
+          {showEstablishmentSuggestions && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                background: 'rgba(0, 0, 0, 0.95)',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                marginTop: '4px',
+                maxHeight: '300px',
+                overflowY: 'auto',
+                zIndex: 1000, // ✅ Increased from 10 to 1000 (standard for dropdowns)
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              {(() => {
+                const { groupedByZone, sortedZones, zoneNames } = filteredEstablishments;
+
+                if (sortedZones.length === 0) {
+                  return (
+                    <div
+                      style={{
+                        padding: '12px 16px',
+                        color: '#cccccc',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {t('search.noResults')}
+                    </div>
+                  );
+                }
+
+                return sortedZones.map((zone) => (
+                  <div key={zone}>
+                    {/* Zone Header - Gray Neutral */}
+                    <div
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: '#cccccc',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
+                      📍 {zoneNames[zone] || zone}
+                    </div>
+
+                    {/* Establishments in Zone */}
+                    {groupedByZone[zone].map((est) => (
+                      <div
+                        key={est.id}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          onFilterChange('establishment_id', est.id);
+                          setEstablishmentSearch(est.name);
+                          setShowEstablishmentSuggestions(false);
+                        }}
+                        style={{
+                          padding: '12px 16px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                          transition: 'background 0.2s ease',
+                          color: filters.establishment_id === est.id ? '#00E5FF' : '#ffffff',
+                          fontSize: '14px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        {est.name}
+                      </div>
+                    ))}
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Sort Options */}
       <div style={{ marginBottom: '20px' }}>
         <label className="label-nightlife">
-          📊 Sort By
+          📊 {t('search.sortBy')}
         </label>
         <select
           value={filters.sort_by}
           onChange={(e) => onFilterChange('sort_by', e.target.value)}
           disabled={loading}
           className="select-nightlife"
-          style={{
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
         >
           {sortOptions.map(option => (
             <option key={option.value} value={option.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>
@@ -629,21 +976,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         </select>
       </div>
 
-      {/* Loading Indicator */}
-      {loading && (
-        <div style={{
-          textAlign: 'center',
-          padding: '15px',
-          background: 'rgba(255,27,141,0.1)',
-          border: '1px solid rgba(255,27,141,0.3)',
-          borderRadius: '12px',
-          color: '#FF1B8D',
-          fontSize: '14px',
-          fontWeight: 'bold'
-        }}>
-          🔄 Searching...
-        </div>
-      )}
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="loading-indicator-nightlife">
+            🔄 {t('search.searching')}
+          </div>
+        )}
+      </div>
+      {/* End Filters Content */}
     </div>
   );
 });

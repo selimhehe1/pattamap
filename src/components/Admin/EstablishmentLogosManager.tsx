@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { Establishment } from '../../types';
 import EstablishmentLogo from './EstablishmentLogo';
@@ -9,6 +10,7 @@ interface EstablishmentLogosManagerProps {
 }
 
 const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +34,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
       });
 
       if (!response.ok) {
-        throw new Error('Failed to load establishments');
+        throw new Error(t('establishmentLogosManager.errorLoadFailed'));
       }
 
       const data = await response.json();
@@ -40,7 +42,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
 
     } catch (error) {
       logger.error('Load establishments error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load establishments');
+      setError(error instanceof Error ? error.message : t('establishmentLogosManager.errorLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -82,13 +84,13 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000
-      }}>
+      }} role="dialog" aria-modal="true">
         <div style={{
-          color: '#FF1B8D',
+          color: '#C19A6B',
           fontSize: '18px',
           textAlign: 'center'
         }}>
-          ⏳ Loading establishments...
+          ⏳ {t('establishmentLogosManager.loadingEstablishments')}
         </div>
       </div>
     );
@@ -107,7 +109,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
       justifyContent: 'center',
       zIndex: 1000,
       padding: '20px'
-    }}>
+    }} role="dialog" aria-modal="true">
       <div style={{
         background: 'linear-gradient(135deg, rgba(15,15,15,0.95), rgba(30,30,30,0.95))',
         borderRadius: '20px',
@@ -116,7 +118,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
         maxWidth: '1000px',
         maxHeight: '90vh',
         overflow: 'hidden',
-        border: '2px solid rgba(255,27,141,0.3)',
+        border: '2px solid rgba(193, 154, 107,0.3)',
         boxShadow: '0 20px 40px rgba(0,0,0,0.8)'
       }}>
         {/* Header */}
@@ -127,13 +129,13 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
           marginBottom: '25px'
         }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: 0,
-            textShadow: '0 0 10px rgba(255,27,141,0.5)'
+            textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
           }}>
-            🏢 Manage Establishment Logos
+            🏢 {t('establishmentLogosManager.title')}
           </h2>
 
           <button
@@ -152,7 +154,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
               alignItems: 'center',
               justifyContent: 'center'
             }}
-          >
+           aria-label="Close">
             ✖️
           </button>
         </div>
@@ -166,7 +168,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
         }}>
           <input
             type="text"
-            placeholder="🔍 Search establishments..."
+            placeholder={`🔍 ${t('establishmentLogosManager.searchPlaceholder')}`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -174,7 +176,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
               minWidth: '200px',
               padding: '10px',
               borderRadius: '8px',
-              border: '1px solid rgba(255,27,141,0.3)',
+              border: '1px solid rgba(193, 154, 107,0.3)',
               background: 'rgba(255,255,255,0.1)',
               color: '#fff',
               fontSize: '14px'
@@ -187,14 +189,14 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             style={{
               padding: '10px',
               borderRadius: '8px',
-              border: '1px solid rgba(255,27,141,0.3)',
+              border: '1px solid rgba(193, 154, 107,0.3)',
               background: 'rgba(255,255,255,0.1)',
               color: '#fff',
               fontSize: '14px',
               minWidth: '120px'
             }}
           >
-            <option value="all">All Zones</option>
+            <option value="all">{t('establishmentLogosManager.allZones')}</option>
             {zones.map(zone => (
               <option key={zone} value={zone}>{zone}</option>
             ))}
@@ -217,7 +219,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            ✅ With Logos: {withLogos.length}
+            ✅ {t('establishmentLogosManager.withLogos', { count: withLogos.length })}
           </div>
 
           <div style={{
@@ -229,19 +231,19 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            ⚠️ Missing Logos: {withoutLogos.length}
+            ⚠️ {t('establishmentLogosManager.missingLogos', { count: withoutLogos.length })}
           </div>
 
           <div style={{
-            background: 'rgba(255,27,141,0.1)',
-            border: '1px solid rgba(255,27,141,0.3)',
+            background: 'rgba(193, 154, 107,0.1)',
+            border: '1px solid rgba(193, 154, 107,0.3)',
             borderRadius: '8px',
             padding: '10px 15px',
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            📊 Total: {filteredEstablishments.length}
+            📊 {t('establishmentLogosManager.total', { count: filteredEstablishments.length })}
           </div>
         </div>
 
@@ -276,7 +278,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
                 marginBottom: '15px',
                 marginTop: 0
               }}>
-                ⚠️ Missing Logos ({withoutLogos.length})
+                ⚠️ {t('establishmentLogosManager.missingLogosSection', { count: withoutLogos.length })}
               </h3>
 
               {withoutLogos.map(establishment => (
@@ -299,7 +301,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
                 marginBottom: '15px',
                 marginTop: withoutLogos.length > 0 ? '25px' : 0
               }}>
-                ✅ With Logos ({withLogos.length})
+                ✅ {t('establishmentLogosManager.withLogosSection', { count: withLogos.length })}
               </h3>
 
               {withLogos.map(establishment => (
@@ -320,7 +322,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
               fontSize: '16px',
               padding: '40px'
             }}>
-              No establishments found matching your criteria.
+              {t('establishmentLogosManager.noResults')}
             </div>
           )}
         </div>

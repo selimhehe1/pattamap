@@ -1,0 +1,385 @@
+/**
+ * ============================================
+ * OVERLAY & MENU PATTERNS - Réutilisables
+ * ============================================
+ *
+ * Patterns standardisés pour overlays et menus slide-in.
+ * Remplace la duplication entre mobile-menu-*-nightlife et mobile-map-menu-*
+ *
+ * USAGE:
+ * - Overlay: <div class="overlay overlay--dark"></div>
+ * - Menu slide-right: <div class="menu menu--slide-right"></div>
+ * - Menu fullscreen: <div class="menu menu--fullscreen"></div>
+ *
+ * @dependencies design-system.css (variables, z-index)
+ */
+
+/* ============================================
+   OVERLAYS - Base Pattern
+   ============================================ */
+
+/**
+ * Base overlay - Blocks interactions behind modal/menu
+ *
+ * @usage <div class="overlay overlay--dark"></div>
+ * @z-index --z-overlay (70)
+ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-overlay);
+  pointer-events: auto;
+  animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+/* Variant: Dark overlay (modal background) */
+.overlay--dark {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+/* Variant: Light overlay (subtle) */
+.overlay--light {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+/* Variant: Blurred overlay */
+.overlay--blur {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: var(--backdrop-blur-lg);
+}
+
+/* Variant: No background (only blur) */
+.overlay--transparent {
+  background: transparent;
+  backdrop-filter: var(--backdrop-blur-md);
+}
+
+/* ============================================
+   MENUS - Base Pattern
+   ============================================ */
+
+/**
+ * Base menu container
+ *
+ * @usage <div class="menu menu--slide-right"></div>
+ */
+.menu {
+  position: fixed;
+  background: var(--bg-primary);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Menu scrollbar styling */
+.menu::-webkit-scrollbar {
+  width: 0.375rem; /* 6px - Thinner for menus */
+}
+
+.menu::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.menu::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--border-radius-full);
+}
+
+/* ============================================
+   MENU VARIANTS - Slide Directions
+   ============================================ */
+
+/**
+ * Slide from right (most common for mobile menus)
+ *
+ * @usage <div class="menu menu--slide-right is-open"></div>
+ * @example Header hamburger menu
+ */
+.menu--slide-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 20rem; /* 320px */
+  transform: translateX(100%);
+  transition: transform var(--duration-normal) var(--ease-in-out);
+  z-index: calc(var(--z-overlay) + 1);
+
+  /* Premium styling */
+  background: linear-gradient(135deg, rgba(10,0,30,0.95), rgba(36,0,70,0.95), rgba(50,0,80,0.95));
+  backdrop-filter: var(--backdrop-blur-lg);
+  border-left: 2px solid rgba(193, 154, 107,0.5);
+  box-shadow:
+    -8px 0 32px rgba(0,0,0,0.9),
+    -2px 0 20px rgba(193, 154, 107,0.3),
+    inset 1px 0 0 rgba(255,255,255,0.05);
+}
+
+.menu--slide-right.is-open {
+  transform: translateX(0);
+}
+
+/**
+ * Slide from left
+ *
+ * @usage <div class="menu menu--slide-left is-open"></div>
+ */
+.menu--slide-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 20rem;
+  transform: translateX(-100%);
+  transition: transform var(--duration-normal) var(--ease-in-out);
+  z-index: calc(var(--z-overlay) + 1);
+
+  background: linear-gradient(135deg, rgba(10,0,30,0.95), rgba(36,0,70,0.95), rgba(50,0,80,0.95));
+  backdrop-filter: var(--backdrop-blur-lg);
+  border-right: 2px solid rgba(193, 154, 107,0.5);
+  box-shadow:
+    8px 0 32px rgba(0,0,0,0.9),
+    2px 0 20px rgba(193, 154, 107,0.3),
+    inset -1px 0 0 rgba(255,255,255,0.05);
+}
+
+.menu--slide-left.is-open {
+  transform: translateX(0);
+}
+
+/**
+ * Slide from bottom (mobile sheet)
+ *
+ * @usage <div class="menu menu--slide-up is-open"></div>
+ */
+.menu--slide-up {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 90vh;
+  transform: translateY(100%);
+  transition: transform var(--duration-normal) var(--ease-in-out);
+  z-index: calc(var(--z-overlay) + 1);
+
+  background: linear-gradient(135deg, rgba(10,0,30,0.95), rgba(36,0,70,0.95));
+  backdrop-filter: var(--backdrop-blur-lg);
+  border-top: 2px solid rgba(193, 154, 107,0.5);
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+  box-shadow:
+    0 -8px 32px rgba(0,0,0,0.9),
+    0 -2px 20px rgba(193, 154, 107,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.menu--slide-up.is-open {
+  transform: translateY(0);
+}
+
+/**
+ * Fullscreen menu (like search page or map menu)
+ *
+ * @usage <div class="menu menu--fullscreen is-open"></div>
+ * @example Map controls menu
+ */
+.menu--fullscreen {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition:
+    opacity var(--duration-normal) var(--ease-in-out),
+    visibility var(--duration-normal) var(--ease-in-out),
+    transform var(--duration-normal) var(--ease-in-out);
+  z-index: calc(var(--z-overlay) + 1);
+
+  background: linear-gradient(135deg, rgb(10,0,30), rgb(36,0,70), rgb(50,0,80));
+  backdrop-filter: var(--backdrop-blur-lg);
+  box-shadow: none;
+}
+
+.menu--fullscreen.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+/* ============================================
+   MENU HEADER
+   ============================================ */
+
+/**
+ * Standardized menu header
+ *
+ * @usage
+ * <div class="menu__header">
+ *   <div class="menu__header-content">...</div>
+ *   <button class="menu__close">✕</button>
+ * </div>
+ */
+.menu__header {
+  padding: var(--spacing-6) var(--spacing-5);
+  background: linear-gradient(135deg, rgba(193, 154, 107,0.15), rgba(155,93,229,0.15));
+  border-bottom: 1px solid rgba(193, 154, 107,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated border effect */
+.menu__header::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-secondary), transparent);
+  animation: borderFlow 3s linear infinite;
+}
+
+@keyframes borderFlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.menu__header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.menu__title {
+  font-size: var(--font-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 3s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.menu__subtitle {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+/**
+ * Close button
+ */
+.menu__close {
+  width: 2.75rem; /* WCAG touch target */
+  height: 2.75rem;
+  border-radius: var(--border-radius-lg);
+  background: rgba(193, 154, 107,0.1);
+  border: 2px solid rgba(193, 154, 107,0.3);
+  color: var(--color-primary);
+  font-size: var(--font-2xl);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu__close:hover,
+.menu__close:focus {
+  background: rgba(193, 154, 107,0.2);
+  border-color: rgba(193, 154, 107,0.6);
+  transform: rotate(90deg) scale(1.1);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/* ============================================
+   MENU CONTENT
+   ============================================ */
+
+/**
+ * Main content area
+ */
+.menu__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-6) var(--spacing-5);
+}
+
+/* ============================================
+   MENU FOOTER
+   ============================================ */
+
+/**
+ * Optional footer
+ */
+.menu__footer {
+  padding: var(--spacing-4) var(--spacing-5);
+  background: linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(155,93,229,0.1));
+  border-top: 1px solid rgba(193, 154, 107,0.3);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Desktop: Hide slide menus, show fullscreen */
+@media (min-width: 48rem) {
+  .menu--slide-right,
+  .menu--slide-left,
+  .menu--slide-up {
+    display: none;
+  }
+}
+
+/* Mobile: Adjust widths */
+@media (max-width: 30rem) {
+  .menu--slide-right,
+  .menu--slide-left {
+    width: 90%;
+    max-width: none;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Prevent body scroll when menu is open */
+.menu-open {
+  overflow: hidden;
+}
+
+/* Disable interactions behind menu */
+.menu-backdrop {
+  pointer-events: none;
+}
+
+/* Quick animation disable (for testing) */
+.no-animation .overlay,
+.no-animation .menu {
+  animation: none !important;
+  transition: none !important;
+}

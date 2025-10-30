@@ -2,6 +2,13 @@ import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
+import {
+  notifyUserContentApproved,
+  notifyUserContentRejected,
+  notifyAdminsPendingContent,
+  notifyFavoriteAvailable,
+  notifyCommentRemoved
+} from '../utils/notificationHelper';
 
 export const getModerationQueue = async (req: AuthRequest, res: Response) => {
   try {
@@ -128,10 +135,13 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { moderator_notes } = req.body;
 
-    // Get the moderation item
+    // Get the moderation item with submitter info
     const { data: moderationItem, error: moderationError } = await supabase
       .from('moderation_queue')
-      .select('*')
+      .select(`
+        *,
+        submitter:users!moderation_queue_submitted_by_fkey(id, pseudonym)
+      `)
       .eq('id', id)
       .single();
 
@@ -141,6 +151,36 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
 
     if (moderationItem.status !== 'pending') {
       return res.status(400).json({ error: 'Item has already been reviewed' });
+    }
+
+    // Get content details for notification
+    let contentName = '';
+    let contentData: any = null;
+
+    if (moderationItem.item_type === 'employee') {
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('name')
+        .eq('id', moderationItem.item_id)
+        .single();
+      contentName = employee?.name || 'Employee';
+      contentData = employee;
+    } else if (moderationItem.item_type === 'establishment') {
+      const { data: establishment } = await supabase
+        .from('establishments')
+        .select('name')
+        .eq('id', moderationItem.item_id)
+        .single();
+      contentName = establishment?.name || 'Establishment';
+      contentData = establishment;
+    } else if (moderationItem.item_type === 'comment') {
+      contentName = 'Comment';
+      const { data: comment } = await supabase
+        .from('comments')
+        .select('content')
+        .eq('id', moderationItem.item_id)
+        .single();
+      contentData = comment;
     }
 
     // Update the item status to approved
@@ -178,6 +218,45 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: updateError.message });
     }
 
+    // Notify user that their content was approved
+    if (moderationItem.submitter?.id) {
+      await notifyUserContentApproved(
+        moderationItem.submitter.id,
+        moderationItem.item_type,
+        contentName,
+        moderationItem.item_id
+      );
+    }
+
+    // 🔔 Notify users who favorited this employee that they're now available
+    if (moderationItem.item_type === 'employee') {
+      try {
+        // Get employee's current establishment
+        const { data: employment } = await supabase
+          .from('employment_history')
+          .select(`
+            establishment_id,
+            establishments:establishment_id(name)
+          `)
+          .eq('employee_id', moderationItem.item_id)
+          .eq('is_current', true)
+          .single();
+
+        const establishmentName = employment?.establishments
+          ? (employment.establishments as any).name
+          : undefined;
+
+        await notifyFavoriteAvailable(
+          moderationItem.item_id,
+          contentName,
+          establishmentName
+        );
+      } catch (notifyError) {
+        // Log error but don't fail the request if notification fails
+        logger.error('Favorite available notification error:', notifyError);
+      }
+    }
+
     res.json({
       message: 'Item approved successfully',
       moderationItem: updatedItem
@@ -197,10 +276,13 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Moderator notes are required for rejection' });
     }
 
-    // Get the moderation item
+    // Get the moderation item with submitter info
     const { data: moderationItem, error: moderationError } = await supabase
       .from('moderation_queue')
-      .select('*')
+      .select(`
+        *,
+        submitter:users!moderation_queue_submitted_by_fkey(id, pseudonym)
+      `)
       .eq('id', id)
       .single();
 
@@ -210,6 +292,27 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
 
     if (moderationItem.status !== 'pending') {
       return res.status(400).json({ error: 'Item has already been reviewed' });
+    }
+
+    // Get content details for notification
+    let contentName = '';
+
+    if (moderationItem.item_type === 'employee') {
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('name')
+        .eq('id', moderationItem.item_id)
+        .single();
+      contentName = employee?.name || 'Employee';
+    } else if (moderationItem.item_type === 'establishment') {
+      const { data: establishment } = await supabase
+        .from('establishments')
+        .select('name')
+        .eq('id', moderationItem.item_id)
+        .single();
+      contentName = establishment?.name || 'Establishment';
+    } else if (moderationItem.item_type === 'comment') {
+      contentName = 'Comment';
     }
 
     // Update the item status to rejected
@@ -245,6 +348,16 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
 
     if (updateError) {
       return res.status(400).json({ error: updateError.message });
+    }
+
+    // Notify user that their content was rejected
+    if (moderationItem.submitter?.id) {
+      await notifyUserContentRejected(
+        moderationItem.submitter.id,
+        moderationItem.item_type,
+        moderator_notes,
+        moderationItem.item_id
+      );
     }
 
     res.json({
@@ -365,10 +478,39 @@ export const resolveReport = async (req: AuthRequest, res: Response) => {
 
     // Take action on the comment if needed
     if (action === 'remove_comment') {
+      // Get comment details before removing to notify author
+      const { data: comment } = await supabase
+        .from('comments')
+        .select('user_id, employee_id, establishment_id')
+        .eq('id', report.comment_id)
+        .single();
+
       await supabase
         .from('comments')
         .update({ status: 'rejected' })
         .eq('id', report.comment_id);
+
+      // Notify comment author that their comment was removed
+      if (comment?.user_id) {
+        // Determine entity type and get entity name
+        const entityType = comment.employee_id ? 'employee' : 'establishment';
+        const entityId = comment.employee_id || comment.establishment_id;
+
+        const { data: entityData } = await supabase
+          .from(entityType === 'employee' ? 'employees' : 'establishments')
+          .select('name')
+          .eq('id', entityId)
+          .single();
+
+        if (entityData) {
+          await notifyCommentRemoved(
+            comment.user_id,
+            notes || report.reason || 'Violated community guidelines',
+            entityType,
+            entityData.name
+          );
+        }
+      }
     }
 
     // Update the report

@@ -184,6 +184,12 @@ export const CACHE_TTL = {
  */
 export const cacheGet = async <T>(key: string): Promise<T | null> => {
   try {
+    // Safety check: return null if Redis not initialized
+    if (!redisClient) {
+      logger.warn('Redis client not initialized, cache GET skipped');
+      return null;
+    }
+
     const cached = await redisClient.get(key);
     if (!cached) return null;
 
@@ -203,6 +209,12 @@ export const cacheSet = async <T>(
   ttl: number = CACHE_TTL.LISTINGS
 ): Promise<void> => {
   try {
+    // Safety check: skip if Redis not initialized
+    if (!redisClient) {
+      logger.warn('Redis client not initialized, cache SET skipped');
+      return;
+    }
+
     const serialized = JSON.stringify(value);
 
     if (isRedisAvailable && redisClient instanceof Redis) {

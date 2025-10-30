@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Establishment } from '../../types';
-import CustomSoi6Map from './CustomSoi6Map';
-import CustomSoiBuakhaoMap from './CustomSoiBuakhaoMap';
-import CustomJomtienComplexMap from './CustomJomtienComplexMap';
-import CustomBoyzTownMap from './CustomBoyzTownMap';
-import CustomSoi78Map from './CustomSoi78Map';
-import CustomBeachRoadMap from './CustomBeachRoadMap';
-import CustomWalkingStreetMap from './CustomWalkingStreetMap';
-import CustomLKMetroMap from './CustomLKMetroMap';
-import CustomTreetownMap from './CustomTreetownMap';
+
+// Lazy load all zone maps for better performance (code splitting)
+const CustomSoi6Map = lazy(() => import('./CustomSoi6Map'));
+const CustomSoiBuakhaoMap = lazy(() => import('./CustomSoiBuakhaoMap'));
+const CustomJomtienComplexMap = lazy(() => import('./CustomJomtienComplexMap'));
+const CustomBoyzTownMap = lazy(() => import('./CustomBoyzTownMap'));
+const CustomSoi78Map = lazy(() => import('./CustomSoi78Map'));
+const CustomBeachRoadMap = lazy(() => import('./CustomBeachRoadMap'));
+const CustomWalkingStreetMap = lazy(() => import('./CustomWalkingStreetMap'));
+const CustomLKMetroMap = lazy(() => import('./CustomLKMetroMap'));
+const CustomTreetownMap = lazy(() => import('./CustomTreetownMap'));
 
 interface ZoneMapRendererProps {
   currentZone: string;
@@ -163,7 +165,41 @@ const ZoneMapRenderer: React.FC<ZoneMapRendererProps> = ({
       overflow: 'hidden',
       position: 'relative'
     }}>
-      {renderZoneMap()}
+      <Suspense
+        fallback={
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            background: 'linear-gradient(135deg, #0a0a2e 0%, #16213e 100%)',
+            color: '#C19A6B'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              animation: 'pulse 1.5s ease-in-out infinite'
+            }}>
+              🗺️
+            </div>
+            <div style={{
+              fontSize: '18px',
+              marginTop: '20px',
+              color: '#FFD700'
+            }}>
+              Loading map...
+            </div>
+            <style>{`
+              @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+              }
+            `}</style>
+          </div>
+        }
+      >
+        {renderZoneMap()}
+      </Suspense>
     </div>
   );
 };

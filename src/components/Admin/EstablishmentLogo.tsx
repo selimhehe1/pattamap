@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
+import LazyImage from '../Common/LazyImage';
 
 interface EstablishmentLogoProps {
   establishment: {
@@ -15,6 +17,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
   establishment,
   onLogoUpdated
 }) => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -28,13 +31,13 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
     // Validate file type
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      setError('Please select a PNG, JPG, or GIF image');
+      setError(t('establishmentLogo.errorInvalidFileType'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be smaller than 5MB');
+      setError(t('establishmentLogo.errorFileTooLarge'));
       return;
     }
 
@@ -69,7 +72,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload logo to cloud storage');
+        throw new Error(t('establishmentLogo.errorUploadFailed'));
       }
 
       const uploadResult = await uploadResponse.json();
@@ -86,7 +89,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
       });
 
       if (!updateResponse.ok) {
-        throw new Error('Failed to update establishment logo');
+        throw new Error(t('establishmentLogo.errorUpdateFailed'));
       }
 
       const updateResult = await updateResponse.json();
@@ -98,7 +101,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
 
     } catch (error) {
       logger.error('Logo upload error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload logo');
+      setError(error instanceof Error ? error.message : t('establishmentLogo.errorUploadFailed'));
       setPreviewUrl(null);
     } finally {
       setIsUploading(false);
@@ -122,7 +125,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to remove logo');
+        throw new Error(t('establishmentLogo.errorRemoveFailed'));
       }
 
       onLogoUpdated(establishment.id, '');
@@ -130,7 +133,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
 
     } catch (error) {
       logger.error('Remove logo error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to remove logo');
+      setError(error instanceof Error ? error.message : t('establishmentLogo.errorRemoveFailed'));
     } finally {
       setIsUploading(false);
     }
@@ -141,9 +144,9 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
   return (
     <div style={{
       padding: '15px',
-      background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+      background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
       borderRadius: '12px',
-      border: '1px solid rgba(255,27,141,0.3)',
+      border: '1px solid rgba(193, 154, 107,0.3)',
       marginBottom: '15px'
     }}>
       {/* Establishment Name */}
@@ -153,7 +156,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
         marginBottom: '15px'
       }}>
         <h3 style={{
-          color: '#FF1B8D',
+          color: '#C19A6B',
           fontSize: '16px',
           fontWeight: 'bold',
           margin: 0,
@@ -172,15 +175,17 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginLeft: '10px'
+            marginLeft: '10px',
+            overflow: 'hidden'
           }}>
-            <img
+            <LazyImage
               src={currentLogoUrl}
               alt={`${establishment.name} logo`}
+              cloudinaryPreset="establishmentLogo"
+              objectFit="contain"
               style={{
                 width: '70%',
                 height: '70%',
-                objectFit: 'contain',
                 borderRadius: '50%'
               }}
             />
@@ -215,7 +220,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
           disabled={isUploading}
           style={{
             padding: '8px 15px',
-            background: isUploading ? '#666' : 'linear-gradient(45deg, #FF1B8D, #00FFFF)',
+            background: isUploading ? '#666' : 'linear-gradient(45deg, #C19A6B, #00E5FF)',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
@@ -225,7 +230,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
             transition: 'all 0.3s ease'
           }}
         >
-          {isUploading ? '⏳ Uploading...' : currentLogoUrl ? '🔄 Change Logo' : '📷 Add Logo'}
+          {isUploading ? `⏳ ${t('establishmentLogo.buttonUploading')}` : currentLogoUrl ? `🔄 ${t('establishmentLogo.buttonChangeLogo')}` : `📷 ${t('establishmentLogo.buttonAddLogo')}`}
         </button>
 
         {/* Remove Button */}
@@ -245,7 +250,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            🗑️ Remove
+            🗑️ {t('establishmentLogo.buttonRemove')}
           </button>
         )}
       </div>
@@ -266,7 +271,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
         marginTop: '10px',
         lineHeight: '1.4'
       }}>
-        💡 Recommended: 64x64px PNG with transparent background
+        💡 {t('establishmentLogo.recommendationText')}
       </div>
     </div>
   );

@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import {
+  notifyAdminsNewEditProposal,
+  notifyEditProposalApproved,
+  notifyEditProposalRejected
+} from '../utils/notificationHelper';
 
 export const createProposal = async (req: Request, res: Response) => {
   try {
@@ -91,6 +96,28 @@ export const createProposal = async (req: Request, res: Response) => {
     if (error) {
       logger.error('Error creating proposal:', error);
       return res.status(500).json({ error: 'Failed to create proposal' });
+    }
+
+    // Notify admins of new edit proposal from non-privileged user
+    const { data: proposerData } = await supabase
+      .from('users')
+      .select('pseudonym')
+      .eq('id', proposed_by)
+      .single();
+
+    const { data: entityData } = await supabase
+      .from(item_type === 'employee' ? 'employees' : 'establishments')
+      .select('name')
+      .eq('id', item_id)
+      .single();
+
+    if (proposerData && entityData && data) {
+      await notifyAdminsNewEditProposal(
+        data.id,
+        proposerData.pseudonym,
+        item_type,
+        entityData.name
+      );
     }
 
     res.status(201).json({
@@ -230,6 +257,21 @@ export const approveProposal = async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Failed to update proposal status' });
     }
 
+    // Notify proposer that their edit was approved
+    const { data: entityData } = await supabase
+      .from(proposal.item_type === 'employee' ? 'employees' : 'establishments')
+      .select('name')
+      .eq('id', proposal.item_id)
+      .single();
+
+    if (entityData) {
+      await notifyEditProposalApproved(
+        proposal.proposed_by,
+        proposal.item_type,
+        entityData.name
+      );
+    }
+
     res.json({ success: true, message: 'Proposal approved and changes applied' });
   } catch (error) {
     logger.error('Error in approveProposal:', error);
@@ -274,6 +316,22 @@ export const rejectProposal = async (req: Request, res: Response) => {
     if (error) {
       logger.error('Error rejecting proposal:', error);
       return res.status(500).json({ error: 'Failed to reject proposal' });
+    }
+
+    // Notify proposer that their edit was rejected
+    const { data: entityData } = await supabase
+      .from(proposal.item_type === 'employee' ? 'employees' : 'establishments')
+      .select('name')
+      .eq('id', proposal.item_id)
+      .single();
+
+    if (entityData) {
+      await notifyEditProposalRejected(
+        proposal.proposed_by,
+        proposal.item_type,
+        entityData.name,
+        moderator_notes || 'No reason provided'
+      );
     }
 
     res.json({ success: true, message: 'Proposal rejected' });

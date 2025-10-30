@@ -3,6 +3,15 @@ export interface User {
   pseudonym: string;
   email: string;
   role: 'user' | 'moderator' | 'admin';
+  account_type?: 'regular' | 'employee' | 'establishment_owner'; // 🆕 v10.0
+  linked_employee_id?: string | null; // 🆕 v10.0
+  linkedEmployee?: {
+    id: string;
+    name: string;
+    nickname?: string;
+    photos: string[];
+    status: 'pending' | 'approved' | 'rejected';
+  } | null; // 🆕 v10.0 - Populated from backend
   created_at: string;
   updated_at: string;
 }
@@ -44,7 +53,11 @@ export interface Establishment {
   phone?: string;
   website?: string;
   opening_hours?: OpeningHours;
-  services?: string[];
+  services?: string[]; // Deprecated: replaced by social media fields (instagram, twitter, tiktok)
+  // Social media links (v10.1)
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
   // Colonnes de prix individuelles (remplace l'objet pricing)
   ladydrink?: string;
   barfine?: string;
@@ -60,9 +73,14 @@ export interface Establishment {
     rooms: string;
   };
   status: 'pending' | 'approved' | 'rejected';
+  is_vip?: boolean; // 🆕 v10.3 Phase 5 - VIP status
+  vip_expires_at?: string | null; // 🆕 v10.3 Phase 5 - VIP expiration
+  has_owner?: boolean; // 🆕 v10.3 - True if establishment has verified owner
   created_by: string;
   created_at: string;
   updated_at: string;
+  employee_count?: number; // Nombre d'employées actuellement dans cet établissement
+  approved_employee_count?: number; // Nombre d'employées approuvées (status='approved') dans cet établissement
 }
 
 // Grid system types
@@ -95,7 +113,7 @@ export interface Employee {
   name: string;
   nickname?: string;
   age?: number;
-  nationality?: string;
+  nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
   description?: string;
   photos: string[];
   social_media?: {
@@ -107,6 +125,14 @@ export interface Employee {
   };
   status: 'pending' | 'approved' | 'rejected';
   self_removal_requested: boolean;
+  user_id?: string | null; // 🆕 v10.0 - Link to user account
+  is_self_profile?: boolean; // 🆕 v10.0 - Self-managed profile flag
+  is_freelance?: boolean; // 🆕 v10.x - Simple freelance mode (no map position required)
+  freelance_zone?: string | null; // 🆕 v10.x - Zone where freelance works (e.g., 'beachroad')
+  is_verified?: boolean; // 🆕 v10.2 - Profile verification status
+  verified_at?: string | null; // 🆕 v10.2 - Verification timestamp
+  is_vip?: boolean; // 🆕 v10.3 Phase 0 - VIP status
+  vip_expires_at?: string | null; // 🆕 v10.3 Phase 0 - VIP expiration
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -114,6 +140,7 @@ export interface Employee {
   employment_history?: EmploymentHistory[];
   average_rating?: number;
   comment_count?: number;
+  vote_count?: number; // 🆕 Number of existence votes
   independent_position?: IndependentPosition;
 }
 
@@ -150,9 +177,12 @@ export interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (login: string, password: string) => Promise<void>;
-  register: (pseudonym: string, email: string, password: string) => Promise<void>;
+  register: (pseudonym: string, email: string, password: string, accountType?: 'regular' | 'employee' | 'establishment_owner') => Promise<string | null>; // 🔧 Returns fresh CSRF token - v10.1 added establishment_owner
   logout: () => void;
   loading: boolean;
+  claimEmployeeProfile?: (employeeId: string, message: string, verificationProof?: string[], explicitToken?: string) => Promise<void>; // 🔧 Accepts explicit token
+  linkedEmployeeProfile?: Employee | null; // 🆕 v10.0 - Full employee profile for linked accounts
+  refreshLinkedProfile?: (skipCheck?: boolean) => Promise<void>; // 🆕 v10.0 - Refresh linked profile data (skipCheck bypasses user state check)
 }
 
 // 🚀 PHASE 2: Interfaces strictes pour éliminer tous les types 'any'
@@ -172,7 +202,7 @@ export interface EmployeeFormData {
   name: string;
   nickname?: string;
   age?: number;
-  nationality?: string;
+  nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
   description?: string;
   photos: string[];
   social_media?: {
@@ -194,7 +224,11 @@ export interface EstablishmentFormData {
   phone?: string;
   website?: string;
   opening_hours?: OpeningHours;
-  services?: string[];
+  services?: string[]; // Deprecated: replaced by social media fields (instagram, twitter, tiktok)
+  // Social media links (v10.1)
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
   // Colonnes de prix individuelles
   ladydrink?: string;
   barfine?: string;
@@ -265,7 +299,7 @@ export interface Favorite {
   employee_nickname?: string;
   employee_photos: string[];
   employee_age?: number;
-  employee_nationality?: string;
+  employee_nationality?: string[] | null; // v10.4: Array for multiple nationalities
   employee_description?: string;
   employee_social_media?: {
     instagram?: string;
@@ -309,4 +343,152 @@ export interface UpdateIndependentPositionRequest {
   grid_row?: number;
   grid_col?: number;
   is_active?: boolean;
+}
+
+// ==========================================
+// 🆕 EMPLOYEE CLAIM SYSTEM TYPES (v10.0)
+// ==========================================
+
+export interface EmployeeClaimRequest {
+  id: string;
+  item_type: 'employee_claim';
+  item_id: string; // employee_id
+  submitted_by: string; // user_id
+  status: 'pending' | 'approved' | 'rejected';
+  moderator_id?: string | null;
+  moderator_notes?: string | null;
+  request_metadata?: {
+    message: string;
+    employee_id: string;
+    user_id: string;
+    claimed_at: string;
+  };
+  verification_proof?: string[] | null;
+  created_at: string;
+  reviewed_at?: string | null;
+  // Populated by backend joins
+  submitted_by_user?: {
+    id: string;
+    pseudonym: string;
+    email: string;
+  };
+  moderator_user?: {
+    id: string;
+    pseudonym: string;
+  };
+  employee?: {
+    id: string;
+    name: string;
+    nickname?: string;
+    photos: string[];
+  };
+}
+
+// ==========================================
+// 🆕 ESTABLISHMENT OWNERS SYSTEM (v10.1)
+// ==========================================
+
+export interface EstablishmentOwner {
+  id: string;
+  user_id: string;
+  establishment_id: string;
+  owner_role: 'owner' | 'manager';
+  permissions: {
+    can_edit_info: boolean;
+    can_edit_pricing: boolean;
+    can_edit_photos: boolean;
+    can_edit_employees: boolean;
+    can_view_analytics: boolean;
+  };
+  assigned_by?: string;
+  assigned_at: string;
+  created_at: string;
+  updated_at: string;
+  // Populated fields
+  user?: User;
+  establishment?: Establishment;
+  assigner?: User;
+}
+
+// =====================================================
+// 🆕 v10.3 Phase 1 - VIP SUBSCRIPTIONS (SIMPLIFIED)
+// =====================================================
+// IMPORTANT: No more "basic"/"premium" tiers
+// - Employee VIP: tier = 'employee'
+// - Establishment VIP: tier = 'establishment'
+
+export type VIPTier = 'employee' | 'establishment'; // Simplified from 'basic' | 'premium'
+export type VIPDuration = 7 | 30 | 90 | 365;
+export type VIPSubscriptionType = 'employee' | 'establishment';
+export type PaymentMethod = 'promptpay' | 'cash' | 'admin_grant';
+export type VIPStatus = 'active' | 'expired' | 'cancelled' | 'pending_payment';
+
+export interface VIPPrice {
+  duration: VIPDuration;
+  price: number; // THB
+  discount: number; // percentage (0-100)
+  originalPrice?: number; // THB (before discount)
+  popular?: boolean; // highlight this option
+}
+
+export interface VIPTypeConfig {
+  name: string;
+  description: string;
+  features: string[];
+  prices: VIPPrice[];
+}
+
+// Keep legacy name for backward compatibility
+export type VIPTierConfig = VIPTypeConfig;
+
+export interface VIPSubscription {
+  id: string;
+  employee_id?: string;
+  establishment_id?: string;
+  status: VIPStatus;
+  tier: VIPTier;
+  duration: VIPDuration;
+  starts_at: string;
+  expires_at: string;
+  cancelled_at?: string | null;
+  payment_method: PaymentMethod;
+  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
+  price_paid: number;
+  transaction_id?: string;
+  admin_verified_by?: string | null;
+  admin_verified_at?: string | null;
+  admin_notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PurchaseVIPRequest {
+  subscription_type: VIPSubscriptionType;
+  entity_id: string; // employee_id or establishment_id
+  tier?: VIPTier; // Optional - auto-assigned based on subscription_type
+  duration: VIPDuration;
+  payment_method: PaymentMethod;
+}
+
+export interface VIPPurchaseResponse {
+  success: boolean;
+  message: string;
+  subscription: {
+    id: string;
+    type: VIPSubscriptionType;
+    entity_id: string;
+    tier: VIPTier;
+    duration: VIPDuration;
+    status: VIPStatus;
+    starts_at: string;
+    expires_at: string;
+    price_paid: number;
+  };
+  transaction: {
+    id: string;
+    amount: number;
+    currency: string;
+    payment_method: PaymentMethod;
+    payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
+  };
 }

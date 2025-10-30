@@ -47,3 +47,13 @@ export const isValidZone = (zoneValue: string): boolean => {
 export const getAllZoneValues = (): string[] => {
   return ZONE_OPTIONS.map(z => z.value);
 };
+
+/**
+ * Map configuration constants
+ * Unified dimensions for all zone maps to ensure consistent UX
+ */
+export const MAP_CONFIG = {
+  DEFAULT_HEIGHT: 600,  // Unified fallback height for all maps (px)
+  MIN_HEIGHT: 400,      // Minimum height for mobile devices (px)
+  MAX_HEIGHT: 800       // Maximum height for desktop (px)
+} as const;

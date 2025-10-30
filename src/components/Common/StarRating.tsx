@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface StarRatingProps {
   rating?: number;
@@ -17,6 +18,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   showValue = false,
   className = ''
 }) => {
+  const { t } = useTranslation();
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [currentRating, setCurrentRating] = useState<number>(rating);
 
@@ -93,7 +95,7 @@ const StarRating: React.FC<StarRatingProps> = ({
             userSelect: 'none'
           }}
           role={readonly ? 'img' : 'button'}
-          aria-label={`${starValue} star${starValue > 1 ? 's' : ''}`}
+          aria-label={t(starValue === 1 ? 'starRating.ariaStarsSingular' : 'starRating.ariaStarsPlural', { count: starValue })}
           tabIndex={readonly ? -1 : 0}
           onKeyDown={(e) => {
             if (!readonly && (e.key === 'Enter' || e.key === ' ')) {

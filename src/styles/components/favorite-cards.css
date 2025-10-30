@@ -1,0 +1,552 @@
+/**
+ * ============================================
+ * FAVORITE CARDS - User Favorites Cards
+ * ============================================
+ *
+ * Styles pour les cards de profils favoris affichées dans UserDashboard.
+ * Layout vertical avec photo, informations employée, établissement et actions.
+ *
+ * USAGE:
+ * <div className="favorite-card-nightlife">
+ *   <div className="favorite-card-photo-container-nightlife">...</div>
+ *   <div className="favorite-card-header-nightlife">...</div>
+ *   <div className="favorite-card-body-nightlife">...</div>
+ *   <div className="favorite-card-actions-nightlife">...</div>
+ * </div>
+ *
+ * COMPOSANTS UTILISANT:
+ * - UserDashboard.tsx (page des favoris utilisateur)
+ *
+ * @dependencies design-system.css (variables)
+ * @version 1.0.0
+ * @created 2025-10-11
+ */
+
+/* ============================================
+   FAVORITE CARD CONTAINER
+   ============================================ */
+
+/**
+ * Container principal de la card favorite
+ * Layout vertical avec photo en haut
+ */
+.favorite-card-nightlife {
+  background: linear-gradient(135deg, rgba(10, 10, 46, 0.95), rgba(22, 33, 62, 0.95));
+  border: 2px solid rgba(193, 154, 107, 0.3);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  backdrop-filter: var(--backdrop-blur-md);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.favorite-card-nightlife:hover {
+  transform: translateY(-4px);
+  border-color: rgba(193, 154, 107, 0.6);
+  box-shadow: 0 8px 25px rgba(193, 154, 107, 0.3);
+}
+
+/* ============================================
+   PHOTO SECTION
+   ============================================ */
+
+/**
+ * Container de la photo avec badge favori et overlay
+ */
+.favorite-card-photo-container-nightlife {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4; /* Portrait standard */
+  overflow: hidden;
+  background: linear-gradient(45deg, rgba(193, 154, 107, 0.1), rgba(0, 255, 255, 0.1));
+  cursor: pointer;
+}
+
+.favorite-card-photo-nightlife {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-normal) var(--ease-in-out);
+}
+
+.favorite-card-photo-container-nightlife:hover .favorite-card-photo-nightlife {
+  transform: scale(1.05);
+}
+
+/* Photo placeholder si pas d'image */
+.favorite-card-photo-placeholder-nightlife {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(0, 255, 255, 0.2));
+}
+
+/* Badge favori (étoile) - Cliquable pour retirer des favoris */
+.favorite-badge-nightlife {
+  position: absolute;
+  top: var(--spacing-3);
+  left: var(--spacing-3);
+  background: linear-gradient(45deg, var(--color-accent), #FFA500);
+  color: #FFFFFF;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-lg);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  z-index: var(--z-interactive);
+  animation: favoriteGlow 2s ease-in-out infinite alternate;
+
+  /* Interactive styles */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.favorite-badge-nightlife:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 25px rgba(255, 215, 0, 0.7);
+  background: linear-gradient(45deg, #FFA500, var(--color-accent));
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.favorite-badge-nightlife:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+}
+
+.favorite-badge-nightlife:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@keyframes favoriteGlow {
+  from {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  }
+  to {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.7);
+  }
+}
+
+/* Badge compteur de photos */
+.favorite-photo-count-badge-nightlife {
+  position: absolute;
+  bottom: var(--spacing-3);
+  right: var(--spacing-3);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: var(--backdrop-blur-sm);
+  color: #FFFFFF;
+  padding: var(--spacing-1-5) var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: var(--z-interactive);
+}
+
+/* Overlay sombre au hover */
+.favorite-card-photo-overlay-nightlife {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-in-out);
+}
+
+.favorite-card-photo-container-nightlife:hover .favorite-card-photo-overlay-nightlife {
+  opacity: 1;
+}
+
+/* ============================================
+   HEADER SECTION - Name & Info
+   ============================================ */
+
+.favorite-card-header-nightlife {
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Nom de l'employée */
+.favorite-card-name-nightlife {
+  font-size: var(--font-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(193, 154, 107, 0.3);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* Nickname */
+.favorite-card-nickname-nightlife {
+  font-size: var(--font-base);
+  color: var(--color-secondary);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+}
+
+/* Meta info (âge, nationalité) */
+.favorite-card-meta-nightlife {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+}
+
+.favorite-card-meta-nightlife span {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* Rating container */
+.favorite-card-rating-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1);
+}
+
+.favorite-card-rating-score-nightlife {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ============================================
+   BODY SECTION - Establishment & Social
+   ============================================ */
+
+.favorite-card-body-nightlife {
+  padding: 0 var(--spacing-4) var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  flex: 1;
+}
+
+/* Establishment card */
+.favorite-establishment-card-nightlife {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(0, 0, 0, 0.4));
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-3);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+.favorite-establishment-card-nightlife:hover {
+  border-color: rgba(193, 154, 107, 0.7);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.25), rgba(0, 0, 0, 0.5));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+}
+
+.favorite-establishment-label-nightlife {
+  color: var(--color-secondary);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-1);
+  letter-spacing: 0.05em;
+}
+
+.favorite-establishment-name-nightlife {
+  color: var(--color-primary);
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-1);
+}
+
+.favorite-establishment-zone-nightlife {
+  color: var(--color-accent);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  background: rgba(255, 215, 0, 0.1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  display: inline-block;
+  margin-top: var(--spacing-1);
+}
+
+/* Unemployed state */
+.favorite-unemployed-card-nightlife {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(0, 0, 0, 0.4));
+  border: 2px solid rgba(255, 107, 107, 0.4);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-3);
+  color: rgba(255, 107, 107, 0.9);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+/* Social media icons */
+.favorite-social-container-nightlife {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--spacing-2);
+}
+
+.favorite-social-icon-nightlife {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  transition: all var(--duration-fast) var(--ease-in-out);
+  border: 2px solid transparent;
+}
+
+.favorite-social-icon-nightlife:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.favorite-social-icon-nightlife:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Social platform colors */
+.social-instagram-nightlife {
+  background: linear-gradient(45deg, rgba(225, 48, 108, 0.3), rgba(225, 48, 108, 0.2));
+  border-color: rgba(225, 48, 108, 0.5);
+}
+
+.social-instagram-nightlife:hover {
+  background: linear-gradient(45deg, rgba(225, 48, 108, 0.6), rgba(225, 48, 108, 0.4));
+}
+
+.social-line-nightlife {
+  background: linear-gradient(45deg, rgba(0, 195, 0, 0.3), rgba(0, 195, 0, 0.2));
+  border-color: rgba(0, 195, 0, 0.5);
+}
+
+.social-line-nightlife:hover {
+  background: linear-gradient(45deg, rgba(0, 195, 0, 0.6), rgba(0, 195, 0, 0.4));
+}
+
+.social-telegram-nightlife {
+  background: linear-gradient(45deg, rgba(0, 136, 204, 0.3), rgba(0, 136, 204, 0.2));
+  border-color: rgba(0, 136, 204, 0.5);
+}
+
+.social-telegram-nightlife:hover {
+  background: linear-gradient(45deg, rgba(0, 136, 204, 0.6), rgba(0, 136, 204, 0.4));
+}
+
+.social-whatsapp-nightlife {
+  background: linear-gradient(45deg, rgba(37, 211, 102, 0.3), rgba(37, 211, 102, 0.2));
+  border-color: rgba(37, 211, 102, 0.5);
+}
+
+.social-whatsapp-nightlife:hover {
+  background: linear-gradient(45deg, rgba(37, 211, 102, 0.6), rgba(37, 211, 102, 0.4));
+}
+
+.social-facebook-nightlife {
+  background: linear-gradient(45deg, rgba(24, 119, 242, 0.3), rgba(24, 119, 242, 0.2));
+  border-color: rgba(24, 119, 242, 0.5);
+}
+
+.social-facebook-nightlife:hover {
+  background: linear-gradient(45deg, rgba(24, 119, 242, 0.6), rgba(24, 119, 242, 0.4));
+}
+
+/* ============================================
+   RESPONSIVE - Tablet
+   ============================================ */
+
+@media (max-width: 768px) {
+  .favorite-card-nightlife {
+    border-width: 2px;
+  }
+
+  .favorite-card-header-nightlife {
+    padding: var(--spacing-3);
+  }
+
+  .favorite-card-body-nightlife {
+    padding: 0 var(--spacing-3) var(--spacing-3);
+  }
+
+  .favorite-card-name-nightlife {
+    font-size: var(--font-lg);
+  }
+
+  .favorite-establishment-name-nightlife {
+    font-size: var(--font-base);
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Mobile
+   ============================================ */
+
+@media (max-width: 480px) {
+  .favorite-card-nightlife {
+    margin-bottom: 0; /* Pas de marge extra, gap de grid suffit */
+  }
+
+  .favorite-card-photo-container-nightlife {
+    aspect-ratio: 1 / 1; /* Square optimal pour 2 colonnes */
+  }
+
+  .favorite-card-header-nightlife {
+    padding: var(--spacing-2); /* Réduit pour 2 colonnes */
+  }
+
+  .favorite-card-body-nightlife {
+    padding: 0 var(--spacing-2) var(--spacing-2);
+    gap: var(--spacing-1-5); /* Plus compact */
+  }
+
+  .favorite-card-name-nightlife {
+    font-size: var(--font-sm); /* Plus petit pour 2 colonnes */
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .favorite-card-nickname-nightlife {
+    font-size: var(--font-xs); /* Réduit */
+  }
+
+  .favorite-card-meta-nightlife {
+    font-size: var(--font-2xs); /* Très petit */
+    gap: var(--spacing-1-5); /* Réduit gap */
+  }
+
+  .favorite-establishment-label-nightlife {
+    font-size: 0.625rem; /* 10px - Très compact */
+  }
+
+  .favorite-establishment-name-nightlife {
+    font-size: var(--font-xs); /* Réduit */
+  }
+
+  .favorite-establishment-zone-nightlife {
+    font-size: var(--font-2xs);
+    padding: var(--spacing-0-5) var(--spacing-1-5);
+  }
+
+  .favorite-badge-nightlife {
+    width: 1.5rem; /* Plus petit */
+    height: 1.5rem;
+    font-size: var(--font-sm);
+    top: var(--spacing-2);
+    left: var(--spacing-2);
+  }
+
+  .favorite-photo-count-badge-nightlife {
+    font-size: 0.625rem; /* 10px */
+    padding: var(--spacing-1) var(--spacing-2);
+  }
+
+  .favorite-social-icon-nightlife {
+    width: 1.75rem; /* Plus petit */
+    height: 1.75rem;
+    min-width: 36px; /* Reste tapable */
+    min-height: 36px;
+  }
+
+  .favorite-card-rating-nightlife {
+    margin-top: 0; /* Enlève marge */
+  }
+
+  .favorite-card-rating-score-nightlife {
+    font-size: var(--font-2xs);
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Mobile Landscape
+   ============================================ */
+
+@media (max-width: 812px) and (orientation: landscape) {
+  .favorite-card-photo-container-nightlife {
+    aspect-ratio: 4 / 3; /* Plus large en landscape */
+    max-height: 200px;
+  }
+
+  .favorite-card-header-nightlife,
+  .favorite-card-body-nightlife {
+    padding: var(--spacing-2) var(--spacing-3);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .favorite-card-nightlife,
+  .favorite-card-photo-nightlife,
+  .favorite-establishment-card-nightlife,
+  .favorite-social-icon-nightlife {
+    transition: none;
+  }
+
+  .favorite-card-nightlife:hover,
+  .favorite-establishment-card-nightlife:hover,
+  .favorite-social-icon-nightlife:hover {
+    transform: none;
+  }
+
+  .favorite-card-photo-container-nightlife:hover .favorite-card-photo-nightlife {
+    transform: none;
+  }
+
+  .favorite-badge-nightlife {
+    animation: none;
+  }
+
+  @keyframes favoriteGlow {
+    from, to {
+      box-shadow: 0 4px 17px rgba(255, 215, 0, 0.5);
+    }
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: high) {
+  .favorite-card-nightlife {
+    border-width: 3px;
+  }
+
+  .favorite-establishment-card-nightlife,
+  .favorite-unemployed-card-nightlife {
+    border-width: 3px;
+  }
+
+  .favorite-social-icon-nightlife {
+    border-width: 3px;
+  }
+}

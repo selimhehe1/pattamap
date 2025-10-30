@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { notifyNewFavorite } from '../utils/notificationHelper';
 
 export const getFavorites = async (req: Request, res: Response) => {
   try {
@@ -133,6 +134,43 @@ export const addFavorite = async (req: Request, res: Response) => {
     if (error) {
       logger.error('Error adding favorite:', error);
       return res.status(500).json({ error: 'Failed to add favorite' });
+    }
+
+    // Notify employee if they have a linked account
+    try {
+      // Get employee data
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('name, id')
+        .eq('id', employee_id)
+        .single();
+
+      // Find user linked to this employee
+      const { data: linkedUser } = await supabase
+        .from('users')
+        .select('id, account_type, linked_employee_id')
+        .eq('account_type', 'employee')
+        .eq('linked_employee_id', employee_id)
+        .single();
+
+      // Get current user pseudonym
+      const { data: currentUser } = await supabase
+        .from('users')
+        .select('pseudonym')
+        .eq('id', userId)
+        .single();
+
+      // Only notify if employee has linked account
+      if (employee && linkedUser && currentUser) {
+        await notifyNewFavorite(
+          linkedUser.id,
+          currentUser.pseudonym,
+          employee.name
+        );
+      }
+    } catch (notifyError) {
+      // Log error but don't fail the request if notification fails
+      logger.error('New favorite notification error:', notifyError);
     }
 
     res.status(201).json({

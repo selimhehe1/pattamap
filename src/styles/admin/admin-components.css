@@ -1,0 +1,259 @@
+/**
+ * 🎨 ADMIN COMPONENTS - Grids, Status Badges & Breadcrumb Navigation
+ *
+ * @file admin-components.css
+ * @version 1.0.0
+ * @migrated Phase 3C - 2025-01-09
+ * @source nightlife-theme.css (Lignes 946-999, 1835-1932)
+ *
+ * CONTENU:
+ * - Admin Grid Layouts (admin-grid-2, admin-grid-3)
+ * - Admin Card Hover Effects
+ * - Status Badges (pending, approved, rejected)
+ * - Admin Breadcrumb Navigation (container, button, icons)
+ * - Responsive adjustments
+ *
+ * UTILISÉ PAR:
+ * - EstablishmentsAdmin, EmployeesAdmin
+ * - AdminDashboard
+ * - Tous les composants admin avec status
+ * - Navigation breadcrumb admin
+ *
+ * MODERNISATIONS:
+ * - Variables design-system.css: --spacing-*, --color-*, --z-*
+ * - WCAG 2.1 Level AAA: Focus visible, tap targets 44px
+ * - Responsive: Grids adaptatives mobile
+ * - Backdrop-filter pour effet moderne
+ * - Orbitron font pour breadcrumb futuriste
+ */
+
+/* ===== ADMIN GRID LAYOUTS ===== */
+
+/* Admin Grid 3 Colonnes - Auto-fit responsive */
+.admin-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr)); /* 300px minimum */
+  gap: var(--spacing-5); /* --spacing-lg */
+}
+
+/* Admin Grid 2 Colonnes - Auto-fit responsive */
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr)); /* 400px minimum */
+  gap: var(--spacing-5); /* --spacing-lg */
+}
+
+/* ===== ADMIN CARD HOVER ===== */
+
+/* Admin Card Hover - Effet translateY avec shadow */
+.admin-card-hover {
+  transition: all var(--duration-normal) var(--ease-in-out);
+  cursor: pointer;
+}
+
+.admin-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 var(--spacing-2) var(--spacing-6) var(--color-primary-30); /* 0 8px 25px rgba(193, 154, 107,0.3) */
+}
+
+/* ===== STATUS BADGES ===== */
+
+/* Status Badge Base - Pill shape avec uppercase */
+.status-badge {
+  padding: var(--spacing-1) var(--spacing-3); /* 0.25rem 0.75rem */
+  border-radius: var(--border-radius-pill); /* --radius-pill */
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.0313rem; /* 0.5px */
+}
+
+/* Status Pending - Orange warning */
+.status-pending {
+  background: rgba(255, 165, 0, 0.2); /* Orange transparent */
+  color: var(--color-warning); /* --nightlife-warning */
+  border: 1px solid var(--color-warning);
+}
+
+/* Status Approved - Green success */
+.status-approved {
+  background: rgba(0, 255, 127, 0.2); /* Green transparent */
+  color: var(--color-success); /* --nightlife-success */
+  border: 1px solid var(--color-success);
+}
+
+/* Status Rejected - Red error */
+.status-rejected {
+  background: rgba(255, 71, 87, 0.2); /* Red transparent */
+  color: var(--color-error); /* --nightlife-error */
+  border: 1px solid var(--color-error);
+}
+
+/* ===== ADMIN BREADCRUMB NAVIGATION ===== */
+
+/* Breadcrumb Container - Fixed position avec border-bottom */
+.admin-breadcrumb-container-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3); /* 0.75rem */
+  margin-top: 6.25rem; /* Header fixe (min-height: 5rem) + marge sécurité */
+  margin-bottom: var(--spacing-4); /* 1.5625rem */
+  padding: var(--spacing-3) 0; /* 0.9375rem vertical */
+  border-bottom: 1px solid var(--color-primary-20); /* rgba(193, 154, 107,0.2) */
+  position: relative;
+  z-index: var(--z-content-high); /* 25 - Au-dessus du contenu mais sous header */
+}
+
+/* Breadcrumb Button - Gradient background avec glow */
+.admin-breadcrumb-button-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2); /* 0.5rem */
+  padding: var(--spacing-2-5) var(--spacing-4); /* 0.625rem 1rem */
+  border: var(--border-width-normal) solid var(--color-secondary); /* 2px, #2C3E50 */
+  background: linear-gradient(
+    45deg,
+    var(--color-secondary-10),
+    var(--color-secondary-20)
+  ); /* rgba(0,255,255,0.1), rgba(0,255,255,0.2) */
+  color: var(--color-secondary);
+  border-radius: var(--border-radius-lg); /* 12px */
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  font-size: var(--font-size-small); /* 0.875rem */
+  font-weight: var(--font-weight-semibold); /* 600 */
+  backdrop-filter: var(--backdrop-blur-sm); /* blur(10px) */
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) var(--color-secondary-20); /* 0 4px 15px rgba(0,255,255,0.2) */
+  text-shadow: 0 0 var(--spacing-2) var(--color-secondary-50); /* 0 0 10px rgba(0,255,255,0.5) */
+}
+
+/* Breadcrumb Button Hover - Enhanced glow */
+.admin-breadcrumb-button-nightlife:hover {
+  background: linear-gradient(
+    45deg,
+    var(--color-secondary-20),
+    var(--color-secondary-30)
+  ); /* rgba(0,255,255,0.2), rgba(0,255,255,0.3) */
+  box-shadow: 0 var(--spacing-2) var(--spacing-6) var(--color-secondary-40); /* 0 8px 25px rgba(0,255,255,0.4) */
+  transform: translateY(-2px);
+  border-color: var(--color-secondary-bright); /* #2C3E50 bright */
+}
+
+/* Breadcrumb Button Focus - Keyboard navigation */
+.admin-breadcrumb-button-nightlife:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Breadcrumb Icon - Drop shadow glow */
+.admin-breadcrumb-icon-nightlife {
+  font-size: var(--font-size-normal); /* 1rem */
+  filter: drop-shadow(0 0 var(--spacing-2) var(--color-secondary-60)); /* 0 0 8px rgba(0,255,255,0.6) */
+}
+
+/* Breadcrumb Text - Orbitron font */
+.admin-breadcrumb-text-nightlife {
+  font-family: "Orbitron", monospace;
+  letter-spacing: 0.0313rem; /* 0.5px */
+}
+
+/* Breadcrumb Separator - Arrow pink */
+.admin-breadcrumb-separator-nightlife {
+  color: var(--color-primary-70); /* rgba(193, 154, 107,0.7) */
+  font-size: var(--font-size-large); /* 1.125rem */
+  font-weight: var(--font-weight-bold);
+  margin: 0 var(--spacing-1); /* 0 0.25rem */
+}
+
+/* Breadcrumb Current Page - Pink highlight */
+.admin-breadcrumb-current-nightlife {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2); /* 0.5rem */
+  color: var(--color-primary); /* --nightlife-primary, #C19A6B */
+  font-weight: var(--font-weight-semibold); /* 600 */
+  font-size: var(--font-size-small); /* 0.875rem */
+}
+
+/* Breadcrumb Current Icon - Pink glow */
+.admin-breadcrumb-current-icon-nightlife {
+  font-size: var(--font-size-normal); /* 1rem */
+  filter: drop-shadow(0 0 var(--spacing-2) var(--color-primary-60)); /* 0 0 8px rgba(193, 154, 107,0.6) */
+}
+
+/* Breadcrumb Current Text - Orbitron font avec glow */
+.admin-breadcrumb-current-text-nightlife {
+  font-family: "Orbitron", monospace;
+  letter-spacing: 0.0313rem; /* 0.5px */
+  text-shadow: 0 0 var(--spacing-2) var(--color-primary-30); /* 0 0 10px rgba(193, 154, 107,0.3) */
+}
+
+/* ===== RESPONSIVE MOBILE ===== */
+
+/* Mobile: Grid 1 colonne, breadcrumb compact */
+@media (max-width: 48rem) {
+  .admin-grid-3,
+  .admin-grid-2 {
+    grid-template-columns: 1fr; /* Stack vertical */
+    gap: var(--spacing-4);
+  }
+
+  .admin-breadcrumb-container-nightlife {
+    gap: var(--spacing-2); /* 0.5rem */
+    margin-bottom: var(--spacing-5); /* 1.25rem */
+    padding: var(--spacing-3) 0; /* 0.75rem vertical */
+  }
+
+  .admin-breadcrumb-button-nightlife {
+    padding: var(--spacing-2) var(--spacing-3); /* 0.5rem 0.75rem */
+    font-size: var(--font-size-xs); /* 0.75rem */
+  }
+
+  .admin-breadcrumb-current-nightlife {
+    font-size: var(--font-size-xs); /* 0.75rem */
+  }
+
+  .admin-breadcrumb-icon-nightlife,
+  .admin-breadcrumb-current-icon-nightlife {
+    font-size: var(--font-size-small); /* 0.875rem */
+  }
+}
+
+/* Small Mobile: Further compact */
+@media (max-width: 30rem) {
+  .admin-grid-3,
+  .admin-grid-2 {
+    gap: var(--spacing-3);
+  }
+
+  .admin-breadcrumb-container-nightlife {
+    margin-top: 5rem; /* Reduced top margin */
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* WCAG 2.1 Level AAA - High Contrast Mode */
+@media (prefers-contrast: high) {
+  .status-badge {
+    border-width: 2px;
+  }
+
+  .admin-breadcrumb-button-nightlife {
+    border-width: 3px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .admin-card-hover,
+  .admin-breadcrumb-button-nightlife {
+    transition: none;
+  }
+
+  .admin-card-hover:hover,
+  .admin-breadcrumb-button-nightlife:hover {
+    transform: none;
+  }
+}

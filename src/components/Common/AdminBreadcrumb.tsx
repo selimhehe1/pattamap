@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../styles/admin/admin-components.css';
 
 interface AdminBreadcrumbProps {
   currentSection?: string;

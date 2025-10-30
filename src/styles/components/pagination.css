@@ -1,0 +1,352 @@
+/**
+ * ============================================
+ * PAGINATION - Professional Pagination Component
+ * ============================================
+ *
+ * Pagination component with nightlife theme styling.
+ * Used in Search page and any paginated lists.
+ *
+ * Features:
+ * - First/Prev/Numbers/Next/Last controls
+ * - Smart ellipsis display
+ * - Responsive design (mobile/tablet/desktop)
+ * - Active state highlighting
+ * - Disabled state handling
+ * - WCAG 2.1 Level AAA (44px touch targets)
+ *
+ * @dependencies design-system.css (variables)
+ */
+
+/* ============================================
+   PAGINATION CONTAINER
+   ============================================ */
+
+.pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 20px;
+  margin-top: 40px;
+}
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================
+   PAGINATION BUTTONS - BASE
+   ============================================ */
+
+.pagination-btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  /* Sizing - WCAG 2.1 Level AAA (44px touch target) */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 16px;
+
+  /* Typography */
+  font-family: var(--font-family-base, 'Poppins', sans-serif);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+
+  /* Visual */
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  border-radius: 12px;
+  color: #C19A6B;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  /* Animation */
+  transition: all 0.2s ease;
+}
+
+/* Hover State */
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(193, 154, 107, 0.1);
+  border-color: #C19A6B;
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Focus State (Accessibility) */
+.pagination-btn:focus-visible {
+  outline: 2px solid #C19A6B;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(193, 154, 107, 0.2);
+}
+
+/* Disabled State */
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   PAGINATION BUTTONS - VARIANTS
+   ============================================ */
+
+/* Active Page Number */
+.pagination-btn--active {
+  background: linear-gradient(135deg, #C19A6B, #D4AF6A);
+  border-color: #C19A6B;
+  color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.4);
+  font-weight: 700;
+}
+
+.pagination-btn--active:hover:not(:disabled) {
+  background: linear-gradient(135deg, #D4AF6A, #C19A6B);
+  transform: scale(1.05);
+}
+
+/* Page Number Buttons */
+.pagination-btn--number {
+  min-width: 44px;
+  padding: 10px 14px;
+}
+
+/* First/Last Buttons */
+.pagination-btn--first,
+.pagination-btn--last {
+  min-width: 70px;
+}
+
+/* Prev/Next Buttons */
+.pagination-btn--prev,
+.pagination-btn--next {
+  min-width: 100px;
+}
+
+/* Icons for Prev/Next */
+.pagination-btn--prev-icon,
+.pagination-btn--next-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ============================================
+   PAGINATION INFO
+   ============================================ */
+
+.pagination-info {
+  font-size: 14px;
+  color: #cccccc;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ============================================
+   ELLIPSIS
+   ============================================ */
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+  font-size: 16px;
+  color: rgba(193, 154, 107, 0.6);
+  font-weight: 600;
+  user-select: none;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Desktop (1024px+) - Full controls */
+@media (min-width: 1024px) {
+  .pagination-container {
+    gap: 10px;
+  }
+
+  .pagination-numbers {
+    gap: 8px;
+  }
+
+  .pagination-btn--first,
+  .pagination-btn--last {
+    display: inline-flex; /* Show First/Last buttons */
+  }
+
+  .pagination-btn--prev-text,
+  .pagination-btn--next-text {
+    display: inline; /* Show "Previous"/"Next" text */
+  }
+
+  .pagination-btn--prev-icon,
+  .pagination-btn--next-icon {
+    display: inline; /* Show arrows */
+  }
+}
+
+/* Tablet (768px - 1023px) - Compact controls */
+@media (max-width: 1023px) {
+  .pagination-btn--first,
+  .pagination-btn--last {
+    display: none; /* Hide First/Last buttons */
+  }
+
+  .pagination-btn--prev,
+  .pagination-btn--next {
+    min-width: 80px;
+  }
+
+  .pagination-btn--prev-text,
+  .pagination-btn--next-text {
+    display: inline;
+  }
+
+  .pagination-btn--prev-icon,
+  .pagination-btn--next-icon {
+    display: inline;
+  }
+}
+
+/* Mobile (< 768px) - Minimal controls */
+@media (max-width: 767px) {
+  .pagination {
+    gap: 15px;
+    padding: 20px 10px;
+    margin-top: 30px;
+  }
+
+  .pagination-container {
+    gap: 6px;
+  }
+
+  .pagination-numbers {
+    gap: 4px;
+  }
+
+  .pagination-btn--first,
+  .pagination-btn--last {
+    display: none; /* Hide First/Last buttons */
+  }
+
+  .pagination-btn--prev,
+  .pagination-btn--next {
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  .pagination-btn--prev-text,
+  .pagination-btn--next-text {
+    display: none; /* Hide "Previous"/"Next" text */
+  }
+
+  .pagination-btn--prev-icon,
+  .pagination-btn--next-icon {
+    display: inline; /* Show only arrows */
+    font-size: 24px;
+  }
+
+  .pagination-btn--number {
+    min-width: 40px;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .pagination-ellipsis {
+    min-width: 30px;
+    font-size: 14px;
+  }
+
+  .pagination-info {
+    font-size: 13px;
+  }
+}
+
+/* Small Mobile (< 480px) - Ultra compact */
+@media (max-width: 479px) {
+  .pagination-container {
+    gap: 4px;
+  }
+
+  .pagination-numbers {
+    gap: 3px;
+  }
+
+  .pagination-btn--number {
+    min-width: 36px;
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .pagination-btn--prev,
+  .pagination-btn--next {
+    min-width: 40px;
+    padding: 8px;
+  }
+
+  .pagination-ellipsis {
+    min-width: 24px;
+    padding: 6px;
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.pagination-btn:disabled.pagination-loading {
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (if implemented)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .pagination-btn {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: rgba(193, 154, 107, 0.5);
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: rgba(193, 154, 107, 0.15);
+  }
+
+  .pagination-btn--active {
+    background: linear-gradient(135deg, #C19A6B, #D4AF6A);
+    color: #1a1a1a;
+  }
+}

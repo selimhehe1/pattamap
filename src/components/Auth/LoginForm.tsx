@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAutoSave } from '../../hooks/useAutoSave';
+import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
+import { useDialog } from '../../hooks/useDialog';
+import FormField from '../Common/FormField';
+import toast from '../../utils/toast';
+import '../../styles/components/modal-forms.css';
 
 interface LoginFormProps {
   onClose: () => void;
@@ -7,6 +14,8 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) => {
+  const { t } = useTranslation();
+  const dialog = useDialog();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     login: '', // Can be pseudonym or email
@@ -14,26 +23,105 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) =>
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  // Validation rules
+  const validationRules: ValidationRules<typeof formData> = {
+    login: {
+      required: true,
+      message: t('auth.pseudonymRequired')
+    },
+    password: {
+      required: true,
+      minLength: 6,
+      message: (field, rule) => {
+        if (rule === 'required') return t('auth.passwordRequired');
+        if (rule === 'minLength') return t('auth.passwordMinLength', { min: 6 });
+        return t('auth.invalidPassword');
+      }
+    }
+  };
+
+  const {
+    errors,
+    fieldStatus,
+    handleFieldChange,
+    handleFieldBlur,
+    validateForm
+  } = useFormValidation(formData, validationRules, {
+    validateOnChange: true,
+    validateOnBlur: true,
+    debounceDelay: 500
+  });
+
+  // Auto-save only login field (not password for security)
+  const { isDraft, clearDraft, restoreDraft, lastSaved } = useAutoSave({
+    key: 'login-form-draft',
+    data: { login: formData.login }, // Only save username
+    debounceMs: 2000,
+    enabled: true
+  });
+
+  // Restore draft on mount
+  useEffect(() => {
+    if (isDraft) {
+      const draft = restoreDraft();
+      if (draft && draft.login) {
+        setFormData(prev => ({ ...prev, login: draft.login }));
+        setShowDraftBanner(true);
+        toast.success(t('auth.usernameRestored'));
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleInputChange = (fieldName: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [fieldName]: value
     }));
-    setError(''); // Clear error when user types
+    handleFieldChange(fieldName as keyof typeof formData, value);
+    setError('');
+  };
+
+  const handleInputBlur = (fieldName: string, value: string) => {
+    handleFieldBlur(fieldName as keyof typeof formData, value);
+  };
+
+  const handleClose = async () => {
+    if (formData.login && !isLoading) {
+      const confirmLeave = await dialog.confirm(
+        t('auth.confirmLeaveWithSave'),
+        {
+          variant: 'warning',
+          confirmText: t('dialog.confirm', 'Confirm'),
+          cancelText: t('dialog.cancel', 'Cancel')
+        }
+      );
+      if (!confirmLeave) return;
+    }
+    onClose();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error(t('auth.fixFormErrors'));
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
       await login(formData.login, formData.password);
-      onClose(); // Close modal on successful login
+      clearDraft(); // Clear on successful login
+      toast.success(t('auth.loginSuccess'));
+      onClose();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Login failed');
+      const errorMessage = error instanceof Error ? error.message : t('auth.loginFailed');
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -43,51 +131,103 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) =>
     <div className="modal-overlay-nightlife">
       <div className="modal-form-container">
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="modal-close-button"
+          aria-label={t('common.close')}
         >
           ×
         </button>
 
         <div className="modal-header">
           <h2 className="header-title-nightlife">
-            Welcome Back
+            {t('auth.welcomeBack')}
           </h2>
           <p className="modal-subtitle">
-            Sign in to your account
+            {t('auth.signInSubtitle')}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-layout">
-          <div className="form-input-group">
-            <label className="label-nightlife">
-              👤 Pseudonym or Email
-            </label>
-            <input
-              type="text"
-              name="login"
-              value={formData.login}
-              onChange={handleInputChange}
-              required
-              className="input-nightlife input-focus-cyan"
-              placeholder="Enter your pseudonym or email"
-            />
+        {/* Draft restoration banner */}
+        {showDraftBanner && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.2))',
+            border: '2px solid #00E5FF',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>📝</span>
+              <div>
+                <div style={{ color: '#00E5FF', fontSize: '14px', fontWeight: 'bold' }}>
+                  {t('auth.usernameRestored')}
+                </div>
+                <div style={{ color: '#cccccc', fontSize: '12px' }}>
+                  {lastSaved && t('auth.savedAt', { time: new Date(lastSaved).toLocaleTimeString() })}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                clearDraft();
+                setFormData({ login: '', password: '' });
+                setShowDraftBanner(false);
+                toast.success(t('auth.usernameCleared'));
+              }}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#ffffff',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#C19A6B';
+                e.currentTarget.style.color = '#C19A6B';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+            >
+              {t('auth.clear')}
+            </button>
           </div>
+        )}
 
-          <div className="form-input-group">
-            <label className="label-nightlife">
-              🔒 Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              className="input-nightlife input-focus-cyan"
-              placeholder="Enter your password"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="form-layout">
+          <FormField
+            label={`👤 ${t('auth.pseudonymOrEmail')}`}
+            name="login"
+            value={formData.login}
+            error={errors.login}
+            status={fieldStatus.login}
+            onChange={(e) => handleInputChange('login', e.target.value)}
+            onBlur={(e) => handleInputBlur('login', e.target.value)}
+            placeholder={t('auth.enterPseudonym')}
+            required
+          />
+
+          <FormField
+            label={`🔒 ${t('auth.passwordLabel')}`}
+            name="password"
+            type="password"
+            value={formData.password}
+            error={errors.password}
+            status={fieldStatus.password}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            onBlur={(e) => handleInputBlur('password', e.target.value)}
+            placeholder={t('auth.enterPassword')}
+            required
+            minLength={6}
+          />
 
           {error && (
             <div className="error-message-nightlife error-shake">
@@ -103,23 +243,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) =>
             {isLoading ? (
               <span className="loading-flex">
                 <span className="loading-spinner-small-nightlife"></span>
-                Signing in...
+                {t('auth.signingIn')}
               </span>
             ) : (
-              '🚀 Sign In'
+              `🚀 ${t('auth.signIn')}`
             )}
           </button>
 
           <div className="auth-switch-text">
             <span className="auth-switch-label">
-              Don't have an account?{' '}
+              {t('auth.dontHaveAccount')}{' '}
             </span>
             <button
               type="button"
               onClick={onSwitchToRegister}
               className="auth-switch-button"
             >
-              Register here
+              {t('auth.registerHere')}
             </button>
           </div>
         </form>

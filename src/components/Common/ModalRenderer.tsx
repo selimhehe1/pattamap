@@ -1,16 +1,17 @@
 import React from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useModal } from '../../contexts/ModalContext';
 import Modal from './Modal';
 
+/**
+ * ModalRenderer - Phase 3B Enhanced with Framer Motion
+ * Wraps modals in AnimatePresence for smooth exit animations
+ */
 const ModalRenderer: React.FC = () => {
   const { modals, closeModal } = useModal();
 
-  if (modals.length === 0) {
-    return null;
-  }
-
   return (
-    <>
+    <AnimatePresence mode="wait">
       {modals.map((modal, index) => (
         <Modal
           key={modal.id}
@@ -19,7 +20,7 @@ const ModalRenderer: React.FC = () => {
           onClose={closeModal}
         />
       ))}
-    </>
+    </AnimatePresence>
   );
 };
 

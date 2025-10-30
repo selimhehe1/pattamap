@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 
 /**
  * Configuration for road shape and positioning
@@ -76,6 +76,18 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
   // Merge default and custom styles
   const roadStyle: RoadStyle = { ...DEFAULT_STYLE, ...style };
 
+  // ✅ PERFORMANCE OPTIMIZATION: Memoize asphalt grains
+  // Grains are calculated ONCE and reused on every resize
+  // Each grain stores relative position (0-1) to scale with canvas
+  const grains = useMemo(() => {
+    return Array.from({ length: grainCount }, () => ({
+      x: Math.random(),  // 0-1 relative position
+      y: Math.random(),
+      size: Math.random() * 3 + 1,
+      color: Math.random() > 0.5 ? 'rgba(70,70,70,0.9)' : 'rgba(40,40,40,1.0)'
+    }));
+  }, [grainCount]); // Only recalculate if grainCount changes
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -86,9 +98,12 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    // Function to draw the road - will be called on mount and resize
+    // ✅ PERFORMANCE: Use RequestAnimationFrame for smooth 60 FPS rendering
     const drawRoad = () => {
       if (!canvas || !ctx || !parent) return;
+
+      requestAnimationFrame(() => {
+        if (!canvas || !ctx || !parent) return;
 
       const width = parent.clientWidth;
       const height = parent.clientHeight;
@@ -217,10 +232,12 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
       ctx.stroke();
 
       // === ASPHALT GRAIN TEXTURE ===
+      // ✅ PERFORMANCE: Use memoized grains, convert relative → absolute positions
       ctx.globalAlpha = 0.7;
-      for (let i = 0; i < grainCount; i++) {
-        const grainX = Math.random() * width;
-        const grainY = Math.random() * height;
+      grains.forEach(grain => {
+        // Convert relative position (0-1) to absolute canvas coordinates
+        const grainX = grain.x * width;
+        const grainY = grain.y * height;
 
         // Check if grain is within road boundaries
         let isOnRoad = false;
@@ -266,11 +283,10 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
         }
 
         if (isOnRoad) {
-          const grainSize = Math.random() * 3 + 1;
-          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(70,70,70,0.9)' : 'rgba(40,40,40,1.0)';
-          ctx.fillRect(grainX, grainY, grainSize, grainSize);
+          ctx.fillStyle = grain.color;
+          ctx.fillRect(grainX, grainY, grain.size, grain.size);
         }
-      }
+      });
       ctx.globalAlpha = 1.0;
 
       // === ROAD EDGES (Solid Lines) ===
@@ -435,30 +451,38 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
       ctx.setLineDash([]);
       ctx.globalAlpha = 1.0;
 
-      // Edit mode indicator
-      if (isEditMode) {
-        ctx.fillStyle = 'rgba(0,255,0,0.6)';
-        ctx.font = '14px monospace';
-        ctx.fillText(`🗺️ ${config.shape.toUpperCase()} Road (Edit Mode)`, width * 0.05, 20);
-      }
+        // Edit mode indicator
+        if (isEditMode) {
+          ctx.fillStyle = 'rgba(0,255,0,0.6)';
+          ctx.font = '14px monospace';
+          ctx.fillText(`🗺️ ${config.shape.toUpperCase()} Road (Edit Mode)`, width * 0.05, 20);
+        }
+      }); // End requestAnimationFrame
     };
 
     // Initial draw
     drawRoad();
 
-    // ResizeObserver for responsive redraw
-    const resizeObserver = new ResizeObserver(() => {
-      drawRoad();
-    });
+    // ✅ PERFORMANCE: Debounced ResizeObserver (300ms throttle)
+    // Prevents excessive redraws during window resize
+    let resizeTimeout: NodeJS.Timeout;
+    const debouncedDraw = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        drawRoad();
+      }, 300); // Wait 300ms after last resize event
+    };
 
+    const resizeObserver = new ResizeObserver(debouncedDraw);
     resizeObserver.observe(parent);
 
     // Cleanup
     return () => {
+      clearTimeout(resizeTimeout);
       resizeObserver.disconnect();
     };
 
-  }, [config, roadStyle, isEditMode, grainCount]);
+  }, [config, roadStyle, isEditMode, grainCount, grains]);
 
   return (
     <canvas

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
+import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
 
 interface AdminComment {
@@ -38,6 +40,7 @@ interface CommentsAdminProps {
 }
 
 const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [comments, setComments] = useState<AdminComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -187,15 +190,15 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             textAlign: 'center'
           }}>
           <h2 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 Access Denied
+            🚫 {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
-            You don't have permission to access this area.
+            {t('admin.accessDeniedArea')}
           </p>
         </div>
       </div>
@@ -211,32 +214,32 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
       }}>
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
-        currentSection="Gestion des Commentaires"
+        currentSection={t('admin.commentsManagement')}
         onBackToDashboard={() => onTabChange('overview')}
         icon="💬"
       />
 
       {/* Header */}
       <div style={{ marginBottom: '30px' }}>
-        
+
         <h1 style={{
           fontSize: '32px',
           fontWeight: '900',
           margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(255,27,141,0.5)',
+          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          💬 Comments & Reviews Management
+          💬 {t('admin.commentsManagement')}
         </h1>
         <p style={{
           fontSize: '16px',
           color: '#cccccc',
           margin: 0
         }}>
-          Moderate comments, reviews, and handle reports
+          {t('admin.moderateCommentsReviews')}
         </p>
       </div>
 
@@ -248,11 +251,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         overflowX: 'auto'
       }}>
         {[
-          { key: 'reported', label: 'Reported', icon: '⚠️' },
-          { key: 'pending', label: 'Pending', icon: '⏳' },
-          { key: 'approved', label: 'Approved', icon: '✅' },
-          { key: 'rejected', label: 'Rejected', icon: '❌' },
-          { key: 'all', label: 'All', icon: '📋' }
+          { key: 'reported', label: t('admin.filterReported'), icon: '⚠️' },
+          { key: 'pending', label: t('admin.filterPending'), icon: '⏳' },
+          { key: 'approved', label: t('admin.filterApproved'), icon: '✅' },
+          { key: 'rejected', label: t('admin.filterRejected'), icon: '❌' },
+          { key: 'all', label: t('admin.filterAll'), icon: '📋' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -260,11 +263,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             style={{
               padding: '12px 20px',
               borderRadius: '12px',
-              border: filter === tab.key ? '2px solid #FF1B8D' : '2px solid rgba(255,27,141,0.3)',
+              border: filter === tab.key ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
               background: filter === tab.key 
-                ? 'linear-gradient(45deg, rgba(255,27,141,0.2), rgba(255,215,0,0.1))'
-                : 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
-              color: filter === tab.key ? '#FF1B8D' : '#ffffff',
+                ? 'linear-gradient(45deg, rgba(193, 154, 107,0.2), rgba(255,215,0,0.1))'
+                : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
+              color: filter === tab.key ? '#C19A6B' : '#ffffff',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               fontSize: '14px',
@@ -279,43 +282,28 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
       {/* Comments List */}
       {isLoading ? (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '300px'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(255,27,141,0.3)',
-            borderTop: '4px solid #FF1B8D',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-        </div>
+        <LoadingFallback message={t('admin.loadingComments')} variant="inline" />
       ) : comments.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
           borderRadius: '20px',
-          border: '2px solid rgba(255,27,141,0.3)',
+          border: '2px solid rgba(193, 154, 107,0.3)',
           padding: '40px',
           textAlign: 'center'
         }}>
           <h3 style={{
-            color: '#FF1B8D',
+            color: '#C19A6B',
             fontSize: '20px',
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 No Comments Found
+            📭 {t('admin.noCommentsFound')}
           </h3>
           <p style={{
             color: '#cccccc',
             fontSize: '16px'
           }}>
-            No comments match the current filter.
+            {t('admin.noCommentsMatch')}
           </p>
         </div>
       ) : (
@@ -328,11 +316,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             <div
               key={comment.id}
               style={{
-                background: 'linear-gradient(135deg, rgba(255,27,141,0.1), rgba(0,0,0,0.3))',
+                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
                 borderRadius: '20px',
                 border: comment.reports && comment.reports.length > 0 
                   ? '2px solid #FF4757' 
-                  : '2px solid rgba(255,27,141,0.3)',
+                  : '2px solid rgba(193, 154, 107,0.3)',
                 padding: '25px',
                 position: 'relative'
               }}
@@ -373,7 +361,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  ⚠️ {comment.reports.length} report{comment.reports.length > 1 ? 's' : ''}
+                  ⚠️ {comment.reports.length} {t('admin.report', { count: comment.reports.length })}
                 </div>
               )}
 
@@ -389,7 +377,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                     width: '50px',
                     height: '50px',
                     borderRadius: '50%',
-                    background: 'linear-gradient(45deg, #FF1B8D, #FFD700)',
+                    background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -406,7 +394,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       fontWeight: 'bold',
                       fontSize: '16px'
                     }}>
-                      {comment.user?.pseudonym || 'Anonymous'}
+                      {comment.user?.pseudonym || t('admin.anonymous')}
                     </div>
                     <div style={{
                       color: '#cccccc',
@@ -416,11 +404,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       {formatDate(comment.created_at)}
                     </div>
                     <div style={{
-                      color: '#00FFFF',
+                      color: '#00E5FF',
                       fontSize: '14px',
                       fontWeight: 'bold'
                     }}>
-                      Review for: {comment.employee?.name}
+                      {t('admin.reviewFor')} {comment.employee?.name}
                       {comment.employee?.nickname && ` "${comment.employee.nickname}"`}
                     </div>
                   </div>
@@ -456,7 +444,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                   padding: '15px',
                   background: 'rgba(0,0,0,0.3)',
                   borderRadius: '12px',
-                  border: '1px solid rgba(255,27,141,0.2)'
+                  border: '1px solid rgba(193, 154, 107,0.2)'
                 }}>
                   {comment.comment}
                 </div>
@@ -476,7 +464,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       fontWeight: 'bold',
                       margin: '0 0 10px 0'
                     }}>
-                      ⚠️ Reports ({comment.reports.length})
+                      ⚠️ {t('admin.reports')} ({comment.reports.length})
                     </h4>
                     <div style={{
                       display: 'flex',
@@ -503,7 +491,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                               color: '#ffffff',
                               fontWeight: 'bold'
                             }}>
-                              {report.user?.pseudonym || 'Anonymous'}
+                              {report.user?.pseudonym || t('admin.anonymous')}
                             </span>
                             <span style={{
                               color: '#cccccc',
@@ -530,7 +518,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                 display: 'flex',
                 gap: '12px',
                 paddingTop: '20px',
-                borderTop: '1px solid rgba(255,27,141,0.3)',
+                borderTop: '1px solid rgba(193, 154, 107,0.3)',
                 flexWrap: 'wrap'
               }}>
                 {comment.status === 'pending' && (
@@ -555,7 +543,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                         opacity: processingIds.has(comment.id) ? 0.7 : 1
                       }}
                     >
-                      {processingIds.has(comment.id) ? '⏳ Approving...' : '✅ Approve'}
+                      {processingIds.has(comment.id) ? `⏳ ${t('admin.approving')}` : `✅ ${t('admin.approve')}`}
                     </button>
 
                     <button
@@ -578,7 +566,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                         opacity: processingIds.has(comment.id) ? 0.7 : 1
                       }}
                     >
-                      {processingIds.has(comment.id) ? '⏳ Rejecting...' : '❌ Reject'}
+                      {processingIds.has(comment.id) ? `⏳ ${t('admin.rejecting')}` : `❌ ${t('admin.reject')}`}
                     </button>
                   </>
                 )}
@@ -604,7 +592,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       opacity: processingIds.has(comment.id) ? 0.7 : 1
                     }}
                   >
-                    {processingIds.has(comment.id) ? '⏳ Dismissing...' : '📝 Dismiss Reports'}
+                    {processingIds.has(comment.id) ? `⏳ ${t('admin.dismissing')}` : `📝 ${t('admin.dismissReports')}`}
                   </button>
                 )}
 
@@ -612,7 +600,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                   onClick={() => setSelectedComment(comment)}
                   style={{
                     padding: '12px 20px',
-                    background: 'linear-gradient(45deg, #00FFFF, #0080FF)',
+                    background: 'linear-gradient(45deg, #00E5FF, #0080FF)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
@@ -630,7 +618,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  👁️ View Details
+                  👁️ {t('admin.viewDetails')}
                 </button>
               </div>
             </div>
@@ -653,12 +641,12 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
           justifyContent: 'center',
           padding: '20px',
           backdropFilter: 'blur(10px)'
-        }}>
+        }} role="dialog" aria-modal="true">
           <div style={{
             background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
             borderRadius: '25px',
-            border: '2px solid #FF1B8D',
-            boxShadow: '0 20px 60px rgba(255,27,141,0.3)',
+            border: '2px solid #C19A6B',
+            boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
             maxWidth: '600px',
             width: '100%',
             maxHeight: '90vh',
@@ -676,9 +664,9 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'rgba(255,27,141,0.2)',
-                border: '2px solid #FF1B8D',
-                color: '#FF1B8D',
+                background: 'rgba(193, 154, 107,0.2)',
+                border: '2px solid #C19A6B',
+                color: '#C19A6B',
                 fontSize: '20px',
                 cursor: 'pointer',
                 zIndex: 10
@@ -688,34 +676,34 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             </button>
 
             <h2 style={{
-              color: '#FF1B8D',
+              color: '#C19A6B',
               fontSize: '24px',
               fontWeight: 'bold',
               margin: '0 0 20px 0'
             }}>
-              Comment Details
+              {t('admin.commentDetails')}
             </h2>
 
             {/* Full comment details here */}
             <div style={{ color: 'white' }}>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Author:</strong> {selectedComment.user?.pseudonym || 'Anonymous'}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.author')}</strong> {selectedComment.user?.pseudonym || t('admin.anonymous')}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Employee:</strong> {selectedComment.employee?.name}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.employee')}</strong> {selectedComment.employee?.name}
                 {selectedComment.employee?.nickname && ` "${selectedComment.employee.nickname}"`}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Rating:</strong> {selectedComment.rating}/5 stars
+                <strong style={{ color: '#C19A6B' }}>{t('admin.rating')}</strong> {selectedComment.rating}/5 {t('admin.stars')}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Status:</strong> {selectedComment.status}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.status')}</strong> {selectedComment.status}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Created:</strong> {formatDate(selectedComment.created_at)}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.created')}</strong> {formatDate(selectedComment.created_at)}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#FF1B8D' }}>Comment:</strong>
+                <strong style={{ color: '#C19A6B' }}>{t('admin.comment')}</strong>
                 <div style={{
                   marginTop: '10px',
                   padding: '15px',
@@ -730,7 +718,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
               {/* Reports in modal */}
               {selectedComment.reports && selectedComment.reports.length > 0 && (
                 <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#FF1B8D' }}>Reports:</strong>
+                  <strong style={{ color: '#C19A6B' }}>{t('admin.reports')}</strong>
                   <div style={{ marginTop: '10px' }}>
                     {selectedComment.reports.map((report) => (
                       <div
@@ -744,7 +732,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                         }}
                       >
                         <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                          {report.user?.pseudonym || 'Anonymous'} - {formatDate(report.created_at)}
+                          {report.user?.pseudonym || t('admin.anonymous')} - {formatDate(report.created_at)}
                         </div>
                         <div style={{ color: '#FF4757' }}>
                           {report.reason}

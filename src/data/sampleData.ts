@@ -6,7 +6,7 @@ export const sampleCategories: EstablishmentCategory[] = [
     id: 'cat-001',
     name: 'Go-Go Bar',
     icon: '💃',
-    color: '#FF1B8D',
+    color: '#C19A6B',
     created_at: new Date().toISOString()
   },
   {

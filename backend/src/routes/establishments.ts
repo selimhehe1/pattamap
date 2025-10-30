@@ -4,14 +4,17 @@ import { supabase } from '../config/supabase';
 import express from 'express';
 import { logger } from '../utils/logger';
 import { categoriesCache, dashboardStatsCache, listingsCache } from '../middleware/cache';
+import { establishmentEmployeesRateLimit } from '../middleware/rateLimit';
 import {
   getEstablishments,
   getEstablishment,
   getEstablishmentCategories,
   updateEstablishmentLogo,
   updateEstablishment,
-  createEstablishment
+  createEstablishment,
+  getEstablishmentEmployees
 } from '../controllers/establishmentController';
+import { getMyOwnedEstablishments } from '../controllers/establishmentOwnerController';
 
 const router = Router();
 
@@ -244,6 +247,31 @@ router.get('/temp-admin-employees', async (req, res) => {
 router.get('/', listingsCache(), getEstablishments);
 router.get('/categories', categoriesCache, getEstablishmentCategories);
 
+// GET /api/consumables - Public endpoint for consumable templates
+router.get('/consumables', async (req, res) => {
+  try {
+    logger.debug('📋 Getting consumable templates...');
+
+    const { data, error } = await supabase
+      .from('consumable_templates')
+      .select('*')
+      .eq('status', 'active')
+      .order('category', { ascending: true })
+      .order('name', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    logger.debug(`✅ Found ${data?.length || 0} templates in ${new Set(data?.map(d => d.category)).size} categories`);
+
+    res.json({ consumables: data || [] });
+  } catch (error: any) {
+    logger.error('Error fetching consumable templates:', error);
+    res.status(500).json({ error: 'Failed to fetch consumable templates' });
+  }
+});
+
 
 // WORKAROUND: Simple POST endpoint for grid position updates - MUST BE BEFORE DYNAMIC ROUTES
 router.post('/grid-move', async (req, res) => {
@@ -293,6 +321,109 @@ router.post('/grid-move', async (req, res) => {
 
 // Update establishment logo (authenticated route)
 router.patch('/:id/logo', authenticateToken, updateEstablishmentLogo);
+
+// GET /api/establishments/my-owned - Get establishments owned by current user (v10.1)
+router.get('/my-owned', authenticateToken, getMyOwnedEstablishments);
+
+/**
+ * @swagger
+ * /api/establishments/{id}/employees:
+ *   get:
+ *     summary: Get employees of an establishment
+ *     description: Returns all employees currently working at the establishment. Only accessible by establishment owners/managers. Rate limited to 30 requests per minute.
+ *     tags: [Establishments]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Establishment ID
+ *     responses:
+ *       200:
+ *         description: Employees retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 employees:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                       name:
+ *                         type: string
+ *                       age:
+ *                         type: integer
+ *                       nationality:
+ *                         type: string
+ *                       photos:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       status:
+ *                         type: string
+ *                         enum: [pending, approved, rejected]
+ *                       average_rating:
+ *                         type: number
+ *                         nullable: true
+ *                       comment_count:
+ *                         type: integer
+ *                       is_vip:
+ *                         type: boolean
+ *                         description: Whether employee has active VIP subscription
+ *                       vip_expires_at:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ *                       current_employment:
+ *                         type: object
+ *                         properties:
+ *                           establishment_id:
+ *                             type: string
+ *                             format: uuid
+ *                           establishment_name:
+ *                             type: string
+ *                           start_date:
+ *                             type: string
+ *                             format: date-time
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of employees
+ *                 establishment:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     name:
+ *                       type: string
+ *                     zone:
+ *                       type: string
+ *       401:
+ *         description: Unauthorized (not authenticated)
+ *       403:
+ *         description: Forbidden (user is not owner/manager of this establishment)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Establishment not found
+ *       429:
+ *         description: Rate limit exceeded (max 30 requests per minute)
+ *       500:
+ *         description: Internal server error
+ */
+// GET /api/establishments/:id/employees - Get employees of establishment (owner only) (v10.3 Phase 0)
+router.get('/:id/employees', authenticateToken, establishmentEmployeesRateLimit, getEstablishmentEmployees);
 
 // Dynamic route MUST be after specific routes
 router.get('/:id', getEstablishment);

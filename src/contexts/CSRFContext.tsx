@@ -12,7 +12,7 @@ interface CSRFContextType {
   loading: boolean;
   error: string;
   getCSRFHeaders: () => Record<string, string>;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<string | null>; // 🔧 Returns fresh token
 }
 
 const CSRFContext = createContext<CSRFContextType | undefined>(undefined);
@@ -22,12 +22,12 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
 
-  const fetchCSRFToken = useCallback(async (force = false) => {
+  const fetchCSRFToken = useCallback(async (signal: AbortSignal, force = false): Promise<string | null> => {
     // Use a ref or check if currently fetching to prevent race conditions
     // Allow forced refresh or check if already fetching
     if (document.body.dataset.csrfFetching === 'true' && !force) {
       logger.debug('CSRF fetch skipped - already fetching');
-      return;
+      return null;
     }
 
     document.body.dataset.csrfFetching = 'true';
@@ -39,13 +39,17 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.debug('CSRF token fetch starting', { forced: force });
 
       // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        // Only log if signal is not already aborted (e.g., by component unmount)
+        if (!signal.aborted) {
+          logger.warn('CSRF fetch timeout reached (10s)');
+        }
+      }, 10000); // 10 second timeout
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/csrf-token`, {
         method: 'GET',
         credentials: 'include', // Important pour les sessions
-        signal: controller.signal
+        signal // Use signal from parent (managed by useEffect)
       });
 
       clearTimeout(timeoutId);
@@ -64,17 +68,20 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCsrfToken(data.csrfToken);
       setLoading(false); // Set loading to false immediately after setting token
 
+      return data.csrfToken; // 🔧 Return the fresh token
+
     } catch (err) {
+      // Don't handle AbortError from component unmount
+      if (err instanceof Error && err.name === 'AbortError') {
+        logger.debug('CSRF fetch aborted (component unmounted or signal aborted)');
+        return null;
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       logger.error('CSRF token fetch failed', err);
 
-      // If this was an abort due to timeout, try again once
-      if (err instanceof Error && err.name === 'AbortError' && !force) {
-        logger.warn('CSRF fetch timed out, retrying...');
-        setTimeout(() => fetchCSRFToken(true), 1000);
-        return;
-      }
+      return null;
     } finally {
       setLoading(false);
       document.body.dataset.csrfFetching = 'false';
@@ -83,7 +90,16 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Obtenir le token au montage du provider
   useEffect(() => {
-    fetchCSRFToken();
+    const controller = new AbortController();
+
+    // Fetch token with cleanup-safe signal
+    fetchCSRFToken(controller.signal, false);
+
+    // Cleanup function - abort ongoing fetch on unmount or re-render
+    return () => {
+      controller.abort(); // Abort ongoing fetch
+      logger.debug('CSRFProvider cleanup - aborting fetch');
+    };
   }, [fetchCSRFToken]); // Now properly includes fetchCSRFToken dependency
 
   // Memoized CSRF headers - recalculated only when token changes
@@ -109,7 +125,12 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     error,
     getCSRFHeaders,
-    refreshToken: () => fetchCSRFToken(true) // Always force refresh when manually called
+    refreshToken: async () => {
+      // Create a new AbortController for manual refresh
+      const controller = new AbortController();
+      const freshToken = await fetchCSRFToken(controller.signal, true); // Always force refresh when manually called
+      return freshToken || csrfToken; // Return the fresh token (or current if fetch failed)
+    }
   };
 
   return (

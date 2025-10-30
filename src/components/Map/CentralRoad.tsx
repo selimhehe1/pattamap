@@ -188,9 +188,9 @@ const CentralRoad: React.FC<CentralRoadProps> = ({ isEditMode, isVertical = fals
             position: 'absolute',
             width: '4px',
             height: '4px',
-            background: '#00FFFF',
+            background: '#00E5FF',
             borderRadius: '50%',
-            boxShadow: '0 0 8px #00FFFF',
+            boxShadow: '0 0 8px #00E5FF',
             ...(isVertical ? {
               left: '20px',
               animation: 'trafficVertical1 8s linear infinite'
@@ -207,9 +207,9 @@ const CentralRoad: React.FC<CentralRoadProps> = ({ isEditMode, isVertical = fals
             position: 'absolute',
             width: '3px',
             height: '3px',
-            background: '#FF1B8D',
+            background: '#C19A6B',
             borderRadius: '50%',
-            boxShadow: '0 0 6px #FF1B8D',
+            boxShadow: '0 0 6px #C19A6B',
             ...(isVertical ? {
               right: '20px',
               animation: 'trafficVertical2 10s linear infinite'

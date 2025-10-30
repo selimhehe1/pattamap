@@ -1,3 +1,6 @@
+// Initialize i18n FIRST for multilingual support
+import './utils/i18n';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

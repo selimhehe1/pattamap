@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import {
   getComments,
   createComment,
@@ -18,7 +19,7 @@ router.get('/', getComments); // Get comments for an employee
 router.get('/ratings/:employee_id', getEmployeeRatings); // Get rating statistics
 
 // Protected routes
-router.post('/', authenticateToken, createComment);
+router.post('/', authenticateToken, csrfProtection, createComment);
 router.put('/:id', authenticateToken, updateComment);
 router.delete('/:id', authenticateToken, deleteComment);
 router.post('/:id/report', authenticateToken, reportComment);
@@ -123,6 +124,6 @@ router.get('/user-rating/:employee_id', authenticateToken, getUserRating);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/user-rating/:employee_id', authenticateToken, updateUserRating);
+router.put('/user-rating/:employee_id', authenticateToken, csrfProtection, updateUserRating);
 
 export default router;
