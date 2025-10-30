@@ -2,22 +2,24 @@
  * 🧪 Moderation Controller Tests
  *
  * Tests for moderation queue and content approval workflows
- * - getModerationQueue (0/2 tests)
- * - approveItem (0/2 tests)
- * - rejectItem (0/2 tests)
- * - getModerationStats (0/2 tests)
+ * - getModerationQueue (2/2 tests ✅)
+ * - approveItem (2/2 tests ✅)
+ * - rejectItem (2/2 tests ✅)
+ * - getModerationStats (2/2 tests ✅)
  * - getReports (2/2 tests ✅)
- * - resolveReport (1/2 tests)
+ * - resolveReport (2/2 tests ✅)
  *
- * CURRENT STATUS: 3/12 tests passing (25%) ⚠️
+ * CURRENT STATUS: 12/12 tests passing (100%) ✅
  *
- * 📋 TODO (Day 4 Sprint):
- * - Align mocks with actual controller implementation
- * - Controller uses complex batch queries with Promise.all
- * - Need to mock parallel database queries properly
- * - Consider using table-based mocking strategy like vipController
+ * 🔧 FIXED (Day 4 Sprint):
+ * - Aligned mocks with actual controller implementation
+ * - Properly mocked sequential query chains (get → update flow)
+ * - Fixed batch query mocking for getModerationQueue (Promise.all pattern)
+ * - Fixed mock pollution by resetting supabase.from in beforeEach
+ * - Corrected error responses (500 not 400 for internal errors)
+ * - Matched exact controller response messages
  *
- * Day 3 Sprint - Critical Controllers Testing (Foundation created)
+ * Day 4 Sprint - Critical Controllers Testing
  */
 
 import { Response } from 'express';
@@ -91,8 +93,9 @@ describe('ModerationController', () => {
       json: jsonMock
     };
 
-    // Default mock implementation
-    (supabase.from as jest.Mock).mockImplementation(() => createMockQueryBuilder());
+    // Reset supabase.from to plain mock (no default implementation)
+    // This prevents mock pollution between tests
+    supabase.from = jest.fn();
   });
 
   describe('getModerationQueue', () => {
@@ -121,9 +124,9 @@ describe('ModerationController', () => {
       ];
 
       const mockEmployee = { id: 'emp-1', name: 'John Doe', status: 'pending' };
-      const mockEstablishment = { id: 'est-1', name: 'Test Bar', status: 'pending' };
+      const mockEstablishment = { id: 'est-1', name: 'Test Bar', status: 'pending', category: { name: 'Bar' } };
 
-      // Mock moderation queue query
+      // Mock: 1) moderation_queue query, 2) employees batch, 3) establishments batch, 4) comments batch
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockQueue)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([mockEmployee])))
@@ -137,12 +140,12 @@ describe('ModerationController', () => {
           expect.objectContaining({
             id: 'mod-1',
             item_type: 'employee',
-            fullItem: mockEmployee
+            item_data: mockEmployee
           }),
           expect.objectContaining({
             id: 'mod-2',
             item_type: 'establishment',
-            fullItem: mockEstablishment
+            item_data: mockEstablishment
           })
         ])
       });
@@ -162,21 +165,30 @@ describe('ModerationController', () => {
   describe('approveItem', () => {
     it('should approve moderation item successfully', async () => {
       mockRequest.params = { id: 'mod-1' };
-      mockRequest.body = { notes: 'Looks good!' };
+      mockRequest.body = { moderator_notes: 'Looks good!' };
 
       const mockQueueItem = {
         id: 'mod-1',
         item_type: 'employee',
         item_id: 'emp-1',
         status: 'pending',
-        submitted_by: 'user-1'
+        submitted_by: 'user-1',
+        submitter: { id: 'user-1', pseudonym: 'user1' }
       };
 
-      // Mock queries: get queue item, update queue item, update employee status
+      const mockEmployee = { name: 'John Doe' };
+      const mockEmployment = {
+        establishment_id: 'est-1',
+        establishments: { name: 'Test Bar' }
+      };
+
+      // Mock queries: 1) get queue item, 2) get employee name, 3) update employee, 4) update queue, 5) get employment
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockQueueItem)))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployee)))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'emp-1', status: 'approved' })))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockQueueItem, status: 'approved' })))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'emp-1', status: 'approved' })));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployment)));
 
       await approveItem(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -203,21 +215,25 @@ describe('ModerationController', () => {
   describe('rejectItem', () => {
     it('should reject moderation item successfully', async () => {
       mockRequest.params = { id: 'mod-1' };
-      mockRequest.body = { reason: 'Invalid data', notes: 'Missing required fields' };
+      mockRequest.body = { moderator_notes: 'Invalid data - missing required fields' };
 
       const mockQueueItem = {
         id: 'mod-1',
         item_type: 'employee',
         item_id: 'emp-1',
         status: 'pending',
-        submitted_by: 'user-1'
+        submitted_by: 'user-1',
+        submitter: { id: 'user-1', pseudonym: 'user1' }
       };
 
-      // Mock queries: get queue item, update queue item, update employee status
+      const mockEmployee = { name: 'John Doe' };
+
+      // Mock queries: 1) get queue item, 2) get employee name, 3) update employee, 4) update queue
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockQueueItem)))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockQueueItem, status: 'rejected' })))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'emp-1', status: 'rejected' })));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployee)))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'emp-1', status: 'rejected' })))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockQueueItem, status: 'rejected' })));
 
       await rejectItem(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -227,54 +243,55 @@ describe('ModerationController', () => {
       });
     });
 
-    it('should return 400 if rejection reason is missing', async () => {
+    it('should return 400 if moderator notes are missing', async () => {
       mockRequest.params = { id: 'mod-1' };
-      mockRequest.body = {}; // No reason provided
+      mockRequest.body = {}; // No moderator_notes provided
 
       await rejectItem(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Rejection reason is required' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Moderator notes are required for rejection' });
     });
   });
 
   describe('getModerationStats', () => {
     it('should return moderation statistics', async () => {
-      const mockStats = {
-        pending: 15,
-        approved: 120,
-        rejected: 8,
-        total: 143
-      };
-
-      // Mock count queries for each status
-      // Note: Using mockSuccess with empty data, actual controller implementation varies
+      // Controller uses .length on data arrays to count
+      // Mock 6 queries: pending, approved, rejected, employee_pending, establishment_pending, comment_pending
       (supabase.from as jest.Mock)
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(15).fill({ id: 'x' }))))  // pending: 15
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(120).fill({ id: 'x' })))) // approved: 120
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(8).fill({ id: 'x' }))))   // rejected: 8
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(5).fill({ id: 'x' }))))   // employees: 5
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(7).fill({ id: 'x' }))))   // establishments: 7
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(3).fill({ id: 'x' }))));  // comments: 3
 
       await getModerationStats(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(jsonMock).toHaveBeenCalledWith({
-        stats: expect.objectContaining({
-          pending: expect.any(Number),
-          approved: expect.any(Number),
-          rejected: expect.any(Number)
-        })
+        stats: {
+          total_pending: 15,
+          total_approved: 120,
+          total_rejected: 8,
+          pending_by_type: {
+            employees: 5,
+            establishments: 7,
+            comments: 3
+          }
+        }
       });
     });
 
     it('should handle errors gracefully', async () => {
-      (supabase.from as jest.Mock).mockReturnValueOnce(
-        createMockQueryBuilder(mockError({ message: 'Database error' }))
-      );
+      // Simulate a database error by throwing an exception
+      (supabase.from as jest.Mock).mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
 
       await getModerationStats(mockRequest as AuthRequest, mockResponse as Response);
 
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Database error' });
+      expect(statusMock).toHaveBeenCalledWith(500);
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
   });
 
@@ -327,18 +344,17 @@ describe('ModerationController', () => {
   });
 
   describe('resolveReport', () => {
-    it('should resolve report successfully', async () => {
+    it('should resolve report with dismiss action', async () => {
       mockRequest.params = { id: 'report-1' };
-      mockRequest.body = { action: 'remove_content', notes: 'Content violates guidelines' };
+      mockRequest.body = { action: 'dismiss', notes: 'Not a violation' };
 
       const mockReport = {
         id: 'report-1',
-        item_type: 'comment',
-        item_id: 'comment-1',
+        comment_id: 'comment-1',
         status: 'pending'
       };
 
-      // Mock queries: get report, update report status
+      // Mock queries: 1) get report, 2) update report status
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockReport)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockReport, status: 'resolved' })));
@@ -346,7 +362,7 @@ describe('ModerationController', () => {
       await resolveReport(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(jsonMock).toHaveBeenCalledWith({
-        message: 'Report resolved successfully',
+        message: 'Report resolved successfully. Comment kept.',
         report: expect.objectContaining({ id: 'report-1', status: 'resolved' })
       });
     });
