@@ -318,6 +318,125 @@ jobs:
 
 ---
 
+## 🚀 CI/CD Integration
+
+### GitHub Actions Workflow
+
+Les tests s'exécutent automatiquement sur chaque push/PR via GitHub Actions.
+
+**Workflow**: `.github/workflows/test.yml`
+
+**4 jobs parallèles**:
+1. **Backend Tests** - Jest avec coverage
+2. **Frontend Tests** - React Testing Library
+3. **Lint** - ESLint code quality
+4. **Type Check** - TypeScript compilation
+
+**Triggers**:
+```yaml
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+```
+
+**Voir détails**: [docs/development/CI_CD.md](./CI_CD.md)
+
+---
+
+## 📊 Coverage Requirements
+
+### Seuils Globaux
+
+```javascript
+// backend/jest.config.js
+coverageThreshold: {
+  global: {
+    statements: 70,
+    branches: 65,
+    functions: 70,
+    lines: 70
+  }
+}
+```
+
+### Seuils Services (Plus élevés)
+
+| Service | Statements | Branches | Functions | Lines |
+|---------|-----------|----------|-----------|-------|
+| gamificationService | 90% | 85% | 90% | 90% |
+| badgeAwardService | 85% | 80% | 85% | 85% |
+| pushService | 80% | 75% | 80% | 80% |
+
+### Coverage Actuelle
+
+| Module | Tests | Coverage | Status |
+|--------|-------|----------|--------|
+| **Middleware** | 33 tests | 85%+ | ✅ Excellent |
+| **Services** | 63 tests | 90%+ | ✅ Excellent |
+| **Controllers** | 130+ tests | 80%+ | ✅ Excellent |
+| **E2E** | 0 tests | 0% | ❌ À implémenter |
+| **Frontend** | 0 tests | 0% | ❌ À implémenter |
+
+### Commandes Coverage
+
+```bash
+# Backend coverage complet
+cd backend
+npm test -- --coverage
+
+# View HTML report
+open coverage/index.html
+
+# Coverage par service
+npm test services/__tests__ -- --coverage
+
+# Coverage par controller
+npm test controllers/__tests__ -- --coverage
+```
+
+### Codecov Integration
+
+Coverage reports automatiquement uploadés vers [Codecov](https://codecov.io) après chaque CI run.
+
+**Voir dans Codecov**:
+- Coverage trends over time
+- Line-by-line coverage
+- Coverage diffs dans PRs
+- Sunburst visualization
+
+---
+
+## 📚 Documentation Tests Supplémentaire
+
+### Service Testing
+
+Guide complet pour tester les services avec mocks Supabase:
+→ [docs/development/SERVICE_TESTING_GUIDE.md](./SERVICE_TESTING_GUIDE.md)
+
+**Topics couverts**:
+- Mock setup pattern
+- Testing pure functions
+- Testing async with database
+- Sequential queries
+- Error handling
+- Environment variables
+
+### CI/CD Documentation
+
+Guide complet GitHub Actions workflow:
+→ [docs/development/CI_CD.md](./CI_CD.md)
+
+**Topics couverts**:
+- Workflow overview
+- Job configuration
+- Coverage reports
+- Troubleshooting
+- Optimization tips
+
+---
+
 ## Dernière mise à jour
 
-v9.3.0 (Octobre 2025)
+v10.3.2 (Janvier 2025) - Ajout CI/CD + Coverage requirements
