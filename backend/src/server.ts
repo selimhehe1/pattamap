@@ -158,6 +158,22 @@ app.use(cors(corsOptions));
 // Cookie parser middleware
 app.use(cookieParser());
 
+// Determine if cookies should be secure
+// - Production: always true (HTTPS required)
+// - Development: true if COOKIES_SECURE=true or HTTPS_ENABLED=true in .env
+// - Test: false (for easier testing)
+const cookiesSecure = NODE_ENV === 'production' ||
+  process.env.COOKIES_SECURE === 'true' ||
+  process.env.HTTPS_ENABLED === 'true';
+
+// Log warning if cookies are not secure in development
+if (NODE_ENV === 'development' && !cookiesSecure) {
+  logger.warn('⚠️  SECURITY WARNING: Cookies are NOT secure in development');
+  logger.warn('⚠️  Cookies can be intercepted on local networks (MITM attacks)');
+  logger.warn('💡 Enable HTTPS in development: See backend/docs/HTTPS_DEV_SETUP.md');
+  logger.warn('💡 Or set COOKIES_SECURE=true in .env (requires HTTPS setup)');
+}
+
 // Session configuration for CSRF - Fixed session synchronization
 app.use(session({
   secret: process.env.SESSION_SECRET || 'pattamap-csrf-session-secret-dev',
@@ -165,7 +181,7 @@ app.use(session({
   saveUninitialized: false, // Don't create sessions until needed (set by csrfTokenGenerator)
   rolling: false, // Disable rolling to prevent session ID changes on each request
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: cookiesSecure,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax' // Allow same-site requests while preventing CSRF

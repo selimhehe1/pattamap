@@ -7,6 +7,12 @@ import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { generateCSRFToken } from '../middleware/csrf'; // 🔧 Import for token regeneration
 
+// Cookie security configuration (shared with server.ts)
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const COOKIES_SECURE = NODE_ENV === 'production' ||
+  process.env.COOKIES_SECURE === 'true' ||
+  process.env.HTTPS_ENABLED === 'true';
+
 // Input validation helpers
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -306,10 +312,9 @@ export const register = async (req: Request, res: Response) => {
       );
 
       // Set secure httpOnly cookie
-      const isProduction = process.env.NODE_ENV === 'production';
       res.cookie('auth-token', token, {
         httpOnly: true,
-        secure: isProduction, // HTTPS only in production
+        secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
         path: '/'
@@ -434,10 +439,9 @@ export const login = async (req: Request, res: Response) => {
     );
 
     // Set secure httpOnly cookie
-    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('auth-token', token, {
       httpOnly: true,
-      secure: isProduction, // HTTPS only in production
+      secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       path: '/'
@@ -647,7 +651,7 @@ export const logout = async (req: AuthRequest, res: Response) => {
     // Clear the httpOnly cookie
     res.clearCookie('auth-token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: COOKIES_SECURE,
       sameSite: 'strict',
       path: '/'
     });
