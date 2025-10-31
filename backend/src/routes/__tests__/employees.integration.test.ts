@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { csrfTokenGenerator } from '../../middleware/csrf';
 import employeeRoutes from '../employees';
 import { supabase } from '../../config/supabase';
+import { createMockChain, mockSupabaseAuth } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -92,19 +93,14 @@ describe('Employees Routes Integration Tests', () => {
         }
       ];
 
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        or: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
+      // Use createMockChain helper
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
           data: mockPendingEmployees,
           error: null,
           count: 1
         })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockQuery);
+      );
 
       const response = await request(app)
         .get('/api/employees?status=pending')
@@ -127,18 +123,13 @@ describe('Employees Routes Integration Tests', () => {
         comments: []
       };
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: mockEmployee,
-                error: null
-              })
-            })
-          })
+      // Use createMockChain helper - .single() auto-handled
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [mockEmployee], // Array for .single() handling
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/employees/emp-123')
@@ -149,18 +140,13 @@ describe('Employees Routes Integration Tests', () => {
     });
 
     it('should return 404 for non-existent employee', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: null,
-                error: { code: 'PGRST116' }
-              })
-            })
-          })
+      // Use createMockChain helper - empty array for .single() = 404
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [], // Empty array triggers PGRST116 error in .single()
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/employees/nonexistent-id')
@@ -249,25 +235,16 @@ describe('Employees Routes Integration Tests', () => {
     });
 
     it('should require authorization to update employee', async () => {
-      // Mock user lookup
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'testuser',
-                  email: 'user@test.com',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
-        })
-      });
+      // Mock user lookup using helper
+      const user = {
+        id: 'user-123',
+        pseudonym: 'testuser',
+        email: 'user@test.com',
+        role: 'user',
+        is_active: true
+      };
+
+      (supabase.from as jest.Mock) = mockSupabaseAuth(user);
 
       const response = await request(app)
         .put('/api/employees/emp-123')
@@ -281,26 +258,17 @@ describe('Employees Routes Integration Tests', () => {
 
   describe('POST /api/employees/my-profile', () => {
     it('should allow authenticated users to create own profile', async () => {
-      // Mock user lookup
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'testuser',
-                  email: 'user@test.com',
-                  role: 'user',
-                  is_active: true,
-                  account_type: 'employee'
-                },
-                error: null
-              })
-            })
-          })
-        })
-      });
+      // Mock user lookup using helper
+      const user = {
+        id: 'user-123',
+        pseudonym: 'testuser',
+        email: 'user@test.com',
+        role: 'user',
+        is_active: true,
+        account_type: 'employee'
+      };
+
+      (supabase.from as jest.Mock) = mockSupabaseAuth(user);
 
       const response = await request(app)
         .post('/api/employees/my-profile')
@@ -324,18 +292,13 @@ describe('Employees Routes Integration Tests', () => {
         { id: 'emp-2', name: 'Alicia' }
       ];
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            ilike: jest.fn().mockReturnValue({
-              limit: jest.fn().mockResolvedValue({
-                data: mockSuggestions,
-                error: null
-              })
-            })
-          })
+      // Use createMockChain helper
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: mockSuggestions,
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/employees/name-suggestions?search=ali')
@@ -347,25 +310,16 @@ describe('Employees Routes Integration Tests', () => {
 
   describe('DELETE /api/employees/:id', () => {
     it('should require admin role to delete', async () => {
-      // Mock regular user
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'testuser',
-                  email: 'user@test.com',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
-        })
-      });
+      // Mock regular user using helper
+      const user = {
+        id: 'user-123',
+        pseudonym: 'testuser',
+        email: 'user@test.com',
+        role: 'user',
+        is_active: true
+      };
+
+      (supabase.from as jest.Mock) = mockSupabaseAuth(user);
 
       const response = await request(app)
         .delete('/api/employees/emp-123')
