@@ -34,11 +34,9 @@ export const createMockChain = (finalData: any = { data: [], error: null }) => {
     chain[method] = jest.fn((...args) => {
       // Special handling for .select() with count option
       if (method === 'select' && args[1]?.count === 'exact') {
-        const data = chain._finalData.data;
-        return Promise.resolve({
-          count: Array.isArray(data) ? data.length : 0,
-          error: chain._finalData.error
-        });
+        // Mark this chain as a count query
+        chain._isCountQuery = true;
+        return chain; // Continue chaining for count queries
       }
 
       // Special handling for .single() - return Promise
@@ -70,6 +68,20 @@ export const createMockChain = (finalData: any = { data: [], error: null }) => {
 
   // Make chain itself awaitable - REAL Promise
   chain.then = function(resolve: any, reject?: any) {
+    // If this is a count query, return count format
+    if (chain._isCountQuery) {
+      const data = chain._finalData.data;
+      const count = chain._finalData.count !== undefined
+        ? chain._finalData.count
+        : (Array.isArray(data) ? data.length : 0);
+
+      return Promise.resolve({
+        count,
+        error: chain._finalData.error
+      }).then(resolve, reject);
+    }
+
+    // Normal query - return data format
     return Promise.resolve(chain._finalData).then(resolve, reject);
   };
 
