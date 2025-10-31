@@ -85,32 +85,66 @@ app.set('trust proxy', 1);
 app.use(sentryRequestMiddleware());
 
 // Security middleware - Helmet.js for HTTP headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for Swagger UI
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts for Swagger UI
-      imgSrc: ["'self'", "data:", "https:"], // Allow data URIs and HTTPS images
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'", "data:"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
-    }
-  },
-  crossOriginEmbedderPolicy: false,
-  hsts: {
-    maxAge: 31536000, // 1 year
-    includeSubDomains: true,
-    preload: true
-  },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  noSniff: true,
-  ieNoOpen: true,
-  frameguard: { action: 'deny' },
-  hidePoweredBy: true
-}));
+// 🔒 SECURITY: Conditional CSP - Strict by default, relaxed only for Swagger UI
+app.use((req, res, next) => {
+  // Relaxed CSP for Swagger UI (requires inline scripts/styles)
+  if (req.path.startsWith('/api-docs')) {
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"], // Required for Swagger UI
+          scriptSrc: ["'self'", "'unsafe-inline'"], // Required for Swagger UI
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'", "data:"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"]
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      noSniff: true,
+      ieNoOpen: true,
+      frameguard: { action: 'deny' },
+      hidePoweredBy: true
+    })(req, res, next);
+  } else {
+    // Strict CSP for application (NO unsafe-inline)
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'"], // ✅ HARDENED: No unsafe-inline
+          scriptSrc: ["'self'"], // ✅ HARDENED: No unsafe-inline
+          imgSrc: ["'self'", "data:", "https:"], // Allow data URIs and HTTPS images
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'", "data:"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"]
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      noSniff: true,
+      ieNoOpen: true,
+      frameguard: { action: 'deny' },
+      hidePoweredBy: true
+    })(req, res, next);
+  }
+});
 
 // 🚀 Response compression (gzip/brotli) - Reduces bandwidth by ~70%
 // Compresses all text-based responses (JSON, HTML, CSS, JS)
