@@ -23,6 +23,7 @@ import { supabase } from '../../config/supabase';
 import establishmentRoutes from '../../routes/establishments';
 import employeeRoutes from '../../routes/employees';
 import authRoutes from '../../routes/auth';
+import { createMockChain } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -89,15 +90,13 @@ describe('SQL Injection Security Tests', () => {
     );
 
     // Default mock: return empty results (no SQL errors)
-    (supabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      ilike: jest.fn().mockReturnThis(),
-      or: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      range: jest.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-      single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-    });
+    (supabase.from as jest.Mock).mockReturnValue(
+      createMockChain({
+        data: [],
+        error: null,
+        count: 0
+      })
+    );
   });
 
   describe('GET Query Parameters', () => {
