@@ -8,6 +8,7 @@ import { authenticateToken } from '../../middleware/auth';
 import notificationRoutes from '../notifications';
 import { supabase } from '../../config/supabase';
 import * as notificationHelper from '../../utils/notificationHelper';
+import { createMockChain } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -58,27 +59,19 @@ describe('Notification Routes Integration Tests', () => {
     // Mock Supabase user lookup (used by authenticateToken middleware)
     (supabase.from as jest.Mock).mockImplementation((table) => {
       if (table === 'users') {
-        return {
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
-                  data: {
-                    id: 'user-123',
-                    pseudonym: 'testuser',
-                    email: 'test@example.com',
-                    role: 'user',
-                    is_active: true,
-                    account_type: 'regular'
-                  },
-                  error: null
-                })
-              })
-            })
-          })
-        };
+        return createMockChain({
+          data: [{
+            id: 'user-123',
+            pseudonym: 'testuser',
+            email: 'test@example.com',
+            role: 'user',
+            is_active: true,
+            account_type: 'regular'
+          }],
+          error: null
+        });
       }
-      return {};
+      return createMockChain({ data: [], error: null });
     });
 
     authToken = 'test-jwt-token';
