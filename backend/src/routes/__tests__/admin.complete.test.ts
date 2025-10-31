@@ -60,52 +60,55 @@ const createDefaultChain = (finalData: any = { data: [], error: null }) => {
     _finalData: finalData
   };
 
-  const createChainMethod = (name: string) => {
-    chain[name] = jest.fn((...args) => {
-      // For 'single', simulate real Supabase behavior
-      if (name === 'single') {
+  // All chainable methods
+  const chainMethods = ['select', 'eq', 'or', 'order', 'range', 'limit', 'update', 'insert', 'delete', 'is', 'ilike', 'gte', 'in', 'neq', 'contains'];
+
+  chainMethods.forEach(method => {
+    chain[method] = jest.fn((...args) => {
+      // Special handling for .select() with count option
+      if (method === 'select' && args[1]?.count === 'exact') {
+        // Return Promise for count queries
         const data = chain._finalData.data;
-
-        // Simulate Supabase .single() behavior:
-        // - Empty array (0 rows) → error
-        // - Array with 1 item → return that item as object
-        // - Array with 2+ items → error
-        if (Array.isArray(data)) {
-          if (data.length === 0) {
-            // No rows found - return error like real Supabase
-            return Promise.resolve({
-              data: null,
-              error: { message: 'JSON object requested, multiple (or no) rows returned', code: 'PGRST116' }
-            });
-          } else if (data.length === 1) {
-            // Exactly 1 row - return as object (not array)
-            return Promise.resolve({
-              data: data[0],
-              error: null
-            });
-          } else {
-            // Multiple rows - return error like real Supabase
-            return Promise.resolve({
-              data: null,
-              error: { message: 'JSON object requested, multiple (or no) rows returned', code: 'PGRST116' }
-            });
-          }
-        }
-
-        // If data is already an object (not array), return as-is
-        return Promise.resolve(chain._finalData);
+        return Promise.resolve({
+          count: Array.isArray(data) ? data.length : 0,
+          error: chain._finalData.error
+        });
       }
-      // All other methods return the chain for further chaining
-      return chain;
+      return chain; // Continue chaining
     });
+  });
+
+  // .single() returns Promise
+  chain.single = jest.fn(() => {
+    const data = chain._finalData.data;
+    const error = chain._finalData.error;
+
+    if (Array.isArray(data)) {
+      if (data.length === 0) {
+        return Promise.resolve({
+          data: null,
+          error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }
+        });
+      } else if (data.length === 1) {
+        return Promise.resolve({ data: data[0], error: null });
+      } else {
+        return Promise.resolve({
+          data: null,
+          error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }
+        });
+      }
+    }
+    return Promise.resolve({ data, error });
+  });
+
+  // Make chain itself awaitable - REAL Promise
+  chain.then = function(resolve: any, reject?: any) {
+    return Promise.resolve(chain._finalData).then(resolve, reject);
   };
 
-  // Create all chainable methods
-  ['select', 'eq', 'is', 'order', 'limit', 'update', 'insert', 'delete', 'single'].forEach(createChainMethod);
-
-  // Make the chain awaitable - return final data when awaited
-  chain.then = (resolve: any) => Promise.resolve(chain._finalData).then(resolve);
-  chain.catch = (reject: any) => Promise.resolve(chain._finalData).catch(reject);
+  chain.catch = function(reject: any) {
+    return Promise.resolve(chain._finalData).catch(reject);
+  };
 
   return chain;
 };

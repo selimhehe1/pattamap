@@ -584,50 +584,46 @@ describe('MissionTrackingService', () => {
 
     describe('setMissionProgress', () => {
 
-      it('should skip update if mission already completed', async () => {
-        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain({ progress: 5, completed: true }, null));
-        (supabase.from as jest.Mock) = mockFrom;
-
-        await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 10);
-
-        expect(logger.debug).not.toHaveBeenCalledWith('Mission progress set', expect.any(Object));
-      });
-
-      it('should skip update if progress unchanged', async () => {
-        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain({ progress: 5, completed: false }, null));
-        (supabase.from as jest.Mock) = mockFrom;
-
-        await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 5);
-
-        expect(logger.debug).not.toHaveBeenCalledWith('Mission progress set', expect.any(Object));
-      });
-
-      it('should upsert progress and mark completed when threshold reached', async () => {
-        let callCount = 0;
-        const mockFrom = jest.fn((table) => {
-          callCount++;
-          if (callCount === 1) {
-            // First call: get current progress
-            return mockSupabaseChain(null, { code: 'PGRST116' }); // Not found
-          } else if (callCount === 2) {
-            // Second call: get mission details
-            return mockSupabaseChain({ ...mockDailyMission, requirements: { count: 5 } }, null);
-          } else {
-            // Third call: upsert progress
-            return mockSupabaseChain(null, null);
-          }
-        });
-        (supabase.from as jest.Mock) = mockFrom;
-
-        const mockRpc = jest.fn().mockResolvedValue({ data: null, error: null });
+      it('should call RPC function to set progress', async () => {
+        const mockRpc = jest.fn().mockResolvedValue({ data: true, error: null }); // completed = true
         (supabase.rpc as jest.Mock) = mockRpc;
 
+        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockDailyMission, null));
+        (supabase.from as jest.Mock) = mockFrom;
+
         await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 5);
 
+        expect(mockRpc).toHaveBeenCalledWith('set_mission_progress_absolute', {
+          p_user_id: mockUserId,
+          p_mission_id: mockMissionId,
+          p_new_progress: 5
+        });
         expect(logger.debug).toHaveBeenCalledWith('Mission progress set', expect.objectContaining({
           progress: 5,
           completed: true
         }));
+      });
+
+      it('should handle RPC errors gracefully', async () => {
+        const mockRpc = jest.fn().mockResolvedValue({ data: null, error: { message: 'RPC Error' } });
+        (supabase.rpc as jest.Mock) = mockRpc;
+
+        await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 5);
+
+        expect(logger.error).toHaveBeenCalledWith('Failed to set mission progress:', expect.any(Object));
+      });
+
+      it('should trigger completion handling when RPC returns completed=true', async () => {
+        const mockRpc = jest.fn().mockResolvedValue({ data: true, error: null }); // completed
+        (supabase.rpc as jest.Mock) = mockRpc;
+
+        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockDailyMission, null));
+        (supabase.from as jest.Mock) = mockFrom;
+
+        await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 5);
+
+        // Should call handleMissionCompletion which fetches mission details
+        expect(mockFrom).toHaveBeenCalledWith('missions');
       });
 
     });
@@ -642,27 +638,28 @@ describe('MissionTrackingService', () => {
 
     describe('handleMissionCompletion', () => {
 
-      it('should award XP and badge on mission completion', async () => {
-        const mockMissionWithBadge = {
+      it('should log completion and fetch mission details', async () => {
+        const mockMissionNoQuest = {
           ...mockDailyMission,
-          badge_reward: 'badge-123'
+          requirements: { type: 'check_in', count: 5 } // No quest_id
         };
 
-        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockMissionWithBadge, null));
+        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockMissionNoQuest, null));
         (supabase.from as jest.Mock) = mockFrom;
-
-        const mockRpc = jest.fn().mockResolvedValue({ data: null, error: null });
-        (supabase.rpc as jest.Mock) = mockRpc;
 
         await (missionTrackingService as any).handleMissionCompletion(mockUserId, mockMissionId);
 
-        expect(mockRpc).toHaveBeenCalledWith('award_xp', expect.objectContaining({
-          p_user_id: mockUserId,
-          p_xp_amount: mockDailyMission.xp_reward
+        // Should log completion
+        expect(logger.info).toHaveBeenCalledWith('Mission completed!', expect.objectContaining({
+          userId: mockUserId,
+          missionId: mockMissionId
         }));
 
-        expect(mockFrom).toHaveBeenCalledWith('user_badges');
-        expect(logger.info).toHaveBeenCalledWith('Mission completed!', expect.any(Object));
+        // Should fetch mission details
+        expect(mockFrom).toHaveBeenCalledWith('missions');
+
+        // NOTE: XP + badge are already awarded by RPC functions (update_mission_progress or set_mission_progress_absolute)
+        // This function ONLY handles quest unlocking, NOT rewards
       });
 
       it('should unlock next quest step for narrative missions', async () => {

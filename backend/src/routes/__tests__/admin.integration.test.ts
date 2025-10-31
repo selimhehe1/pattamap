@@ -56,7 +56,7 @@ describe('Admin Routes Integration Tests', () => {
   describe('Authorization Checks', () => {
     it('should return 401 Unauthorized without auth token', async () => {
       const response = await request(app)
-        .get('/api/admin/stats')
+        .get('/api/admin/dashboard-stats')
         .expect(401);
 
       expect(response.body).toHaveProperty('error');
@@ -85,7 +85,7 @@ describe('Admin Routes Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get('/api/admin/stats')
+        .get('/api/admin/dashboard-stats')
         .set('Cookie', [`auth-token=${userToken}`])
         .expect(403);
 
@@ -114,7 +114,7 @@ describe('Admin Routes Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get('/api/admin/stats')
+        .get('/api/admin/dashboard-stats')
         .set('Cookie', [`auth-token=${adminToken}`]);
 
       // Should succeed or fail gracefully (not 401/403)
@@ -122,7 +122,7 @@ describe('Admin Routes Integration Tests', () => {
     });
   });
 
-  describe('GET /api/admin/stats', () => {
+  describe('GET /api/admin/dashboard-stats', () => {
     it('should return dashboard statistics with parallel queries optimization', async () => {
       // Mock admin user
       (supabase.from as jest.Mock).mockImplementation((table) => {
@@ -164,14 +164,15 @@ describe('Admin Routes Integration Tests', () => {
       });
 
       const response = await request(app)
-        .get('/api/admin/stats')
+        .get('/api/admin/dashboard-stats')
         .set('Cookie', [`auth-token=${adminToken}`]);
 
       if (response.status === 200) {
-        expect(response.body).toHaveProperty('totalEstablishments');
-        expect(response.body).toHaveProperty('totalEmployees');
-        expect(response.body).toHaveProperty('totalUsers');
-        expect(response.body).toHaveProperty('totalComments');
+        expect(response.body).toHaveProperty('stats');
+        expect(response.body.stats).toHaveProperty('totalEstablishments');
+        expect(response.body.stats).toHaveProperty('totalEmployees');
+        expect(response.body.stats).toHaveProperty('totalUsers');
+        expect(response.body.stats).toHaveProperty('totalComments');
       }
 
       // Test should complete quickly due to Promise.all optimization

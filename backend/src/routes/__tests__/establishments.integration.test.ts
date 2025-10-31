@@ -7,6 +7,7 @@ import { csrfTokenGenerator, csrfProtection } from '../../middleware/csrf';
 import { authenticateToken, requireAdmin } from '../../middleware/auth';
 import establishmentRoutes from '../establishments';
 import { supabase } from '../../config/supabase';
+import { createMockChain, mockSupabaseAuth } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -84,19 +85,13 @@ describe('Establishments Routes Integration Tests', () => {
       ];
 
       // Mock the complex query chain for getEstablishments
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        or: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
           data: mockEstablishments,
           error: null,
           count: 2
         })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockQuery);
+      );
 
       const response = await request(app)
         .get('/api/establishments')
@@ -121,19 +116,13 @@ describe('Establishments Routes Integration Tests', () => {
       ];
 
       // Mock the complex query chain
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        or: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockResolvedValue({
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
           data: mockSoi6Establishments,
           error: null,
           count: 1
         })
-      };
-
-      (supabase.from as jest.Mock).mockReturnValue(mockQuery);
+      );
 
       const response = await request(app)
         .get('/api/establishments?zone=soi6')
@@ -144,20 +133,12 @@ describe('Establishments Routes Integration Tests', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              order: jest.fn().mockReturnValue({
-                range: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: 'Database connection failed' }
-                })
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: null,
+          error: { message: 'Database connection failed' }
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/establishments')
@@ -180,16 +161,12 @@ describe('Establishments Routes Integration Tests', () => {
         category: { id: 'cat-1', name: 'Bar', icon: '🍺', color: '#FF6B6B' }
       };
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: mockEstablishment,
-              error: null
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [mockEstablishment],
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/establishments/est-123')
@@ -202,16 +179,12 @@ describe('Establishments Routes Integration Tests', () => {
     });
 
     it('should return 404 for non-existent establishment', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: null,
-              error: { code: 'PGRST116', message: 'Not found' }
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [],
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/establishments/nonexistent-id')
