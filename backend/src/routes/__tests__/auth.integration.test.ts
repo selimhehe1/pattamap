@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { csrfTokenGenerator } from '../../middleware/csrf';
 import authRoutes from '../auth';
 import { supabase } from '../../config/supabase';
+import { createMockChain } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -45,29 +46,23 @@ describe('Auth Routes Integration Tests', () => {
       // Step 1: Register new user
       (supabase.from as jest.Mock).mockImplementation((table) => {
         if (table === 'users') {
-          return {
-            select: jest.fn().mockReturnValue({
-              eq: jest.fn().mockResolvedValue({
-                data: [], // No existing user
-                error: null
-              })
-            }),
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockResolvedValue({
-                data: [{
-                  id: 'new-user-123',
-                  pseudonym: 'newuser',
-                  email: 'newuser@test.com',
-                  role: 'user',
-                  is_active: true,
-                  account_type: 'regular'
-                }],
-                error: null
-              })
-            })
-          };
+          // Create mock with both select and insert support
+          const mockChain = createMockChain({
+            data: [{
+              id: 'new-user-123',
+              pseudonym: 'newuser',
+              email: 'newuser@test.com',
+              role: 'user',
+              is_active: true,
+              account_type: 'regular'
+            }],
+            error: null
+          });
+          // Add insert method that returns chain for insert().select()
+          (mockChain as any).insert = jest.fn().mockReturnValue(mockChain);
+          return mockChain;
         }
-        return {};
+        return createMockChain({ data: [], error: null });
       });
 
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
@@ -86,25 +81,19 @@ describe('Auth Routes Integration Tests', () => {
       expect([200, 201, 400]).toContain(registerResponse.status);
 
       // Step 2: Login with credentials
-      (supabase.from as jest.Mock).mockImplementation(() => ({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'newuser',
-                  email: 'newuser@test.com',
-                  password_hash: 'hashed_password',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [{
+            id: 'user-123',
+            pseudonym: 'newuser',
+            email: 'newuser@test.com',
+            password_hash: 'hashed_password',
+            role: 'user',
+            is_active: true
+          }],
+          error: null
         })
-      }));
+      );
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwt.sign as jest.Mock).mockReturnValue('login-jwt-token');
@@ -126,24 +115,18 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     it('should reject login with incorrect credentials', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  email: 'user@test.com',
-                  password_hash: 'hashed_password',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [{
+            id: 'user-123',
+            email: 'user@test.com',
+            password_hash: 'hashed_password',
+            role: 'user',
+            is_active: true
+          }],
+          error: null
         })
-      });
+      );
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
@@ -175,14 +158,12 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     it('should reject duplicate email', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: [{ id: 'existing-user', email: 'existing@test.com' }],
-            error: null
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [{ id: 'existing-user', email: 'existing@test.com' }],
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .post('/api/auth/register')
@@ -199,18 +180,12 @@ describe('Auth Routes Integration Tests', () => {
 
   describe('POST /api/auth/login', () => {
     it('should return 401 for non-existent user', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: null,
-                error: { code: 'PGRST116' }
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [], // Empty array for .single() = 404
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .post('/api/auth/login')
@@ -223,25 +198,19 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     it('should set httpOnly cookie on successful login', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'testuser',
-                  email: 'user@test.com',
-                  password_hash: 'hashed_password',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [{
+            id: 'user-123',
+            pseudonym: 'testuser',
+            email: 'user@test.com',
+            password_hash: 'hashed_password',
+            role: 'user',
+            is_active: true
+          }],
+          error: null
         })
-      });
+      );
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwt.sign as jest.Mock).mockReturnValue('jwt-token-123');
@@ -303,24 +272,18 @@ describe('Auth Routes Integration Tests', () => {
       );
 
       // Mock user lookup
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: {
-                  id: 'user-123',
-                  pseudonym: 'testuser',
-                  email: 'user@test.com',
-                  role: 'user',
-                  is_active: true
-                },
-                error: null
-              })
-            })
-          })
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({
+          data: [{
+            id: 'user-123',
+            pseudonym: 'testuser',
+            email: 'user@test.com',
+            role: 'user',
+            is_active: true
+          }],
+          error: null
         })
-      });
+      );
 
       const response = await request(app)
         .get('/api/auth/profile')
