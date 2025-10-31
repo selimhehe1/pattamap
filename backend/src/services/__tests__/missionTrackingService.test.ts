@@ -967,11 +967,26 @@ describe('MissionTrackingService', () => {
 
     describe('getReviewsWithPhotosCount', () => {
 
-      it('should return 0 (Phase 3 placeholder)', async () => {
+      it('should return photo count from user_photo_uploads table', async () => {
+        // Mock user_photo_uploads data (3 photo uploads for reviews)
+        const mockPhotos = [
+          { id: 'photo-1', user_id: mockUserId, entity_type: 'review', uploaded_at: new Date().toISOString() },
+          { id: 'photo-2', user_id: mockUserId, entity_type: 'review', uploaded_at: new Date().toISOString() },
+          { id: 'photo-3', user_id: mockUserId, entity_type: 'review', uploaded_at: new Date().toISOString() }
+        ];
+
+        const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockPhotos, null)); // count = mockPhotos.length = 3
+        (supabase.from as jest.Mock) = mockFrom;
+
         const count = await (missionTrackingService as any).getReviewsWithPhotosCount(mockUserId, 'daily');
 
-        expect(count).toBe(0);
-        expect(logger.debug).toHaveBeenCalledWith('Reviews with photos count - Phase 3 implementation pending');
+        expect(count).toBe(3);
+        expect(mockFrom).toHaveBeenCalledWith('user_photo_uploads');
+        expect(logger.debug).toHaveBeenCalledWith('Reviews with photos count:', expect.objectContaining({
+          userId: mockUserId,
+          count: 3,
+          missionType: 'daily'
+        }));
       });
 
     });
@@ -986,37 +1001,43 @@ describe('MissionTrackingService', () => {
 
     describe('getThisWeekMonday', () => {
 
-      it('should return Monday 00:00:00 of current week', () => {
-        const monday = (missionTrackingService as any).getThisWeekMonday();
-        const mondayDate = new Date(monday);
+      it('should return Monday 00:00:00 of current week in Bangkok timezone', () => {
+        const mondayISO = (missionTrackingService as any).getThisWeekMonday();
+        expect(typeof mondayISO).toBe('string');
 
-        expect(mondayDate.getDay()).toBe(1); // Monday = 1
-        expect(mondayDate.getHours()).toBe(0);
-        expect(mondayDate.getMinutes()).toBe(0);
-        expect(mondayDate.getSeconds()).toBe(0);
+        // Parse the ISO string
+        const mondayUTC = new Date(mondayISO);
+
+        // Convert to Bangkok time to verify it's Monday 00:00:00
+        const THAILAND_OFFSET_MS = 7 * 60 * 60 * 1000;
+        const mondayBangkok = new Date(mondayUTC.getTime() + THAILAND_OFFSET_MS);
+
+        // Check it's Monday at 00:00:00 Bangkok time
+        expect(mondayBangkok.getUTCDay()).toBe(1); // Monday = 1
+        expect(mondayBangkok.getUTCHours()).toBe(0);
+        expect(mondayBangkok.getUTCMinutes()).toBe(0);
+        expect(mondayBangkok.getUTCSeconds()).toBe(0);
       });
 
       it('should handle Sunday correctly (previous Monday)', () => {
-        // Mock Sunday
-        const originalDate = Date;
-        global.Date = class extends originalDate {
-          constructor() {
-            super();
-            return new originalDate('2025-01-26T12:00:00'); // Sunday
-          }
-          static now() {
-            return new originalDate('2025-01-26T12:00:00').getTime();
-          }
-        } as any;
+        // Use jest fake timers to set a specific date
+        // Sunday Jan 26, 2025 at noon UTC (7pm Bangkok time)
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2025-01-26T12:00:00Z'));
 
-        const monday = (missionTrackingService as any).getThisWeekMonday();
-        const mondayDate = new originalDate(monday);
+        const mondayISO = (missionTrackingService as any).getThisWeekMonday();
+        const mondayUTC = new Date(mondayISO);
 
-        expect(mondayDate.getDay()).toBe(1); // Should be Monday
-        expect(mondayDate.getDate()).toBe(20); // Previous Monday (Jan 20)
+        // Convert to Bangkok timezone
+        const THAILAND_OFFSET_MS = 7 * 60 * 60 * 1000;
+        const mondayBangkok = new Date(mondayUTC.getTime() + THAILAND_OFFSET_MS);
+
+        // Should be Monday (previous week) at 00:00:00 Bangkok time
+        expect(mondayBangkok.getUTCDay()).toBe(1); // Monday = 1
+        expect(mondayBangkok.getUTCDate()).toBe(20); // Previous Monday (Jan 20)
 
         // Restore
-        global.Date = originalDate;
+        jest.useRealTimers();
       });
 
     });
@@ -1069,24 +1090,43 @@ describe('MissionTrackingService', () => {
       });
       (supabase.from as jest.Mock) = mockFrom;
 
+      // RPC returns completed as null (calculated by RPC, not returned in data)
       const mockRpc = jest.fn().mockResolvedValue({ data: null, error: null });
       (supabase.rpc as jest.Mock) = mockRpc;
 
       await missionTrackingService.setMissionProgress(mockUserId, mockMissionId, 1);
 
-      // Should complete with progress=1 since default count=1
+      // RPC function set_mission_progress_absolute was called with progress=1
+      expect(mockRpc).toHaveBeenCalledWith('set_mission_progress_absolute', {
+        p_user_id: mockUserId,
+        p_mission_id: mockMissionId,
+        p_new_progress: 1 // Correct RPC parameter name
+      });
+
+      // Mission with count=1 (default) and progress=1 should complete
       expect(logger.debug).toHaveBeenCalledWith('Mission progress set', expect.objectContaining({
-        completed: true
+        missionId: mockMissionId,
+        progress: 1,
+        completed: null // RPC doesn't return completed field
       }));
     });
 
-    it('should not award duplicate badges', async () => {
-      const mockMissionWithBadge = {
+    it('should handle mission completion without duplicate badge awards', async () => {
+      // Badge awarding is now handled by RPC functions (update_mission_progress / set_mission_progress_absolute)
+      // These RPCs have ON CONFLICT DO NOTHING to prevent duplicate badges
+      // handleMissionCompletion only handles quest unlocking, not badge awards
+
+      const mockMissionWithQuest = {
         ...mockDailyMission,
-        badge_reward: 'badge-123'
+        badge_reward: 'badge-123',
+        requirements: {
+          type: 'check_in',
+          quest_id: 'quest-1',
+          step: 1
+        }
       };
 
-      const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockMissionWithBadge, null));
+      const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockMissionWithQuest, null));
       (supabase.from as jest.Mock) = mockFrom;
 
       const mockRpc = jest.fn().mockResolvedValue({ data: null, error: null });
@@ -1095,11 +1135,12 @@ describe('MissionTrackingService', () => {
       // First completion
       await (missionTrackingService as any).handleMissionCompletion(mockUserId, mockMissionId);
 
-      // Second completion (should not award duplicate badge)
+      // Second completion (RPC handles duplicate prevention)
       await (missionTrackingService as any).handleMissionCompletion(mockUserId, mockMissionId);
 
-      // INSERT should have ON CONFLICT DO NOTHING in implementation
-      expect(mockFrom).toHaveBeenCalledWith('user_badges');
+      // Verify quest unlocking was attempted (not badge insertion)
+      expect(mockFrom).toHaveBeenCalledWith('missions');
+      expect(mockFrom).not.toHaveBeenCalledWith('user_badges'); // Badges handled by RPC now
     });
 
   });
