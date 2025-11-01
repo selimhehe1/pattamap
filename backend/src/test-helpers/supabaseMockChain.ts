@@ -27,7 +27,7 @@ export const createMockChain = (finalData: any = { data: [], error: null }) => {
   const chainMethods = [
     'select', 'eq', 'or', 'and', 'order', 'range', 'limit', 'update',
     'insert', 'delete', 'is', 'ilike', 'gte', 'lte', 'gt', 'lt',
-    'in', 'neq', 'contains', 'filter', 'not', 'match', 'single'
+    'in', 'neq', 'contains', 'filter', 'not', 'match', 'single', 'maybeSingle'
   ];
 
   chainMethods.forEach(method => {
@@ -50,6 +50,26 @@ export const createMockChain = (finalData: any = { data: [], error: null }) => {
               data: null,
               error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }
             });
+          } else if (data.length === 1) {
+            return Promise.resolve({ data: data[0], error: null });
+          } else {
+            return Promise.resolve({
+              data: null,
+              error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }
+            });
+          }
+        }
+        return Promise.resolve({ data, error });
+      }
+
+      // Special handling for .maybeSingle() - return Promise (null instead of error for 0 rows)
+      if (method === 'maybeSingle') {
+        const data = chain._finalData.data;
+        const error = chain._finalData.error;
+
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            return Promise.resolve({ data: null, error: null });
           } else if (data.length === 1) {
             return Promise.resolve({ data: data[0], error: null });
           } else {
