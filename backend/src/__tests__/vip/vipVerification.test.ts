@@ -11,6 +11,7 @@ import request from 'supertest';
 import express from 'express';
 import { getVIPTransactions, verifyPayment, rejectPayment } from '../../controllers/vipController';
 import { supabase } from '../../config/supabase';
+import { createDefaultChain } from '../../test-helpers/createDefaultChain';
 import { authenticateToken } from '../../middleware/auth';
 import { csrfProtection } from '../../middleware/csrf';
 import { requireAdmin } from '../../middleware/auth';
@@ -72,9 +73,20 @@ describe('VIP Admin Verification Tests', () => {
         }
       ];
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue({ data: mockTransactions, error: null })
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({ data: mockTransactions, error: null })
+          };
+        } else if (table === 'employee_vip_subscriptions' || table === 'establishment_vip_subscriptions') {
+          // Mock subscription queries for each transaction
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null })
+          };
+        }
       });
 
       const response = await request(app)
@@ -91,15 +103,26 @@ describe('VIP Admin Verification Tests', () => {
       const mockPendingTransactions = [
         {
           id: 'transaction-1',
+          subscription_type: 'employee',
           payment_status: 'pending',
           amount: 3600
         }
       ];
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue({ data: mockPendingTransactions, error: null })
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({ data: mockPendingTransactions, error: null })
+          };
+        } else if (table === 'employee_vip_subscriptions' || table === 'establishment_vip_subscriptions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null })
+          };
+        }
       });
 
       const response = await request(app)
@@ -114,15 +137,26 @@ describe('VIP Admin Verification Tests', () => {
       const mockCashTransactions = [
         {
           id: 'transaction-1',
+          subscription_type: 'employee',
           payment_method: 'cash',
           amount: 3600
         }
       ];
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue({ data: mockCashTransactions, error: null })
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({ data: mockCashTransactions, error: null })
+          };
+        } else if (table === 'employee_vip_subscriptions' || table === 'establishment_vip_subscriptions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null })
+          };
+        }
       });
 
       const response = await request(app)
@@ -159,18 +193,29 @@ describe('VIP Admin Verification Tests', () => {
             id: 'employee-1',
             name: 'Jane Doe',
             nickname: 'JD'
-          },
-          subscription: {
-            tier: 'employee',
-            duration: 30,
-            expires_at: new Date().toISOString()
           }
         }
       ];
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        order: jest.fn().mockResolvedValue({ data: mockTransactionsWithJoins, error: null })
+      const mockSubscription = {
+        tier: 'employee',
+        duration: 30,
+        expires_at: new Date().toISOString()
+      };
+
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({ data: mockTransactionsWithJoins, error: null })
+          };
+        } else if (table === 'employee_vip_subscriptions' || table === 'establishment_vip_subscriptions') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn().mockResolvedValue({ data: mockSubscription, error: null })
+          };
+        }
       });
 
       const response = await request(app)
@@ -190,7 +235,8 @@ describe('VIP Admin Verification Tests', () => {
         id: 'transaction-123',
         subscription_id: 'sub-123',
         subscription_type: 'employee',
-        payment_status: 'pending'
+        payment_status: 'pending',
+        payment_method: 'cash'
       };
 
       const mockSubscription = {
@@ -210,6 +256,13 @@ describe('VIP Admin Verification Tests', () => {
         ...mockSubscription,
         status: 'active'
       };
+
+      // Mock user admin check (FIRST call in controller)
+      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: { role: 'admin' }, error: null })
+      }));
 
       // Mock transaction fetch
       (supabase.from as jest.Mock).mockImplementationOnce(() => ({
@@ -254,10 +307,20 @@ describe('VIP Admin Verification Tests', () => {
     });
 
     it('should return 404 if transaction does not exist', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'users') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: { role: 'admin' }, error: null })
+          };
+        } else {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
+          };
+        }
       });
 
       const response = await request(app)
@@ -273,13 +336,24 @@ describe('VIP Admin Verification Tests', () => {
     it('should return 400 if payment is already verified', async () => {
       const mockTransaction = {
         id: 'transaction-123',
-        payment_status: 'completed' // Already completed
+        payment_status: 'completed', // Already completed
+        payment_method: 'cash'
       };
 
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockTransaction, error: null })
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'users') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: { role: 'admin' }, error: null })
+          };
+        } else {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: mockTransaction, error: null })
+          };
+        }
       });
 
       const response = await request(app)
@@ -297,7 +371,8 @@ describe('VIP Admin Verification Tests', () => {
         id: 'transaction-123',
         subscription_id: 'sub-123',
         subscription_type: 'employee',
-        payment_status: 'pending'
+        payment_status: 'pending',
+        payment_method: 'cash'
       };
 
       const mockSubscription = {
@@ -308,6 +383,12 @@ describe('VIP Admin Verification Tests', () => {
       let capturedUpdate: any;
 
       (supabase.from as jest.Mock)
+        // Mock user admin check (FIRST call in controller)
+        .mockImplementationOnce(() => ({
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          single: jest.fn().mockResolvedValue({ data: { role: 'admin' }, error: null })
+        }))
         .mockImplementationOnce(() => ({
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
@@ -361,7 +442,8 @@ describe('VIP Admin Verification Tests', () => {
         id: 'transaction-123',
         subscription_id: 'sub-123',
         subscription_type: 'employee',
-        payment_status: 'pending'
+        payment_status: 'pending',
+        payment_method: 'cash'
       };
 
       const mockSubscription = {
@@ -382,6 +464,12 @@ describe('VIP Admin Verification Tests', () => {
       };
 
       (supabase.from as jest.Mock)
+        // Mock user admin check (FIRST call in controller)
+        .mockImplementationOnce(() => ({
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          single: jest.fn().mockResolvedValue({ data: { role: 'admin' }, error: null })
+        }))
         .mockImplementationOnce(() => ({
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
@@ -457,7 +545,8 @@ describe('VIP Admin Verification Tests', () => {
         id: 'transaction-123',
         subscription_id: 'sub-123',
         subscription_type: 'employee',
-        payment_status: 'pending'
+        payment_status: 'pending',
+        payment_method: 'cash'
       };
 
       const mockSubscription = {

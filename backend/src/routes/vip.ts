@@ -15,7 +15,7 @@ import {
   getVIPTransactions,
   rejectPayment,
 } from '../controllers/vipController';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { vipPurchaseRateLimit, vipStatusCheckRateLimit } from '../middleware/rateLimit';
 
@@ -420,7 +420,7 @@ router.patch(
  *       500:
  *         description: Server error
  */
-router.post('/admin/vip/verify-payment/:transactionId', authenticateToken, csrfProtection, verifyPayment);
+router.post('/admin/vip/verify-payment/:transactionId', authenticateToken, requireAdmin, csrfProtection, verifyPayment);
 
 /**
  * @swagger
@@ -536,7 +536,7 @@ router.post('/admin/vip/verify-payment/:transactionId', authenticateToken, csrfP
  *       500:
  *         description: Server error
  */
-router.get('/admin/vip/transactions', authenticateToken, getVIPTransactions);
+router.get('/admin/vip/transactions', authenticateToken, requireAdmin, getVIPTransactions);
 
 /**
  * @swagger
@@ -593,6 +593,6 @@ router.get('/admin/vip/transactions', authenticateToken, getVIPTransactions);
  *       500:
  *         description: Server error
  */
-router.post('/admin/vip/reject-payment/:transactionId', authenticateToken, csrfProtection, rejectPayment);
+router.post('/admin/vip/reject-payment/:transactionId', authenticateToken, requireAdmin, csrfProtection, rejectPayment);
 
 export default router;

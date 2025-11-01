@@ -32,7 +32,7 @@ import {
   mockEstablishment,
   mockVIPSubscription,
   mockPaymentTransaction,
-} from './helpers/mockOwnership';
+} from '../../test-helpers/mockOwnership';
 
 // Import mock helpers FIRST
 import { createMockQueryBuilder, mockSuccess, mockNotFound } from '../../config/__mocks__/supabase';
