@@ -13,7 +13,7 @@ Améliorer la qualité et la maintenabilité de la suite de tests en:
 
 | Métrique | Avant | Après | Amélioration |
 |----------|-------|-------|--------------|
-| Tests passants | 516/578 (89.1%) | 533/592 (90.0%) | +17 tests, +0.9% |
+| Tests passants | 516/578 (89.1%) | 534/592 (90.2%) | +18 tests, +1.1% |
 | Fichiers refactorisés | 0 | 8 | +8 fichiers |
 | Code nettoyé | - | -45 lignes | -45 lignes |
 | Commits créés | - | 8 | +8 commits |
@@ -39,6 +39,16 @@ Améliorer la qualité et la maintenabilité de la suite de tests en:
 8. **948b878** - refactor(security): Replace manual mock with createMockChain in SQL injection tests
    - ✅ 5/13 tests fixés
    - Sécurité SQL injection validée
+
+9. **cc124bd** - docs(tests): Add comprehensive test refactoring documentation
+   - Documentation complète du refactoring
+   - Patterns recommandés
+   - Leçons apprises
+
+10. **1d6783f** - feat(test-helpers): Add .maybeSingle() support to createMockChain
+    - ✅ +1 test fixé (534/592 = 90.2%)
+    - Support .maybeSingle() pour queries optionnelles
+    - Correction comportement: null sans erreur pour 0 rows
 
 ## 🔧 Bug Critique Résolu: Count Query
 
