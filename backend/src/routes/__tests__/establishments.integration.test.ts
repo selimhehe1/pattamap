@@ -265,6 +265,7 @@ describe('Establishments Routes Integration Tests', () => {
         .post('/api/establishments')
         .send({
           name: 'New Bar',
+          address: '123 Soi 6',
           zone: 'soi6',
           grid_row: 1,
           grid_col: 1,

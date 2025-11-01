@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth';
+import { authenticateToken, requireRole, requireAdmin, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { supabase } from '../config/supabase';
 import express from 'express';
 import { logger } from '../utils/logger';
@@ -432,10 +433,10 @@ router.get('/:id', getEstablishment);
 // router.patch('/:id/grid-position', authenticateToken, updateEstablishmentGridPosition);
 
 // Protected routes - UPDATE ESTABLISHMENT ENABLED FOR ADMIN EDITING
-router.put('/:id', authenticateToken, updateEstablishment);
+router.put('/:id', authenticateToken, requireAdmin, csrfProtection, updateEstablishment);
 
 // Create establishment route
-router.post('/', authenticateToken, createEstablishment);
+router.post('/', authenticateToken, requireAdmin, csrfProtection, createEstablishment);
 
 // Delete route still disabled until needed
 // router.delete('/:id', authenticateToken, deleteEstablishment);
