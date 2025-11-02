@@ -764,7 +764,7 @@ router.post('/employees/:id/approve', async (req, res) => {
 
     const { data, error } = await supabase
       .from('employees')
-      .update({ 
+      .update({
         status: 'approved',
         updated_at: new Date().toISOString()
       })
@@ -772,7 +772,10 @@ router.post('/employees/:id/approve', async (req, res) => {
       .select('*')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'Employee not found' });
+      }
       throw error;
     }
 
@@ -819,6 +822,20 @@ router.get('/user-stats/:id', authenticateToken, requireRole(['admin', 'moderato
   try {
     const { id } = req.params;
     logger.debug('📊 Fetching user stats for:', id);
+
+    // First check if user exists
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (userError || !user) {
+      if (userError?.code === 'PGRST116' || !user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      throw userError;
+    }
 
     // Compter les établissements soumis par l'utilisateur
     const { data: establishmentsData, error: estError } = await supabase
@@ -961,7 +978,10 @@ router.put('/users/:id', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'User not found' });
+      }
       throw error;
     }
 
@@ -984,7 +1004,7 @@ router.post('/users/:id/role', async (req, res) => {
 
     const { data, error } = await supabase
       .from('users')
-      .update({ 
+      .update({
         role,
         updated_at: new Date().toISOString()
       })
@@ -992,7 +1012,10 @@ router.post('/users/:id/role', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'User not found' });
+      }
       throw error;
     }
 
@@ -1011,7 +1034,7 @@ router.post('/users/:id/toggle-active', async (req, res) => {
 
     const { data, error } = await supabase
       .from('users')
-      .update({ 
+      .update({
         is_active,
         updated_at: new Date().toISOString()
       })
@@ -1019,7 +1042,10 @@ router.post('/users/:id/toggle-active', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'User not found' });
+      }
       throw error;
     }
 
@@ -1325,7 +1351,7 @@ router.post('/comments/:id/approve', async (req, res) => {
 
     const { data, error } = await supabase
       .from('comments')
-      .update({ 
+      .update({
         status: 'approved',
         updated_at: new Date().toISOString()
       })
@@ -1333,7 +1359,10 @@ router.post('/comments/:id/approve', async (req, res) => {
       .select('*')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
       throw error;
     }
 
@@ -1352,7 +1381,7 @@ router.post('/comments/:id/reject', async (req, res) => {
 
     const { data, error } = await supabase
       .from('comments')
-      .update({ 
+      .update({
         status: 'rejected',
         updated_at: new Date().toISOString()
       })
@@ -1360,7 +1389,10 @@ router.post('/comments/:id/reject', async (req, res) => {
       .select('*')
       .single();
 
-    if (error) {
+    if (error || !data) {
+      if (error?.code === 'PGRST116' || !data) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
       throw error;
     }
 
@@ -1376,10 +1408,24 @@ router.post('/comments/:id/dismiss-reports', async (req, res) => {
   try {
     const { id } = req.params;
 
+    // First check if comment exists
+    const { data: comment, error: commentError } = await supabase
+      .from('comments')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (commentError || !comment) {
+      if (commentError?.code === 'PGRST116' || !comment) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+      throw commentError;
+    }
+
     // Marquer tous les signalements comme rejetés
     const { error } = await supabase
       .from('reports')
-      .update({ 
+      .update({
         status: 'dismissed',
         updated_at: new Date().toISOString()
       })
