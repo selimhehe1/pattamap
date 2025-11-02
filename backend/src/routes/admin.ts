@@ -2,6 +2,7 @@ import express, { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
+import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
 
 const router = express.Router();
 
@@ -512,6 +513,16 @@ router.post('/establishments/:id/approve', async (req, res) => {
       throw error;
     }
 
+    // Send approval notification to content creator
+    if (data.created_by) {
+      await notifyUserContentApproved(
+        data.created_by,
+        'establishment',
+        data.name,
+        data.id
+      );
+    }
+
     res.json({ establishment: data });
   } catch (error: any) {
     logger.error('Error approving establishment:', error);
@@ -585,6 +596,16 @@ router.post('/establishments/:id/reject', async (req, res) => {
 
     if (error) {
       throw error;
+    }
+
+    // Send rejection notification to content creator
+    if (data.created_by) {
+      await notifyUserContentRejected(
+        data.created_by,
+        'establishment',
+        reason,
+        data.id
+      );
     }
 
     // TODO: Optionellement enregistrer la raison du rejet dans une table séparée
@@ -849,6 +870,16 @@ router.post('/employees/:id/approve', async (req, res) => {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
+    // Send approval notification to content creator
+    if (data.created_by) {
+      await notifyUserContentApproved(
+        data.created_by,
+        'employee',
+        data.name,
+        data.id
+      );
+    }
+
     res.json({ employee: data });
   } catch (error: any) {
     logger.error('Error approving employee:', error);
@@ -882,6 +913,16 @@ router.post('/employees/:id/reject', async (req, res) => {
 
     if (error) {
       throw error;
+    }
+
+    // Send rejection notification to content creator
+    if (data.created_by) {
+      await notifyUserContentRejected(
+        data.created_by,
+        'employee',
+        reason,
+        data.id
+      );
     }
 
     res.json({ employee: data });
