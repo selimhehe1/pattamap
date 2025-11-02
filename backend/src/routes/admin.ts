@@ -346,6 +346,22 @@ router.put('/establishments/:id', async (req, res) => {
     logger.debug('Establishment ID received:', id);
     logger.debug('Request Body:', JSON.stringify(req.body, null, 2));
 
+    // Define allowed fields for establishment updates
+    const allowedFieldNames = ['name', 'address', 'description', 'phone', 'website', 'logo_url', 'opening_hours', 'services', 'category_id', 'zone', 'grid_row', 'grid_col', 'ladydrink', 'barfine', 'rooms', 'location', 'status', 'pricing'];
+
+    // Check for invalid fields
+    const receivedFields = Object.keys(updateData);
+    const invalidFields = receivedFields.filter(field => !allowedFieldNames.includes(field));
+
+    if (invalidFields.length > 0) {
+      return res.status(400).json({
+        code: 'INVALID_FIELDS',
+        error: 'Invalid fields provided',
+        invalidFields,
+        allowedFields: allowedFieldNames
+      });
+    }
+
     // Convert numeric ID to UUID if necessary
     const realUuid = await findUuidByNumber('establishments', id);
     if (!realUuid) {
@@ -509,6 +525,14 @@ router.post('/establishments/:id/reject', async (req, res) => {
     const { id } = req.params;
     const { reason } = req.body;
 
+    // Validate rejection reason is provided
+    if (!reason || reason.trim() === '') {
+      return res.status(400).json({
+        code: 'REASON_REQUIRED',
+        error: 'Rejection reason is required'
+      });
+    }
+
     logger.debug('=== ESTABLISHMENT REJECT DEBUG ===');
     logger.debug('Establishment ID received for rejection:', id);
 
@@ -651,6 +675,22 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
     logger.debug('=== EMPLOYEE UPDATE DEBUG ===');
     logger.debug('Employee ID received:', id);
     logger.debug('Request Body:', JSON.stringify(req.body, null, 2));
+
+    // Define allowed fields for employee updates
+    const allowedFields = ['name', 'nickname', 'age', 'nationality', 'description', 'photos', 'social_media', 'status', 'self_removal_requested'];
+
+    // Check for invalid fields
+    const receivedFields = Object.keys(updateData);
+    const invalidFields = receivedFields.filter(field => !allowedFields.includes(field));
+
+    if (invalidFields.length > 0) {
+      return res.status(400).json({
+        code: 'INVALID_FIELDS',
+        error: 'Invalid fields provided',
+        invalidFields,
+        allowedFields
+      });
+    }
 
     // Convert numeric ID to UUID if necessary
     const realUuid = await findUuidByNumber('employees', id);
@@ -795,9 +835,17 @@ router.post('/employees/:id/reject', async (req, res) => {
     const { id } = req.params;
     const { reason } = req.body;
 
+    // Validate rejection reason is provided
+    if (!reason || reason.trim() === '') {
+      return res.status(400).json({
+        code: 'REASON_REQUIRED',
+        error: 'Rejection reason is required'
+      });
+    }
+
     const { data, error } = await supabase
       .from('employees')
-      .update({ 
+      .update({
         status: 'rejected',
         updated_at: new Date().toISOString()
       })
@@ -970,6 +1018,22 @@ router.put('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    // Define allowed fields for user updates
+    const allowedFields = ['pseudonym', 'email', 'role', 'is_active'];
+
+    // Check for invalid fields
+    const receivedFields = Object.keys(updateData);
+    const invalidFields = receivedFields.filter(field => !allowedFields.includes(field));
+
+    if (invalidFields.length > 0) {
+      return res.status(400).json({
+        code: 'INVALID_FIELDS',
+        error: 'Invalid fields provided',
+        invalidFields,
+        allowedFields
+      });
+    }
 
     // Retirer les champs calculés/non modifiables et sensibles
     const { id: _, created_at, updated_at, stats, password, ...cleanData } = updateData;
