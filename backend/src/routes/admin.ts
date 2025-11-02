@@ -596,6 +596,33 @@ router.post('/establishments/:id/reject', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/establishments/:id - Supprimer un établissement
+router.delete('/establishments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from('establishments')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Establishment not found' });
+      }
+      // Database error (constraint violation, etc.) - return 500
+      throw error;
+    }
+
+    res.json({ message: 'Establishment deleted successfully', establishment: data });
+  } catch (error: any) {
+    logger.error('Error deleting establishment:', error);
+    res.status(500).json({ error: 'Failed to delete establishment' });
+  }
+});
+
 // ========================================
 // EMPLOYEES MANAGEMENT
 // ========================================
@@ -1108,6 +1135,18 @@ router.post('/users/:id/toggle-active', async (req, res) => {
     const { id } = req.params;
     const { is_active } = req.body;
 
+    // First check if user exists
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (checkError || !existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Then update the user
     const { data, error } = await supabase
       .from('users')
       .update({
@@ -1119,9 +1158,7 @@ router.post('/users/:id/toggle-active', async (req, res) => {
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ error: 'User not found' });
-      }
+      // Database error during update - return 500
       throw error;
     }
     if (!data) {
