@@ -772,11 +772,14 @@ router.post('/employees/:id/approve', async (req, res) => {
       .select('*')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'Employee not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'Employee not found' });
     }
 
     res.json({ employee: data });
@@ -830,11 +833,14 @@ router.get('/user-stats/:id', authenticateToken, requireRole(['admin', 'moderato
       .eq('id', id)
       .single();
 
-    if (userError || !user) {
-      if (userError?.code === 'PGRST116' || !user) {
+    if (userError) {
+      if (userError.code === 'PGRST116') {
         return res.status(404).json({ error: 'User not found' });
       }
       throw userError;
+    }
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     // Compter les établissements soumis par l'utilisateur
@@ -978,11 +984,14 @@ router.put('/users/:id', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'User not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({ user: data });
@@ -1012,11 +1021,14 @@ router.post('/users/:id/role', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'User not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({ user: data });
@@ -1042,11 +1054,14 @@ router.post('/users/:id/toggle-active', async (req, res) => {
       .select('id, pseudonym, email, role, created_at, updated_at, is_active')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'User not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({ user: data });
@@ -1359,11 +1374,14 @@ router.post('/comments/:id/approve', async (req, res) => {
       .select('*')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'Comment not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'Comment not found' });
     }
 
     res.json({ comment: data });
@@ -1389,11 +1407,14 @@ router.post('/comments/:id/reject', async (req, res) => {
       .select('*')
       .single();
 
-    if (error || !data) {
-      if (error?.code === 'PGRST116' || !data) {
+    if (error) {
+      if (error.code === 'PGRST116') {
         return res.status(404).json({ error: 'Comment not found' });
       }
       throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: 'Comment not found' });
     }
 
     res.json({ comment: data });
@@ -1415,11 +1436,14 @@ router.post('/comments/:id/dismiss-reports', async (req, res) => {
       .eq('id', id)
       .single();
 
-    if (commentError || !comment) {
-      if (commentError?.code === 'PGRST116' || !comment) {
+    if (commentError) {
+      if (commentError.code === 'PGRST116') {
         return res.status(404).json({ error: 'Comment not found' });
       }
       throw commentError;
+    }
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
     }
 
     // Marquer tous les signalements comme rejetés
