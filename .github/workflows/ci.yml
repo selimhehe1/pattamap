@@ -105,13 +105,14 @@ jobs:
           retention-days: 7
 
   # ============================================
-  # E2E Tests (only on main/develop push)
+  # E2E Tests (disabled - requires running backend/database)
+  # TODO: Enable when we have a proper test environment
   # ============================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [frontend, backend]
-    if: github.event_name == 'push'
+    if: false # Disabled until we have proper E2E infrastructure
 
     steps:
       - name: Checkout code
