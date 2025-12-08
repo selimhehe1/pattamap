@@ -158,6 +158,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
           SENTRY_DSN: ""
