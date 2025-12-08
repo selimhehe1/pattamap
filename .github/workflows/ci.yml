@@ -145,8 +145,13 @@ jobs:
 
       - name: Start backend server
         run: |
-          npm start &
-          sleep 5
+          echo "Starting backend server..."
+          npm start > backend.log 2>&1 &
+          echo "Backend PID: $!"
+          sleep 10
+          echo "=== Backend log (first 50 lines) ==="
+          head -50 backend.log || echo "No log yet"
+          echo "=== End backend log ==="
         working-directory: backend
         env:
           NODE_ENV: test
@@ -155,6 +160,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+          SENTRY_DSN: ""
 
       - name: Start frontend server
         run: |
@@ -167,7 +173,11 @@ jobs:
           timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
           echo "Frontend ready!"
           echo "Waiting for backend..."
-          timeout 30 bash -c 'until curl -s http://localhost:8080/api/health > /dev/null 2>&1 || curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 1; done'
+          echo "Checking backend process..."
+          ps aux | grep node || true
+          echo "Checking backend log..."
+          cat backend/backend.log || true
+          timeout 60 bash -c 'until curl -s http://localhost:8080/api/health > /dev/null 2>&1 || curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; echo "Retrying..."; done'
           echo "Backend ready!"
 
       - name: Run E2E tests
