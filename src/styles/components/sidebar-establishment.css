@@ -330,6 +330,7 @@
 .sidebar-category-header-nightlife {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   background: linear-gradient(135deg, rgba(193, 154, 107, 0.25), rgba(193, 154, 107, 0.25));

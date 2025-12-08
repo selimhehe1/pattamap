@@ -10,7 +10,7 @@ import './MyAchievementsPage.css';
 
 const MyAchievementsPage: React.FC = () => {
   const { user } = useAuth();
-  const { userProgress, loading } = useGamification();
+  const { userProgress, loading: _loading } = useGamification();
   const [activeTab, setActiveTab] = useState<'overview' | 'badges' | 'missions' | 'leaderboard'>('overview');
 
   if (!user) {

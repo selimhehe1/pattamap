@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
 import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 import '../../styles/components/modal-forms.css';
 
 interface ClaimEmployeeModalProps {
@@ -67,7 +68,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
           setShowSuggestions(true);
         }
       } catch (error) {
-        console.error('Search error:', error);
+        logger.error('Search error:', error);
       } finally {
         setIsSearching(false);
       }
@@ -111,7 +112,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
         }
       }
     } catch (error) {
-      console.error('Employee search error:', error);
+      logger.error('Employee search error:', error);
       toast.error(t('claimEmployeeModal.errorSearchFailed'));
     }
   };

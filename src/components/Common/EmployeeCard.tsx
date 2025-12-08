@@ -3,7 +3,11 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import LazyImage from './LazyImage';
+import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/components/employee-card.css';
+
+// Feature flag check
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -48,8 +52,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
   const hasRating = employee.average_rating !== undefined && employee.average_rating > 0;
 
-  // Check if employee is VIP (active subscription)
-  const isVIP = employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date();
+  // Check if employee is VIP (active subscription) - only if VIP feature is enabled
+  const isVIP = VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date();
 
   return (
     <motion.div
@@ -187,8 +191,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
             return null;
           })()}
 
-          {/* VIP Badge - Bottom Right - v10.3 Phase 4 - Crown via CSS ::before */}
-          {employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date() && (
+          {/* VIP Badge - Bottom Right - v10.3 Phase 4 - Crown via CSS ::before (only if VIP feature enabled) */}
+          {VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date() && (
             <div
               className="employee-card-vip-badge"
               title={`VIP until ${new Date(employee.vip_expires_at).toLocaleDateString()}`}

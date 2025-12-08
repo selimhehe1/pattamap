@@ -169,7 +169,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   const [optimisticPositions, setOptimisticPositions] = useState<Map<string, { row: number; col: number }>>(new Map());
   const [operationLockUntil, setOperationLockUntil] = useState<number>(0);

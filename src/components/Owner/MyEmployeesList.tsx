@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import EmployeeCard from '../Common/EmployeeCard';
 import VIPPurchaseModal from './VIPPurchaseModal';
 import { Employee } from '../../types';
+import { logger } from '../../utils/logger';
+import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import './MyEmployeesList.css';
+
+// Feature flag check
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface Props {
   establishmentId: string;
@@ -46,7 +51,7 @@ const MyEmployeesList: React.FC<Props> = ({
       const data = await response.json();
       setEmployees(data.employees || []);
     } catch (error) {
-      console.error('Failed to fetch employees:', error);
+      logger.error('Failed to fetch employees:', error);
       setError('Failed to load employees. Please try again.');
     } finally {
       setLoading(false);
@@ -119,35 +124,37 @@ const MyEmployeesList: React.FC<Props> = ({
               showEstablishment={false}
             />
 
-            {/* VIP Actions */}
-            <div className="employee-actions">
-              {employee.is_vip ? (
-                <div className="vip-status-badge">
-                  👑 {t('myEmployees.vipActive', 'VIP Active')}
-                  {employee.vip_expires_at && (
-                    <span className="expiry">
-                      {t('myEmployees.expires', 'Expires')}: {new Date(employee.vip_expires_at).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                canEditEmployees ? (
-                  <button
-                    className="btn-buy-vip"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleBuyVIP(employee.id);
-                    }}
-                  >
-                    👑 {t('myEmployees.buyVIP', 'Buy VIP')}
-                  </button>
-                ) : (
-                  <div className="no-permission-hint">
-                    {t('myEmployees.contactAdminVIP', 'Contact admin to buy VIP')}
+            {/* VIP Actions - Only show if VIP feature is enabled */}
+            {VIP_ENABLED && (
+              <div className="employee-actions">
+                {employee.is_vip ? (
+                  <div className="vip-status-badge">
+                    👑 {t('myEmployees.vipActive', 'VIP Active')}
+                    {employee.vip_expires_at && (
+                      <span className="expiry">
+                        {t('myEmployees.expires', 'Expires')}: {new Date(employee.vip_expires_at).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
-                )
-              )}
-            </div>
+                ) : (
+                  canEditEmployees ? (
+                    <button
+                      className="btn-buy-vip"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBuyVIP(employee.id);
+                      }}
+                    >
+                      👑 {t('myEmployees.buyVIP', 'Buy VIP')}
+                    </button>
+                  ) : (
+                    <div className="no-permission-hint">
+                      {t('myEmployees.contactAdminVIP', 'Contact admin to buy VIP')}
+                    </div>
+                  )
+                )}
+              </div>
+            )}
 
             {/* Stats Summary */}
             <div className="employee-stats-summary">
@@ -165,8 +172,8 @@ const MyEmployeesList: React.FC<Props> = ({
         ))}
       </div>
 
-      {/* VIP Purchase Modal */}
-      {selectedEmployeeForVIP && (
+      {/* VIP Purchase Modal - Only render if VIP feature is enabled */}
+      {VIP_ENABLED && selectedEmployeeForVIP && (
         <VIPPurchaseModal
           subscriptionType="employee"
           entity={selectedEmployeeForVIP}

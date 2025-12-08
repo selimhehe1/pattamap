@@ -19,7 +19,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
   const { t } = useTranslation();
 
   // Styles pour les inputs avec couleurs branding des plateformes
-  const getInputStyle = (platform: 'instagram' | 'twitter' | 'tiktok', value: string) => {
+  const getInputStyle = (platform: 'instagram' | 'twitter' | 'tiktok', _value: string) => {
     const borderColors = {
       instagram: 'rgba(225, 48, 108, 0.3)', // Instagram gradient rose
       twitter: 'rgba(29, 155, 240, 0.3)', // Twitter blue
@@ -68,7 +68,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
     return placeholders[platform];
   };
 
-  const getPlatformName = (platform: 'instagram' | 'twitter' | 'tiktok') => {
+  const _getPlatformName = (platform: 'instagram' | 'twitter' | 'tiktok') => {
     const names = {
       instagram: 'Instagram',
       twitter: 'X (Twitter)',

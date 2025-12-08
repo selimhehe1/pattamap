@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
+import { logger } from '../../utils/logger';
 
 interface EditMyProfileModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   onClose,
   onProfileUpdated
 }) => {
-  console.log('🔄 EditMyProfileModal RENDER - isOpen:', isOpen);
+  logger.debug('EditMyProfileModal RENDER - isOpen:', isOpen);
   const { t } = useTranslation();
   const [linkedProfile, setLinkedProfile] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,9 +37,9 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
 
   // Fetch linked profile when modal opens
   useEffect(() => {
-    console.log('🎭 EditMyProfileModal useEffect - isOpen:', isOpen);
+    logger.debug('EditMyProfileModal useEffect - isOpen:', isOpen);
     if (isOpen) {
-      console.log('📂 Modal is open, fetching linked profile...');
+      logger.debug('Modal is open, fetching linked profile...');
       fetchLinkedProfile();
     }
   }, [isOpen]);
@@ -47,25 +48,25 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
     setIsLoading(true);
     setFetchError(null);
     try {
-      console.log('📡 Fetching /api/employees/my-linked-profile...');
+      logger.debug('Fetching /api/employees/my-linked-profile...');
       const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/my-linked-profile`, {
         method: 'GET'
       });
 
-      console.log('📡 Response status:', response.status, response.statusText);
+      logger.debug('Response status:', { status: response.status, statusText: response.statusText });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ API Error:', errorData);
+        logger.error('API Error:', errorData);
         throw new Error(errorData.error || t('editMyProfileModal.errorFetchProfile', { status: response.status }));
       }
 
       const data = await response.json();
-      console.log('✅ Profile data received:', data);
+      logger.debug('Profile data received:', data);
       setLinkedProfile(data); // Backend returns employee directly (no wrapper)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
-      console.error('❌ Fetch error:', error);
+      logger.error('Fetch error:', error);
       setFetchError(errorMessage);
       toast.error(errorMessage);
       // ❌ REMOVED: onClose() - Don't close modal, show error instead

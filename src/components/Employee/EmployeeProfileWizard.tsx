@@ -5,6 +5,7 @@ import { Employee } from '../../types';
 import ClaimEmployeeModal from './ClaimEmployeeModal';
 import LazyImage from '../Common/LazyImage';
 import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 import '../../styles/components/modal-forms.css';
 
 interface EmployeeProfileWizardProps {
@@ -64,7 +65,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
           }
         })
         .catch((error) => {
-          console.error('Error loading employees:', error);
+          logger.error('Error loading employees:', error);
           toast.error(t('employeeProfileWizard.errorLoadEmployees'));
         })
         .finally(() => {

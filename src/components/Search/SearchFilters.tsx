@@ -151,28 +151,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
   // 🚀 Styles supprimés - remplacés par CSS pur .input-nightlife et .select-nightlife
 
-  // 🎯 Synchronisation des états locaux age avec props
+  // 🎯 CONSOLIDATED: Sync all local states with parent props in one effect
+  // This reduces re-renders from 5 separate effects to 1
   React.useEffect(() => {
+    // Sync age values
     setLocalAgeMin(filters.age_min);
-  }, [filters.age_min]);
-
-  React.useEffect(() => {
     setLocalAgeMax(filters.age_max);
-  }, [filters.age_max]);
-
-  // 🎯 Keep refs in sync with state (for cleanup without causing re-runs)
-  React.useEffect(() => {
-    localAgeMinRef.current = localAgeMin;
-  }, [localAgeMin]);
-
-  React.useEffect(() => {
-    localAgeMaxRef.current = localAgeMax;
-  }, [localAgeMax]);
-
-  // 🎯 Synchronisation search query local avec parent (one-way: parent → local)
-  React.useEffect(() => {
+    // Sync search query
     setLocalQuery(filters.q);
-  }, [filters.q]);
+    // Keep refs in sync for cleanup (no state update needed)
+    localAgeMinRef.current = filters.age_min;
+    localAgeMaxRef.current = filters.age_max;
+  }, [filters.age_min, filters.age_max, filters.q]);
 
   // 📱 Detect mobile viewport and update state
   React.useEffect(() => {
@@ -220,28 +210,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   }, [isTyping, loading]);
 
-  // 🎯 Hook pour restaurer le focus des champs age
+  // 🎯 CONSOLIDATED: Hook pour restaurer le focus des champs age (2 effects → 1)
   React.useEffect(() => {
-    if (wasTypingAgeRef.current.min && !loading && ageMinRef.current && document.activeElement !== ageMinRef.current) {
-      const timeoutId = setTimeout(() => {
-        if (ageMinRef.current && wasTypingAgeRef.current.min) {
-          ageMinRef.current.focus();
-          // Note: setSelectionRange is not supported on input[type="number"]
-        }
-      }, 10);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [loading]);
-
-  React.useEffect(() => {
-    if (wasTypingAgeRef.current.max && !loading && ageMaxRef.current && document.activeElement !== ageMaxRef.current) {
-      const timeoutId = setTimeout(() => {
-        if (ageMaxRef.current && wasTypingAgeRef.current.max) {
-          ageMaxRef.current.focus();
-          // Note: setSelectionRange is not supported on input[type="number"]
-        }
-      }, 10);
-      return () => clearTimeout(timeoutId);
+    if (!loading) {
+      // Focus age min if user was typing
+      if (wasTypingAgeRef.current.min && ageMinRef.current && document.activeElement !== ageMinRef.current) {
+        const timeoutId = setTimeout(() => {
+          if (ageMinRef.current && wasTypingAgeRef.current.min) {
+            ageMinRef.current.focus();
+          }
+        }, 10);
+        return () => clearTimeout(timeoutId);
+      }
+      // Focus age max if user was typing
+      if (wasTypingAgeRef.current.max && ageMaxRef.current && document.activeElement !== ageMaxRef.current) {
+        const timeoutId = setTimeout(() => {
+          if (ageMaxRef.current && wasTypingAgeRef.current.max) {
+            ageMaxRef.current.focus();
+          }
+        }, 10);
+        return () => clearTimeout(timeoutId);
+      }
     }
   }, [loading]);
 
@@ -353,7 +342,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   };
 
-  // 🚀 Debouncing intelligent optimisé avec local state (0ms lag visuel, 150ms debounce parent)
+  // 🚀 OPTIMIZED: Single debounce (in SearchPage) - NO double debouncing
+  // Local state updates immediately, parent handles the debounce
   const handleSearchInputChange = React.useCallback((value: string) => {
     // ✅ Update local state IMMEDIATELY (0ms lag - instant visual feedback)
     setLocalQuery(value);
@@ -361,26 +351,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     // 🎯 Marquer que l'utilisateur est en train de taper
     wasTypingRef.current = true;
 
-    // 🚀 Use requestIdleCallback for non-urgent operations
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        // Cancel requête en cours si changement rapide
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
-      });
-    } else {
-      // Fallback for browsers without requestIdleCallback
-      setTimeout(() => {
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
-      }, 0);
-    }
-
-    // ✅ Debounce parent call (150ms - SearchPage already handles this, but keep for safety)
-    // This ensures smooth typing even if parent has additional debounce
+    // ✅ DIRECT call to parent - SearchPage handles the debounce (150ms)
+    // NO additional debounce here to avoid double debouncing
     onQueryChange(value);
+
+    // Cancel previous autocomplete fetch
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
     // Cancel autocomplete timeout précédent
     if (debounceTimeoutRef.current) {
@@ -397,10 +375,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       return;
     }
 
-    // Nouveau timeout avec délai optimisé pour suggestions
+    // 🎯 REDUCED from 300ms to 200ms - suggestions appear faster
+    // This is independent of search, just for autocomplete dropdown
     debounceTimeoutRef.current = window.setTimeout(() => {
       fetchSuggestions(value);
-    }, 300); // 🎯 Increased from 200ms to 300ms to reduce scheduler violations
+    }, 200);
   }, [onQueryChange]);
 
   // 🎯 Gestion optimisée de sélection - Scheduler optimized

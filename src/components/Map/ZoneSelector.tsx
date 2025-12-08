@@ -139,8 +139,11 @@ const ZoneSelector: React.FC<ZoneSelectorProps> = ({ currentZone, onZoneChange }
             alignItems: 'center',
             gap: '4px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease',
-            transform: currentZone === zone.id ? 'scale(1.05)' : 'scale(1)'
+            transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+            // Prevent blur: avoid transform for crisp rendering
+            WebkitFontSmoothing: 'antialiased',
+            // @ts-ignore - vendor prefix
+            MozOsxFontSmoothing: 'grayscale'
           }}
           onMouseEnter={(e) => {
             if (currentZone !== zone.id) {

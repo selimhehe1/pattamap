@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -10,8 +11,12 @@ import UsersAdmin from './UsersAdmin';
 import ConsumablesAdmin from './ConsumablesAdmin';
 import VerificationsAdmin from './VerificationsAdmin'; // 🆕 v10.2
 import { logger } from '../../utils/logger';
+import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/admin/dashboard.css';
 import '../../styles/components/admin-profile-modal.css';
+
+// Feature flag check
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface DashboardStats {
   totalEstablishments: number;
@@ -214,6 +219,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
       description: 'Manage employee verification requests',
       badge: stats.pendingVerifications && stats.pendingVerifications > 0 ? stats.pendingVerifications : null
     },
+    // 🆕 v10.3 Phase 2 - VIP Payment Verification (conditionally shown)
+    ...(VIP_ENABLED ? [{
+      id: 'vip-verifications',
+      label: `💎 VIP Verification`,
+      description: 'Verify VIP cash payments',
+      badge: null,
+      href: '/admin/vip-verification',
+      testId: 'vip-verification-link'
+    }] : []),
     {
       id: 'comments',
       label: `💬 ${t('admin.reviewsTab')}`,
@@ -277,7 +291,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
   ];
 
   return (
-    <div className="admin-dashboard-container">
+    <div className="admin-dashboard-container" data-testid="admin-dashboard">
       {/* Modern Admin Header */}
       <div className="admin-header-modern-nightlife">
         <div className="admin-header-top-row">
@@ -321,27 +335,50 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
 
       {/* Navigation Tabs */}
       <div className="admin-tabs-container">
-        {tabItems.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`admin-tab-button ${activeTab === tab.id ? 'active' : ''}`}
-          >
-            <div className="admin-tab-label">
-              {tab.label}
-            </div>
-            <div className="admin-tab-description">
-              {tab.description}
-            </div>
-
-            {/* Badge for pending items */}
-            {tab.badge && (
-              <div className="admin-tab-badge">
-                {tab.badge}
+        {tabItems.map((tab) => {
+          const tabContent = (
+            <>
+              <div className="admin-tab-label">
+                {tab.label}
               </div>
-            )}
-          </button>
-        ))}
+              <div className="admin-tab-description">
+                {tab.description}
+              </div>
+
+              {/* Badge for pending items */}
+              {tab.badge && (
+                <div className="admin-tab-badge">
+                  {tab.badge}
+                </div>
+              )}
+            </>
+          );
+
+          // Use Link for tabs with href
+          if ((tab as any).href) {
+            return (
+              <Link
+                key={tab.id}
+                to={(tab as any).href}
+                onClick={() => onTabChange(tab.id)}
+                className={`admin-tab-button ${activeTab === tab.id ? 'active' : ''}`}
+                data-testid={(tab as any).testId}
+              >
+                {tabContent}
+              </Link>
+            );
+          }
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`admin-tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            >
+              {tabContent}
+            </button>
+          );
+        })}
       </div>
 
       {/* Overview Content */}
@@ -474,7 +511,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                 </button>
               )}
 
-              {stats.pendingVIPVerifications && stats.pendingVIPVerifications > 0 && (
+              {/* VIP Payment Quick Action - only shown if VIP feature enabled */}
+              {VIP_ENABLED && stats.pendingVIPVerifications && stats.pendingVIPVerifications > 0 && (
                 <button
                   onClick={() => onTabChange('vip-verifications')}
                   className="admin-action-button"

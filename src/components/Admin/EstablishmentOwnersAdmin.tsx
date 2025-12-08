@@ -8,115 +8,22 @@ import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
 
-// Debounce utility function for search optimization
-const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): ((...args: Parameters<T>) => void) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
-
-// ========================================
-// Types & Interfaces
-// ========================================
-
-interface EstablishmentOwner {
-  id: string;
-  user_id: string;
-  establishment_id: string;
-  owner_role: 'owner' | 'manager';
-  permissions: {
-    can_edit_info: boolean;
-    can_edit_pricing: boolean;
-    can_edit_photos: boolean;
-    can_edit_employees: boolean;
-    can_view_analytics: boolean;
-  };
-  assigned_by?: string;
-  assigned_at: string;
-  created_at: string;
-  updated_at: string;
-  user?: {
-    id: string;
-    pseudonym: string;
-    email: string;
-    account_type?: string;
-  };
-  establishment?: {
-    id: string;
-    name: string;
-    zone?: string;
-    category_id?: string;
-  };
-  assigner?: {
-    id: string;
-    pseudonym: string;
-  };
-}
-
-interface AdminEstablishment {
-  id: string;
-  name: string;
-  address: string;
-  zone?: string;
-  category_id?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
-  ownersCount?: number;
-}
-
-interface AdminUser {
-  id: string;
-  pseudonym: string;
-  email: string;
-  account_type?: 'regular' | 'employee' | 'establishment_owner';
-  role: 'user' | 'moderator' | 'admin';
-}
-
-interface OwnershipRequest {
-  id: string;
-  user_id: string;
-  establishment_id: string;
-  status: 'pending' | 'approved' | 'rejected';
-  documents_urls: string[];
-  verification_code?: string;
-  request_message?: string;
-  admin_notes?: string;
-  reviewed_by?: string;
-  reviewed_at?: string;
-  created_at: string;
-  updated_at: string;
-  user: {
-    id: string;
-    pseudonym: string;
-    email: string;
-    account_type?: string;
-  };
-  establishment: {
-    id: string;
-    name: string;
-    address: string;
-    zone?: string;
-    logo_url?: string;
-  };
-  reviewer?: {
-    id: string;
-    pseudonym: string;
-  };
-}
+// Import extracted types and utilities
+import {
+  EstablishmentOwner,
+  AdminEstablishment,
+  AdminUser,
+  OwnershipRequest,
+  OwnerPermissions,
+  ViewMode,
+  FilterMode,
+  OwnerRole
+} from './types/ownershipTypes';
+import { debounce } from './utils/adminUtils';
 
 interface EstablishmentOwnersAdminProps {
   onTabChange: (tab: string) => void;
 }
-
-// ========================================
-// Main Component
-// ========================================
 
 const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
@@ -126,10 +33,10 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
   // State Management
-  const [viewMode, setViewMode] = useState<'owners' | 'requests'>('owners');
+  const [viewMode, setViewMode] = useState<ViewMode>('owners');
   const [establishments, setEstablishments] = useState<AdminEstablishment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'with_owners' | 'without_owners'>('all');
+  const [filter, setFilter] = useState<FilterMode>('all');
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const [selectedEstablishment, setSelectedEstablishment] = useState<AdminEstablishment | null>(null);
 
@@ -142,9 +49,9 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   const [searchUserTerm, setSearchUserTerm] = useState('');
   const [searchedUsers, setSearchedUsers] = useState<AdminUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const [isSearching, setIsSearching] = useState(false); // 🆕 Loading state for search
-  const [ownerRole, setOwnerRole] = useState<'owner' | 'manager'>('owner');
-  const [customPermissions, setCustomPermissions] = useState({
+  const [isSearching, setIsSearching] = useState(false);
+  const [ownerRole, setOwnerRole] = useState<OwnerRole>('owner');
+  const [customPermissions, setCustomPermissions] = useState<OwnerPermissions>({
     can_edit_info: true,
     can_edit_pricing: true,
     can_edit_photos: true,

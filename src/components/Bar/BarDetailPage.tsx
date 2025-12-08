@@ -9,7 +9,7 @@ import GirlsGallery from './GirlsGallery';
 import BarInfoSidebar from './BarInfoSidebar';
 import EstablishmentEditModal from '../Forms/EstablishmentEditModal';
 import TabNavigation from './TabNavigation';
-import { Employee, Establishment } from '../../types';
+import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
 import LazyImage from '../Common/LazyImage';
@@ -56,7 +56,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
 
   // Local states
   const [selectedGirl, setSelectedGirl] = useState<Employee | null>(null);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessMessage, _setShowSuccessMessage] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isSubmittingModal, setIsSubmittingModal] = useState(false); // For modal form submission
   const [activeTab, setActiveTab] = useState<'employees' | 'info'>('employees');

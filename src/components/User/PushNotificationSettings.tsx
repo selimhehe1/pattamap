@@ -10,6 +10,7 @@ import {
 } from '../../utils/pushManager';
 import { useTranslation } from 'react-i18next';
 import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 import '../../styles/PushNotificationSettings.css';
 
 interface PushStatus {
@@ -60,7 +61,7 @@ const PushNotificationSettings: React.FC = () => {
       const backendStatus = await getPushStatus();
       setStatus(backendStatus);
     } catch (error) {
-      console.error('Failed to check push status:', error);
+      logger.error('Failed to check push status:', error);
     } finally {
       setLoading(false);
     }
@@ -85,11 +86,11 @@ const PushNotificationSettings: React.FC = () => {
             t('notifications.push.welcomeMessage')
           );
         } catch (error) {
-          console.error('Failed to show test notification:', error);
+          logger.error('Failed to show test notification:', error);
         }
       }, 500);
     } catch (error: any) {
-      console.error('Subscribe failed:', error);
+      logger.error('Subscribe failed:', error);
 
       let errorMessage = t('notifications.push.subscribeFailed');
       if (error.message.includes('permission denied')) {
@@ -115,7 +116,7 @@ const PushNotificationSettings: React.FC = () => {
 
       toast.success(t('notifications.push.unsubscribed'));
     } catch (error) {
-      console.error('Unsubscribe failed:', error);
+      logger.error('Unsubscribe failed:', error);
       toast.error(t('notifications.push.unsubscribeFailed'));
     } finally {
       setSubscribing(false);
@@ -130,7 +131,7 @@ const PushNotificationSettings: React.FC = () => {
       );
       toast.success(t('notifications.push.testSent'));
     } catch (error: any) {
-      console.error('Test notification failed:', error);
+      logger.error('Test notification failed:', error);
 
       let errorMessage = t('notifications.push.testFailed');
       if (error.message.includes('permission')) {

@@ -12,20 +12,13 @@ import toast from '../../utils/toast';
 import { useContainerSize } from '../../hooks/useContainerSize';
 import LazyImage from '../Common/LazyImage';
 import { generateEstablishmentUrl } from '../../utils/slugify';
+import { TYPE_STYLES, getBarTypeFromCategory, MapBar } from '../../utils/mapConstants';
 import '../../styles/components/map-components.css';
 import '../../styles/components/maps.css';
 import './CustomSoi6Map.css';
 
-export interface Bar {
-  id: string;
-  name: string;
-  type: 'gogo' | 'beer' | 'pub' | 'massage' | 'nightclub';
-  position: { x: number; y: number };
-  color: string;
-  icon: string;
-  grid_row?: number;
-  grid_col?: number;
-}
+// Re-export Bar type for backward compatibility
+export type Bar = MapBar;
 
 interface CustomSoi6MapProps {
   establishments: Establishment[];
@@ -34,29 +27,6 @@ interface CustomSoi6MapProps {
   onBarClick?: (bar: CustomBar) => void;
   onEstablishmentUpdate?: () => Promise<void>;
 }
-
-const TYPE_STYLES = {
-  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
-  beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
-  massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
-  nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
-};
-
-// Mapping categories to bar types (using both string and number keys for compatibility)
-const CATEGORY_TO_TYPE_MAP: { [key: string | number]: 'gogo' | 'beer' | 'pub' | 'massage' | 'nightclub' } = {
-  // String keys (old format)
-  'cat-001': 'beer',      // Bar
-  'cat-002': 'gogo',      // GoGo Bar
-  'cat-003': 'massage',   // Massage Salon
-  'cat-004': 'nightclub', // Nightclub
-  // Number keys (Supabase format) - Updated to match new schema
-  1: 'beer',              // Bar
-  2: 'gogo',              // GoGo Bar
-  3: 'massage',           // Massage Salon
-  4: 'nightclub'          // Nightclub
-  // Removed: Beer Bar (5), Club (6), Restaurant Bar (7) - no longer in schema
-};
 
 // Improved responsive position calculator using zoneConfig
 const calculateResponsivePosition = (row: number, col: number, isMobile: boolean, containerElement?: HTMLElement) => {
@@ -138,7 +108,7 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
   const bars = establishments
     .filter(est => est.zone === 'soi6' && est.grid_row && est.grid_row >= 1 && est.grid_row <= 2 && est.grid_col && est.grid_col >= 1 && est.grid_col <= 20)
     .map(est => {
-      const barType = CATEGORY_TO_TYPE_MAP[est.category_id] || 'beer';
+      const barType = getBarTypeFromCategory(est.category_id);
       const style = TYPE_STYLES[barType];
 
       // Calculate responsive position with dynamic sizing
@@ -182,7 +152,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
   const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
@@ -338,7 +308,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
           // Find the establishment in the full list
           const establishment = establishments.find(est => est.id === establishmentId);
           if (establishment) {
-            const barType = CATEGORY_TO_TYPE_MAP[establishment.category_id] || 'beer';
+            const barType = getBarTypeFromCategory(establishment.category_id);
             const style = TYPE_STYLES[barType];
             const { x, y } = calculateResponsivePosition(pos.row, pos.col, isMobile, containerRef.current || undefined);
 
@@ -461,7 +431,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       const containerWidth = rect.width;
 
       const centerX = containerWidth * 0.5;
-      const roadWidth = 80; // Match GenericRoadCanvas
+      const _roadWidth = 80; // Match GenericRoadCanvas
 
       // Determine row based on X position (left or right of vertical road)
       row = relativeX < centerX ? 1 : 2; // Left = Beach Road (row 1), Right = Second Road (row 2)
@@ -718,14 +688,14 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
     }
 
     // Calculate visual positions for comparison
-    const originalVisualPos = originalPosition ? calculateResponsivePosition(
+    const _originalVisualPos = originalPosition ? calculateResponsivePosition(
       originalPosition.row || 1,
       originalPosition.col || 1,
       isMobile,
       containerRef.current || undefined
     ) : null;
 
-    const targetVisualPos = calculateResponsivePosition(
+    const _targetVisualPos = calculateResponsivePosition(
       row,
       col,
       isMobile,

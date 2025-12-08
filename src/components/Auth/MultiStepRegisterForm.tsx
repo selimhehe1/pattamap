@@ -23,6 +23,8 @@ interface MultiStepRegisterFormProps {
 }
 
 interface FormData {
+  // Index signature for compatibility with useFormValidation
+  [key: string]: unknown;
   // Step 1
   accountType: 'regular' | 'employee' | 'establishment_owner'; // 🆕 v10.1
   // Step 2 (employee only)
@@ -554,7 +556,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     2; // regular or establishment_owner
 
   // Progress percentage
-  const progressPercentage = totalSteps === 4
+  const _progressPercentage = totalSteps === 4
     ? (currentStep / 4) * 100
     : totalSteps === 3
     ? (currentStep / 3) * 100

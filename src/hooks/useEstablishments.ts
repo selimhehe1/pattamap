@@ -19,10 +19,17 @@ import toast from '../utils/toast';
 /**
  * Query keys centralisés pour invalidation facile
  */
+// Filter type for establishment queries
+interface EstablishmentFilters {
+  zone?: string;
+  category_id?: string | number;
+  status?: string;
+}
+
 export const establishmentKeys = {
   all: ['establishments'] as const,
   lists: () => [...establishmentKeys.all, 'list'] as const,
-  list: (filters?: any) => [...establishmentKeys.lists(), { filters }] as const,
+  list: (filters?: EstablishmentFilters) => [...establishmentKeys.lists(), { filters }] as const,
   details: () => [...establishmentKeys.all, 'detail'] as const,
   detail: (id: string) => [...establishmentKeys.details(), id] as const,
 };

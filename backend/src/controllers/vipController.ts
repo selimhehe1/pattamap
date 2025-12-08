@@ -303,7 +303,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
         currency: 'THB',
         payment_method,
         payment_status: paymentStatus,
-        promptpay_qr_code: null, // TODO: Generate QR code in Phase 2
+        promptpay_qr_code: null, // Phase 2: PromptPay QR generation (requires Thai bank integration)
         promptpay_reference: null,
         admin_verified_by: payment_method === 'admin_grant' ? userId : null,
         admin_verified_at: payment_method === 'admin_grant' ? now.toISOString() : null,

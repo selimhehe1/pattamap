@@ -482,7 +482,7 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
         ctx.stroke();
 
         // Intersections - different line styles per type
-        allIntersections.forEach(({ x, width: intersectionWidth, type }) => {
+        allIntersections.forEach(({ x, width: _intersectionWidth, type }) => {
           const xPos = width * x;
 
           if (type === 'pathway') {
@@ -524,7 +524,7 @@ const WalkingStreetRoad: React.FC<WalkingStreetRoadProps> = ({ isEditMode = fals
         ctx.fillStyle = 'rgba(0,255,0,0.6)';
         ctx.font = '14px monospace';
         const layout = isMobile ? 'MOBILE' : 'DESKTOP';
-        const soisCount = isMobile ? '7 Sois' : '7 Intersections';
+        const _soisCount = isMobile ? '7 Sois' : '7 Intersections';
         const detail = isMobile ? '7 Sois' : '3 Major + 2 Secondary + 2 Pathways';
         ctx.fillText(`🚶 Walking Street ${layout} (${detail} + Main Road)`, width * 0.05, 20);
       }

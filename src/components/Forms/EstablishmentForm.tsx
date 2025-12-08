@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { EstablishmentCategory, ConsumableTemplate } from '../../types';
+import { EstablishmentCategory, ConsumableTemplate, Establishment } from '../../types';
 import BasicInfoForm from './EstablishmentFormSections/BasicInfoForm';
 import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
 import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
@@ -14,18 +14,77 @@ import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
 
+// Consumable item type for pricing
+interface ConsumablePricing {
+  consumable_id: string;
+  price: string;
+}
+
+// Internal form data type with rooms as object for toggle functionality
+interface InternalFormData {
+  name: string;
+  address: string;
+  zone: string;
+  category_id: string | number;
+  description: string;
+  phone: string;
+  website: string;
+  logo_url: string;
+  instagram: string;
+  twitter: string;
+  tiktok: string;
+  opening_hours: {
+    open: string;
+    close: string;
+  };
+  pricing: {
+    consumables: ConsumablePricing[];
+    ladydrink: string;
+    barfine: string;
+    rooms: {
+      available: boolean;
+      price: string;
+    };
+  };
+}
+
+// Output type for form submission (matches API expectations)
+interface EstablishmentSubmitData {
+  name: string;
+  address: string;
+  zone?: string;
+  category_id: number | string;
+  description?: string;
+  logo_url?: string;
+  phone?: string;
+  website?: string;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  opening_hours?: {
+    open: string;
+    close: string;
+  };
+  pricing?: {
+    consumables: ConsumablePricing[];
+    ladydrink: string;
+    barfine: string;
+    rooms: string;
+  };
+}
+
 interface EstablishmentFormProps {
-  onSubmit: (establishmentData: any) => void;
+  onSubmit: (establishmentData: EstablishmentSubmitData) => void;
   onCancel: () => void;
   isLoading?: boolean;
-  initialData?: any;
+  initialData?: Partial<Establishment>;
 }
 
 const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCancel, isLoading = false, initialData }) => {
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     address: initialData?.address || '',
     zone: initialData?.zone || '',
@@ -43,15 +102,18 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       close: initialData?.opening_hours?.close || '02:00'
     },
     pricing: {
-      consumables: initialData?.pricing?.consumables || [] as Array<{ consumable_id: string; price: string }>,
+      consumables: initialData?.pricing?.consumables || [],
       ladydrink: initialData?.ladydrink || initialData?.pricing?.ladydrink || '130',
       barfine: initialData?.barfine || initialData?.pricing?.barfine || '400',
       rooms: {
-        // Auto-check toggle if rooms price exists (fix: detect existing rooms price)
-        available:
-          initialData?.pricing?.rooms?.available ??
-          (initialData?.rooms && initialData.rooms !== 'N/A' ? true : false),
-        price: initialData?.rooms && initialData?.rooms !== 'N/A' ? initialData.rooms : (initialData?.pricing?.rooms?.price || '600')
+        // Auto-check toggle if rooms price exists
+        available: Boolean(initialData?.rooms && initialData.rooms !== 'N/A') ||
+                   Boolean(initialData?.pricing?.rooms && initialData.pricing.rooms !== 'N/A'),
+        price: (initialData?.rooms && initialData.rooms !== 'N/A')
+          ? initialData.rooms
+          : (initialData?.pricing?.rooms && initialData.pricing.rooms !== 'N/A'
+              ? initialData.pricing.rooms
+              : '600')
       }
     }
   });
@@ -178,7 +240,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
         price: selectedConsumable.price
       };
 
-      const exists = formData.pricing.consumables.some((c: any) => c.consumable_id === newConsumable.consumable_id);
+      const exists = formData.pricing.consumables.some((c: ConsumablePricing) => c.consumable_id === newConsumable.consumable_id);
       if (!exists) {
         setFormData(prev => ({
           ...prev,
@@ -197,7 +259,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.filter((_: any, i: number) => i !== index)
+        consumables: prev.pricing.consumables.filter((_: ConsumablePricing, i: number) => i !== index)
       }
     }));
   };
@@ -207,7 +269,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.map((consumable: any, i: number) =>
+        consumables: prev.pricing.consumables.map((consumable: ConsumablePricing, i: number) =>
           i === index ? { ...consumable, price: newPrice } : consumable
         )
       }
@@ -314,10 +376,26 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
         await new Promise(resolve => setTimeout(resolve, 600));
       }
 
-      // Prepare final form data with uploaded logo URL
-      const finalFormData = {
-        ...formData,
-        logo_url: logoUrl || formData.logo_url || ''
+      // Transform internal form data to API format
+      const finalFormData: EstablishmentSubmitData = {
+        name: formData.name,
+        address: formData.address,
+        zone: formData.zone || undefined,
+        category_id: formData.category_id,
+        description: formData.description || undefined,
+        logo_url: logoUrl || formData.logo_url || undefined,
+        phone: formData.phone || undefined,
+        website: formData.website || undefined,
+        instagram: formData.instagram || undefined,
+        twitter: formData.twitter || undefined,
+        tiktok: formData.tiktok || undefined,
+        opening_hours: formData.opening_hours,
+        pricing: {
+          consumables: formData.pricing.consumables,
+          ladydrink: formData.pricing.ladydrink,
+          barfine: formData.pricing.barfine,
+          rooms: formData.pricing.rooms.available ? formData.pricing.rooms.price : 'N/A'
+        }
       };
 
       if (process.env.NODE_ENV === 'development') {

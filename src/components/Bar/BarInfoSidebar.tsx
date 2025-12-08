@@ -5,7 +5,6 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { Establishment, ConsumableTemplate, Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
-import LazyImage from '../Common/LazyImage';
 import '../../styles/components/establishment-ui.css';
 import '../../styles/components/sidebar-establishment.css';
 
@@ -30,8 +29,8 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
   const [templatesById, setTemplatesById] = useState<Record<string, ConsumableTemplate>>({});
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [templatesError, setTemplatesError] = useState<string>('');
-  const [categories, setCategories] = useState<Array<{id: number, name: string, icon: string, color: string}>>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [_categories, setCategories] = useState<Array<{id: number, name: string, icon: string, color: string}>>([]);
+  const [_loadingCategories, setLoadingCategories] = useState(true);
 
   // Charger les catégories d'établissements
   useEffect(() => {
@@ -116,7 +115,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
 
   const pricing = getCurrentPricing();
 
-  const getBarIcon = () => {
+  const _getBarIcon = () => {
     const barType = getBarType();
     if (barType === 'GoGo Bar') return '💃';
     if (barType === 'Nightclub') return '🎵';
@@ -199,7 +198,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     // L'affichage utilise getCurrentPricing() qui lit depuis les colonnes
   };
 
-  const formatHours = (hours: any) => {
+  const _formatHours = (hours: any) => {
     if (!hours) return '14:00 - 02:00';
     return `${hours.open || '14:00'} - ${hours.close || '02:00'}`;
   };
@@ -245,7 +244,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       <option value="">{t('barInfoSidebar.buttons.add')}</option>
                       {Object.entries(consumableTemplates)
                         .filter(([category]) => category !== 'service')
-                        .map(([category, templates]) =>
+                        .map(([_category, templates]) =>
                           templates.map(template => (
                             <option key={template.id} value={template.id}>
                               {template.icon} {template.name}
@@ -322,11 +321,10 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
 
                     return (
                       <div key={category} className="sidebar-category-group-nightlife">
-                        {/* En-tête de catégorie */}
+                        {/* En-tête de catégorie - centré, sans compteur */}
                         <div className="sidebar-category-header-nightlife">
                           <span className="sidebar-category-icon-nightlife">{categoryInfo.icon}</span>
                           <span className="sidebar-category-name-nightlife">{categoryInfo.name}</span>
-                          <span className="sidebar-category-count-nightlife">({items.length})</span>
                         </div>
 
                         {/* Éléments de la catégorie */}
@@ -347,7 +345,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                                       onChange={(e) => updateConsumablePrice(item.consumable_id, e.target.value)}
                                       className="sidebar-consumable-price-input-nightlife"
                                     />
-                                    <span style={{ color: '#00E5FF', fontWeight: 'bold', fontSize: '11px' }}>฿</span>
+                                    <span className="sidebar-currency-symbol-nightlife">฿</span>
                                     <button
                                       onClick={() => removeConsumable(item.consumable_id)}
                                       className="photo-remove-btn"
@@ -376,28 +374,15 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                   });
               })()}
               {pricing.consumables.length === 0 && (
-                <div
-                  className="sidebar-empty-consumables-nightlife"
-                  style={{
-                    textAlign: 'center',
-                    padding: '20px 12px',
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '13px',
-                    lineHeight: '1.6'
-                  }}
-                >
+                <div className="sidebar-empty-consumables-nightlife">
                   {isEditMode ? (
                     t('barInfoSidebar.emptyStates.editMode')
                   ) : (
                     <>
-                      <div style={{ marginBottom: '8px', fontSize: '14px' }}>
+                      <div className="sidebar-empty-consumables-title-nightlife">
                         🍺 {t('barInfoSidebar.emptyStates.noItems')}
                       </div>
-                      <div style={{
-                        fontSize: '11px',
-                        color: '#00E5FF',
-                        fontStyle: 'italic'
-                      }}>
+                      <div className="sidebar-empty-consumables-cta-nightlife">
                         💡 {t('barInfoSidebar.emptyStates.contributeCTA')}
                       </div>
                     </>

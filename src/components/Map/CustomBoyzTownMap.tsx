@@ -104,7 +104,7 @@ const CustomBoyzTownMap: React.FC<CustomBoyzTownMapProps> = ({
   onEstablishmentClick,
   selectedEstablishment,
   onBarClick,
-  onEstablishmentUpdate
+  onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();

@@ -36,8 +36,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (response.ok) {
           const data = await response.json();
 
-          // 🔍 DEBUG: Log exactly what /api/auth/profile returns
-          console.log('🔍 [AuthContext] /api/auth/profile response:', {
+          // DEBUG: Log exactly what /api/auth/profile returns
+          logger.debug('[AuthContext] /api/auth/profile response:', {
             hasUser: !!data.user,
             pseudonym: data.user?.pseudonym,
             account_type: data.user?.account_type,
@@ -63,10 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           // 🆕 v10.0 - Fetch linked employee profile if user is an employee
           if (data.user.account_type === 'employee' && data.user.linked_employee_id) {
-            console.log('✅ [AuthContext] Conditions met! Calling getMyLinkedProfile()');
+            logger.debug('[AuthContext] Conditions met! Calling getMyLinkedProfile()');
             setTimeout(() => getMyLinkedProfile(true), 100); // skipCheck=true to bypass state closure issue
           } else {
-            console.log('❌ [AuthContext] Conditions NOT met. Not calling getMyLinkedProfile()');
+            logger.debug('[AuthContext] Conditions NOT met. Not calling getMyLinkedProfile()');
           }
         } else {
           // Not authenticated or token expired
@@ -228,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * @param skipCheck - Skip the user state check (used when called immediately after login/register with fresh data)
    */
   const getMyLinkedProfile = async (skipCheck: boolean = false) => {
-    console.log('🔍 [AuthContext] getMyLinkedProfile() called', {
+    logger.debug('[AuthContext] getMyLinkedProfile() called', {
       hasUser: !!user,
       account_type: user?.account_type,
       linked_employee_id: user?.linked_employee_id,
@@ -238,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Only fetch if user is an employee and has a linked profile
     // Skip check when called immediately after login (state might not be updated yet due to async)
     if (!skipCheck && (!user || user.account_type !== 'employee' || !user.linked_employee_id)) {
-      console.log('❌ [AuthContext] getMyLinkedProfile() aborted - conditions not met', {
+      logger.debug('[AuthContext] getMyLinkedProfile() aborted - conditions not met', {
         hasUser: !!user,
         isEmployee: user?.account_type === 'employee',
         hasLinkedId: !!user?.linked_employee_id
@@ -247,7 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    console.log('✅ [AuthContext] Fetching /api/employees/my-linked-profile...');
+    logger.debug('[AuthContext] Fetching /api/employees/my-linked-profile...');
 
     try {
       const response = await fetch(
@@ -261,24 +261,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       );
 
-      console.log('🔍 [AuthContext] /api/employees/my-linked-profile response:', {
+      logger.debug('[AuthContext] /api/employees/my-linked-profile response:', {
         status: response.status,
         ok: response.ok
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ [AuthContext] Linked employee profile fetched:', {
+        logger.debug('[AuthContext] Linked employee profile fetched:', {
           employee_id: data.id,
           name: data.name,
           status: data.status
         });
         setLinkedEmployeeProfile(data);
-        logger.info('✅ Linked employee profile fetched', { employee_id: data.id });
+        logger.info('Linked employee profile fetched', { employee_id: data.id });
       } else {
         // Profile not found or not accessible
         const errorData = await response.json();
-        console.log('❌ [AuthContext] Failed to fetch linked profile:', {
+        logger.debug('[AuthContext] Failed to fetch linked profile:', {
           status: response.status,
           error: errorData
         });
@@ -286,8 +286,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logger.warn('❌ Failed to fetch linked employee profile');
       }
     } catch (error) {
-      console.error('❌ [AuthContext] Get linked profile error:', error);
-      logger.error('Get linked profile error:', error);
+      logger.error('[AuthContext] Get linked profile error:', error);
       setLinkedEmployeeProfile(null);
     }
   };

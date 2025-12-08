@@ -18,12 +18,13 @@ import SkipToContent from './components/Layout/SkipToContent';
 import LoginForm from './components/Auth/LoginForm';
 import MultiStepRegisterForm from './components/Auth/MultiStepRegisterForm'; // 🆕 v10.0.1 - Multi-step registration
 import EmployeeProfileWizard from './components/Employee/EmployeeProfileWizard'; // 🆕 v10.0 - Employee onboarding wizard
+import LoginPage from './pages/LoginPage'; // 🆕 E2E Testing - Dedicated login page
 import EditMyProfileModal from './components/Employee/EditMyProfileModal'; // 🆕 v10.0 - Employee self-edit modal
 import UserInfoModal from './components/User/UserInfoModal'; // 🆕 User info modal for regular users
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import XPToastNotifications from './components/Gamification/XPToastNotifications';
-import { Establishment } from './types';
+import { Establishment, Employee } from './types';
 import { logger } from './utils/logger';
 import { Toaster } from './utils/toast';
 import toast from './utils/toast';
@@ -85,6 +86,7 @@ import './styles/css-pro-polish.css'; // 🏆 PRO POLISH - Jan 2025: 43 anomalie
 import './styles/css-visual-fixes.css'; // 🎨 VISUAL FIXES - Jan 2025: 15 anomalies (A057-A071) - Admin Dashboard + Soi 6 Map polish
 import './styles/session-3-visual-fixes.css'; // 👁️ SESSION 3 - Jan 2025: Visual UX audit fixes (header, subtitle, buttons visibility)
 import './styles/header-ultra-visibility.css'; // 🎯 SESSION 4 - Jan 2025: Header ultra-visibility (hamburger, XP, login) - 10/10 score!
+import './styles/css-comprehensive-fixes-v3.css'; // 🔧 V3 FIXES - Dec 2025: Z-index chaos, font-size min, icon/text overlaps, dark contrast (LAST!)
 
 // Lazy load main route components for code splitting
 import {
@@ -220,8 +222,8 @@ const HomePage: React.FC = () => {
           onClose={() => setShowEmployeeProfileWizard(false)}
           onCreateProfile={() => {
             setShowEmployeeProfileWizard(false);
-            // Redirect to header global form by opening it
-            // TODO: Need to communicate with AppContent - for now, reload page
+            // Reload page to refresh the Header with newly created employee profile
+            // Alternative: Use a shared Context to communicate between App and AppContent
             window.location.reload();
           }}
         />
@@ -247,10 +249,10 @@ const PageTracker: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { secureFetch } = useSecureFetch();
-  const { user, linkedEmployeeProfile, refreshLinkedProfile } = useAuth();
+  const { user, linkedEmployeeProfile: _linkedEmployeeProfile, refreshLinkedProfile } = useAuth();
   const [showEmployeeForm, setShowEmployeeForm] = useState(false);
   const [isSelfProfile, setIsSelfProfile] = useState(false); // 🆕 v10.0 - Track if employee form is for self-profile
-  const [editingEmployeeData, setEditingEmployeeData] = useState<any>(null); // 🆕 v10.0 - Editing mode with employee data
+  const [editingEmployeeData, setEditingEmployeeData] = useState<Employee | null>(null); // 🆕 v10.0 - Editing mode with employee data
   const [showEstablishmentForm, setShowEstablishmentForm] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false); // 🆕 v10.0 - Register modal
@@ -259,7 +261,7 @@ const AppContent: React.FC = () => {
   const [showUserInfoModal, setShowUserInfoModal] = useState(false); // 🆕 User info modal for regular users
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmitEmployee = async (employeeData: any) => {
+  const handleSubmitEmployee = async (employeeData: Partial<Employee>) => {
     setIsSubmitting(true);
     try {
       // 🆕 v10.0 - Determine endpoint and method based on edit mode
@@ -312,7 +314,7 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handleSubmitEstablishment = async (establishmentData: any) => {
+  const handleSubmitEstablishment = async (establishmentData: Partial<Establishment>) => {
     setIsSubmitting(true);
     try {
       const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments`, {
@@ -337,20 +339,20 @@ const AppContent: React.FC = () => {
 
   // 🆕 v10.0 - Handle Edit My Profile for employees
   const handleEditMyProfile = () => {
-    console.log('🚀 handleEditMyProfile called! Opening EditMyProfileModal');
-    console.log('📊 State before:', { showEditMyProfileModal });
+    logger.debug('handleEditMyProfile called! Opening EditMyProfileModal');
+    logger.debug('State before:', { showEditMyProfileModal });
 
     // 🔧 FIX: Force close then reopen to trigger useEffect even if already open
     if (showEditMyProfileModal) {
-      console.log('⚠️ Modal already open, forcing close then reopen...');
+      logger.debug('Modal already open, forcing close then reopen...');
       setShowEditMyProfileModal(false);
       setTimeout(() => {
         setShowEditMyProfileModal(true);
-        console.log('✅ Modal reopened after reset');
+        logger.debug('Modal reopened after reset');
       }, 50); // Small delay to ensure state update
     } else {
       setShowEditMyProfileModal(true);
-      console.log('📊 setShowEditMyProfileModal(true) called');
+      logger.debug('setShowEditMyProfileModal(true) called');
     }
   };
 
@@ -379,6 +381,7 @@ const AppContent: React.FC = () => {
               <PageTransition>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginPage />} /> {/* 🆕 E2E Testing - Dedicated login page */}
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/freelances" element={<FreelancesPage />} /> {/* 🆕 v10.3 - Freelances List */}
                   <Route path="/dashboard" element={<UserDashboard />} />
@@ -450,7 +453,7 @@ const AppContent: React.FC = () => {
                       setEditingEmployeeData(null); // 🆕 v10.0 - Clear editing data on cancel
                     }}
                     isLoading={isSubmitting}
-                    initialData={editingEmployeeData} // 🆕 v10.0 - Pass editing data
+                    initialData={editingEmployeeData || undefined} // 🆕 v10.0 - Pass editing data
                   />
                 </Suspense>
               </div>
@@ -476,7 +479,7 @@ const AppContent: React.FC = () => {
             <EditMyProfileModal
               isOpen={showEditMyProfileModal}
               onClose={() => {
-                console.log('🚪 Closing EditMyProfileModal');
+                logger.debug('Closing EditMyProfileModal');
                 setShowEditMyProfileModal(false);
               }}
               onProfileUpdated={async () => {

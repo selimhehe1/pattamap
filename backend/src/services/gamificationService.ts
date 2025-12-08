@@ -8,6 +8,7 @@
 
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { createNotification } from '../utils/notificationHelper';
 
 /**
  * XP Award Sources
@@ -194,10 +195,27 @@ export async function awardXP(
       logger.debug('✅ user_points created');
     }
 
-    // Step 4: Check for level up
+    // Step 4: Check for level up and send notification
     if (existingPoints && newLevel > existingPoints.current_level) {
       logger.info(`🎉 LEVEL UP! User ${userId}: Level ${existingPoints.current_level} → ${newLevel}`);
-      // TODO: Trigger level-up notification/badge
+
+      // Send level-up notification using 'system' type with i18n support
+      createNotification({
+        user_id: userId,
+        type: 'system',
+        title: `Level Up! You reached Level ${newLevel}`,
+        message: `Congratulations! You've leveled up from Level ${existingPoints.current_level} to Level ${newLevel}. Keep contributing to earn more XP!`,
+        i18n_key: 'gamification.levelUp',
+        i18n_params: {
+          oldLevel: existingPoints.current_level,
+          newLevel: newLevel,
+          totalXp: newTotalXP
+        },
+        link: '/dashboard'
+      }).catch(err => {
+        // Don't fail the XP award if notification fails
+        logger.warn('Failed to send level-up notification:', err);
+      });
     }
 
     logger.info(`✅ XP awarded successfully: +${xpAmount} XP to user ${userId} (Total: ${newTotalXP} XP, Level ${newLevel})`);

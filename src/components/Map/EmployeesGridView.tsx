@@ -92,17 +92,29 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
       return nameMatch || nicknameMatch || establishmentMatch;
     });
 
-    // 🆕 v10.3 Phase 4 - VIP Priority Sorting
-    // Always show VIP employees first in lineup (stable sort)
+    // 🆕 v10.3 Phase 4 - Verified Priority Sorting (VIP system disabled in UI)
+    // Priority order: Verified+VIP > Verified > VIP > Others
     filtered.sort((a, b) => {
       const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
       const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
+      const isVerifiedA = a.is_verified;
+      const isVerifiedB = b.is_verified;
 
-      // VIP comes before non-VIP
+      // Priority 1: Verified + VIP (both) come first
+      const isPremiumA = isVerifiedA && isVIPActiveA;
+      const isPremiumB = isVerifiedB && isVIPActiveB;
+      if (isPremiumA && !isPremiumB) return -1;
+      if (!isPremiumA && isPremiumB) return 1;
+
+      // Priority 2: Verified alone (takes priority over VIP since VIP is hidden in UI)
+      if (isVerifiedA && !isVerifiedB) return -1;
+      if (!isVerifiedA && isVerifiedB) return 1;
+
+      // Priority 3: VIP alone (lower priority since VIP UI is disabled)
       if (isVIPActiveA && !isVIPActiveB) return -1;
       if (!isVIPActiveA && isVIPActiveB) return 1;
 
-      // If both VIP or both non-VIP, maintain current order
+      // If both same status, maintain current order
       return 0;
     });
 

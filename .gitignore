@@ -63,3 +63,19 @@ frontend-server.log
 # build analysis artifacts
 purgecss-output.css
 bundle-analysis.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Playwright
+playwright-report/
+playwright/.cache/
+
+# CI/CD
+.github/workflows/*.local.yml

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import toast from '../../utils/toast';

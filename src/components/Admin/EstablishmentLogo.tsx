@@ -92,7 +92,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
         throw new Error(t('establishmentLogo.errorUpdateFailed'));
       }
 
-      const updateResult = await updateResponse.json();
+      await updateResponse.json(); // Consume response
 
       // Notify parent component
       onLogoUpdated(establishment.id, logoUrl);

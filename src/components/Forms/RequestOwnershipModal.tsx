@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
@@ -53,7 +53,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
 
   // Step 2: Document upload
   const [documents, setDocuments] = useState<DocumentPreview[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, _setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   // Step 3: Verification & message

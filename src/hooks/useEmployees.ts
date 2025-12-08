@@ -18,14 +18,34 @@ import { logger } from '../utils/logger';
 import toast from '../utils/toast';
 
 /**
+ * Interface pour les paramètres de recherche
+ */
+export interface EmployeeSearchParams {
+  q?: string; // Query text search
+  type?: string; // 🆕 v10.3 - Employee type filter (all/freelance/regular)
+  name?: string;
+  nationality?: string;
+  zone?: string;
+  age_min?: string | number;
+  age_max?: string | number;
+  category_id?: string;
+  establishment_id?: string;
+  verified_only?: boolean;
+  sort_by?: string;
+  sort_order?: string;
+  page?: number;
+  limit?: number;
+}
+
+/**
  * Normalize search params for queryKey
  * Remove undefined, null, and empty string values to ensure consistent cache keys
  *
  * Problem: React Query treats { type: 'freelance', q: '' } and { type: 'freelance' } as different keys
  * Solution: Normalize to remove empty values, ensuring same cache key for same search
  */
-const normalizeSearchParams = (params: any) => {
-  const normalized: any = {};
+const normalizeSearchParams = (params: EmployeeSearchParams | undefined): Record<string, string | number | boolean> => {
+  const normalized: Record<string, string | number | boolean> = {};
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       normalized[key] = value;
@@ -40,10 +60,10 @@ const normalizeSearchParams = (params: any) => {
 export const employeeKeys = {
   all: ['employees'] as const,
   lists: () => [...employeeKeys.all, 'list'] as const,
-  list: (filters?: any) => [...employeeKeys.lists(), { filters }] as const,
+  list: (filters?: EmployeeSearchParams) => [...employeeKeys.lists(), { filters }] as const,
   details: () => [...employeeKeys.all, 'detail'] as const,
   detail: (id: string) => [...employeeKeys.details(), id] as const,
-  search: (params?: any) => [...employeeKeys.all, 'search', normalizeSearchParams(params)] as const,
+  search: (params?: EmployeeSearchParams) => [...employeeKeys.all, 'search', normalizeSearchParams(params)] as const,
 };
 
 /**
@@ -108,26 +128,6 @@ export const useEmployee = (id: string | null) => {
     gcTime: 10 * 60 * 1000,
   });
 };
-
-/**
- * Interface pour les paramètres de recherche
- */
-export interface EmployeeSearchParams {
-  q?: string; // Query text search
-  type?: string; // 🆕 v10.3 - Employee type filter (all/freelance/regular)
-  name?: string;
-  nationality?: string;
-  zone?: string;
-  age_min?: string | number;
-  age_max?: string | number;
-  category_id?: string;
-  establishment_id?: string;
-  verified_only?: boolean;
-  sort_by?: string;
-  sort_order?: string;
-  page?: number;
-  limit?: number;
-}
 
 /**
  * Interface pour la réponse de recherche complète

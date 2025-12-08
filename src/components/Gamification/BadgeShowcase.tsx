@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Badge, UserBadge } from '../../contexts/GamificationContext';
+import { logger } from '../../utils/logger';
 import './BadgeShowcase.css';
 
 interface BadgeShowcaseProps {
@@ -12,7 +13,7 @@ interface BadgeShowcaseProps {
 }
 
 const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({
-  userId,
+  userId: _userId,
   compact = false,
   maxDisplay,
   showProgress = false
@@ -39,7 +40,7 @@ const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({
           setAllBadges(data.badges || []);
         }
       } catch (error) {
-        console.error('Error fetching all badges:', error);
+        logger.error('Error fetching all badges:', error);
       } finally {
         setLoadingAllBadges(false);
       }

@@ -23,14 +23,14 @@ interface EmployeeVerificationStatusCardProps {
 
 const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardProps> = ({
   employeeId,
-  employeeName,
+  employeeName: _employeeName,
   isVerified
 }) => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { secureFetch } = useSecureFetch();
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, _setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus();
@@ -58,7 +58,8 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
   };
 
   const handleRetryVerification = () => {
-    // TODO: Implement retry logic - open verification modal
+    // Future: Open verification modal from EmployeeDashboard
+    // Requires props callback or context to communicate with parent
     toast.info('Retry verification feature coming soon!');
   };
 

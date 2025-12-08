@@ -12,12 +12,14 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../../utils/i18n';
+import { renderWithProviders } from '../../../test-utils/test-helpers';
 import VIPPurchaseModal from '../../Owner/VIPPurchaseModal';
 import { Employee, Establishment } from '../../../types';
+
+// Mock logger
+jest.mock('../../../utils/logger');
 
 // Mock useSecureFetch hook
 const mockSecureFetch = jest.fn();
@@ -33,9 +35,10 @@ describe('VIPPurchaseModal Component', () => {
     id: 'employee-123',
     name: 'Jane Doe',
     nickname: 'JD',
-    establishment_id: 'est-123',
-    status: 'active',
+    status: 'approved',
     photos: [],
+    self_removal_requested: false,
+    created_by: 'user-123',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -43,9 +46,20 @@ describe('VIPPurchaseModal Component', () => {
   const mockEstablishment: Establishment = {
     id: 'est-123',
     name: 'Luxury Bar',
-    zone_id: 'zone-soi6',
-    category_id: 'cat-001',
-    opening_hours: '18:00 - 02:00',
+    address: 'Soi 6, Pattaya',
+    zone: 'soi6',
+    category_id: 1,
+    opening_hours: {
+      monday: '18:00 - 02:00',
+      tuesday: '18:00 - 02:00',
+      wednesday: '18:00 - 02:00',
+      thursday: '18:00 - 02:00',
+      friday: '18:00 - 02:00',
+      saturday: '18:00 - 02:00',
+      sunday: '18:00 - 02:00'
+    },
+    status: 'approved',
+    created_by: 'user-123',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -83,15 +97,13 @@ describe('VIPPurchaseModal Component', () => {
 
   describe('Modal Rendering', () => {
     it('should render modal with employee entity', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -122,15 +134,13 @@ describe('VIPPurchaseModal Component', () => {
         json: async () => establishmentPricingData
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="establishment"
             entity={mockEstablishment}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -140,30 +150,26 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should display loading state while fetching pricing', () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       expect(screen.getByText(/Loading pricing/i)).toBeInTheDocument();
     });
 
     it('should display VIP features from pricing data', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -176,15 +182,13 @@ describe('VIPPurchaseModal Component', () => {
 
   describe('Duration Selection', () => {
     it('should render all 4 duration pills (7, 30, 90, 365 days)', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -196,15 +200,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should display discount badges for discounted durations', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -215,15 +217,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should mark popular duration with badge', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -233,15 +233,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should update price summary when selecting different duration', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -262,15 +260,13 @@ describe('VIPPurchaseModal Component', () => {
 
   describe('Payment Method Selection', () => {
     it('should render cash payment method', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -280,15 +276,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should render PromptPay payment method with "Coming Soon" badge', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -298,15 +292,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should select cash payment by default', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -326,15 +318,13 @@ describe('VIPPurchaseModal Component', () => {
         })
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -366,15 +356,13 @@ describe('VIPPurchaseModal Component', () => {
         })
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -400,15 +388,13 @@ describe('VIPPurchaseModal Component', () => {
         })
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -435,15 +421,13 @@ describe('VIPPurchaseModal Component', () => {
         })
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -468,15 +452,13 @@ describe('VIPPurchaseModal Component', () => {
         json: async () => ({ error: 'Failed to load pricing' })
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -494,15 +476,13 @@ describe('VIPPurchaseModal Component', () => {
         json: async () => mockPricingData
       });
 
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -520,15 +500,13 @@ describe('VIPPurchaseModal Component', () => {
 
   describe('Close Modal', () => {
     it('should call onClose when clicking close button', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -542,15 +520,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should call onClose when clicking Cancel button', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {
@@ -564,15 +540,13 @@ describe('VIPPurchaseModal Component', () => {
     });
 
     it('should call onClose when clicking overlay', async () => {
-      render(
-        <I18nextProvider i18n={i18n}>
+      renderWithProviders(
           <VIPPurchaseModal
             subscriptionType="employee"
             entity={mockEmployee}
             onClose={mockOnClose}
             onSuccess={mockOnSuccess}
           />
-        </I18nextProvider>
       );
 
       await waitFor(() => {

@@ -33,6 +33,7 @@ const vibrate = (pattern: number | number[]): void => {
     navigator.vibrate(pattern);
   } catch (error) {
     // Silently fail if vibration not supported or blocked
+    // eslint-disable-next-line no-console
     console.debug('Haptic feedback not available:', error);
   }
 };

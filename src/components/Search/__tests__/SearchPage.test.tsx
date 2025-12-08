@@ -13,6 +13,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SearchPage from '../SearchPage';
 
+// Mock logger
+jest.mock('../../../utils/logger');
+
 // Mock dependencies
 jest.mock('../../../contexts/ModalContext', () => ({
   useModal: () => ({
@@ -29,32 +32,28 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('../../../hooks/useEmployees', () => ({
-  useInfiniteEmployeeSearch: () => ({
+  useEmployeeSearch: () => ({
     data: {
-      pages: [{
-        employees: [],
-        total: 0,
-        page: 1,
-        hasMore: false,
-        filters: {
-          availableNationalities: ['Thai', 'Russian'],
-          availableZones: ['soi6', 'walkingstreet'],
-          availableEstablishments: [
-            { id: 'est1', name: "Hog's Breath", zone: 'soi6' },
-            { id: 'est2', name: 'Living Dolls', zone: 'walkingstreet' }
-          ],
-          availableCategories: [
-            { id: 1, name: 'Bar', icon: '🍺' },
-            { id: 2, name: 'GoGo', icon: '💃' }
-          ]
-        }
-      }]
+      employees: [],
+      total: 0,
+      page: 1,
+      filters: {
+        availableNationalities: ['Thai', 'Russian'],
+        availableZones: ['soi6', 'walkingstreet'],
+        availableEstablishments: [
+          { id: 'est1', name: "Hog's Breath", zone: 'soi6' },
+          { id: 'est2', name: 'Living Dolls', zone: 'walkingstreet' }
+        ],
+        availableCategories: [
+          { id: 1, name: 'Bar', icon: '🍺' },
+          { id: 2, name: 'GoGo', icon: '💃' }
+        ]
+      }
     },
-    fetchNextPage: jest.fn(),
-    hasNextPage: false,
+    isLoading: false,
     isFetching: false,
-    isFetchingNextPage: false,
-    error: null
+    error: null,
+    refetch: jest.fn()
   })
 }));
 

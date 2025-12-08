@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee, Establishment, VIPDuration, PaymentMethod, VIPTierConfig, PurchaseVIPRequest, VIPSubscriptionType } from '../../types';
+import { logger } from '../../utils/logger';
 import './VIPPurchaseModal.css';
 
 interface Props {
@@ -58,7 +59,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       // Backend now returns single VIPTypeConfig directly
       setPricingData(data.pricing);
     } catch (err) {
-      console.error('Error fetching pricing:', err);
+      logger.error('Error fetching pricing:', err);
       setError(t('vipPurchase.errorFetchingPricing', 'Failed to load pricing information'));
     } finally {
       setLoading(false);
@@ -106,7 +107,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
         onClose();
       }, 2000);
     } catch (err: any) {
-      console.error('Error purchasing VIP:', err);
+      logger.error('Error purchasing VIP:', err);
       setError(err.message || t('vipPurchase.errorPurchasing', 'Failed to purchase VIP subscription'));
     } finally {
       setPurchasing(false);

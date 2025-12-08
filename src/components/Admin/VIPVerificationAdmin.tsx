@@ -6,9 +6,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 import './VIPVerificationAdmin.css';
 
 interface VIPTransaction {
@@ -50,18 +53,32 @@ type FilterType = 'pending' | 'all' | 'completed';
 
 const VIPVerificationAdmin: React.FC = () => {
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const { secureFetch } = useSecureFetch();
   const dialog = useDialog();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [transactions, setTransactions] = useState<VIPTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterType>('pending');
   const [verifying, setVerifying] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [filter]);
+  // Get filter from URL params, default to 'pending'
+  const getFilterFromParams = (): FilterType => {
+    const status = searchParams.get('status');
+    if (status === 'completed' || status === 'all' || status === 'pending') {
+      return status;
+    }
+    return 'pending';
+  };
+
+  const filter = getFilterFromParams();
+
+  // Update URL when filter changes
+  const setFilter = (newFilter: FilterType) => {
+    setSearchParams({ status: newFilter });
+  };
 
   const fetchTransactions = async () => {
     try {
@@ -81,7 +98,7 @@ const VIPVerificationAdmin: React.FC = () => {
       const data = await response.json();
       setTransactions(data.transactions || []);
     } catch (err: any) {
-      console.error('Error fetching VIP transactions:', err);
+      logger.error('Error fetching VIP transactions:', err);
       setError(err.message || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
     } finally {
       setLoading(false);
@@ -123,7 +140,7 @@ const VIPVerificationAdmin: React.FC = () => {
 
       toast.success(t('vipVerification.verifySuccess', 'Payment verified successfully!'));
     } catch (err: any) {
-      console.error('Error verifying payment:', err);
+      logger.error('Error verifying payment:', err);
       toast.error(err.message || t('vipVerification.verifyError', 'Failed to verify payment'));
     } finally {
       setVerifying(null);
@@ -180,7 +197,7 @@ const VIPVerificationAdmin: React.FC = () => {
 
       toast.success(t('vipVerification.rejectSuccess', 'Payment rejected successfully'));
     } catch (err: any) {
-      console.error('Error rejecting payment:', err);
+      logger.error('Error rejecting payment:', err);
       toast.error(err.message || t('vipVerification.rejectError', 'Failed to reject payment'));
     } finally {
       setVerifying(null);
@@ -201,6 +218,43 @@ const VIPVerificationAdmin: React.FC = () => {
         return <span className="status-badge">{status}</span>;
     }
   };
+
+  // Security: Redirect non-admin users (only after auth is loaded)
+  useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+
+    if (!user) {
+      navigate('/login', { replace: true });
+    } else if (user.role !== 'admin' && user.role !== 'moderator') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
+
+  // Fetch transactions when filter changes (only if authorized)
+  useEffect(() => {
+    if (authLoading || !user) return; // Don't fetch until auth is loaded and user exists
+    if (user.role !== 'admin' && user.role !== 'moderator') return; // Don't fetch if not authorized
+
+    fetchTransactions();
+  }, [filter, authLoading, user]);
+
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="vip-verification-admin">
+        <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
+        <div className="loading-state">
+          <div className="spinner">⏳</div>
+          <p>{t('common.loading', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not authorized
+  if (!user || (user.role !== 'admin' && user.role !== 'moderator')) {
+    return null;
+  }
 
   if (loading && transactions.length === 0) {
     return (

@@ -11,9 +11,11 @@ import '../../styles/components/modal-forms.css';
 interface LoginFormProps {
   onClose: () => void;
   onSwitchToRegister: () => void;
+  /** Optional callback for successful login. If provided, called instead of onClose after login success */
+  onLoginSuccess?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
   const { t } = useTranslation();
   const dialog = useDialog();
   const { login } = useAuth();
@@ -117,7 +119,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) =>
       await login(formData.login, formData.password);
       clearDraft(); // Clear on successful login
       toast.success(t('auth.loginSuccess'));
-      onClose();
+      // Use onLoginSuccess if provided, otherwise fall back to onClose
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        onClose();
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('auth.loginFailed');
       setError(errorMessage);
@@ -206,6 +213,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister }) =>
           <FormField
             label={`👤 ${t('auth.pseudonymOrEmail')}`}
             name="login"
+            type="email"
             value={formData.login}
             error={errors.login}
             status={fieldStatus.login}

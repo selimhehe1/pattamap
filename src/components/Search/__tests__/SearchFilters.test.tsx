@@ -436,8 +436,8 @@ describe('SearchFilters - Filter Fixes', () => {
   });
 
   describe('SearchFilters - Verified Filter', () => {
-    it('should call onFilterChange when verified checkbox clicked', () => {
-      const { container } = render(
+    it('should call onFilterChange when verified button clicked', () => {
+      render(
         <SearchFilters
           filters={mockFilters}
           availableFilters={mockAvailableFilters}
@@ -447,17 +447,18 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      const verifiedCheckbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      expect(verifiedCheckbox).toBeInTheDocument();
+      // The verified filter is a button, not a checkbox
+      const verifiedButton = screen.getByText(/search\.verifiedOnly/i).closest('button');
+      expect(verifiedButton).toBeInTheDocument();
 
       act(() => {
-        fireEvent.click(verifiedCheckbox);
+        if (verifiedButton) fireEvent.click(verifiedButton);
       });
 
       expect(mockHandlers.onFilterChange).toHaveBeenCalledWith('is_verified', 'true');
     });
 
-    it('should show gold styling when verified is active', () => {
+    it('should show active styling when verified is active', () => {
       const filtersWithVerified = {
         ...mockFilters,
         is_verified: 'true'
@@ -473,8 +474,9 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      const verifiedCheckbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      expect(verifiedCheckbox).toBeChecked();
+      // Check that the button has the active class
+      const verifiedButton = container.querySelector('.verified-filter-active');
+      expect(verifiedButton).toBeInTheDocument();
     });
   });
 

@@ -363,7 +363,7 @@ export const createDelayedVariant = (
   return newVariant;
 };
 
-export default {
+const animationVariants = {
   // Transitions
   spring,
   smooth,
@@ -410,3 +410,5 @@ export default {
   createStaggerContainer,
   createDelayedVariant,
 };
+
+export default animationVariants;

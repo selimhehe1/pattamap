@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchFilters from './SearchFilters';
@@ -115,7 +115,8 @@ const SearchPage: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [filters, updateUrlParams]);
 
-  // Handle text query changes with debounce optimized
+  // Handle text query changes with optimized debounce
+  // 🚀 OPTIMIZED: Single debounce location (here) - SearchFilters calls directly without debounce
   const handleQueryChange = useCallback((value: string) => {
     setIsTyping(true);
 
@@ -124,12 +125,14 @@ const SearchPage: React.FC = () => {
       clearTimeout(debounceTimeout.current);
     }
 
-    // Set new timeout - 150ms pour réactivité instantanée
+    // 🎯 250ms debounce - balanced between responsiveness and API efficiency
+    // Not too short (to avoid hammering the server)
+    // Not too long (to feel instant)
     debounceTimeout.current = setTimeout(() => {
       // ✅ Just update filters - useEffect will handle URL sync
       setFilters(prev => ({ ...prev, q: value }));
       setIsTyping(false);
-    }, 150); // ✅ Reduced from 500ms to 150ms pour expérience fluide
+    }, 250);
   }, []);
 
   // Handle zone change with establishment reset

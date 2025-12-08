@@ -69,7 +69,7 @@ const getSegmentType = (row: number): 'horizontal-main' | 'left-vertical' | 'rig
 };
 
 const calculateResponsivePosition = (row: number, col: number, isMobile: boolean, containerElement?: HTMLElement) => {
-  const zoneConfig = getZoneConfig('treetown');
+  const _zoneConfig = getZoneConfig('treetown');
   const segment = getSegmentType(row);
 
   if (isMobile) {
@@ -218,7 +218,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
   onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token: _token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -242,7 +242,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
   const [optimisticPositions, setOptimisticPositions] = useState<Map<string, { row: number; col: number }>>(new Map());
   const [operationLockUntil, setOperationLockUntil] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -479,8 +479,8 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
     const containerHeight = rect.height;
 
     // ROAD DIMENSIONS (matching calculateResponsivePosition)
-    const roadWidth = 120;
-    const roadHalfWidth = 60;
+    const _roadWidth = 120;
+    const _roadHalfWidth = 60;
     const topY = containerHeight * 0.22;
     const leftX = containerWidth * 0.20;
     const rightX = containerWidth * 0.80;

@@ -36,7 +36,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
       minLength: 3,
       maxLength: 50,
       pattern: /^[a-zA-Z0-9_]+$/,
-      message: (field, rule, value) => {
+      message: (field, rule, _value) => {
         if (rule === 'required') return t('register.pseudonymRequired');
         if (rule === 'minLength') return t('register.pseudonymMinLength');
         if (rule === 'maxLength') return t('register.pseudonymMaxLength');
@@ -316,7 +316,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                   name="accountType"
                   value="regular"
                   checked={formData.accountType === 'regular'}
-                  onChange={(e) => setFormData(prev => ({ ...prev, accountType: 'regular' }))}
+                  onChange={() => setFormData(prev => ({ ...prev, accountType: 'regular' }))}
                   style={{ accentColor: '#00E5FF' }}
                 />
                 <div>
@@ -349,7 +349,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                   name="accountType"
                   value="employee"
                   checked={formData.accountType === 'employee'}
-                  onChange={(e) => setFormData(prev => ({ ...prev, accountType: 'employee' }))}
+                  onChange={() => setFormData(prev => ({ ...prev, accountType: 'employee' }))}
                   style={{ accentColor: '#C19A6B' }}
                 />
                 <div>

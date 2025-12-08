@@ -178,7 +178,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
         request_message,
         created_at,
         establishment:establishments(id, name, status),
-        user:users(id, pseudonym, email)
+        user:users!establishment_ownership_requests_user_id_fkey(id, pseudonym, email)
       `)
       .single();
 

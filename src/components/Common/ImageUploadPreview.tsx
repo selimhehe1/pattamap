@@ -46,7 +46,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
   onFilesChange,
   initialImages = [],
-  showProgress = true,
+  showProgress: _showProgress = true, // Reserved for future progress indicator
   label = 'Upload Photos',
   disabled = false
 }) => {

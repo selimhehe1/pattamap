@@ -24,15 +24,15 @@ export const EstablishmentForm = lazy(() => import('../components/Forms/Establis
 export const GirlProfile = lazy(() => import('../components/Bar/GirlProfile'));
 
 // Import functions for preloading
-export const importAdminPanel = () => import('../components/Admin/AdminPanel');
-export const importSearchPage = () => import('../components/Search/SearchPage');
-export const importFreelancesPage = () => import('../pages/FreelancesPage'); // 🆕 v10.3
-export const importBarDetailPage = () => import('../components/Bar/BarDetailPage');
-export const importUserDashboard = () => import('../components/User/UserDashboard');
-export const importMyEstablishmentsPage = () => import('../pages/MyEstablishmentsPage'); // 🆕 v10.1
-export const importEmployeeDashboard = () => import('../components/Employee/EmployeeDashboard'); // 🆕 v10.2
-export const importMyOwnershipRequests = () => import('../components/Owner/MyOwnershipRequests'); // 🆕 v10.2
-export const importMyAchievementsPage = () => import('../pages/MyAchievementsPage'); // 🆕 v10.3
-export const importEmployeeForm = () => import('../components/Forms/EmployeeForm');
-export const importEstablishmentForm = () => import('../components/Forms/EstablishmentForm');
-export const importGirlProfile = () => import('../components/Bar/GirlProfile');
+export const importAdminPanel = (): Promise<typeof import('../components/Admin/AdminPanel')> => import('../components/Admin/AdminPanel');
+export const importSearchPage = (): Promise<typeof import('../components/Search/SearchPage')> => import('../components/Search/SearchPage');
+export const importFreelancesPage = (): Promise<typeof import('../pages/FreelancesPage')> => import('../pages/FreelancesPage'); // 🆕 v10.3
+export const importBarDetailPage = (): Promise<typeof import('../components/Bar/BarDetailPage')> => import('../components/Bar/BarDetailPage');
+export const importUserDashboard = (): Promise<typeof import('../components/User/UserDashboard')> => import('../components/User/UserDashboard');
+export const importMyEstablishmentsPage = (): Promise<typeof import('../pages/MyEstablishmentsPage')> => import('../pages/MyEstablishmentsPage'); // 🆕 v10.1
+export const importEmployeeDashboard = (): Promise<typeof import('../components/Employee/EmployeeDashboard')> => import('../components/Employee/EmployeeDashboard'); // 🆕 v10.2
+export const importMyOwnershipRequests = (): Promise<typeof import('../components/Owner/MyOwnershipRequests')> => import('../components/Owner/MyOwnershipRequests'); // 🆕 v10.2
+export const importMyAchievementsPage = (): Promise<typeof import('../pages/MyAchievementsPage')> => import('../pages/MyAchievementsPage'); // 🆕 v10.3
+export const importEmployeeForm = (): Promise<typeof import('../components/Forms/EmployeeForm')> => import('../components/Forms/EmployeeForm');
+export const importEstablishmentForm = (): Promise<typeof import('../components/Forms/EstablishmentForm')> => import('../components/Forms/EstablishmentForm');
+export const importGirlProfile = (): Promise<typeof import('../components/Bar/GirlProfile')> => import('../components/Bar/GirlProfile');

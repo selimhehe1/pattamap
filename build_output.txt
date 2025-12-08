@@ -1,0 +1,21 @@
+
+> pattamap@0.1.0 build
+> react-scripts build
+
+Creating an optimized production build...
+Failed to compile.
+
+SyntaxError: C:\Users\Selim\Documents\Projet\pattaya-directory\src\utils\toast.ts: Identifier 'toast' has already been declared. (181:6)
+[0m [90m 179 |[39m
+ [90m 180 |[39m [90m// Default export with all methods[39m
+[31m[1m>[22m[39m[90m 181 |[39m [36mconst[39m toast [33m=[39m {
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 182 |[39m   success[33m:[39m showSuccess[33m,[39m
+ [90m 183 |[39m   error[33m:[39m showError[33m,[39m
+ [90m 184 |[39m   info[33m:[39m showInfo[33m,[39m[0m
+    at parser.next (<anonymous>)
+    at normalizeFile.next (<anonymous>)
+    at run.next (<anonymous>)
+    at transform.next (<anonymous>)
+
+

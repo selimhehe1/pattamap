@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Mission, UserMissionProgress } from '../../contexts/GamificationContext';
+import { logger } from '../../utils/logger';
 import './MissionsDashboard.css';
 
 interface MissionsDashboardProps {
@@ -37,7 +38,7 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
           setActiveMissions(data.missions || []);
         }
       } catch (error) {
-        console.error('Error fetching missions:', error);
+        logger.error('Error fetching missions:', error);
       } finally {
         setLoadingMissions(false);
       }

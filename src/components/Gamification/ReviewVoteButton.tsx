@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
+import { logger } from '../../utils/logger';
 import './ReviewVoteButton.css';
 
 interface ReviewVoteButtonProps {
@@ -25,7 +26,7 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
 }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { awardXP, refreshUserProgress } = useGamification();
+  const { awardXP: _awardXP, refreshUserProgress } = useGamification(); // awardXP reserved for future
   const [voteCount, setVoteCount] = useState(initialVoteCount);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
   const [loading, setLoading] = useState(false);
@@ -54,7 +55,7 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
         setHasVoted(data.hasVoted);
       }
     } catch (err) {
-      console.error('Error fetching vote status:', err);
+      logger.error('Error fetching vote status:', err);
     }
   };
 

@@ -1,17 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import { Establishment } from '../../types';
+import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from './NationalityTagsInput';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/employee-form.css';
 
+// Internal form state for social media (using abbreviations)
+interface FormSocialMedia {
+  ig: string;
+  fb: string;
+  line: string;
+  tg: string;
+  wa: string;
+}
+
+// Internal form data type
+interface InternalFormData {
+  name: string;
+  nickname: string;
+  age: string;
+  nationality: string[] | null;
+  description: string;
+  social_media: FormSocialMedia;
+  current_establishment_id: string;
+}
+
+// Extended form data type for submission (includes freelance fields)
+interface EmployeeSubmitData {
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[] | null;
+  description?: string;
+  photos: string[];
+  social_media?: Record<string, string>;
+  current_establishment_id?: string;
+  current_establishment_ids?: string[];
+  is_freelance?: boolean;
+}
+
 interface EmployeeFormContentProps {
-  onSubmit: (employeeData: any) => void;
+  onSubmit: (employeeData: EmployeeSubmitData) => void;
   onClose?: () => void; // Optional - injected by openModal
   isLoading?: boolean;
-  initialData?: any;
+  initialData?: Partial<Employee> & { current_establishment_id?: string };
   isSelfProfile?: boolean; // 🆕 v10.0 - Self-managed employee profile mode
 }
 
@@ -23,11 +57,11 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   isSelfProfile = false // 🆕 v10.0
 }) => {
   const { secureFetch } = useSecureFetch();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
     age: initialData?.age?.toString() || '',
-    nationality: initialData?.nationality || '',
+    nationality: initialData?.nationality || null,
     description: initialData?.description || '',
     social_media: {
       ig: initialData?.social_media?.instagram || '',
@@ -68,8 +102,8 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       // v10.3: Load associated nightclubs if any
       if (initialData?.current_employment) {
         const nightclubIds = initialData.current_employment
-          .filter((emp: any) => emp.establishment?.category?.name === 'Nightclub')
-          .map((emp: any) => emp.establishment_id);
+          .filter((emp) => emp.establishment?.category?.name === 'Nightclub')
+          .map((emp) => emp.establishment_id);
         setSelectedNightclubs(nightclubIds);
       }
     }
@@ -185,7 +219,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         throw new Error(data.error || 'Failed to upload photos');
       }
 
-      return data.images.map((img: any) => img.url);
+      return (data as CloudinaryUploadResponse).images.map((img) => img.url);
     } catch (error) {
       logger.error('Photo upload error:', error);
       throw error;
@@ -221,13 +255,31 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       const keptExistingPhotos = existingPhotos.filter(url => !photosToRemove.includes(url));
       const finalPhotoUrls = [...keptExistingPhotos, ...uploadedPhotoUrls];
 
-      const employeeData: any = {
-        ...formData,
+      // Map abbreviations to full names for API
+      const socialMediaMap: Record<string, string> = {
+        ig: 'instagram',
+        fb: 'facebook',
+        line: 'line',
+        tg: 'telegram',
+        wa: 'whatsapp'
+      };
+
+      const mappedSocialMedia: Record<string, string> = {};
+      Object.entries(formData.social_media).forEach(([key, value]) => {
+        if (value.trim() !== '') {
+          mappedSocialMedia[socialMediaMap[key] || key] = value;
+        }
+      });
+
+      const employeeData: EmployeeSubmitData = {
+        name: formData.name,
+        nickname: formData.nickname || undefined,
         age: formData.age ? parseInt(formData.age) : undefined,
+        nationality: formData.nationality,
+        description: formData.description || undefined,
         photos: finalPhotoUrls,
-        social_media: Object.fromEntries(
-          Object.entries(formData.social_media).filter(([_, value]) => value.trim() !== '')
-        )
+        social_media: Object.keys(mappedSocialMedia).length > 0 ? mappedSocialMedia : undefined,
+        current_establishment_id: formData.current_establishment_id || undefined
       };
 
       // v10.3: Handle freelance mode with multi-nightclub support

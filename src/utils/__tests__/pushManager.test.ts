@@ -117,15 +117,18 @@ beforeAll(() => {
     getRegistrations: jest.fn()
   };
 
-  // Mock atob
-  global.atob = jest.fn((str: string) => {
-    return Buffer.from(str, 'base64').toString('binary');
-  });
+  // Mock atob - proper base64 decoding
+  global.atob = (str: string) => {
+    // Handle URL-safe base64
+    const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    return Buffer.from(padded, 'base64').toString('binary');
+  };
 
-  // Mock btoa
-  global.btoa = jest.fn((str: string) => {
+  // Mock btoa - proper base64 encoding
+  global.btoa = (str: string) => {
     return Buffer.from(str, 'binary').toString('base64');
-  });
+  };
 
   // Mock cookies
   Object.defineProperty(document, 'cookie', {
@@ -134,11 +137,45 @@ beforeAll(() => {
   });
 });
 
+// Store original navigator.serviceWorker
+let originalServiceWorker: ServiceWorkerContainer | undefined;
+
 // Reset mocks before each test
 beforeEach(() => {
   jest.clearAllMocks();
   MockNotification.permission = 'default';
+  MockNotification.requestPermission = jest.fn().mockResolvedValue('granted');
   (global.fetch as jest.Mock).mockClear();
+
+  // Save original and restore serviceWorker
+  originalServiceWorker = navigator.serviceWorker;
+
+  // Reset navigator.serviceWorker with fresh mock
+  // @ts-ignore
+  global.navigator.serviceWorker = {
+    register: jest.fn(),
+    ready: Promise.resolve(new MockServiceWorkerRegistration()),
+    controller: null,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+    getRegistration: jest.fn(),
+    getRegistrations: jest.fn()
+  };
+
+  // @ts-ignore
+  global.window.PushManager = {};
+  // @ts-ignore
+  global.window.Notification = MockNotification;
+});
+
+// Cleanup after each test
+afterEach(() => {
+  // Restore original serviceWorker if it existed
+  if (originalServiceWorker) {
+    // @ts-ignore
+    global.navigator.serviceWorker = originalServiceWorker;
+  }
 });
 
 // ==========================================
@@ -148,47 +185,43 @@ beforeEach(() => {
 describe('Push Manager', () => {
   describe('isPushSupported', () => {
     test('returns true when all APIs are available', () => {
-      // @ts-ignore
-      global.navigator.serviceWorker = {};
-      // @ts-ignore
-      global.window.PushManager = {};
-      // @ts-ignore
-      global.window.Notification = MockNotification;
-
       expect(isPushSupported()).toBe(true);
     });
 
     test('returns false when ServiceWorker is not available', () => {
+      const saved = navigator.serviceWorker;
       // @ts-ignore
       delete global.navigator.serviceWorker;
 
       expect(isPushSupported()).toBe(false);
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.navigator.serviceWorker = {};
+      global.navigator.serviceWorker = saved;
     });
 
     test('returns false when PushManager is not available', () => {
+      const saved = window.PushManager;
       // @ts-ignore
       delete global.window.PushManager;
 
       expect(isPushSupported()).toBe(false);
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.window.PushManager = {};
+      global.window.PushManager = saved;
     });
 
     test('returns false when Notification is not available', () => {
+      const saved = window.Notification;
       // @ts-ignore
       delete global.window.Notification;
 
       expect(isPushSupported()).toBe(false);
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.window.Notification = MockNotification;
+      global.window.Notification = saved;
     });
   });
 
@@ -205,14 +238,15 @@ describe('Push Manager', () => {
     });
 
     test('returns "denied" when Notification API is not available', () => {
+      const saved = window.Notification;
       // @ts-ignore
       delete global.window.Notification;
 
       expect(getNotificationPermission()).toBe('denied');
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.window.Notification = MockNotification;
+      global.window.Notification = saved;
     });
   });
 
@@ -236,6 +270,7 @@ describe('Push Manager', () => {
     });
 
     test('returns "denied" when Notification API is not available', async () => {
+      const saved = window.Notification;
       // @ts-ignore
       delete global.window.Notification;
 
@@ -243,9 +278,9 @@ describe('Push Manager', () => {
 
       expect(permission).toBe('denied');
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.window.Notification = MockNotification;
+      global.window.Notification = saved;
     });
 
     test('handles request failure gracefully', async () => {
@@ -294,6 +329,7 @@ describe('Push Manager', () => {
     });
 
     test('returns null when service workers are not supported', async () => {
+      const saved = navigator.serviceWorker;
       // @ts-ignore
       delete global.navigator.serviceWorker;
 
@@ -301,11 +337,9 @@ describe('Push Manager', () => {
 
       expect(registration).toBeNull();
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.navigator.serviceWorker = {
-        register: jest.fn()
-      };
+      global.navigator.serviceWorker = saved;
     });
 
     test('returns null when registration fails', async () => {
@@ -328,6 +362,7 @@ describe('Push Manager', () => {
     });
 
     test('returns null when service workers are not supported', async () => {
+      const saved = navigator.serviceWorker;
       // @ts-ignore
       delete global.navigator.serviceWorker;
 
@@ -335,15 +370,17 @@ describe('Push Manager', () => {
 
       expect(registration).toBeNull();
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.navigator.serviceWorker = {
-        ready: Promise.resolve(new MockServiceWorkerRegistration())
-      };
+      global.navigator.serviceWorker = saved;
     });
 
     test('returns null when getting registration fails', async () => {
-      (navigator.serviceWorker.ready as any) = Promise.reject(new Error('Failed'));
+      // Create a rejected promise that is properly handled
+      const rejectedPromise = Promise.reject(new Error('Failed'));
+      // Prevent unhandled rejection
+      rejectedPromise.catch(() => {});
+      (navigator.serviceWorker.ready as any) = rejectedPromise;
 
       const registration = await getServiceWorkerRegistration();
 
@@ -407,16 +444,15 @@ describe('Push Manager', () => {
     });
 
     test('throws error when push is not supported', async () => {
+      const saved = navigator.serviceWorker;
       // @ts-ignore
       delete global.navigator.serviceWorker;
 
       await expect(subscribeToPush()).rejects.toThrow('Push notifications not supported');
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.navigator.serviceWorker = {
-        ready: Promise.resolve(new MockServiceWorkerRegistration())
-      };
+      global.navigator.serviceWorker = saved;
     });
 
     test('throws error when permission is denied', async () => {
@@ -504,7 +540,9 @@ describe('Push Manager', () => {
     });
 
     test('throws error when no service worker registration', async () => {
-      (navigator.serviceWorker.ready as any) = Promise.reject(new Error('No registration'));
+      const rejectedPromise = Promise.reject(new Error('No registration'));
+      rejectedPromise.catch(() => {}); // Prevent unhandled rejection
+      (navigator.serviceWorker.ready as any) = rejectedPromise;
 
       await expect(unsubscribeFromPush()).rejects.toThrow();
     });
@@ -550,7 +588,9 @@ describe('Push Manager', () => {
     });
 
     test('returns null when no registration exists', async () => {
-      (navigator.serviceWorker.ready as any) = Promise.reject(new Error('No registration'));
+      const rejectedPromise = Promise.reject(new Error('No registration'));
+      rejectedPromise.catch(() => {}); // Prevent unhandled rejection
+      (navigator.serviceWorker.ready as any) = rejectedPromise;
 
       const subscription = await getCurrentSubscription();
 
@@ -649,7 +689,6 @@ describe('Push Manager', () => {
           body: 'Test Body',
           icon: '/icons/icon-192x192.png',
           badge: '/icons/badge-72x72.png',
-          vibrate: [200, 100, 200],
           tag: 'test-notification'
         })
       );
@@ -668,16 +707,15 @@ describe('Push Manager', () => {
     });
 
     test('throws error when push is not supported', async () => {
+      const saved = navigator.serviceWorker;
       // @ts-ignore
       delete global.navigator.serviceWorker;
 
       await expect(showTestNotification('Test', 'Test')).rejects.toThrow('Notifications not supported');
 
-      // Restore
+      // Restore immediately
       // @ts-ignore
-      global.navigator.serviceWorker = {
-        ready: Promise.resolve(new MockServiceWorkerRegistration())
-      };
+      global.navigator.serviceWorker = saved;
     });
 
     test('throws error when permission is denied', async () => {
@@ -689,7 +727,9 @@ describe('Push Manager', () => {
 
     test('throws error when no service worker registration', async () => {
       MockNotification.permission = 'granted';
-      (navigator.serviceWorker.ready as any) = Promise.reject(new Error('No registration'));
+      const rejectedPromise = Promise.reject(new Error('No registration'));
+      rejectedPromise.catch(() => {}); // Prevent unhandled rejection
+      (navigator.serviceWorker.ready as any) = rejectedPromise;
 
       await expect(showTestNotification('Test', 'Test')).rejects.toThrow('No service worker registration');
     });

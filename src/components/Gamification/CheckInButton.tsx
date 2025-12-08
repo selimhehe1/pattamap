@@ -21,7 +21,7 @@ interface CheckInResult {
 
 const CheckInButton: React.FC<CheckInButtonProps> = ({
   establishmentId,
-  establishmentName,
+  establishmentName: _establishmentName, // Reserved for future toast/notification
   establishmentLat,
   establishmentLng,
   compact = false
@@ -68,7 +68,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const distance = calculateDistance(latitude, longitude, establishmentLat, establishmentLng);
+          const _distance = calculateDistance(latitude, longitude, establishmentLat, establishmentLng); // For debug
 
           try {
             // Call check-in API

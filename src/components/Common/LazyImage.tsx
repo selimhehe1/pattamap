@@ -164,7 +164,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     setCurrentSrc(imageUrls.src);
   }, [imageUrls.src]);
 
-  const handleError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleError = (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     logger.warn(`LazyImage: Failed to load image: ${src}`);
     setImageError(true);
     setIsLoading(false);

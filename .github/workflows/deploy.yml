@@ -1,0 +1,182 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # ============================================
+  # Build & Test (Required before deploy)
+  # ============================================
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm test -- --coverage --watchAll=false --testPathIgnorePatterns="VIP"
+        env:
+          CI: true
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run backend tests
+        run: npm run test:coverage
+        working-directory: backend
+        env:
+          CI: true
+          NODE_ENV: test
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+          retention-days: 1
+
+      - name: Upload backend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
+          retention-days: 1
+
+  # ============================================
+  # Deploy to Staging (automatic on main push)
+  # ============================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+
+    steps:
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
+
+      # ============================================
+      # Option 1: Deploy to Vercel (Frontend)
+      # ============================================
+      # - name: Deploy Frontend to Vercel
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     working-directory: ./build
+
+      # ============================================
+      # Option 2: Deploy to Railway (Backend)
+      # ============================================
+      # - name: Deploy Backend to Railway
+      #   uses: railwayapp/action-deploy@v1
+      #   with:
+      #     railway-token: ${{ secrets.RAILWAY_TOKEN }}
+      #     service: backend
+
+      # ============================================
+      # Option 3: Deploy to VPS via SSH
+      # ============================================
+      # - name: Deploy to VPS
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USERNAME }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     script: |
+      #       cd /var/www/pattamap
+      #       git pull origin main
+      #       npm ci
+      #       npm run build
+      #       pm2 restart all
+
+      - name: Staging deployment placeholder
+        run: |
+          echo "Staging deployment configured!"
+          echo "Uncomment the appropriate deployment option above."
+          echo "Frontend build size: $(du -sh build/ | cut -f1)"
+          echo "Backend build size: $(du -sh backend/dist/ | cut -f1)"
+
+  # ============================================
+  # Deploy to Production (manual trigger only)
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
+
+      - name: Production deployment placeholder
+        run: |
+          echo "Production deployment configured!"
+          echo "This requires manual approval in GitHub."
+          echo "Frontend build size: $(du -sh build/ | cut -f1)"
+          echo "Backend build size: $(du -sh backend/dist/ | cut -f1)"

@@ -17,6 +17,7 @@ export enum LogLevel {
 
 interface LogOptions {
   sanitize?: boolean; // Auto-sanitize sensitive data (default: true)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>; // Additional context
 }
 
@@ -27,6 +28,7 @@ class Logger {
    * Sanitize sensitive data from logs
    * Removes tokens, passwords, etc.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sanitizeData(data: any): any {
     if (typeof data !== 'object' || data === null) return data;
 
@@ -70,7 +72,8 @@ class Logger {
   /**
    * Prepare data for logging
    */
-  private prepareData(data: any, options?: LogOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private prepareData(data: any, options?: LogOptions): any {
     // Auto-sanitize unless explicitly disabled
     if (options?.sanitize !== false) {
       data = this.sanitizeData(data);
@@ -90,12 +93,15 @@ class Logger {
   /**
    * Debug logs - only in development
    */
-  debug(message: string, data?: any, options?: LogOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  debug(message: string, data?: any, options?: LogOptions): void {
     if (this.isDevelopment) {
       const formattedMessage = this.formatMessage('🔍', 'DEBUG', message);
       if (data) {
+        // eslint-disable-next-line no-console
         console.log(formattedMessage, this.prepareData(data, options));
       } else {
+        // eslint-disable-next-line no-console
         console.log(formattedMessage);
       }
     }
@@ -104,7 +110,8 @@ class Logger {
   /**
    * Info logs - development only
    */
-  info(message: string, data?: any, options?: LogOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  info(message: string, data?: any, options?: LogOptions): void {
     if (this.isDevelopment) {
       const formattedMessage = this.formatMessage('ℹ️', 'INFO', message);
       if (data) {
@@ -118,7 +125,8 @@ class Logger {
   /**
    * Warning logs - always logged
    */
-  warn(message: string, data?: any, options?: LogOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn(message: string, data?: any, options?: LogOptions): void {
     const formattedMessage = this.formatMessage('⚠️', 'WARN', message);
     if (data) {
       console.warn(formattedMessage, this.prepareData(data, options));
@@ -130,7 +138,8 @@ class Logger {
   /**
    * Error logs - always logged
    */
-  error(message: string, error?: Error | any, options?: LogOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(message: string, error?: Error | any, options?: LogOptions): void {
     const formattedMessage = this.formatMessage('❌', 'ERROR', message);
 
     const errorData = error instanceof Error ? {
@@ -166,7 +175,8 @@ class Logger {
   /**
    * Helper to log API calls
    */
-  logAPI(method: string, url: string, status?: number, data?: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logAPI(method: string, url: string, status?: number, data?: Record<string, any>): void {
     if (status && status >= 400) {
       this.error(`API ${method} ${url} failed`, {
         status,
@@ -185,7 +195,8 @@ class Logger {
   /**
    * Helper to log user actions
    */
-  logAction(action: string, data?: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logAction(action: string, data?: any): void {
     this.debug(`User action: ${action}`, data);
   }
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import { X } from 'lucide-react';
 import { User } from '../../types';
 import AnimatedButton from '../Common/AnimatedButton';
 

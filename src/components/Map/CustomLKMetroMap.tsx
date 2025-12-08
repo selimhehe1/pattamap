@@ -87,7 +87,7 @@ const getSegmentType = (row: number): 'horizontal' | 'vertical' => {
  * Total capacity: 33 positions (9+8+7+9)
  */
 const calculateResponsivePosition = (row: number, col: number, isMobile: boolean, containerElement?: HTMLElement) => {
-  const zoneConfig = getZoneConfig('lkmetro');
+  const _zoneConfig = getZoneConfig('lkmetro');
   const segment = getSegmentType(row);
   const maxColsPerSegment = 9; // 9 cols pour les deux segments
 
@@ -204,13 +204,13 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token: _token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   // ✅ KEYBOARD NAVIGATION: Track focused bar index for arrow key navigation
   const [focusedBarIndex, setFocusedBarIndex] = useState<number>(-1);
@@ -785,7 +785,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             const lockUntil = Date.now() + 500;
             setOperationLockUntil(lockUntil);
           } else {
-            const errorText = await response.text();
+            const _errorText = await response.text();
 
             // OPTIMISTIC UI: Clear failed position (automatic rollback)
             setOptimisticPositions(prev => {
@@ -848,7 +848,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             const lockUntil = Date.now() + 500;
             setOperationLockUntil(lockUntil);
           } else {
-            const errorText = await response.text();
+            const _errorText = await response.text();
 
             // OPTIMISTIC UI: Clear both failed positions (rollback)
             setOptimisticPositions(prev => {

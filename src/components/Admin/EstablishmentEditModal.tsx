@@ -18,7 +18,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   onUpdate
 }) => {
   const { t } = useTranslation();
-  const { token } = useAuth();
+  const { token: _token } = useAuth(); // Token managed by secureFetch
   const { secureFetch } = useSecureFetch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -189,7 +189,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
         throw new Error(t('establishmentEditModal.errorUpdateFailed'));
       }
 
-      const result = await response.json();
+      const _result = await response.json(); // Response consumed but not used directly
 
       // No need for separate PATCH request - logo_url is now included in PUT request
 

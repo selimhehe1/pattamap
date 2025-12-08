@@ -7,6 +7,7 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import LazyImage from '../Common/LazyImage';
 import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 import '../../styles/admin/verifications-admin.css';
 
 /**
@@ -92,7 +93,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       const data = await response.json();
       setVerifications(data.verifications || []);
     } catch (error) {
-      console.error('Error fetching verifications:', error);
+      logger.error('Error fetching verifications:', error);
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +201,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       await fetchVerifications();
       toast.success(t(`admin.verification${action === 'approve' ? 'Approved' : 'Rejected'}`, `Verification ${action}d successfully`));
     } catch (error) {
-      console.error(`Error ${action}ing verification:`, error);
+      logger.error(`Error ${action}ing verification:`, error);
       toast.error(t('admin.verificationError', `Failed to ${action} verification`, { action }));
     } finally {
       setProcessingIds(prev => {
@@ -243,7 +244,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       setRevokeReason('');
       toast.success(t('admin.verificationRejected', 'Verification rejected successfully'));
     } catch (error) {
-      console.error('Error rejecting verification:', error);
+      logger.error('Error rejecting verification:', error);
       toast.error(t('admin.failedRejectVerification', 'Failed to reject verification'));
     } finally {
       if (revokeTarget) {
@@ -292,7 +293,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
         showCloseButton: false
       });
     } catch (error) {
-      console.error('Error loading employee profile:', error);
+      logger.error('Error loading employee profile:', error);
       toast.error(t('admin.failedLoadProfile', 'Failed to load employee profile'));
     }
   };

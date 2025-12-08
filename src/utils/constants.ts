@@ -3,7 +3,6 @@
  * Centralized configuration for zones and other constants
  */
 
-import { ZONE_GRID_CONFIGS } from './zoneConfig';
 
 /**
  * Zone options for dropdowns/selects

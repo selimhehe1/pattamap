@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { Establishment } from '../../types';
+import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from './NationalityTagsInput';
@@ -12,29 +12,62 @@ import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
 
+// Internal form state for social media (using abbreviations)
+interface FormSocialMedia {
+  ig: string;
+  fb: string;
+  line: string;
+  tg: string;
+  wa: string;
+}
+
+// Internal form data type
+interface InternalFormData {
+  name: string;
+  nickname: string;
+  age: string;
+  nationality: string[] | null;
+  description: string;
+  social_media: FormSocialMedia;
+  current_establishment_id: string;
+}
+
+// Extended form data type for submission
+interface EmployeeSubmitData {
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[] | null;
+  description?: string;
+  photos: string[];
+  social_media?: Record<string, string>;
+  current_establishment_id?: string;
+  is_freelance?: boolean;
+}
+
 interface EmployeeFormProps {
-  onSubmit: (employeeData: any) => void;
+  onSubmit: (employeeData: EmployeeSubmitData) => void;
   onCancel: () => void;
   isLoading?: boolean;
-  initialData?: any;
+  initialData?: Partial<Employee> & { current_establishment_id?: string };
 }
 
 const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoading = false, initialData }) => {
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
     age: initialData?.age?.toString() || '',
-    nationality: initialData?.nationality || '',
+    nationality: initialData?.nationality || null,
     description: initialData?.description || '',
     social_media: {
-      ig: initialData?.social_media?.ig || '',
-      fb: initialData?.social_media?.fb || '',
+      ig: initialData?.social_media?.instagram || '',
+      fb: initialData?.social_media?.facebook || '',
       line: initialData?.social_media?.line || '',
-      tg: initialData?.social_media?.tg || '',
-      wa: initialData?.social_media?.wa || ''
+      tg: initialData?.social_media?.telegram || '',
+      wa: initialData?.social_media?.whatsapp || ''
     },
     // Extract current_establishment_id from current_employment array if exists
     current_establishment_id: initialData?.current_employment?.[0]?.establishment_id || initialData?.current_establishment_id || ''
@@ -44,7 +77,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>(initialData?.photos || []);
-  const [photosToRemove, setPhotosToRemove] = useState<string[]>([]); // Track URLs to delete
+  const [_photosToRemove, setPhotosToRemove] = useState<string[]>([]); // Track URLs to delete
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -260,7 +293,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
         throw new Error(data.error || 'Failed to upload photos');
       }
 
-      return data.images.map((img: any) => img.url);
+      return (data as CloudinaryUploadResponse).images.map((img) => img.url);
     } catch (error) {
       logger.error('Photo upload error:', error);
       throw error;
@@ -293,13 +326,31 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
       // Combine existing photos (minus removed ones) + newly uploaded photos
       const finalPhotoUrls = [...existingPhotoUrls, ...newUploadedUrls];
 
-      const employeeData: any = {
-        ...formData,
+      // Map abbreviations to full names for API
+      const socialMediaMap: Record<string, string> = {
+        ig: 'instagram',
+        fb: 'facebook',
+        line: 'line',
+        tg: 'telegram',
+        wa: 'whatsapp'
+      };
+
+      const mappedSocialMedia: Record<string, string> = {};
+      Object.entries(formData.social_media).forEach(([key, value]) => {
+        if (value.trim() !== '') {
+          mappedSocialMedia[socialMediaMap[key] || key] = value;
+        }
+      });
+
+      const employeeData: EmployeeSubmitData = {
+        name: formData.name,
+        nickname: formData.nickname || undefined,
         age: formData.age ? parseInt(formData.age) : undefined,
+        nationality: formData.nationality,
+        description: formData.description || undefined,
         photos: finalPhotoUrls,
-        social_media: Object.fromEntries(
-          Object.entries(formData.social_media).filter(([_, value]) => value.trim() !== '')
-        )
+        social_media: Object.keys(mappedSocialMedia).length > 0 ? mappedSocialMedia : undefined,
+        current_establishment_id: formData.current_establishment_id || undefined
       };
 
       // 🆕 v10.3 - New freelance logic (migration 013)

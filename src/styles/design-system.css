@@ -529,6 +529,24 @@ html[data-theme] {
   opacity: 1;
 }
 
+/* Global anti-blur rendering for emojis and icons */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Prevent emoji blur on transform/animation */
+span:where([class*="icon"]),
+span:where([class*="emoji"]),
+button span,
+.zone-selector span {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* Theme transitioning class (added by JS during theme switch) */
 html.theme-transitioning,
 html.theme-transitioning * {

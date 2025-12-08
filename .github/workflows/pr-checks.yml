@@ -1,0 +1,87 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # ============================================
+  # Quick checks for PR review
+  # ============================================
+  pr-checks:
+    name: PR Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for console.log statements
+        run: |
+          echo "Checking for console.log in production code..."
+          if grep -r "console\.log" --include="*.ts" --include="*.tsx" src/ --exclude-dir="__tests__" --exclude-dir="__mocks__" | grep -v "// eslint-disable" | head -20; then
+            echo "Warning: Found console.log statements in production code"
+          else
+            echo "No console.log found in production code"
+          fi
+
+      - name: Check for TODO/FIXME comments
+        run: |
+          echo "Checking for TODO/FIXME comments..."
+          TODOS=$(grep -rn "TODO\|FIXME" --include="*.ts" --include="*.tsx" src/ || true)
+          if [ -n "$TODOS" ]; then
+            echo "Found TODO/FIXME comments:"
+            echo "$TODOS" | head -20
+          else
+            echo "No TODO/FIXME comments found"
+          fi
+
+      - name: Check bundle size (estimate)
+        run: |
+          npm run build -- --stats
+          echo "Build completed. Check artifacts for detailed analysis."
+        env:
+          CI: true
+          GENERATE_SOURCEMAP: false
+
+      - name: Comment PR with build info
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Get build folder size
+            const { execSync } = require('child_process');
+            const buildSize = execSync('du -sh build/ | cut -f1').toString().trim();
+
+            const body = `## Build Summary
+
+            | Metric | Value |
+            |--------|-------|
+            | Build Size | ${buildSize} |
+            | Node Version | ${{ env.NODE_VERSION }} |
+
+            Build completed successfully.
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

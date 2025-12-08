@@ -112,12 +112,25 @@ export const getFreelances = async (req: Request, res: Response) => {
       filteredEmployees = employees.filter((emp: any) => emp.nightclubs.length === 0);
     }
 
-    // Sort employees
+    // Sort employees - Verified priority first (VIP system disabled in UI)
+    // Priority order: Verified+VIP > Verified > VIP > Others
     const sortedEmployees = filteredEmployees.sort((a: any, b: any) => {
-      // VIP always first (default)
       const aIsVip = a.is_vip && new Date(a.vip_expires_at) > new Date();
       const bIsVip = b.is_vip && new Date(b.vip_expires_at) > new Date();
+      const aIsVerified = a.is_verified === true;
+      const bIsVerified = b.is_verified === true;
 
+      // Priority 1: Verified + VIP (both) come first
+      const aIsPremium = aIsVerified && aIsVip;
+      const bIsPremium = bIsVerified && bIsVip;
+      if (aIsPremium && !bIsPremium) return -1;
+      if (!aIsPremium && bIsPremium) return 1;
+
+      // Priority 2: Verified alone (takes priority over VIP since VIP is hidden in UI)
+      if (aIsVerified && !bIsVerified) return -1;
+      if (!aIsVerified && bIsVerified) return 1;
+
+      // Priority 3: VIP alone (lower priority since VIP UI is disabled)
       if (aIsVip && !bIsVip) return -1;
       if (!aIsVip && bIsVip) return 1;
 
@@ -130,7 +143,7 @@ export const getFreelances = async (req: Request, res: Response) => {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
 
-      // Default: VIP first (already handled above), then by name
+      // Default: then by name
       return (a.name || '').localeCompare(b.name || '');
     });
 

@@ -12,7 +12,7 @@ interface BasicInfoFormProps {
     name: string;
     address: string;
     zone: string;
-    category_id: string;
+    category_id: string | number;
     description: string;
     logo_url?: string;
   };
@@ -162,7 +162,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         </label>
         <select
           name="category_id"
-          value={formData.category_id}
+          value={String(formData.category_id)}
           onChange={onChange}
           className="select-nightlife"
           style={{

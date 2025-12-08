@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Employee } from '../../types';
-import StarRating from '../Common/StarRating';
 import ReviewForm from '../Review/ReviewForm';
 import ReviewsList from '../Review/ReviewsList';
 import ReviewsModalContent from '../Review/ReviewsModalContent';
@@ -18,12 +17,16 @@ import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
+import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/components/employee-profile.css';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/components/photo-gallery-modal.css';
 import '../../styles/components/profile-modal.css';
 import '../../styles/pages/user-dashboard.css';
+
+// Feature flag check
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface GirlProfileProps {
   girl: Employee;
@@ -506,8 +509,8 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
             )}
           </div>
 
-          {/* VIP Status Section - v10.3 Phase 4 */}
-          {girl.is_vip && girl.vip_expires_at && (
+          {/* VIP Status Section - v10.3 Phase 4 (only if VIP feature enabled) */}
+          {VIP_ENABLED && girl.is_vip && girl.vip_expires_at && (
             <div className={`profile-vip-status ${new Date(girl.vip_expires_at) > new Date() ? 'active' : 'expired'}`}>
               <div className="vip-status-header">
                 <span className="vip-status-icon">👑</span>

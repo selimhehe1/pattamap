@@ -418,7 +418,7 @@
 .employee-card-type-label {
   font-weight: 500;
   text-transform: uppercase;
-  font-size: 9px; /* Réduit de 11px */
+  font-size: 10px; /* WCAG: Minimum 10px for readability */
   letter-spacing: 0.5px;
 }
 
@@ -528,7 +528,7 @@
   }
 
   .employee-card-type-label {
-    font-size: 8px; /* Réduit de 9px */
+    font-size: 10px; /* WCAG: Minimum 10px for readability */
   }
 
   .employee-card-type-icon {
@@ -597,4 +597,91 @@
       transparent 100%
     );
   }
+}
+
+/* ========================================
+   LIGHT MODE SUPPORT
+   Phase 4 - Theme Switching
+   ======================================== */
+
+/* Light mode - Card container */
+body[data-theme="light"] .employee-card-tinder {
+  background: linear-gradient(135deg, #F5F3FA 0%, #EDE9F5 100%);
+  border: 2px solid rgba(167, 139, 250, 0.3);
+  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15);
+}
+
+body[data-theme="light"] .employee-card-tinder:hover {
+  border-color: #A78BFA;
+  box-shadow: 0 20px 40px rgba(167, 139, 250, 0.25);
+}
+
+/* Light mode - Info box (completely opaque light background) */
+body[data-theme="light"] .employee-card-info {
+  background: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(167, 139, 250, 0.35) !important;
+  color: #1F2937 !important;
+  box-shadow: 0 -4px 20px rgba(167, 139, 250, 0.2) !important;
+}
+
+/* Light mode - Text colors */
+body[data-theme="light"] .employee-card-name {
+  color: #1F2937;
+  text-shadow: none;
+}
+
+body[data-theme="light"] .employee-card-nickname {
+  color: #6B7280;
+}
+
+body[data-theme="light"] .employee-card-detail {
+  color: #4B5563;
+}
+
+body[data-theme="light"] .employee-card-icon {
+  color: #A78BFA;
+}
+
+body[data-theme="light"] .employee-card-establishment {
+  color: #6B7280;
+}
+
+body[data-theme="light"] .employee-card-establishment-name {
+  color: #4B5563;
+}
+
+/* Light mode - Type badges */
+body[data-theme="light"] .employee-card-type-freelance {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: #7C3AED;
+}
+
+body[data-theme="light"] .employee-card-type-regular {
+  background: rgba(147, 197, 253, 0.2);
+  border-color: rgba(147, 197, 253, 0.5);
+  color: #2563EB;
+}
+
+/* Light mode - Verified badge */
+body[data-theme="light"] .employee-card-verified-corner {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+/* Light mode - Rating badge */
+body[data-theme="light"] .employee-card-rating-badge {
+  background: rgba(245, 243, 250, 0.95);
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #1F2937;
+}
+
+/* Light mode - Placeholder */
+body[data-theme="light"] .employee-card-placeholder {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(147, 197, 253, 0.1));
+}
+
+body[data-theme="light"] .employee-card-placeholder-icon {
+  color: rgba(167, 139, 250, 0.5);
 }

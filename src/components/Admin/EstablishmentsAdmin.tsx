@@ -8,6 +8,7 @@ import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import toast from '../../utils/toast';
+import { Establishment } from '../../types';
 import '../../styles/admin/establishments.css';
 import '../../styles/admin/admin-components.css';
 
@@ -865,7 +866,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         <div className="admin-establishments-modal-overlay-nightlife">
           <Suspense fallback={<LoadingFallback />}>
             <EstablishmentForm
-              initialData={editingEstablishment}
+              initialData={editingEstablishment as unknown as Partial<Establishment> | undefined}
               onCancel={() => {
                 setShowAddModal(false);
                 setEditingEstablishment(null);

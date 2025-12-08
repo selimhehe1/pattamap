@@ -8,7 +8,11 @@ import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
 import EditMyProfileModal from './EditMyProfileModal';
 import VIPPurchaseModal from '../Owner/VIPPurchaseModal';
+import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/components/employee-dashboard.css';
+
+// Feature flag for VIP system (disabled for now)
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface VerificationStatus {
   employee: {
@@ -485,53 +489,55 @@ const EmployeeDashboard: React.FC = () => {
           </div>
         </section>
 
-        {/* VIP Section */}
-        <section className="vip-section" style={{ marginTop: '30px' }}>
-          <h2>{t('employeeDashboard.vipBoost', 'VIP Boost')}</h2>
+        {/* VIP Section - Only shown when VIP feature is enabled */}
+        {VIP_ENABLED && (
+          <section className="vip-section" style={{ marginTop: '30px' }}>
+            <h2>{t('employeeDashboard.vipBoost', 'VIP Boost')}</h2>
 
-          {linkedEmployeeProfile.is_vip && linkedEmployeeProfile.vip_expires_at ? (
-            <div className="vip-active-card">
-              <div className="vip-active-content">
-                <div className="vip-icon">👑</div>
-                <div className="vip-details">
-                  <h3>{t('employeeDashboard.vipActive', 'VIP Active')}</h3>
-                  <p className="vip-expiry">
-                    {t('employeeDashboard.vipExpires', 'Expires')}: {new Date(linkedEmployeeProfile.vip_expires_at).toLocaleDateString()}
-                  </p>
-                  <div className="vip-benefits">
-                    <span>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</span>
-                    <span>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</span>
-                    <span>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</span>
+            {linkedEmployeeProfile.is_vip && linkedEmployeeProfile.vip_expires_at ? (
+              <div className="vip-active-card">
+                <div className="vip-active-content">
+                  <div className="vip-icon">👑</div>
+                  <div className="vip-details">
+                    <h3>{t('employeeDashboard.vipActive', 'VIP Active')}</h3>
+                    <p className="vip-expiry">
+                      {t('employeeDashboard.vipExpires', 'Expires')}: {new Date(linkedEmployeeProfile.vip_expires_at).toLocaleDateString()}
+                    </p>
+                    <div className="vip-benefits">
+                      <span>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</span>
+                      <span>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</span>
+                      <span>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="vip-upgrade-card">
-              <div className="vip-upgrade-content">
-                <div className="vip-icon">👑</div>
-                <div className="vip-pitch">
-                  <h3>{t('employeeDashboard.upgradeToVIP', 'Upgrade to VIP')}</h3>
-                  <p className="vip-subtitle">
-                    {t('employeeDashboard.vipSubtitle', 'Boost Your Visibility')}
-                  </p>
-                  <ul className="vip-benefits-list">
-                    <li>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</li>
-                    <li>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</li>
-                    <li>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</li>
-                    <li>✅ {t('employeeDashboard.vipBenefit4', 'Detailed analytics')}</li>
-                  </ul>
-                  <button
-                    className="btn-upgrade-vip"
-                    onClick={() => setShowVIPModal(true)}
-                  >
-                    👑 {t('employeeDashboard.upgradeNow', 'Upgrade Now')}
-                  </button>
+            ) : (
+              <div className="vip-upgrade-card">
+                <div className="vip-upgrade-content">
+                  <div className="vip-icon">👑</div>
+                  <div className="vip-pitch">
+                    <h3>{t('employeeDashboard.upgradeToVIP', 'Upgrade to VIP')}</h3>
+                    <p className="vip-subtitle">
+                      {t('employeeDashboard.vipSubtitle', 'Boost Your Visibility')}
+                    </p>
+                    <ul className="vip-benefits-list">
+                      <li>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</li>
+                      <li>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</li>
+                      <li>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</li>
+                      <li>✅ {t('employeeDashboard.vipBenefit4', 'Detailed analytics')}</li>
+                    </ul>
+                    <button
+                      className="btn-upgrade-vip"
+                      onClick={() => setShowVIPModal(true)}
+                    >
+                      👑 {t('employeeDashboard.upgradeNow', 'Upgrade Now')}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
+            )}
+          </section>
+        )}
 
         {/* Reviews Section */}
         <section className="reviews-section" style={{ marginTop: '30px' }}>
@@ -660,8 +666,8 @@ const EmployeeDashboard: React.FC = () => {
         />
       )}
 
-      {/* VIP Purchase Modal */}
-      {showVIPModal && linkedEmployeeProfile && (
+      {/* VIP Purchase Modal - Only shown when VIP feature is enabled */}
+      {VIP_ENABLED && showVIPModal && linkedEmployeeProfile && (
         <VIPPurchaseModal
           subscriptionType="employee"
           entity={linkedEmployeeProfile}

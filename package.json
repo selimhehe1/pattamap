@@ -39,18 +39,23 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:ci": "react-scripts test --coverage --watchAll=false --testPathIgnorePatterns=VIP",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:desktop": "playwright test --project=chromium-desktop",
     "test:e2e:mobile": "playwright test --project=chromium-mobile",
+    "test:e2e:ci": "playwright test --project=chromium-desktop --reporter=list",
     "test:screenshots": "playwright test --grep @screenshot",
     "test:report": "playwright show-report tests/e2e/reports/html",
     "eject": "react-scripts eject",
     "analyze": "npm run build && npx source-map-explorer 'build/static/js/*.js'",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 50",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix"
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "typecheck": "tsc --noEmit",
+    "ci": "npm run lint && npm run typecheck && npm run test:ci && npm run build",
+    "ci:full": "npm run ci && npm run test:e2e:ci"
   },
   "browserslist": {
     "production": [

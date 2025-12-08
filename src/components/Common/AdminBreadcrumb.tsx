@@ -8,9 +8,9 @@ interface AdminBreadcrumbProps {
 }
 
 const AdminBreadcrumb: React.FC<AdminBreadcrumbProps> = ({
-  currentSection,
+  currentSection: _currentSection,
   onBackToDashboard,
-  icon = "📊"
+  icon: _icon = "📊"
 }) => {
   return (
     <div className="admin-breadcrumb-container-nightlife">

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Edit,
   Search,
   Star,
   Trophy,
@@ -10,7 +9,6 @@ import {
   Settings,
   LogOut,
   Rocket,
-  ChevronDown,
   User,
   Crown,
   Zap,
@@ -37,7 +35,6 @@ import AnimatedButton from '../Common/AnimatedButton';
 import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
-import { useSidebar } from '../../contexts/SidebarContext';
 import { useMapControls } from '../../contexts/MapControlsContext';
 import '../../styles/layout/header.css';
 
@@ -67,9 +64,6 @@ const Header: React.FC<HeaderProps> = ({
 
   // Detect if we're on the home page
   const isHomePage = location.pathname === '/';
-
-  // Sidebar state from context
-  const { sidebarOpen, toggleSidebar } = useSidebar();
 
   // Map controls from context (only used on homepage)
   const { viewMode, setViewMode } = useMapControls();

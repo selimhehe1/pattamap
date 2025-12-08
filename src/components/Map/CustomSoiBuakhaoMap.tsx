@@ -137,7 +137,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   // OPTIMISTIC UI: Store temporary positions during API calls to prevent disappearing bars
   const [optimisticPositions, setOptimisticPositions] = useState<Map<string, { row: number; col: number }>>(new Map());

@@ -4,7 +4,8 @@
       "Bash(npm test:*)",
       "Bash(dir:*)",
       "Bash(nul)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

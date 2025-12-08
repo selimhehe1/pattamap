@@ -37,9 +37,9 @@ export type ValidationRule = {
   /** Regex pattern to match */
   pattern?: RegExp;
   /** Custom validation function */
-  custom?: (value: any, formData?: any) => boolean | string;
+  custom?: (value: unknown, formData?: Record<string, unknown>) => boolean | string;
   /** Error message (can be function for dynamic messages) */
-  message?: string | ((field: string, rule: string, value: any) => string);
+  message?: string | ((field: string, rule: string, value: unknown) => string);
 };
 
 export type ValidationRules<T> = {
@@ -54,7 +54,7 @@ export type FieldStatus<T> = {
   [K in keyof T]?: 'valid' | 'invalid' | 'validating' | 'untouched';
 };
 
-export function useFormValidation<T extends Record<string, any>>(
+export function useFormValidation<T extends Record<string, unknown>>(
   formData: T,
   rules: ValidationRules<T>,
   options: {
@@ -81,7 +81,7 @@ export function useFormValidation<T extends Record<string, any>>(
   /**
    * Validate a single field
    */
-  const validateField = useCallback((fieldName: keyof T, value: any): string | null => {
+  const validateField = useCallback((fieldName: keyof T, value: unknown): string | null => {
     const fieldRules = rules[fieldName];
     if (!fieldRules) return null;
 
@@ -119,7 +119,7 @@ export function useFormValidation<T extends Record<string, any>>(
 
     // Min value check
     if (fieldRules.min !== undefined) {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      const numValue = typeof value === 'string' ? parseFloat(value) : (typeof value === 'number' ? value : NaN);
       if (!isNaN(numValue) && numValue < fieldRules.min) {
         return typeof fieldRules.message === 'function'
           ? fieldRules.message(String(fieldName), 'min', value)
@@ -129,7 +129,7 @@ export function useFormValidation<T extends Record<string, any>>(
 
     // Max value check
     if (fieldRules.max !== undefined) {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+      const numValue = typeof value === 'string' ? parseFloat(value) : (typeof value === 'number' ? value : NaN);
       if (!isNaN(numValue) && numValue > fieldRules.max) {
         return typeof fieldRules.message === 'function'
           ? fieldRules.message(String(fieldName), 'max', value)
@@ -184,7 +184,7 @@ export function useFormValidation<T extends Record<string, any>>(
   /**
    * Handle field change (with debounce)
    */
-  const handleFieldChange = useCallback((fieldName: keyof T, value: any) => {
+  const handleFieldChange = useCallback((fieldName: keyof T, value: unknown) => {
     if (!validateOnChange) return;
 
     // Mark as touched
@@ -217,7 +217,7 @@ export function useFormValidation<T extends Record<string, any>>(
   /**
    * Handle field blur
    */
-  const handleFieldBlur = useCallback((fieldName: keyof T, value: any) => {
+  const handleFieldBlur = useCallback((fieldName: keyof T, value: unknown) => {
     if (!validateOnBlur) return;
 
     // Mark as touched

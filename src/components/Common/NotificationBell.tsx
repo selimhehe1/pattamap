@@ -781,7 +781,8 @@ const NotificationBell: React.FC = () => {
                 className="notification-view-all"
                 onClick={() => {
                   setShowDropdown(false);
-                  // TODO: Navigate to notifications page when implemented
+                  // Navigate to dashboard - dedicated notifications page can be added in future
+                  navigate('/dashboard');
                 }}
               >
                 {t('notifications.viewAll')}

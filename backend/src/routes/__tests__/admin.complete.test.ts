@@ -456,9 +456,13 @@ describe('🧪 Admin Routes - Comprehensive Test Suite', () => {
           if (table === 'establishments') {
             return {
               delete: jest.fn().mockReturnValue({
-                eq: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: null
+                eq: jest.fn().mockReturnValue({
+                  select: jest.fn().mockReturnValue({
+                    single: jest.fn().mockResolvedValue({
+                      data: mockEstablishments[0],
+                      error: null
+                    })
+                  })
                 })
               })
             };

@@ -471,7 +471,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       flexDirection: 'column',
                       gap: '8px'
                     }}>
-                      {comment.reports.map((report, index) => (
+                      {comment.reports.map((report, _index) => (
                         <div
                           key={report.id}
                           style={{

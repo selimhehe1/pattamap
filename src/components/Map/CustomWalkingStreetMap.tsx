@@ -378,7 +378,7 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
 
 const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate }) => {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token: _token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -402,7 +402,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
   const [isDragging, setIsDragging] = useState(false);
   const [dropAction, setDropAction] = useState<'move' | 'swap' | 'blocked' | null>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
-  const [waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
+  const [_waitingForDataUpdate, setWaitingForDataUpdate] = useState(false);
 
   // OPTIMISTIC UI: Store temporary positions during API calls
   const [optimisticPositions, setOptimisticPositions] = useState<Map<string, { row: number; col: number }>>(new Map());
@@ -925,7 +925,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
 
     // Verify we're actually in a valid position (not in spacing gap)
     const barLeftEdge = spacing + (col - 1) * (idealBarWidth + spacing);
-    const barRightEdge = barLeftEdge + idealBarWidth;
+    const _barRightEdge = barLeftEdge + idealBarWidth;
 
     // If mouse is before the first bar or after the last bar, invalid
     if (relativeX < spacing || relativeX > containerWidth - spacing) {
@@ -1020,7 +1020,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
   }, []);
 
   // ✅ TOUCH SUPPORT: Touch event handlers for mobile/tablet drag&drop
-  const handleTouchStart = useCallback((bar: Bar, event: React.TouchEvent) => {
+  const handleTouchStart = useCallback((bar: Bar, _event: React.TouchEvent) => {
     const now = Date.now();
 
     // STRICT CHECK: Block if locked OR loading

@@ -14,7 +14,7 @@ interface GirlsGalleryProps {
 
 const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selectedGirl }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'top-rated'>('all');
   const [ageFilter, setAgeFilter] = useState<'all' | '18-22' | '23-26' | '27+'>('all');
   const [hoveredGirl, setHoveredGirl] = useState<string | null>(null);
@@ -75,27 +75,28 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
       filtered = filtered.filter(girl => girl.age && girl.age >= 27);
     }
 
-    // 🆕 v10.3 Phase 4 - Enhanced Priority Sorting (VIP + Verified + Top Rated)
-    // Priority order: VIP+Verified > VIP > Verified > Others
+    // 🆕 v10.3 Phase 4 - Enhanced Priority Sorting (Verified takes absolute priority)
+    // Priority order: Verified+VIP > Verified > VIP > Others
+    // Note: VIP system is visually disabled, so Verified should always come first
     filtered.sort((a, b) => {
       const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
       const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
       const isVerifiedA = a.is_verified;
       const isVerifiedB = b.is_verified;
 
-      // Priority 1: VIP + Verified (both) come first
-      const isPremiumA = isVIPActiveA && isVerifiedA;
-      const isPremiumB = isVIPActiveB && isVerifiedB;
+      // Priority 1: Verified + VIP (both) come first
+      const isPremiumA = isVerifiedA && isVIPActiveA;
+      const isPremiumB = isVerifiedB && isVIPActiveB;
       if (isPremiumA && !isPremiumB) return -1;
       if (!isPremiumA && isPremiumB) return 1;
 
-      // Priority 2: VIP alone
-      if (isVIPActiveA && !isVIPActiveB) return -1;
-      if (!isVIPActiveA && isVIPActiveB) return 1;
-
-      // Priority 3: Verified alone
+      // Priority 2: Verified alone (takes priority over VIP since VIP is hidden in UI)
       if (isVerifiedA && !isVerifiedB) return -1;
       if (!isVerifiedA && isVerifiedB) return 1;
+
+      // Priority 3: VIP alone (lower priority since VIP UI is disabled)
+      if (isVIPActiveA && !isVIPActiveB) return -1;
+      if (!isVIPActiveA && isVIPActiveB) return 1;
 
       // Priority 4: If "top-rated" is active, sort by rating (descending)
       if (filter === 'top-rated') {
@@ -138,13 +139,13 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
     onGirlClick(girl);
   }, [onGirlClick]);
 
-  const handleMouseEnter = useCallback((girlId: string) => () => {
+  const _handleMouseEnter = useCallback((girlId: string) => () => {
     if (!hoverBlocked) {
       setHoveredGirl(girlId);
     }
   }, [hoverBlocked]);
 
-  const handleMouseLeave = useCallback(() => {
+  const _handleMouseLeave = useCallback(() => {
     setHoveredGirl(null);
   }, []);
 
@@ -191,7 +192,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
   const galleryStyle = useMemo(() => ({}), []);
 
   // 🚀 Mémoisation de la fonction getRatingStars
-  const getRatingStars = useCallback((rating: number | undefined) => {
+  const _getRatingStars = useCallback((rating: number | undefined) => {
     if (!rating) return '⭐⭐⭐⭐⭐';
     const stars = Math.round(rating);
     return '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
@@ -213,7 +214,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
     textTransform: 'uppercase' as const
   }), []);
 
-  const getGirlCardStyle = useCallback((girl: Employee) => {
+  const _getGirlCardStyle = useCallback((girl: Employee) => {
     const isSelected = selectedGirl?.id === girl.id;
     const isHovered = hoveredGirl === girl.id;
 

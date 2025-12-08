@@ -1186,7 +1186,9 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
         const name = employee.name?.toLowerCase() || '';
         const nickname = employee.nickname?.toLowerCase() || '';
         const description = employee.description?.toLowerCase() || '';
-        const nationality = employee.nationality?.toLowerCase() || '';
+        // 🐛 FIX: nationality is now TEXT[] array, not string
+        const nationalityArray = Array.isArray(employee.nationality) ? employee.nationality : [];
+        const nationalityStr = nationalityArray.join(' ').toLowerCase();
 
         // Exact name match gets highest score
         if (name === searchTerm) relevanceScore += 100;
@@ -1199,15 +1201,15 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
         // Description matches
         if (description.includes(searchTerm)) relevanceScore += 20;
 
-        // Nationality matches
-        if (nationality.includes(searchTerm)) relevanceScore += 30;
+        // Nationality matches (now searches in joined array)
+        if (nationalityStr.includes(searchTerm)) relevanceScore += 30;
 
         // Boost score based on rating and number of reviews
         relevanceScore += (averageRating * 5) + (employeeRatings.length * 2);
       }
 
       // 🆕 v10.3 Phase 4 - VIP & Verified Boost
-      // Priority order: Verified+VIP > VIP > Verified > None
+      // Priority order: Verified > VIP (VIP system currently disabled visually)
       const isVIPActive = employee.is_vip &&
         employee.vip_expires_at &&
         new Date(employee.vip_expires_at) > new Date();
@@ -1215,15 +1217,18 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
       const isVerified = employee.is_verified === true;
 
       // Boost hierarchy for relevance ranking
-      if (isVIPActive && isVerified) {
+      // Verified takes absolute priority - boost must be higher than max possible non-verified score
+      // Max non-verified score: ~100 (name match) + 50 (desc) + 30 (nationality) + 50 (rating 5*10) + 20 (10 reviews) = ~250
+      // So verified boost must be > 250 to guarantee verified always appears first
+      if (isVerified && isVIPActive) {
         // Verified + VIP: Maximum priority
-        relevanceScore += 300;
-      } else if (isVIPActive) {
-        // VIP only: High priority
-        relevanceScore += 200;
+        relevanceScore += 1000;
       } else if (isVerified) {
-        // Verified only: Moderate boost
-        relevanceScore += 50;
+        // Verified only: Absolute priority over non-verified
+        relevanceScore += 500;
+      } else if (isVIPActive) {
+        // VIP only: Small boost (VIP hidden in UI anyway)
+        relevanceScore += 10;
       }
       // No boost for non-verified, non-VIP profiles
 
@@ -1305,19 +1310,17 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // 🆕 v10.3 Phase 4 - VIP Priority Sorting (stable sort)
-    // Always put VIP employees first, regardless of other sorting
-    enrichedEmployees.sort((a, b) => {
-      const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
-      const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
-
-      // VIP comes before non-VIP
-      if (isVIPActiveA && !isVIPActiveB) return -1;
-      if (!isVIPActiveA && isVIPActiveB) return 1;
-
-      // If both VIP or both non-VIP, maintain current order (stable sort)
-      return 0;
-    });
+    // 🆕 v10.3 Phase 4 - VIP Priority Sorting (DISABLED)
+    // VIP system is visually disabled in UI, so we use relevance score instead
+    // The relevance_score already includes verified boost (+500) which takes priority
+    // Keeping this comment for when VIP system is re-enabled
+    // enrichedEmployees.sort((a, b) => {
+    //   const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
+    //   const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
+    //   if (isVIPActiveA && !isVIPActiveB) return -1;
+    //   if (!isVIPActiveA && isVIPActiveB) return 1;
+    //   return 0;
+    // });
 
     // Get available filters for suggestions
     // v10.4: Nationality is now TEXT[] array, flatten to get unique values

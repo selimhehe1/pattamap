@@ -167,7 +167,7 @@ export const createSecureApiCall = (baseUrl: string) => {
         ...options,
       }),
 
-    post: (endpoint: string, data?: any, options?: SecureFetchOptions) =>
+    post: <T = unknown>(endpoint: string, data?: T, options?: SecureFetchOptions) =>
       fetch(`${baseUrl}${endpoint}`, {
         method: 'POST',
         credentials: 'include',
@@ -176,7 +176,7 @@ export const createSecureApiCall = (baseUrl: string) => {
         ...options,
       }),
 
-    put: (endpoint: string, data?: any, options?: SecureFetchOptions) =>
+    put: <T = unknown>(endpoint: string, data?: T, options?: SecureFetchOptions) =>
       fetch(`${baseUrl}${endpoint}`, {
         method: 'PUT',
         credentials: 'include',

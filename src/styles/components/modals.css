@@ -385,6 +385,9 @@
 @media (max-width: 48rem) {
   .modal-overlay {
     padding: 0;
+    /* Safe area for notch devices (iPhone X+) */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
   .modal {
@@ -392,6 +395,11 @@
     max-height: 100%;
     min-height: 100vh;
     border-radius: 0;
+  }
+
+  /* Safe area padding for modal footer on notch devices */
+  .modal__footer {
+    padding-bottom: calc(var(--spacing-6) + env(safe-area-inset-bottom, 0));
   }
 
   .modal--sm,
@@ -404,6 +412,11 @@
     max-width: 90%;
     min-height: auto;
     border-radius: var(--border-radius-xl);
+  }
+
+  /* Reset safe area for preserved modals */
+  .modal--sm-preserve .modal__footer {
+    padding-bottom: var(--spacing-6);
   }
 }
 

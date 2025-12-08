@@ -3,6 +3,7 @@ import { supabase } from '../config/supabase';
 import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
+import { getVIPTransactions, verifyPayment, rejectPayment } from '../controllers/vipController';
 
 const router = express.Router();
 
@@ -225,8 +226,8 @@ router.use((req, res, next) => {
   next();
 });
 router.use(authenticateToken);
-// Temporarily disabled for testing
-// router.use(requireRole(['admin', 'moderator']));
+// Role-based access control for admin/moderator routes
+router.use(requireRole(['admin', 'moderator']));
 
 // ========================================
 // DASHBOARD STATISTICS

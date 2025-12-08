@@ -125,12 +125,12 @@ const CustomJomtienComplexMap: React.FC<CustomJomtienComplexMapProps> = ({
   onEstablishmentClick,
   selectedEstablishment,
   onBarClick,
-  onEstablishmentUpdate
+  onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

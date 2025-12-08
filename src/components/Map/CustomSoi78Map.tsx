@@ -9,17 +9,10 @@ import ScreenReaderEstablishmentList from './ScreenReaderEstablishmentList';
 import LazyImage from '../Common/LazyImage';
 import { generateEstablishmentUrl } from '../../utils/slugify';
 import { logger } from '../../utils/logger';
+import { TYPE_STYLES, getBarTypeFromCategory, MapBar } from '../../utils/mapConstants';
 
-export interface Bar {
-  id: string;
-  name: string;
-  type: 'gogo' | 'beer' | 'pub' | 'massage' | 'nightclub';
-  position: { x: number; y: number };
-  color: string;
-  icon: string;
-  grid_row?: number;
-  grid_col?: number;
-}
+// Re-export Bar type for backward compatibility
+export type Bar = MapBar;
 
 interface CustomSoi78MapProps {
   establishments: Establishment[];
@@ -28,29 +21,6 @@ interface CustomSoi78MapProps {
   onBarClick?: (bar: CustomBar) => void;
   onEstablishmentUpdate?: () => Promise<void>;
 }
-
-const TYPE_STYLES = {
-  gogo: { color: '#C19A6B', icon: '💃', shadow: 'rgba(193, 154, 107, 0.5)' },
-  beer: { color: '#FFD700', icon: '🍺', shadow: 'rgba(255, 215, 0, 0.5)' },
-  pub: { color: '#00E5FF', icon: '🍸', shadow: 'rgba(0, 255, 255, 0.5)' },
-  massage: { color: '#06FFA5', icon: '💆', shadow: 'rgba(6, 255, 165, 0.5)' },
-  nightclub: { color: '#7B2CBF', icon: '🎵', shadow: 'rgba(123, 44, 191, 0.5)' }
-};
-
-// Mapping categories to bar types (using both string and number keys for compatibility)
-const CATEGORY_TO_TYPE_MAP: { [key: string | number]: 'gogo' | 'beer' | 'pub' | 'massage' | 'nightclub' } = {
-  // String keys (old format)
-  'cat-001': 'beer',      // Bar
-  'cat-002': 'gogo',      // GoGo Bar
-  'cat-003': 'massage',   // Massage Salon
-  'cat-004': 'nightclub', // Nightclub
-  // Number keys (Supabase format) - Updated to match new schema
-  1: 'beer',              // Bar
-  2: 'gogo',              // GoGo Bar
-  3: 'massage',           // Massage Salon
-  4: 'nightclub'          // Nightclub
-  // Removed: Beer Bar (5), Club (6), Restaurant Bar (7) - no longer in schema
-};
 
 const calculateResponsivePosition = (row: number, col: number, isMobile: boolean, containerElement?: HTMLElement) => {
   const zoneConfig = getZoneConfig('soi78');
@@ -80,14 +50,14 @@ const calculateResponsivePosition = (row: number, col: number, isMobile: boolean
 
 const establishmentsToVisualBars = (establishments: Establishment[], isMobile: boolean, containerElement?: HTMLElement): Bar[] => {
   return establishments.filter(est => est.zone === 'soi78').map(est => {
-    const barType = CATEGORY_TO_TYPE_MAP[est.category_id] || 'beer';
+    const barType = getBarTypeFromCategory(est.category_id);
     const style = TYPE_STYLES[barType];
     const { x, y } = calculateResponsivePosition(est.grid_row || 1, est.grid_col || 1, isMobile, containerElement);
     return { id: est.id, name: est.name, type: barType, position: { x, y }, color: style.color, icon: style.icon, grid_row: est.grid_row || 1, grid_col: est.grid_col || 1 };
   });
 };
 
-const CustomSoi78Map: React.FC<CustomSoi78MapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate }) => {
+const CustomSoi78Map: React.FC<CustomSoi78MapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate: _onEstablishmentUpdate }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);

@@ -1,10 +1,8 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import EmployeeCard from '../Common/EmployeeCard';
 import { SkeletonGallery } from '../Common/Skeleton';
-import { cardContainer, cardItem } from '../../animations/variants';
 import Pagination from '../Common/Pagination';
 
 interface SearchResultsProps {
@@ -28,22 +26,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Wrapper for Framer Motion animations
-  const AnimatedEmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => {
-    return (
-      <motion.div
-        variants={cardItem}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <EmployeeCard
-          employee={employee}
-          onClick={onEmployeeClick}
-          showEstablishment={true}
-          showRatingBadge={true}
-        />
-      </motion.div>
-    );
-  };
+  // Track if animation has been triggered to prevent re-animation on data updates
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  // Trigger animation once when results arrive
+  useEffect(() => {
+    if (results && results.length > 0 && !hasAnimated) {
+      setHasAnimated(true);
+    }
+  }, [results, hasAnimated]);
 
   // Empty state
   if (!loading && (!results || results.length === 0)) {
@@ -77,17 +68,25 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div>
-      {/* Results Grid - With stagger animation */}
-      <motion.div
-        className="employee-search-grid"
-        variants={cardContainer}
-        initial="hidden"
-        animate="visible"
+      {/* Results Grid - CSS animation instead of Framer Motion to avoid first-render issues */}
+      <div
+        className={`employee-search-grid ${hasAnimated ? 'animated' : ''}`}
       >
-        {(results || []).filter(employee => employee != null).map((employee) => (
-          <AnimatedEmployeeCard key={employee.id} employee={employee} />
+        {(results || []).filter(employee => employee != null).map((employee, index) => (
+          <div
+            key={employee.id}
+            className="employee-card-wrapper"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            <EmployeeCard
+              employee={employee}
+              onClick={onEmployeeClick}
+              showEstablishment={true}
+              showRatingBadge={true}
+            />
+          </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Responsive CSS - Tinder Style Grid */}
       <style>{`
@@ -96,6 +95,39 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
           gap: 20px;
           padding: 20px 0;
+        }
+
+        /* Card wrapper for stagger animation */
+        .employee-card-wrapper {
+          opacity: 1;
+          transform: translateY(0);
+          width: 100%;
+          height: 100%;
+        }
+
+        /* Animate cards when grid has animated class */
+        .employee-search-grid.animated .employee-card-wrapper {
+          animation: cardFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes cardFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          .employee-search-grid.animated .employee-card-wrapper {
+            animation: none;
+            opacity: 1;
+            transform: none;
+          }
         }
 
         /* Desktop: Optimal spacing */

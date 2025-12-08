@@ -39,6 +39,9 @@ router.get('/suggestions/names', getEmployeeNameSuggestions); // Autocomplete su
 // Get my linked employee profile
 router.get('/my-linked-profile', authenticateToken, getMyLinkedProfile);
 
+// Alias: GET /my-profile (same as /my-linked-profile for convenience)
+router.get('/my-profile', authenticateToken, getMyLinkedProfile);
+
 // Get claim requests (admin/moderator only)
 router.get('/claims', authenticateToken, requireRole(['admin', 'moderator']), getClaimRequests);
 

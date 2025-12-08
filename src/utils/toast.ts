@@ -34,7 +34,7 @@ const defaultOptions: ToastOptions = {
 };
 
 // Success toast (green)
-export const showSuccess = (message: string, options?: ToastOptions) => {
+export const showSuccess = (message: string, options?: ToastOptions): string => {
   return toast.success(message, {
     ...defaultOptions,
     ...options,
@@ -49,7 +49,7 @@ export const showSuccess = (message: string, options?: ToastOptions) => {
 };
 
 // Error toast (red) - longer duration for errors
-export const showError = (message: string, options?: ToastOptions) => {
+export const showError = (message: string, options?: ToastOptions): string => {
   return toast.error(message, {
     ...defaultOptions,
     ...options,
@@ -68,7 +68,7 @@ export const showError = (message: string, options?: ToastOptions) => {
 };
 
 // Info toast (blue)
-export const showInfo = (message: string, options?: ToastOptions) => {
+export const showInfo = (message: string, options?: ToastOptions): string => {
   return toast(message, {
     ...defaultOptions,
     ...options,
@@ -83,7 +83,7 @@ export const showInfo = (message: string, options?: ToastOptions) => {
 };
 
 // Warning toast (orange)
-export const showWarning = (message: string, options?: ToastOptions) => {
+export const showWarning = (message: string, options?: ToastOptions): string => {
   return toast(message, {
     ...defaultOptions,
     ...options,
@@ -98,7 +98,7 @@ export const showWarning = (message: string, options?: ToastOptions) => {
 };
 
 // Loading toast - use with promise pattern
-export const showLoading = (message: string, options?: ToastOptions) => {
+export const showLoading = (message: string, options?: ToastOptions): string => {
   return toast.loading(message, {
     ...defaultOptions,
     ...options,
@@ -116,10 +116,10 @@ export const showPromise = <T,>(
   messages: {
     loading: string;
     success: string | ((data: T) => string);
-    error: string | ((err: any) => string);
+    error: string | ((err: unknown) => string);
   },
   options?: ToastOptions
-) => {
+): Promise<T> => {
   return toast.promise(
     promise,
     {
@@ -157,17 +157,17 @@ export const showPromise = <T,>(
 };
 
 // Dismiss a specific toast
-export const dismissToast = (toastId: string) => {
+export const dismissToast = (toastId: string): void => {
   toast.dismiss(toastId);
 };
 
 // Dismiss all toasts
-export const dismissAll = () => {
+export const dismissAll = (): void => {
   toast.dismiss();
 };
 
 // Custom toast with full control
-export const showCustom = (message: string, options?: ToastOptions) => {
+export const showCustom = (message: string, options?: ToastOptions): string => {
   return toast(message, {
     ...defaultOptions,
     ...options,
@@ -178,7 +178,7 @@ export const showCustom = (message: string, options?: ToastOptions) => {
 export { Toaster };
 
 // Default export with all methods
-export default {
+const toastService = {
   success: showSuccess,
   error: showError,
   info: showInfo,
@@ -189,3 +189,5 @@ export default {
   dismissAll,
   custom: showCustom,
 };
+
+export default toastService;

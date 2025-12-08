@@ -14,6 +14,7 @@ import request from 'supertest';
 import express from 'express';
 import { purchaseVIP } from '../../controllers/vipController';
 import { supabase } from '../../config/supabase';
+import { createMockChain } from '../../test-helpers/supabaseMockChain';
 import { authenticateToken } from '../../middleware/auth';
 import { csrfProtection } from '../../middleware/csrf';
 
@@ -25,6 +26,8 @@ describe('VIP Purchase Workflow Tests', () => {
   let app: express.Application;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     app = express();
     app.use(express.json());
 
@@ -36,29 +39,16 @@ describe('VIP Purchase Workflow Tests', () => {
     (csrfProtection as jest.Mock).mockImplementation((req, res, next) => next());
 
     app.post('/api/vip/purchase', authenticateToken, csrfProtection, purchaseVIP);
-
-    jest.clearAllMocks();
   });
 
   describe('Employee VIP Purchase', () => {
     it('should purchase VIP for employee successfully (cash payment)', async () => {
       const mockEmployee = {
         id: 'employee-123',
+        user_id: 'owner-user-id', // Employee owns their own profile
         name: 'Jane Doe',
         nickname: 'JD',
         establishment_id: 'est-123'
-      };
-
-      const mockEstablishment = {
-        id: 'est-123',
-        name: 'Test Bar'
-      };
-
-      const mockOwnership = {
-        id: 'ownership-123',
-        user_id: 'owner-user-id',
-        establishment_id: 'est-123',
-        owner_role: 'owner'
       };
 
       const mockTransaction = {
@@ -83,46 +73,30 @@ describe('VIP Purchase Workflow Tests', () => {
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       };
 
-      // Mock employee fetch
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockEmployee, error: null })
-      }));
+      // 1. Mock employee authorization check
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: mockEmployee, error: null })
+      );
 
-      // Mock establishment fetch
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-      }));
+      // 2. Mock existing active subscription check (no active subscription)
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null })
+      );
 
-      // Mock ownership check
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-      }));
+      // 3. Mock subscription insert
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: mockSubscription, error: null })
+      );
 
-      // Mock transaction insert
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockTransaction, error: null })
-      }));
+      // 4. Mock transaction insert
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: mockTransaction, error: null })
+      );
 
-      // Mock subscription insert
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        insert: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockSubscription, error: null })
-      }));
-
-      // Mock entity VIP status update
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({ data: null, error: null })
-      }));
+      // 5. Mock subscription update with transaction_id
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null })
+      );
 
       const response = await request(app)
         .post('/api/vip/purchase')
@@ -132,7 +106,7 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 30,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('subscription');
@@ -141,12 +115,16 @@ describe('VIP Purchase Workflow Tests', () => {
       expect(response.body.transaction.payment_status).toBe('pending');
     });
 
-    it('should return 404 if employee does not exist', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-      });
+    it('should return 403 if employee does not exist', async () => {
+      // 1. Mock employee authorization check (employee not found)
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null })
+      );
+
+      // 2. Mock ownership check (also fails - no ownership)
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null })
+      );
 
       const response = await request(app)
         .post('/api/vip/purchase')
@@ -156,44 +134,29 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 30,
           payment_method: 'cash'
         })
-        .expect(404);
+        .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('Employee not found');
+      expect(response.body.error).toBe('Forbidden');
     });
 
     it('should return 403 if user is not owner of establishment', async () => {
       const mockEmployee = {
         id: 'employee-123',
+        user_id: 'different-user-id', // Employee belongs to different user
         name: 'Jane Doe',
         establishment_id: 'est-123'
       };
 
-      const mockEstablishment = {
-        id: 'est-123',
-        name: 'Test Bar'
-      };
+      // 1. Mock employee authorization check (employee exists but different user_id)
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null }) // Query with eq('user_id', currentUser) returns null
+      );
 
-      // Mock employee fetch
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockEmployee, error: null })
-      }));
-
-      // Mock establishment fetch
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-      }));
-
-      // Mock ownership check - no ownership found
-      (supabase.from as jest.Mock).mockImplementationOnce(() => ({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-      }));
+      // 2. Mock ownership check (user is not owner)
+      (supabase.from as jest.Mock).mockImplementationOnce(() =>
+        createMockChain({ data: null, error: null })
+      );
 
       const response = await request(app)
         .post('/api/vip/purchase')
@@ -206,64 +169,46 @@ describe('VIP Purchase Workflow Tests', () => {
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('Permission denied');
+      expect(response.body.error).toBe('Forbidden');
     });
 
     it('should calculate correct price for 7-day duration', async () => {
       const mockEmployee = {
         id: 'employee-123',
-        name: 'Jane Doe',
-        establishment_id: 'est-123'
-      };
-
-      const mockEstablishment = { id: 'est-123', name: 'Test Bar' };
-      const mockOwnership = {
         user_id: 'owner-user-id',
+        name: 'Jane Doe',
         establishment_id: 'est-123'
       };
 
       let capturedTransaction: any;
 
       (supabase.from as jest.Mock)
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEmployee, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-        }))
+        // 1. Employee authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockEmployee, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: { id: 'sub-123' }, error: null })
+        )
+        // 4. Transaction insert
         .mockImplementationOnce(() => ({
           insert: jest.fn().mockImplementation((data) => {
             capturedTransaction = data;
-            return {
-              select: jest.fn().mockReturnThis(),
-              single: jest.fn().mockResolvedValue({
-                data: { ...data, id: 'transaction-123' },
-                error: null
-              })
-            };
+            return createMockChain({
+              data: { ...data, id: 'transaction-123' },
+              error: null
+            });
           })
         }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'sub-123' },
-            error: null
-          })
-        }))
-        .mockImplementationOnce(() => ({
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ data: null, error: null })
-        }));
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
 
       await request(app)
         .post('/api/vip/purchase')
@@ -273,7 +218,7 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 7,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       // Verify price: 7 days = 1000 THB
       expect(capturedTransaction.amount).toBe(1000);
@@ -282,58 +227,40 @@ describe('VIP Purchase Workflow Tests', () => {
     it('should calculate correct price for 365-day duration with 50% discount', async () => {
       const mockEmployee = {
         id: 'employee-123',
-        name: 'Jane Doe',
-        establishment_id: 'est-123'
-      };
-
-      const mockEstablishment = { id: 'est-123', name: 'Test Bar' };
-      const mockOwnership = {
         user_id: 'owner-user-id',
+        name: 'Jane Doe',
         establishment_id: 'est-123'
       };
 
       let capturedTransaction: any;
 
       (supabase.from as jest.Mock)
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEmployee, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-        }))
+        // 1. Employee authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockEmployee, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: { id: 'sub-123' }, error: null })
+        )
+        // 4. Transaction insert
         .mockImplementationOnce(() => ({
           insert: jest.fn().mockImplementation((data) => {
             capturedTransaction = data;
-            return {
-              select: jest.fn().mockReturnThis(),
-              single: jest.fn().mockResolvedValue({
-                data: { ...data, id: 'transaction-123' },
-                error: null
-              })
-            };
+            return createMockChain({
+              data: { ...data, id: 'transaction-123' },
+              error: null
+            });
           })
         }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'sub-123' },
-            error: null
-          })
-        }))
-        .mockImplementationOnce(() => ({
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ data: null, error: null })
-        }));
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
 
       await request(app)
         .post('/api/vip/purchase')
@@ -343,7 +270,7 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 365,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       // Verify price: 365 days = 18250 THB (50% discount from ~36500)
       expect(capturedTransaction.amount).toBe(18250);
@@ -352,12 +279,8 @@ describe('VIP Purchase Workflow Tests', () => {
 
   describe('Establishment VIP Purchase', () => {
     it('should purchase VIP for establishment successfully', async () => {
-      const mockEstablishment = {
-        id: 'est-123',
-        name: 'Luxury Bar'
-      };
-
       const mockOwnership = {
+        id: 'ownership-123',
         user_id: 'owner-user-id',
         establishment_id: 'est-123'
       };
@@ -378,30 +301,26 @@ describe('VIP Purchase Workflow Tests', () => {
       };
 
       (supabase.from as jest.Mock)
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockTransaction, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockSubscription, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ data: null, error: null })
-        }));
+        // 1. Ownership authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockOwnership, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockSubscription, error: null })
+        )
+        // 4. Transaction insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockTransaction, error: null })
+        )
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
 
       const response = await request(app)
         .post('/api/vip/purchase')
@@ -411,18 +330,17 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 30,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.subscription.tier).toBe('establishment');
     });
 
-    it('should return 404 if establishment does not exist', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
-      });
+    it('should return 403 if establishment ownership not found', async () => {
+      // 1. Ownership check fails (no ownership)
+      (supabase.from as jest.Mock).mockReturnValue(
+        createMockChain({ data: null, error: null })
+      );
 
       const response = await request(app)
         .post('/api/vip/purchase')
@@ -432,14 +350,14 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 30,
           payment_method: 'cash'
         })
-        .expect(404);
+        .expect(403);
 
-      expect(response.body.error).toContain('Establishment not found');
+      expect(response.body.error).toBe('Forbidden');
     });
 
     it('should calculate establishment pricing correctly (4x employee pricing)', async () => {
-      const mockEstablishment = { id: 'est-123', name: 'Bar' };
       const mockOwnership = {
+        id: 'ownership-123',
         user_id: 'owner-user-id',
         establishment_id: 'est-123'
       };
@@ -447,40 +365,32 @@ describe('VIP Purchase Workflow Tests', () => {
       let capturedTransaction: any;
 
       (supabase.from as jest.Mock)
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-        }))
+        // 1. Ownership authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockOwnership, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: { id: 'sub-123' }, error: null })
+        )
+        // 4. Transaction insert
         .mockImplementationOnce(() => ({
           insert: jest.fn().mockImplementation((data) => {
             capturedTransaction = data;
-            return {
-              select: jest.fn().mockReturnThis(),
-              single: jest.fn().mockResolvedValue({
-                data: { ...data, id: 'transaction-123' },
-                error: null
-              })
-            };
+            return createMockChain({
+              data: { ...data, id: 'transaction-123' },
+              error: null
+            });
           })
         }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'sub-123' },
-            error: null
-          })
-        }))
-        .mockImplementationOnce(() => ({
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ data: null, error: null })
-        }));
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
 
       await request(app)
         .post('/api/vip/purchase')
@@ -490,7 +400,7 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 7,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       // Establishment 7-day = 3000 THB (vs employee 1000 THB)
       expect(capturedTransaction.amount).toBe(3000);
@@ -501,11 +411,6 @@ describe('VIP Purchase Workflow Tests', () => {
     it('should accept cash payment method', async () => {
       const mockEmployee = {
         id: 'employee-123',
-        establishment_id: 'est-123'
-      };
-
-      const mockEstablishment = { id: 'est-123' };
-      const mockOwnership = {
         user_id: 'owner-user-id',
         establishment_id: 'est-123'
       };
@@ -513,45 +418,32 @@ describe('VIP Purchase Workflow Tests', () => {
       let capturedTransaction: any;
 
       (supabase.from as jest.Mock)
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEmployee, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockEstablishment, error: null })
-        }))
-        .mockImplementationOnce(() => ({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({ data: mockOwnership, error: null })
-        }))
+        // 1. Employee authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockEmployee, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: { id: 'sub-123' }, error: null })
+        )
+        // 4. Transaction insert
         .mockImplementationOnce(() => ({
           insert: jest.fn().mockImplementation((data) => {
             capturedTransaction = data;
-            return {
-              select: jest.fn().mockReturnThis(),
-              single: jest.fn().mockResolvedValue({
-                data: { ...data, id: 'transaction-123' },
-                error: null
-              })
-            };
+            return createMockChain({
+              data: { ...data, id: 'transaction-123' },
+              error: null
+            });
           })
         }))
-        .mockImplementationOnce(() => ({
-          insert: jest.fn().mockReturnThis(),
-          select: jest.fn().mockReturnThis(),
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'sub-123' },
-            error: null
-          })
-        }))
-        .mockImplementationOnce(() => ({
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ data: null, error: null })
-        }));
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
 
       await request(app)
         .post('/api/vip/purchase')
@@ -561,7 +453,7 @@ describe('VIP Purchase Workflow Tests', () => {
           duration: 30,
           payment_method: 'cash'
         })
-        .expect(200);
+        .expect(201);
 
       expect(capturedTransaction.payment_method).toBe('cash');
       expect(capturedTransaction.payment_status).toBe('pending');
@@ -581,8 +473,43 @@ describe('VIP Purchase Workflow Tests', () => {
       expect(response.body.error).toBeDefined();
     });
 
-    it('should accept promptpay payment method (when implemented)', async () => {
-      // Note: This test will pass once PromptPay is implemented
+    it('should accept promptpay payment method', async () => {
+      const mockEmployee = {
+        id: 'employee-123',
+        user_id: 'owner-user-id',
+        establishment_id: 'est-123'
+      };
+
+      const mockTransaction = {
+        id: 'transaction-123',
+        amount: 3600,
+        currency: 'THB',
+        payment_method: 'promptpay',
+        payment_status: 'pending'
+      };
+
+      (supabase.from as jest.Mock)
+        // 1. Employee authorization check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockEmployee, error: null })
+        )
+        // 2. Existing subscription check
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        )
+        // 3. Subscription insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: { id: 'sub-123' }, error: null })
+        )
+        // 4. Transaction insert
+        .mockImplementationOnce(() =>
+          createMockChain({ data: mockTransaction, error: null })
+        )
+        // 5. Subscription update
+        .mockImplementationOnce(() =>
+          createMockChain({ data: null, error: null })
+        );
+
       const response = await request(app)
         .post('/api/vip/purchase')
         .send({
@@ -590,10 +517,11 @@ describe('VIP Purchase Workflow Tests', () => {
           entity_id: 'employee-123',
           duration: 30,
           payment_method: 'promptpay'
-        });
+        })
+        .expect(201);
 
-      // For now, should return 400 or 501 (Not Implemented)
-      expect([400, 501]).toContain(response.status);
+      expect(response.body.success).toBe(true);
+      expect(response.body.transaction.payment_method).toBe('promptpay');
     });
   });
 });

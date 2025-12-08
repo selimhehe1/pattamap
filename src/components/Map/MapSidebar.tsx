@@ -44,8 +44,8 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   onSearchChange,
   onClearFilters,
   establishmentCount,
-  viewMode = 'map',
-  onViewModeToggle
+  viewMode: _viewMode = 'map',
+  onViewModeToggle: _onViewModeToggle
 }) => {
   const { t } = useTranslation();
 

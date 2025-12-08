@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
+import { logger } from '../../utils/logger';
 import './FollowButton.css';
 
 interface FollowButtonProps {
@@ -54,7 +55,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
         setFollowerCount(data.followerCount);
       }
     } catch (err) {
-      console.error('Error fetching follow status:', err);
+      logger.error('Error fetching follow status:', err);
     }
   };
 

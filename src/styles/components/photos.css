@@ -126,10 +126,10 @@
   color: var(--text-inverse);
   border: none;
   border-radius: var(--border-radius-full);
-  width: 1.5625rem; /* 25px */
-  height: 1.5625rem;
+  width: 2.75rem; /* 44px - WCAG AAA minimum touch target */
+  height: 2.75rem;
   cursor: pointer;
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,9 +146,9 @@
 }
 
 .photo-remove-btn.large {
-  width: 1.875rem; /* 30px */
-  height: 1.875rem;
-  font-size: var(--font-base);
+  width: 3rem; /* 48px - larger variant */
+  height: 3rem;
+  font-size: var(--font-lg);
 }
 
 .photo-remove-btn:hover {
@@ -173,8 +173,8 @@
   color: var(--text-inverse);
   border: none;
   border-radius: var(--border-radius-full);
-  width: 1.875rem;
-  height: 1.875rem;
+  width: 2.75rem; /* 44px - WCAG AAA minimum touch target */
+  height: 2.75rem;
   cursor: pointer;
   font-size: var(--font-base);
   display: flex;

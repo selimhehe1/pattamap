@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
+import { logger } from '../../utils/logger';
 import './Leaderboard.css';
 
 interface LeaderboardEntry {
@@ -46,7 +47,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
           setLeaderboardData(data.leaderboard || []);
         }
       } catch (error) {
-        console.error('Error fetching leaderboard:', error);
+        logger.error('Error fetching leaderboard:', error);
       } finally {
         setLoading(false);
       }

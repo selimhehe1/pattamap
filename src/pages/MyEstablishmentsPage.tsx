@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureFetch } from '../hooks/useSecureFetch';
 import { logger } from '../utils/logger';
+import { isFeatureEnabled, FEATURES } from '../utils/featureFlags';
 import OwnerEstablishmentEditModal from '../components/Owner/OwnerEstablishmentEditModal'; // 🆕 v10.1
 import MyEmployeesList from '../components/Owner/MyEmployeesList'; // 🆕 v10.3 Phase 0
 import VIPPurchaseModal from '../components/Owner/VIPPurchaseModal'; // 🆕 v10.3 Phase 5
 import '../styles/pages/my-establishments.css';
+
+// Feature flag check
+const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
 interface Permission {
   can_edit_info: boolean;
@@ -92,12 +96,15 @@ const MyEstablishmentsPage: React.FC = () => {
         logger.debug('✅ Owned establishments loaded:', data);
         setEstablishments(data.establishments || []);
 
-        // Calculate stats
+        // Calculate stats from establishment data
+        const estList = data.establishments || [];
         setStats({
-          totalEstablishments: data.establishments?.length || 0,
-          totalViews: 0, // TODO: Implement when analytics are available
-          totalReviews: 0, // TODO: Implement when analytics are available
-          avgRating: 0 // TODO: Implement when analytics are available
+          totalEstablishments: estList.length,
+          // Future: Add establishment_views table for tracking views
+          totalViews: 0,
+          // Future: Add establishment reviews system (currently only employee reviews)
+          totalReviews: 0,
+          avgRating: 0
         });
       } else {
         logger.error('Failed to load owned establishments:', response.statusText);
@@ -118,7 +125,7 @@ const MyEstablishmentsPage: React.FC = () => {
     setSelectedEstablishment(null);
   };
 
-  const getRoleBadgeColor = (role: 'owner' | 'manager') => {
+  const _getRoleBadgeColor = (role: 'owner' | 'manager') => {
     return role === 'owner' ? '#FFD700' : '#00E5FF';
   };
 
@@ -259,8 +266,8 @@ const MyEstablishmentsPage: React.FC = () => {
                   {!establishment.logo_url && (establishment.category?.icon || '🏢')}
                 </div>
 
-                {/* VIP Badge - v10.3 Phase 5 */}
-                {establishment.is_vip && establishment.vip_expires_at && new Date(establishment.vip_expires_at) > new Date() && (
+                {/* VIP Badge - v10.3 Phase 5 (only if VIP feature enabled) */}
+                {VIP_ENABLED && establishment.is_vip && establishment.vip_expires_at && new Date(establishment.vip_expires_at) > new Date() && (
                   <div
                     className="vip-badge"
                     title={`VIP until ${new Date(establishment.vip_expires_at).toLocaleDateString()}`}
@@ -271,7 +278,7 @@ const MyEstablishmentsPage: React.FC = () => {
 
                 {/* Role Badge */}
                 <div
-                  className={`role-badge role-badge-${establishment.ownership_role} ${establishment.is_vip && establishment.vip_expires_at && new Date(establishment.vip_expires_at) > new Date() ? 'role-badge-with-vip' : ''}`}
+                  className={`role-badge role-badge-${establishment.ownership_role} ${VIP_ENABLED && establishment.is_vip && establishment.vip_expires_at && new Date(establishment.vip_expires_at) > new Date() ? 'role-badge-with-vip' : ''}`}
                 >
                   {getRoleBadgeIcon(establishment.ownership_role)} {establishment.ownership_role}
                 </div>
@@ -335,16 +342,18 @@ const MyEstablishmentsPage: React.FC = () => {
                   👥 {t('myEmployees.viewEmployees', 'View Employees')}
                 </button>
 
-                {/* 🆕 v10.3 Phase 5 - Purchase VIP Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedEstablishmentForVIP(establishment);
-                  }}
-                  className="btn-vip-gold"
-                >
-                  👑 {t('vipPurchase.purchaseVIP', 'Purchase VIP')}
-                </button>
+                {/* 🆕 v10.3 Phase 5 - Purchase VIP Button (only if VIP feature enabled) */}
+                {VIP_ENABLED && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEstablishmentForVIP(establishment);
+                    }}
+                    className="btn-vip-gold"
+                  >
+                    👑 {t('vipPurchase.purchaseVIP', 'Purchase VIP')}
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -390,8 +399,8 @@ const MyEstablishmentsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 🆕 v10.3 Phase 5 - VIP Purchase Modal */}
-      {selectedEstablishmentForVIP && (
+      {/* 🆕 v10.3 Phase 5 - VIP Purchase Modal (only if VIP feature enabled) */}
+      {VIP_ENABLED && selectedEstablishmentForVIP && (
         <VIPPurchaseModal
           subscriptionType="establishment"
           entity={selectedEstablishmentForVIP as any}

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { ALL_COUNTRIES, getCountryLabel } from '../../constants/countries';
+import { logger } from '../../utils/logger';
 import './NationalityTagsInput.css';
 
 interface NationalityTagsInputProps {
@@ -26,7 +27,7 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
   disabled = false,
   maxSelection = 2
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t: _t, i18n } = useTranslation();
   const currentLang = (i18n.language.split('-')[0] || 'en') as 'en' | 'th' | 'ru' | 'cn' | 'fr' | 'hi';
 
   const [inputValue, setInputValue] = useState<string>('');
@@ -87,7 +88,7 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
 
   // Debug logging (after filteredSuggestions is defined)
   useEffect(() => {
-    console.log('🌍 NationalityTagsInput:', {
+    logger.debug('NationalityTagsInput:', {
       value,
       selectedNationalities,
       canAddMore,
@@ -173,13 +174,13 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
   const handleInputFocus = () => {
     // Don't auto-open dropdown on focus to avoid reopening after selection
     // Dropdown will open when user clicks container or starts typing
-    console.log('🌍 Input focused, canAddMore:', canAddMore);
+    logger.debug('Input focused, canAddMore:', canAddMore);
   };
 
   // Handle container click to show dropdown even if empty
   const handleContainerClickToShow = () => {
     if (!disabled && canAddMore) {
-      console.log('🌍 Container clicked, showing suggestions');
+      logger.debug('Container clicked, showing suggestions');
       setShowSuggestions(true);
       // Focus input after showing suggestions
       setTimeout(() => {

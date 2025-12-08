@@ -301,10 +301,12 @@ export const getAutoSrcSet = (url: string, type: 'employee' | 'logo' | 'gallery'
   return { src, srcSet, sizes };
 };
 
-export default {
+const cloudinaryUtils = {
   getOptimizedImageUrl,
   getResponsiveImageUrl,
   CloudinaryPresets,
   getAutoSrcSet,
   isCloudinaryUrl,
 };
+
+export default cloudinaryUtils;

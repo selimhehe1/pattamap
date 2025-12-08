@@ -39,7 +39,7 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
   onToggleSidebar,
   onEstablishmentUpdate
 }) => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { openModal, closeModal } = useModal();
   const [currentZone, setCurrentZone] = useState<string>(propCurrentZone || 'soi6'); // Default to Soi 6
   const [categories, setCategories] = useState<any[]>([]);
