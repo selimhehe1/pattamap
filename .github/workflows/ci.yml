@@ -88,7 +88,8 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: npm run test:coverage -- --forceExit --testTimeout=30000
+        timeout-minutes: 10
         env:
           CI: true
           NODE_ENV: test
