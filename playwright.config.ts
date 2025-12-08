@@ -84,7 +84,8 @@ export default defineConfig({
   ],
 
   // Web Server (start dev servers before tests)
-  webServer: [
+  // In CI, servers are started separately, so we skip this
+  webServer: process.env.CI ? undefined : [
     {
       command: 'cd backend && npm run dev',
       url: 'http://localhost:8080/api/health',
