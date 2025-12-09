@@ -60,6 +60,8 @@ interface FormFieldProps {
   className?: string;
   /** Help text below field */
   helpText?: string;
+  /** Autocomplete attribute for browser */
+  autoComplete?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -79,7 +81,8 @@ const FormField: React.FC<FormFieldProps> = ({
   showCounter = false,
   options = [],
   className = '',
-  helpText
+  helpText,
+  autoComplete
 }) => {
   const hasError = !!error;
   const isValid = status === 'valid' && !hasError;
@@ -107,6 +110,7 @@ const FormField: React.FC<FormFieldProps> = ({
       required,
       disabled,
       maxLength,
+      autoComplete,
       className: `input-nightlife ${hasError ? 'input-error' : ''} ${isValid ? 'input-valid' : ''}`,
       'aria-invalid': hasError,
       'aria-describedby': hasError ? `${name}-error` : helpText ? `${name}-help` : undefined,
