@@ -68,8 +68,10 @@ interface RateLimitOptions {
 const store = new MemoryRateLimitStore();
 
 // Generate rate limit key from request
+// Uses X-Forwarded-For for proxied requests (Railway, Vercel, etc.)
 const defaultKeyGenerator = (req: Request): string => {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const forwardedFor = req.get('X-Forwarded-For');
+  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (req.ip || req.connection.remoteAddress || 'unknown');
   const userAgent = req.get('User-Agent') || 'unknown';
   return `${ip}:${userAgent.substring(0, 100)}`;
 };
@@ -152,8 +154,8 @@ export const apiRateLimit = createRateLimit({
 
 // Strict rate limit for authentication endpoints
 export const authRateLimit = createRateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes (reduced for dev)
-  maxRequests: 20, // 20 attempts per 5 minutes (increased for dev)
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 50, // 50 attempts per 15 minutes (more lenient for production behind proxy)
   message: 'Too many authentication attempts',
   skipSuccessfulRequests: true // Don't count successful logins
 });
