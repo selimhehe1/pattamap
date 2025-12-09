@@ -213,13 +213,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           <FormField
             label={`👤 ${t('auth.pseudonymOrEmail')}`}
             name="login"
-            type="email"
+            type="text"
             value={formData.login}
             error={errors.login}
             status={fieldStatus.login}
             onChange={(e) => handleInputChange('login', e.target.value)}
             onBlur={(e) => handleInputBlur('login', e.target.value)}
-            placeholder={t('auth.enterPseudonym')}
+            placeholder={t('auth.enterPseudonymOrEmail')}
             required
           />
 
