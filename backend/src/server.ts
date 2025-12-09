@@ -200,6 +200,10 @@ const cookiesSecure = NODE_ENV === 'production' ||
   process.env.COOKIES_SECURE === 'true' ||
   process.env.HTTPS_ENABLED === 'true';
 
+// Cookie domain for cross-subdomain sharing (pattamap.com <-> api.pattamap.com)
+// In production, set COOKIE_DOMAIN=.pattamap.com to share cookies across subdomains
+const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+
 // Log warning if cookies are not secure in development
 if (NODE_ENV === 'development' && !cookiesSecure) {
   logger.warn('⚠️  SECURITY WARNING: Cookies are NOT secure in development');
@@ -218,7 +222,8 @@ app.use(session({
     secure: cookiesSecure,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax' // Allow same-site requests while preventing CSRF
+    sameSite: 'none', // Required for cross-subdomain cookies with secure: true
+    domain: cookieDomain // Share cookie across subdomains (e.g., .pattamap.com)
   },
   name: 'pattamap.sid'
 }));
