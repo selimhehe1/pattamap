@@ -209,7 +209,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="form-layout">
+        <form onSubmit={handleSubmit} className="form-layout" noValidate>
           <FormField
             label={`👤 ${t('auth.pseudonymOrEmail')}`}
             name="login"
@@ -221,6 +221,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             onBlur={(e) => handleInputBlur('login', e.target.value)}
             placeholder={t('auth.enterPseudonymOrEmail')}
             required
+            autoComplete="username"
           />
 
           <FormField
@@ -235,6 +236,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             placeholder={t('auth.enterPassword')}
             required
             minLength={6}
+            autoComplete="current-password"
           />
 
           {error && (
