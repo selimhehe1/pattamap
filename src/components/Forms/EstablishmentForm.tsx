@@ -53,6 +53,8 @@ interface EstablishmentSubmitData {
   name: string;
   address: string;
   zone?: string;
+  grid_row?: number;
+  grid_col?: number;
   category_id: number | string;
   description?: string;
   logo_url?: string;
@@ -377,10 +379,13 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
       }
 
       // Transform internal form data to API format
+      // Assign default grid position (1,1) when zone is selected so establishment appears on map
       const finalFormData: EstablishmentSubmitData = {
         name: formData.name,
         address: formData.address,
         zone: formData.zone || undefined,
+        grid_row: formData.zone ? 1 : undefined, // Default position row 1
+        grid_col: formData.zone ? 1 : undefined, // Default position col 1
         category_id: formData.category_id,
         description: formData.description || undefined,
         logo_url: logoUrl || formData.logo_url || undefined,
