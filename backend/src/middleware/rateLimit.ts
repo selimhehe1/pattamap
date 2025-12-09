@@ -153,11 +153,18 @@ export const apiRateLimit = createRateLimit({
 });
 
 // Strict rate limit for authentication endpoints
+// Note: Uses X-Forwarded-For for real IP behind proxy (Railway/Vercel)
 export const authRateLimit = createRateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 50, // 50 attempts per 15 minutes (more lenient for production behind proxy)
-  message: 'Too many authentication attempts',
-  skipSuccessfulRequests: true // Don't count successful logins
+  maxRequests: 100, // 100 attempts per 15 minutes (lenient - real protection is bcrypt slowness)
+  message: 'Too many authentication attempts. Please wait 15 minutes.',
+  skipSuccessfulRequests: true, // Don't count successful logins
+  keyGenerator: (req: Request) => {
+    // Use real client IP from X-Forwarded-For header (Railway/Vercel proxy)
+    const forwardedFor = req.get('X-Forwarded-For');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (req.ip || req.connection.remoteAddress || 'unknown');
+    return `auth:${ip}`;
+  }
 });
 
 // Upload rate limit
