@@ -106,14 +106,13 @@ jobs:
 
   # ============================================
   # E2E Tests (runs with frontend + backend servers)
-  # Infrastructure is ready, but tests need optimization
-  # TODO: Enable when E2E tests are optimized for CI
+  # Runs on push to main/develop with parallelized tests
   # ============================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [frontend, backend]
-    if: false # Temporarily disabled - tests timeout in CI (need optimization)
+    if: github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -184,8 +183,8 @@ jobs:
           echo "Backend ready!"
 
       - name: Run E2E tests
-        run: npm run test:e2e -- --project=chromium-desktop
-        timeout-minutes: 15
+        run: npm run test:e2e -- --project=chromium-desktop --workers=4
+        timeout-minutes: 30
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000

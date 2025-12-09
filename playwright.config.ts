@@ -21,13 +21,13 @@ export default defineConfig({
   testDir: './tests/e2e',
 
   // Maximum time one test can run for
-  timeout: 60 * 1000, // 60 seconds
+  timeout: 60 * 1000, // 60 seconds per test
 
   // Test execution settings
-  fullyParallel: false, // Run tests sequentially (avoid DB conflicts)
+  fullyParallel: true, // Run tests in parallel for speed
   forbidOnly: !!process.env.CI, // Fail on .only() in CI
-  retries: process.env.CI ? 2 : 0, // Retry failed tests in CI
-  workers: 1, // Single worker (sequential execution)
+  retries: process.env.CI ? 1 : 0, // Retry failed tests in CI (reduced to 1 for speed)
+  workers: process.env.CI ? 4 : 2, // 4 parallel workers in CI, 2 locally
 
   // Reporter config
   reporter: [
