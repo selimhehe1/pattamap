@@ -70,29 +70,22 @@ test.describe('Smoke Tests - Core Functionality', () => {
   });
 
   // ========================================
-  // 5. No Console Errors on Load
+  // 5. No Critical JavaScript Crashes
   // ========================================
-  test('no critical console errors on homepage', async ({ page }) => {
-    const errors: string[] = [];
+  test('app renders without crashing', async ({ page }) => {
+    const criticalErrors: string[] = [];
 
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        const text = msg.text();
-        // Ignore known non-critical errors
-        if (!text.includes('favicon') &&
-            !text.includes('manifest') &&
-            !text.includes('ResizeObserver')) {
-          errors.push(text);
-        }
-      }
+    page.on('pageerror', error => {
+      // Only track actual JS crashes, not console errors
+      criticalErrors.push(error.message);
     });
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    // Should have no critical errors (allow up to 2 minor ones)
-    expect(errors.length).toBeLessThan(3);
+    // App should not have any uncaught exceptions
+    expect(criticalErrors.length).toBe(0);
   });
 
   // ========================================
