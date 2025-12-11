@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
-import { useDialog } from '../../hooks/useDialog';
 import FormField from '../Common/FormField';
 import toast from '../../utils/toast';
 import '../../styles/components/modal-forms.css';
@@ -17,7 +16,6 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
   const { t } = useTranslation();
-  const dialog = useDialog();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     login: '', // Can be pseudonym or email
@@ -89,18 +87,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     handleFieldBlur(fieldName as keyof typeof formData, value);
   };
 
-  const handleClose = async () => {
-    if (formData.login && !isLoading) {
-      const confirmLeave = await dialog.confirm(
-        t('auth.confirmLeaveWithSave'),
-        {
-          variant: 'warning',
-          confirmText: t('dialog.confirm', 'Confirm'),
-          cancelText: t('dialog.cancel', 'Cancel')
-        }
-      );
-      if (!confirmLeave) return;
-    }
+  const handleClose = () => {
     onClose();
   };
 

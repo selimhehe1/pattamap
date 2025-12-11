@@ -7,7 +7,6 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useEmployeeSearch } from '../../hooks/useEmployees';
 import { useEstablishments } from '../../hooks/useEstablishments';
 import { useCSRF } from '../../contexts/CSRFContext';
-import { useDialog } from '../../hooks/useDialog';
 import FormField from '../Common/FormField';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from '../Forms/NationalityTagsInput';
@@ -71,7 +70,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   onSwitchToLogin
 }) => {
   const { t } = useTranslation();
-  const dialog = useDialog();
   const { register, claimEmployeeProfile } = useAuth();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
@@ -392,21 +390,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   };
 
-  const handleClose = async () => {
-    const hasContent = formData.pseudonym || formData.email || formData.password || formData.confirmPassword;
-
-    if (hasContent && !isLoading) {
-      const confirmLeave = await dialog.confirm(
-        t('register.confirmLeave'),
-        {
-          variant: 'warning',
-          confirmText: t('dialog.confirm', 'Confirm'),
-          cancelText: t('dialog.cancel', 'Cancel')
-        }
-      );
-      if (!confirmLeave) return;
-    }
-
+  const handleClose = () => {
     onClose();
   };
 

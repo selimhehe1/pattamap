@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { useDialog } from '../../hooks/useDialog';
 import FormField from '../Common/FormField';
 import toast from '../../utils/toast';
 import '../../styles/components/modal-forms.css';
@@ -16,7 +15,6 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, onRegisterSuccess }) => {
   const { t } = useTranslation();
-  const dialog = useDialog();
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     pseudonym: '',
@@ -118,22 +116,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     handleFieldBlur(fieldName as keyof typeof formData, value);
   };
 
-  const handleClose = async () => {
-    // Check if form has content
-    const hasContent = formData.pseudonym || formData.email || formData.password || formData.confirmPassword;
-
-    if (hasContent && !isLoading) {
-      const confirmLeave = await dialog.confirm(
-        t('register.confirmLeave'),
-        {
-          variant: 'warning',
-          confirmText: t('dialog.confirm', 'Confirm'),
-          cancelText: t('dialog.cancel', 'Cancel')
-        }
-      );
-      if (!confirmLeave) return;
-    }
-
+  const handleClose = () => {
     onClose();
   };
 
