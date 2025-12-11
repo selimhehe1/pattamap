@@ -127,6 +127,13 @@
    ============================================ */
 
 .header-xp-pill {
+  /* ACCESSIBILITY FIX: Reset button styles */
+  background: none;
+  border: none;
+  font: inherit;
+  text-align: left;
+
+  /* Original styles */
   display: flex;
   flex-direction: column;
   gap: 0.25rem; /* 4px */
@@ -337,6 +344,12 @@
 }
 
 .user-menu-avatar-small {
+  /* ACCESSIBILITY FIX: Reset button styles */
+  background: none;
+  font: inherit;
+  padding: 0;
+
+  /* Original styles */
   position: relative;
   width: 2.5rem; /* 40px */
   height: 2.5rem;

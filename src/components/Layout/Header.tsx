@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search,
@@ -201,24 +201,27 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* XP Indicator - visible seulement sur desktop */}
           {user && userProgress && (() => {
-            // Calculate progress to next level
-            const currentLevelXP = (userProgress.current_level - 1) * 100;
-            const xpInCurrentLevel = userProgress.total_xp - currentLevelXP;
-            const xpNeededForNextLevel = userProgress.current_level * 100;
-            const progressPercentage = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+            // PERFORMANCE: Memoize XP calculations to prevent recalculation on every render
+            const progressPercentage = useMemo(() => {
+              const currentLevelXP = (userProgress.current_level - 1) * 100;
+              const xpInCurrentLevel = userProgress.total_xp - currentLevelXP;
+              const xpNeededForNextLevel = userProgress.current_level * 100;
+              return Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+            }, [userProgress?.current_level, userProgress?.total_xp]);
 
             return (
-              <div
+              <button
                 className="header-xp-pill"
                 title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
                 onClick={() => navigate('/achievements')}
+                aria-label={`Experience Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP total`}
               >
                 <span className="header-xp-level">Lvl {userProgress.current_level}</span>
                 <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
                 <div className="header-xp-progress">
                   <div className="header-xp-progress-fill" style={{ width: `${progressPercentage}%` }} />
                 </div>
-              </div>
+              </button>
             );
           })()}
 
@@ -241,11 +244,9 @@ const Header: React.FC<HeaderProps> = ({
                     <div className="user-menu-dropdown-modern">
                       {/* User Info - Compact */}
                       <div className="user-menu-header">
-                        <div
+                        <button
                           className="user-menu-avatar-small"
                           onClick={handleAvatarClick}
-                          role="button"
-                          tabIndex={0}
                           aria-label={
                             user.account_type === 'employee'
                               ? 'Click to edit your profile'
@@ -262,7 +263,7 @@ const Header: React.FC<HeaderProps> = ({
                           ) : (
                             <div className="user-menu-avatar-icon">👤</div>
                           )}
-                        </div>
+                        </button>
                         <div className="user-menu-info">
                           <span className="user-menu-name">{user.pseudonym}</span>
                           <span className="user-menu-badge">
