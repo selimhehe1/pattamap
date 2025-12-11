@@ -122,13 +122,10 @@ const transformEmployee = (emp: any) => ({
 });
 
 // ========================================
-// LEGACY ENDPOINTS (Migration & Setup) - NO AUTH REQUIRED
+// LEGACY ENDPOINTS (Migration & Setup)
 // ========================================
-
-// Test route to verify admin routes are working (no auth)
-router.get('/test', (req, res) => {
-  res.json({ message: 'Admin routes are working!' });
-});
+// SECURITY FIX: These routes now require authentication (middleware moved to line 19)
+// Previously these were accessible without auth - security vulnerability fixed
 
 // Create PostGIS coordinate extraction function
 router.post('/setup-postgis-functions', async (req, res) => {
@@ -1954,9 +1951,9 @@ router.post('/create-realistic-employees', async (req, res) => {
 
   } catch (error: any) {
     logger.error('Employee creation error:', error);
-    res.status(500).json({ 
-      error: 'Employee creation failed', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
+    // SECURITY FIX: Don't expose error details to client
+    res.status(500).json({
+      error: 'Employee creation failed'
     });
   }
 });
@@ -2029,9 +2026,9 @@ router.post('/create-basic-consumables', async (req, res) => {
 
   } catch (error: any) {
     logger.error('Consumables creation error:', error);
-    res.status(500).json({ 
-      error: 'Consumables creation failed', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
+    // SECURITY FIX: Don't expose error details to client
+    res.status(500).json({
+      error: 'Consumables creation failed'
     });
   }
 });

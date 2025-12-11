@@ -6,6 +6,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import LazyImage from '../../Common/LazyImage';
+import SanitizedText from '../../Common/SanitizedText';
 import type { AdminEmployee } from './types';
 
 interface EmployeeDetailModalProps {
@@ -203,7 +204,11 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               {employee.description && (
                 <div style={{ marginBottom: '20px' }}>
                   <strong style={{ color: '#C19A6B' }}>Description:</strong>
-                  <p style={{ marginTop: '5px', lineHeight: '1.6' }}>{employee.description}</p>
+                  <SanitizedText
+                    html={employee.description}
+                    tag="p"
+                    className="employee-description"
+                  />
                 </div>
               )}
 

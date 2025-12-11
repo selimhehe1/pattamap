@@ -235,7 +235,8 @@ router.post('/make-admin/:userId', async (req, res) => {
 
     if (error) {
       logger.error('Error making user admin:', error);
-      return res.status(400).json({ error: error.message });
+      // SECURITY FIX: Don't expose error details
+      return res.status(400).json({ error: 'Failed to upgrade user to admin' });
     }
 
     logger.debug('✅ User upgraded to admin:', data);

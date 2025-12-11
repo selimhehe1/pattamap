@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Establishment } from '../../types';
 import { getCategoryIcon } from '../../utils/iconMapper';
+import SanitizedText from '../Common/SanitizedText';
 import '../../styles/components/establishment-list-view.css';
 
 interface EstablishmentListViewProps {
@@ -228,9 +229,11 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
 
                 {/* Description (optional) */}
                 {establishment.description && (
-                  <p className="establishment-card-description">
-                    {truncateText(establishment.description, 80)}
-                  </p>
+                  <SanitizedText
+                    html={truncateText(establishment.description, 80)}
+                    tag="p"
+                    className="establishment-card-description"
+                  />
                 )}
               </div>
             </div>

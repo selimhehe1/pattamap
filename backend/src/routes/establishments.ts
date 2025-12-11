@@ -19,17 +19,9 @@ import { getMyOwnedEstablishments } from '../controllers/establishmentOwnerContr
 
 const router = Router();
 
-// SIMPLE TEST ROUTE
-router.get('/test', (req, res) => {
-  logger.debug('🧪 TEST ROUTE HIT!');
-  res.json({ message: 'Test route working!' });
-});
-
-// DEBUG: Test POST route
-router.post('/test-post', (req, res) => {
-  logger.debug('🧪 TEST POST ROUTE HIT!');
-  res.json({ message: 'Test POST route working!', body: req.body });
-});
+// SECURITY FIX: Remove test routes from production
+// These routes were exposing endpoints without authentication
+// Removed: GET /test, POST /test-post
 
 // Utility functions for admin transformations
 const uuidToNumber = (uuid: string): number => {
