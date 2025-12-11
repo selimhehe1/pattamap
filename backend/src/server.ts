@@ -214,7 +214,16 @@ if (NODE_ENV === 'development' && !cookiesSecure) {
 
 // Session configuration for CSRF - Fixed session synchronization
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'pattamap-csrf-session-secret-dev',
+  secret: process.env.SESSION_SECRET || (() => {
+    if (NODE_ENV === 'production') {
+      throw new Error('SESSION_SECRET environment variable is required in production');
+    }
+    // Generate random secret in development (but warn about it)
+    const crypto = require('crypto');
+    const devSecret = crypto.randomBytes(32).toString('hex');
+    logger.warn('⚠️  Using auto-generated SESSION_SECRET in development. Set SESSION_SECRET in .env for persistence.');
+    return devSecret;
+  })(),
   resave: false,
   saveUninitialized: false, // Don't create sessions until needed (set by csrfTokenGenerator)
   rolling: false, // Disable rolling to prevent session ID changes on each request

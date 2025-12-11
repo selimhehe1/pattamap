@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
+import { useAuth } from '../../contexts/AuthContext';
 import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
@@ -57,6 +58,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   isSelfProfile = false // 🆕 v10.0
 }) => {
   const { secureFetch } = useSecureFetch();
+  const { user } = useAuth();
   const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
@@ -111,19 +113,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
   const fetchEstablishments = async () => {
     try {
-      // Vérifier si on est dans un contexte admin via le token
-      const token = localStorage.getItem('token');
-      const isAdminContext = token && window.location.pathname.includes('admin');
+      // SECURITY FIX: Use useAuth instead of localStorage token
+      // Check if user is admin/moderator via AuthContext
+      const isAdminContext = user && ['admin', 'moderator'].includes(user.role) &&
+                            window.location.pathname.includes('admin');
 
       const endpoint = isAdminContext
         ? `${process.env.REACT_APP_API_URL}/api/admin/establishments`
         : `${process.env.REACT_APP_API_URL}/api/establishments`;
 
-      const headers: HeadersInit = isAdminContext && token
-        ? { 'Authorization': `Bearer ${token}` }
-        : {};
-
-      const response = await fetch(endpoint, { headers });
+      // SECURITY FIX: Use secureFetch (httpOnly cookies) instead of Bearer token
+      const response = await secureFetch(endpoint);
       const data = await response.json();
 
       setEstablishments(data.establishments || []);

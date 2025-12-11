@@ -7,10 +7,22 @@ import { getVIPTransactions, verifyPayment, rejectPayment } from '../controllers
 
 const router = express.Router();
 
-// FIRST ROUTE - Should work without any middleware
+// FIRST ROUTE - Should work without any middleware (health check only)
 router.get('/health', (req, res) => {
   res.json({ message: 'Admin router is working without authentication!' });
 });
+
+// ========================================
+// AUTHENTICATION MIDDLEWARE - Protect ALL routes except /health
+// ========================================
+// SECURITY FIX: Moved from line 228 to protect ALL admin routes
+router.use((req, res, next) => {
+  logger.debug('Admin route middleware reached for:', req.path);
+  next();
+});
+router.use(authenticateToken);
+// Role-based access control for admin/moderator routes
+router.use(requireRole(['admin', 'moderator']));
 
 // Utility function to convert UUID to consistent number
 const uuidToNumber = (uuid: string): number => {
@@ -219,15 +231,6 @@ router.post('/create-basic-consumables', async (req, res) => {
     res.status(500).json({ error: 'Failed to create consumables' });
   }
 });
-
-// Middleware pour vérifier le rôle admin/moderator (applied after setup endpoints)
-router.use((req, res, next) => {
-  logger.debug('Admin route middleware reached for:', req.path);
-  next();
-});
-router.use(authenticateToken);
-// Role-based access control for admin/moderator routes
-router.use(requireRole(['admin', 'moderator']));
 
 // ========================================
 // DASHBOARD STATISTICS
