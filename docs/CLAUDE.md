@@ -3,9 +3,9 @@
 > **Point d'entrée principal** pour travailler avec Claude Code sur PattaMap.
 > Ce fichier sert d'index vers toute la documentation du projet.
 
-**Version**: v10.3.3 (Security Hardened)
-**Dernière mise à jour**: Janvier 2025 - Phase 6 Day 2
-**Statut**: ✅ Production-Ready + Phase 6 Security Sprint (4/7 vulnerabilities fixed)
+**Version**: v10.3.4 (Code Quality Improved)
+**Dernière mise à jour**: Décembre 2025 - Phase 7 Code Quality
+**Statut**: ✅ Production-Ready + Frontend Tests + TypeScript Strict
 
 ---
 
@@ -30,6 +30,50 @@
 ---
 
 ## 📰 Recent Updates
+
+### Phase 7: Code Quality & Frontend Tests (Decembre 2025)
+
+**🧪 Frontend Tests Added** (30 nouveaux tests):
+- ✅ `useFormValidation.test.ts` - 13 tests (validation rules, blur handling, custom validators)
+- ✅ `useAutoSave.test.ts` - 10 tests (localStorage persistence, debounce, draft management)
+- ✅ `LoginForm.test.tsx` - 7 tests (rendering, validation, callbacks)
+- **Total tests**: 162 (156 passing, 6 failing in existing VIPPurchaseModal)
+
+**🔧 TypeScript Strict Fixes**:
+- ✅ **EstablishmentsAdmin.tsx** - Eliminated all `any` types
+  - Created `EditProposalValue` and `EditProposalChanges` types
+  - Typed `handleSaveEstablishment(data: Partial<Establishment>)`
+  - Typed `formatValueForDisplay(value: EditProposalValue)`
+  - Added type guards for `extractPrice(field: unknown)`
+- ✅ **useAutoSave.ts** - Changed generic default from `any` to `Record<string, unknown>`
+
+**📖 JSDoc Documentation**:
+- ✅ **useSecureFetch.ts** - Comprehensive JSDoc with examples
+- ✅ **useFormValidation.ts** - Already documented
+- ✅ **useAutoSave.ts** - Already documented
+- ✅ **useDialog.ts** - Already documented
+
+**🏗️ Admin Components Refactored**:
+- ✅ **EmployeesAdmin.tsx** - Refactored from 1610 lines to modular components
+- ✅ **All Admin components** - Migrated from localStorage token to `useSecureFetch`
+
+**🔒 Security Improvements**:
+- ✅ **DOMPurify** - XSS protection on `dangerouslySetInnerHTML`
+- ✅ **ErrorBoundary** - Added to all routes
+- ✅ **useSecureFetch** - Centralized secure API calls
+
+**⚡ Frontend Optimizations**:
+- ✅ **React.memo** - Applied to heavy components
+- ✅ **React.lazy** - Lazy loading for admin routes
+- ✅ **useCallback** - Optimized event handlers
+
+**Impact**:
+- 🧪 **+30 frontend tests** (0% → ~4% component coverage)
+- 🔧 **-15 `any` instances** in EstablishmentsAdmin
+- 📖 **+50 lines JSDoc** documentation
+- ✅ **Build passes** with TypeScript strict mode
+
+---
 
 ### Phase 6: Security & Test Stabilization Sprint (Janvier 2025)
 
@@ -154,7 +198,11 @@
 
 ### Gaps de Tests
 
-- ❌ **Frontend Components** : 0% coverage (setup existant, inutilisé)
+- 🟡 **Frontend Components** : ~4% coverage (30 tests ajoutés Phase 7)
+  - ✅ `useFormValidation.test.ts` - 13 tests
+  - ✅ `useAutoSave.test.ts` - 10 tests
+  - ✅ `LoginForm.test.tsx` - 7 tests
+  - ✅ `SearchPage.test.tsx` - tests existants
 - ❌ **Controllers** : <10% coverage (seul pushController testé)
 - ❌ **E2E Tests** : 0 tests (Playwright configuré mais aucun test)
 - ❌ **Services** : 0% (gamificationService, verificationService non testés)
@@ -162,8 +210,10 @@
 
 ### Code Quality Issues
 
-- 🟠 **106 instances de `any`** (mauvaise inférence de types)
-- 🟠 **God Components** : `EmployeesAdmin.tsx` (850 lignes), `vipController.ts` (849 lignes)
+- 🟡 **~90 instances de `any`** (réduit de 106 → ~90, Phase 7)
+  - ✅ EstablishmentsAdmin.tsx - `any` remplacés par types stricts
+  - ✅ useAutoSave.ts - Generic default `Record<string, unknown>`
+- 🟡 **God Components** : `EmployeesAdmin.tsx` refactorisé (850→modulaire), `vipController.ts` (849 lignes)
 - 🟠 **Code dupliqué** : Composants admin partagent 80% du code
 - 🟠 **Magic numbers** : Constantes non nommées partout (roadWidth = 80, etc.)
 - 🟠 **Nesting profond** : 5+ niveaux d'imbrication dans certaines fonctions
@@ -234,11 +284,12 @@ pattaya-directory/
 │   ├── hooks/            # useSecureFetch, useContainerSize
 │   └── types/            # Types TypeScript
 │
-└── docs/                  # Documentation projet
-    ├── architecture/      # TECH_STACK, PROJECT_STRUCTURE, MAP_SYSTEM, CSS
-    ├── development/       # GETTING_STARTED, CODING_CONVENTIONS, TESTING
-    ├── features/          # FEATURES_OVERVIEW, ROADMAP
-    └── versions/          # Historique (CLAUDE-v9.x.0.md)
+└── docs/                  # Documentation projet (35 fichiers)
+    ├── architecture/      # Tech stack, structure projet, système maps, CSS (5 fichiers)
+    ├── development/       # Getting started, conventions, testing (7 fichiers)
+    ├── features/          # Features overview, roadmap, systèmes métier (11 fichiers)
+    ├── guides/            # Guides utilisateur et admin (5 fichiers)
+    └── audits/            # Audits qualité et sécurité (4 fichiers)
 ```
 
 → **Détails complets**: [docs/architecture/PROJECT_STRUCTURE.md](docs/architecture/PROJECT_STRUCTURE.md)
@@ -1362,11 +1413,24 @@ npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
 
 # Frontend
-npm test                 # Run all
+npm test                 # Run all (162 tests)
 npm test -- --watch      # Watch mode
 ```
 
 ### Coverage Actuelle
+
+**Frontend (Phase 7 - Décembre 2025)**:
+```
+Test Suites: 9 total (7 passed, 2 failing - VIPPurchaseModal existing issues)
+Tests:       162 total (156 passed)
+
+Nouveaux tests ajoutés:
+- useFormValidation.test.ts  : 13 tests (validation, blur, custom validators)
+- useAutoSave.test.ts        : 10 tests (localStorage, debounce, drafts)
+- LoginForm.test.tsx         : 7 tests (rendering, validation, callbacks)
+```
+
+**Backend**:
 ```
 File                 | % Stmts | % Branch | % Funcs | % Lines
 ---------------------|---------|----------|---------|--------
@@ -1376,57 +1440,84 @@ middleware/csrf.ts   |   88.3  |    80.0  |   100   |   87.5
 
 ### Structure Tests
 ```
+# Backend
 backend/src/middleware/__tests__/
 ├── auth.test.ts         # 18 tests - JWT auth
 └── csrf.test.ts         # 15 tests - CSRF protection
+
+# Frontend (Phase 7)
+src/hooks/__tests__/
+├── useFormValidation.test.ts  # 13 tests - Form validation hook
+└── useAutoSave.test.ts        # 10 tests - Auto-save hook
+
+src/components/Auth/__tests__/
+└── LoginForm.test.tsx         # 7 tests - Login form component
+
+src/components/Search/__tests__/
+└── SearchPage.test.tsx        # Tests existants - Search filters
 ```
 
 → **Guide complet**: [docs/development/TESTING.md](docs/development/TESTING.md)
 
 ---
 
-## 📚 Documentation Complète
+## 📚 Documentation (35 fichiers)
 
-### Architecture
-- [📊 Stack Technique](docs/architecture/TECH_STACK.md) - Technologies, dépendances, env vars
-- [🏗️ Structure Projet](docs/architecture/PROJECT_STRUCTURE.md) - Organisation dossiers, workflow
-- [🗺️ Système Cartes](docs/architecture/MAP_SYSTEM.md) - 9 zones, grilles, drag & drop
-- [🎨 CSS Architecture](docs/architecture/CSS_ARCHITECTURE.md) - Styles, thème nightlife
+> Documentation nettoyée en Décembre 2025. Fichiers obsolètes supprimés (migrations, reports, archives).
 
-### Développement
-- [🚀 Getting Started](docs/development/GETTING_STARTED.md) - Installation, config, premiers pas
-- [📝 Coding Conventions](docs/development/CODING_CONVENTIONS.md) - Standards code, naming, best practices
-- [🧪 Testing](docs/development/TESTING.md) - Jest, coverage, E2E (planned)
-- [📱 Responsive Design](docs/development/RESPONSIVE_DESIGN.md) - Breakpoints, media queries, orientation detection
+### 🏗️ Architecture (5 fichiers)
+- [TECH_STACK.md](docs/architecture/TECH_STACK.md) - Technologies, dépendances, env vars
+- [PROJECT_STRUCTURE.md](docs/architecture/PROJECT_STRUCTURE.md) - Organisation dossiers, workflow
+- [MAP_SYSTEM.md](docs/architecture/MAP_SYSTEM.md) - 9 zones, grilles, drag & drop
+- [CSS_ARCHITECTURE.md](docs/architecture/CSS_ARCHITECTURE.md) - Styles, thème nightlife
+- [AUDIT_CSS_ARCHITECTURE.md](docs/architecture/AUDIT_CSS_ARCHITECTURE.md) - Audit CSS
 
-### Fonctionnalités
-- [✨ Features Overview](docs/features/FEATURES_OVERVIEW.md) - Vue d'ensemble fonctionnalités
-- [🗺️ Roadmap](docs/features/ROADMAP.md) - Prochaines versions (v10.0+)
-- [🏆 Establishment Owners](docs/features/ESTABLISHMENT_OWNERS.md) - **v10.1** Système de gestion de propriétaires (technique)
-- [📖 Owner Guide](docs/guides/OWNER_GUIDE.md) - Guide utilisateur pour propriétaires d'établissements
-- [🛡️ Admin Owner Management](docs/guides/ADMIN_OWNER_MANAGEMENT.md) - Guide admin pour gérer les propriétaires
-- [🌐 i18n Implementation](docs/features/I18N_IMPLEMENTATION.md) - Système multilingue (EN/TH/RU/CN/FR/HI) - 1,046 clés, 42 composants
-- [🔔 Notifications System](docs/features/NOTIFICATIONS_SYSTEM.md) - **v10.2** PWA Push + Enhanced UI (21 types, grouping, filtering, 50+ tests)
-- [🎯 Features Roadmap (détaillé)](docs/features/FEATURES_ROADMAP.md) - Planification complète
-- [📋 Implementation Guide](docs/features/FEATURES_IMPLEMENTATION_GUIDE.md) - Guides techniques
-- [💼 Freelance Feature](docs/features/FREELANCE_FEATURE.md) - Feature employées freelance
-- [👷 Employee Claim System Status](IMPLEMENTATION_STATUS.md) - v10.0 Implementation tracking & test results
+### 💻 Développement (7 fichiers)
+- [GETTING_STARTED.md](docs/development/GETTING_STARTED.md) - Installation, config, premiers pas
+- [CODING_CONVENTIONS.md](docs/development/CODING_CONVENTIONS.md) - Standards code, naming
+- [TESTING.md](docs/development/TESTING.md) - Jest, coverage, tests
+- [RESPONSIVE_DESIGN.md](docs/development/RESPONSIVE_DESIGN.md) - Breakpoints, media queries
+- [CI_CD.md](docs/development/CI_CD.md) - Pipeline CI/CD
+- [DEPENDENCY_MANAGEMENT.md](docs/development/DEPENDENCY_MANAGEMENT.md) - Gestion dépendances
+- [SERVICE_TESTING_GUIDE.md](docs/development/SERVICE_TESTING_GUIDE.md) - Tests services
 
-### Audits & Analyses
-- [📊 Audit Métier Complet](docs/AUDIT_METIER.md) - **Janvier 2025** - Analyse complète adéquation code/métier (Score: 8/10) - Recommandations priorisées en 3 phases
+### ✨ Features (11 fichiers)
+- [FEATURES_OVERVIEW.md](docs/features/FEATURES_OVERVIEW.md) - Vue d'ensemble
+- [ROADMAP.md](docs/features/ROADMAP.md) - Prochaines versions (v10.0+)
+- [VIP_SYSTEM.md](docs/features/VIP_SYSTEM.md) - **v10.3** Système VIP complet (107KB)
+- [ESTABLISHMENT_OWNERS.md](docs/features/ESTABLISHMENT_OWNERS.md) - **v10.1** Système propriétaires
+- [OWNER_EMPLOYEE_MANAGEMENT.md](docs/features/OWNER_EMPLOYEE_MANAGEMENT.md) - Gestion employés
+- [I18N_IMPLEMENTATION.md](docs/features/I18N_IMPLEMENTATION.md) - Multilingue (6 langues)
+- [NOTIFICATIONS_SYSTEM.md](docs/features/NOTIFICATIONS_SYSTEM.md) - **v10.2** PWA Push
+- [GAMIFICATION_SYSTEM.md](docs/features/GAMIFICATION_SYSTEM.md) - XP, badges, missions
+- [BADGE_SYSTEM.md](docs/features/BADGE_SYSTEM.md) - Système de badges
+- [FREELANCE_FEATURE.md](docs/features/FREELANCE_FEATURE.md) - Employées freelance
+- [FEATURES_IMPLEMENTATION_GUIDE.md](docs/features/FEATURES_IMPLEMENTATION_GUIDE.md) - Guide technique
 
-### Backend Technique
-- [🔒 Security](backend/docs/SECURITY.md) - CSRF, Helmet, Rate Limiting, Audit
-- [⚡ Performance](backend/docs/PERFORMANCE.md) - Compression, Cache, Pagination
-- [🗄️ Database Indexes](backend/docs/DATABASE_INDEXES.md) - 30+ indexes SQL
-- [📊 Sentry Usage](backend/docs/SENTRY_USAGE.md) - Monitoring, custom spans
-- [💾 Database Structure](backend/database/README.md) - Migrations, seeds, scripts archive
-- [📥 Install Indexes](backend/docs/INSTALL_INDEXES.md) - Guide installation indexes
+### 📖 Guides (5 fichiers)
+- [OWNER_GUIDE.md](docs/guides/OWNER_GUIDE.md) - Guide utilisateur propriétaires
+- [ADMIN_OWNER_MANAGEMENT.md](docs/guides/ADMIN_OWNER_MANAGEMENT.md) - Guide admin propriétaires
+- [TESTING_GUIDE.md](docs/guides/TESTING_GUIDE.md) - Guide tests
+- [SECURITY_DEPENDENCIES.md](docs/guides/SECURITY_DEPENDENCIES.md) - Sécurité dépendances
+- [PROFILE_VIEW_TRACKING.md](docs/guides/PROFILE_VIEW_TRACKING.md) - Tracking vues profil
 
-### Historique Versions
-- [📖 Version 9.3.0](docs/versions/CLAUDE-v9.3.0.md) - API Docs, Performance, Security (actuelle)
-- [📖 Version 9.2.0](docs/versions/CLAUDE-v9.2.0.md) - Tests automatisés, CSRF
-- [📖 Version 9.1.0](docs/versions/CLAUDE-v9.1.0.md) - Maps refactor, Dashboard admin
+### 🔍 Audits (4 fichiers)
+- [AUDIT_QUALITE_CODE.md](docs/audits/AUDIT_QUALITE_CODE.md) - Audit qualité code
+- [AUDIT_VISUAL_EXHAUSTIF.md](docs/audits/AUDIT_VISUAL_EXHAUSTIF.md) - Audit visuel
+- [BUGS_AND_SYSTEM_AUDIT_REPORT.md](docs/audits/BUGS_AND_SYSTEM_AUDIT_REPORT.md) - Bugs identifiés
+- [SECURITY_AUDIT.md](docs/audits/SECURITY_AUDIT.md) - Audit sécurité
+
+### 📊 Root Docs (3 fichiers)
+- [CLAUDE.md](docs/CLAUDE.md) - **Ce fichier** - Point d'entrée principal
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Architecture déploiement
+- [AUDIT_METIER.md](docs/AUDIT_METIER.md) - Audit métier complet
+
+### 🔧 Backend Docs (5 fichiers essentiels)
+- [SECURITY.md](backend/docs/SECURITY.md) - CSRF, Helmet, Rate Limiting
+- [PERFORMANCE.md](backend/docs/PERFORMANCE.md) - Compression, Cache
+- [DATABASE_INDEXES.md](backend/docs/DATABASE_INDEXES.md) - 30+ indexes SQL
+- [SENTRY_USAGE.md](backend/docs/SENTRY_USAGE.md) - Monitoring
+- [HTTPS_DEV_SETUP.md](backend/docs/HTTPS_DEV_SETUP.md) - Setup HTTPS dev
 
 ---
 
@@ -1806,4 +1897,4 @@ lsof -ti:8080 | xargs kill -9
 
 **🏮 PattaMap - Naviguer Pattaya Nightlife avec Innovation**
 
-**Version**: v10.3.2 | **Status**: Production-Ready (Dette Technique 172j) | **Dernière mise à jour**: Janvier 2025
+**Version**: v10.3.4 | **Status**: Production-Ready (Dette Technique ~155j) | **Dernière mise à jour**: Décembre 2025

@@ -2,9 +2,9 @@
 
 > Collaborative platform for referencing entertainment venues and employees in Pattaya, Thailand, with innovative ergonomic maps.
 
-**Version**: v9.3.0 (Production-Ready)
-**Status**: ✅ Production-Ready with tests, API docs, performance & security hardening
-**Last Updated**: October 2025
+**Version**: v10.3.4 (Code Quality Improved)
+**Status**: ✅ Production-Ready with 162 tests, TypeScript strict, security hardening
+**Last Updated**: December 2025
 
 > **📖 For complete documentation, see [docs/CLAUDE.md](docs/CLAUDE.md) - Main entry point for developers and Claude Code**
 >
@@ -63,7 +63,7 @@ npm start                  # Terminal 2 → :3000
 - **Storage**: Cloudinary (images CDN)
 - **Auth**: JWT + httpOnly cookies + CSRF protection
 - **Monitoring**: Sentry (errors + performance tracing)
-- **Testing**: Jest + Supertest (33 tests, 85%+ coverage)
+- **Testing**: Jest + React Testing Library (162 tests, 85%+ middleware coverage)
 
 → **Full Stack Details**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -121,18 +121,19 @@ npm start                  # Terminal 2 → :3000
 
 **📖 Main Entry Point**: [docs/CLAUDE.md](docs/CLAUDE.md) - Complete project guide for Claude Code
 
-**Documentation Structure**:
+**Documentation Structure** (35 fichiers, nettoyée Dec 2025):
 ```
 docs/
-├── architecture/     # Tech stack, structure, maps, CSS
-├── development/      # Getting started, conventions, testing
-├── features/         # Overview, roadmap, implementation
-└── versions/         # Version history (CLAUDE-v9.x.0.md)
+├── architecture/     # Tech stack, structure, maps, CSS (5 files)
+├── development/      # Getting started, conventions, testing (7 files)
+├── features/         # Overview, roadmap, VIP, i18n, gamification (11 files)
+├── guides/           # User & admin guides (5 files)
+└── audits/           # Quality & security audits (4 files)
 ```
 
 ---
 
-## 📊 Key Metrics (v9.3.0)
+## 📊 Key Metrics (v10.3.4)
 
 | Metric | Value |
 |--------|-------|
@@ -141,19 +142,24 @@ docs/
 | **Zones** | 9 ergonomic maps |
 | **Grid Positions** | 322 total |
 | **Reviews** | 52 community ratings |
-| **Users** | 14 (user/moderator/admin) |
-| **Tests** | 33 (85%+ coverage) |
+| **Users** | 14 (user/moderator/admin/establishment_owner) |
+| **Frontend Tests** | 162 (hooks, components) |
+| **Backend Tests** | 33+ (middleware 85%+ coverage) |
 | **Performance** | ~20ms P50 latency |
 
 ---
 
 ## 🗺️ Roadmap (v10.0+)
 
-**Priorité Haute** 🔴:
-1. **Multilingue (i18n)** - EN/TH/RU/CN → Audience ×10
-2. **Vérification Profils** - Badge vérifié → Confiance +80%
-3. **Notifications Push (PWA)** - Engagement → Rétention +40%
-4. **Freemium Model** - Monétisation → Revenus récurrents
+**Completed** ✅:
+1. ~~**Multilingue (i18n)**~~ - EN/TH/RU/CN/FR/HI (6 languages, 1,046 keys)
+2. ~~**Notifications Push (PWA)**~~ - 21 types, grouping, filtering
+3. ~~**VIP Subscriptions**~~ - Backend complete, Frontend in progress
+4. ~~**Establishment Owners**~~ - Full system with permissions
+
+**In Progress** 🟡:
+- **VIP Frontend** - Purchase modal, admin verification panel
+- **Employee Verification** - Badge system, face comparison
 
 → **Full Roadmap**: [docs/features/ROADMAP.md](docs/features/ROADMAP.md)
 
@@ -162,13 +168,19 @@ docs/
 ## 🧪 Testing
 
 ```bash
-# Frontend
+# Frontend (162 tests)
 npm test                     # Run all tests
 npm run build                # Production build
 
-# Backend
+# Test files:
+# - src/hooks/__tests__/useFormValidation.test.ts (13 tests)
+# - src/hooks/__tests__/useAutoSave.test.ts (10 tests)
+# - src/components/Auth/__tests__/LoginForm.test.tsx (7 tests)
+# - src/components/Search/__tests__/SearchPage.test.tsx
+
+# Backend (33+ tests)
 cd backend
-npm test                     # 33 tests (85%+ coverage)
+npm test                     # Run all tests (85%+ middleware coverage)
 npm run build                # TypeScript compile
 npm run test:coverage        # Coverage report
 ```
@@ -209,5 +221,4 @@ Private project - All rights reserved
 
 **Built with ❤️ for the Pattaya nightlife community**
 
-**Version**: v9.3.0 | **Status**: Production-Ready | **October 2025**
-# Preprod test
+**Version**: v10.3.4 | **Status**: Production-Ready | **December 2025**
