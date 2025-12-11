@@ -1,0 +1,231 @@
+/**
+ * EmployeesAdmin - Main component for employee management in admin panel
+ * Refactored from 1600+ lines to ~150 lines using modular architecture
+ */
+
+import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { EmployeeForm, GirlProfile } from '../../../routes/lazyComponents';
+import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
+import LoadingFallback from '../../Common/LoadingFallback';
+import { useEmployeesAdmin } from './hooks/useEmployeesAdmin';
+import { EmployeesFilterTabs } from './EmployeesFilterTabs';
+import { EmployeeCard } from './EmployeeCard';
+import { EditProposalCard } from './EditProposalCard';
+import { EmployeeDetailModal } from './EmployeeDetailModal';
+import { logger } from '../../../utils/logger';
+import '../../../styles/components/employee-profile.css';
+import '../../../styles/components/social-icons.css';
+import '../../../styles/pages/user-dashboard.css';
+
+interface EmployeesAdminProps {
+  onTabChange: (tab: string) => void;
+}
+
+const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
+  const { t } = useTranslation();
+  const {
+    employees,
+    editProposals,
+    isLoading,
+    filter,
+    selectedEmployee,
+    editingEmployee,
+    selectedProposal,
+    establishmentNames,
+    showEmployeeProfile,
+    profileEmployee,
+    setFilter,
+    setSelectedEmployee,
+    setEditingEmployee,
+    setSelectedProposal,
+    setShowEmployeeProfile,
+    setProfileEmployee,
+    handleApprove,
+    handleReject,
+    handleApproveProposal,
+    handleRejectProposal,
+    handleSaveEmployee,
+    handleVerifyEmployee,
+    handleRevokeVerification,
+    isProcessing,
+    hasAccess,
+  } = useEmployeesAdmin();
+
+  // Access denied view
+  if (!hasAccess) {
+    return (
+      <div className="access-denied-container">
+        <div className="access-denied-card">
+          <h2>🚫 {t('admin.accessDenied')}</h2>
+          <p>{t('admin.accessDeniedArea')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-page-container">
+      <AdminBreadcrumb
+        currentSection={t('admin.employeesManagement')}
+        onBackToDashboard={() => onTabChange('overview')}
+        icon="👥"
+      />
+
+      {/* Header */}
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">👥 {t('admin.employeesManagement')}</h1>
+        <p className="admin-page-subtitle">{t('admin.reviewApproveEmployees')}</p>
+      </div>
+
+      {/* Filter Tabs */}
+      <EmployeesFilterTabs activeFilter={filter} onFilterChange={setFilter} />
+
+      {/* Content */}
+      {isLoading ? (
+        <LoadingFallback message={t('admin.loadingEmployees')} variant="inline" />
+      ) : filter === 'pending-edits' ? (
+        editProposals.length === 0 ? (
+          <div className="empty-state-card">
+            <h3>✅ {t('admin.noPendingEdits')}</h3>
+            <p>{t('admin.allEditsReviewed')}</p>
+          </div>
+        ) : (
+          <div className="proposals-list">
+            {editProposals.map((proposal) => (
+              <EditProposalCard
+                key={proposal.id}
+                proposal={proposal}
+                isExpanded={selectedProposal?.id === proposal.id}
+                isProcessing={isProcessing(proposal.id)}
+                establishmentNames={establishmentNames}
+                onToggleExpand={() =>
+                  setSelectedProposal(selectedProposal?.id === proposal.id ? null : proposal)
+                }
+                onApprove={handleApproveProposal}
+                onReject={handleRejectProposal}
+              />
+            ))}
+          </div>
+        )
+      ) : employees.length === 0 ? (
+        <div className="empty-state-card">
+          <h3>📭 {t('admin.noEmployeesFound')}</h3>
+          <p>{t('admin.noEmployeesMatch')}</p>
+        </div>
+      ) : (
+        <div className="grid-enhanced-nightlife">
+          {employees.map((employee) => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              isProcessing={isProcessing(employee.id)}
+              onViewProfile={(emp) => {
+                setProfileEmployee(emp);
+                setShowEmployeeProfile(true);
+              }}
+              onEdit={setEditingEmployee}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onVerify={handleVerifyEmployee}
+              onRevokeVerification={handleRevokeVerification}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Employee Detail Modal */}
+      {selectedEmployee && (
+        <EmployeeDetailModal
+          employee={selectedEmployee}
+          onClose={() => setSelectedEmployee(null)}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+      )}
+
+      {/* GirlProfile Modal */}
+      {showEmployeeProfile && profileEmployee && (
+        <div className="profile-overlay-nightlife">
+          <Suspense fallback={<LoadingFallback message="Loading profile..." variant="modal" />}>
+            <GirlProfile
+              girl={{
+                id: profileEmployee.id,
+                name: profileEmployee.name,
+                nickname: profileEmployee.nickname || undefined,
+                age: profileEmployee.age,
+                nationality: profileEmployee.nationality,
+                photos: profileEmployee.photos || [],
+                description: profileEmployee.description || undefined,
+                social_media: profileEmployee.social_media,
+                status: profileEmployee.status,
+                self_removal_requested: profileEmployee.self_removal_requested,
+                created_by: profileEmployee.created_by,
+                employment_history: profileEmployee.employment_history?.map((job) => ({
+                  id: String(job.id || 0),
+                  employee_id: profileEmployee.id,
+                  establishment_id: String(job.establishment_id || 0),
+                  establishment: job.establishment_name
+                    ? {
+                        id: String(job.establishment_id || 0),
+                        name: job.establishment_name,
+                        address: 'N/A',
+                        category_id: '1',
+                        category: {
+                          id: '1',
+                          name: 'Bar',
+                          icon: '🍻',
+                          color: '#C19A6B',
+                          created_at: new Date().toISOString(),
+                        },
+                        status: 'approved' as const,
+                        created_by: 'system',
+                        created_at: job.start_date || new Date().toISOString(),
+                        updated_at: job.start_date || new Date().toISOString(),
+                      }
+                    : undefined,
+                  start_date: job.start_date,
+                  end_date: job.end_date || undefined,
+                  position: job.position || undefined,
+                  notes: job.notes || undefined,
+                  is_current: job.is_current,
+                  created_by: profileEmployee.created_by,
+                  created_at: job.start_date,
+                  updated_at: job.start_date,
+                })) || [],
+                created_at: profileEmployee.created_at,
+                updated_at: profileEmployee.updated_at || profileEmployee.created_at,
+              }}
+              onClose={() => {
+                setShowEmployeeProfile(false);
+                setProfileEmployee(null);
+              }}
+            />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Edit Employee Form */}
+      {editingEmployee && (
+        <Suspense fallback={<LoadingFallback message="Loading employee form..." variant="modal" />}>
+          <EmployeeForm
+            initialData={{
+              ...editingEmployee,
+              current_establishment_id: (() => {
+                const fromHistory = editingEmployee.employment_history?.find(
+                  (eh) => eh.is_current
+                )?.establishment_id;
+                logger.debug('EmployeesAdmin: current_establishment_id:', fromHistory);
+                return fromHistory || '';
+              })(),
+            }}
+            onSubmit={handleSaveEmployee}
+            onCancel={() => setEditingEmployee(null)}
+          />
+        </Suspense>
+      )}
+    </div>
+  );
+};
+
+export default EmployeesAdmin;

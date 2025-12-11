@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search,
@@ -67,6 +67,37 @@ const Header: React.FC<HeaderProps> = ({
 
   // Map controls from context (only used on homepage)
   const { viewMode, setViewMode } = useMapControls();
+
+  // Memoized navigation handlers to prevent unnecessary re-renders
+  const handleNavigate = useCallback((path: string) => {
+    setShowUserMenu(false);
+    navigate(path);
+  }, [navigate]);
+
+  const handleAvatarClick = useCallback(() => {
+    setShowUserMenu(false);
+    if (user?.account_type === 'employee' && onEditMyProfile) {
+      onEditMyProfile();
+    } else if (onShowUserInfo) {
+      onShowUserInfo();
+    }
+  }, [user?.account_type, onEditMyProfile, onShowUserInfo]);
+
+  const handleAddEmployee = useCallback(() => {
+    setShowUserMenu(false);
+    onAddEmployee();
+  }, [onAddEmployee]);
+
+  const handleAddEstablishment = useCallback(() => {
+    setShowUserMenu(false);
+    onAddEstablishment();
+  }, [onAddEstablishment]);
+
+  const handleLogout = useCallback(() => {
+    setShowUserMenu(false);
+    logout();
+    navigate('/');
+  }, [logout, navigate]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -212,14 +243,7 @@ const Header: React.FC<HeaderProps> = ({
                       <div className="user-menu-header">
                         <div
                           className="user-menu-avatar-small"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            if (user.account_type === 'employee' && onEditMyProfile) {
-                              onEditMyProfile();
-                            } else if (onShowUserInfo) {
-                              onShowUserInfo();
-                            }
-                          }}
+                          onClick={handleAvatarClick}
                           role="button"
                           tabIndex={0}
                           aria-label={
@@ -263,10 +287,7 @@ const Header: React.FC<HeaderProps> = ({
                           hapticLevel="light"
                           className="menu-item-modern"
                           onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            navigate('/search');
-                          }}
+                          onClick={() => handleNavigate('/search')}
                         >
                           <span className="menu-item-icon"><Search size={18} /></span>
                           <span className="menu-item-text">{t('header.search')}</span>
@@ -279,10 +300,7 @@ const Header: React.FC<HeaderProps> = ({
                           hapticLevel="light"
                           className="menu-item-modern"
                           onMouseEnter={createPreloadHandler(importUserDashboard, 'UserDashboard')}
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            navigate('/dashboard');
-                          }}
+                          onClick={() => handleNavigate('/dashboard')}
                         >
                           <span className="menu-item-icon"><Star size={18} /></span>
                           <span className="menu-item-text">{t('header.favorites')}</span>
@@ -295,10 +313,7 @@ const Header: React.FC<HeaderProps> = ({
                           hapticLevel="light"
                           className="menu-item-modern"
                           onMouseEnter={createPreloadHandler(importMyAchievementsPage, 'MyAchievementsPage')}
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            navigate('/achievements');
-                          }}
+                          onClick={() => handleNavigate('/achievements')}
                         >
                           <span className="menu-item-icon"><Trophy size={18} /></span>
                           <span className="menu-item-text">{t('header.achievements')}</span>
@@ -314,10 +329,7 @@ const Header: React.FC<HeaderProps> = ({
                           enableHaptic
                           hapticLevel="light"
                           className="menu-item-modern"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            onAddEmployee();
-                          }}
+                          onClick={handleAddEmployee}
                         >
                           <span className="menu-item-icon"><Sparkles size={18} /></span>
                           <span className="menu-item-text">{t('header.addEmployee')}</span>
@@ -329,10 +341,7 @@ const Header: React.FC<HeaderProps> = ({
                           enableHaptic
                           hapticLevel="light"
                           className="menu-item-modern"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            onAddEstablishment();
-                          }}
+                          onClick={handleAddEstablishment}
                         >
                           <span className="menu-item-icon"><Building2 size={18} /></span>
                           <span className="menu-item-text">{t('header.addEstablishment')}</span>
@@ -354,10 +363,7 @@ const Header: React.FC<HeaderProps> = ({
                               hapticLevel="light"
                               className="menu-item-modern"
                               onMouseEnter={createPreloadHandler(importAdminPanel, 'AdminPanel')}
-                              onClick={() => {
-                                setShowUserMenu(false);
-                                navigate('/admin');
-                              }}
+                              onClick={() => handleNavigate('/admin')}
                             >
                               <span className="menu-item-icon"><Settings size={18} /></span>
                               <span className="menu-item-text">{t('header.admin')}</span>
@@ -373,10 +379,7 @@ const Header: React.FC<HeaderProps> = ({
                                 hapticLevel="light"
                                 className="menu-item-modern"
                                 onMouseEnter={createPreloadHandler(importMyEstablishmentsPage, 'MyEstablishmentsPage')}
-                                onClick={() => {
-                                  setShowUserMenu(false);
-                                  navigate('/my-establishments');
-                                }}
+                                onClick={() => handleNavigate('/my-establishments')}
                               >
                                 <span className="menu-item-icon"><Building size={18} /></span>
                                 <span className="menu-item-text">{t('header.myEstablishments', 'My Establishments')}</span>
@@ -389,10 +392,7 @@ const Header: React.FC<HeaderProps> = ({
                                 hapticLevel="light"
                                 className="menu-item-modern"
                                 onMouseEnter={createPreloadHandler(importMyOwnershipRequests, 'MyOwnershipRequests')}
-                                onClick={() => {
-                                  setShowUserMenu(false);
-                                  navigate('/my-ownership-requests');
-                                }}
+                                onClick={() => handleNavigate('/my-ownership-requests')}
                               >
                                 <span className="menu-item-icon"><ClipboardList size={18} /></span>
                                 <span className="menu-item-text">{t('header.myOwnershipRequests', 'My Ownership Requests')}</span>
@@ -409,10 +409,7 @@ const Header: React.FC<HeaderProps> = ({
                                 hapticLevel="light"
                                 className="menu-item-modern"
                                 onMouseEnter={createPreloadHandler(importEmployeeDashboard, 'EmployeeDashboard')}
-                                onClick={() => {
-                                  setShowUserMenu(false);
-                                  navigate('/employee/dashboard');
-                                }}
+                                onClick={() => handleNavigate('/employee/dashboard')}
                               >
                                 <span className="menu-item-icon"><BarChart3 size={18} /></span>
                                 <span className="menu-item-text">{t('header.employeeDashboard', 'My Dashboard')}</span>
@@ -425,10 +422,7 @@ const Header: React.FC<HeaderProps> = ({
                                   enableHaptic
                                   hapticLevel="light"
                                   className="menu-item-modern"
-                                  onClick={() => {
-                                    setShowUserMenu(false);
-                                    onEditMyProfile();
-                                  }}
+                                  onClick={handleAvatarClick}
                                 >
                                   <span className="menu-item-icon"><FileEdit size={18} /></span>
                                   <span className="menu-item-text">{t('header.editMyProfile', 'Edit My Profile')}</span>
@@ -462,10 +456,7 @@ const Header: React.FC<HeaderProps> = ({
                           enableHaptic
                           hapticLevel="light"
                           className="menu-item-modern menu-item-logout"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            logout();
-                          }}
+                          onClick={handleLogout}
                         >
                           <span className="menu-item-icon"><LogOut size={18} /></span>
                           <span className="menu-item-text">{t('header.logout')}</span>

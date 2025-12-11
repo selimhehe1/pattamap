@@ -93,7 +93,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
       <div className="establishment-listview-container-nightlife">
         <div className="establishment-listview-grid-nightlife">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="establishment-listview-card-nightlife skeleton">
+            <div key={`skeleton-${i}`} className="establishment-listview-card-nightlife skeleton">
               <div className="skeleton-shimmer"></div>
             </div>
           ))}

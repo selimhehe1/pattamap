@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { EmployeeClaimRequest } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
@@ -29,6 +30,7 @@ interface EmployeeClaimsAdminProps {
 const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { secureFetch } = useSecureFetch();
   const [claims, setClaims] = useState<EmployeeClaimRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
@@ -48,12 +50,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
       const statusParam = filter === 'all' ? '' : `?status=${filter}`;
 
-      const response = await fetch(`${API_URL}/api/employees/claims${statusParam}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        credentials: 'include'
-      });
+      const response = await secureFetch(`${API_URL}/api/employees/claims${statusParam}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -74,13 +71,8 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     setProcessingIds(prev => new Set(prev).add(claimId));
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${API_URL}/api/employees/claims/${claimId}/approve`, {
+      const response = await secureFetch(`${API_URL}/api/employees/claims/${claimId}/approve`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
         body: JSON.stringify({ moderator_notes: 'Claim approved' })
       });
 
@@ -120,13 +112,8 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     setProcessingIds(prev => new Set(prev).add(claimToReject));
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${API_URL}/api/employees/claims/${claimToReject}/reject`, {
+      const response = await secureFetch(`${API_URL}/api/employees/claims/${claimToReject}/reject`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
         body: JSON.stringify({ moderator_notes: rejectReason.trim() })
       });
 

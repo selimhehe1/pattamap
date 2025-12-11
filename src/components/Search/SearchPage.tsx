@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchFilters from './SearchFilters';
@@ -49,10 +49,16 @@ const SearchPage: React.FC = () => {
     };
   }, []);
 
+  // Stable filter key for dependency tracking (avoids long dependency arrays)
+  const filterKey = useMemo(
+    () => JSON.stringify(filters),
+    [filters]
+  );
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters.type, filters.nationality, filters.zone, filters.establishment_id, filters.category_id, filters.age_min, filters.age_max, filters.is_verified, filters.sort_by, filters.sort_order, filters.q]);
+  }, [filterKey]);
 
   // Scroll to top when filters or page change
   useEffect(() => {

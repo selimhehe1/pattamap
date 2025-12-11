@@ -108,8 +108,13 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
       {/* Verified Badge - Simple (Top Left) - v10.3 */}
       {employee.is_verified && (
-        <div className="employee-card-verified-corner" title={employee.verified_at ? `Verified on ${new Date(employee.verified_at).toLocaleDateString()}` : 'Verified Profile'}>
-          <span className="verified-icon">✓</span>
+        <div
+          className="employee-card-verified-corner"
+          title={employee.verified_at ? `Verified on ${new Date(employee.verified_at).toLocaleDateString()}` : 'Verified Profile'}
+          role="img"
+          aria-label={t('employeeCard.verifiedProfile', 'Verified profile')}
+        >
+          <span className="verified-icon" aria-hidden="true">✓</span>
           <span>VERIFIED</span>
         </div>
       )}
@@ -119,8 +124,10 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         <div
           className={`employee-card-vote-badge ${employee.is_verified ? 'employee-card-vote-badge-offset' : ''}`}
           title={`${employee.vote_count} ${employee.vote_count === 1 ? 'vote' : 'votes'} for existence confirmation`}
+          role="img"
+          aria-label={t('employeeCard.voteCount', { count: employee.vote_count })}
         >
-          👍 {employee.vote_count}
+          <span aria-hidden="true">👍</span> {employee.vote_count}
         </div>
       )}
 

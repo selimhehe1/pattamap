@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
@@ -54,12 +55,18 @@ interface AdminEstablishment {
   };
 }
 
+/** Represents possible values in edit proposals */
+type EditProposalValue = string | number | boolean | null | undefined | string[] | Record<string, unknown>;
+
+/** Edit proposal changes - keys are field names, values are the proposed/current data */
+type EditProposalChanges = Record<string, EditProposalValue>;
+
 interface EditProposal {
   id: string;
   item_type: 'employee' | 'establishment';
   item_id: string;
-  proposed_changes: any;
-  current_values: any;
+  proposed_changes: EditProposalChanges;
+  current_values: EditProposalChanges;
   proposed_by: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
@@ -201,7 +208,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     }
   };
 
-  const handleSaveEstablishment = async (establishmentData: any) => {
+  const handleSaveEstablishment = async (establishmentData: Partial<Establishment>) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -330,7 +337,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   };
 
   // Format values for human-readable display in edit proposals
-  const formatValueForDisplay = (value: any, fieldKey: string): string => {
+  const formatValueForDisplay = (value: EditProposalValue, fieldKey: string): string => {
     // Handle null/undefined - return N/A
     if (value === null || value === undefined || value === '') {
       return '<span style="color: #888; font-style: italic;">N/A</span>';
@@ -400,18 +407,19 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         const parts: string[] = [];
 
         // Helper to safely extract price value from various formats
-        const extractPrice = (field: any): string => {
+        const extractPrice = (field: unknown): string => {
           if (field === null || field === undefined) return 'N/A';
           if (typeof field === 'string' || typeof field === 'number') return String(field);
           if (typeof field === 'object') {
+            const obj = field as Record<string, unknown>;
             // Try common price property names
-            if (field.price !== undefined && field.price !== null) return String(field.price);
-            if (field.value !== undefined && field.value !== null) return String(field.value);
-            if (field.amount !== undefined && field.amount !== null) return String(field.amount);
+            if (obj.price !== undefined && obj.price !== null) return String(obj.price);
+            if (obj.value !== undefined && obj.value !== null) return String(obj.value);
+            if (obj.amount !== undefined && obj.amount !== null) return String(obj.amount);
             // If object has 'available' property, might be status object
-            if (field.available === false) return 'N/A';
+            if (obj.available === false) return 'N/A';
             // Last resort: check if it's an empty object
-            return Object.keys(field).length === 0 ? 'N/A' : 'Check data';
+            return Object.keys(obj).length === 0 ? 'N/A' : 'Check data';
           }
           return 'N/A';
         };
@@ -435,7 +443,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         if (value.consumables && Array.isArray(value.consumables)) {
           if (value.consumables.length > 0) {
             parts.push(`<br><strong>🍺 Consumables:</strong>`);
-            value.consumables.forEach((item: any) => {
+            value.consumables.forEach((item: { name?: string; consumable_id?: string; price?: number | string }) => {
               // Try to get name, fallback to shortened ID
               const itemName = item.name || item.consumable_id || 'Unknown';
               const displayName = typeof itemName === 'string' && itemName.length > 36
@@ -592,7 +600,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
               <div style={{ marginBottom: '15px' }}>
                 <h3 style={{ color: '#FFD700', fontSize: '18px', margin: '0 0 5px 0' }}>
-                  {t('admin.editFor')} {proposal.current_values?.name || t('admin.establishments')}
+                  {t('admin.editFor')} {String(proposal.current_values?.name || t('admin.establishments'))}
                 </h3>
                 <p style={{ color: '#cccccc', fontSize: '14px', margin: 0 }}>
                   {t('admin.proposedBy')} <strong style={{ color: '#00E5FF' }}>{proposal.proposed_by_user?.pseudonym || t('admin.unknown')}</strong>
@@ -647,7 +655,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                             </div>
                             <div
                               style={{ color: '#ffffff', fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.6' }}
-                              dangerouslySetInnerHTML={{ __html: formatValueForDisplay(currentValue, key) }}
+                              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatValueForDisplay(currentValue, key)) }}
                             />
                           </div>
                           <div style={{
@@ -663,7 +671,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                             </div>
                             <div
                               style={{ color: '#ffffff', fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.6' }}
-                              dangerouslySetInnerHTML={{ __html: formatValueForDisplay(proposedValue, key) }}
+                              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatValueForDisplay(proposedValue, key)) }}
                             />
                           </div>
                         </div>

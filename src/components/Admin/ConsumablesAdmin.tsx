@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { ConsumableTemplate } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import { logger } from '../../utils/logger';
@@ -12,6 +13,7 @@ interface ConsumablesAdminProps {
 
 const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation();
+  const { secureFetch } = useSecureFetch();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
   const [consumables, setConsumables] = useState<ConsumableTemplate[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -29,12 +31,8 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
   const loadConsumables = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/consumables`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
+      const response = await secureFetch(`${API_URL}/api/admin/consumables`);
+
       if (response.ok) {
         const data = await response.json();
         setConsumables(data.consumables || []);
@@ -83,12 +81,8 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       
       const method = editingConsumable ? 'PUT' : 'POST';
       
-      const response = await fetch(url, {
+      const response = await secureFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify(consumableData)
       });
       
@@ -125,13 +119,9 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   const handleToggleStatus = async (consumable: ConsumableTemplate) => {
     try {
       const newStatus = consumable.status === 'active' ? 'inactive' : 'active';
-      
-      const response = await fetch(`${API_URL}/api/admin/consumables/${consumable.id}/status`, {
+
+      const response = await secureFetch(`${API_URL}/api/admin/consumables/${consumable.id}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify({ status: newStatus })
       });
       
@@ -153,11 +143,8 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/admin/consumables/${consumable.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await secureFetch(`${API_URL}/api/admin/consumables/${consumable.id}`, {
+        method: 'DELETE'
       });
       
       if (response.ok) {

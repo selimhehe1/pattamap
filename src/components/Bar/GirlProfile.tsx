@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Employee } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -33,7 +33,7 @@ interface GirlProfileProps {
   onClose: () => void;
 }
 
-const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
+const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { openModal, closeModal, updateModalProps } = useModal();
@@ -735,7 +735,9 @@ const GirlProfile: React.FC<GirlProfileProps> = ({ girl, onClose }) => {
         )}
       </div>
   );
-};
+});
 
-// Fixed TypeScript compilation issues
+// Display name for debugging
+GirlProfile.displayName = 'GirlProfile';
+
 export default GirlProfile;

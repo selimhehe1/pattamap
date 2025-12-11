@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -16,11 +16,7 @@ import PattayaMap from './components/Map/PattayaMap';
 import Header from './components/Layout/Header';
 import SkipToContent from './components/Layout/SkipToContent';
 import LoginForm from './components/Auth/LoginForm';
-import MultiStepRegisterForm from './components/Auth/MultiStepRegisterForm'; // 🆕 v10.0.1 - Multi-step registration
-import EmployeeProfileWizard from './components/Employee/EmployeeProfileWizard'; // 🆕 v10.0 - Employee onboarding wizard
 import LoginPage from './pages/LoginPage'; // 🆕 E2E Testing - Dedicated login page
-import EditMyProfileModal from './components/Employee/EditMyProfileModal'; // 🆕 v10.0 - Employee self-edit modal
-import UserInfoModal from './components/User/UserInfoModal'; // 🆕 User info modal for regular users
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import XPToastNotifications from './components/Gamification/XPToastNotifications';
@@ -105,6 +101,12 @@ import {
 
 import SEOHead from './components/Common/SEOHead';
 import StructuredData, { createOrganizationSchema, createWebSiteSchema } from './components/Common/StructuredData';
+
+// 🚀 Lazy-loaded modals for better initial bundle size (-150KB)
+const MultiStepRegisterForm = lazy(() => import('./components/Auth/MultiStepRegisterForm'));
+const EmployeeProfileWizard = lazy(() => import('./components/Employee/EmployeeProfileWizard'));
+const EditMyProfileModal = lazy(() => import('./components/Employee/EditMyProfileModal'));
+const UserInfoModal = lazy(() => import('./components/User/UserInfoModal'));
 
 const HomePage: React.FC = () => {
   logger.debug('HomePage rendering');
@@ -205,28 +207,32 @@ const HomePage: React.FC = () => {
       {showRegisterForm && (
         <div className="modal-app-overlay">
           <div className="modal-app-register-container">
-            <MultiStepRegisterForm
-              onClose={() => setShowRegisterForm(false)}
-              onSwitchToLogin={() => {
-                setShowRegisterForm(false);
-                // Le login sera géré par le header global
-              }}
-            />
+            <Suspense fallback={<LoadingFallback message="Loading registration..." variant="modal" />}>
+              <MultiStepRegisterForm
+                onClose={() => setShowRegisterForm(false)}
+                onSwitchToLogin={() => {
+                  setShowRegisterForm(false);
+                  // Le login sera géré par le header global
+                }}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {/* Employee Profile Wizard Modal - 🆕 v10.0 */}
       {showEmployeeProfileWizard && (
-        <EmployeeProfileWizard
-          onClose={() => setShowEmployeeProfileWizard(false)}
-          onCreateProfile={() => {
-            setShowEmployeeProfileWizard(false);
-            // Reload page to refresh the Header with newly created employee profile
-            // Alternative: Use a shared Context to communicate between App and AppContent
-            window.location.reload();
-          }}
-        />
+        <Suspense fallback={<LoadingFallback message="Loading wizard..." variant="modal" />}>
+          <EmployeeProfileWizard
+            onClose={() => setShowEmployeeProfileWizard(false)}
+            onCreateProfile={() => {
+              setShowEmployeeProfileWizard(false);
+              // Reload page to refresh the Header with newly created employee profile
+              // Alternative: Use a shared Context to communicate between App and AppContent
+              window.location.reload();
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );
@@ -418,27 +424,31 @@ const AppContent: React.FC = () => {
           {showRegisterForm && (
             <div className="modal-app-overlay">
               <div className="modal-app-register-container">
-                <MultiStepRegisterForm
-                  onClose={() => setShowRegisterForm(false)}
-                  onSwitchToLogin={() => {
-                    setShowRegisterForm(false);
-                    setShowLoginForm(true); // 🆕 v10.0 - Switch back to login
-                  }}
-                />
+                <Suspense fallback={<LoadingFallback message="Loading registration..." variant="modal" />}>
+                  <MultiStepRegisterForm
+                    onClose={() => setShowRegisterForm(false)}
+                    onSwitchToLogin={() => {
+                      setShowRegisterForm(false);
+                      setShowLoginForm(true); // 🆕 v10.0 - Switch back to login
+                    }}
+                  />
+                </Suspense>
               </div>
             </div>
           )}
 
           {/* Employee Profile Wizard Modal - 🆕 v10.0 */}
           {showEmployeeProfileWizard && (
-            <EmployeeProfileWizard
-              onClose={() => setShowEmployeeProfileWizard(false)}
-              onCreateProfile={() => {
-                setShowEmployeeProfileWizard(false);
-                setIsSelfProfile(true); // Mark as self-profile
-                setShowEmployeeForm(true); // Open EmployeeForm for self-profile creation
-              }}
-            />
+            <Suspense fallback={<LoadingFallback message="Loading wizard..." variant="modal" />}>
+              <EmployeeProfileWizard
+                onClose={() => setShowEmployeeProfileWizard(false)}
+                onCreateProfile={() => {
+                  setShowEmployeeProfileWizard(false);
+                  setIsSelfProfile(true); // Mark as self-profile
+                  setShowEmployeeForm(true); // Open EmployeeForm for self-profile creation
+                }}
+              />
+            </Suspense>
           )}
 
           {/* Employee Form Modal */}
@@ -476,28 +486,32 @@ const AppContent: React.FC = () => {
 
           {/* Edit My Profile Modal - 🆕 v10.0 - Employee self-edit */}
           {showEditMyProfileModal && (
-            <EditMyProfileModal
-              isOpen={showEditMyProfileModal}
-              onClose={() => {
-                logger.debug('Closing EditMyProfileModal');
-                setShowEditMyProfileModal(false);
-              }}
-              onProfileUpdated={async () => {
-                // Refresh linked profile after successful update
-                if (refreshLinkedProfile) {
-                  await refreshLinkedProfile();
-                }
-                logger.debug('Profile updated successfully via header photo click');
-              }}
-            />
+            <Suspense fallback={<LoadingFallback message="Loading profile editor..." variant="modal" />}>
+              <EditMyProfileModal
+                isOpen={showEditMyProfileModal}
+                onClose={() => {
+                  logger.debug('Closing EditMyProfileModal');
+                  setShowEditMyProfileModal(false);
+                }}
+                onProfileUpdated={async () => {
+                  // Refresh linked profile after successful update
+                  if (refreshLinkedProfile) {
+                    await refreshLinkedProfile();
+                  }
+                  logger.debug('Profile updated successfully via header photo click');
+                }}
+              />
+            </Suspense>
           )}
 
           {/* User Info Modal - 🆕 Regular users profile view */}
           {showUserInfoModal && user && (
-            <UserInfoModal
-              user={user}
-              onClose={() => setShowUserInfoModal(false)}
-            />
+            <Suspense fallback={<LoadingFallback message="Loading profile..." variant="modal" />}>
+              <UserInfoModal
+                user={user}
+                onClose={() => setShowUserInfoModal(false)}
+              />
+            </Suspense>
           )}
 
           <ModalRenderer />

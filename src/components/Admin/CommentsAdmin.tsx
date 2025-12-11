@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSecureFetch } from '../../hooks/useSecureFetch';
 import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
@@ -42,6 +43,7 @@ interface CommentsAdminProps {
 const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { secureFetch } = useSecureFetch();
   const [comments, setComments] = useState<AdminComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'reported' | 'approved' | 'rejected'>('reported');
@@ -56,12 +58,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     setIsLoading(true);
     try {
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${API_URL}/api/admin/comments?status=${filter === 'all' ? '' : filter}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
+      const response = await secureFetch(`${API_URL}/api/admin/comments?status=${filter === 'all' ? '' : filter}`);
+
       if (response.ok) {
         const data = await response.json();
         setComments(data.comments || []);
@@ -76,13 +74,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleApprove = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const response = await fetch(`/api/admin/comments/${commentId}/approve`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/approve`, {
+        method: 'POST'
       });
-      
+
       if (response.ok) {
         await loadComments(); // Reload list
       }
@@ -100,15 +96,12 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleReject = async (commentId: number, reason?: string) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const response = await fetch(`/api/admin/comments/${commentId}/reject`, {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/reject`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify({ reason })
       });
-      
+
       if (response.ok) {
         await loadComments(); // Reload list
       }
@@ -126,13 +119,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleDismissReports = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const response = await fetch(`/api/admin/comments/${commentId}/dismiss-reports`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/dismiss-reports`, {
+        method: 'POST'
       });
-      
+
       if (response.ok) {
         await loadComments(); // Reload list
       }
