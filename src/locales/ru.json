@@ -306,6 +306,7 @@
     "clear": "Очистить",
     "pseudonymOrEmail": "Псевдоним или Email",
     "enterPseudonym": "Введите псевдоним или email",
+    "enterPseudonymOrEmail": "Введите псевдоним или email",
     "passwordLabel": "Пароль",
     "enterPassword": "Введите пароль",
     "signingIn": "Вход...",
@@ -1785,7 +1786,9 @@
       "7": "Ambassador",
       "current": "Current Level",
       "up": "Level Up!",
-      "progress": "Level Progress"
+      "progress": "Level Progress",
+      "abbreviation": "Ур.",
+      "maxReached": "Максимальный уровень достигнут！（{{xp}} XP）"
     },
     "badges": {
       "title": "Badges",
@@ -1809,7 +1812,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "Исследуйте, вносите вклад и общайтесь, чтобы получить значки"
     },
     "missions": {
       "title": "Missions",
@@ -1833,16 +1837,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "Выполняйте миссии, чтобы получить награды и опыт",
+      "quests": "Квесты",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "Все время",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "Станьте первым в таблице лидеров",
       "position": "Position",
       "score": "Score"
     },

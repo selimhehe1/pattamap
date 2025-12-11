@@ -309,6 +309,7 @@
     "clear": "Clear",
     "pseudonymOrEmail": "Pseudonym or Email",
     "enterPseudonym": "Enter your pseudonym or email",
+    "enterPseudonymOrEmail": "Enter your pseudonym or email",
     "passwordLabel": "Password",
     "enterPassword": "Enter your password",
     "signingIn": "Signing in...",
@@ -1794,6 +1795,8 @@
       "current": "Current Level",
       "up": "Level Up!",
       "progress": "Level Progress",
+      "abbreviation": "Lv.",
+      "maxReached": "Max level reached! {{xp}} XP",
       "1": "Newbie",
       "2": "Explorer",
       "3": "Regular",
@@ -1824,7 +1827,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "Explore, contribute and interact to unlock badges"
     },
     "missions": {
       "title": "Missions",
@@ -1848,16 +1852,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "New missions will be available soon",
+      "quests": "Quests",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "All Time",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "Be the first to climb the rankings!",
       "position": "Position",
       "score": "Score"
     },

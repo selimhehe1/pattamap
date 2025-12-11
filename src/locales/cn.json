@@ -304,6 +304,7 @@
     "clear": "清除",
     "pseudonymOrEmail": "昵称或电子邮件",
     "enterPseudonym": "输入您的昵称或电子邮件",
+    "enterPseudonymOrEmail": "输入您的昵称或电子邮件",
     "passwordLabel": "密码",
     "enterPassword": "输入您的密码",
     "signingIn": "登录中...",
@@ -1781,7 +1782,9 @@
       "7": "Ambassador",
       "current": "Current Level",
       "up": "Level Up!",
-      "progress": "Level Progress"
+      "progress": "Level Progress",
+      "abbreviation": "等级",
+      "maxReached": "已达到最高等级！（{{xp}} XP）"
     },
     "badges": {
       "title": "Badges",
@@ -1805,7 +1808,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "探索、贡献和互动以解锁徽章"
     },
     "missions": {
       "title": "Missions",
@@ -1829,16 +1833,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "完成任务以获得奖励和经验",
+      "quests": "任务",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "全部时间",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "成为第一个上榜的人",
       "position": "Position",
       "score": "Score"
     },

@@ -309,6 +309,7 @@
     "clear": "Clear",
     "pseudonymOrEmail": "Pseudonym or Email",
     "enterPseudonym": "Enter your pseudonym or email",
+    "enterPseudonymOrEmail": "가명 또는 이메일을 입력하세요",
     "passwordLabel": "Password",
     "enterPassword": "Enter your password",
     "signingIn": "Signing in...",
@@ -1794,6 +1795,8 @@
       "current": "Current Level",
       "up": "Level Up!",
       "progress": "Level Progress",
+      "abbreviation": "레벨",
+      "maxReached": "최고 레벨 달성！（{{xp}} XP）",
       "1": "Newbie",
       "2": "Explorer",
       "3": "Regular",
@@ -1824,7 +1827,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "탐험하고 기여하며 소통하여 배지를 획득하세요"
     },
     "missions": {
       "title": "Missions",
@@ -1848,16 +1852,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "미션을 완료하여 보상과 경험치를 획득하세요",
+      "quests": "퀘스트",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "전체 기간",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "리더보드에서 첫 번째가 되세요",
       "position": "Position",
       "score": "Score"
     },

@@ -304,6 +304,7 @@
     "clear": "साफ़ करें",
     "pseudonymOrEmail": "छद्म नाम या ईमेल",
     "enterPseudonym": "अपना छद्म नाम या ईमेल दर्ज करें",
+    "enterPseudonymOrEmail": "अपना छद्म नाम या ईमेल दर्ज करें",
     "passwordLabel": "पासवर्ड",
     "enterPassword": "अपना पासवर्ड दर्ज करें",
     "signingIn": "साइन इन हो रहा है...",
@@ -1781,7 +1782,9 @@
       "7": "Ambassador",
       "current": "Current Level",
       "up": "Level Up!",
-      "progress": "Level Progress"
+      "progress": "Level Progress",
+      "abbreviation": "स्तर",
+      "maxReached": "अधिकतम स्तर प्राप्त! ({{xp}} XP)"
     },
     "badges": {
       "title": "Badges",
@@ -1805,7 +1808,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "बैज अनलॉक करने के लिए अन्वेषण करें, योगदान दें और बातचीत करें"
     },
     "missions": {
       "title": "Missions",
@@ -1829,16 +1833,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "पुरस्कार और अनुभव अर्जित करने के लिए मिशन पूरे करें",
+      "quests": "खोज",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "सर्वकालिक",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "लीडरबोर्ड पर पहले बनें",
       "position": "Position",
       "score": "Score"
     },

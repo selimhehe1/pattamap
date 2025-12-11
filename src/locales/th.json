@@ -304,6 +304,7 @@
     "clear": "ล้าง",
     "pseudonymOrEmail": "ชื่อเล่นหรืออีเมล",
     "enterPseudonym": "กรอกชื่อเล่นหรืออีเมลของคุณ",
+    "enterPseudonymOrEmail": "กรอกชื่อเล่นหรืออีเมลของคุณ",
     "passwordLabel": "รหัสผ่าน",
     "enterPassword": "กรอกรหัสผ่านของคุณ",
     "signingIn": "กำลังเข้าสู่ระบบ...",
@@ -1783,7 +1784,9 @@
       "7": "Ambassador",
       "current": "Current Level",
       "up": "Level Up!",
-      "progress": "Level Progress"
+      "progress": "Level Progress",
+      "abbreviation": "ระดับ",
+      "maxReached": "ถึงระดับสูงสุดแล้ว！（{{xp}} XP）"
     },
     "badges": {
       "title": "Badges",
@@ -1807,7 +1810,8 @@
         "temporal": "Temporal",
         "secret": "Secret"
       },
-      "empty": "No badges earned yet. Complete missions to earn badges!"
+      "empty": "No badges earned yet. Complete missions to earn badges!",
+      "emptySubtitle": "สำรวจ มีส่วนร่วม และโต้ตอบเพื่อปลดล็อกตรา"
     },
     "missions": {
       "title": "Missions",
@@ -1831,16 +1835,20 @@
         "event": "Event Missions"
       },
       "empty": "No active missions at the moment.",
+      "emptySubtitle": "ทำภารกิจให้สำเร็จเพื่อรับรางวัลและประสบการณ์",
+      "quests": "เควสต์",
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "allTime": "ตลอดกาล",
       "rank": "Rank",
       "you": "You",
       "loading": "Loading leaderboard...",
       "empty": "No leaderboard data available yet.",
+      "emptySubtitle": "เป็นคนแรกในกระดานผู้นำ",
       "position": "Position",
       "score": "Score"
     },

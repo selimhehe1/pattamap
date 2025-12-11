@@ -309,6 +309,7 @@
     "clear": "Effacer",
     "pseudonymOrEmail": "Pseudo ou Email",
     "enterPseudonym": "Entrez votre pseudo ou email",
+    "enterPseudonymOrEmail": "Entrez votre pseudo ou email",
     "passwordLabel": "Mot de passe",
     "enterPassword": "Entrez votre mot de passe",
     "signingIn": "Connexion en cours...",
@@ -1815,6 +1816,8 @@
       "current": "Niveau actuel",
       "up": "Niveau supérieur !",
       "progress": "Progression du niveau",
+      "abbreviation": "Niv.",
+      "maxReached": "Niveau maximum atteint ! {{xp}} XP",
       "1": "Débutant",
       "2": "Explorateur",
       "3": "Habitué",
@@ -1845,7 +1848,8 @@
         "temporal": "Temporel",
         "secret": "Secret"
       },
-      "empty": "Aucun badge obtenu. Complétez des missions pour gagner des badges !"
+      "empty": "Aucun badge obtenu. Complétez des missions pour gagner des badges !",
+      "emptySubtitle": "Explorez, contribuez et interagissez pour débloquer des badges"
     },
     "missions": {
       "title": "Missions",
@@ -1869,16 +1873,20 @@
         "event": "Missions événements"
       },
       "empty": "Aucune mission active pour le moment.",
+      "emptySubtitle": "De nouvelles missions seront bientôt disponibles",
+      "quests": "Quêtes",
       "completedMessage": "Mission terminée ! Récompenses réclamées."
     },
     "leaderboard": {
       "title": "Classement",
       "global": "Mondial",
       "monthly": "Mensuel",
+      "allTime": "Tous les temps",
       "rank": "Rang",
       "you": "Vous",
       "loading": "Chargement du classement...",
       "empty": "Aucune donnée de classement disponible pour le moment.",
+      "emptySubtitle": "Soyez le premier à monter sur le podium !",
       "position": "Position",
       "score": "Score"
     },
