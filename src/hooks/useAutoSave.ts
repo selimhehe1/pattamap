@@ -25,7 +25,7 @@ import { logger } from '../utils/logger';
  * @returns Object with draft management functions and state
  */
 
-export interface UseAutoSaveOptions<T = any> {
+export interface UseAutoSaveOptions<T = Record<string, unknown>> {
   /**
    * Unique key for localStorage (e.g., 'employee-form-draft')
    */

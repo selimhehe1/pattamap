@@ -3,10 +3,44 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCSRF } from '../contexts/CSRFContext';
 import { logger } from '../utils/logger';
 
+/**
+ * Options for secure fetch requests
+ * @extends RequestInit
+ */
 interface SecureFetchOptions extends RequestInit {
+  /** Whether to require authentication (default: true). If false, request proceeds without auth headers */
   requireAuth?: boolean;
 }
 
+/**
+ * Custom hook for making secure API requests with automatic CSRF token handling and authentication.
+ *
+ * @description
+ * This hook provides a secure fetch function that:
+ * - Automatically includes CSRF tokens for POST/PUT/PATCH/DELETE requests
+ * - Handles authentication via httpOnly cookies (not localStorage)
+ * - Auto-refreshes CSRF tokens before critical operations
+ * - Handles 401 responses by logging out the user
+ * - Provides loading state for CSRF token initialization
+ *
+ * @example
+ * ```tsx
+ * const { secureFetch, isReady } = useSecureFetch();
+ *
+ * // GET request (no CSRF needed)
+ * const response = await secureFetch('/api/users');
+ *
+ * // POST request (CSRF token auto-included)
+ * const response = await secureFetch('/api/users', {
+ *   method: 'POST',
+ *   body: JSON.stringify({ name: 'John' })
+ * });
+ * ```
+ *
+ * @returns {Object} Object containing:
+ * - `secureFetch`: Function to make secure API requests
+ * - `isReady`: Boolean indicating if CSRF token is ready
+ */
 export const useSecureFetch = () => {
   const { logout } = useAuth();
   const { getCSRFHeaders, refreshToken, loading: csrfLoading } = useCSRF();
