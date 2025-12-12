@@ -151,6 +151,7 @@
     "sortBy": "इसके अनुसार क्रमबद्ध करें",
     "sortOptions": {
       "relevance": "प्रासंगिकता",
+      "vip": "VIP प्राथमिकता",
       "popularity": "लोकप्रियता",
       "newest": "नवीनतम",
       "oldest": "पुरानतम",

@@ -154,6 +154,7 @@
     "sortBy": "Sort by",
     "sortOptions": {
       "relevance": "Relevance",
+      "vip": "VIP優先",
       "popularity": "Popularity",
       "newest": "Newest",
       "oldest": "Oldest",

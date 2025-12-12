@@ -153,6 +153,7 @@
     "sortBy": "Сортировать по",
     "sortOptions": {
       "relevance": "Релевантность",
+      "vip": "VIP приоритет",
       "popularity": "Популярность",
       "newest": "Новейшие",
       "oldest": "Старейшие",

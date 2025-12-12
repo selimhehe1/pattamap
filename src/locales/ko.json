@@ -154,6 +154,7 @@
     "sortBy": "Sort by",
     "sortOptions": {
       "relevance": "Relevance",
+      "vip": "VIP 우선",
       "popularity": "Popularity",
       "newest": "Newest",
       "oldest": "Oldest",

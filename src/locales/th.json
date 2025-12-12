@@ -152,6 +152,7 @@
     "sortBy": "เรียงตาม",
     "sortOptions": {
       "relevance": "ความเกี่ยวข้อง",
+      "vip": "ลำดับ VIP",
       "popularity": "ความนิยม",
       "newest": "ใหม่ที่สุด",
       "oldest": "เก่าที่สุด",

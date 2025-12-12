@@ -155,6 +155,7 @@
     "sortBy": "Trier par",
     "sortOptions": {
       "relevance": "Pertinence",
+      "vip": "Priorité VIP",
       "popularity": "Popularité",
       "newest": "Plus récents",
       "oldest": "Plus anciens",

@@ -143,6 +143,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   // Sort options - Using translations
   const sortOptions = React.useMemo(() => [
     { value: 'relevance', label: `🎯 ${t('search.sortOptions.relevance')}` },
+    { value: 'vip', label: `👑 ${t('search.sortOptions.vip')}` },
     { value: 'popularity', label: `⭐ ${t('search.sortOptions.popular')}` },
     { value: 'newest', label: `🆕 ${t('search.sortOptions.newest')}` },
     { value: 'oldest', label: `📅 ${t('search.sortOptions.oldest')}` },
@@ -310,7 +311,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     try {
       debugLog(`🔍 Fetching suggestions for "${query}"`);
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(query)}`,
+        `${import.meta.env.VITE_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(query)}`,
         {
           signal: abortControllerRef.current.signal
           // Browser handles caching automatically for GET requests
