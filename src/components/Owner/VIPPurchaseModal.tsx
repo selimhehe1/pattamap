@@ -36,35 +36,41 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  // PromptPay QR result
+  const [promptPayQR, setPromptPayQR] = useState<{
+    qrCode: string;
+    reference: string;
+    amount: number;
+  } | null>(null);
 
-  // Fetch pricing data on mount
+  // Fetch pricing data on mount or retry
   useEffect(() => {
-    fetchPricingData();
-  }, []);
+    const fetchPricingData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const fetchPricingData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/vip/pricing/${subscriptionType}`
+        );
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/vip/pricing/${subscriptionType}`
-      );
+        if (!response.ok) {
+          throw new Error('Failed to fetch pricing data');
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch pricing data');
+        const data = await response.json();
+        // Backend now returns single VIPTypeConfig directly
+        setPricingData(data.pricing);
+      } catch (_err) {
+        logger.error('Error fetching pricing:', _err);
+        setError(t('vipPurchase.errorFetchingPricing', 'Failed to load pricing information'));
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      // Backend now returns single VIPTypeConfig directly
-      setPricingData(data.pricing);
-    } catch (err) {
-      logger.error('Error fetching pricing:', err);
-      setError(t('vipPurchase.errorFetchingPricing', 'Failed to load pricing information'));
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchPricingData();
+  }, [subscriptionType, t, retryCount]);
 
   const handlePurchase = async () => {
     if (!pricingData) return;
@@ -82,7 +88,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       };
 
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/vip/purchase`,
+        `${import.meta.env.VITE_API_URL}/api/vip/purchase`,
         {
           method: 'POST',
           headers: {
@@ -100,6 +106,17 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
 
       // Success!
       setSuccess(true);
+
+      // If PromptPay, store QR data and don't auto-close
+      if (selectedPaymentMethod === 'promptpay' && data.transaction?.promptpay_qr_code) {
+        setPromptPayQR({
+          qrCode: data.transaction.promptpay_qr_code,
+          reference: data.transaction.promptpay_reference || data.transaction.id,
+          amount: data.transaction.amount,
+        });
+        // Don't auto-close - user needs to scan QR
+        return;
+      }
 
       // Show success message briefly, then close and refresh
       setTimeout(() => {
@@ -147,7 +164,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
           <div className="vip-purchase-error">
             <p className="error-icon">❌</p>
             <p className="error-message">{error}</p>
-            <button className="retry-button" onClick={fetchPricingData}>
+            <button className="retry-button" onClick={() => setRetryCount(c => c + 1)}>
               {t('vipPurchase.retry', 'Retry')}
             </button>
           </div>
@@ -160,6 +177,50 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
 
   // Success state
   if (success) {
+    // PromptPay QR display
+    if (promptPayQR) {
+      return (
+        <div className="vip-purchase-modal-overlay">
+          <div className="vip-purchase-modal-content">
+            <button className="close-modal" onClick={() => { onSuccess(); onClose(); }}>
+              ✕
+            </button>
+            <div className="vip-promptpay-success">
+              <h3>📱 {t('vipPurchase.scanQR', 'Scan QR Code to Pay')}</h3>
+              <div className="promptpay-qr-container">
+                <img
+                  src={promptPayQR.qrCode}
+                  alt="PromptPay QR Code"
+                  className="promptpay-qr-image"
+                />
+              </div>
+              <div className="promptpay-details">
+                <p className="promptpay-amount">
+                  {t('vipPurchase.amount', 'Amount')}: <strong>฿{promptPayQR.amount.toLocaleString()}</strong>
+                </p>
+                <p className="promptpay-reference">
+                  {t('vipPurchase.reference', 'Reference')}: <code>{promptPayQR.reference}</code>
+                </p>
+              </div>
+              <div className="promptpay-instructions">
+                <p>1. {t('vipPurchase.qrStep1', 'Open your Thai banking app')}</p>
+                <p>2. {t('vipPurchase.qrStep2', 'Scan this QR code')}</p>
+                <p>3. {t('vipPurchase.qrStep3', 'Confirm the payment')}</p>
+                <p>4. {t('vipPurchase.qrStep4', 'Admin will verify and activate your VIP')}</p>
+              </div>
+              <button
+                className="done-button"
+                onClick={() => { onSuccess(); onClose(); }}
+              >
+                {t('vipPurchase.done', 'Done')}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Standard success (Cash / Admin)
     return (
       <div className="vip-purchase-modal-overlay">
         <div className="vip-purchase-modal-content">
@@ -264,7 +325,6 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
               <span className="payment-description">
                 {t('vipPurchase.paymentPromptPayDesc', 'Scan QR code to pay (Thai banks)')}
               </span>
-              <span className="coming-soon">{t('vipPurchase.comingSoon', 'Coming Soon')}</span>
             </button>
           </div>
         </div>
@@ -309,15 +369,13 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
           <button
             className="purchase-button"
             onClick={handlePurchase}
-            disabled={purchasing || selectedPaymentMethod === 'promptpay'}
+            disabled={purchasing}
           >
             {purchasing ? (
               <>
                 <span className="loading-spinner-small">⏳</span>
                 {t('vipPurchase.processing', 'Processing...')}
               </>
-            ) : selectedPaymentMethod === 'promptpay' ? (
-              t('vipPurchase.comingSoon', 'Coming Soon')
             ) : (
               <>
                 👑 {t('vipPurchase.confirmPurchase', 'Confirm Purchase')} - ฿{selectedPrice?.price.toLocaleString()}

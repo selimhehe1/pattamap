@@ -28,6 +28,7 @@ import {
   notifyVIPPaymentRejected,
   notifyVIPSubscriptionCancelled
 } from '../utils/notificationHelper';
+import { generatePromptPayQR, isPromptPayConfigured } from '../services/promptpayService';
 
 // =====================================================
 // TYPES
@@ -292,6 +293,21 @@ export const purchaseVIP = async (req: Request, res: Response) => {
     // 6. CREATE PAYMENT TRANSACTION (SECOND)
     // =====================================================
 
+    // Generate PromptPay QR code if payment method is promptpay
+    let promptpayData: { qrCode: string; reference: string } | null = null;
+    if (payment_method === 'promptpay') {
+      if (!isPromptPayConfigured()) {
+        logger.error('PromptPay not configured but payment method is promptpay');
+        return res.status(400).json({
+          error: 'PromptPay not available',
+          message: 'PromptPay payment is not configured. Please use cash or contact admin.',
+        });
+      }
+      // Generate QR (we'll use subscription ID as reference since transaction doesn't exist yet)
+      const qrResult = await generatePromptPayQR(price, subscription.id);
+      promptpayData = { qrCode: qrResult.qrCode, reference: qrResult.reference };
+    }
+
     // Create payment transaction with valid subscription_id
     const { data: transaction, error: transactionError } = await supabase
       .from('vip_payment_transactions')
@@ -303,8 +319,8 @@ export const purchaseVIP = async (req: Request, res: Response) => {
         currency: 'THB',
         payment_method,
         payment_status: paymentStatus,
-        promptpay_qr_code: null, // Phase 2: PromptPay QR generation (requires Thai bank integration)
-        promptpay_reference: null,
+        promptpay_qr_code: promptpayData?.qrCode || null,
+        promptpay_reference: promptpayData?.reference || null,
         admin_verified_by: payment_method === 'admin_grant' ? userId : null,
         admin_verified_at: payment_method === 'admin_grant' ? now.toISOString() : null,
         admin_notes: payment_method === 'admin_grant' ? 'Admin granted VIP' : null,
@@ -344,6 +360,8 @@ export const purchaseVIP = async (req: Request, res: Response) => {
           ? 'VIP subscription activated successfully'
           : payment_method === 'cash'
           ? 'VIP subscription created. Please contact admin to verify cash payment.'
+          : payment_method === 'promptpay'
+          ? 'VIP subscription created. Please scan QR code to complete payment.'
           : 'VIP subscription created. Please complete payment.',
       subscription: {
         id: subscription.id,
@@ -362,6 +380,9 @@ export const purchaseVIP = async (req: Request, res: Response) => {
         currency: transaction.currency,
         payment_method: transaction.payment_method,
         payment_status: transaction.payment_status,
+        // PromptPay QR data (only present if payment_method is 'promptpay')
+        promptpay_qr_code: transaction.promptpay_qr_code || undefined,
+        promptpay_reference: transaction.promptpay_reference || undefined,
       },
     });
   } catch (error) {
