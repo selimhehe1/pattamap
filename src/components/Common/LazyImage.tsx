@@ -35,8 +35,16 @@ export interface LazyImageProps {
   /** Image source URL */
   src: string;
 
-  /** Alt text for accessibility (required) */
+  /** Alt text for accessibility (required for non-decorative images) */
   alt: string;
+
+  /**
+   * Whether the image is purely decorative (no informational value)
+   * When true: sets alt="" and role="presentation" for accessibility
+   * When false (default): alt text is required
+   * @see https://www.w3.org/WAI/tutorials/images/decorative/
+   */
+  decorative?: boolean;
 
   /** Optional CSS class */
   className?: string;
@@ -98,6 +106,7 @@ const applyCloudinaryPreset = (url: string, preset: CloudinaryPreset, size?: num
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
+  decorative = false,
   className,
   style,
   placeholderSrc = DEFAULT_PLACEHOLDER,
@@ -110,6 +119,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
   enableResponsive = false,
   responsiveType = 'employee'
 }) => {
+  // Development warning for missing alt text on non-decorative images
+  if (process.env.NODE_ENV === 'development' && !decorative && (!alt || alt.trim() === '')) {
+    console.warn(
+      '[LazyImage] Accessibility warning: Non-decorative images require descriptive alt text. ' +
+      `Either provide an alt prop or set decorative={true} if the image is purely decorative. ` +
+      `Image src: ${src?.substring(0, 50)}...`
+    );
+  }
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -216,16 +233,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
     <div style={containerStyle} className={className}>
       <img
         src={currentSrc}
-        alt={alt}
+        alt={decorative ? '' : alt}
         loading="lazy"
         onError={handleError}
         onLoad={handleLoad}
         style={imageStyle}
+        // Decorative images should be hidden from assistive technology
+        {...(decorative && { role: 'presentation', 'aria-hidden': true })}
         // Add srcSet and sizes for responsive images
         {...(imageUrls.srcSet && { srcSet: imageUrls.srcSet })}
         {...(imageUrls.sizes && { sizes: imageUrls.sizes })}
-        // Accessibility: Indicate if image failed to load
-        {...(imageError && { 'aria-label': `${alt} (image failed to load)` })}
+        // Accessibility: Indicate if image failed to load (only for non-decorative)
+        {...(!decorative && imageError && { 'aria-label': `${alt} (image failed to load)` })}
       />
 
       {/* Loading spinner */}

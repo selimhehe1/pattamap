@@ -97,9 +97,12 @@ import {
   MyOwnershipRequests, // 🆕 v10.2 - Ownership Requests
   MyAchievementsPage, // 🆕 v10.3 - Gamification
   VisitHistoryPage, // 🆕 v10.3 - Visit History
+  NotFoundPage, // 🆕 v10.4 - 404 Page
   EmployeeForm,
   EstablishmentForm
 } from './routes/lazyComponents';
+
+import ProtectedRoute from './components/Auth/ProtectedRoute'; // 🆕 v10.4 - Route Guards
 
 import SEOHead from './components/Common/SEOHead';
 import StructuredData, { createOrganizationSchema, createWebSiteSchema } from './components/Common/StructuredData';
@@ -391,21 +394,70 @@ const AppContent: React.FC = () => {
             <Suspense fallback={<LoadingFallback message="Loading page..." variant="page" />}>
               <PageTransition>
                 <Routes>
+                  {/* ========================================
+                      PUBLIC ROUTES
+                      ======================================== */}
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} /> {/* 🆕 E2E Testing - Dedicated login page */}
+                  <Route path="/login" element={<LoginPage />} /> {/* E2E Testing - Dedicated login page */}
                   <Route path="/search" element={<SearchPage />} />
-                  <Route path="/freelances" element={<FreelancesPage />} /> {/* 🆕 v10.3 - Freelances List */}
-                  <Route path="/dashboard" element={<UserDashboard />} />
-                  <Route path="/my-establishments" element={<MyEstablishmentsPage />} /> {/* 🆕 v10.1 - Owner Dashboard */}
-                  <Route path="/my-ownership-requests" element={<MyOwnershipRequests />} /> {/* 🆕 v10.2 - Ownership Requests */}
-                  <Route path="/employee/dashboard" element={<EmployeeDashboard />} /> {/* 🆕 v10.2 - Employee Dashboard */}
-                  <Route path="/achievements" element={<MyAchievementsPage />} /> {/* 🆕 v10.3 - Gamification Achievements */}
-                  <Route path="/my-visits" element={<VisitHistoryPage />} /> {/* 🆕 v10.3 - Visit History */}
+                  <Route path="/freelances" element={<FreelancesPage />} /> {/* v10.3 - Freelances List */}
                   {/* SEO-friendly URL with zone and slug */}
                   <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
                   {/* Legacy redirect for old /bar/:id URLs */}
                   <Route path="/bar/:id" element={<BarDetailPage />} />
-                  <Route path="/admin/*" element={<AdminPanel />} />
+
+                  {/* ========================================
+                      PROTECTED ROUTES - Require Authentication
+                      ======================================== */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <UserDashboard />
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/my-establishments" element={
+                    <ProtectedRoute requiredAccountTypes={['establishment_owner']}>
+                      <MyEstablishmentsPage />
+                    </ProtectedRoute>
+                  } /> {/* v10.1 - Owner Dashboard */}
+
+                  <Route path="/my-ownership-requests" element={
+                    <ProtectedRoute>
+                      <MyOwnershipRequests />
+                    </ProtectedRoute>
+                  } /> {/* v10.2 - Ownership Requests */}
+
+                  <Route path="/employee/dashboard" element={
+                    <ProtectedRoute requiredAccountTypes={['employee']}>
+                      <EmployeeDashboard />
+                    </ProtectedRoute>
+                  } /> {/* v10.2 - Employee Dashboard */}
+
+                  <Route path="/achievements" element={
+                    <ProtectedRoute>
+                      <MyAchievementsPage />
+                    </ProtectedRoute>
+                  } /> {/* v10.3 - Gamification Achievements */}
+
+                  <Route path="/my-visits" element={
+                    <ProtectedRoute>
+                      <VisitHistoryPage />
+                    </ProtectedRoute>
+                  } /> {/* v10.3 - Visit History */}
+
+                  {/* ========================================
+                      ADMIN ROUTES - Require Admin/Moderator Role
+                      ======================================== */}
+                  <Route path="/admin/*" element={
+                    <ProtectedRoute requiredRoles={['admin', 'moderator']}>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  } />
+
+                  {/* ========================================
+                      404 CATCH-ALL - Must be last
+                      ======================================== */}
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </PageTransition>
             </Suspense>

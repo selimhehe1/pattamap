@@ -57,7 +57,7 @@ const VisitHistoryPage: React.FC = () => {
         } else {
           setError(t('visitHistory.fetchError', 'Failed to load visit history'));
         }
-      } catch (err) {
+      } catch (_err) {
         setError(t('visitHistory.fetchError', 'Failed to load visit history'));
       } finally {
         setLoading(false);

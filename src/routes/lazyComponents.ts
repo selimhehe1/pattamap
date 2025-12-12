@@ -18,6 +18,7 @@ export const EmployeeDashboard = lazy(() => import('../components/Employee/Emplo
 export const MyOwnershipRequests = lazy(() => import('../components/Owner/MyOwnershipRequests')); // 🆕 v10.2 - Ownership Requests
 export const MyAchievementsPage = lazy(() => import('../pages/MyAchievementsPage')); // 🆕 v10.3 - Gamification
 export const VisitHistoryPage = lazy(() => import('../pages/VisitHistoryPage')); // 🆕 v10.3 - Visit History
+export const NotFoundPage = lazy(() => import('../pages/NotFoundPage')); // 🆕 v10.4 - 404 Page
 
 // Heavy modal/form components with code splitting
 export const EmployeeForm = lazy(() => import('../components/Forms/EmployeeForm'));
