@@ -1918,7 +1918,8 @@
       "requiresLocation": "Accès à la localisation requis",
       "enableLocation": "Veuillez activer les services de localisation",
       "meters": "m",
-      "kilometers": "km"
+      "kilometers": "km",
+      "queuedOffline": "Check-in en attente - sera synchronisé en ligne"
     },
     "follow": {
       "button": "Suivre",

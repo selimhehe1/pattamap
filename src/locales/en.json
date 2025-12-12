@@ -1897,7 +1897,8 @@
       "requiresLocation": "Location access required",
       "enableLocation": "Please enable location services",
       "meters": "m",
-      "kilometers": "km"
+      "kilometers": "km",
+      "queuedOffline": "Check-in queued - will sync when online"
     },
     "follow": {
       "button": "Follow",

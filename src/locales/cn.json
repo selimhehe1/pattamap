@@ -1877,7 +1877,8 @@
       "requiresLocation": "Location access required",
       "enableLocation": "Please enable location services",
       "meters": "m",
-      "kilometers": "km"
+      "kilometers": "km",
+      "queuedOffline": "签到已排队 - 联网后将同步"
     },
     "follow": {
       "button": "Follow",

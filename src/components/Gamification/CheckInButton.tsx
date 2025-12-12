@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useOnline } from '../../hooks/useOnline';
+import { addToQueue, isOfflineQueueSupported } from '../../utils/offlineQueue';
 import './CheckInButton.css';
 
 interface CheckInButtonProps {
@@ -21,7 +23,7 @@ interface CheckInResult {
 
 const CheckInButton: React.FC<CheckInButtonProps> = ({
   establishmentId,
-  establishmentName: _establishmentName, // Reserved for future toast/notification
+  establishmentName,
   establishmentLat,
   establishmentLng,
   compact = false
@@ -29,6 +31,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
   const { t } = useTranslation();
   const { awardXP } = useGamification();
   const { user } = useAuth();
+  const { isOnline } = useOnline();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,9 +73,31 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
           const { latitude, longitude } = position.coords;
           const _distance = calculateDistance(latitude, longitude, establishmentLat, establishmentLng); // For debug
 
+          // 🆕 Offline queue support - queue check-in if offline
+          if (!isOnline && isOfflineQueueSupported()) {
+            try {
+              await addToQueue(
+                `${import.meta.env.VITE_API_URL}/api/gamification/check-in`,
+                'POST',
+                { establishmentId, latitude, longitude },
+                { description: `Check-in: ${establishmentName}` }
+              );
+
+              setResult({
+                verified: false,
+                message: t('gamification.checkIn.queuedOffline')
+              });
+              setLoading(false);
+              return;
+            } catch (queueError) {
+              console.error('[CheckIn] Failed to queue offline:', queueError);
+              // Continue to try online request as fallback
+            }
+          }
+
           try {
             // Call check-in API
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/check-in`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/check-in`, {
               method: 'POST',
               credentials: 'include',
               headers: { 'Content-Type': 'application/json' },

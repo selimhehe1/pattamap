@@ -1877,7 +1877,8 @@
       "requiresLocation": "Location access required",
       "enableLocation": "Please enable location services",
       "meters": "m",
-      "kilometers": "km"
+      "kilometers": "km",
+      "queuedOffline": "चेक-इन कतार में - ऑनलाइन होने पर सिंक होगा"
     },
     "follow": {
       "button": "Follow",
