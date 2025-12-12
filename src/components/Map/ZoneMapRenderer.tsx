@@ -4,9 +4,6 @@ import { Establishment } from '../../types';
 // Lazy load all zone maps for better performance (code splitting)
 const CustomSoi6Map = lazy(() => import('./CustomSoi6Map'));
 const CustomSoiBuakhaoMap = lazy(() => import('./CustomSoiBuakhaoMap'));
-const CustomJomtienComplexMap = lazy(() => import('./CustomJomtienComplexMap'));
-const CustomBoyzTownMap = lazy(() => import('./CustomBoyzTownMap'));
-const CustomSoi78Map = lazy(() => import('./CustomSoi78Map'));
 const CustomBeachRoadMap = lazy(() => import('./CustomBeachRoadMap'));
 const CustomWalkingStreetMap = lazy(() => import('./CustomWalkingStreetMap'));
 const CustomLKMetroMap = lazy(() => import('./CustomLKMetroMap'));
@@ -78,36 +75,6 @@ const ZoneMapRenderer: React.FC<ZoneMapRendererProps> = ({
       case 'soibuakhao':
         return (
           <CustomSoiBuakhaoMap
-            establishments={zoneEstablishments}
-            onEstablishmentClick={onEstablishmentClick}
-            selectedEstablishment={selectedEstablishment}
-            onEstablishmentUpdate={onEstablishmentUpdate}
-          />
-        );
-
-      case 'jomtiencomplex':
-        return (
-          <CustomJomtienComplexMap
-            establishments={zoneEstablishments}
-            onEstablishmentClick={onEstablishmentClick}
-            selectedEstablishment={selectedEstablishment}
-            onEstablishmentUpdate={onEstablishmentUpdate}
-          />
-        );
-
-      case 'boyztown':
-        return (
-          <CustomBoyzTownMap
-            establishments={zoneEstablishments}
-            onEstablishmentClick={onEstablishmentClick}
-            selectedEstablishment={selectedEstablishment}
-            onEstablishmentUpdate={onEstablishmentUpdate}
-          />
-        );
-
-      case 'soi78':
-        return (
-          <CustomSoi78Map
             establishments={zoneEstablishments}
             onEstablishmentClick={onEstablishmentClick}
             selectedEstablishment={selectedEstablishment}

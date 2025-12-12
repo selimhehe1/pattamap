@@ -646,10 +646,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                   beachroad: 'Beach Road',
                   lkmetro: 'LK Metro',
                   treetown: 'Tree Town',
-                  soibuakhao: 'Soi Buakhao',
-                  jomtiencomplex: 'Jomtien Complex',
-                  boyztown: 'BoyzTown',
-                  soi78: 'Soi 7 & 8'
+                  soibuakhao: 'Soi Buakhao'
                 };
 
                 // Filter establishments with zone only

@@ -19,9 +19,6 @@ export const ZONE_OPTIONS: ZoneOption[] = [
   { value: 'lkmetro', label: 'LK Metro' },
   { value: 'treetown', label: 'Tree Town' },
   { value: 'soibuakhao', label: 'Soi Buakhao' },
-  { value: 'jomtiencomplex', label: 'Jomtien Complex' },
-  { value: 'boyztown', label: 'BoyzTown' },
-  { value: 'soi78', label: 'Soi 7 & 8' },
   { value: 'beachroad', label: 'Beach Road' }
 ];
 

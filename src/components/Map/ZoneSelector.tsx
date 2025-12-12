@@ -63,33 +63,6 @@ const ZONES: Zone[] = [
     icon: '🏙️'
   },
   {
-    id: 'jomtiencomplex',
-    name: 'Jomtien Complex',
-    center: [12.9000, 100.8850],
-    zoom: 17,
-    bounds: [[12.8980, 100.8830], [12.9020, 100.8870]],
-    color: '#BA55D3',
-    icon: '🌈'
-  },
-  {
-    id: 'boyztown',
-    name: 'BoyzTown',
-    center: [12.9230, 100.8770],
-    zoom: 18,
-    bounds: [[12.9220, 100.8760], [12.9240, 100.8780]],
-    color: '#FF1493',
-    icon: '🌈'
-  },
-  {
-    id: 'soi78',
-    name: 'Soi 7 & 8',
-    center: [12.9420, 100.8860],
-    zoom: 18,
-    bounds: [[12.9410, 100.8850], [12.9430, 100.8870]],
-    color: '#FFA500',
-    icon: '🍻'
-  },
-  {
     id: 'beachroad',
     name: 'Beach Road',
     center: [12.9250, 100.8770],
@@ -105,11 +78,7 @@ const ZoneSelector: React.FC<ZoneSelectorProps> = ({ currentZone, onZoneChange }
 
   // Helper to map zone IDs to translation keys
   const getZoneTranslationKey = (zoneId: string): string => {
-    const mapping: Record<string, string> = {
-      'jomtiencomplex': 'jomtien',
-      'soi78': 'soi7and8'
-    };
-    return mapping[zoneId] || zoneId;
+    return zoneId;
   };
 
   return (

@@ -15,9 +15,6 @@ export type ZoneType =
   | 'lkmetro'
   | 'beachroad'
   | 'soibuakhao'
-  | 'boyztown'
-  | 'jomtiencomplex'
-  | 'soi78'
   | 'treetown';
 
 /**

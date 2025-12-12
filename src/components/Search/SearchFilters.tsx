@@ -100,10 +100,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       beachroad: 'Beach Road',
       lkmetro: 'LK Metro',
       treetown: 'Tree Town',
-      soibuakhao: 'Soi Buakhao',
-      jomtiencomplex: 'Jomtien Complex',
-      boyztown: 'BoyzTown',
-      soi78: 'Soi 7 & 8'
+      soibuakhao: 'Soi Buakhao'
     };
 
     // Filter establishments by selected zone if any

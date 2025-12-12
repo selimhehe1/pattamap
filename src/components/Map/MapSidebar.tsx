@@ -51,11 +51,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
 
   // Helper to map zone IDs to translation keys
   const getZoneTranslationKey = (zoneId: string): string => {
-    const mapping: Record<string, string> = {
-      'jomtiencomplex': 'jomtien',
-      'soi78': 'soi7and8'
-    };
-    return mapping[zoneId] || zoneId;
+    return zoneId;
   };
 
   return (

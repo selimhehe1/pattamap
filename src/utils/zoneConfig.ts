@@ -69,36 +69,6 @@ export const ZONE_GRID_CONFIGS: Record<string, ZoneGridConfig> = {
     name: 'Soi Buakhao',
     description: '1.7km vertical street (South Pattaya → Central Pattaya) with intersections: Soi Lengkee, Soi Diana (LK Metro), Soi Honey, Tree Town'
   },
-  jomtiencomplex: {
-    maxRows: 2,
-    maxCols: 15,
-    startX: 10,
-    endX: 90,
-    startY: 30,
-    endY: 70,
-    name: 'Jomtien Complex',
-    description: 'LGBT+ friendly area with karaoke lounges and outdoor terraces'
-  },
-  boyztown: {
-    maxRows: 2,
-    maxCols: 12,
-    startX: 15,
-    endX: 85,
-    startY: 35,
-    endY: 65,
-    name: 'BoyzTown',
-    description: 'Main gay district with bars, drag shows, and nightclubs'
-  },
-  soi78: {
-    maxRows: 3,
-    maxCols: 16,
-    startX: 10,
-    endX: 90,
-    startY: 25,
-    endY: 75,
-    name: 'Soi 7 & 8',
-    description: 'Traditional open-air bars with local atmosphere'
-  },
   beachroad: {
     maxRows: 2,
     maxCols: 40,

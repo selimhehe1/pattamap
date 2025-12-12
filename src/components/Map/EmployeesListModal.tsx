@@ -42,11 +42,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
 
   // Helper to map zone IDs to translation keys
   const getZoneTranslationKey = (id: string): string => {
-    const mapping: Record<string, string> = {
-      'jomtiencomplex': 'jomtien',
-      'soi78': 'soi7and8'
-    };
-    return mapping[id] || id;
+    return id;
   };
 
   // Fetch employees for the zone

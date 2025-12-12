@@ -172,13 +172,10 @@ export function ensureUniqueSlug(
 export const ZONE_SLUG_MAP: Record<string, string> = {
   soi6: 'soi-6',
   walkingstreet: 'walking-street',
-  boyztown: 'boyz-town',
   treetown: 'tree-town',
   soibuakhao: 'soi-buakhao',
   beachroad: 'beach-road',
-  lkmetro: 'lk-metro',
-  soi78: 'soi-7-8',
-  jomtiencomplex: 'jomtien-complex'
+  lkmetro: 'lk-metro'
 };
 
 /**

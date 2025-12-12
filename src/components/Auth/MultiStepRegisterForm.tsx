@@ -134,10 +134,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       beachroad: 'Beach Road',
       lkmetro: 'LK Metro',
       treetown: 'Tree Town',
-      soibuakhao: 'Soi Buakhao',
-      jomtiencomplex: 'Jomtien Complex',
-      boyztown: 'BoyzTown',
-      soi78: 'Soi 7 & 8'
+      soibuakhao: 'Soi Buakhao'
     };
 
     // Filter establishments with zone only
@@ -1854,15 +1851,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       required
                     >
                       <option value="">{t('register.selectZonePlaceholder')}</option>
-                      <option value="beachroad">{t('register.zones.beachroad')}</option>
-                      <option value="walkingstreet">{t('register.zones.walkingstreet')}</option>
                       <option value="soi6">{t('register.zones.soi6')}</option>
+                      <option value="walkingstreet">{t('register.zones.walkingstreet')}</option>
                       <option value="lkmetro">{t('register.zones.lkmetro')}</option>
                       <option value="treetown">{t('register.zones.treetown')}</option>
                       <option value="soibuakhao">{t('register.zones.soibuakhao')}</option>
-                      <option value="jomtiencomplex">{t('register.zones.jomtiencomplex')}</option>
-                      <option value="boyztown">{t('register.zones.boyztown')}</option>
-                      <option value="soi78">{t('register.zones.soi78')}</option>
+                      <option value="beachroad">{t('register.zones.beachroad')}</option>
                     </select>
                     <div style={{
                       marginTop: '10px',
