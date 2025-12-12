@@ -453,23 +453,26 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 75% COMPLET - 1 jour restant
+#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 90% COMPLET - 0.5 jour restant
 
-**Statut**: Marqué "50%" → **Réalité 75% implémenté** (Décembre 2025)
+**Statut**: Marqué "50%" → **Réalité 90% implémenté** (Décembre 2025)
 
 **Déjà Implémenté** ✅:
-- Service Worker fonctionnel (`/service-worker.js` v2)
+- Service Worker fonctionnel (`/service-worker.js` v3)
 - VitePWA + Workbox configuré
 - Cache static assets (HTML, CSS, JS)
 - API cache NetworkFirst (1h expiration)
 - **Offline fallback page** (`/public/offline.html`) - Nightlife themed
 - **useOnline hook** (`/src/hooks/useOnline.ts`) - Détection réseau
 - **OfflineBanner component** - Bandeau UI quand offline
-- **i18n translations** - 6 langues (EN/FR/TH/RU/CN/HI)
+- **i18n translations** - 8 langues (EN/FR/TH/RU/CN/HI/JA/KO)
+- **Background sync queue** (`/src/utils/offlineQueue.ts`) - IndexedDB queue
+- **useOfflineQueue hook** - React integration
+- **SyncIndicator component** - UI badge avec count pending
+- **useFavorites offline** - Add/remove favorites work offline
 
 **Manquant** ⏳:
-- Background sync queue - 1 jour (optionnel)
-- Selective endpoint caching (optionnel)
+- Selective endpoint caching (optionnel) - 0.5 jour
 
 **Impact**: App toujours fonctionnelle, UX +100%
 
@@ -540,7 +543,7 @@ Un audit complet du code vs la documentation a révélé des **écarts significa
 |---------|-------|-------|-------|
 | **Dark Mode** | 0% | 100% | +100% 🎉 |
 | **Historique Visites** | 0% | 100% | +100% 🎉 |
-| **Mode Hors Ligne PWA** | 10% | 75% | +65% |
+| **Mode Hors Ligne PWA** | 10% | 90% | +80% |
 | **Community Validation** | 70% | 90% | +20% |
 | **VIP System** | 70% | 85% | +15% |
 | **Freelance System** | 80% | 95% | +15% |
@@ -573,7 +576,7 @@ L'audit a été réalisé en:
 ### Semaine 2 - Feature Completion (5 jours)
 - Gamification Completion (2j)
 - Historique Visites UI (1j)
-- Mode Hors Ligne completion (1-2j)
+- Mode Hors Ligne completion (0.5j) - Selective caching optionnel
 
 ### Semaine 3 - Reviews & Nouvelles Features (5 jours)
 - Reviews Améliorées: Photos (3-4j)
@@ -624,7 +627,7 @@ L'audit a été réalisé en:
 | 17 | Moderation | 🟢 | ✅ v10.2 | 100% | 0j |
 | **NEW FEATURES (Partial/TODO)** |
 | 18 | Historique Visites | 🟢 | ✅ v10.3 | **100%** | 0j |
-| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.3 | **75%** | 1j |
+| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.4 | **90%** | 0.5j |
 | 20 | Système Tips | 🟡 | ⏳ v10.4+ | 0% | 7j |
 | 21 | Publicité Ciblée | 🟡 | ⏳ v10.4 | 0% | 4j |
 | 22 | Dark Mode | 🟢 | ✅ v10.3 | **100%** | 0j |
