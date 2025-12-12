@@ -488,12 +488,18 @@ test.describe('Mobile Authentication', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
-    const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
+    // Use broader selector to handle i18n placeholders
+    const emailInput = page.locator('input[type="email"], input[type="text"]').first();
 
-    if (await emailInput.isVisible().catch(() => false)) {
-      await emailInput.tap();
-      await page.waitForTimeout(300);
-      await emailInput.fill('test@example.com');
+    if (await emailInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+      // Use click() instead of tap() for better reliability
+      await emailInput.click();
+
+      // Wait for input to be focused
+      await expect(emailInput).toBeFocused({ timeout: 2000 });
+
+      // Type with keyboard simulation for mobile
+      await emailInput.pressSequentially('test@example.com', { delay: 50 });
 
       // Verify input works
       const value = await emailInput.inputValue();
