@@ -7,3 +7,6 @@
 
 export { default as MapContainer } from './MapContainer';
 export type { MapContainerProps } from './MapContainer';
+
+export { default as Bar } from './Bar';
+export type { BarProps } from './Bar';
