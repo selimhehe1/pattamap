@@ -19,34 +19,32 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
   const [selectedZone, setSelectedZone] = useState<string>('all');
 
   useEffect(() => {
-    loadEstablishments();
-  }, []);
+    const loadEstablishments = async () => {
+      setLoading(true);
+      setError(null);
 
-  const loadEstablishments = async () => {
-    setLoading(true);
-    setError(null);
+      try {
+        const response = await fetch('/api/establishments?status=approved&limit=100', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
-    try {
-      const response = await fetch('/api/establishments?status=approved&limit=100', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        if (!response.ok) {
+          throw new Error(t('establishmentLogosManager.errorLoadFailed'));
         }
-      });
 
-      if (!response.ok) {
-        throw new Error(t('establishmentLogosManager.errorLoadFailed'));
+        const data = await response.json();
+        setEstablishments(data.establishments || []);
+      } catch (error) {
+        logger.error('Load establishments error:', error);
+        setError(error instanceof Error ? error.message : t('establishmentLogosManager.errorLoadFailed'));
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      setEstablishments(data.establishments || []);
-
-    } catch (error) {
-      logger.error('Load establishments error:', error);
-      setError(error instanceof Error ? error.message : t('establishmentLogosManager.errorLoadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    loadEstablishments();
+  }, [token, t]);
 
   const handleLogoUpdated = (establishmentId: string, logoUrl: string) => {
     setEstablishments(prev =>

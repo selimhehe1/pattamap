@@ -291,6 +291,39 @@
       "submitButton": "Submit Comment"
     }
   },
+  "reviews": {
+    "addPhotos": "사진 추가 (선택사항)",
+    "photosLimit": "최대 3장",
+    "photoUploading": "사진 업로드 중...",
+    "photoUploadError": "사진 업로드 실패",
+    "establishmentResponse": "업체 응답",
+    "respondToReview": "이 리뷰에 응답",
+    "responsePosted": "응답이 게시되었습니다",
+    "noPhotos": "사진 없음",
+    "viewAllPhotos": "모든 사진 보기",
+    "photos": {
+      "openPhoto": "사진 {{index}} 보기",
+      "photoAlt": "리뷰 사진 {{index}}",
+      "lightboxTitle": "사진 뷰어",
+      "close": "닫기",
+      "previous": "이전 사진",
+      "next": "다음 사진",
+      "goToPhoto": "사진 {{index}}으로 이동"
+    },
+    "owner": {
+      "panelTitle": "리뷰 및 응답",
+      "noReviews": "직원에 대한 리뷰가 아직 없습니다",
+      "responded": "응답 완료",
+      "notResponded": "응답 대기",
+      "respondButton": "응답",
+      "responseLabel": "귀하의 응답",
+      "responsePlaceholder": "고객에게 감사하고 우려 사항에 답변하세요...",
+      "submitResponse": "응답 제출",
+      "filterAll": "전체",
+      "filterPending": "응답 대기 중",
+      "filterResponded": "응답 완료"
+    }
+  },
 
   "auth": {
     "login": "Login",
@@ -1872,17 +1905,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "리더보드",
+      "global": "전체",
+      "monthly": "월간",
+      "weekly": "주간",
       "allTime": "전체 기간",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "순위",
+      "you": "당신",
+      "loading": "리더보드를 불러오는 중...",
+      "empty": "아직 순위 데이터가 없습니다.",
       "emptySubtitle": "리더보드에서 첫 번째가 되세요",
-      "position": "Position",
-      "score": "Score"
+      "position": "위치",
+      "score": "점수",
+      "reviews": "리뷰",
+      "photos": "사진",
+      "checkins": "체크인",
+      "votes": "투표",
+      "categories": {
+        "title": "카테고리",
+        "reviewers": "최고의 리뷰어",
+        "photographers": "최고의 사진가",
+        "checkins": "가장 많은 체크인",
+        "helpful": "가장 도움이 된"
+      }
+    },
+    "xpHistory": {
+      "title": "XP 기록",
+      "days": "일",
+      "totalGained": "지난 {{days}}일 동안 획득한 XP",
+      "breakdown": "소스 분류",
+      "empty": "이 기간에 획득한 XP가 없습니다",
+      "emptySubtitle": "탐색하고, 리뷰하고, 체크인하여 XP를 획득하세요!",
+      "error": "XP 기록을 불러오지 못했습니다",
+      "sources": {
+        "check_in": "체크인",
+        "review": "리뷰",
+        "mission": "미션",
+        "badge": "배지",
+        "daily_login": "일일 로그인",
+        "photo_upload": "사진 업로드",
+        "helpful_vote": "도움이 된 투표",
+        "other": "기타"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1952,6 +2016,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "보상 및 잠금해제",
+      "filterAll": "전체",
+      "filterFeatures": "기능",
+      "filterCosmetics": "코스메틱",
+      "filterTitles": "칭호",
+      "unlocked": "잠금해제됨",
+      "locked": "잠금됨",
+      "requireLevel": "레벨 {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "배지 필요",
+      "requireSpecial": "특별 업적",
+      "maxLevel": "최대 레벨!",
+      "toNextLevel": " 레벨 {{level}} 까지",
+      "claim": "받기",
+      "claiming": "받는 중...",
+      "error": "보상 로드 실패",
+      "noRewards": "이 카테고리에 보상 없음",
+      "statsUnlocked": "잠금해제",
+      "statsLocked": "남음",
+      "statsTotalXP": "총 XP"
     }
   },
 

@@ -40,51 +40,51 @@ const GamifiedUserProfile: React.FC = () => {
   const isOwnProfile = currentUser?.id === userId;
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch user profile
+        const profileResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/users/${userId}`,
+          {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+
+        if (!profileResponse.ok) {
+          throw new Error('User not found');
+        }
+
+        const profileData = await profileResponse.json();
+        setProfile(profileData.user);
+
+        // Fetch user gamification stats
+        const statsResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/gamification/user/${userId}/stats`,
+          {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load user profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (userId) {
       fetchUserProfile();
     }
   }, [userId]);
-
-  const fetchUserProfile = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Fetch user profile
-      const profileResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/users/${userId}`,
-        {
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-
-      if (!profileResponse.ok) {
-        throw new Error('User not found');
-      }
-
-      const profileData = await profileResponse.json();
-      setProfile(profileData.user);
-
-      // Fetch user gamification stats
-      const statsResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/gamification/user/${userId}/stats`,
-        {
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        setStats(statsData);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load user profile');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (

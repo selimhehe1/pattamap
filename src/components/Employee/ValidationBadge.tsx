@@ -36,7 +36,7 @@ const ValidationBadge: React.FC<ValidationBadgeProps> = ({ employeeId }) => {
     queryKey: ['validation-stats', employeeId],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/${employeeId}/validation-stats`
+        `${import.meta.env.VITE_API_URL}/api/employees/${employeeId}/validation-stats`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch validation stats');

@@ -10,7 +10,7 @@ export const useFormSubmissions = () => {
   const submitEmployee = async (employeeData: EmployeeFormData): Promise<ApiResponse> => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export const useFormSubmissions = () => {
   const submitEstablishment = async (establishmentData: EstablishmentFormData): Promise<ApiResponse> => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/establishments`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

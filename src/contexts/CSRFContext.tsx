@@ -46,7 +46,7 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }, 10000); // 10 second timeout
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/csrf-token`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/csrf-token`, {
         method: 'GET',
         credentials: 'include', // Important pour les sessions
         signal // Use signal from parent (managed by useEffect)

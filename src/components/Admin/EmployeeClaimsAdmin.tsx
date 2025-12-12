@@ -39,38 +39,41 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [claimToReject, setClaimToReject] = useState<string | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshClaims = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadClaims();
-  }, [filter]);
+    const loadClaims = async () => {
+      setIsLoading(true);
+      try {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const statusParam = filter === 'all' ? '' : `?status=${filter}`;
 
-  const loadClaims = async () => {
-    setIsLoading(true);
-    try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const statusParam = filter === 'all' ? '' : `?status=${filter}`;
+        const response = await secureFetch(`${API_URL}/api/employees/claims${statusParam}`);
 
-      const response = await secureFetch(`${API_URL}/api/employees/claims${statusParam}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setClaims(data.claims || []);
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || t('admin.claims.errorLoadFailed'));
+        if (response.ok) {
+          const data = await response.json();
+          setClaims(data.claims || []);
+        } else {
+          const errorData = await response.json();
+          toast.error(errorData.error || t('admin.claims.errorLoadFailed'));
+        }
+      } catch (error) {
+        logger.error('Failed to load employee claims:', error);
+        toast.error(t('admin.claims.errorLoadFailed'));
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Failed to load employee claims:', error);
-      toast.error(t('admin.claims.errorLoadFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadClaims();
+  }, [filter, secureFetch, t, refreshCounter]);
 
   const handleApprove = async (claimId: string) => {
     setProcessingIds(prev => new Set(prev).add(claimId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/employees/claims/${claimId}/approve`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: 'Claim approved' })
@@ -78,7 +81,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
       if (response.ok) {
         toast.success(t('admin.claims.successApproved'));
-        await loadClaims(); // Reload list
+        refreshClaims(); // Reload list
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || t('admin.claims.errorApproveFailed'));
@@ -111,7 +114,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(claimToReject));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/employees/claims/${claimToReject}/reject`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: rejectReason.trim() })
@@ -122,7 +125,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
         setRejectModalOpen(false);
         setClaimToReject(null);
         setRejectReason('');
-        await loadClaims(); // Reload list
+        refreshClaims(); // Reload list
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || t('admin.claims.errorRejectFailed'));

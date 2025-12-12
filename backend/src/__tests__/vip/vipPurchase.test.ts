@@ -21,6 +21,15 @@ import { csrfProtection } from '../../middleware/csrf';
 jest.mock('../../config/supabase');
 jest.mock('../../middleware/auth');
 jest.mock('../../middleware/csrf');
+jest.mock('../../services/promptpayService', () => ({
+  isPromptPayConfigured: jest.fn(() => true),
+  generatePromptPayQR: jest.fn(async (amount: number, reference: string) => ({
+    qrCode: 'data:image/png;base64,mockQRCode',
+    payload: 'mockPayload',
+    reference: reference,
+    amount: amount
+  }))
+}));
 
 describe('VIP Purchase Workflow Tests', () => {
   let app: express.Application;

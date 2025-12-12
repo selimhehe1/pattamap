@@ -1,16 +1,20 @@
 /**
+ * @vitest-environment jsdom
+ */
+/**
  * Tests for useAutoSave hook
  */
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
 import { useAutoSave } from '../useAutoSave';
 
 // Mock logger to suppress logs during tests
-jest.mock('../../utils/logger', () => ({
+vi.mock('../../utils/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -20,31 +24,31 @@ describe('useAutoSave', () => {
   let mockLocalStorage: { [key: string]: string };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLocalStorage = {};
 
     // Mock localStorage
     Object.defineProperty(window, 'localStorage', {
       value: {
-        getItem: jest.fn((key: string) => mockLocalStorage[key] || null),
-        setItem: jest.fn((key: string, value: string) => {
+        getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
           mockLocalStorage[key] = value;
         }),
-        removeItem: jest.fn((key: string) => {
+        removeItem: vi.fn((key: string) => {
           delete mockLocalStorage[key];
         }),
-        clear: jest.fn(() => {
+        clear: vi.fn(() => {
           mockLocalStorage = {};
         }),
       },
       writable: true,
     });
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
     Object.defineProperty(window, 'localStorage', {
       value: originalLocalStorage,
       writable: true,
@@ -72,7 +76,7 @@ describe('useAutoSave', () => {
     expect(localStorage.setItem).not.toHaveBeenCalled();
   });
 
-  it('should save after debounce delay when data changes', async () => {
+  it('should save after debounce delay when data changes', () => {
     const initialData: TestFormData = { name: 'John', email: 'john@test.com' };
 
     const { rerender } = renderHook(
@@ -92,15 +96,13 @@ describe('useAutoSave', () => {
 
     // Fast-forward past the debounce delay
     act(() => {
-      jest.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(1100);
     });
 
-    await waitFor(() => {
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'autosave_test-form',
-        JSON.stringify(updatedData)
-      );
-    });
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      'autosave_test-form',
+      JSON.stringify(updatedData)
+    );
   });
 
   it('should not save when disabled', () => {
@@ -121,7 +123,7 @@ describe('useAutoSave', () => {
     rerender({ data: { name: 'Jane', email: 'jane@test.com' } });
 
     act(() => {
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
     });
 
     expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -226,7 +228,7 @@ describe('useAutoSave', () => {
     expect(restored).toBeNull();
   });
 
-  it('should update lastSaved timestamp after save', async () => {
+  it('should update lastSaved timestamp after save', () => {
     const initialData: TestFormData = { name: 'John', email: 'john@test.com' };
 
     const { result, rerender } = renderHook(
@@ -246,15 +248,13 @@ describe('useAutoSave', () => {
     rerender({ data: { name: 'Jane', email: 'jane@test.com' } });
 
     act(() => {
-      jest.advanceTimersByTime(600);
+      vi.advanceTimersByTime(600);
     });
 
-    await waitFor(() => {
-      expect(result.current.lastSaved).not.toBeNull();
-    });
+    expect(result.current.lastSaved).not.toBeNull();
   });
 
-  it('should debounce rapid data changes', async () => {
+  it('should debounce rapid data changes', () => {
     const initialData: TestFormData = { name: 'John', email: 'john@test.com' };
 
     const { rerender } = renderHook(
@@ -270,13 +270,13 @@ describe('useAutoSave', () => {
 
     // Rapidly change data multiple times
     rerender({ data: { name: 'J', email: 'john@test.com' } });
-    act(() => { jest.advanceTimersByTime(200); });
+    act(() => { vi.advanceTimersByTime(200); });
 
     rerender({ data: { name: 'Ja', email: 'john@test.com' } });
-    act(() => { jest.advanceTimersByTime(200); });
+    act(() => { vi.advanceTimersByTime(200); });
 
     rerender({ data: { name: 'Jan', email: 'john@test.com' } });
-    act(() => { jest.advanceTimersByTime(200); });
+    act(() => { vi.advanceTimersByTime(200); });
 
     const finalData = { name: 'Jane', email: 'jane@test.com' };
     rerender({ data: finalData });
@@ -286,15 +286,13 @@ describe('useAutoSave', () => {
 
     // Wait for debounce
     act(() => {
-      jest.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(1100);
     });
 
-    await waitFor(() => {
-      // Should only save the final value
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'autosave_test-form',
-        JSON.stringify(finalData)
-      );
-    });
+    // Should only save the final value
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      'autosave_test-form',
+      JSON.stringify(finalData)
+    );
   });
 });

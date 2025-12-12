@@ -288,7 +288,8 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
       return barWidth;
     }
     return isMobile ? 35 : 40;
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   const getEstablishmentIcon = useCallback((barId: string, establishments: Establishment[], fallbackIcon: string) => {
     const establishment = establishments.find(est => est.id === barId);
@@ -579,7 +580,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -650,7 +651,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -724,6 +725,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
         throttleTimeout.current = null;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- optimisticPositions intentionally excluded to prevent re-renders during drag
   }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, onEstablishmentUpdate, user, token, containerRef, isMobile]);
 
   // Handle drag end
@@ -830,7 +832,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -901,7 +903,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,

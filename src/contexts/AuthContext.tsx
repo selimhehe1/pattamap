@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Cookies are automatically sent with requests
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/profile`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
           method: 'GET',
           credentials: 'include', // Include cookies
           headers: {
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (login: string, password: string) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: 'POST',
         credentials: 'include', // Include cookies
         headers: {
@@ -127,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     accountType?: 'regular' | 'employee' | 'establishment_owner'
   ) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: 'POST',
         credentials: 'include', // Include cookies
         headers: {
@@ -186,7 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       // Call backend logout to clear httpOnly cookie
-      await fetch(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include', // Include cookies
         headers: {
@@ -241,7 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/my-linked-profile`,
+        `${import.meta.env.VITE_API_URL}/api/employees/my-linked-profile`,
         {
           method: 'GET',
           credentials: 'include', // Include cookies for auth
@@ -309,7 +309,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/claim/${employeeId}`,
+        `${import.meta.env.VITE_API_URL}/api/employees/claim/${employeeId}`,
         {
           method: 'POST',
           credentials: 'include', // Include cookies
@@ -347,6 +347,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       logger.debug('[AuthContext] useEffect triggered - fetching linked profile for employee user');
       getMyLinkedProfile(true); // skipCheck=true since we already verified conditions
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally excluding getMyLinkedProfile and linkedEmployeeProfile to prevent infinite loops
   }, [user?.account_type, user?.linked_employee_id]); // Only re-run when these specific properties change
 
   const value: AuthContextType = {

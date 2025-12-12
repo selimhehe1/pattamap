@@ -88,7 +88,7 @@ const VIPVerificationAdmin: React.FC = () => {
       // Note: This endpoint needs to be created in backend
       // For now, we'll fetch from a generic endpoint that returns cash payment transactions
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
+        `${import.meta.env.VITE_API_URL}/api/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
       );
 
       if (!response.ok) {
@@ -117,7 +117,7 @@ const VIPVerificationAdmin: React.FC = () => {
       setError(null);
 
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/admin/vip/verify-payment/${transactionId}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/vip/verify-payment/${transactionId}`,
         {
           method: 'POST',
           headers: {
@@ -174,7 +174,7 @@ const VIPVerificationAdmin: React.FC = () => {
 
       // Note: This endpoint needs to be created in backend
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/admin/vip/reject-payment/${transactionId}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/vip/reject-payment/${transactionId}`,
         {
           method: 'POST',
           headers: {
@@ -235,8 +235,30 @@ const VIPVerificationAdmin: React.FC = () => {
     if (authLoading || !user) return; // Don't fetch until auth is loaded and user exists
     if (user.role !== 'admin' && user.role !== 'moderator') return; // Don't fetch if not authorized
 
-    fetchTransactions();
-  }, [filter, authLoading, user]);
+    const loadTransactions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await secureFetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch VIP transactions');
+        }
+
+        const data = await response.json();
+        setTransactions(data.transactions || []);
+      } catch (err: any) {
+        logger.error('Error fetching VIP transactions:', err);
+        setError(err.message || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTransactions();
+  }, [filter, authLoading, user, secureFetch, t]);
 
   // Show loading while auth is being checked
   if (authLoading) {

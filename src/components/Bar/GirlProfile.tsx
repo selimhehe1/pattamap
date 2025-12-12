@@ -134,7 +134,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     if (!user) return;
 
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/favorites/check/${girl.id}`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites/check/${girl.id}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -154,7 +154,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     setIsTogglingFavorite(true);
     try {
       if (isFavorite) {
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/favorites/${girl.id}`, {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites/${girl.id}`, {
           method: 'DELETE'
         });
 
@@ -164,7 +164,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           throw new Error('Failed to remove from favorites');
         }
       } else {
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites`, {
           method: 'POST',
           body: JSON.stringify({ employee_id: girl.id })
         });
@@ -231,7 +231,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const loadReviews = async () => {
     setIsLoadingReviews(true);
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments?employee_id=${girl.id}`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`);
       if (response.ok) {
         const data = await response.json();
         const flatComments = data.comments || [];
@@ -250,7 +250,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const handleReviewSubmit = async (reviewData: any) => {
     setIsSubmittingReview(true);
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments`, {
         method: 'POST',
         body: JSON.stringify(reviewData)
       });
@@ -271,7 +271,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
   const handleReplySubmit = async (reviewId: string, content: string) => {
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments`, {
         method: 'POST',
         body: JSON.stringify({
           employee_id: girl.id,
@@ -284,7 +284,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
         // Recharger les reviews et récupérer les nouvelles données
         setIsLoadingReviews(true);
         try {
-          const reviewResponse = await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments?employee_id=${girl.id}`);
+          const reviewResponse = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`);
           if (reviewResponse.ok) {
             const data = await reviewResponse.json();
             const flatComments = data.comments || [];
@@ -315,7 +315,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
   const handleReportSubmit = async (reviewId: string, reason: string) => {
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments/${reviewId}/report`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments/${reviewId}/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -378,7 +378,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                     current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
                   },
                   onSubmit: async (employeeData: any) => {
-                    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
                     const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
                       method: 'POST',

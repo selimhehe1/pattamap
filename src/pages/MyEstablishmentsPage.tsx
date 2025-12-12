@@ -80,41 +80,44 @@ const MyEstablishmentsPage: React.FC = () => {
   const [selectedEstablishment, setSelectedEstablishment] = useState<OwnedEstablishment | null>(null);
   const [selectedEstablishmentForEmployees, setSelectedEstablishmentForEmployees] = useState<OwnedEstablishment | null>(null); // 🆕 v10.3 Phase 0
   const [selectedEstablishmentForVIP, setSelectedEstablishmentForVIP] = useState<OwnedEstablishment | null>(null); // 🆕 v10.3 Phase 5
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshEstablishments = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadOwnedEstablishments();
-  }, []);
+    const loadOwnedEstablishments = async () => {
+      setIsLoading(true);
+      try {
+        logger.debug('📊 Loading owned establishments...');
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/my-owned`);
 
-  const loadOwnedEstablishments = async () => {
-    setIsLoading(true);
-    try {
-      logger.debug('📊 Loading owned establishments...');
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/my-owned`);
+        if (response.ok) {
+          const data = await response.json();
+          logger.debug('✅ Owned establishments loaded:', data);
+          setEstablishments(data.establishments || []);
 
-      if (response.ok) {
-        const data = await response.json();
-        logger.debug('✅ Owned establishments loaded:', data);
-        setEstablishments(data.establishments || []);
-
-        // Calculate stats from establishment data
-        const estList = data.establishments || [];
-        setStats({
-          totalEstablishments: estList.length,
-          // Future: Add establishment_views table for tracking views
-          totalViews: 0,
-          // Future: Add establishment reviews system (currently only employee reviews)
-          totalReviews: 0,
-          avgRating: 0
-        });
-      } else {
-        logger.error('Failed to load owned establishments:', response.statusText);
+          // Calculate stats from establishment data
+          const estList = data.establishments || [];
+          setStats({
+            totalEstablishments: estList.length,
+            // Future: Add establishment_views table for tracking views
+            totalViews: 0,
+            // Future: Add establishment reviews system (currently only employee reviews)
+            totalReviews: 0,
+            avgRating: 0
+          });
+        } else {
+          logger.error('Failed to load owned establishments:', response.statusText);
+        }
+      } catch (_error) {
+        logger.error('Error loading owned establishments:', _error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Error loading owned establishments:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadOwnedEstablishments();
+  }, [secureFetch, refreshCounter]);
 
   const handleEditClick = (establishment: OwnedEstablishment) => {
     logger.debug('🖊️ Opening edit modal for:', establishment.name);
@@ -367,7 +370,7 @@ const MyEstablishmentsPage: React.FC = () => {
           permissions={selectedEstablishment.permissions}
           onClose={handleCloseEditModal}
           onSuccess={() => {
-            loadOwnedEstablishments(); // Reload to show updated data
+            refreshEstablishments(); // Reload to show updated data
           }}
         />
       )}
@@ -407,7 +410,7 @@ const MyEstablishmentsPage: React.FC = () => {
           onClose={() => setSelectedEstablishmentForVIP(null)}
           onSuccess={() => {
             setSelectedEstablishmentForVIP(null);
-            loadOwnedEstablishments(); // Reload to show updated VIP status
+            refreshEstablishments(); // Reload to show updated VIP status
           }}
         />
       )}

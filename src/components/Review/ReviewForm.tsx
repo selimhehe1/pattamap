@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import ImageUploadPreview from '../Common/ImageUploadPreview';
+import toast from '../../utils/toast';
+import { logger } from '../../utils/logger';
 
 interface ReviewFormProps {
   employeeId: string;
@@ -9,9 +12,10 @@ interface ReviewFormProps {
   isLoading?: boolean;
 }
 
-interface ReviewData {
+export interface ReviewData {
   employee_id: string;
   content: string;
+  photo_urls?: string[]; // v10.4 - Photos in reviews (max 3)
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({
@@ -24,6 +28,41 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   const { user } = useAuth();
   const [comment, setComment] = useState<string>('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Upload photos to Cloudinary
+  const uploadPhotosToCloudinary = async (files: File[]): Promise<string[]> => {
+    const uploadPromises = files.map(async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '');
+      formData.append('folder', 'review_photos');
+
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
+        throw new Error(errorData.error?.message || `Upload failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.secure_url;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
+  const handleFilesChange = (files: File[]) => {
+    setPhotos(files);
+  };
 
 
   const validateForm = () => {
@@ -43,22 +82,43 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
+    let photoUrls: string[] = [];
+
+    // Upload photos if any
+    if (photos.length > 0) {
+      setIsUploading(true);
+      try {
+        toast.info(t('reviews.photoUploading', 'Uploading photos...'));
+        photoUrls = await uploadPhotosToCloudinary(photos);
+        logger.info(`Uploaded ${photoUrls.length} photos for review`);
+      } catch (error: any) {
+        logger.error('Photo upload error:', error);
+        toast.error(t('reviews.photoUploadError', 'Failed to upload photos'));
+        setIsUploading(false);
+        setErrors({ submit: t('reviews.photoUploadError', 'Failed to upload photos') });
+        return;
+      }
+      setIsUploading(false);
+    }
+
     const reviewData: ReviewData = {
       employee_id: employeeId,
-      content: comment.trim()
+      content: comment.trim(),
+      photo_urls: photoUrls.length > 0 ? photoUrls : undefined
     };
 
     try {
       await onSubmit(reviewData);
       // Reset form on success
       setComment('');
+      setPhotos([]);
       setErrors({});
-    } catch (error) {
+    } catch (_error) {
       setErrors({ submit: t('review.form.errorSubmitFailed') });
     }
   };
@@ -182,6 +242,24 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           </div>
         </div>
 
+        {/* Photo Upload Section - v10.4 */}
+        <div style={{ marginBottom: '20px' }}>
+          <ImageUploadPreview
+            maxFiles={3}
+            maxSizeMB={5}
+            onFilesChange={handleFilesChange}
+            label={t('reviews.addPhotos', 'Add photos (optional)')}
+            disabled={isLoading || isUploading}
+          />
+          <p style={{
+            color: '#888888',
+            fontSize: '12px',
+            marginTop: '5px'
+          }}>
+            {t('reviews.photosLimit', 'Maximum 3 photos')}
+          </p>
+        </div>
+
         {/* Submit Error */}
         {errors.submit && (
           <div style={{
@@ -240,36 +318,36 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isUploading}
             style={{
               padding: '12px 24px',
-              background: isLoading
+              background: (isLoading || isUploading)
                 ? 'linear-gradient(45deg, #666666, #888888)'
                 : 'linear-gradient(45deg, #C19A6B, #E91E63)',
               color: 'white',
               border: 'none',
               borderRadius: '25px',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
+              cursor: (isLoading || isUploading) ? 'not-allowed' : 'pointer',
               fontSize: '14px',
               fontWeight: 'bold',
               transition: 'all 0.3s ease',
               position: 'relative',
-              opacity: isLoading ? 0.7 : 1
+              opacity: (isLoading || isUploading) ? 0.7 : 1
             }}
             onMouseEnter={(e) => {
-              if (!isLoading) {
+              if (!isLoading && !isUploading) {
                 e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.4)';
               }
             }}
             onMouseLeave={(e) => {
-              if (!isLoading) {
+              if (!isLoading && !isUploading) {
                 e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = 'none';
               }
             }}
           >
-            {isLoading ? (
+            {(isLoading || isUploading) ? (
               <>
                 <span style={{
                   display: 'inline-block',
@@ -281,7 +359,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                   animation: 'spin 1s linear infinite',
                   marginRight: '8px'
                 }} />
-                {t('review.form.submittingButton')}
+                {isUploading
+                  ? t('reviews.photoUploading', 'Uploading photos...')
+                  : t('review.form.submittingButton')}
               </>
             ) : (
               t('review.form.submitButton')

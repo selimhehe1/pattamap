@@ -198,9 +198,41 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   }, [initialData]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/categories`);
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (_error) {
+        logger.error('Error fetching categories:', _error);
+      }
+    };
+
+    const fetchConsumableTemplates = async () => {
+      try {
+        // Fetch real consumable templates from API (returns UUIDs)
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/consumables`);
+
+        if (!response.ok) {
+          logger.error('Failed to fetch consumables:', response.status);
+          return;
+        }
+
+        const data = await response.json();
+        const templates = data.consumables || [];
+
+        logger.debug(`✅ Fetched ${templates.length} consumable templates from API`);
+
+        // Filter only active consumables
+        setConsumableTemplates(templates.filter((t: ConsumableTemplate) => t.status === 'active'));
+      } catch (_error) {
+        logger.error('Error fetching consumable templates:', _error);
+      }
+    };
+
     fetchCategories();
     fetchConsumableTemplates();
-  }, []);
+  }, [secureFetch]);
 
   // Restore draft when isDraft becomes true (after useAutoSave checks localStorage)
   // Only restore if this is a NEW establishment (no initialData) and not a suggestion
@@ -216,38 +248,6 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       }
     }
   }, [isDraft, initialData, isSuggestion, restoreDraft]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/categories`);
-      const data = await response.json();
-      setCategories(data.categories || []);
-    } catch (error) {
-      logger.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchConsumableTemplates = async () => {
-    try {
-      // Fetch real consumable templates from API (returns UUIDs)
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/consumables`);
-
-      if (!response.ok) {
-        logger.error('Failed to fetch consumables:', response.status);
-        return;
-      }
-
-      const data = await response.json();
-      const templates = data.consumables || [];
-
-      logger.debug(`✅ Fetched ${templates.length} consumable templates from API`);
-
-      // Filter only active consumables
-      setConsumableTemplates(templates.filter((t: ConsumableTemplate) => t.status === 'active'));
-    } catch (error) {
-      logger.error('Error fetching consumable templates:', error);
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -382,7 +382,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
         size: `${(logoFile.size / 1024 / 1024).toFixed(2)}MB`
       });
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/establishment-logo`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/establishment-logo`, {
         method: 'POST',
         body: formDataUpload
       });

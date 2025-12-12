@@ -56,20 +56,19 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   const [newService, setNewService] = useState('');
 
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/establishments/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories || []);
+        }
+      } catch (_error) {
+        logger.error('Failed to load categories:', _error);
+      }
+    };
     loadCategories();
   }, []);
-
-  const loadCategories = async () => {
-    try {
-      const response = await fetch('/api/establishments/categories');
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data.categories || []);
-      }
-    } catch (error) {
-      logger.error('Failed to load categories:', error);
-    }
-  };
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({

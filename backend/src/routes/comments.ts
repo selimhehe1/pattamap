@@ -9,7 +9,9 @@ import {
   reportComment,
   getEmployeeRatings,
   getUserRating,
-  updateUserRating
+  updateUserRating,
+  createEstablishmentResponse,
+  getEstablishmentReviews
 } from '../controllers/commentController';
 
 const router = Router();
@@ -125,5 +127,90 @@ router.get('/user-rating/:employee_id', authenticateToken, getUserRating);
  *               $ref: '#/components/schemas/Error'
  */
 router.put('/user-rating/:employee_id', authenticateToken, csrfProtection, updateUserRating);
+
+/**
+ * @swagger
+ * /api/comments/{id}/establishment-response:
+ *   post:
+ *     summary: Create establishment response to a review
+ *     description: Allows establishment owners to respond to reviews about their employees
+ *     tags: [Comments]
+ *     security:
+ *       - cookieAuth: []
+ *       - bearerAuth: []
+ *       - csrfToken: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Comment/Review UUID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *               - establishment_id
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 minLength: 10
+ *                 description: Response content
+ *               establishment_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: Establishment UUID
+ *     responses:
+ *       201:
+ *         description: Response created successfully
+ *       403:
+ *         description: Not authorized (not establishment owner)
+ *       404:
+ *         description: Review not found
+ */
+router.post('/:id/establishment-response', authenticateToken, csrfProtection, createEstablishmentResponse);
+
+/**
+ * @swagger
+ * /api/comments/establishment/{establishment_id}/reviews:
+ *   get:
+ *     summary: Get reviews for an establishment's employees
+ *     description: Retrieves all reviews for employees working at an establishment (for owner panel)
+ *     tags: [Comments]
+ *     security:
+ *       - cookieAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: establishment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Establishment UUID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Items per page
+ *     responses:
+ *       200:
+ *         description: Reviews retrieved successfully
+ *       403:
+ *         description: Not authorized (not establishment owner)
+ */
+router.get('/establishment/:establishment_id/reviews', authenticateToken, getEstablishmentReviews);
 
 export default router;

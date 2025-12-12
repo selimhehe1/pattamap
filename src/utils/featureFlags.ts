@@ -37,10 +37,10 @@ export type FeatureFlag = typeof FEATURES[keyof typeof FEATURES];
  * To disable VIP in production, set: REACT_APP_FEATURE_VIP_SYSTEM=false
  */
 const featureConfig: Record<FeatureFlag, boolean> = {
-  [FEATURES.VIP_SYSTEM]: process.env.REACT_APP_FEATURE_VIP_SYSTEM !== 'false',
-  [FEATURES.PAYMENTS]: process.env.REACT_APP_FEATURE_PAYMENTS !== 'false',
-  [FEATURES.GAMIFICATION]: process.env.REACT_APP_FEATURE_GAMIFICATION !== 'false',
-  [FEATURES.PUSH_NOTIFICATIONS]: process.env.REACT_APP_FEATURE_PUSH_NOTIFICATIONS !== 'false',
+  [FEATURES.VIP_SYSTEM]: import.meta.env.VITE_FEATURE_VIP_SYSTEM !== 'false',
+  [FEATURES.PAYMENTS]: import.meta.env.VITE_FEATURE_PAYMENTS !== 'false',
+  [FEATURES.GAMIFICATION]: import.meta.env.VITE_FEATURE_GAMIFICATION !== 'false',
+  [FEATURES.PUSH_NOTIFICATIONS]: import.meta.env.VITE_FEATURE_PUSH_NOTIFICATIONS !== 'false',
 };
 
 /**

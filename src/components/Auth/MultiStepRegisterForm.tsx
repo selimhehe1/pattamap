@@ -347,7 +347,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       if (explicitCsrfToken) {
         logger.debug('🛡️ Using explicit CSRF token for photo upload');
 
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/upload/images`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -369,7 +369,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         await refreshToken();
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/images`, {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
           method: 'POST',
           body: formDataMultipart
         });
@@ -492,7 +492,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
         // 🆕 v10.0.2 - Use /my-profile endpoint to auto-link employee to user account
         // This endpoint creates the bidirectional link (user.linked_employee_id & employee.user_id)
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees/my-profile`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/my-profile`, {
           method: 'POST',
           credentials: 'include', // Include auth cookie
           headers: {

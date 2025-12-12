@@ -38,7 +38,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ data }) => {
  * Generate Organization schema
  */
 export const createOrganizationSchema = () => {
-  const siteUrl = process.env.REACT_APP_SITE_URL || 'https://pattamap.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
 
   return {
     "@context": "https://schema.org",
@@ -66,7 +66,7 @@ export const createOrganizationSchema = () => {
  * Generate WebSite schema with SearchAction
  */
 export const createWebSiteSchema = () => {
-  const siteUrl = process.env.REACT_APP_SITE_URL || 'https://pattamap.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
 
   return {
     "@context": "https://schema.org",
@@ -106,7 +106,7 @@ export const createLocalBusinessSchema = (establishment: {
     barfine?: number | string;
   };
 }) => {
-  const siteUrl = process.env.REACT_APP_SITE_URL || 'https://pattamap.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
 
   const schema: Record<string, any> = {
     "@context": "https://schema.org",
@@ -154,7 +154,7 @@ export const createLocalBusinessSchema = (establishment: {
  * Generate BreadcrumbList schema for navigation
  */
 export const createBreadcrumbSchema = (items: Array<{ name: string; url: string }>) => {
-  const siteUrl = process.env.REACT_APP_SITE_URL || 'https://pattamap.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
 
   return {
     "@context": "https://schema.org",

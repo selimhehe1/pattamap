@@ -30,7 +30,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   const dialog = useDialog();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   // State Management
   const [viewMode, setViewMode] = useState<ViewMode>('owners');
@@ -59,59 +59,80 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
     can_view_analytics: true
   });
   const [editingOwner, setEditingOwner] = useState<EstablishmentOwner | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper functions to trigger refresh
+  const refreshEstablishments = () => setRefreshCounter(c => c + 1);
+  const refreshOwnershipRequests = () => setRefreshCounter(c => c + 1);
 
   // Load data based on view mode
   useEffect(() => {
+    const loadEstablishments = async () => {
+      setIsLoading(true);
+      try {
+        const response = await secureFetch(`${API_URL}/api/admin/establishments?status=approved`);
+
+        if (response.ok) {
+          const data = await response.json();
+          const estabs = data.establishments || [];
+
+          // Load owners count for each establishment
+          let estabsWithCounts = await Promise.all(
+            estabs.map(async (est: AdminEstablishment) => {
+              try {
+                const ownersResponse = await secureFetch(`${API_URL}/api/admin/establishments/${est.id}/owners`);
+                if (ownersResponse.ok) {
+                  const ownersData = await ownersResponse.json();
+                  return {
+                    ...est,
+                    ownersCount: ownersData.owners?.length || 0
+                  };
+                }
+              } catch (error) {
+                logger.error(`Failed to load owners for establishment ${est.id}:`, error);
+              }
+              return { ...est, ownersCount: 0 };
+            })
+          );
+
+          // Apply filter
+          if (filter === 'with_owners') {
+            estabsWithCounts = estabsWithCounts.filter((e: AdminEstablishment) => (e.ownersCount || 0) > 0);
+          } else if (filter === 'without_owners') {
+            estabsWithCounts = estabsWithCounts.filter((e: AdminEstablishment) => (e.ownersCount || 0) === 0);
+          }
+
+          setEstablishments(estabsWithCounts);
+        }
+      } catch (error) {
+        logger.error('Failed to load establishments:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const loadOwnershipRequests = async () => {
+      setIsLoading(true);
+      try {
+        const response = await secureFetch(`${API_URL}/api/ownership-requests/admin/all?status=pending`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setOwnershipRequests(data.requests || []);
+        }
+      } catch (error) {
+        logger.error('Failed to load ownership requests:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (viewMode === 'owners') {
       loadEstablishments();
     } else {
       loadOwnershipRequests();
     }
-  }, [viewMode, filter]);
-
-  const loadEstablishments = async () => {
-    setIsLoading(true);
-    try {
-      const response = await secureFetch(`${API_URL}/api/admin/establishments?status=approved`);
-
-      if (response.ok) {
-        const data = await response.json();
-        let estabs = data.establishments || [];
-
-        // Load owners count for each establishment
-        let estabsWithCounts = await Promise.all(
-          estabs.map(async (est: AdminEstablishment) => {
-            try {
-              const ownersResponse = await secureFetch(`${API_URL}/api/admin/establishments/${est.id}/owners`);
-              if (ownersResponse.ok) {
-                const ownersData = await ownersResponse.json();
-                return {
-                  ...est,
-                  ownersCount: ownersData.owners?.length || 0
-                };
-              }
-            } catch (error) {
-              logger.error(`Failed to load owners for establishment ${est.id}:`, error);
-            }
-            return { ...est, ownersCount: 0 };
-          })
-        );
-
-        // Apply filter
-        if (filter === 'with_owners') {
-          estabsWithCounts = estabsWithCounts.filter((e: AdminEstablishment) => (e.ownersCount || 0) > 0);
-        } else if (filter === 'without_owners') {
-          estabsWithCounts = estabsWithCounts.filter((e: AdminEstablishment) => (e.ownersCount || 0) === 0);
-        }
-
-        setEstablishments(estabsWithCounts);
-      }
-    } catch (error) {
-      logger.error('Failed to load establishments:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [viewMode, filter, secureFetch, API_URL, refreshCounter]);
 
   const loadEstablishmentOwners = async (establishmentId: string) => {
     try {
@@ -123,23 +144,6 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       }
     } catch (error) {
       logger.error('Failed to load establishment owners:', error);
-    }
-  };
-
-  // Load ownership requests
-  const loadOwnershipRequests = async () => {
-    setIsLoading(true);
-    try {
-      const response = await secureFetch(`${API_URL}/api/ownership-requests/admin/all?status=pending`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setOwnershipRequests(data.requests || []);
-      }
-    } catch (error) {
-      logger.error('Failed to load ownership requests:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -164,7 +168,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         toast.success(t('admin.ownershipApprovedSuccess', 'Ownership request approved successfully!'));
         setSelectedRequest(null);
         setAdminNotes('');
-        await loadOwnershipRequests();
+        refreshOwnershipRequests();
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || t('admin.ownershipApprovedError', 'Failed to approve request'));
@@ -214,7 +218,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         toast.success(t('admin.ownershipRejected', 'Ownership request rejected'));
         setSelectedRequest(null);
         setAdminNotes('');
-        await loadOwnershipRequests();
+        refreshOwnershipRequests();
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || t('admin.ownershipRejectError', 'Failed to reject request'));
@@ -232,7 +236,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   };
 
   // 🆕 Debounced search function with loading state
-  const performSearch = async (term: string) => {
+  const performSearch = useCallback(async (term: string) => {
     if (term.length < 2) {
       setSearchedUsers([]);
       setIsSearching(false);
@@ -255,12 +259,12 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [secureFetch, API_URL]);
 
   // Create debounced version of search (500ms delay)
   const debouncedSearch = useMemo(
     () => debounce(performSearch, 500),
-    [API_URL, secureFetch]
+    [performSearch]
   );
 
   // Handle search input change
@@ -320,7 +324,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         setSearchUserTerm('');
         setSearchedUsers([]);
         // Reload establishments list to update counts
-        await loadEstablishments();
+        refreshEstablishments();
         toast.success(t('admin.ownerAssignedSuccess', 'Owner assigned successfully'));
       } else {
         const errorData = await response.json();
@@ -361,7 +365,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         // Reload establishment owners
         await loadEstablishmentOwners(establishmentId);
         // Reload establishments list to update counts
-        await loadEstablishments();
+        refreshEstablishments();
         toast.success(t('admin.ownerRemovedSuccess', 'Owner removed successfully'));
       } else {
         const errorData = await response.json();

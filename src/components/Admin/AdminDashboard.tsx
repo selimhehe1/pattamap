@@ -80,25 +80,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
-    loadDashboardStats();
-  }, []);
+    const loadDashboardStats = async () => {
+      setIsLoading(true);
+      try {
+        logger.debug('📊 Loading dashboard stats...');
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/admin/dashboard-stats`);
 
-  const loadDashboardStats = async () => {
-    setIsLoading(true);
-    try {
-      logger.debug('📊 Loading dashboard stats...');
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/admin/dashboard-stats`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data.stats || data);
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data.stats || data);
+        }
+      } catch (error) {
+        logger.error('Failed to load dashboard stats:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Failed to load dashboard stats:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadDashboardStats();
+  }, [secureFetch]);
 
   const viewCurrentUserProfile = async () => {
     if (!user) {
@@ -130,7 +129,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
 
     // Récupérer les vraies statistiques de l'utilisateur
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/admin/user-stats/${user.id}`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/admin/user-stats/${user.id}`);
 
       if (response.ok) {
         const { stats } = await response.json();

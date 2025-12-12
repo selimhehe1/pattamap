@@ -37,7 +37,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     const loadCategories = async () => {
       try {
         setLoadingCategories(true);
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/establishments/categories`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/establishments/categories`);
 
         if (response.ok) {
           const data = await response.json();
@@ -60,7 +60,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     const loadConsumableTemplates = async () => {
       try {
         setLoadingTemplates(true);
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/consumables`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/consumables`);
 
         if (response.ok) {
           const data = await response.json();
@@ -89,7 +89,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     };
 
     loadConsumableTemplates();
-  }, []);
+  }, [t]);
 
   // Déterminer le type de bar selon la catégorie
   const getBarType = () => {

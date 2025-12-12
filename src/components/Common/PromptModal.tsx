@@ -38,12 +38,13 @@ const PromptModal: React.FC<PromptModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-focus on mount
+  // Auto-focus on mount and position cursor at end
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.focus();
       // Move cursor to end
-      textareaRef.current.setSelectionRange(value.length, value.length);
+      const len = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(len, len);
     }
   }, []);
 

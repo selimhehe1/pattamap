@@ -55,7 +55,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
   useEffect(() => {
     if (showEmployeesList && employees.length === 0) {
       setIsLoadingEmployees(true);
-      secureFetch(`${process.env.REACT_APP_API_URL}/api/employees`)
+      secureFetch(`${import.meta.env.VITE_API_URL}/api/employees`)
         .then(async (response) => {
           if (response.ok) {
             const data = await response.json();
@@ -72,7 +72,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
           setIsLoadingEmployees(false);
         });
     }
-  }, [showEmployeesList, employees.length, secureFetch]);
+  }, [showEmployeesList, employees.length, secureFetch, t]);
 
   const handleOptionAClaim = () => {
     setShowEmployeesList(true); // 🆕 Show list instead of modal

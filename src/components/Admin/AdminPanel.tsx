@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AdminDashboard from './AdminDashboard';
 import EstablishmentsAdmin from './EstablishmentsAdmin';
@@ -33,7 +33,7 @@ const AdminPanel: React.FC = () => {
   const _navigate = useNavigate(); // Prefixed with _ - reserved for future navigation
 
   // Get initial tab from URL path
-  const getTabFromPath = (): string => {
+  const getTabFromPath = useCallback((): string => {
     const pathParts = location.pathname.split('/');
     const adminIndex = pathParts.indexOf('admin');
     if (adminIndex !== -1 && pathParts[adminIndex + 1]) {
@@ -41,17 +41,15 @@ const AdminPanel: React.FC = () => {
       return pathToTab[subPath] || 'overview';
     }
     return 'overview';
-  };
+  }, [location.pathname]);
 
   const [activeTab, setActiveTab] = useState<string>(getTabFromPath());
 
   // Update tab when URL changes
   useEffect(() => {
     const newTab = getTabFromPath();
-    if (newTab !== activeTab) {
-      setActiveTab(newTab);
-    }
-  }, [location.pathname]);
+    setActiveTab(prevTab => prevTab !== newTab ? newTab : prevTab);
+  }, [getTabFromPath]);
 
   const renderActiveTab = () => {
     switch (activeTab) {

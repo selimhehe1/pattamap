@@ -287,6 +287,39 @@
       "submitButton": "ส่งความคิดเห็น"
     }
   },
+  "reviews": {
+    "addPhotos": "เพิ่มรูปภาพ (ตัวเลือก)",
+    "photosLimit": "สูงสุด 3 รูปภาพ",
+    "photoUploading": "กำลังอัปโหลดรูปภาพ...",
+    "photoUploadError": "อัปโหลดรูปภาพไม่สำเร็จ",
+    "establishmentResponse": "การตอบกลับจากสถานประกอบการ",
+    "respondToReview": "ตอบกลับรีวิวนี้",
+    "responsePosted": "โพสต์การตอบกลับสำเร็จแล้ว",
+    "noPhotos": "ไม่มีรูปภาพ",
+    "viewAllPhotos": "ดูรูปภาพทั้งหมด",
+    "photos": {
+      "openPhoto": "ดูรูปภาพ {{index}}",
+      "photoAlt": "รูปภาพรีวิว {{index}}",
+      "lightboxTitle": "ตัวแสดงรูปภาพ",
+      "close": "ปิด",
+      "previous": "รูปภาพก่อนหน้า",
+      "next": "รูปภาพถัดไป",
+      "goToPhoto": "ไปที่รูปภาพ {{index}}"
+    },
+    "owner": {
+      "panelTitle": "รีวิวและการตอบกลับ",
+      "noReviews": "ยังไม่มีรีวิวสำหรับพนักงานของคุณ",
+      "responded": "ตอบกลับแล้ว",
+      "notResponded": "ยังไม่ได้ตอบกลับ",
+      "respondButton": "ตอบกลับ",
+      "responseLabel": "การตอบกลับของคุณ",
+      "responsePlaceholder": "ขอบคุณลูกค้า ตอบข้อกังวลของพวกเขา...",
+      "submitResponse": "ส่งการตอบกลับ",
+      "filterAll": "ทั้งหมด",
+      "filterPending": "รอการตอบกลับ",
+      "filterResponded": "ตอบกลับแล้ว"
+    }
+  },
   "auth": {
     "login": "เข้าสู่ระบบ",
     "register": "ลงทะเบียน",
@@ -1855,17 +1888,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "กระดานผู้นำ",
+      "global": "ทั่วโลก",
+      "monthly": "รายเดือน",
+      "weekly": "รายสัปดาห์",
       "allTime": "ตลอดกาล",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "อันดับ",
+      "you": "คุณ",
+      "loading": "กำลังโหลดกระดานผู้นำ...",
+      "empty": "ยังไม่มีข้อมูลกระดานผู้นำ",
       "emptySubtitle": "เป็นคนแรกในกระดานผู้นำ",
-      "position": "Position",
-      "score": "Score"
+      "position": "ตำแหน่ง",
+      "score": "คะแนน",
+      "reviews": "รีวิว",
+      "photos": "รูปภาพ",
+      "checkins": "เช็คอิน",
+      "votes": "โหวต",
+      "categories": {
+        "title": "หมวดหมู่",
+        "reviewers": "นักรีวิวยอดเยี่ยม",
+        "photographers": "ช่างภาพยอดเยี่ยม",
+        "checkins": "เช็คอินมากที่สุด",
+        "helpful": "มีประโยชน์มากที่สุด"
+      }
+    },
+    "xpHistory": {
+      "title": "ประวัติ XP",
+      "days": "วัน",
+      "totalGained": "XP ที่ได้รับใน {{days}} วันที่ผ่านมา",
+      "breakdown": "แหล่งที่มา",
+      "empty": "ยังไม่ได้รับ XP ในช่วงเวลานี้",
+      "emptySubtitle": "สำรวจ รีวิว และเช็คอินเพื่อรับ XP!",
+      "error": "ไม่สามารถโหลดประวัติ XP",
+      "sources": {
+        "check_in": "เช็คอิน",
+        "review": "รีวิว",
+        "mission": "ภารกิจ",
+        "badge": "เหรียญตรา",
+        "daily_login": "เข้าสู่ระบบรายวัน",
+        "photo_upload": "อัปโหลดรูป",
+        "helpful_vote": "โหวตที่เป็นประโยชน์",
+        "other": "อื่นๆ"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1935,6 +1999,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "รางวัล & การปลดล็อค",
+      "filterAll": "ทั้งหมด",
+      "filterFeatures": "ฟีเจอร์",
+      "filterCosmetics": "เครื่องสำอาง",
+      "filterTitles": "ตำแหน่ง",
+      "unlocked": "ปลดล็อคแล้ว",
+      "locked": "ล็อคอยู่",
+      "requireLevel": "เลเวล {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "ต้องการเหรียญ",
+      "requireSpecial": "ความสำเร็จพิเศษ",
+      "maxLevel": "เลเวลสูงสุด!",
+      "toNextLevel": " ถึงเลเวล {{level}}",
+      "claim": "รับรางวัล",
+      "claiming": "กำลังรับ...",
+      "error": "ไม่สามารถโหลดรางวัล",
+      "noRewards": "ไม่มีรางวัลในหมวดนี้",
+      "statsUnlocked": "ปลดล็อค",
+      "statsLocked": "เหลือ",
+      "statsTotalXP": "XP รวม"
     }
   },
 

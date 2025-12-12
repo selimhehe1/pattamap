@@ -119,7 +119,8 @@ const CustomBoyzTownMap: React.FC<CustomBoyzTownMapProps> = ({
 
   // Monitor container size changes to recalculate positions
   // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
-  const containerDimensions = useContainerSize(containerRef, 300);
+  // Note: _containerDimensions triggers re-renders when container size changes
+  const _containerDimensions = useContainerSize(containerRef, 300);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -157,7 +158,8 @@ const CustomBoyzTownMap: React.FC<CustomBoyzTownMapProps> = ({
     };
   }, []);
 
-  const allBars = useMemo(() => establishmentsToVisualBars(establishments, isMobile, containerRef.current || undefined), [establishments, isMobile, containerDimensions]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  const allBars = useMemo(() => establishmentsToVisualBars(establishments, isMobile, containerRef.current || undefined), [establishments, isMobile]);
 
   const handleBarClick = useCallback((bar: Bar) => {
     if (isEditMode) return;
@@ -178,7 +180,8 @@ const CustomBoyzTownMap: React.FC<CustomBoyzTownMapProps> = ({
       return barWidth;
     }
     return isMobile ? 35 : 40;
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   const getEstablishmentIcon = useCallback((barId: string, establishments: Establishment[], fallbackIcon: string) => {
     const establishment = establishments.find(est => est.id === barId);

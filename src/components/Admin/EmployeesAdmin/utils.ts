@@ -153,5 +153,5 @@ export const getChangedFields = (
  * API URL helper
  */
 export const getApiUrl = (): string => {
-  return process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  return import.meta.env.VITE_API_URL || 'http://localhost:8080';
 };

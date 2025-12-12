@@ -34,46 +34,49 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const { secureFetch } = useSecureFetch();
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Helper function to trigger retry
+  const retryFetch = () => setRetryCount(c => c + 1);
 
   // Fetch linked profile when modal opens
   useEffect(() => {
+    const fetchLinkedProfile = async () => {
+      setIsLoading(true);
+      setFetchError(null);
+      try {
+        logger.debug('Fetching /api/employees/my-linked-profile...');
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/my-linked-profile`, {
+          method: 'GET'
+        });
+
+        logger.debug('Response status:', { status: response.status, statusText: response.statusText });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          logger.error('API Error:', errorData);
+          throw new Error(errorData.error || t('editMyProfileModal.errorFetchProfile', { status: response.status }));
+        }
+
+        const data = await response.json();
+        logger.debug('Profile data received:', data);
+        setLinkedProfile(data); // Backend returns employee directly (no wrapper)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
+        logger.error('Fetch error:', error);
+        setFetchError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     logger.debug('EditMyProfileModal useEffect - isOpen:', isOpen);
     if (isOpen) {
       logger.debug('Modal is open, fetching linked profile...');
       fetchLinkedProfile();
     }
-  }, [isOpen]);
-
-  const fetchLinkedProfile = async () => {
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-      logger.debug('Fetching /api/employees/my-linked-profile...');
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/my-linked-profile`, {
-        method: 'GET'
-      });
-
-      logger.debug('Response status:', { status: response.status, statusText: response.statusText });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        logger.error('API Error:', errorData);
-        throw new Error(errorData.error || t('editMyProfileModal.errorFetchProfile', { status: response.status }));
-      }
-
-      const data = await response.json();
-      logger.debug('Profile data received:', data);
-      setLinkedProfile(data); // Backend returns employee directly (no wrapper)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
-      logger.error('Fetch error:', error);
-      setFetchError(errorMessage);
-      toast.error(errorMessage);
-      // ❌ REMOVED: onClose() - Don't close modal, show error instead
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [isOpen, secureFetch, t, retryCount]);
 
   const handleSubmit = async (employeeData: any) => {
     if (!linkedProfile) {
@@ -83,7 +86,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/${linkedProfile.id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${linkedProfile.id}`, {
         method: 'PUT',
         body: JSON.stringify(employeeData)
       });
@@ -144,7 +147,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
               </div>
               <div className="edit-profile-buttons-row">
                 <button
-                  onClick={fetchLinkedProfile}
+                  onClick={retryFetch}
                   className="btn-nightlife-base btn-primary-nightlife"
                 >
                   🔄 {t('editMyProfileModal.buttonRetry')}

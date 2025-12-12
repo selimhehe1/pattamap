@@ -28,7 +28,7 @@ export const useProfileViewTracking = (employeeId: string | null | undefined, is
     const trackView = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/employees/${employeeId}/view`,
+          `${import.meta.env.VITE_API_URL}/api/employees/${employeeId}/view`,
           {
             method: 'POST',
             credentials: 'include', // Include cookies for auth (optional, works for anonymous too)

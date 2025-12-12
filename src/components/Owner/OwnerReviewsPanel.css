@@ -1,0 +1,385 @@
+.owner-reviews-panel {
+  background: var(--card-bg, #ffffff);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.owner-reviews-panel .panel-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  padding-bottom: 1rem;
+}
+
+.owner-reviews-panel .panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  margin: 0 0 0.25rem 0;
+}
+
+.owner-reviews-panel .establishment-name {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Filter tabs */
+.owner-reviews-panel .filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.owner-reviews-panel .filter-tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  background: transparent;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.owner-reviews-panel .filter-tab:hover {
+  border-color: var(--primary-color, #ec4899);
+  color: var(--primary-color, #ec4899);
+}
+
+.owner-reviews-panel .filter-tab.active {
+  background: var(--primary-color, #ec4899);
+  border-color: var(--primary-color, #ec4899);
+  color: white;
+}
+
+/* Loading and error states */
+.owner-reviews-panel .loading-state,
+.owner-reviews-panel .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.owner-reviews-panel .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color, #e5e7eb);
+  border-top-color: var(--primary-color, #ec4899);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.owner-reviews-panel .error-message {
+  color: var(--error-color, #ef4444);
+  margin-bottom: 1rem;
+}
+
+.owner-reviews-panel .btn-retry {
+  padding: 0.5rem 1rem;
+  background: var(--primary-color, #ec4899);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* No reviews state */
+.owner-reviews-panel .no-reviews {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+/* Reviews list */
+.owner-reviews-panel .reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.owner-reviews-panel .review-item {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  padding: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.owner-reviews-panel .review-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Review header */
+.owner-reviews-panel .review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.owner-reviews-panel .employee-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.owner-reviews-panel .employee-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.owner-reviews-panel .employee-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.owner-reviews-panel .employee-name {
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  font-size: 0.9375rem;
+}
+
+.owner-reviews-panel .review-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.owner-reviews-panel .review-stars .star {
+  color: var(--border-color, #d1d5db);
+  font-size: 0.875rem;
+}
+
+.owner-reviews-panel .review-stars .star.filled {
+  color: #fbbf24;
+}
+
+.owner-reviews-panel .review-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.owner-reviews-panel .reviewer-name {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.owner-reviews-panel .review-date {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+/* Review content */
+.owner-reviews-panel .review-content {
+  margin-bottom: 0.75rem;
+}
+
+.owner-reviews-panel .review-content p {
+  margin: 0;
+  color: var(--text-primary, #1f2937);
+  line-height: 1.5;
+}
+
+/* Establishment response */
+.owner-reviews-panel .establishment-response {
+  background: var(--bg-secondary, #f9fafb);
+  border-left: 3px solid var(--primary-color, #ec4899);
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin-top: 0.75rem;
+}
+
+.owner-reviews-panel .response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.owner-reviews-panel .response-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-color, #ec4899);
+  background: rgba(236, 72, 153, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.owner-reviews-panel .response-date {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+.owner-reviews-panel .response-content {
+  margin: 0;
+  color: var(--text-secondary, #4b5563);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Response section */
+.owner-reviews-panel .response-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color, #e5e7eb);
+}
+
+.owner-reviews-panel .btn-respond {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--primary-color, #ec4899);
+  color: var(--primary-color, #ec4899);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.owner-reviews-panel .btn-respond:hover {
+  background: var(--primary-color, #ec4899);
+  color: white;
+}
+
+/* Response form */
+.owner-reviews-panel .response-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.owner-reviews-panel .response-form label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #4b5563);
+}
+
+.owner-reviews-panel .response-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.owner-reviews-panel .response-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #ec4899);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+.owner-reviews-panel .response-form textarea:disabled {
+  background: var(--bg-disabled, #f3f4f6);
+  cursor: not-allowed;
+}
+
+.owner-reviews-panel .response-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.owner-reviews-panel .btn-cancel {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-color, #e5e7eb);
+  color: var(--text-secondary, #6b7280);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.owner-reviews-panel .btn-cancel:hover {
+  background: var(--bg-secondary, #f9fafb);
+}
+
+.owner-reviews-panel .btn-submit {
+  padding: 0.5rem 1rem;
+  background: var(--primary-color, #ec4899);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.owner-reviews-panel .btn-submit:hover:not(:disabled) {
+  background: var(--primary-hover, #db2777);
+}
+
+.owner-reviews-panel .btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Load more button */
+.owner-reviews-panel .load-more {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.owner-reviews-panel .btn-load-more {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color, #e5e7eb);
+  color: var(--text-secondary, #6b7280);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.owner-reviews-panel .btn-load-more:hover:not(:disabled) {
+  border-color: var(--primary-color, #ec4899);
+  color: var(--primary-color, #ec4899);
+}
+
+.owner-reviews-panel .btn-load-more:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .owner-reviews-panel {
+    padding: 1rem;
+  }
+
+  .owner-reviews-panel .review-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .owner-reviews-panel .review-meta {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .owner-reviews-panel .filter-tabs {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .owner-reviews-panel .filter-tab {
+    white-space: nowrap;
+  }
+}

@@ -215,7 +215,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
   onEstablishmentClick,
   selectedEstablishment,
   onBarClick,
-  onEstablishmentUpdate
+  onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
   const { user, token: _token } = useAuth();
@@ -229,7 +229,8 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
   const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
-  const containerDimensions = useContainerSize(containerRef, 300);
+  // Note: _containerDimensions triggers re-renders when container size changes
+  const _containerDimensions = useContainerSize(containerRef, 300);
 
   // Drag and drop state
   const [draggedBar, setDraggedBar] = useState<Bar | null>(null);
@@ -332,7 +333,8 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
     }
 
     return bars;
-  }, [establishments, isMobile, containerDimensions, optimisticPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [establishments, isMobile, optimisticPositions]);
 
   const handleBarClick = useCallback((bar: Bar) => {
     if (isEditMode) return;
@@ -354,7 +356,8 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
       return barWidth;
     }
     return isMobile ? 35 : 40;
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   const getEstablishmentIcon = useCallback((barId: string, establishments: Establishment[], fallbackIcon: string) => {
     const establishment = establishments.find(est => est.id === barId);
@@ -693,7 +696,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
         });
 
         // API Call
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/grid-move-workaround`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grid-move-workaround`, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -747,7 +750,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
         });
 
         // API Call atomique
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/grid-move-workaround`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grid-move-workaround`, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -796,7 +799,8 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
       setDropAction(null);
       setMousePosition(null);
     }
-  }, [draggedBar, dragOverPosition, dropAction, findBarAtPosition, establishments, onEstablishmentUpdate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onEstablishmentUpdate is stable prop
+  }, [draggedBar, dragOverPosition, dropAction, findBarAtPosition, establishments]);
 
   const handleDragEnd = useCallback(() => {
     setDraggedBar(null);
@@ -878,7 +882,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
           return newMap;
         });
 
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/grid-move-workaround`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grid-move-workaround`, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -925,7 +929,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
           return newMap;
         });
 
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/grid-move-workaround`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grid-move-workaround`, {
           method: 'POST',
           credentials: 'include',
           headers: {

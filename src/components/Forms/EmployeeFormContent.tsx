@@ -87,8 +87,28 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   const [selectedNightclubs, setSelectedNightclubs] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchEstablishments = async () => {
+      try {
+        // SECURITY FIX: Use useAuth instead of localStorage token
+        // Check if user is admin/moderator via AuthContext
+        const isAdminContext = user && ['admin', 'moderator'].includes(user.role) &&
+                              window.location.pathname.includes('admin');
+
+        const endpoint = isAdminContext
+          ? `${import.meta.env.VITE_API_URL}/api/admin/establishments`
+          : `${import.meta.env.VITE_API_URL}/api/establishments`;
+
+        // SECURITY FIX: Use secureFetch (httpOnly cookies) instead of Bearer token
+        const response = await secureFetch(endpoint);
+        const data = await response.json();
+
+        setEstablishments(data.establishments || []);
+      } catch (error) {
+        logger.error('Error fetching establishments:', error);
+      }
+    };
     fetchEstablishments();
-  }, []);
+  }, [secureFetch, user]);
 
   // Initialize existing photos when initialData changes
   useEffect(() => {
@@ -110,27 +130,6 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       }
     }
   }, [initialData]);
-
-  const fetchEstablishments = async () => {
-    try {
-      // SECURITY FIX: Use useAuth instead of localStorage token
-      // Check if user is admin/moderator via AuthContext
-      const isAdminContext = user && ['admin', 'moderator'].includes(user.role) &&
-                            window.location.pathname.includes('admin');
-
-      const endpoint = isAdminContext
-        ? `${process.env.REACT_APP_API_URL}/api/admin/establishments`
-        : `${process.env.REACT_APP_API_URL}/api/establishments`;
-
-      // SECURITY FIX: Use secureFetch (httpOnly cookies) instead of Bearer token
-      const response = await secureFetch(endpoint);
-      const data = await response.json();
-
-      setEstablishments(data.establishments || []);
-    } catch (error) {
-      logger.error('Error fetching establishments:', error);
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -208,7 +207,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         formData.append('images', photo);
       });
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/images`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
         method: 'POST',
         body: formData
       });

@@ -287,6 +287,39 @@
       "submitButton": "टिप्पणी सबमिट करें"
     }
   },
+  "reviews": {
+    "addPhotos": "फ़ोटो जोड़ें (वैकल्पिक)",
+    "photosLimit": "अधिकतम 3 फ़ोटो",
+    "photoUploading": "फ़ोटो अपलोड हो रहे हैं...",
+    "photoUploadError": "फ़ोटो अपलोड करने में विफल",
+    "establishmentResponse": "प्रतिष्ठान का जवाब",
+    "respondToReview": "इस समीक्षा का जवाब दें",
+    "responsePosted": "जवाब सफलतापूर्वक पोस्ट किया गया",
+    "noPhotos": "कोई फ़ोटो नहीं",
+    "viewAllPhotos": "सभी फ़ोटो देखें",
+    "photos": {
+      "openPhoto": "फ़ोटो {{index}} देखें",
+      "photoAlt": "समीक्षा फ़ोटो {{index}}",
+      "lightboxTitle": "फ़ोटो व्यूअर",
+      "close": "बंद करें",
+      "previous": "पिछला फ़ोटो",
+      "next": "अगला फ़ोटो",
+      "goToPhoto": "फ़ोटो {{index}} पर जाएं"
+    },
+    "owner": {
+      "panelTitle": "समीक्षाएं और जवाब",
+      "noReviews": "आपके कर्मचारियों के लिए अभी तक कोई समीक्षा नहीं",
+      "responded": "जवाब दिया गया",
+      "notResponded": "जवाब नहीं दिया गया",
+      "respondButton": "जवाब दें",
+      "responseLabel": "आपका जवाब",
+      "responsePlaceholder": "अपने ग्राहक को धन्यवाद दें, उनकी चिंताओं का समाधान करें...",
+      "submitResponse": "जवाब सबमिट करें",
+      "filterAll": "सभी",
+      "filterPending": "जवाब की प्रतीक्षा में",
+      "filterResponded": "जवाब दिया गया"
+    }
+  },
   "auth": {
     "login": "लॉगिन",
     "register": "पंजीकरण",
@@ -1853,17 +1886,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "लीडरबोर्ड",
+      "global": "वैश्विक",
+      "monthly": "मासिक",
+      "weekly": "साप्ताहिक",
       "allTime": "सर्वकालिक",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "रैंक",
+      "you": "आप",
+      "loading": "लीडरबोर्ड लोड हो रहा है...",
+      "empty": "अभी तक कोई रैंकिंग डेटा नहीं है।",
       "emptySubtitle": "लीडरबोर्ड पर पहले बनें",
-      "position": "Position",
-      "score": "Score"
+      "position": "स्थिति",
+      "score": "स्कोर",
+      "reviews": "समीक्षाएं",
+      "photos": "फोटो",
+      "checkins": "चेक-इन",
+      "votes": "वोट",
+      "categories": {
+        "title": "श्रेणियां",
+        "reviewers": "सर्वश्रेष्ठ समीक्षक",
+        "photographers": "शीर्ष फोटोग्राफर",
+        "checkins": "सबसे अधिक चेक-इन",
+        "helpful": "सबसे सहायक"
+      }
+    },
+    "xpHistory": {
+      "title": "XP इतिहास",
+      "days": "दिन",
+      "totalGained": "पिछले {{days}} दिनों में अर्जित XP",
+      "breakdown": "स्रोत विभाजन",
+      "empty": "इस अवधि में कोई XP अर्जित नहीं",
+      "emptySubtitle": "XP कमाने के लिए एक्सप्लोर करें, रिव्यू करें और चेक-इन करें!",
+      "error": "XP इतिहास लोड करने में विफल",
+      "sources": {
+        "check_in": "चेक-इन",
+        "review": "समीक्षाएं",
+        "mission": "मिशन",
+        "badge": "बैज",
+        "daily_login": "दैनिक लॉगिन",
+        "photo_upload": "फोटो अपलोड",
+        "helpful_vote": "सहायक वोट",
+        "other": "अन्य"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1933,6 +1997,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "पुरस्कार और अनलॉक",
+      "filterAll": "सभी",
+      "filterFeatures": "सुविधाएं",
+      "filterCosmetics": "कॉस्मेटिक्स",
+      "filterTitles": "उपाधियां",
+      "unlocked": "अनलॉक",
+      "locked": "लॉक",
+      "requireLevel": "स्तर {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "बैज आवश्यक",
+      "requireSpecial": "विशेष उपलब्धि",
+      "maxLevel": "अधिकतम स्तर!",
+      "toNextLevel": " स्तर {{level}} तक",
+      "claim": "दावा करें",
+      "claiming": "दावा हो रहा है...",
+      "error": "पुरस्कार लोड करने में विफल",
+      "noRewards": "इस श्रेणी में कोई पुरस्कार नहीं",
+      "statsUnlocked": "अनलॉक",
+      "statsLocked": "शेष",
+      "statsTotalXP": "कुल XP"
     }
   },
   "visitHistory": {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
@@ -9,8 +9,14 @@ interface LeaderboardEntry {
   username: string;
   total_xp?: number;
   monthly_xp?: number;
+  weekly_xp?: number;
   current_level?: number;
   check_ins?: number;
+  review_count?: number;
+  photo_count?: number;
+  checkin_count?: number;
+  verified_checkins?: number;
+  helpful_votes?: number;
   rank: number;
 }
 
@@ -18,6 +24,9 @@ interface LeaderboardProps {
   compact?: boolean;
   maxDisplay?: number;
 }
+
+type LeaderboardTab = 'global' | 'monthly' | 'weekly' | 'category';
+type CategoryType = 'reviewers' | 'photographers' | 'checkins' | 'helpful';
 
 const Leaderboard: React.FC<LeaderboardProps> = ({
   compact = false,
@@ -27,20 +36,49 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   const { getLevelIcon, getLevelName } = useGamification();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'global' | 'monthly'>('global');
+  const [activeTab, setActiveTab] = useState<LeaderboardTab>('global');
+  const [activeCategory, setActiveCategory] = useState<CategoryType>('reviewers');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Category config
+  const categories: { key: CategoryType; icon: string; labelKey: string }[] = [
+    { key: 'reviewers', icon: '📝', labelKey: 'gamification.leaderboard.categories.reviewers' },
+    { key: 'photographers', icon: '📸', labelKey: 'gamification.leaderboard.categories.photographers' },
+    { key: 'checkins', icon: '📍', labelKey: 'gamification.leaderboard.categories.checkins' },
+    { key: 'helpful', icon: '👍', labelKey: 'gamification.leaderboard.categories.helpful' },
+  ];
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Fetch leaderboard data
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/gamification/leaderboard/${activeTab}?limit=${maxDisplay}`,
-          {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
+        let url: string;
+
+        if (activeTab === 'category') {
+          url = `${import.meta.env.VITE_API_URL}/api/gamification/leaderboard-category/${activeCategory}?limit=${maxDisplay}`;
+        } else if (activeTab === 'weekly') {
+          url = `${import.meta.env.VITE_API_URL}/api/gamification/leaderboard-weekly?limit=${maxDisplay}`;
+        } else {
+          url = `${import.meta.env.VITE_API_URL}/api/gamification/leaderboard/${activeTab}?limit=${maxDisplay}`;
+        }
+
+        const response = await fetch(url, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -54,7 +92,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
     };
 
     fetchLeaderboard();
-  }, [activeTab, maxDisplay]);
+  }, [activeTab, activeCategory, maxDisplay]);
 
   // Get rank color
   const getRankColor = (rank: number): string => {
@@ -72,6 +110,40 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
     return `#${rank}`;
   };
 
+  // Get stat value based on active tab/category
+  const getStatValue = (entry: LeaderboardEntry): string => {
+    if (activeTab === 'category') {
+      switch (activeCategory) {
+        case 'reviewers':
+          return `${entry.review_count || 0} ${t('gamification.leaderboard.reviews')}`;
+        case 'photographers':
+          return `${entry.photo_count || 0} ${t('gamification.leaderboard.photos')}`;
+        case 'checkins':
+          return `${entry.verified_checkins || entry.checkin_count || 0} ${t('gamification.leaderboard.checkins')}`;
+        case 'helpful':
+          return `${entry.helpful_votes || 0} ${t('gamification.leaderboard.votes')}`;
+        default:
+          return '';
+      }
+    }
+
+    if (activeTab === 'weekly') {
+      return `${(entry.weekly_xp || 0).toLocaleString()} XP`;
+    }
+
+    if (activeTab === 'monthly') {
+      return `${(entry.monthly_xp || 0).toLocaleString()} XP`;
+    }
+
+    return `${(entry.total_xp || 0).toLocaleString()} XP`;
+  };
+
+  const handleCategorySelect = (category: CategoryType) => {
+    setActiveCategory(category);
+    setActiveTab('category');
+    setShowCategoryDropdown(false);
+  };
+
   if (loading) {
     return (
       <div className={`leaderboard ${compact ? 'leaderboard-compact' : ''}`}>
@@ -83,6 +155,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
       </div>
     );
   }
+
+  const currentCategory = categories.find(c => c.key === activeCategory);
 
   return (
     <div className={`leaderboard ${compact ? 'leaderboard-compact' : ''}`}>
@@ -103,6 +177,40 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
             >
               📅 {t('gamification.leaderboard.monthly')}
             </button>
+            <button
+              className={`leaderboard-tab ${activeTab === 'weekly' ? 'leaderboard-tab-active' : ''}`}
+              onClick={() => setActiveTab('weekly')}
+            >
+              📆 {t('gamification.leaderboard.weekly')}
+            </button>
+
+            {/* Category Dropdown */}
+            <div className="leaderboard-dropdown-container" ref={dropdownRef}>
+              <button
+                className={`leaderboard-tab leaderboard-tab-dropdown ${activeTab === 'category' ? 'leaderboard-tab-active' : ''}`}
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              >
+                {activeTab === 'category' ? currentCategory?.icon : '🏅'}{' '}
+                {activeTab === 'category'
+                  ? t(currentCategory?.labelKey || '')
+                  : t('gamification.leaderboard.categories.title')}
+                <span className="dropdown-arrow">{showCategoryDropdown ? '▲' : '▼'}</span>
+              </button>
+
+              {showCategoryDropdown && (
+                <div className="leaderboard-dropdown">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.key}
+                      className={`dropdown-item ${activeCategory === cat.key && activeTab === 'category' ? 'dropdown-item-active' : ''}`}
+                      onClick={() => handleCategorySelect(cat.key)}
+                    >
+                      {cat.icon} {t(cat.labelKey)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -126,12 +234,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                   {getLevelIcon(leaderboardData[1].current_level || 1)}
                 </div>
                 <div className="podium-username">{leaderboardData[1].username}</div>
-                <div className="podium-xp">
-                  {activeTab === 'global'
-                    ? leaderboardData[1].total_xp?.toLocaleString()
-                    : leaderboardData[1].monthly_xp?.toLocaleString()}{' '}
-                  XP
-                </div>
+                <div className="podium-xp">{getStatValue(leaderboardData[1])}</div>
               </div>
 
               {/* 1st Place */}
@@ -141,12 +244,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                   {getLevelIcon(leaderboardData[0].current_level || 1)}
                 </div>
                 <div className="podium-username">{leaderboardData[0].username}</div>
-                <div className="podium-xp">
-                  {activeTab === 'global'
-                    ? leaderboardData[0].total_xp?.toLocaleString()
-                    : leaderboardData[0].monthly_xp?.toLocaleString()}{' '}
-                  XP
-                </div>
+                <div className="podium-xp">{getStatValue(leaderboardData[0])}</div>
               </div>
 
               {/* 3rd Place */}
@@ -156,12 +254,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                   {getLevelIcon(leaderboardData[2].current_level || 1)}
                 </div>
                 <div className="podium-username">{leaderboardData[2].username}</div>
-                <div className="podium-xp">
-                  {activeTab === 'global'
-                    ? leaderboardData[2].total_xp?.toLocaleString()
-                    : leaderboardData[2].monthly_xp?.toLocaleString()}{' '}
-                  XP
-                </div>
+                <div className="podium-xp">{getStatValue(leaderboardData[2])}</div>
               </div>
             </div>
           )}
@@ -191,13 +284,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                   </div>
                 </div>
 
-                {/* XP */}
-                <div className="entry-xp">
-                  {activeTab === 'global'
-                    ? entry.total_xp?.toLocaleString()
-                    : entry.monthly_xp?.toLocaleString()}{' '}
-                  XP
-                </div>
+                {/* Stats */}
+                <div className="entry-xp">{getStatValue(entry)}</div>
               </div>
             ))}
           </div>

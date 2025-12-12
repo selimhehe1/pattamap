@@ -34,30 +34,30 @@ const FollowButton: React.FC<FollowButtonProps> = ({
 
   // Fetch initial follow status
   useEffect(() => {
+    const fetchFollowStatus = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/gamification/following/${targetUserId}/status`,
+          {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsFollowing(data.isFollowing);
+          setFollowerCount(data.followerCount);
+        }
+      } catch (err) {
+        logger.error('Error fetching follow status:', err);
+      }
+    };
+
     if (user && user.id !== targetUserId) {
       fetchFollowStatus();
     }
   }, [user, targetUserId]);
-
-  const fetchFollowStatus = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/gamification/following/${targetUserId}/status`,
-        {
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsFollowing(data.isFollowing);
-        setFollowerCount(data.followerCount);
-      }
-    } catch (err) {
-      logger.error('Error fetching follow status:', err);
-    }
-  };
 
   const handleToggleFollow = async () => {
     if (!user) {
@@ -77,8 +77,8 @@ const FollowButton: React.FC<FollowButtonProps> = ({
 
     try {
       const endpoint = isFollowing
-        ? `${process.env.REACT_APP_API_URL}/api/gamification/unfollow/${targetUserId}`
-        : `${process.env.REACT_APP_API_URL}/api/gamification/follow/${targetUserId}`;
+        ? `${import.meta.env.VITE_API_URL}/api/gamification/unfollow/${targetUserId}`
+        : `${import.meta.env.VITE_API_URL}/api/gamification/follow/${targetUserId}`;
 
       const response = await fetch(endpoint, {
         method: 'POST',

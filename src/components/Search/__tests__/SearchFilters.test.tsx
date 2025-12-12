@@ -137,7 +137,7 @@ describe('SearchFilters - Filter Fixes', () => {
     });
 
     it('should debounce age changes with 500ms delay', () => {
-      const { container } = render(
+      render(
         <SearchFilters
           filters={mockFilters}
           availableFilters={mockAvailableFilters}
@@ -202,10 +202,9 @@ describe('SearchFilters - Filter Fixes', () => {
       await waitFor(() => {
         const dropdown = container.querySelector('[style*="position: absolute"]');
         if (dropdown) {
-          const zIndex = window.getComputedStyle(dropdown).zIndex;
           // Note: In JSDOM, inline styles may not be computed correctly
           // This is a conceptual test - actual value is set in code
-          expect(true).toBe(true);
+          expect(dropdown).toBeInTheDocument();
         }
       });
     });
@@ -261,7 +260,7 @@ describe('SearchFilters - Filter Fixes', () => {
         is_verified: 'true'
       };
 
-      const { container } = render(
+      render(
         <SearchFilters
           filters={filtersWithData}
           availableFilters={mockAvailableFilters}
@@ -335,7 +334,7 @@ describe('SearchFilters - Filter Fixes', () => {
         establishment_id: 'est1'
       };
 
-      const { container } = render(
+      render(
         <SearchFilters
           filters={filtersWithEstablishment}
           availableFilters={mockAvailableFilters}
@@ -380,7 +379,7 @@ describe('SearchFilters - Filter Fixes', () => {
     });
 
     it('should render all filter sections', () => {
-      const { container } = render(
+      render(
         <SearchFilters
           filters={mockFilters}
           availableFilters={mockAvailableFilters}

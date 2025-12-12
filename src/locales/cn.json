@@ -287,6 +287,39 @@
       "submitButton": "提交评论"
     }
   },
+  "reviews": {
+    "addPhotos": "添加照片（可选）",
+    "photosLimit": "最多3张照片",
+    "photoUploading": "正在上传照片...",
+    "photoUploadError": "照片上传失败",
+    "establishmentResponse": "商家回复",
+    "respondToReview": "回复此评论",
+    "responsePosted": "回复发布成功",
+    "noPhotos": "暂无照片",
+    "viewAllPhotos": "查看所有照片",
+    "photos": {
+      "openPhoto": "查看照片 {{index}}",
+      "photoAlt": "评论照片 {{index}}",
+      "lightboxTitle": "照片查看器",
+      "close": "关闭",
+      "previous": "上一张",
+      "next": "下一张",
+      "goToPhoto": "前往照片 {{index}}"
+    },
+    "owner": {
+      "panelTitle": "评论与回复",
+      "noReviews": "暂无员工评论",
+      "responded": "已回复",
+      "notResponded": "未回复",
+      "respondButton": "回复",
+      "responseLabel": "您的回复",
+      "responsePlaceholder": "感谢顾客，解决他们的疑虑...",
+      "submitResponse": "提交回复",
+      "filterAll": "全部",
+      "filterPending": "待回复",
+      "filterResponded": "已回复"
+    }
+  },
   "auth": {
     "login": "登录",
     "register": "注册",
@@ -1853,17 +1886,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "排行榜",
+      "global": "全球",
+      "monthly": "月度",
+      "weekly": "周度",
       "allTime": "全部时间",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "排名",
+      "you": "你",
+      "loading": "加载排行榜中...",
+      "empty": "暂无排行榜数据。",
       "emptySubtitle": "成为第一个上榜的人",
-      "position": "Position",
-      "score": "Score"
+      "position": "位置",
+      "score": "得分",
+      "reviews": "评论",
+      "photos": "照片",
+      "checkins": "签到",
+      "votes": "投票",
+      "categories": {
+        "title": "分类",
+        "reviewers": "最佳评论者",
+        "photographers": "最佳摄影师",
+        "checkins": "签到最多",
+        "helpful": "最有帮助"
+      }
+    },
+    "xpHistory": {
+      "title": "经验历史",
+      "days": "天",
+      "totalGained": "过去{{days}}天获得的经验值",
+      "breakdown": "来源分布",
+      "empty": "该时期内没有获得经验值",
+      "emptySubtitle": "探索、评论和签到来获取经验值！",
+      "error": "加载经验历史失败",
+      "sources": {
+        "check_in": "签到",
+        "review": "评论",
+        "mission": "任务",
+        "badge": "徽章",
+        "daily_login": "每日登录",
+        "photo_upload": "上传照片",
+        "helpful_vote": "有用投票",
+        "other": "其他"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1933,6 +1997,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "奖励与解锁",
+      "filterAll": "全部",
+      "filterFeatures": "功能",
+      "filterCosmetics": "装饰",
+      "filterTitles": "称号",
+      "unlocked": "已解锁",
+      "locked": "已锁定",
+      "requireLevel": "等级 {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "需要徽章",
+      "requireSpecial": "特殊成就",
+      "maxLevel": "满级!",
+      "toNextLevel": " 到等级 {{level}}",
+      "claim": "领取",
+      "claiming": "领取中...",
+      "error": "无法加载奖励",
+      "noRewards": "此类别没有奖励",
+      "statsUnlocked": "已解锁",
+      "statsLocked": "剩余",
+      "statsTotalXP": "总XP"
     }
   },
   "visitHistory": {

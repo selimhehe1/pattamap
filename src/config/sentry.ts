@@ -12,9 +12,9 @@ import * as Sentry from '@sentry/react';
  * Call this BEFORE ReactDOM.render()
  */
 export const initSentry = () => {
-  const dsn = process.env.REACT_APP_SENTRY_DSN;
-  const environment = process.env.REACT_APP_SENTRY_ENVIRONMENT || 'development';
-  const enableTracing = process.env.REACT_APP_SENTRY_ENABLE_TRACING === 'true';
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  const environment = import.meta.env.VITE_SENTRY_ENVIRONMENT || 'development';
+  const enableTracing = import.meta.env.VITE_SENTRY_ENABLE_TRACING === 'true';
 
   // Don't initialize if no DSN provided (development without Sentry)
   if (!dsn || dsn.includes('your-sentry-dsn')) {
@@ -45,7 +45,7 @@ export const initSentry = () => {
     replaysOnErrorSampleRate: 1.0, // 100% of error sessions
 
     // Release tracking (optional, set via build process)
-    release: process.env.REACT_APP_VERSION,
+    release: import.meta.env.VITE_VERSION,
 
     // Security: Filter sensitive data
     beforeSend(event, _hint) {

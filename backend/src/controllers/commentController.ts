@@ -24,7 +24,8 @@ export const getComments = async (req: AuthRequest, res: Response) => {
       .from('comments')
       .select(`
         *,
-        user:users(pseudonym)
+        user:users(pseudonym),
+        photos:comment_photos(id, photo_url, cloudinary_public_id, display_order)
       `)
       .eq('employee_id', employee_id)
       .eq('status', status)
@@ -37,9 +38,11 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     }
 
     // 🔧 Map parent_comment_id → parent_id for frontend compatibility
+    // Also sort photos by display_order
     const mappedComments = comments?.map(comment => ({
       ...comment,
-      parent_id: comment.parent_comment_id
+      parent_id: comment.parent_comment_id,
+      photos: (comment.photos || []).sort((a: any, b: any) => a.display_order - b.display_order)
     })) || [];
 
     logger.debug('🔧 BACKEND - getComments result:');
@@ -59,7 +62,7 @@ export const createComment = async (req: AuthRequest, res: Response) => {
     logger.debug('🎯 CREATE COMMENT - Body:', req.body);
     logger.debug('🎯 CREATE COMMENT - User:', req.user);
 
-    const { employee_id, content, rating, parent_comment_id }: CreateCommentRequest = req.body;
+    const { employee_id, content, rating, parent_comment_id, photo_urls }: CreateCommentRequest = req.body;
 
     if (!employee_id || !content) {
       logger.debug('❌ Validation failed: missing employee_id or content');
@@ -68,6 +71,14 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 
     if (rating && (rating < 1 || rating > 5)) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+
+    // 📸 v10.4 - Validate photo URLs (max 3, only for parent comments)
+    if (photo_urls && photo_urls.length > 3) {
+      return res.status(400).json({ error: 'Maximum 3 photos allowed per review' });
+    }
+    if (photo_urls && parent_comment_id) {
+      return res.status(400).json({ error: 'Photos can only be added to reviews, not replies' });
     }
 
     // Check if employee exists and is approved
@@ -161,6 +172,39 @@ export const createComment = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: sanitizeErrorForClient(error, 'create') });
     }
 
+    // 📸 v10.4 - Insert photos if provided
+    let insertedPhotos: any[] = [];
+    if (photo_urls && photo_urls.length > 0) {
+      const photosToInsert = photo_urls.map((url, index) => {
+        // Extract cloudinary public_id from URL
+        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{public_id}.{format}
+        const urlParts = url.split('/');
+        const filenameWithExt = urlParts[urlParts.length - 1];
+        const publicId = filenameWithExt.split('.')[0];
+
+        return {
+          comment_id: comment.id,
+          photo_url: url,
+          cloudinary_public_id: publicId,
+          display_order: index
+        };
+      });
+
+      const { data: photos, error: photosError } = await supabase
+        .from('comment_photos')
+        .insert(photosToInsert)
+        .select();
+
+      if (photosError) {
+        logger.error('Insert comment photos error:', photosError);
+        // Don't fail the entire request, just log the error
+        // The comment was already created successfully
+      } else {
+        insertedPhotos = photos || [];
+        logger.info(`📸 Inserted ${insertedPhotos.length} photos for comment ${comment.id}`);
+      }
+    }
+
     // Notify parent comment author if this is a reply
     if (parent_comment_id) {
       try {
@@ -248,8 +292,8 @@ export const createComment = async (req: AuthRequest, res: Response) => {
     if (!parent_comment_id) {
       try {
         const reviewLength = content?.length || 0;
-        // TODO Phase 3: Check if comment has photos (via user_photo_uploads table)
-        const hasPhotos = false; // Placeholder until Phase 3 photo tracking
+        // 📸 v10.4 - Now using actual photo count
+        const hasPhotos = insertedPhotos.length > 0;
         await missionTrackingService.onReviewCreated(req.user!.id, comment.id, reviewLength, hasPhotos);
       } catch (missionError) {
         // Log error but don't fail the request if mission tracking fails
@@ -290,9 +334,15 @@ export const createComment = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // 📸 v10.4 - Include photos in response
+    const commentWithPhotos = {
+      ...comment,
+      photos: insertedPhotos.sort((a: any, b: any) => a.display_order - b.display_order)
+    };
+
     res.status(201).json({
       message: 'Comment added successfully',
-      comment
+      comment: commentWithPhotos
     });
   } catch (error) {
     logger.error('Create comment error:', error);
@@ -633,6 +683,207 @@ export const updateUserRating = async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     logger.error('Update user rating error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// 🏢 v10.4 - Create establishment response to a review
+export const createEstablishmentResponse = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id: commentId } = req.params;
+    const { content, establishment_id } = req.body;
+
+    if (!content || !establishment_id) {
+      return res.status(400).json({ error: 'Content and establishment_id are required' });
+    }
+
+    if (content.trim().length < 10) {
+      return res.status(400).json({ error: 'Response must be at least 10 characters' });
+    }
+
+    // Verify the original comment exists and get employee info
+    const { data: originalComment, error: commentError } = await supabase
+      .from('comments')
+      .select(`
+        id,
+        employee_id,
+        user_id,
+        content,
+        employee:employees(id, name)
+      `)
+      .eq('id', commentId)
+      .is('parent_comment_id', null) // Only parent comments (reviews) can have establishment responses
+      .single();
+
+    if (commentError || !originalComment) {
+      logger.error('Original comment not found:', commentError);
+      return res.status(404).json({ error: 'Review not found or is a reply' });
+    }
+
+    // Verify user is an owner/manager of the establishment
+    const { data: ownership, error: ownershipError } = await supabase
+      .from('establishment_owners')
+      .select('id, owner_role')
+      .eq('user_id', req.user!.id)
+      .eq('establishment_id', establishment_id)
+      .single();
+
+    if (ownershipError || !ownership) {
+      logger.warn(`User ${req.user!.id} attempted to respond as establishment ${establishment_id} without ownership`);
+      return res.status(403).json({ error: 'You are not authorized to respond on behalf of this establishment' });
+    }
+
+    // Check if establishment already responded to this review
+    const { data: existingResponse } = await supabase
+      .from('comments')
+      .select('id')
+      .eq('parent_comment_id', commentId)
+      .eq('is_establishment_response', true)
+      .eq('responding_establishment_id', establishment_id)
+      .single();
+
+    if (existingResponse) {
+      return res.status(400).json({ error: 'This establishment has already responded to this review' });
+    }
+
+    // Create the establishment response
+    const { data: response, error: insertError } = await supabase
+      .from('comments')
+      .insert({
+        employee_id: originalComment.employee_id,
+        user_id: req.user!.id,
+        parent_comment_id: commentId,
+        content: content.trim(),
+        is_establishment_response: true,
+        responding_establishment_id: establishment_id,
+        status: 'approved' // Establishment responses are auto-approved
+      })
+      .select(`
+        *,
+        user:users(pseudonym),
+        establishment:establishments!responding_establishment_id(id, name)
+      `)
+      .single();
+
+    if (insertError) {
+      logger.error('Create establishment response error:', insertError);
+      return res.status(400).json({ error: sanitizeErrorForClient(insertError, 'create') });
+    }
+
+    // 🔔 Notify the original reviewer
+    try {
+      const employeeName = (originalComment.employee as any)?.name || 'Employee';
+
+      // Get establishment name
+      const { data: establishment } = await supabase
+        .from('establishments')
+        .select('name')
+        .eq('id', establishment_id)
+        .single();
+
+      const establishmentName = establishment?.name || 'An establishment';
+
+      await notifyCommentReply(
+        originalComment.user_id,
+        establishmentName, // Responder name (establishment name)
+        employeeName,
+        response.id,
+        originalComment.employee_id
+      );
+
+      logger.info(`Notified user ${originalComment.user_id} of establishment response from ${establishmentName}`);
+    } catch (notifyError) {
+      // Don't fail the request if notification fails
+      logger.error('Establishment response notification error:', notifyError);
+    }
+
+    res.status(201).json({
+      message: 'Establishment response added successfully',
+      response
+    });
+  } catch (error) {
+    logger.error('Create establishment response error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// 🏢 v10.4 - Get reviews for an establishment's employees (for owner panel)
+export const getEstablishmentReviews = async (req: AuthRequest, res: Response) => {
+  try {
+    const { establishment_id } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+
+    // Verify user is an owner/manager of the establishment
+    const { data: ownership, error: ownershipError } = await supabase
+      .from('establishment_owners')
+      .select('id')
+      .eq('user_id', req.user!.id)
+      .eq('establishment_id', establishment_id)
+      .single();
+
+    if (ownershipError || !ownership) {
+      return res.status(403).json({ error: 'You are not authorized to view reviews for this establishment' });
+    }
+
+    // Get employees currently working at this establishment
+    const { data: employments } = await supabase
+      .from('employment_history')
+      .select('employee_id')
+      .eq('establishment_id', establishment_id)
+      .eq('is_current', true);
+
+    const employeeIds = employments?.map(e => e.employee_id) || [];
+
+    if (employeeIds.length === 0) {
+      return res.json({ reviews: [], total: 0, page: Number(page), limit: Number(limit) });
+    }
+
+    // Get reviews for these employees
+    const offset = (Number(page) - 1) * Number(limit);
+
+    const { data: reviews, error: reviewsError, count } = await supabase
+      .from('comments')
+      .select(`
+        *,
+        user:users(pseudonym),
+        employee:employees(id, name),
+        photos:comment_photos(id, photo_url, display_order),
+        responses:comments!parent_comment_id(
+          id,
+          content,
+          created_at,
+          is_establishment_response,
+          user:users(pseudonym),
+          establishment:establishments!responding_establishment_id(id, name)
+        )
+      `, { count: 'exact' })
+      .in('employee_id', employeeIds)
+      .is('parent_comment_id', null) // Only parent reviews
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .range(offset, offset + Number(limit) - 1);
+
+    if (reviewsError) {
+      logger.error('Get establishment reviews error:', reviewsError);
+      return res.status(400).json({ error: sanitizeErrorForClient(reviewsError, 'fetch') });
+    }
+
+    // Check which reviews already have establishment responses
+    const reviewsWithResponseStatus = reviews?.map(review => ({
+      ...review,
+      has_establishment_response: (review.responses || []).some(
+        (r: any) => r.is_establishment_response
+      )
+    })) || [];
+
+    res.json({
+      reviews: reviewsWithResponseStatus,
+      total: count || 0,
+      page: Number(page),
+      limit: Number(limit)
+    });
+  } catch (error) {
+    logger.error('Get establishment reviews error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -30,7 +30,7 @@ const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({
     const fetchAllBadges = async () => {
       setLoadingAllBadges(true);
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/badges`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/badges`, {
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' }
         });

@@ -33,7 +33,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'user' | 'moderator' | 'admin' | 'inactive'>('all');
@@ -41,38 +41,41 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshUsers = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadUsers();
-  }, [filter, searchTerm]);
-
-  const loadUsers = async () => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filter !== 'all') {
-        if (filter === 'inactive') {
-          params.append('active', 'false');
-        } else {
-          params.append('role', filter);
+    const loadUsers = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (filter !== 'all') {
+          if (filter === 'inactive') {
+            params.append('active', 'false');
+          } else {
+            params.append('role', filter);
+          }
         }
-      }
-      if (searchTerm) {
-        params.append('search', searchTerm);
-      }
+        if (searchTerm) {
+          params.append('search', searchTerm);
+        }
 
-      const response = await secureFetch(`${API_URL}/api/admin/users?${params.toString()}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users || []);
+        const response = await secureFetch(`${API_URL}/api/admin/users?${params.toString()}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data.users || []);
+        }
+      } catch (error) {
+        logger.error('Failed to load users:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Failed to load users:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadUsers();
+  }, [filter, searchTerm, secureFetch, API_URL, refreshCounter]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     setProcessingIds(prev => new Set(prev).add(userId));
@@ -83,7 +86,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       });
       
       if (response.ok) {
-        await loadUsers(); // Reload list
+        refreshUsers(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to change user role:', error);
@@ -105,7 +108,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       });
       
       if (response.ok) {
-        await loadUsers(); // Reload list
+        refreshUsers(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to toggle user status:', error);
@@ -128,7 +131,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       });
       
       if (response.ok) {
-        await loadUsers(); // Reload list
+        refreshUsers(); // Reload list
         setEditingUser(null);
       } else {
         throw new Error('Failed to update user');

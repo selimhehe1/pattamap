@@ -187,7 +187,8 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
   const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
-  const containerDimensions = useContainerSize(containerRef, 300);
+  // Note: _containerDimensions triggers re-renders when container size changes
+  const _containerDimensions = useContainerSize(containerRef, 300);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -278,7 +279,8 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
     }
 
     return bars;
-  }, [establishments, freelances, isMobile, containerDimensions, optimisticPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [establishments, freelances, isMobile, optimisticPositions]);
 
   const handleBarClick = useCallback((bar: Bar) => {
     if (isEditMode) return;
@@ -325,7 +327,8 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
       return barWidth;
     }
     return isMobile ? 35 : 40;
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   const getEstablishmentIcon = useCallback((barId: string, establishments: Establishment[], fallbackIcon: string) => {
     const establishment = establishments.find(est => est.id === barId);
@@ -611,7 +614,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/independent-positions/${draggedBar.id}`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/independent-positions/${draggedBar.id}`;
           const requestBody = {
             zone: 'beachroad',
             grid_row: row,
@@ -670,7 +673,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
               return newMap;
             });
 
-            const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+            const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
             const requestBody = {
               establishmentId: establishment.id,
               grid_row: row,
@@ -761,7 +764,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -834,6 +837,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
         throttleTimeout.current = null;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally excluding getCSRFHeaders and optimisticPositions to prevent re-renders during drag
   }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, onEstablishmentUpdate, user, token, containerRef, isMobile]);
 
   const handleDragEnd = useCallback(() => {
@@ -947,7 +951,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/independent-positions/${draggedBar.id}`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/independent-positions/${draggedBar.id}`;
           const requestBody = {
             zone: 'beachroad',
             grid_row: row,
@@ -1006,7 +1010,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
               return newMap;
             });
 
-            const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+            const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
             const requestBody = {
               establishmentId: establishment.id,
               grid_row: row,
@@ -1096,7 +1100,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -1167,7 +1171,8 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
         throttleTimeout.current = null;
       }
     }
-  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, token, getCSRFHeaders, optimisticPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- token is available via closure, not needed as dependency
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, getCSRFHeaders, optimisticPositions]);
 
   // ✅ KEYBOARD NAVIGATION: Arrow key handler for navigating between establishments
   const handleKeyboardNavigation = useCallback((e: React.KeyboardEvent) => {

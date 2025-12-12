@@ -118,26 +118,24 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
   }, []); // Only run once on mount
 
   useEffect(() => {
+    const fetchEstablishments = async () => {
+      try {
+        const isAdminContext = window.location.pathname.includes('admin');
+
+        const endpoint = isAdminContext
+          ? `${import.meta.env.VITE_API_URL}/api/admin/establishments`
+          : `${import.meta.env.VITE_API_URL}/api/establishments`;
+
+        const response = await secureFetch(endpoint);
+        const data = await response.json();
+
+        setEstablishments(data.establishments || []);
+      } catch (error) {
+        logger.error('Error fetching establishments:', error);
+      }
+    };
     fetchEstablishments();
-  }, []);
-
-
-  const fetchEstablishments = async () => {
-    try {
-      const isAdminContext = window.location.pathname.includes('admin');
-
-      const endpoint = isAdminContext
-        ? `${process.env.REACT_APP_API_URL}/api/admin/establishments`
-        : `${process.env.REACT_APP_API_URL}/api/establishments`;
-
-      const response = await secureFetch(endpoint);
-      const data = await response.json();
-
-      setEstablishments(data.establishments || []);
-    } catch (error) {
-      logger.error('Error fetching establishments:', error);
-    }
-  };
+  }, [secureFetch]);
 
   // 🏢 Filter establishments by search query and group by zone
   // 🆕 v10.3 - Filter nightclubs only if in freelance mode
@@ -282,7 +280,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
         formData.append('images', photo);
       });
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/images`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
         method: 'POST',
         body: formData
       });

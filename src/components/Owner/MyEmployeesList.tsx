@@ -30,33 +30,36 @@ const MyEmployeesList: React.FC<Props> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedEmployeeForVIP, setSelectedEmployeeForVIP] = useState<Employee | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshEmployees = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    fetchEmployees();
-  }, [establishmentId]);
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const fetchEmployees = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+        const response = await secureFetch(
+          `${import.meta.env.VITE_API_URL}/api/establishments/${establishmentId}/employees`
+        );
 
-      const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/establishments/${establishmentId}/employees`
-      );
+        if (!response.ok) {
+          throw new Error('Failed to fetch employees');
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch employees');
+        const data = await response.json();
+        setEmployees(data.employees || []);
+      } catch (error) {
+        logger.error('Failed to fetch employees:', error);
+        setError('Failed to load employees. Please try again.');
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      setEmployees(data.employees || []);
-    } catch (error) {
-      logger.error('Failed to fetch employees:', error);
-      setError('Failed to load employees. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchEmployees();
+  }, [establishmentId, secureFetch, refreshCounter]);
 
   const handleBuyVIP = (employeeId: string) => {
     const employee = employees.find(emp => emp.id === employeeId);
@@ -67,7 +70,7 @@ const MyEmployeesList: React.FC<Props> = ({
 
   const handleVIPPurchaseSuccess = () => {
     // Refresh employees list to show new VIP status
-    fetchEmployees();
+    refreshEmployees();
   };
 
   if (loading) {
@@ -83,7 +86,7 @@ const MyEmployeesList: React.FC<Props> = ({
     return (
       <div className="my-employees-list-error">
         <p className="error-message">{error}</p>
-        <button onClick={fetchEmployees} className="btn-retry">
+        <button onClick={refreshEmployees} className="btn-retry">
           {t('common.retry', 'Retry')}
         </button>
       </div>

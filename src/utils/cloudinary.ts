@@ -58,7 +58,7 @@ export const parseCloudinaryUrl = (url: string) => {
       publicId,
       baseUrl: `${urlObj.protocol}//${urlObj.host}`,
     };
-  } catch (error) {
+  } catch (_error) {
     // Failed to parse Cloudinary URL - return null (handled by caller)
     return null;
   }

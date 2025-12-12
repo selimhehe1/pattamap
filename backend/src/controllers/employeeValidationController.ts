@@ -12,6 +12,22 @@ import { logger } from '../utils/logger';
  */
 
 // ============================================
+// VOTE WEIGHT BY XP LEVEL
+// ============================================
+// Higher level users have more influence on validation scores
+// Levels 1-3: Standard weight (1.0x) - New users build trust
+// Levels 4-7: Progressive weight (1.5x-3.0x) - Experienced users
+const LEVEL_WEIGHTS: Record<number, number> = {
+  1: 1.0,   // Newbie (0 XP)
+  2: 1.0,   // Explorer (100 XP)
+  3: 1.0,   // Regular (300 XP)
+  4: 1.5,   // Insider (700 XP)
+  5: 2.0,   // VIP (1500 XP)
+  6: 2.5,   // Legend (3000 XP)
+  7: 3.0    // Ambassador (6000 XP)
+};
+
+// ============================================
 // PUBLIC ENDPOINTS (Community Voting)
 // ============================================
 
@@ -466,7 +482,14 @@ export const toggleEmployeeVisibilityAsAdmin = async (req: Request, res: Respons
 
 /**
  * Get validation statistics for an employee
- * Returns badge type, counts, and user's vote if authenticated
+ * Returns badge type, weighted counts, and user's vote if authenticated
+ *
+ * Vote weights are based on voter's XP level:
+ * - Levels 1-3: 1.0x weight (new users)
+ * - Level 4: 1.5x weight (Insider)
+ * - Level 5: 2.0x weight (VIP)
+ * - Level 6: 2.5x weight (Legend)
+ * - Level 7: 3.0x weight (Ambassador)
  */
 async function getEmployeeValidationStats(
   employeeId: string,
@@ -475,6 +498,9 @@ async function getEmployeeValidationStats(
   totalVotes: number;
   existsVotes: number;
   notExistsVotes: number;
+  weightedExistsVotes: number;
+  weightedNotExistsVotes: number;
+  totalWeight: number;
   validationPercentage: number;
   badgeType: '?' | 'neutral' | 'warning';
   userVote: 'exists' | 'not_exists' | null;
@@ -491,6 +517,9 @@ async function getEmployeeValidationStats(
       totalVotes: 0,
       existsVotes: 0,
       notExistsVotes: 0,
+      weightedExistsVotes: 0,
+      weightedNotExistsVotes: 0,
+      totalWeight: 0,
       validationPercentage: 0,
       badgeType: '?',
       userVote: null
@@ -498,14 +527,73 @@ async function getEmployeeValidationStats(
   }
 
   const totalVotes = votes?.length || 0;
-  const existsVotes = votes?.filter(v => v.vote_type === 'exists').length || 0;
-  const notExistsVotes = votes?.filter(v => v.vote_type === 'not_exists').length || 0;
-  const validationPercentage = totalVotes > 0 ? (existsVotes / totalVotes) * 100 : 0;
 
-  // Determine badge type
+  // If no votes, return early
+  if (totalVotes === 0) {
+    return {
+      totalVotes: 0,
+      existsVotes: 0,
+      notExistsVotes: 0,
+      weightedExistsVotes: 0,
+      weightedNotExistsVotes: 0,
+      totalWeight: 0,
+      validationPercentage: 0,
+      badgeType: '?',
+      userVote: null
+    };
+  }
+
+  // Get voter IDs to fetch their levels
+  const voterIds = [...new Set(votes.map(v => v.user_id))];
+
+  // Fetch voter levels from user_points
+  const { data: userLevels, error: levelError } = await supabase
+    .from('user_points')
+    .select('user_id, current_level')
+    .in('user_id', voterIds);
+
+  if (levelError) {
+    logger.warn('Could not fetch user levels, using default weight:', levelError);
+  }
+
+  // Create a map of user_id -> level (default to level 1 if not found)
+  const levelMap = new Map<string, number>();
+  if (userLevels) {
+    for (const ul of userLevels) {
+      levelMap.set(ul.user_id, ul.current_level || 1);
+    }
+  }
+
+  // Calculate weighted votes
+  let weightedExistsVotes = 0;
+  let weightedNotExistsVotes = 0;
+  let totalWeight = 0;
+  let existsVotes = 0;
+  let notExistsVotes = 0;
+
+  for (const vote of votes) {
+    const voterLevel = levelMap.get(vote.user_id) || 1;
+    const weight = LEVEL_WEIGHTS[voterLevel] || 1.0;
+
+    if (vote.vote_type === 'exists') {
+      existsVotes++;
+      weightedExistsVotes += weight;
+    } else {
+      notExistsVotes++;
+      weightedNotExistsVotes += weight;
+    }
+    totalWeight += weight;
+  }
+
+  // Calculate weighted validation percentage
+  const validationPercentage = totalWeight > 0
+    ? (weightedExistsVotes / totalWeight) * 100
+    : 0;
+
+  // Determine badge type based on weighted percentage
   let badgeType: '?' | 'neutral' | 'warning';
   if (totalVotes < 20) {
-    badgeType = '?'; // Under review
+    badgeType = '?'; // Under review (still use raw vote count for threshold)
   } else if (validationPercentage > 50) {
     badgeType = 'neutral'; // Positive validation
   } else {
@@ -523,6 +611,9 @@ async function getEmployeeValidationStats(
     totalVotes,
     existsVotes,
     notExistsVotes,
+    weightedExistsVotes: Math.round(weightedExistsVotes * 100) / 100,
+    weightedNotExistsVotes: Math.round(weightedNotExistsVotes * 100) / 100,
+    totalWeight: Math.round(totalWeight * 100) / 100,
     validationPercentage: Math.round(validationPercentage * 100) / 100, // 2 decimals
     badgeType,
     userVote

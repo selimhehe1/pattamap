@@ -1,0 +1,296 @@
+/* ReviewPhotoGallery.css - Styles for review photos display */
+
+/* Photo Grid Container */
+.review-photos-gallery {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Grid layouts based on number of photos */
+.review-photos-grid-1 {
+  grid-template-columns: 1fr;
+  max-width: 300px;
+}
+
+.review-photos-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.review-photos-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Individual Photo Item */
+.review-photo-item {
+  position: relative;
+  aspect-ratio: 1;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 2px solid rgba(193, 154, 107, 0.2);
+  transition: all 0.3s ease;
+}
+
+.review-photo-item:hover {
+  border-color: rgba(193, 154, 107, 0.6);
+  transform: scale(1.02);
+  z-index: 5;
+}
+
+.review-photo-item:focus {
+  outline: 2px solid #C19A6B;
+  outline-offset: 2px;
+}
+
+.review-photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.review-photo-item:hover .review-photo-image {
+  transform: scale(1.1);
+}
+
+/* Hover Overlay */
+.review-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.review-photo-item:hover .review-photo-overlay {
+  opacity: 1;
+}
+
+.review-photo-zoom-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Lightbox Overlay */
+.review-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Close Button */
+.review-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.review-lightbox-close:hover {
+  background: rgba(255, 68, 68, 0.8);
+  border-color: #FF4444;
+  transform: scale(1.1);
+}
+
+/* Navigation Arrows */
+.review-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: white;
+  font-size: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.review-lightbox-nav:hover {
+  background: rgba(193, 154, 107, 0.8);
+  border-color: #C19A6B;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.review-lightbox-prev {
+  left: 20px;
+}
+
+.review-lightbox-next {
+  right: 20px;
+}
+
+/* Image Content */
+.review-lightbox-content {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.review-lightbox-image {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Photo Counter */
+.review-lightbox-counter {
+  margin-top: 15px;
+  padding: 8px 20px;
+  background: rgba(193, 154, 107, 0.3);
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Thumbnails */
+.review-lightbox-thumbnails {
+  position: absolute;
+  bottom: 30px;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+}
+
+.review-lightbox-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: transparent;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.review-lightbox-thumb:hover,
+.review-lightbox-thumb.active {
+  opacity: 1;
+  border-color: #C19A6B;
+  transform: scale(1.1);
+}
+
+.review-lightbox-thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .review-photos-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .review-photos-grid-3 .review-photo-item:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+
+  .review-lightbox-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+
+  .review-lightbox-prev {
+    left: 10px;
+  }
+
+  .review-lightbox-next {
+    right: 10px;
+  }
+
+  .review-lightbox-close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  .review-lightbox-thumbnails {
+    bottom: 15px;
+    gap: 6px;
+  }
+
+  .review-lightbox-thumb {
+    width: 45px;
+    height: 45px;
+  }
+
+  .review-lightbox-image {
+    max-height: 60vh;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .review-photos-grid-2,
+  .review-photos-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .review-photo-item {
+    aspect-ratio: 4/3;
+  }
+}

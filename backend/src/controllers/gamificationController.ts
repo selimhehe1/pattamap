@@ -718,3 +718,539 @@ export const voteOnReview = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// ========================================
+// XP HISTORY (NEW)
+// ========================================
+
+/**
+ * Get XP history for the current user
+ * GET /api/gamification/xp-history
+ * Query: ?period=7|30|90 (days, default 30)
+ */
+export const getXPHistory = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const period = parseInt(req.query.period as string) || 30;
+
+    // Validate period
+    if (![7, 30, 90].includes(period)) {
+      return res.status(400).json({ error: 'Period must be 7, 30, or 90 days' });
+    }
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - period);
+
+    // Get XP transactions for the period
+    const { data: transactions, error } = await supabase
+      .from('xp_transactions')
+      .select('xp_amount, reason, created_at')
+      .eq('user_id', userId)
+      .gte('created_at', startDate.toISOString())
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      logger.error('Get XP history error:', error);
+      return res.status(500).json({ error: 'Failed to fetch XP history' });
+    }
+
+    // Group by date and calculate breakdown
+    const dataPointsMap = new Map<string, { xp: number; sources: Record<string, number> }>();
+    const breakdown: Record<string, number> = {};
+    let totalXPGained = 0;
+
+    for (const tx of transactions || []) {
+      const date = new Date(tx.created_at).toISOString().split('T')[0];
+
+      // Initialize date if not exists
+      if (!dataPointsMap.has(date)) {
+        dataPointsMap.set(date, { xp: 0, sources: {} });
+      }
+
+      const dayData = dataPointsMap.get(date)!;
+      dayData.xp += tx.xp_amount;
+      dayData.sources[tx.reason] = (dayData.sources[tx.reason] || 0) + tx.xp_amount;
+
+      // Update breakdown totals
+      breakdown[tx.reason] = (breakdown[tx.reason] || 0) + tx.xp_amount;
+      totalXPGained += tx.xp_amount;
+    }
+
+    // Convert map to array
+    const dataPoints = Array.from(dataPointsMap.entries()).map(([date, data]) => ({
+      date,
+      xp: data.xp,
+      sources: data.sources
+    }));
+
+    // Fill in missing dates with 0 XP
+    const filledDataPoints = [];
+    const currentDate = new Date(startDate);
+    const endDate = new Date();
+
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const existingData = dataPoints.find(dp => dp.date === dateStr);
+
+      if (existingData) {
+        filledDataPoints.push(existingData);
+      } else {
+        filledDataPoints.push({ date: dateStr, xp: 0, sources: {} });
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    res.json({
+      period,
+      totalXPGained,
+      dataPoints: filledDataPoints,
+      breakdown
+    });
+  } catch (error) {
+    logger.error('Get XP history error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ========================================
+// ENHANCED LEADERBOARDS
+// ========================================
+
+/**
+ * Get weekly leaderboard
+ * GET /api/gamification/leaderboard/weekly
+ * Query: ?week=50&year=2025 (optional, defaults to current week)
+ */
+export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
+  try {
+    const { limit = '50' } = req.query;
+
+    // Get from materialized view
+    const { data: leaderboard, error } = await supabase
+      .from('leaderboard_weekly')
+      .select('*')
+      .limit(parseInt(limit as string, 10));
+
+    if (error) {
+      logger.error('Get weekly leaderboard error:', error);
+      // Fallback to user_points if view doesn't exist
+      const { data: fallback, error: fallbackError } = await supabase
+        .from('user_points')
+        .select(`
+          user_id,
+          total_xp,
+          current_level,
+          users!inner(pseudonym)
+        `)
+        .order('total_xp', { ascending: false })
+        .limit(parseInt(limit as string, 10));
+
+      if (fallbackError) {
+        return res.status(500).json({ error: 'Failed to fetch weekly leaderboard' });
+      }
+
+      const fallbackLeaderboard = (fallback || []).map((entry: any, index: number) => ({
+        user_id: entry.user_id,
+        username: entry.users?.pseudonym || 'Unknown',
+        weekly_xp: entry.total_xp, // Using total as fallback
+        current_level: entry.current_level,
+        rank: index + 1
+      }));
+
+      return res.json({ leaderboard: fallbackLeaderboard, type: 'weekly' });
+    }
+
+    // Add rank to results
+    const enrichedLeaderboard = (leaderboard || []).map((entry: any, index: number) => ({
+      ...entry,
+      rank: index + 1
+    }));
+
+    res.json({ leaderboard: enrichedLeaderboard, type: 'weekly' });
+  } catch (error) {
+    logger.error('Get weekly leaderboard error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Get category leaderboard
+ * GET /api/gamification/leaderboard/category/:category
+ * Categories: reviewers, photographers, checkins, helpful
+ */
+export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) => {
+  try {
+    const { category } = req.params;
+    const { limit = '50' } = req.query;
+
+    const validCategories = ['reviewers', 'photographers', 'checkins', 'helpful'];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({
+        error: 'Invalid category. Must be one of: reviewers, photographers, checkins, helpful'
+      });
+    }
+
+    const viewName = `leaderboard_${category}`;
+
+    // Try to get from materialized view
+    const { data: leaderboard, error } = await supabase
+      .from(viewName)
+      .select('*')
+      .limit(parseInt(limit as string, 10));
+
+    if (error) {
+      logger.error(`Get ${category} leaderboard error:`, error);
+
+      // Provide fallback for each category
+      let fallbackData: any[] = [];
+
+      if (category === 'reviewers') {
+        const { data } = await supabase
+          .from('comments')
+          .select('user_id, users!inner(pseudonym)')
+          .not('content', 'is', null);
+
+        // Group by user_id and count
+        const counts = new Map<string, { count: number; username: string }>();
+        for (const row of data || []) {
+          const existing = counts.get(row.user_id) || { count: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          existing.count++;
+          counts.set(row.user_id, existing);
+        }
+        fallbackData = Array.from(counts.entries())
+          .map(([user_id, { count, username }]) => ({ user_id, username, review_count: count }))
+          .sort((a, b) => b.review_count - a.review_count)
+          .slice(0, parseInt(limit as string, 10));
+      }
+
+      if (category === 'photographers') {
+        const { data } = await supabase
+          .from('user_photo_uploads')
+          .select('user_id, users!inner(pseudonym)')
+          .eq('status', 'approved');
+
+        const counts = new Map<string, { count: number; username: string }>();
+        for (const row of data || []) {
+          const existing = counts.get(row.user_id) || { count: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          existing.count++;
+          counts.set(row.user_id, existing);
+        }
+        fallbackData = Array.from(counts.entries())
+          .map(([user_id, { count, username }]) => ({ user_id, username, photo_count: count }))
+          .sort((a, b) => b.photo_count - a.photo_count)
+          .slice(0, parseInt(limit as string, 10));
+      }
+
+      if (category === 'checkins') {
+        const { data } = await supabase
+          .from('check_ins')
+          .select('user_id, verified, users!inner(pseudonym)');
+
+        const counts = new Map<string, { total: number; verified: number; username: string }>();
+        for (const row of data || []) {
+          const existing = counts.get(row.user_id) || { total: 0, verified: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          existing.total++;
+          if (row.verified) existing.verified++;
+          counts.set(row.user_id, existing);
+        }
+        fallbackData = Array.from(counts.entries())
+          .map(([user_id, { total, verified, username }]) => ({
+            user_id,
+            username,
+            checkin_count: total,
+            verified_checkins: verified
+          }))
+          .sort((a, b) => b.verified_checkins - a.verified_checkins)
+          .slice(0, parseInt(limit as string, 10));
+      }
+
+      if (category === 'helpful') {
+        const { data } = await supabase
+          .from('review_votes')
+          .select('review_id, vote_type, comments!inner(user_id, users!inner(pseudonym))')
+          .eq('vote_type', 'helpful');
+
+        const counts = new Map<string, { count: number; username: string }>();
+        for (const row of data || []) {
+          const authorId = (row.comments as any)?.user_id;
+          const username = (row.comments as any)?.users?.pseudonym || 'Unknown';
+          if (authorId) {
+            const existing = counts.get(authorId) || { count: 0, username };
+            existing.count++;
+            counts.set(authorId, existing);
+          }
+        }
+        fallbackData = Array.from(counts.entries())
+          .map(([user_id, { count, username }]) => ({ user_id, username, helpful_votes: count }))
+          .sort((a, b) => b.helpful_votes - a.helpful_votes)
+          .slice(0, parseInt(limit as string, 10));
+      }
+
+      const rankedData = fallbackData.map((entry, index) => ({
+        ...entry,
+        rank: index + 1
+      }));
+
+      return res.json({ leaderboard: rankedData, type: category });
+    }
+
+    // Add rank to results
+    const enrichedLeaderboard = (leaderboard || []).map((entry: any, index: number) => ({
+      ...entry,
+      rank: index + 1
+    }));
+
+    res.json({ leaderboard: enrichedLeaderboard, type: category });
+  } catch (error) {
+    logger.error('Get category leaderboard error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ========================================
+// REWARDS SYSTEM
+// ========================================
+
+/**
+ * Get all available rewards
+ * GET /api/gamification/rewards
+ */
+export const getRewards = async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: rewards, error } = await supabase
+      .from('feature_unlocks')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      logger.error('Get rewards error:', error);
+      return res.status(500).json({ error: 'Failed to fetch rewards' });
+    }
+
+    res.json({ rewards: rewards || [] });
+  } catch (error) {
+    logger.error('Get rewards error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Get current user's rewards (with unlock status)
+ * GET /api/gamification/my-rewards
+ */
+export const getMyRewards = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Get user's current level
+    const { data: userProgress, error: progressError } = await supabase
+      .from('user_points')
+      .select('current_level, total_xp')
+      .eq('user_id', userId)
+      .single();
+
+    if (progressError && progressError.code !== 'PGRST116') {
+      logger.error('Get user progress error:', progressError);
+    }
+
+    const currentLevel = userProgress?.current_level || 1;
+    const totalXp = userProgress?.total_xp || 0;
+
+    // Get all rewards with user's unlock status
+    const { data: allRewards, error: rewardsError } = await supabase
+      .from('feature_unlocks')
+      .select(`
+        *,
+        user_unlocks!left(
+          id,
+          unlocked_at,
+          claimed
+        )
+      `)
+      .eq('is_active', true)
+      .eq('user_unlocks.user_id', userId)
+      .order('sort_order', { ascending: true });
+
+    if (rewardsError) {
+      logger.error('Get rewards error:', rewardsError);
+
+      // Fallback: get rewards separately
+      const { data: rewards } = await supabase
+        .from('feature_unlocks')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      const { data: userUnlocks } = await supabase
+        .from('user_unlocks')
+        .select('unlock_id, unlocked_at, claimed')
+        .eq('user_id', userId);
+
+      const unlockMap = new Map(
+        (userUnlocks || []).map(u => [u.unlock_id, u])
+      );
+
+      const combinedRewards = (rewards || []).map(reward => ({
+        ...reward,
+        is_unlocked: unlockMap.has(reward.id),
+        unlocked_at: unlockMap.get(reward.id)?.unlocked_at || null,
+        claimed: unlockMap.get(reward.id)?.claimed || false
+      }));
+
+      return res.json({
+        rewards: combinedRewards,
+        currentLevel,
+        totalXp
+      });
+    }
+
+    // Process rewards with unlock status
+    const processedRewards = (allRewards || []).map((reward: any) => {
+      const userUnlock = reward.user_unlocks?.[0];
+      return {
+        id: reward.id,
+        name: reward.name,
+        description: reward.description,
+        unlock_type: reward.unlock_type,
+        unlock_value: reward.unlock_value,
+        category: reward.category,
+        icon: reward.icon,
+        sort_order: reward.sort_order,
+        is_unlocked: !!userUnlock,
+        unlocked_at: userUnlock?.unlocked_at || null,
+        claimed: userUnlock?.claimed || false
+      };
+    });
+
+    res.json({
+      rewards: processedRewards,
+      currentLevel,
+      totalXp
+    });
+  } catch (error) {
+    logger.error('Get my rewards error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Claim a reward (for rewards that require claiming)
+ * POST /api/gamification/claim-reward/:rewardId
+ */
+export const claimReward = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { rewardId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Check if reward exists and user is eligible
+    const { data: reward, error: rewardError } = await supabase
+      .from('feature_unlocks')
+      .select('*')
+      .eq('id', rewardId)
+      .eq('is_active', true)
+      .single();
+
+    if (rewardError || !reward) {
+      return res.status(404).json({ error: 'Reward not found' });
+    }
+
+    // Get user's current level
+    const { data: userProgress } = await supabase
+      .from('user_points')
+      .select('current_level, total_xp')
+      .eq('user_id', userId)
+      .single();
+
+    const currentLevel = userProgress?.current_level || 1;
+
+    // Check eligibility
+    let eligible = false;
+    if (reward.unlock_type === 'level' && currentLevel >= reward.unlock_value) {
+      eligible = true;
+    } else if (reward.unlock_type === 'xp' && (userProgress?.total_xp || 0) >= reward.unlock_value) {
+      eligible = true;
+    }
+    // Add more eligibility checks for badge/achievement types as needed
+
+    if (!eligible) {
+      return res.status(403).json({
+        error: 'Not eligible for this reward',
+        required: {
+          type: reward.unlock_type,
+          value: reward.unlock_value
+        },
+        current: {
+          level: currentLevel,
+          xp: userProgress?.total_xp || 0
+        }
+      });
+    }
+
+    // Check if already claimed
+    const { data: existing } = await supabase
+      .from('user_unlocks')
+      .select('id, claimed')
+      .eq('user_id', userId)
+      .eq('unlock_id', rewardId)
+      .single();
+
+    if (existing?.claimed) {
+      return res.status(400).json({ error: 'Reward already claimed' });
+    }
+
+    // Grant or update the unlock
+    if (existing) {
+      // Update existing unlock to claimed
+      const { error: updateError } = await supabase
+        .from('user_unlocks')
+        .update({ claimed: true, claimed_at: new Date().toISOString() })
+        .eq('id', existing.id);
+
+      if (updateError) {
+        logger.error('Update unlock error:', updateError);
+        return res.status(500).json({ error: 'Failed to claim reward' });
+      }
+    } else {
+      // Insert new unlock
+      const { error: insertError } = await supabase
+        .from('user_unlocks')
+        .insert({
+          user_id: userId,
+          unlock_id: rewardId,
+          claimed: true,
+          claimed_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        logger.error('Insert unlock error:', insertError);
+        return res.status(500).json({ error: 'Failed to claim reward' });
+      }
+    }
+
+    res.json({
+      message: 'Reward claimed successfully',
+      reward: {
+        id: reward.id,
+        name: reward.name,
+        icon: reward.icon,
+        category: reward.category
+      }
+    });
+  } catch (error) {
+    logger.error('Claim reward error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

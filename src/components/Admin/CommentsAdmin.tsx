@@ -49,38 +49,41 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'reported' | 'approved' | 'rejected'>('reported');
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
   const [selectedComment, setSelectedComment] = useState<AdminComment | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshComments = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadComments();
-  }, [filter]);
+    const loadComments = async () => {
+      setIsLoading(true);
+      try {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const response = await secureFetch(`${API_URL}/api/admin/comments?status=${filter === 'all' ? '' : filter}`);
 
-  const loadComments = async () => {
-    setIsLoading(true);
-    try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const response = await secureFetch(`${API_URL}/api/admin/comments?status=${filter === 'all' ? '' : filter}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setComments(data.comments || []);
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data.comments || []);
+        }
+      } catch (error) {
+        logger.error('Failed to load comments:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Failed to load comments:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadComments();
+  }, [filter, secureFetch, refreshCounter]);
 
   const handleApprove = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/approve`, {
         method: 'POST'
       });
 
       if (response.ok) {
-        await loadComments(); // Reload list
+        refreshComments(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to approve comment:', error);
@@ -96,14 +99,14 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleReject = async (commentId: number, reason?: string) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason })
       });
 
       if (response.ok) {
-        await loadComments(); // Reload list
+        refreshComments(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to reject comment:', error);
@@ -119,13 +122,13 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleDismissReports = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/dismiss-reports`, {
         method: 'POST'
       });
 
       if (response.ok) {
-        await loadComments(); // Reload list
+        refreshComments(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to dismiss reports:', error);

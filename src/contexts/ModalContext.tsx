@@ -85,6 +85,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeModal is stable (useCallback with no deps)
   }, [modals]);
 
   const openModal = useCallback(<P extends ModalProps>(
@@ -122,6 +123,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Sinon, l'ajouter au top de la stack
       return [...prev, newModal];
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeModal is stable (useCallback with no deps)
   }, []);
 
   const closeModal = useCallback((id: string) => {
@@ -146,6 +148,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       return modal;
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeModal is stable (useCallback with no deps)
   }, []);
 
   const isModalOpen = useCallback((id: string) => {

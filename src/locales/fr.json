@@ -293,6 +293,40 @@
     }
   },
 
+  "reviews": {
+    "addPhotos": "Ajouter des photos (optionnel)",
+    "photosLimit": "Maximum 3 photos",
+    "photoUploading": "Téléchargement des photos...",
+    "photoUploadError": "Échec du téléchargement des photos",
+    "establishmentResponse": "Réponse de l'établissement",
+    "respondToReview": "Répondre à cet avis",
+    "responsePosted": "Réponse publiée avec succès",
+    "noPhotos": "Pas de photos",
+    "viewAllPhotos": "Voir toutes les photos",
+    "photos": {
+      "openPhoto": "Voir la photo {{index}}",
+      "photoAlt": "Photo d'avis {{index}}",
+      "lightboxTitle": "Visionneuse de photos",
+      "close": "Fermer",
+      "previous": "Photo précédente",
+      "next": "Photo suivante",
+      "goToPhoto": "Aller à la photo {{index}}"
+    },
+    "owner": {
+      "panelTitle": "Avis & Réponses",
+      "noReviews": "Pas encore d'avis pour vos employés",
+      "responded": "Répondu",
+      "notResponded": "Non répondu",
+      "respondButton": "Répondre",
+      "responseLabel": "Votre réponse",
+      "responsePlaceholder": "Remerciez votre client, répondez à ses préoccupations...",
+      "submitResponse": "Envoyer la réponse",
+      "filterAll": "Tous",
+      "filterPending": "En attente de réponse",
+      "filterResponded": "Répondus"
+    }
+  },
+
   "auth": {
     "login": "Connexion",
     "register": "Inscription",
@@ -1897,6 +1931,7 @@
       "title": "Classement",
       "global": "Mondial",
       "monthly": "Mensuel",
+      "weekly": "Hebdomadaire",
       "allTime": "Tous les temps",
       "rank": "Rang",
       "you": "Vous",
@@ -1904,7 +1939,37 @@
       "empty": "Aucune donnée de classement disponible pour le moment.",
       "emptySubtitle": "Soyez le premier à monter sur le podium !",
       "position": "Position",
-      "score": "Score"
+      "score": "Score",
+      "reviews": "avis",
+      "photos": "photos",
+      "checkins": "check-ins",
+      "votes": "votes",
+      "categories": {
+        "title": "Catégories",
+        "reviewers": "Meilleurs Critiques",
+        "photographers": "Top Photographes",
+        "checkins": "Plus de Check-ins",
+        "helpful": "Plus Utiles"
+      }
+    },
+    "xpHistory": {
+      "title": "Historique XP",
+      "days": "j",
+      "totalGained": "XP gagnés ces {{days}} derniers jours",
+      "breakdown": "Répartition des sources",
+      "empty": "Aucun XP gagné sur cette période",
+      "emptySubtitle": "Explorez, commentez et faites des check-ins pour gagner des XP !",
+      "error": "Échec du chargement de l'historique XP",
+      "sources": {
+        "check_in": "Check-ins",
+        "review": "Avis",
+        "mission": "Missions",
+        "badge": "Badges",
+        "daily_login": "Connexion quotidienne",
+        "photo_upload": "Photos",
+        "helpful_vote": "Votes utiles",
+        "other": "Autre"
+      }
     },
     "checkIn": {
       "button": "S'enregistrer",
@@ -1974,6 +2039,28 @@
       "missionCompleted": "Mission terminée : {{mission}}",
       "streakContinued": "Série de {{days}} jours !",
       "firstCheckIn": "Premier enregistrement !"
+    },
+    "rewards": {
+      "title": "Récompenses & Déblocages",
+      "filterAll": "Tout",
+      "filterFeatures": "Fonctionnalités",
+      "filterCosmetics": "Cosmétiques",
+      "filterTitles": "Titres",
+      "unlocked": "Débloqué",
+      "locked": "Verrouillé",
+      "requireLevel": "Niveau {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "Badge requis",
+      "requireSpecial": "Succès spécial",
+      "maxLevel": "Niveau max !",
+      "toNextLevel": " vers Niveau {{level}}",
+      "claim": "Réclamer",
+      "claiming": "Réclamation...",
+      "error": "Échec du chargement des récompenses",
+      "noRewards": "Aucune récompense dans cette catégorie",
+      "statsUnlocked": "Débloqués",
+      "statsLocked": "Restants",
+      "statsTotalXP": "XP Total"
     }
   },
 

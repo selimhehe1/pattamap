@@ -21,7 +21,7 @@ import { logger } from './logger';
  */
 
 // GA4 Measurement ID (to be replaced with actual ID)
-const GA_MEASUREMENT_ID = process.env.REACT_APP_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
 
 // Flag to check if GA is initialized
 let isInitialized = false;
@@ -37,7 +37,7 @@ export const initGA = (): void => {
   }
 
   // Don't initialize in development unless explicitly enabled
-  if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_GA_DEBUG) {
+  if (process.env.NODE_ENV === 'development' && !import.meta.env.VITE_GA_DEBUG) {
     logger.info('GA4 disabled in development mode');
     return;
   }

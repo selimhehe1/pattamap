@@ -45,7 +45,7 @@ export const useEstablishments = () => {
     queryFn: async (): Promise<Establishment[]> => {
       logger.debug('🏢 Fetching establishments...');
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments?limit=200`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments?limit=200`, {
         method: 'GET',
       });
 
@@ -80,7 +80,7 @@ export const useEstablishment = (id: string | null) => {
 
       logger.debug(`🏢 Fetching establishment ${id}...`);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/${id}`, {
         method: 'GET',
       });
 
@@ -113,7 +113,7 @@ export const useCreateEstablishment = () => {
     mutationFn: async (establishmentData: Partial<Establishment>): Promise<Establishment> => {
       logger.debug('🏢 Creating establishment...', establishmentData);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export const useUpdateEstablishment = () => {
     mutationFn: async ({ id, data }: { id: string; data: Partial<Establishment> }): Promise<Establishment> => {
       logger.debug(`🏢 Updating establishment ${id}...`, data);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ export const useDeleteEstablishment = () => {
     mutationFn: async (id: string): Promise<void> => {
       logger.debug(`🏢 Deleting establishment ${id}...`);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/${id}`, {
         method: 'DELETE',
       });
 

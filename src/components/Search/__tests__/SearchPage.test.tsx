@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SearchPage from '../SearchPage';
@@ -88,10 +88,7 @@ describe('SearchPage - Filter Fixes', () => {
 
   describe('Fix 1: updateUrlParams - Strict Check for Falsy Values', () => {
     it('should preserve age_min=0 in URL params (falsy value)', () => {
-      const { container } = renderWithProviders(<SearchPage />);
-
-      // Simulate setting age_min to "0"
-      const urlParams = new URLSearchParams(window.location.search);
+      renderWithProviders(<SearchPage />);
 
       // The fix ensures that "0" is not removed because:
       // Before: if (value && value.toString().trim()) → "0" is falsy, removed
@@ -303,7 +300,7 @@ describe('SearchPage - Filter Fixes', () => {
       };
 
       // When sort_by changes to 'name'
-      let newFilters = {
+      const newFilters = {
         ...mockFilters,
         sort_by: 'name'
       };
@@ -333,7 +330,7 @@ describe('SearchPage - Filter Fixes', () => {
         sort_order: 'desc'
       };
 
-      let newFilters = {
+      const newFilters = {
         ...mockFilters,
         sort_by: 'oldest'
       };
@@ -351,7 +348,7 @@ describe('SearchPage - Filter Fixes', () => {
       const sortByValues = ['relevance', 'popularity', 'newest'];
 
       sortByValues.forEach(sortBy => {
-        let newFilters = {
+        const newFilters = {
           sort_by: sortBy,
           sort_order: 'asc'
         };

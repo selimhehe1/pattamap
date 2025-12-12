@@ -93,50 +93,53 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const [editingEstablishment, setEditingEstablishment] = useState<AdminEstablishment | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<EditProposal | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshEstablishments = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadEstablishments();
-  }, [filter]);
+    const loadEstablishments = async () => {
+      setIsLoading(true);
+      try {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
-  const loadEstablishments = async () => {
-    setIsLoading(true);
-    try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        if (filter === 'pending-edits') {
+          const response = await secureFetch(`${API_URL}/api/edit-proposals?status=pending&item_type=establishment`);
 
-      if (filter === 'pending-edits') {
-        const response = await secureFetch(`${API_URL}/api/edit-proposals?status=pending&item_type=establishment`);
+          if (response.ok) {
+            const data = await response.json();
+            setEditProposals(data.proposals || []);
+            setEstablishments([]);
+          }
+        } else {
+          const response = await secureFetch(`${API_URL}/api/admin/establishments?status=${filter === 'all' ? '' : filter}`);
 
-        if (response.ok) {
-          const data = await response.json();
-          setEditProposals(data.proposals || []);
-          setEstablishments([]);
+          if (response.ok) {
+            const data = await response.json();
+            setEstablishments(data.establishments || []);
+            setEditProposals([]);
+          }
         }
-      } else {
-        const response = await secureFetch(`${API_URL}/api/admin/establishments?status=${filter === 'all' ? '' : filter}`);
-
-        if (response.ok) {
-          const data = await response.json();
-          setEstablishments(data.establishments || []);
-          setEditProposals([]);
-        }
+      } catch (error) {
+        logger.error('Failed to load establishments:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      logger.error('Failed to load establishments:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    loadEstablishments();
+  }, [filter, secureFetch, refreshCounter]);
 
   const handleApprove = async (establishmentId: string) => {
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}/approve`, {
         method: 'POST'
       });
 
       if (response.ok) {
-        await loadEstablishments(); // Reload list
+        refreshEstablishments(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to approve establishment:', error);
@@ -152,14 +155,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const handleReject = async (establishmentId: string, reason?: string) => {
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason })
       });
 
       if (response.ok) {
-        await loadEstablishments(); // Reload list
+        refreshEstablishments(); // Reload list
       }
     } catch (error) {
       logger.error('Failed to reject establishment:', error);
@@ -184,13 +187,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
-        await loadEstablishments(); // Reload list
+        refreshEstablishments(); // Reload list
         logger.info('Establishment deleted successfully:', establishmentId);
         toast.success(t('admin.deleteEstablishmentSuccess', 'Establishment deleted successfully'));
       } else {
@@ -210,7 +213,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
   const handleSaveEstablishment = async (establishmentData: Partial<Establishment>) => {
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
       // Determine if we're adding or editing
       const isEditing = !!editingEstablishment;
@@ -233,7 +236,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       });
 
       if (response.ok) {
-        await loadEstablishments();
+        refreshEstablishments();
         // Close the appropriate modal
         if (isEditing) {
           setEditingEstablishment(null);
@@ -252,14 +255,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const handleApproveProposal = async (proposalId: string) => {
     setProcessingIds(prev => new Set(prev).add(proposalId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/edit-proposals/${proposalId}/approve`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: 'Approved via Establishments tab' })
       });
 
       if (response.ok) {
-        await loadEstablishments();
+        refreshEstablishments();
         setSelectedProposal(null);
       }
     } catch (error) {
@@ -287,14 +290,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(proposalId));
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/edit-proposals/${proposalId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: reason })
       });
 
       if (response.ok) {
-        await loadEstablishments();
+        refreshEstablishments();
         setSelectedProposal(null);
       }
     } catch (error) {

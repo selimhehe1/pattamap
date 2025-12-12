@@ -41,7 +41,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
     setIsLoading(true);
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/${employeeId}/verification-status`
+        `${import.meta.env.VITE_API_URL}/api/employees/${employeeId}/verification-status`
       );
 
       if (response.ok) {

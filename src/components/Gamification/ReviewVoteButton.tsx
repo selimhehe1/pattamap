@@ -34,30 +34,30 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
 
   // Fetch initial vote status
   useEffect(() => {
+    const fetchVoteStatus = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/gamification/reviews/${reviewId}/votes/status`,
+          {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setVoteCount(data.voteCount);
+          setHasVoted(data.hasVoted);
+        }
+      } catch (err) {
+        logger.error('Error fetching vote status:', err);
+      }
+    };
+
     if (user) {
       fetchVoteStatus();
     }
   }, [user, reviewId]);
-
-  const fetchVoteStatus = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/gamification/reviews/${reviewId}/votes/status`,
-        {
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setVoteCount(data.voteCount);
-        setHasVoted(data.hasVoted);
-      }
-    } catch (err) {
-      logger.error('Error fetching vote status:', err);
-    }
-  };
 
   const handleToggleVote = async () => {
     if (!user) {
@@ -77,7 +77,7 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/gamification/reviews/${reviewId}/vote`,
+        `${import.meta.env.VITE_API_URL}/api/gamification/reviews/${reviewId}/vote`,
         {
           method: 'POST',
           credentials: 'include',

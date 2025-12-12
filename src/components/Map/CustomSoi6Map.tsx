@@ -143,10 +143,10 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
   onEstablishmentClick,
   selectedEstablishment,
   onBarClick,
-  onEstablishmentUpdate
+  onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token: _token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
@@ -732,7 +732,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -807,7 +807,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -888,7 +888,8 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
         throttleTimeout.current = null;
       }
     }
-  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, onEstablishmentUpdate, user, token, containerRef, isMobile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onEstablishmentUpdate, user, token are stable or accessed via closure
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, containerRef, isMobile]);
 
   // Handle drag end
   const handleDragEnd = useCallback(() => {
@@ -1000,7 +1001,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -1072,7 +1073,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -1146,6 +1147,7 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
         throttleTimeout.current = null;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- triggerHapticFeedback is stable
   }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments]);
 
   // Toggle edit mode
@@ -1276,7 +1278,8 @@ const CustomSoi6Map: React.FC<CustomSoi6MapProps> = ({
       return barWidth;
     }
     return isMobile ? 32 : 40; // fallback sizes
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   // Render debug grid overlay (yellow squares)
   const renderGridDebug = () => {

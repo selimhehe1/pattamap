@@ -40,7 +40,7 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
       setLoading(true);
       try {
         // Fetch all employees
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees`);
         if (!response.ok) throw new Error('Failed to fetch employees');
 
         const data = await response.json();
@@ -79,7 +79,7 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
 
   // Filter employees by search term + VIP sorting
   const filteredEmployees = useMemo(() => {
-    let filtered = employees.filter((employee) => {
+    const filtered = employees.filter((employee) => {
       if (!searchTerm) return true;
 
       const search = searchTerm.toLowerCase();

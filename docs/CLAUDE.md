@@ -3,9 +3,9 @@
 > **Point d'entrée principal** pour travailler avec Claude Code sur PattaMap.
 > Ce fichier sert d'index vers toute la documentation du projet.
 
-**Version**: v10.3.4 (Code Quality Improved)
-**Dernière mise à jour**: Décembre 2025 - Phase 7 Code Quality
-**Statut**: ✅ Production-Ready + Frontend Tests + TypeScript Strict
+**Version**: v10.4.0 (Reviews Améliorées Complete)
+**Dernière mise à jour**: Décembre 2025 - Reviews Améliorées + i18n 8 langues
+**Statut**: ✅ Production-Ready + 622/622 tests passing
 
 ---
 
@@ -405,31 +405,32 @@ npm start                    # → http://localhost:3000
 ✅ **Upload Images** - Cloudinary CDN
 ✅ **API Docs** - Swagger UI interactive
 ✅ **Monitoring** - Sentry (errors + performance)
-✅ **Tests** - 83+ tests, 85%+ coverage
+✅ **Tests** - 622/622 tests passing (100%)
 ✅ **Establishment Owners** (v10.1) - Venue owners can manage their own establishments with granular permissions
-✅ **Multilingue (i18n)** (v10.1) - 6 langues complètes EN/TH/RU/CN/FR/HI (1,046 clés, 100% coverage, ~98% native Unicode, 42 composants)
+✅ **Multilingue (i18n)** (v10.4) - 8 langues complètes EN/TH/RU/CN/FR/HI/JA/KO (1,100+ clés, 100% coverage, ~98% native Unicode, 42 composants)
 ✅ **Notifications System** (v10.2) - PWA Push + Enhanced UI (21 types, grouping, filtering) - 50+ tests
 ✅ **VIP Subscriptions** (v10.3) - Freemium monetization system for employees & establishments (3 tables, 22 indexes, 16 RLS policies, 5 functions, 2 auto-sync triggers) - 7 API endpoints
+✅ **Reviews Améliorées** (v10.4) - Photos dans reviews (1-3/avis), réponses établissements (OwnerReviewsPanel), i18n 8 langues
 
 → **Vue d'ensemble**: [docs/features/FEATURES_OVERVIEW.md](docs/features/FEATURES_OVERVIEW.md)
 
 ### Roadmap (v10.0+)
 
-**Priorité Haute** 🔴:
-1. ~~**Multilingue (i18n)**~~ - ✅ **COMPLÉTÉ** (v10.1) - 6 langues 100% coverage
-2. ~~**Notifications Push (PWA)**~~ - ✅ **COMPLÉTÉ** (v10.2) - PWA Push + Enhanced UI
-3. ~~**Historique Visites**~~ - ✅ **COMPLÉTÉ** (v10.3) - UI Dashboard + Timeline + Stats
-4. **Vérification Profils** - Badge vérifié (2j) → Confiance +80%
-5. **Freemium Model** - Monétisation (5j) → Revenus récurrents
+**✅ Complétées**:
+- ~~**Multilingue (i18n)**~~ - ✅ v10.4 - 8 langues (EN/FR/TH/RU/CN/HI/JA/KO)
+- ~~**Notifications Push (PWA)**~~ - ✅ v10.2 - PWA Push + Enhanced UI
+- ~~**Historique Visites**~~ - ✅ v10.3 - UI Dashboard + Timeline + Stats
+- ~~**Mode Hors Ligne**~~ - ✅ v10.4 - PWA Offline-First
+- ~~**Gamification**~~ - ✅ v10.4 - XP, badges, missions, leaderboards
+- ~~**Reviews Améliorées**~~ - ✅ v10.4 - Photos + Réponses établissements
+- ~~**Dark Mode**~~ - ✅ v10.3 - Thème sombre
+- ~~**VIP Subscriptions**~~ - ✅ v10.3 - Backend complet (désactivé via feature flag)
 
-**Priorité Moyenne** 🟡:
-- Mode Hors Ligne, Système Tips
-- Gamification, Reviews++, Publicité Ciblée
+**⏳ Prochaines Features**:
+- **Système Tips** - Pourboires digitaux (7j)
+- **Publicité Ciblée** - Sponsoring (4j)
 
-**Priorité Basse** 🟢:
-- ~~Dark Mode~~ - ✅ **COMPLÉTÉ** (v10.3)
-
-**Total estimé**: ~32 jours (~1.5 mois)
+**Total restant**: ~11 jours
 
 → **Roadmap détaillée**: [docs/features/ROADMAP.md](docs/features/ROADMAP.md)
 
@@ -1919,4 +1920,4 @@ lsof -ti:8080 | xargs kill -9
 
 **🏮 PattaMap - Naviguer Pattaya Nightlife avec Innovation**
 
-**Version**: v10.3.4 | **Status**: Production-Ready (Dette Technique ~155j) | **Dernière mise à jour**: Décembre 2025
+**Version**: v10.4.0 | **Status**: Production-Ready (622/622 tests) | **Dernière mise à jour**: Décembre 2025

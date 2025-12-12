@@ -70,50 +70,80 @@ const EmployeeDashboard: React.FC = () => {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showVIPModal, setShowVIPModal] = useState(false);
+  const [refreshDashboard, setRefreshDashboard] = useState(0);
+
+  // Helper function to trigger dashboard refresh
+  const triggerDashboardRefresh = () => setRefreshDashboard(c => c + 1);
 
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!linkedEmployeeProfile?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const [verificationResponse, statsResponse] = await Promise.all([
+          secureFetch(
+            `${import.meta.env.VITE_API_URL}/api/verifications/${linkedEmployeeProfile.id}/verification-status`
+          ),
+          secureFetch(
+            `${import.meta.env.VITE_API_URL}/api/employees/${linkedEmployeeProfile.id}/stats`
+          )
+        ]);
+
+        if (verificationResponse.ok) {
+          const verificationData = await verificationResponse.json();
+          setVerificationStatus(verificationData);
+        }
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setEmployeeStats(statsData.stats);
+        }
+      } catch (error) {
+        logger.error('Failed to fetch dashboard data', error);
+        toast.error('Failed to load dashboard data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchDashboardData();
-  }, [linkedEmployeeProfile]);
+  }, [linkedEmployeeProfile, secureFetch, refreshDashboard]);
 
   useEffect(() => {
+    const fetchReviews = async () => {
+      if (!linkedEmployeeProfile?.id) {
+        return;
+      }
+
+      setIsLoadingReviews(true);
+      try {
+        const limit = 5;
+        const offset = (reviewsPage - 1) * limit;
+
+        const response = await secureFetch(
+          `${import.meta.env.VITE_API_URL}/api/employees/${linkedEmployeeProfile.id}/reviews?limit=${limit}&offset=${offset}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews');
+        }
+
+        const data = await response.json();
+        setReviews(data.reviews || []);
+        setTotalReviews(data.total || 0);
+      } catch (error) {
+        logger.error('Failed to fetch reviews', error);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
     if (linkedEmployeeProfile?.id) {
       fetchReviews();
     }
-  }, [linkedEmployeeProfile, reviewsPage]);
-
-  const fetchDashboardData = async () => {
-    if (!linkedEmployeeProfile?.id) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      // Fetch verification status and stats in parallel for better performance
-      const [verificationResponse, statsResponse] = await Promise.all([
-        secureFetch(
-          `${process.env.REACT_APP_API_URL}/api/verifications/${linkedEmployeeProfile.id}/verification-status`
-        ),
-        secureFetch(
-          `${process.env.REACT_APP_API_URL}/api/employees/${linkedEmployeeProfile.id}/stats`
-        )
-      ]);
-
-      if (verificationResponse.ok) {
-        const verificationData = await verificationResponse.json();
-        setVerificationStatus(verificationData);
-      }
-
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        setEmployeeStats(statsData.stats);
-      }
-    } catch (error) {
-      logger.error('Failed to fetch dashboard data', error);
-      toast.error('Failed to load dashboard data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [linkedEmployeeProfile, reviewsPage, secureFetch]);
 
   const fetchVerificationStatus = async () => {
     if (!linkedEmployeeProfile?.id) {
@@ -122,7 +152,7 @@ const EmployeeDashboard: React.FC = () => {
 
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/verifications/${linkedEmployeeProfile.id}/verification-status`
+        `${import.meta.env.VITE_API_URL}/api/verifications/${linkedEmployeeProfile.id}/verification-status`
       );
 
       if (!response.ok) {
@@ -134,35 +164,6 @@ const EmployeeDashboard: React.FC = () => {
     } catch (error) {
       logger.error('Failed to fetch verification status', error);
       toast.error('Failed to load verification status');
-    }
-  };
-
-  const fetchReviews = async () => {
-    if (!linkedEmployeeProfile?.id) {
-      return;
-    }
-
-    setIsLoadingReviews(true);
-    try {
-      const limit = 5;
-      const offset = (reviewsPage - 1) * limit;
-
-      const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/${linkedEmployeeProfile.id}/reviews?limit=${limit}&offset=${offset}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
-      }
-
-      const data = await response.json();
-      setReviews(data.reviews || []);
-      setTotalReviews(data.total || 0);
-    } catch (error) {
-      logger.error('Failed to fetch reviews', error);
-      // Don't show error toast for reviews - it's not critical
-    } finally {
-      setIsLoadingReviews(false);
     }
   };
 
@@ -178,7 +179,7 @@ const EmployeeDashboard: React.FC = () => {
     if (refreshLinkedProfile) {
       await refreshLinkedProfile(true);
     }
-    fetchDashboardData();
+    triggerDashboardRefresh();
   };
 
   if (!user || user.account_type !== 'employee') {
@@ -661,7 +662,7 @@ const EmployeeDashboard: React.FC = () => {
             if (refreshLinkedProfile) {
               await refreshLinkedProfile(true); // skipCheck=true to bypass user state check
             }
-            fetchDashboardData(); // Refresh stats after profile update
+            triggerDashboardRefresh(); // Refresh stats after profile update
           }}
         />
       )}

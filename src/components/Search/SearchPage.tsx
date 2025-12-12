@@ -155,7 +155,7 @@ const SearchPage: React.FC = () => {
   const handleFilterChange = useCallback((key: string, value: string) => {
     // ✅ Just update filters - useEffect will handle URL sync
     setFilters(prev => {
-      let newFilters = {
+      const newFilters = {
         ...prev,
         [key]: value
       };

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
+import ReviewPhotoGallery, { ReviewPhoto } from './ReviewPhotoGallery';
 import '../../styles/components/reviews.css';
 
 interface Review {
@@ -19,6 +20,7 @@ interface Review {
     pseudonym: string;
   };
   replies?: Reply[];
+  photos?: ReviewPhoto[]; // v10.4 - Photos in reviews
 }
 
 interface Reply {
@@ -209,6 +211,11 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
             <div className="review-content-nightlife">
               {review.content}
             </div>
+
+            {/* Review Photos - v10.4 */}
+            {review.photos && review.photos.length > 0 && (
+              <ReviewPhotoGallery photos={review.photos} />
+            )}
 
             {/* Review Actions */}
             <div className="review-actions-nightlife">

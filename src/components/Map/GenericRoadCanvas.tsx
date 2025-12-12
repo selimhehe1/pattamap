@@ -73,8 +73,8 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Merge default and custom styles
-  const roadStyle: RoadStyle = { ...DEFAULT_STYLE, ...style };
+  // Merge default and custom styles - memoized to prevent dependency issues
+  const roadStyle = useMemo<RoadStyle>(() => ({ ...DEFAULT_STYLE, ...style }), [style]);
 
   // ✅ PERFORMANCE OPTIMIZATION: Memoize asphalt grains
   // Grains are calculated ONCE and reused on every resize

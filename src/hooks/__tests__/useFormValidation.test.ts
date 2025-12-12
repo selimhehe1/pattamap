@@ -1,6 +1,10 @@
 /**
+ * @vitest-environment jsdom
+ */
+/**
  * Tests for useFormValidation hook
  */
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useFormValidation, ValidationRules } from '../useFormValidation';
 

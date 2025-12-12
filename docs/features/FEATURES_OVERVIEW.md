@@ -4,8 +4,8 @@
 
 **PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec un système unique de **cartes ergonomiques** et des fonctionnalités communautaires avancées.
 
-**Version actuelle**: v9.3.0 (Production-Ready)
-**Statut**: 12 employées, 151 établissements, 9 zones, système complet et sécurisé
+**Version actuelle**: v10.4.0 (Reviews Améliorées Complete)
+**Statut**: 76 employées, 151 établissements, 9 zones, système complet et sécurisé
 
 ---
 
@@ -48,9 +48,17 @@
 
 - Notes 5 étoiles par employée
 - Commentaires texte
+- **Photos dans reviews** (1-3 photos par avis)
+  - Upload via Cloudinary
+  - Galerie photos (`ReviewPhotoGallery.tsx`)
+  - Lightbox pour agrandissement
+- **Réponses établissements** aux reviews
+  - Panel owner (`OwnerReviewsPanel.tsx`)
+  - Filtres: All / Pending / Responded
+- Vote system (👍 Utile / 👎 Pas utile)
+- Badge "Visite Vérifiée" (géolocalisation)
 - Modération (pending/approved/reported)
-- Système de signalement
-- Filtrage par status
+- i18n 8 langues (EN, FR, TH, RU, CN, HI, JA, KO)
 
 ### 4. Authentification & Sécurité ✅
 
@@ -146,25 +154,26 @@
 
 ## 🧪 Testing & Quality (Implémenté)
 
-- **33 tests automatisés**: 18 unitaires + 15 intégration
+- **622 tests automatisés**: Backend + Frontend (100% passing)
 - **Coverage 85%+**: Middleware critiques (auth, CSRF)
 - **Jest + Supertest**: Backend testing
-- **React Testing Library**: Frontend (à compléter)
+- **React Testing Library**: Frontend tests
 
 → Voir détails: [docs/development/TESTING.md](../development/TESTING.md)
 
 ---
 
-## 📊 Métriques Actuelles (v9.3.0)
+## 📊 Métriques Actuelles (v10.4.0)
 
 | Métrique | Valeur |
 |----------|--------|
-| **Employées actives** | 12 |
+| **Employées actives** | 76 |
 | **Établissements** | 151 |
 | **Zones géographiques** | 9 |
-| **Reviews** | 52 |
-| **Utilisateurs** | 14 (user/moderator/admin) |
-| **Tests automatisés** | 33 (85%+ coverage) |
+| **Reviews** | 52+ |
+| **Utilisateurs** | 14+ (user/moderator/admin/owner) |
+| **Tests automatisés** | 622 (100% passing) |
+| **Langues supportées** | 8 (EN, FR, TH, RU, CN, HI, JA, KO) |
 | **Performance P50** | ~20ms (avec optimisations) |
 | **Bundle size** | Optimisé (compression -75%) |
 
@@ -172,24 +181,21 @@
 
 ## 🗺️ Roadmap Future (Voir ROADMAP.md)
 
-### Priorité Haute 🔴
-1. **Multilingue (i18n)** - EN/TH/RU/CN (4j)
-2. **Vérification Profils** - Badge vérifié (2j)
-3. **Notifications Push (PWA)** - Engagement (5j)
-4. **Freemium Model** - Monétisation (5j)
+### ✅ Complétées
+1. **Multilingue (i18n)** - ✅ 8 langues (EN, FR, TH, RU, CN, HI, JA, KO)
+2. **Notifications Push (PWA)** - ✅ PWA Push + Enhanced UI
+3. **Historique Visites** - ✅ Timeline + Stats
+4. **Mode Hors Ligne** - ✅ PWA Offline-First
+5. **Gamification** - ✅ XP, badges, missions, leaderboards
+6. **Reviews Améliorées** - ✅ Photos + Réponses établissements
+7. **Dark Mode** - ✅ Thème sombre
+8. **VIP Subscriptions** - ✅ (désactivé via feature flag)
 
-### Priorité Moyenne 🟡
-5. **Historique Visites** - Timeline user (2j)
-6. **Mode Hors Ligne** - PWA offline (3j)
-7. **Système Tips** - Pourboires digitaux (7j)
-8. **Gamification** - Points & badges (4j)
-9. **Reviews++** - Photos, votes (3j)
-10. **Publicité Ciblée** - Sponsoring (4j)
+### ⏳ Prochaines Features
+- **Système Tips** - Pourboires digitaux (7j)
+- **Publicité Ciblée** - Sponsoring (4j)
 
-### Priorité Basse 🟢
-11. **Dark Mode** - Thème sombre (2j)
-
-**Total estimé**: ~41 jours (~2 mois)
+**Total restant**: ~11 jours
 
 → Voir détails: [ROADMAP.md](ROADMAP.md)
 
@@ -246,4 +252,4 @@
 
 ---
 
-**Dernière mise à jour**: v9.3.0 (Octobre 2025)
+**Dernière mise à jour**: v10.4.0 (Décembre 2025)

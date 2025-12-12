@@ -77,7 +77,7 @@ export const useEmployees = () => {
     queryFn: async (): Promise<Employee[]> => {
       logger.debug('👤 Fetching employees...');
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees`, {
         method: 'GET',
       });
 
@@ -110,7 +110,7 @@ export const useEmployee = (id: string | null) => {
 
       logger.debug(`👤 Fetching employee ${id}...`);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${id}`, {
         method: 'GET',
       });
 
@@ -164,7 +164,7 @@ export const useEmployeeSearch = (params: EmployeeSearchParams) => {
         }
       });
 
-      const url = `${process.env.REACT_APP_API_URL}/api/employees/search?${queryParams.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}/api/employees/search?${queryParams.toString()}`;
 
       const response = await fetch(url, {
         credentials: 'include' // Include cookies for session/CSRF token
@@ -210,7 +210,7 @@ export const useInfiniteEmployeeSearch = (baseParams: Omit<EmployeeSearchParams,
       queryParams.append('page', String(pageParam));
       queryParams.append('limit', '20');
 
-      const url = `${process.env.REACT_APP_API_URL}/api/employees/search?${queryParams.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}/api/employees/search?${queryParams.toString()}`;
       const response = await fetch(url, {
         credentials: 'include' // Include cookies for session/CSRF token
       });
@@ -245,7 +245,7 @@ export const useCreateEmployee = () => {
     mutationFn: async (employeeData: Partial<Employee>): Promise<Employee> => {
       logger.debug('👤 Creating employee...', employeeData);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -287,7 +287,7 @@ export const useUpdateEmployee = () => {
     mutationFn: async ({ id, data }: { id: string; data: Partial<Employee> }): Promise<Employee> => {
       logger.debug(`👤 Updating employee ${id}...`, data);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ export const useDeleteEmployee = () => {
     mutationFn: async (id: string): Promise<void> => {
       logger.debug(`👤 Deleting employee ${id}...`);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/${id}`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${id}`, {
         method: 'DELETE',
       });
 

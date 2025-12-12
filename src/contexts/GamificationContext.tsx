@@ -98,6 +98,17 @@ interface GamificationContextType {
 // Export context for testing
 export const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
+// Level configuration - defined outside component to prevent dependency issues
+const LEVEL_CONFIG = [
+  { level: 1, name: 'Newbie', icon: '🌱', minXP: 0 },
+  { level: 2, name: 'Explorer', icon: '🗺️', minXP: 100 },
+  { level: 3, name: 'Regular', icon: '🍻', minXP: 300 },
+  { level: 4, name: 'Insider', icon: '🌟', minXP: 700 },
+  { level: 5, name: 'VIP', icon: '💎', minXP: 1500 },
+  { level: 6, name: 'Legend', icon: '🏆', minXP: 3000 },
+  { level: 7, name: 'Ambassador', icon: '👑', minXP: 6000 }
+];
+
 interface GamificationProviderProps {
   children: ReactNode;
 }
@@ -126,6 +137,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     setTimeout(() => {
       clearXPNotification(notification.timestamp);
     }, 3000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clearXPNotification is stable (useCallback with no deps)
   }, []);
 
   const clearXPNotification = useCallback((timestamp: number) => {
@@ -136,32 +148,22 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
   // LEVEL HELPERS
   // ========================================
 
-  const levelConfig = [
-    { level: 1, name: 'Newbie', icon: '🌱', minXP: 0 },
-    { level: 2, name: 'Explorer', icon: '🗺️', minXP: 100 },
-    { level: 3, name: 'Regular', icon: '🍻', minXP: 300 },
-    { level: 4, name: 'Insider', icon: '🌟', minXP: 700 },
-    { level: 5, name: 'VIP', icon: '💎', minXP: 1500 },
-    { level: 6, name: 'Legend', icon: '🏆', minXP: 3000 },
-    { level: 7, name: 'Ambassador', icon: '👑', minXP: 6000 }
-  ];
-
   const getLevelName = useCallback((level: number): string => {
-    return levelConfig.find((l) => l.level === level)?.name || 'Unknown';
+    return LEVEL_CONFIG.find((l) => l.level === level)?.name || 'Unknown';
   }, []);
 
   const getLevelIcon = useCallback((level: number): string => {
-    return levelConfig.find((l) => l.level === level)?.icon || '❓';
+    return LEVEL_CONFIG.find((l) => l.level === level)?.icon || '❓';
   }, []);
 
   const getXPForNextLevel = useCallback((currentLevel: number): number => {
     if (currentLevel >= 7) return 0; // Max level
-    return levelConfig.find((l) => l.level === currentLevel + 1)?.minXP || 0;
+    return LEVEL_CONFIG.find((l) => l.level === currentLevel + 1)?.minXP || 0;
   }, []);
 
   const getProgressToNextLevel = useCallback((currentXP: number, currentLevel: number): number => {
     if (currentLevel >= 7) return 100; // Max level
-    const currentLevelXP = levelConfig.find((l) => l.level === currentLevel)?.minXP || 0;
+    const currentLevelXP = LEVEL_CONFIG.find((l) => l.level === currentLevel)?.minXP || 0;
     const nextLevelXP = getXPForNextLevel(currentLevel);
     const progress = ((currentXP - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100;
     return Math.min(Math.max(progress, 0), 100);
@@ -178,7 +180,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/my-progress`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/my-progress`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -209,7 +211,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/my-badges`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/my-badges`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -240,7 +242,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/my-missions`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/my-missions`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -276,7 +278,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     const previousLevel = userProgress?.current_level || 1;
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/award-xp`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/award-xp`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -312,7 +314,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
 
         // Check for level up
         try {
-          const newProgress = await fetch(`${process.env.REACT_APP_API_URL}/api/gamification/my-progress`, {
+          const newProgress = await fetch(`${import.meta.env.VITE_API_URL}/api/gamification/my-progress`, {
             credentials: 'include'
           }).then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);

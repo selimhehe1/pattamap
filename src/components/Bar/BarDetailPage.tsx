@@ -45,7 +45,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
     queryKey: ['employees', 'establishment', id],
     queryFn: async (): Promise<Employee[]> => {
       if (!id) return [];
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees?establishment_id=${id}&status=approved`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees?establishment_id=${id}&status=approved`);
       if (!response.ok) return [];
       const data = await response.json();
       return data.employees || [];
@@ -170,7 +170,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
           consumablesCount: cleanedData.pricing?.consumables?.length || 0
         });
 
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/${id}`, {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/${id}`, {
           method: 'PUT',
           body: JSON.stringify(cleanedData) // Use cleanedData instead of raw establishmentData
         });
@@ -194,7 +194,7 @@ const BarDetailPage: React.FC<BarDetailPageProps> = () => {
         }
       } else {
         // User normal -> création proposal
-        const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/edit-proposals`, {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/edit-proposals`, {
           method: 'POST',
           body: JSON.stringify({
             item_type: 'establishment',

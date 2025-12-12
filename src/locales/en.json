@@ -293,6 +293,40 @@
     }
   },
 
+  "reviews": {
+    "addPhotos": "Add photos (optional)",
+    "photosLimit": "Maximum 3 photos",
+    "photoUploading": "Uploading photos...",
+    "photoUploadError": "Failed to upload photos",
+    "establishmentResponse": "Establishment Response",
+    "respondToReview": "Respond to this review",
+    "responsePosted": "Response posted successfully",
+    "noPhotos": "No photos",
+    "viewAllPhotos": "View all photos",
+    "photos": {
+      "openPhoto": "View photo {{index}}",
+      "photoAlt": "Review photo {{index}}",
+      "lightboxTitle": "Photo viewer",
+      "close": "Close",
+      "previous": "Previous photo",
+      "next": "Next photo",
+      "goToPhoto": "Go to photo {{index}}"
+    },
+    "owner": {
+      "panelTitle": "Reviews & Responses",
+      "noReviews": "No reviews yet for your employees",
+      "responded": "Responded",
+      "notResponded": "Not responded",
+      "respondButton": "Respond",
+      "responseLabel": "Your response",
+      "responsePlaceholder": "Thank your customer, address their concerns...",
+      "submitResponse": "Submit Response",
+      "filterAll": "All",
+      "filterPending": "Pending Response",
+      "filterResponded": "Responded"
+    }
+  },
+
   "auth": {
     "login": "Login",
     "register": "Register",
@@ -1876,6 +1910,7 @@
       "title": "Leaderboard",
       "global": "Global",
       "monthly": "Monthly",
+      "weekly": "Weekly",
       "allTime": "All Time",
       "rank": "Rank",
       "you": "You",
@@ -1883,7 +1918,37 @@
       "empty": "No leaderboard data available yet.",
       "emptySubtitle": "Be the first to climb the rankings!",
       "position": "Position",
-      "score": "Score"
+      "score": "Score",
+      "reviews": "reviews",
+      "photos": "photos",
+      "checkins": "check-ins",
+      "votes": "votes",
+      "categories": {
+        "title": "Categories",
+        "reviewers": "Best Reviewers",
+        "photographers": "Top Photographers",
+        "checkins": "Most Check-ins",
+        "helpful": "Most Helpful"
+      }
+    },
+    "xpHistory": {
+      "title": "XP History",
+      "days": "d",
+      "totalGained": "XP earned in last {{days}} days",
+      "breakdown": "Sources Breakdown",
+      "empty": "No XP earned yet in this period",
+      "emptySubtitle": "Start exploring, reviewing and checking in to earn XP!",
+      "error": "Failed to load XP history",
+      "sources": {
+        "check_in": "Check-ins",
+        "review": "Reviews",
+        "mission": "Missions",
+        "badge": "Badges",
+        "daily_login": "Daily Login",
+        "photo_upload": "Photo Uploads",
+        "helpful_vote": "Helpful Votes",
+        "other": "Other"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1953,6 +2018,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "Rewards & Unlocks",
+      "filterAll": "All",
+      "filterFeatures": "Features",
+      "filterCosmetics": "Cosmetics",
+      "filterTitles": "Titles",
+      "unlocked": "Unlocked",
+      "locked": "Locked",
+      "requireLevel": "Level {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "Badge required",
+      "requireSpecial": "Special achievement",
+      "maxLevel": "Max Level!",
+      "toNextLevel": " to Level {{level}}",
+      "claim": "Claim",
+      "claiming": "Claiming...",
+      "error": "Failed to load rewards",
+      "noRewards": "No rewards in this category",
+      "statsUnlocked": "Unlocked",
+      "statsLocked": "Remaining",
+      "statsTotalXP": "Total XP"
     }
   },
 

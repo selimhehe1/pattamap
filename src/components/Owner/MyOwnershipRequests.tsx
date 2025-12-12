@@ -46,7 +46,7 @@ const MyOwnershipRequests: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/ownership-requests/my`,
+        `${import.meta.env.VITE_API_URL}/api/ownership-requests/my`,
         { method: 'GET' }
       );
 
@@ -78,7 +78,7 @@ const MyOwnershipRequests: React.FC = () => {
 
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/ownership-requests/${requestId}`,
+        `${import.meta.env.VITE_API_URL}/api/ownership-requests/${requestId}`,
         { method: 'DELETE' }
       );
 

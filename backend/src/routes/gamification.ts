@@ -86,6 +86,51 @@ router.get('/user-progress/:userId', authenticateToken, gamificationController.g
  */
 router.get('/my-progress', authenticateToken, gamificationController.getMyProgress);
 
+/**
+ * @swagger
+ * /api/gamification/xp-history:
+ *   get:
+ *     summary: Get XP history over time
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: integer
+ *           enum: [7, 30, 90]
+ *           default: 30
+ *         description: Number of days to fetch history for
+ *     responses:
+ *       200:
+ *         description: XP history retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 period:
+ *                   type: integer
+ *                 totalXPGained:
+ *                   type: integer
+ *                 dataPoints:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       date:
+ *                         type: string
+ *                         format: date
+ *                       xp:
+ *                         type: integer
+ *                       sources:
+ *                         type: object
+ *                 breakdown:
+ *                   type: object
+ */
+router.get('/xp-history', authenticateToken, gamificationController.getXPHistory);
+
 // ========================================
 // BADGES (Protected)
 // ========================================
@@ -189,6 +234,54 @@ router.get('/my-badges', authenticateToken, gamificationController.getMyBadges);
  *         description: Leaderboard retrieved
  */
 router.get('/leaderboard/:type', authenticateToken, gamificationController.getLeaderboard);
+
+/**
+ * @swagger
+ * /api/gamification/leaderboard/weekly:
+ *   get:
+ *     summary: Get weekly leaderboard
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *     responses:
+ *       200:
+ *         description: Weekly leaderboard retrieved
+ */
+router.get('/leaderboard-weekly', authenticateToken, gamificationController.getWeeklyLeaderboard);
+
+/**
+ * @swagger
+ * /api/gamification/leaderboard/category/{category}:
+ *   get:
+ *     summary: Get category-specific leaderboard
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [reviewers, photographers, checkins, helpful]
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *     responses:
+ *       200:
+ *         description: Category leaderboard retrieved
+ *       400:
+ *         description: Invalid category
+ */
+router.get('/leaderboard-category/:category', authenticateToken, gamificationController.getCategoryLeaderboard);
 
 // ========================================
 // CHECK-INS (Protected, CSRF)
@@ -371,5 +464,98 @@ router.delete('/follow/:userId', authenticateToken, csrfProtection, gamification
  *         description: Vote recorded successfully
  */
 router.post('/reviews/:reviewId/vote', authenticateToken, csrfProtection, gamificationController.voteOnReview);
+
+// ========================================
+// REWARDS SYSTEM (Protected)
+// ========================================
+
+/**
+ * @swagger
+ * /api/gamification/rewards:
+ *   get:
+ *     summary: Get all available rewards/unlocks
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Rewards list retrieved
+ */
+router.get('/rewards', authenticateToken, gamificationController.getRewards);
+
+/**
+ * @swagger
+ * /api/gamification/my-rewards:
+ *   get:
+ *     summary: Get current user's rewards with unlock status
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User rewards retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 rewards:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       unlock_type:
+ *                         type: string
+ *                         enum: [level, xp, badge, achievement]
+ *                       unlock_value:
+ *                         type: integer
+ *                       category:
+ *                         type: string
+ *                         enum: [feature, cosmetic, title]
+ *                       icon:
+ *                         type: string
+ *                       is_unlocked:
+ *                         type: boolean
+ *                       unlocked_at:
+ *                         type: string
+ *                         format: date-time
+ *                 currentLevel:
+ *                   type: integer
+ *                 totalXp:
+ *                   type: integer
+ */
+router.get('/my-rewards', authenticateToken, gamificationController.getMyRewards);
+
+/**
+ * @swagger
+ * /api/gamification/claim-reward/{rewardId}:
+ *   post:
+ *     summary: Claim an unlocked reward
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: rewardId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Reward claimed successfully
+ *       403:
+ *         description: Not eligible for this reward
+ *       404:
+ *         description: Reward not found
+ */
+router.post('/claim-reward/:rewardId', authenticateToken, csrfProtection, gamificationController.claimReward);
 
 export default router;

@@ -43,7 +43,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
     queryKey: ['validation-stats', employeeId],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/${employeeId}/validation-stats`,
+        `${import.meta.env.VITE_API_URL}/api/employees/${employeeId}/validation-stats`,
         {
           credentials: 'include' // Include cookies for auth check
         }
@@ -63,7 +63,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
   const voteMutation = useMutation<VoteResponse, Error, 'exists' | 'not_exists'>({
     mutationFn: async (voteType: 'exists' | 'not_exists') => {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/${employeeId}/validation-vote`,
+        `${import.meta.env.VITE_API_URL}/api/employees/${employeeId}/validation-vote`,
         {
           method: 'POST',
           body: JSON.stringify({ voteType })

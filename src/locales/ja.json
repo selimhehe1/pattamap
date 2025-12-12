@@ -291,6 +291,39 @@
       "submitButton": "Submit Comment"
     }
   },
+  "reviews": {
+    "addPhotos": "写真を追加（任意）",
+    "photosLimit": "最大3枚",
+    "photoUploading": "写真をアップロード中...",
+    "photoUploadError": "写真のアップロードに失敗しました",
+    "establishmentResponse": "店舗からの返信",
+    "respondToReview": "このレビューに返信",
+    "responsePosted": "返信が投稿されました",
+    "noPhotos": "写真なし",
+    "viewAllPhotos": "すべての写真を見る",
+    "photos": {
+      "openPhoto": "写真 {{index}} を表示",
+      "photoAlt": "レビュー写真 {{index}}",
+      "lightboxTitle": "フォトビューアー",
+      "close": "閉じる",
+      "previous": "前の写真",
+      "next": "次の写真",
+      "goToPhoto": "写真 {{index}} へ移動"
+    },
+    "owner": {
+      "panelTitle": "レビューと返信",
+      "noReviews": "従業員のレビューはまだありません",
+      "responded": "返信済み",
+      "notResponded": "未返信",
+      "respondButton": "返信",
+      "responseLabel": "あなたの返信",
+      "responsePlaceholder": "お客様に感謝し、懸念事項に対応してください...",
+      "submitResponse": "返信を送信",
+      "filterAll": "すべて",
+      "filterPending": "返信待ち",
+      "filterResponded": "返信済み"
+    }
+  },
 
   "auth": {
     "login": "Login",
@@ -1872,17 +1905,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "リーダーボード",
+      "global": "グローバル",
+      "monthly": "月間",
+      "weekly": "週間",
       "allTime": "全期間",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "ランク",
+      "you": "あなた",
+      "loading": "リーダーボードを読み込み中...",
+      "empty": "まだランキングデータがありません。",
       "emptySubtitle": "リーダーボードの最初の一人になろう",
-      "position": "Position",
-      "score": "Score"
+      "position": "順位",
+      "score": "スコア",
+      "reviews": "レビュー",
+      "photos": "写真",
+      "checkins": "チェックイン",
+      "votes": "投票",
+      "categories": {
+        "title": "カテゴリー",
+        "reviewers": "ベストレビュアー",
+        "photographers": "トップフォトグラファー",
+        "checkins": "チェックイン数トップ",
+        "helpful": "最も役立つ"
+      }
+    },
+    "xpHistory": {
+      "title": "XP履歴",
+      "days": "日",
+      "totalGained": "過去{{days}}日間で獲得したXP",
+      "breakdown": "ソース内訳",
+      "empty": "この期間にXPを獲得していません",
+      "emptySubtitle": "探索、レビュー、チェックインでXPを獲得しよう！",
+      "error": "XP履歴の読み込みに失敗しました",
+      "sources": {
+        "check_in": "チェックイン",
+        "review": "レビュー",
+        "mission": "ミッション",
+        "badge": "バッジ",
+        "daily_login": "デイリーログイン",
+        "photo_upload": "写真アップロード",
+        "helpful_vote": "役立つ投票",
+        "other": "その他"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1952,6 +2016,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "報酬とアンロック",
+      "filterAll": "すべて",
+      "filterFeatures": "機能",
+      "filterCosmetics": "コスメティック",
+      "filterTitles": "称号",
+      "unlocked": "アンロック済み",
+      "locked": "ロック中",
+      "requireLevel": "レベル {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "バッジが必要",
+      "requireSpecial": "特別な実績",
+      "maxLevel": "最大レベル!",
+      "toNextLevel": " レベル {{level}} まで",
+      "claim": "受け取る",
+      "claiming": "受け取り中...",
+      "error": "報酬の読み込みに失敗",
+      "noRewards": "このカテゴリに報酬はありません",
+      "statsUnlocked": "アンロック",
+      "statsLocked": "残り",
+      "statsTotalXP": "合計XP"
     }
   },
 

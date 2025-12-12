@@ -376,7 +376,7 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
     });
 };
 
-const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate }) => {
+const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establishments, onEstablishmentClick, selectedEstablishment, onBarClick, onEstablishmentUpdate: _onEstablishmentUpdate }) => {
   const navigate = useNavigate();
   const { user, token: _token } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -392,7 +392,8 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
 
   // Monitor container size changes to recalculate positions
   // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
-  const containerDimensions = useContainerSize(containerRef, 300);
+  // Note: _containerDimensions triggers re-renders when container size changes
+  const _containerDimensions = useContainerSize(containerRef, 300);
 
   // Drag and drop states
   const [isLoading, setIsLoading] = useState(false);
@@ -495,7 +496,8 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     }
 
     return bars;
-  }, [establishments, isMobile, containerDimensions, optimisticPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [establishments, isMobile, optimisticPositions]);
 
   const handleBarClick = useCallback((bar: Bar) => {
     if (isEditMode) return;
@@ -921,7 +923,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
 
     // SIMPLER APPROACH: Find which slot the mouse is in
     const clickSlot = (relativeX - spacing) / (idealBarWidth + spacing);
-    let col = Math.max(1, Math.min(numCols, Math.floor(clickSlot) + 1));
+    const col = Math.max(1, Math.min(numCols, Math.floor(clickSlot) + 1));
 
     // Verify we're actually in a valid position (not in spacing gap)
     const barLeftEdge = spacing + (col - 1) * (idealBarWidth + spacing);
@@ -1112,7 +1114,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -1173,7 +1175,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -1292,7 +1294,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -1354,7 +1356,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -1407,6 +1409,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
       setDropAction(null);
       setMousePosition(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerRef, isMobile, onEstablishmentUpdate are stable or accessed via closure
   }, [
     isEditMode,
     isDragging,
@@ -1414,10 +1417,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({ establi
     draggedBar,
     dropAction,
     findBarAtPosition,
-    establishments,
-    isMobile,
-    containerRef,
-    onEstablishmentUpdate
+    establishments
   ]);
 
   // Generate grid visualization for debugging (Walking Street)

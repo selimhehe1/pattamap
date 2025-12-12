@@ -81,7 +81,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
   const fetchVerifications = useCallback(async () => {
     try {
       setIsLoading(true);
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       // Don't filter by status at API level - fetch all verifications
       const url = `${API_URL}/api/verifications?limit=200`; // Increased limit to get more history
       const response = await secureFetch(url);
@@ -97,7 +97,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
     } finally {
       setIsLoading(false);
     }
-  }, []); // 🔧 FIX: No dependencies - always fetch all verifications
+  }, [secureFetch]); // secureFetch is stable from useSecureFetch hook
 
   useEffect(() => {
     fetchVerifications();
@@ -185,7 +185,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
   const handleReview = async (verificationId: string, action: 'approve' | 'reject', adminNotes?: string) => {
     try {
       setProcessingIds(prev => new Set(prev).add(verificationId));
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
       const response = await secureFetch(`${API_URL}/api/verifications/${verificationId}/review`, {
         method: 'PATCH',
@@ -226,7 +226,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
 
     try {
       setProcessingIds(prev => new Set(prev).add(revokeTarget.employeeId));
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
       const response = await secureFetch(`${API_URL}/api/verifications/employees/${revokeTarget.employeeId}/verification`, {
         method: 'DELETE',
@@ -273,7 +273,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
   const handleViewProfile = async (group: VerificationGroup) => {
     try {
       // Fetch full employee data with all fields
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
       const response = await secureFetch(`${API_URL}/api/employees/${group.employee.id}`);
 
       if (!response.ok) {

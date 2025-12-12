@@ -152,7 +152,7 @@ describe('CommentController', () => {
       await getComments(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Database error' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Erreur lors de la récupération des données' });
     });
   });
 
@@ -186,7 +186,8 @@ describe('CommentController', () => {
         content: 'Great service!',
         rating: null,
         status: 'approved',
-        user: { pseudonym: 'testuser' }
+        user: { pseudonym: 'testuser' },
+        photos: []
       };
 
       (supabase.from as jest.Mock).mockReturnValueOnce({

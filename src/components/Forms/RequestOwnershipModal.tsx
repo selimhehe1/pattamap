@@ -75,7 +75,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
       try {
         // Fetch all establishments for autocomplete
         const estResponse = await secureFetch(
-          `${process.env.REACT_APP_API_URL}/api/establishments?limit=1000`,
+          `${import.meta.env.VITE_API_URL}/api/establishments?limit=1000`,
           { method: 'GET' }
         );
 
@@ -86,7 +86,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
 
         // Fetch categories for establishment creation
         const catResponse = await secureFetch(
-          `${process.env.REACT_APP_API_URL}/api/establishments/categories`,
+          `${import.meta.env.VITE_API_URL}/api/establishments/categories`,
           { method: 'GET' }
         );
 
@@ -164,10 +164,10 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
     const uploadPromises = documents.map(async ({ file }) => {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
+      formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '');
       formData.append('folder', 'ownership_documents');
 
-      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
         {
@@ -246,7 +246,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
       // Submit request
       toast.info(createMode ? 'Creating establishment and submitting request...' : 'Submitting request...');
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/ownership-requests`,
+        `${import.meta.env.VITE_API_URL}/api/ownership-requests`,
         {
           method: 'POST',
           headers: {

@@ -7,10 +7,10 @@ import '@testing-library/jest-dom';
 // ==============================
 // ENVIRONMENT VARIABLES
 // ==============================
-process.env.REACT_APP_API_URL = 'http://localhost:5000';
-process.env.REACT_APP_SUPABASE_URL = 'https://test.supabase.co';
-process.env.REACT_APP_SUPABASE_ANON_KEY = 'test-anon-key';
-process.env.REACT_APP_GA_TRACKING_ID = 'test-tracking-id';
+import.meta.env.VITE_API_URL = 'http://localhost:5000';
+import.meta.env.VITE_SUPABASE_URL = 'https://test.supabase.co';
+import.meta.env.VITE_SUPABASE_ANON_KEY = 'test-anon-key';
+import.meta.env.VITE_GA_TRACKING_ID = 'test-tracking-id';
 
 // ==============================
 // WINDOW MOCKS

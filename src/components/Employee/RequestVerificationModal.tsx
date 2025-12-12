@@ -56,11 +56,11 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
   const uploadToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
+    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '');
     formData.append('folder', 'verifications');
 
-    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     // Debug log
     logger.info('Uploading to Cloudinary', { cloudName, uploadPreset });
@@ -101,7 +101,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
       // 2. Submit to verification API
       toast.info('Analyzing face...');
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/verifications/${employeeId}/verify`,
+        `${import.meta.env.VITE_API_URL}/api/verifications/${employeeId}/verify`,
         {
           method: 'POST',
           headers: {

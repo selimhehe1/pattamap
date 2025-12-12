@@ -77,34 +77,34 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/categories`);
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (_error) {
+        logger.error('Error fetching categories:', _error);
+      }
+    };
+
+    const fetchConsumableTemplates = async () => {
+      try {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments/consumables`);
+        if (!response.ok) {
+          logger.error('Failed to fetch consumables:', response.status);
+          return;
+        }
+        const data = await response.json();
+        const templates = data.consumables || [];
+        setConsumableTemplates(templates.filter((t: ConsumableTemplate) => t.status === 'active'));
+      } catch (_error) {
+        logger.error('Error fetching consumable templates:', _error);
+      }
+    };
+
     fetchCategories();
     fetchConsumableTemplates();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/categories`);
-      const data = await response.json();
-      setCategories(data.categories || []);
-    } catch (error) {
-      logger.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchConsumableTemplates = async () => {
-    try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments/consumables`);
-      if (!response.ok) {
-        logger.error('Failed to fetch consumables:', response.status);
-        return;
-      }
-      const data = await response.json();
-      const templates = data.consumables || [];
-      setConsumableTemplates(templates.filter((t: ConsumableTemplate) => t.status === 'active'));
-    } catch (error) {
-      logger.error('Error fetching consumable templates:', error);
-    }
-  };
+  }, [secureFetch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -236,7 +236,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
         size: `${(logoFile.size / 1024 / 1024).toFixed(2)}MB`
       });
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/upload/establishment-logo`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/establishment-logo`, {
         method: 'POST',
         body: formDataUpload
       });
@@ -330,7 +330,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
       logger.debug('🏢 Submitting owner update:', updatePayload);
 
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/establishments/${establishment.id}`,
+        `${import.meta.env.VITE_API_URL}/api/establishments/${establishment.id}`,
         {
           method: 'PUT',
           headers: {

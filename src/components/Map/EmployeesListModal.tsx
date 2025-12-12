@@ -57,7 +57,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
       setLoading(true);
       try {
         // Fetch all employees
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/employees`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees`);
         if (!response.ok) throw new Error('Failed to fetch employees');
 
         const data = await response.json();

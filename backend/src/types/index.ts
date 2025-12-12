@@ -170,6 +170,17 @@ export interface CreateCommentRequest {
   content: string;
   rating?: number;
   parent_comment_id?: string;
+  photo_urls?: string[]; // v10.4 - Photos in reviews (max 3)
+}
+
+// v10.4 - Comment photo interface
+export interface CommentPhoto {
+  id: string;
+  comment_id: string;
+  photo_url: string;
+  cloudinary_public_id: string;
+  display_order: number;
+  created_at: string;
 }
 
 export interface IndependentPosition {

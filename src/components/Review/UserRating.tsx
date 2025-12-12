@@ -49,7 +49,7 @@ const UserRating: React.FC<UserRatingProps> = ({
       try {
 
         const response = await secureFetch(
-          `${process.env.REACT_APP_API_URL}/api/comments/user-rating/${employeeId}`
+          `${import.meta.env.VITE_API_URL}/api/comments/user-rating/${employeeId}`
         );
 
         if (response.ok) {
@@ -68,7 +68,7 @@ const UserRating: React.FC<UserRatingProps> = ({
     };
 
     fetchUserRating();
-  }, [user, employeeId, loading]);
+  }, [user, employeeId, loading, secureFetch]);
 
   const handleRatingSubmit = async () => {
     if (!user || newRating < 1 || newRating > 5) {
@@ -81,7 +81,7 @@ const UserRating: React.FC<UserRatingProps> = ({
 
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/comments/user-rating/${employeeId}`,
+        `${import.meta.env.VITE_API_URL}/api/comments/user-rating/${employeeId}`,
         {
           method: 'PUT',
           body: JSON.stringify({

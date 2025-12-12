@@ -1,0 +1,191 @@
+
+> pattamap@0.1.0 lint
+> eslint src --max-warnings 100
+
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\App.tsx
+  141:11  warning  'filtered' is never reassigned. Use 'const' instead  prefer-const
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\AdminDashboard.tsx
+  84:6  warning  React Hook useEffect has a missing dependency: 'loadDashboardStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\AdminPanel.tsx
+  54:6  warning  React Hook useEffect has missing dependencies: 'activeTab' and 'getTabFromPath'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\CommentsAdmin.tsx
+  55:6  warning  React Hook useEffect has a missing dependency: 'loadComments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\ConsumablesAdmin.tsx
+  30:6  warning  React Hook useEffect has a missing dependency: 'loadConsumables'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\EmployeeClaimsAdmin.tsx
+  45:6  warning  React Hook useEffect has a missing dependency: 'loadClaims'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\EstablishmentLogosManager.tsx
+  23:6  warning  React Hook useEffect has a missing dependency: 'loadEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\EstablishmentOwnersAdmin.tsx
+   70:6   warning  React Hook useEffect has missing dependencies: 'loadEstablishments' and 'loadOwnershipRequests'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+   79:13  warning  'estabs' is never reassigned. Use 'const' instead                                                                                                    prefer-const
+  263:5   warning  React Hook useMemo has a missing dependency: 'performSearch'. Either include it or remove the dependency array                                       react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\EstablishmentsAdmin.tsx
+  99:6  warning  React Hook useEffect has a missing dependency: 'loadEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\UsersAdmin.tsx
+  47:6  warning  React Hook useEffect has a missing dependency: 'loadUsers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\VIPVerificationAdmin.tsx
+  239:6  warning  React Hook useEffect has a missing dependency: 'fetchTransactions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Admin\VerificationsAdmin.tsx
+  100:6  warning  React Hook useCallback has a missing dependency: 'secureFetch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Bar\BarInfoSidebar.tsx
+  92:6  warning  React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Common\EstablishmentAutocomplete.tsx
+  65:9  warning  The 'zoneNames' object makes the dependencies of useMemo Hook (at line 118) change on every render. To fix this, wrap the initialization of 'zoneNames' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Common\PromptModal.tsx
+  48:6  warning  React Hook useEffect has a missing dependency: 'value.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Employee\EditMyProfileModal.tsx
+  45:6  warning  React Hook useEffect has a missing dependency: 'fetchLinkedProfile'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Employee\EmployeeDashboard.tsx
+  76:6  warning  React Hook useEffect has a missing dependency: 'fetchDashboardData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  82:6  warning  React Hook useEffect has a missing dependency: 'fetchReviews'. Either include it or remove the dependency array        react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Employee\EmployeeProfileWizard.tsx
+  75:6  warning  React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Forms\EmployeeForm.tsx
+  122:6  warning  React Hook useEffect has a missing dependency: 'fetchEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Forms\EmployeeFormContent.tsx
+  91:6  warning  React Hook useEffect has a missing dependency: 'fetchEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Forms\EstablishmentEditModal.tsx
+  203:6  warning  React Hook useEffect has missing dependencies: 'fetchCategories' and 'fetchConsumableTemplates'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Forms\EstablishmentForm.tsx
+  143:6  warning  React Hook useEffect has missing dependencies: 'fetchCategories' and 'fetchConsumableTemplates'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Gamification\FollowButton.tsx
+  40:6  warning  React Hook useEffect has a missing dependency: 'fetchFollowStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Gamification\ReviewVoteButton.tsx
+  40:6  warning  React Hook useEffect has a missing dependency: 'fetchVoteStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomBeachRoadMap.tsx
+   281:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                        react-hooks/exhaustive-deps
+   328:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                        react-hooks/exhaustive-deps
+   837:6  warning  React Hook useCallback has missing dependencies: 'getCSRFHeaders' and 'optimisticPositions'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  1170:6  warning  React Hook useCallback has an unnecessary dependency: 'token'. Either exclude it or remove the dependency array                                  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomBoyzTownMap.tsx
+  160:122  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  181:6    warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomJomtienComplexMap.tsx
+  188:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  219:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomLKMetroMap.tsx
+   324:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+   883:6  warning  React Hook useCallback has an unnecessary dependency: 'onEstablishmentUpdate'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  1135:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomSoi6Map.tsx
+   891:6  warning  React Hook useCallback has unnecessary dependencies: 'onEstablishmentUpdate', 'token', and 'user'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+  1149:6  warning  React Hook useCallback has a missing dependency: 'triggerHapticFeedback'. Either include it or remove the dependency array                             react-hooks/exhaustive-deps
+  1279:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomSoi78Map.tsx
+  112:122  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  133:6    warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomSoiBuakhaoMap.tsx
+  291:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  727:6  warning  React Hook useCallback has a missing dependency: 'optimisticPositions'. Either include it or remove the dependency array   react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomTreetownMap.tsx
+  335:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+  357:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array        react-hooks/exhaustive-deps
+  799:6  warning  React Hook useCallback has an unnecessary dependency: 'onEstablishmentUpdate'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\CustomWalkingStreetMap.tsx
+   498:6  warning  React Hook useMemo has an unnecessary dependency: 'containerDimensions'. Either exclude it or remove the dependency array                                         react-hooks/exhaustive-deps
+   924:9  warning  'col' is never reassigned. Use 'const' instead                                                                                                                    prefer-const
+  1410:6  warning  React Hook useCallback has unnecessary dependencies: 'containerRef', 'isMobile', and 'onEstablishmentUpdate'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\EmployeesGridView.tsx
+  82:9  warning  'filtered' is never reassigned. Use 'const' instead  prefer-const
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Map\GenericRoadCanvas.tsx
+  77:9  warning  The 'roadStyle' object makes the dependencies of useEffect Hook (at line 485) change on every render. Move it inside the useEffect callback. Alternatively, wrap the initialization of 'roadStyle' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Owner\MyEmployeesList.tsx
+  36:6  warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Owner\OwnerEstablishmentEditModal.tsx
+  82:6  warning  React Hook useEffect has missing dependencies: 'fetchCategories' and 'fetchConsumableTemplates'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Owner\VIPPurchaseModal.tsx
+  43:6  warning  React Hook useEffect has a missing dependency: 'fetchPricingData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Review\ReviewForm.tsx
+  61:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Review\UserRating.tsx
+  71:6  warning  React Hook useEffect has a missing dependency: 'secureFetch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Search\SearchPage.tsx
+  158:11  warning  'newFilters' is never reassigned. Use 'const' instead  prefer-const
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Search\__tests__\SearchFilters.test.tsx
+  140:15  warning  'container' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  205:17  warning  'zIndex' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  264:15  warning  'container' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  338:15  warning  'container' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  383:15  warning  'container' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\components\Search\__tests__\SearchPage.test.tsx
+   11:26  warning  'waitFor' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   91:15  warning  'container' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   94:13  warning  'urlParams' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  306:11  warning  'newFilters' is never reassigned. Use 'const' instead                                 prefer-const
+  336:11  warning  'newFilters' is never reassigned. Use 'const' instead                                 prefer-const
+  354:13  warning  'newFilters' is never reassigned. Use 'const' instead                                 prefer-const
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\contexts\AuthContext.tsx
+  350:6  warning  React Hook useEffect has missing dependencies: 'getMyLinkedProfile' and 'linkedEmployeeProfile'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\contexts\GamificationContext.tsx
+  129:6  warning  React Hook useCallback has a missing dependency: 'clearXPNotification'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  151:6  warning  React Hook useCallback has a missing dependency: 'levelConfig'. Either include it or remove the dependency array          react-hooks/exhaustive-deps
+  155:6  warning  React Hook useCallback has a missing dependency: 'levelConfig'. Either include it or remove the dependency array          react-hooks/exhaustive-deps
+  160:6  warning  React Hook useCallback has a missing dependency: 'levelConfig'. Either include it or remove the dependency array          react-hooks/exhaustive-deps
+  168:6  warning  React Hook useCallback has a missing dependency: 'levelConfig'. Either include it or remove the dependency array          react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\contexts\ModalContext.tsx
+   88:6  warning  React Hook useEffect has a missing dependency: 'closeModal'. Either include it or remove the dependency array    react-hooks/exhaustive-deps
+  125:6  warning  React Hook useCallback has a missing dependency: 'closeModal'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  149:6  warning  React Hook useCallback has a missing dependency: 'closeModal'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\pages\FreelancesPage.tsx
+  44:6  warning  React Hook useEffect has a missing dependency: 'fetchFreelances'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\pages\GamifiedUserProfile.tsx
+  46:6  warning  React Hook useEffect has a missing dependency: 'fetchUserProfile'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\pages\MyEstablishmentsPage.tsx
+  86:6  warning  React Hook useEffect has a missing dependency: 'loadOwnedEstablishments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Selim\Documents\Projet\pattaya-directory\src\utils\cloudinary.ts
+  61:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 83 problems (0 errors, 83 warnings)
+  0 errors and 8 warnings potentially fixable with the `--fix` option.
+

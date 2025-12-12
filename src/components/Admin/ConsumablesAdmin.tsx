@@ -14,7 +14,7 @@ interface ConsumablesAdminProps {
 const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
   const [consumables, setConsumables] = useState<ConsumableTemplate[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingConsumable, setEditingConsumable] = useState<ConsumableTemplate | null>(null);
@@ -24,41 +24,44 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
     icon: '🍺',
     default_price: ''
   });
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshConsumables = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    loadConsumables();
-  }, []);
+    const loadConsumables = async () => {
+      try {
+        const response = await secureFetch(`${API_URL}/api/admin/consumables`);
 
-  const loadConsumables = async () => {
-    try {
-      const response = await secureFetch(`${API_URL}/api/admin/consumables`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setConsumables(data.consumables || []);
-      } else {
-        // Fallback to mock data if API not available
+        if (response.ok) {
+          const data = await response.json();
+          setConsumables(data.consumables || []);
+        } else {
+          // Fallback to mock data if API not available
+          const mockConsumables: ConsumableTemplate[] = [
+            { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-004', name: 'Tequila Shot', category: 'shot', icon: '🥃', default_price: 150, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-005', name: 'Mojito', category: 'cocktail', icon: '🍹', default_price: 200, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-006', name: 'Whisky', category: 'spirit', icon: '🥂', default_price: 180, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
+          ];
+          setConsumables(mockConsumables);
+        }
+      } catch (error) {
+        logger.error('Failed to load consumables:', error);
+        // Fallback to mock data
         const mockConsumables: ConsumableTemplate[] = [
           { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
           { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-004', name: 'Tequila Shot', category: 'shot', icon: '🥃', default_price: 150, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-005', name: 'Mojito', category: 'cocktail', icon: '🍹', default_price: 200, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-006', name: 'Whisky', category: 'spirit', icon: '🥂', default_price: 180, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
+          { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
         ];
         setConsumables(mockConsumables);
       }
-    } catch (error) {
-      logger.error('Failed to load consumables:', error);
-      // Fallback to mock data
-      const mockConsumables: ConsumableTemplate[] = [
-        { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-        { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
-      ];
-      setConsumables(mockConsumables);
-    }
-  };
+    };
+    loadConsumables();
+  }, [secureFetch, API_URL, refreshCounter]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -91,7 +94,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
         setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
         setShowAddForm(false);
         setEditingConsumable(null);
-        loadConsumables();
+        refreshConsumables();
       } else {
         logger.error('Failed to save consumable');
       }
@@ -101,7 +104,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
       setShowAddForm(false);
       setEditingConsumable(null);
-      loadConsumables();
+      refreshConsumables();
     }
   };
 
@@ -126,14 +129,14 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       });
       
       if (response.ok) {
-        loadConsumables();
+        refreshConsumables();
       } else {
         logger.error('Failed to toggle status');
       }
     } catch (error) {
       logger.error('Error toggling status:', error);
       // For demo purposes, still reload
-      loadConsumables();
+      refreshConsumables();
     }
   };
 
@@ -148,14 +151,14 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       });
       
       if (response.ok) {
-        loadConsumables();
+        refreshConsumables();
       } else {
         logger.error('Failed to delete consumable');
       }
     } catch (error) {
       logger.error('Error deleting consumable:', error);
       // For demo purposes, still reload
-      loadConsumables();
+      refreshConsumables();
     }
   };
 

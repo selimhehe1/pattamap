@@ -46,7 +46,7 @@ export const useFreelances = () => {
     queryFn: async (): Promise<IndependentPosition[]> => {
       logger.debug('👤 Fetching independent positions for map...');
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/independent-positions/map`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/independent-positions/map`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch independent positions');

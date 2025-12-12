@@ -61,8 +61,8 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
   // Debounce search query by 300ms for better performance with large lists
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
 
-  // Zone names mapping
-  const zoneNames: Record<string, string> = {
+  // Zone names mapping - memoized to prevent dependency issues
+  const zoneNames = useMemo<Record<string, string>>(() => ({
     soi6: 'Soi 6',
     walkingstreet: 'Walking Street',
     beachroad: 'Beach Road',
@@ -72,7 +72,7 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     jomtiencomplex: 'Jomtien Complex',
     boyztown: 'BoyzTown',
     soi78: 'Soi 7 & 8'
-  };
+  }), []);
 
   // Sync input value with selected establishment
   useEffect(() => {

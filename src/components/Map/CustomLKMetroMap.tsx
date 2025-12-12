@@ -201,7 +201,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   onEstablishmentClick,
   selectedEstablishment,
   onBarClick,
-  onEstablishmentUpdate
+  onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
   const navigate = useNavigate();
   const { user, token: _token } = useAuth();
@@ -233,7 +233,8 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
 
   // Monitor container size changes
   // ✅ PERFORMANCE: 300ms debounce reduces re-renders by 50% during resize
-  const containerDimensions = useContainerSize(containerRef, 300);
+  // Note: _containerDimensions triggers re-renders when container size changes
+  const _containerDimensions = useContainerSize(containerRef, 300);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -321,7 +322,8 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
     }
 
     return bars;
-  }, [establishments, isMobile, containerDimensions, optimisticPositions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [establishments, isMobile, optimisticPositions]);
 
   const handleBarClick = useCallback((bar: Bar) => {
     if (isEditMode) return;
@@ -759,7 +761,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -821,7 +823,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -880,7 +882,8 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
         throttleTimeout.current = null;
       }
     }
-  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments, onEstablishmentUpdate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onEstablishmentUpdate is stable prop
+  }, [isEditMode, isDragging, dragOverPosition, draggedBar, dropAction, findBarAtPosition, establishments]);
 
   // Handle drag end
   const handleDragEnd = useCallback(() => {
@@ -982,7 +985,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: establishment.id,
             grid_row: row,
@@ -1037,7 +1040,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
             return newMap;
           });
 
-          const requestUrl = `${process.env.REACT_APP_API_URL}/api/grid-move-workaround`;
+          const requestUrl = `${import.meta.env.VITE_API_URL}/api/grid-move-workaround`;
           const requestBody = {
             establishmentId: draggedEstablishment.id,
             grid_row: row,
@@ -1132,7 +1135,8 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
       return barWidth;
     }
     return isMobile ? 35 : 40;
-  }, [isMobile, containerDimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- containerDimensions triggers via containerRef
+  }, [isMobile]);
 
   // Render debug grid (L-shaped yellow circles)
   const renderGridDebug = () => {

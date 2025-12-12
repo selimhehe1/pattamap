@@ -289,6 +289,39 @@
       "submitButton": "Отправить комментарий"
     }
   },
+  "reviews": {
+    "addPhotos": "Добавить фото (необязательно)",
+    "photosLimit": "Максимум 3 фото",
+    "photoUploading": "Загрузка фото...",
+    "photoUploadError": "Не удалось загрузить фото",
+    "establishmentResponse": "Ответ заведения",
+    "respondToReview": "Ответить на этот отзыв",
+    "responsePosted": "Ответ успешно опубликован",
+    "noPhotos": "Нет фотографий",
+    "viewAllPhotos": "Смотреть все фото",
+    "photos": {
+      "openPhoto": "Просмотреть фото {{index}}",
+      "photoAlt": "Фото отзыва {{index}}",
+      "lightboxTitle": "Просмотр фотографий",
+      "close": "Закрыть",
+      "previous": "Предыдущее фото",
+      "next": "Следующее фото",
+      "goToPhoto": "Перейти к фото {{index}}"
+    },
+    "owner": {
+      "panelTitle": "Отзывы и ответы",
+      "noReviews": "Пока нет отзывов о ваших сотрудниках",
+      "responded": "Отвечено",
+      "notResponded": "Без ответа",
+      "respondButton": "Ответить",
+      "responseLabel": "Ваш ответ",
+      "responsePlaceholder": "Поблагодарите клиента, ответьте на его вопросы...",
+      "submitResponse": "Отправить ответ",
+      "filterAll": "Все",
+      "filterPending": "Ожидают ответа",
+      "filterResponded": "С ответом"
+    }
+  },
   "auth": {
     "login": "Войти",
     "register": "Регистрация",
@@ -1857,17 +1890,48 @@
       "completedMessage": "Mission completed! Rewards claimed."
     },
     "leaderboard": {
-      "title": "Leaderboard",
-      "global": "Global",
-      "monthly": "Monthly",
+      "title": "Таблица лидеров",
+      "global": "Глобальный",
+      "monthly": "За месяц",
+      "weekly": "За неделю",
       "allTime": "Все время",
-      "rank": "Rank",
-      "you": "You",
-      "loading": "Loading leaderboard...",
-      "empty": "No leaderboard data available yet.",
+      "rank": "Ранг",
+      "you": "Вы",
+      "loading": "Загрузка таблицы лидеров...",
+      "empty": "Нет данных рейтинга.",
       "emptySubtitle": "Станьте первым в таблице лидеров",
-      "position": "Position",
-      "score": "Score"
+      "position": "Позиция",
+      "score": "Счет",
+      "reviews": "отзывов",
+      "photos": "фото",
+      "checkins": "чекинов",
+      "votes": "голосов",
+      "categories": {
+        "title": "Категории",
+        "reviewers": "Лучшие авторы отзывов",
+        "photographers": "Лучшие фотографы",
+        "checkins": "Больше всего чекинов",
+        "helpful": "Самые полезные"
+      }
+    },
+    "xpHistory": {
+      "title": "История XP",
+      "days": "д",
+      "totalGained": "XP заработано за последние {{days}} дней",
+      "breakdown": "Источники",
+      "empty": "Нет XP за этот период",
+      "emptySubtitle": "Исследуйте, оставляйте отзывы и делайте check-in для получения XP!",
+      "error": "Не удалось загрузить историю XP",
+      "sources": {
+        "check_in": "Check-in",
+        "review": "Отзывы",
+        "mission": "Миссии",
+        "badge": "Значки",
+        "daily_login": "Ежедневный вход",
+        "photo_upload": "Загрузка фото",
+        "helpful_vote": "Полезные голоса",
+        "other": "Другое"
+      }
     },
     "checkIn": {
       "button": "Check In",
@@ -1937,6 +2001,28 @@
       "missionCompleted": "Mission Completed: {{mission}}",
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
+    },
+    "rewards": {
+      "title": "Награды и Разблокировки",
+      "filterAll": "Все",
+      "filterFeatures": "Функции",
+      "filterCosmetics": "Косметика",
+      "filterTitles": "Титулы",
+      "unlocked": "Разблокировано",
+      "locked": "Заблокировано",
+      "requireLevel": "Уровень {{level}}",
+      "requireXP": "{{xp}} XP",
+      "requireBadge": "Требуется значок",
+      "requireSpecial": "Особое достижение",
+      "maxLevel": "Макс. уровень!",
+      "toNextLevel": " до Уровня {{level}}",
+      "claim": "Получить",
+      "claiming": "Получение...",
+      "error": "Не удалось загрузить награды",
+      "noRewards": "Нет наград в этой категории",
+      "statsUnlocked": "Разблокировано",
+      "statsLocked": "Осталось",
+      "statsTotalXP": "Всего XP"
     }
   },
   "visitHistory": {

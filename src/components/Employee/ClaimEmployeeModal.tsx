@@ -56,7 +56,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     debounceTimerRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(searchQuery)}`,
+          `${import.meta.env.VITE_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(searchQuery)}`,
           {
             credentials: 'include',
           }
@@ -94,7 +94,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
   const searchEmployeeByName = async (name: string) => {
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/employees/search?q=${encodeURIComponent(name)}&limit=10`,
+        `${import.meta.env.VITE_API_URL}/api/employees/search?q=${encodeURIComponent(name)}&limit=10`,
         { credentials: 'include' }
       );
 

@@ -26,7 +26,7 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
       setLoadingMissions(true);
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/gamification/missions?is_active=true`,
+          `${import.meta.env.VITE_API_URL}/api/gamification/missions?is_active=true`,
           {
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }

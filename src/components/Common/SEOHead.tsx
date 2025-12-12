@@ -75,7 +75,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
 }) => {
   // Site configuration
   const siteName = 'PattaMap';
-  const siteUrl = process.env.REACT_APP_SITE_URL || 'https://pattamap.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
 
   // Full title with site name
   const fullTitle = `${title} | ${siteName} - Pattaya Nightlife Directory`;

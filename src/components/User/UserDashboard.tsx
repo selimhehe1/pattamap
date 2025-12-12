@@ -46,7 +46,7 @@ const UserDashboard: React.FC = () => {
 
   const handleOpenProfile = async (employeeId: string) => {
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/employees/${employeeId}`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`);
       if (response.ok) {
         const data = await response.json();
         openModal('user-favorite-profile', GirlProfile, {
