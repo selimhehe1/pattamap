@@ -662,9 +662,9 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                {formData.services.map((service, index) => (
+                {formData.services.map((service) => (
                   <span
-                    key={index}
+                    key={service}
                     style={{
                       background: 'rgba(193, 154, 107,0.2)',
                       color: '#C19A6B',

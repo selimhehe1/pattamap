@@ -386,9 +386,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
         <div>
           {/* Statistics Cards */}
           <div className="admin-stats-grid">
-            {statCards.map((card, index) => (
+            {statCards.map((card) => (
               <div
-                key={index}
+                key={card.title}
                 className="admin-stat-card"
                 style={{ borderColor: `${card.color}40` }}
                 onMouseEnter={(e) => {

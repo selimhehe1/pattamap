@@ -440,7 +440,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                   }}>
                     {claim.verification_proof.slice(0, 3).map((url, index) => (
                       <div
-                        key={index}
+                        key={url}
                         style={{
                           width: '50px',
                           height: '50px',
@@ -893,7 +893,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                   <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {selectedClaim.verification_proof.map((url, index) => (
                       <a
-                        key={index}
+                        key={url}
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"

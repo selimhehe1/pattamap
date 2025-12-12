@@ -3,6 +3,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { CreateCommentRequest } from '../types';
 import { logger } from '../utils/logger';
+import { sanitizeErrorForClient } from '../utils/validation';
 import { notifyCommentReply, notifyCommentMention, notifyModeratorsNewReport } from '../utils/notificationHelper';
 import { missionTrackingService } from '../services/missionTrackingService';
 import { awardXP } from '../services/gamificationService';
@@ -31,7 +32,8 @@ export const getComments = async (req: AuthRequest, res: Response) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      logger.error('Get comments error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'fetch') });
     }
 
     // 🔧 Map parent_comment_id → parent_id for frontend compatibility
@@ -156,7 +158,7 @@ export const createComment = async (req: AuthRequest, res: Response) => {
           error: 'You have already rated this employee. You can update your rating using the rating section above, or add a review without rating.'
         });
       }
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'create') });
     }
 
     // Notify parent comment author if this is a reply
@@ -333,7 +335,8 @@ export const updateComment = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      logger.error('Update comment error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'update') });
     }
 
     res.json({
@@ -371,7 +374,8 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
       .eq('id', id);
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      logger.error('Delete comment error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'delete') });
     }
 
     res.json({ message: 'Comment deleted successfully' });
@@ -430,7 +434,8 @@ export const reportComment = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      logger.error('Report comment error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'create') });
     }
 
     // 🔔 Notify moderators about the new report
@@ -474,7 +479,8 @@ export const getEmployeeRatings = async (req: AuthRequest, res: Response) => {
       .not('rating', 'is', null);
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      logger.error('Get employee ratings error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'fetch') });
     }
 
     const validRatings = ratings?.map(r => r.rating).filter(r => r !== null) || [];
@@ -527,7 +533,8 @@ export const getUserRating = async (req: AuthRequest, res: Response) => {
     }
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      return res.status(400).json({ error: error.message });
+      logger.error('Get user rating error:', error);
+      return res.status(400).json({ error: sanitizeErrorForClient(error, 'fetch') });
     }
 
     res.json({

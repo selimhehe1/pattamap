@@ -61,13 +61,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
           }
 
-          // 🆕 v10.0 - Fetch linked employee profile if user is an employee
-          if (data.user.account_type === 'employee' && data.user.linked_employee_id) {
-            logger.debug('[AuthContext] Conditions met! Calling getMyLinkedProfile()');
-            setTimeout(() => getMyLinkedProfile(true), 100); // skipCheck=true to bypass state closure issue
-          } else {
-            logger.debug('[AuthContext] Conditions NOT met. Not calling getMyLinkedProfile()');
-          }
+          // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
+          // when user state changes (see useEffect at bottom of component)
+          logger.debug('[AuthContext] User loaded, profile will be fetched via useEffect if needed');
         } else {
           // Not authenticated or token expired
           setUser(null);
@@ -116,11 +112,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
       }
 
-      // 🆕 v10.0 - Fetch linked employee profile if user is an employee
-      if (data.user.account_type === 'employee' && data.user.linked_employee_id) {
-        // Fetch profile after setting user state (skipCheck=true to bypass state closure)
-        setTimeout(() => getMyLinkedProfile(true), 100);
-      }
+      // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
+      // when user state changes (see useEffect at bottom of component)
     } catch (error) {
       logger.error('Login error:', error);
       throw error;
@@ -180,11 +173,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logger.warn('⚠️ No CSRF token in register response');
       }
 
-      // 🆕 v10.0 - Fetch linked employee profile if user is an employee
-      if (data.user.account_type === 'employee' && data.user.linked_employee_id) {
-        // Fetch profile after setting user state (skipCheck=true to bypass state closure)
-        setTimeout(() => getMyLinkedProfile(true), 100);
-      }
+      // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
+      // when user state changes (see useEffect at bottom of component)
 
       return freshToken; // 🔧 Return fresh CSRF token for immediate use
     } catch (error) {
@@ -346,6 +336,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     }
   };
+
+  // ==========================================
+  // 🔧 FIX: useEffect to fetch linked profile when user changes
+  // ==========================================
+  // This replaces the fragile setTimeout pattern with a proper React effect
+  // that triggers when user state actually changes
+  useEffect(() => {
+    if (user?.account_type === 'employee' && user?.linked_employee_id && !linkedEmployeeProfile) {
+      logger.debug('[AuthContext] useEffect triggered - fetching linked profile for employee user');
+      getMyLinkedProfile(true); // skipCheck=true since we already verified conditions
+    }
+  }, [user?.account_type, user?.linked_employee_id]); // Only re-run when these specific properties change
 
   const value: AuthContextType = {
     user,

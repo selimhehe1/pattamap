@@ -79,3 +79,6 @@ playwright/.cache/
 
 # CI/CD
 .github/workflows/*.local.yml
+
+# Vercel
+.vercel/

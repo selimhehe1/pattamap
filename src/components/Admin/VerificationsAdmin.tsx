@@ -421,9 +421,9 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
           { label: 'Manual Review', value: stats.manualReview, icon: '👁️', gradient: 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05))', border: 'rgba(255,215,0,0.3)' },
           { label: 'Approved', value: stats.approved, icon: '✅', gradient: 'linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05))', border: 'rgba(0,255,136,0.3)' },
           { label: 'Rejected', value: stats.rejected, icon: '❌', gradient: 'linear-gradient(135deg, rgba(255,71,87,0.1), rgba(255,71,87,0.05))', border: 'rgba(255,71,87,0.3)' }
-        ].map((stat, index) => (
+        ].map((stat) => (
           <div
-            key={index}
+            key={stat.label}
             style={{
               background: stat.gradient,
               border: `1px solid ${stat.border}`,

@@ -121,7 +121,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
             <div>
               {employee.photos.map((photo, index) => (
                 <LazyImage
-                  key={index}
+                  key={photo}
                   src={photo}
                   alt={`${employee.name}, ${employee.age} years old from ${employee.nationality} - ${index + 1}`}
                   cloudinaryPreset="employeePhoto"

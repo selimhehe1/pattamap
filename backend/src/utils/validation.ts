@@ -115,6 +115,7 @@ export const validateURL = (url: string): boolean => {
 // ========================================
 // Validates that a URL is a secure image URL (HTTPS + valid extension)
 // Prevents XSS attacks (javascript:, data:, etc.) and malformed URLs
+// SECURITY FIX: Also prevents SSRF by blocking private/internal IPs
 export const isValidImageUrl = (url: string): boolean => {
   if (!url || typeof url !== 'string') {
     return false;
@@ -134,7 +135,29 @@ export const isValidImageUrl = (url: string): boolean => {
       return false;
     }
 
-    // 3. Pathname must end with valid image extension
+    // 3. SECURITY FIX: Prevent SSRF - Block private/internal IP ranges
+    const hostname = parsed.hostname.toLowerCase();
+    const privateIpPatterns = [
+      /^localhost$/i,
+      /^127\./,                           // Loopback
+      /^10\./,                            // Class A private
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./,  // Class B private
+      /^192\.168\./,                      // Class C private
+      /^169\.254\./,                      // Link-local
+      /^0\./,                             // Current network
+      /^::1$/,                            // IPv6 loopback
+      /^fc00:/i,                          // IPv6 private
+      /^fe80:/i,                          // IPv6 link-local
+      /\.local$/i,                        // mDNS local domains
+      /\.internal$/i,                     // Internal domains
+      /\.localhost$/i,                    // Localhost subdomains
+    ];
+
+    if (privateIpPatterns.some(pattern => pattern.test(hostname))) {
+      return false;
+    }
+
+    // 4. Pathname must end with valid image extension
     const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
     const hasValidExtension = validExtensions.some(ext =>
       parsed.pathname.toLowerCase().endsWith(ext)
@@ -144,7 +167,7 @@ export const isValidImageUrl = (url: string): boolean => {
       return false;
     }
 
-    // 4. Prevent XSS vectors (script tags, event handlers in URL)
+    // 5. Prevent XSS vectors (script tags, event handlers in URL)
     const xssPatterns = [
       /javascript:/i,
       /data:/i,
@@ -198,6 +221,45 @@ export const validateImageUrls = (
 // Sanitize for PostgreSQL queries (escape single quotes)
 export const escapeSQLString = (input: string): string => {
   return input.replace(/'/g, "''");
+};
+
+// ========================================
+// SECURITY FIX - Sanitize error messages for API responses
+// ========================================
+// Prevents database structure/internal details from being exposed to clients
+// Maps known error codes to user-friendly messages
+const ERROR_CODE_MESSAGES: Record<string, string> = {
+  '23505': 'Cette entrée existe déjà',
+  '23503': 'Référence invalide',
+  '23502': 'Champ requis manquant',
+  '22P02': 'Format de données invalide',
+  '42501': 'Permission refusée',
+  '42P01': 'Ressource non trouvée',
+  'PGRST116': 'Ressource non trouvée',
+};
+
+export const sanitizeErrorForClient = (error: any, context?: string): string => {
+  // In development, return more details for debugging
+  if (process.env.NODE_ENV === 'development') {
+    return error?.message || 'Une erreur est survenue';
+  }
+
+  // Check for known Postgres/Supabase error codes
+  if (error?.code && ERROR_CODE_MESSAGES[error.code]) {
+    return ERROR_CODE_MESSAGES[error.code];
+  }
+
+  // Generic user-friendly messages based on context
+  const contextMessages: Record<string, string> = {
+    'fetch': 'Erreur lors de la récupération des données',
+    'create': 'Erreur lors de la création',
+    'update': 'Erreur lors de la mise à jour',
+    'delete': 'Erreur lors de la suppression',
+    'auth': 'Erreur d\'authentification',
+    'upload': 'Erreur lors du téléchargement',
+  };
+
+  return contextMessages[context || ''] || 'Une erreur est survenue';
 };
 
 // Validate and prepare filter parameters for safe SQL usage

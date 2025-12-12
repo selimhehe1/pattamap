@@ -558,6 +558,112 @@ import './EmployeeCard.css';
 
 ---
 
+## React Best Practices (Audit Décembre 2025)
+
+### Keys dans les listes
+
+```typescript
+// ❌ MAUVAIS - key={index} cause des bugs de re-render
+{items.map((item, index) => (
+  <Component key={index} data={item} />  // ❌ Problème si liste change
+))}
+
+// ✅ BON - key={uniqueId} garantit stabilité
+{items.map((item) => (
+  <Component key={item.id} data={item} />  // ✅ Unique et stable
+))}
+
+// ✅ BON - Alternative si pas d'id
+{items.map((item) => (
+  <Component key={item.url} data={item} />  // ✅ Autre prop unique
+))}
+```
+
+**Pourquoi**: `key={index}` cause des problèmes quand:
+- Éléments réordonnés (liste triée)
+- Éléments supprimés/ajoutés au milieu
+- État interne des composants perdu
+
+**Composants corrigés (Audit Dec 2025)**:
+- `AdminDashboard.tsx` → `key={card.title}`
+- `EmployeeClaimsAdmin.tsx` → `key={url}`
+- `EmployeeDetailModal.tsx` → `key={photo}`
+- `EstablishmentEditModal.tsx` → `key={service}`
+- `EstablishmentOwnersAdmin.tsx` → `key={url}`
+- `VerificationsAdmin.tsx` → `key={stat.label}`
+
+### Debounce pour inputs fréquents
+
+```typescript
+// ✅ BON - Hook useDebouncedValue réutilisable
+const useDebouncedValue = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Usage
+const MyComponent = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedQuery = useDebouncedValue(searchQuery, 300); // 300ms
+
+  // Utiliser debouncedQuery pour API calls
+  useEffect(() => {
+    if (debouncedQuery) {
+      fetchResults(debouncedQuery);
+    }
+  }, [debouncedQuery]);
+};
+```
+
+**Quand utiliser**: Autocomplete, recherche, filtres avec grandes listes
+
+### useEffect vs setTimeout
+
+```typescript
+// ❌ MAUVAIS - setTimeout avec closures (valeurs périmées)
+const handleLogin = async () => {
+  await login(credentials);
+  setTimeout(() => {
+    // ⚠️ user peut avoir changé depuis!
+    if (user?.account_type === 'employee') {
+      getLinkedProfile();
+    }
+  }, 100);
+};
+
+// ✅ BON - useEffect avec dépendances explicites
+useEffect(() => {
+  // React s'assure que user est à jour
+  if (user?.account_type === 'employee' && user?.linked_employee_id) {
+    getLinkedProfile();
+  }
+}, [user?.account_type, user?.linked_employee_id]);
+```
+
+**Règle**: Si l'action dépend du state React, utiliser `useEffect`, pas `setTimeout`.
+
+### Tests locale-indépendants
+
+```typescript
+// ❌ MAUVAIS - Format dépend de la locale système
+expect(screen.getByText(/฿3,600/)).toBeInTheDocument();  // Fail si locale = fr-FR
+
+// ✅ BON - Regex flexible pour séparateurs de milliers
+expect(screen.getByText(/฿3[\s,.]?600/)).toBeInTheDocument();  // Accepte: 3,600 ou 3 600 ou 3.600
+
+// ✅ BON - Alternative: tester le conteneur
+const amount = document.querySelector('.total-value');
+expect(amount?.textContent?.replace(/[\s,.]/g, '')).toContain('3600');
+```
+
+---
+
 ## Liens Connexes
 
 - **Testing Guide**: [TESTING.md](TESTING.md)
@@ -566,4 +672,4 @@ import './EmployeeCard.css';
 
 ---
 
-**Dernière mise à jour**: v9.3.0 (Octobre 2025)
+**Dernière mise à jour**: v10.4.0 (Décembre 2025)

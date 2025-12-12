@@ -126,26 +126,29 @@ const transformEmployee = (emp: any) => ({
 // ========================================
 // SECURITY FIX: These routes now require authentication (middleware moved to line 19)
 // Previously these were accessible without auth - security vulnerability fixed
+//
+// SECURITY NOTE: execute_sql_admin RPC function has been deprecated.
+// PostGIS functions should be created via Supabase migrations instead.
+// See: supabase/migrations/YYYYMMDD_create_postgis_functions.sql
 
 // Create PostGIS coordinate extraction function
+// DEPRECATED: This endpoint should not be used in production.
+// Use Supabase migrations instead for database schema changes.
 router.post('/setup-postgis-functions', async (req, res) => {
   try {
-    // Create function to extract lat/lng from geography
-    const { error } = await supabase.rpc('execute_sql_admin', {
-      sql_query: `
-        CREATE OR REPLACE FUNCTION get_lat_lng_from_geography(location_value geography)
-        RETURNS json AS $$
-        BEGIN
-          RETURN json_build_object(
-            'latitude', ST_Y(location_value::geometry),
-            'longitude', ST_X(location_value::geometry)
-          );
-        END;
-        $$ LANGUAGE plpgsql;
-      `
-    });
+    // SECURITY FIX: Use specific RPC function instead of generic execute_sql_admin
+    // The function 'setup_postgis_functions' should be created in Supabase with limited scope
+    const { error } = await supabase.rpc('setup_postgis_functions');
 
     if (error) {
+      // If specific RPC doesn't exist, return helpful message
+      if (error.code === 'PGRST202') {
+        logger.warn('setup_postgis_functions RPC not found - create via migration instead');
+        return res.status(501).json({
+          error: 'This endpoint is deprecated. Create PostGIS functions via Supabase migrations.',
+          migration_required: true
+        });
+      }
       logger.error('PostGIS function creation error:', error);
       return res.status(500).json({ error: 'Failed to create PostGIS functions' });
     }

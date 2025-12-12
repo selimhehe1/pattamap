@@ -14,10 +14,27 @@
  * - Future: Any form requiring establishment selection
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Establishment } from '../../types';
 import '../../styles/layout/search-layout.css'; // For .input-nightlife and .autocomplete-dropdown-nightlife
+
+// Custom hook for debounced value
+const useDebouncedValue = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 interface EstablishmentAutocompleteProps {
   value: Establishment | null;
@@ -41,6 +58,9 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Debounce search query by 300ms for better performance with large lists
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
+
   // Zone names mapping
   const zoneNames: Record<string, string> = {
     soi6: 'Soi 6',
@@ -63,14 +83,14 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     }
   }, [value]);
 
-  // Filter and group establishments
-  const filteredEstablishments = useCallback(() => {
+  // Filter and group establishments using debounced search for better performance
+  const filteredEstablishments = useMemo(() => {
     // Show ALL establishments (not just those with zones)
     let filtered = [...establishments];
 
-    // Apply search filter
-    if (searchQuery.trim().length > 0 && !value) {
-      const lowerQuery = searchQuery.toLowerCase();
+    // Apply search filter using debounced query for better performance
+    if (debouncedSearchQuery.trim().length > 0 && !value) {
+      const lowerQuery = debouncedSearchQuery.toLowerCase();
       filtered = filtered.filter(est =>
         est.name.toLowerCase().includes(lowerQuery)
       );
@@ -95,7 +115,7 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     );
 
     return { groupedByZone, sortedZones };
-  }, [establishments, searchQuery, value, zoneNames]);
+  }, [establishments, debouncedSearchQuery, value, zoneNames]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +141,7 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     inputRef.current?.focus();
   };
 
-  const { groupedByZone, sortedZones } = filteredEstablishments();
+  const { groupedByZone, sortedZones } = filteredEstablishments;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>

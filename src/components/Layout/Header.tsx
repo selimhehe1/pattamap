@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search,
@@ -200,30 +200,29 @@ const Header: React.FC<HeaderProps> = ({
           )}
 
           {/* XP Indicator - visible seulement sur desktop */}
-          {user && userProgress && (() => {
-            // PERFORMANCE: Memoize XP calculations to prevent recalculation on every render
-            const progressPercentage = useMemo(() => {
-              const currentLevelXP = (userProgress.current_level - 1) * 100;
-              const xpInCurrentLevel = userProgress.total_xp - currentLevelXP;
-              const xpNeededForNextLevel = userProgress.current_level * 100;
-              return Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
-            }, [userProgress?.current_level, userProgress?.total_xp]);
-
-            return (
-              <button
-                className="header-xp-pill"
-                title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
-                onClick={() => navigate('/achievements')}
-                aria-label={`Experience Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP total`}
-              >
-                <span className="header-xp-level">Lvl {userProgress.current_level}</span>
-                <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
-                <div className="header-xp-progress">
-                  <div className="header-xp-progress-fill" style={{ width: `${progressPercentage}%` }} />
-                </div>
-              </button>
-            );
-          })()}
+          {user && userProgress && (
+            <button
+              className="header-xp-pill"
+              title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
+              onClick={() => navigate('/achievements')}
+              aria-label={`Experience Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP total`}
+            >
+              <span className="header-xp-level">Lvl {userProgress.current_level}</span>
+              <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
+              <div className="header-xp-progress">
+                <div
+                  className="header-xp-progress-fill"
+                  style={{
+                    width: `${Math.min(
+                      ((userProgress.total_xp - (userProgress.current_level - 1) * 100) /
+                        (userProgress.current_level * 100)) * 100,
+                      100
+                    )}%`
+                  }}
+                />
+              </div>
+            </button>
+          )}
 
           {/* Menu Button/Avatar */}
           <AnimatedButton

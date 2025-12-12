@@ -1046,7 +1046,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       }}>
                         {request.documents_urls.map((url, index) => (
                           <a
-                            key={index}
+                            key={url}
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
