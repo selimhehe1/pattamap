@@ -19,7 +19,10 @@
     "navigation": "Navigation",
     "actions": "Actions",
     "comingSoon": "Bientôt disponible",
-    "accessDenied": "Accès refusé"
+    "accessDenied": "Accès refusé",
+    "offlineMessage": "Vous êtes actuellement hors ligne. Certaines fonctionnalités peuvent être indisponibles.",
+    "retryConnection": "Réessayer la connexion",
+    "retry": "Réessayer"
   },
 
   "header": {

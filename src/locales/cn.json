@@ -19,7 +19,10 @@
     "navigation": "导航",
     "actions": "操作",
     "comingSoon": "即将推出",
-    "accessDenied": "访问被拒绝"
+    "accessDenied": "访问被拒绝",
+    "offlineMessage": "您当前处于离线状态。部分功能可能不可用。",
+    "retryConnection": "重试连接",
+    "retry": "重试"
   },
   "header": {
     "title": "PATTAMAP",

@@ -19,7 +19,10 @@
     "navigation": "Навигация",
     "actions": "Действия",
     "comingSoon": "Скоро",
-    "accessDenied": "Доступ запрещен"
+    "accessDenied": "Доступ запрещен",
+    "offlineMessage": "Вы сейчас офлайн. Некоторые функции могут быть недоступны.",
+    "retryConnection": "Повторить подключение",
+    "retry": "Повторить"
   },
   "header": {
     "title": "PATTAMAP",

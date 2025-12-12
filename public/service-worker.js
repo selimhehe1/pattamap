@@ -2,9 +2,10 @@
 // Handles push notifications for PWA
 // Version: 1.0.0
 
-const CACHE_NAME = 'pattamap-v1';
+const CACHE_NAME = 'pattamap-v2'; // v2: Added offline fallback page
 const urlsToCache = [
   '/',
+  '/offline.html', // 🆕 v10.3 - Offline fallback page
   '/static/css/main.css',
   '/static/js/main.js',
   '/icons/icon-192x192.png',
@@ -215,8 +216,11 @@ self.addEventListener('fetch', (event) => {
           .catch((error) => {
             console.error('[Service Worker] Fetch error:', error);
 
-            // Optional: Return offline fallback page
-            // return caches.match('/offline.html');
+            // 🆕 v10.3 - Return offline fallback page for navigation requests
+            if (event.request.mode === 'navigate') {
+              return caches.match('/offline.html');
+            }
+            return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
           });
       })
   );

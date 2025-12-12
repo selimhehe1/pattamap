@@ -20,6 +20,7 @@ import LoginPage from './pages/LoginPage'; // 🆕 E2E Testing - Dedicated login
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import XPToastNotifications from './components/Gamification/XPToastNotifications';
+import OfflineBanner from './components/Common/OfflineBanner'; // 🆕 v10.3 - PWA Offline indicator
 import { Establishment, Employee } from './types';
 import { logger } from './utils/logger';
 import { Toaster } from './utils/toast';
@@ -370,6 +371,9 @@ const AppContent: React.FC = () => {
 
           {/* Skip to Content - Accessibility */}
           <SkipToContent />
+
+          {/* Offline Banner - PWA v10.3 */}
+          <OfflineBanner />
 
           {/* Header global présent sur toutes les pages */}
           <Header

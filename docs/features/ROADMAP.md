@@ -453,24 +453,27 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 50% COMPLET - 1-2 jours restants
+#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 75% COMPLET - 1 jour restant
 
-**Statut**: Marqué "10%" → **Réalité 50% implémenté**
+**Statut**: Marqué "50%" → **Réalité 75% implémenté** (Décembre 2025)
 
 **Déjà Implémenté** ✅:
-- Service Worker fonctionnel (`/service-worker.js`)
+- Service Worker fonctionnel (`/service-worker.js` v2)
 - VitePWA + Workbox configuré
 - Cache static assets (HTML, CSS, JS)
 - API cache NetworkFirst (1h expiration)
+- **Offline fallback page** (`/public/offline.html`) - Nightlife themed
+- **useOnline hook** (`/src/hooks/useOnline.ts`) - Détection réseau
+- **OfflineBanner component** - Bandeau UI quand offline
+- **i18n translations** - 6 langues (EN/FR/TH/RU/CN/HI)
 
 **Manquant** ⏳:
-- Offline fallback page - 0.5 jour
-- Background sync queue - 1 jour
+- Background sync queue - 1 jour (optionnel)
 - Selective endpoint caching (optionnel)
 
 **Impact**: App toujours fonctionnelle, UX +100%
 
-**Stack**: Workbox
+**Stack**: Workbox, Service Worker API
 
 ---
 
@@ -537,7 +540,7 @@ Un audit complet du code vs la documentation a révélé des **écarts significa
 |---------|-------|-------|-------|
 | **Dark Mode** | 0% | 100% | +100% 🎉 |
 | **Historique Visites** | 0% | 100% | +100% 🎉 |
-| **Mode Hors Ligne PWA** | 10% | 50% | +40% |
+| **Mode Hors Ligne PWA** | 10% | 75% | +65% |
 | **Community Validation** | 70% | 90% | +20% |
 | **VIP System** | 70% | 85% | +15% |
 | **Freelance System** | 80% | 95% | +15% |
@@ -621,7 +624,7 @@ L'audit a été réalisé en:
 | 17 | Moderation | 🟢 | ✅ v10.2 | 100% | 0j |
 | **NEW FEATURES (Partial/TODO)** |
 | 18 | Historique Visites | 🟢 | ✅ v10.3 | **100%** | 0j |
-| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.3 | **50%** | 1-2j |
+| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.3 | **75%** | 1j |
 | 20 | Système Tips | 🟡 | ⏳ v10.4+ | 0% | 7j |
 | 21 | Publicité Ciblée | 🟡 | ⏳ v10.4 | 0% | 4j |
 | 22 | Dark Mode | 🟢 | ✅ v10.3 | **100%** | 0j |

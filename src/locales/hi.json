@@ -19,7 +19,10 @@
     "navigation": "नेविगेशन",
     "actions": "क्रियाएं",
     "comingSoon": "जल्द आ रहा है",
-    "accessDenied": "पहुंच अस्वीकृत"
+    "accessDenied": "पहुंच अस्वीकृत",
+    "offlineMessage": "आप वर्तमान में ऑफ़लाइन हैं। कुछ सुविधाएं अनुपलब्ध हो सकती हैं।",
+    "retryConnection": "कनेक्शन पुनः प्रयास करें",
+    "retry": "पुनः प्रयास करें"
   },
   "header": {
     "title": "PATTAMAP",

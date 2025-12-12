@@ -19,7 +19,10 @@
     "navigation": "การนำทาง",
     "actions": "การกระทำ",
     "comingSoon": "เร็วๆ นี้",
-    "accessDenied": "ปฏิเสธการเข้าถึง"
+    "accessDenied": "ปฏิเสธการเข้าถึง",
+    "offlineMessage": "คุณกำลังออฟไลน์อยู่ บางฟีเจอร์อาจไม่พร้อมใช้งาน",
+    "retryConnection": "ลองเชื่อมต่อใหม่",
+    "retry": "ลองอีกครั้ง"
   },
   "header": {
     "title": "PATTAMAP",

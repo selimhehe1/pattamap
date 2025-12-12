@@ -1,0 +1,120 @@
+/**
+ * OfflineBanner Styles
+ * Displays a notification banner when the user is offline
+ *
+ * Features:
+ * - Fixed position at top of viewport
+ * - Slide-down animation on appear
+ * - Nightlife-themed colors
+ * - Mobile responsive
+ */
+
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #ff6b35 0%, #e63946 100%);
+  color: white;
+  padding: 12px 16px;
+  box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.offline-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.offline-banner-icon {
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.offline-banner-text {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.offline-banner-retry {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.offline-banner-retry:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.offline-banner-retry:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .offline-banner {
+    padding: 10px 12px;
+  }
+
+  .offline-banner-content {
+    gap: 8px;
+  }
+
+  .offline-banner-text {
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .offline-banner-retry {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Adjust header margin when offline banner is visible */
+body:has(.offline-banner) .header-modern {
+  margin-top: 48px;
+}
+
+@media (max-width: 480px) {
+  body:has(.offline-banner) .header-modern {
+    margin-top: 44px;
+  }
+}

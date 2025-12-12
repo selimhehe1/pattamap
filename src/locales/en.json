@@ -19,7 +19,10 @@
     "navigation": "Navigation",
     "actions": "Actions",
     "comingSoon": "Coming soon",
-    "accessDenied": "Access Denied"
+    "accessDenied": "Access Denied",
+    "offlineMessage": "You are currently offline. Some features may be unavailable.",
+    "retryConnection": "Retry connection",
+    "retry": "Retry"
   },
 
   "header": {
