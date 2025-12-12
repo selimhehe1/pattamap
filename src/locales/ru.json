@@ -24,6 +24,16 @@
     "retryConnection": "Повторить подключение",
     "retry": "Повторить"
   },
+  "sync": {
+    "syncing": "Синхронизация...",
+    "pending": "{{count}} в ожидании",
+    "pendingOffline": "{{count}} в ожидании (офлайн)",
+    "partialSync": "{{success}} синхр., {{failed}} не удалось",
+    "complete": "Всё синхронизировано",
+    "upToDate": "Актуально",
+    "clickToSync": "Нажмите для синхронизации",
+    "queuedForSync": "В очереди на синхронизацию"
+  },
   "header": {
     "title": "PATTAMAP",
     "subtitle": "Навигация по ночной жизни Паттайи",

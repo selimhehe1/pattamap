@@ -19,7 +19,21 @@
     "navigation": "Navigation",
     "actions": "Actions",
     "comingSoon": "Coming soon",
-    "accessDenied": "Access Denied"
+    "accessDenied": "Access Denied",
+    "offlineMessage": "You are currently offline. Some features may be unavailable.",
+    "retryConnection": "Retry connection",
+    "retry": "Retry"
+  },
+
+  "sync": {
+    "syncing": "同期中...",
+    "pending": "{{count}}件保留中",
+    "pendingOffline": "{{count}}件保留中（オフライン）",
+    "partialSync": "{{success}}件同期、{{failed}}件失敗",
+    "complete": "すべて同期済み",
+    "upToDate": "最新です",
+    "clickToSync": "クリックして今すぐ同期",
+    "queuedForSync": "オンライン時に同期予定"
   },
 
   "header": {

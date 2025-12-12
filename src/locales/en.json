@@ -25,6 +25,17 @@
     "retry": "Retry"
   },
 
+  "sync": {
+    "syncing": "Syncing...",
+    "pending": "{{count}} pending",
+    "pendingOffline": "{{count}} pending (offline)",
+    "partialSync": "{{success}} synced, {{failed}} failed",
+    "complete": "All synced",
+    "upToDate": "Up to date",
+    "clickToSync": "Click to sync now",
+    "queuedForSync": "Queued for sync when online"
+  },
+
   "header": {
     "title": "PATTAMAP",
     "subtitle": "Navigate Pattaya Nightlife",

@@ -24,6 +24,16 @@
     "retryConnection": "कनेक्शन पुनः प्रयास करें",
     "retry": "पुनः प्रयास करें"
   },
+  "sync": {
+    "syncing": "सिंक हो रहा है...",
+    "pending": "{{count}} लंबित",
+    "pendingOffline": "{{count}} लंबित (ऑफ़लाइन)",
+    "partialSync": "{{success}} सिंक हुए, {{failed}} विफल",
+    "complete": "सभी सिंक हो गए",
+    "upToDate": "अद्यतित",
+    "clickToSync": "अभी सिंक करने के लिए क्लिक करें",
+    "queuedForSync": "ऑनलाइन होने पर सिंक के लिए कतार में"
+  },
   "header": {
     "title": "PATTAMAP",
     "subtitle": "पटाया नाइटलाइफ़ नेविगेट करें",

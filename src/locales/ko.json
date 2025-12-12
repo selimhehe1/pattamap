@@ -19,7 +19,21 @@
     "navigation": "Navigation",
     "actions": "Actions",
     "comingSoon": "Coming soon",
-    "accessDenied": "Access Denied"
+    "accessDenied": "Access Denied",
+    "offlineMessage": "You are currently offline. Some features may be unavailable.",
+    "retryConnection": "Retry connection",
+    "retry": "Retry"
+  },
+
+  "sync": {
+    "syncing": "동기화 중...",
+    "pending": "{{count}}개 대기 중",
+    "pendingOffline": "{{count}}개 대기 중 (오프라인)",
+    "partialSync": "{{success}}개 동기화됨, {{failed}}개 실패",
+    "complete": "모두 동기화됨",
+    "upToDate": "최신 상태",
+    "clickToSync": "클릭하여 지금 동기화",
+    "queuedForSync": "온라인 시 동기화 대기 중"
   },
 
   "header": {

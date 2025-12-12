@@ -24,6 +24,16 @@
     "retryConnection": "重试连接",
     "retry": "重试"
   },
+  "sync": {
+    "syncing": "同步中...",
+    "pending": "{{count}} 待处理",
+    "pendingOffline": "{{count}} 待处理（离线）",
+    "partialSync": "{{success}} 已同步，{{failed}} 失败",
+    "complete": "全部同步完成",
+    "upToDate": "已是最新",
+    "clickToSync": "点击立即同步",
+    "queuedForSync": "已排队等待联网后同步"
+  },
   "header": {
     "title": "PATTAMAP",
     "subtitle": "芭提雅夜生活导航",

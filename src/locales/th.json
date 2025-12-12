@@ -24,6 +24,16 @@
     "retryConnection": "ลองเชื่อมต่อใหม่",
     "retry": "ลองอีกครั้ง"
   },
+  "sync": {
+    "syncing": "กำลังซิงค์...",
+    "pending": "{{count}} รอดำเนินการ",
+    "pendingOffline": "{{count}} รอดำเนินการ (ออฟไลน์)",
+    "partialSync": "{{success}} ซิงค์แล้ว, {{failed}} ล้มเหลว",
+    "complete": "ซิงค์ทั้งหมดแล้ว",
+    "upToDate": "เป็นปัจจุบัน",
+    "clickToSync": "คลิกเพื่อซิงค์ตอนนี้",
+    "queuedForSync": "อยู่ในคิวสำหรับซิงค์เมื่อออนไลน์"
+  },
   "header": {
     "title": "PATTAMAP",
     "subtitle": "นำทางไนท์ไลฟ์พัทยา",

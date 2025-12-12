@@ -8,6 +8,7 @@
  * - Optimistic updates (UI instantanée)
  * - Rollback automatique si erreur
  * - Invalidation automatique après ajout/suppression
+ * - 🆕 Offline queue support (v10.4)
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +16,8 @@ import { useSecureFetch } from './useSecureFetch';
 import { Establishment } from '../types';
 import { logger } from '../utils/logger';
 import toast from '../utils/toast';
+import { addToQueue, isOfflineQueueSupported } from '../utils/offlineQueue';
+import { useOnline } from './useOnline';
 
 /**
  * Interface pour un favori
@@ -56,7 +59,7 @@ export const useFavorites = () => {
     queryFn: async (): Promise<Favorite[]> => {
       logger.debug('⭐ Fetching user favorites...');
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites`, {
         method: 'GET',
       });
 
@@ -84,22 +87,43 @@ export const useIsFavorite = (employeeId: string): boolean => {
 };
 
 /**
- * Hook pour ajouter un favori avec optimistic update
+ * Hook pour ajouter un favori avec optimistic update + offline queue
  */
 export const useAddFavorite = () => {
   const { secureFetch } = useSecureFetch();
   const queryClient = useQueryClient();
+  const { isOnline } = useOnline();
 
   return useMutation({
     mutationFn: async (employeeId: string): Promise<Favorite> => {
       logger.debug(`⭐ Adding employee ${employeeId} to favorites...`);
 
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+      const url = `${import.meta.env.VITE_API_URL}/api/favorites`;
+      const body = { employee_id: employeeId };
+
+      // 🆕 Offline queue support
+      if (!isOnline && isOfflineQueueSupported()) {
+        logger.debug('📴 Offline - adding to queue');
+        await addToQueue(url, 'POST', body, {
+          description: `Add favorite: ${employeeId}`,
+        });
+        // Return optimistic data
+        return {
+          id: `queued-${Date.now()}`,
+          user_id: 'current-user',
+          employee_id: employeeId,
+          created_at: new Date().toISOString(),
+          employee_name: 'Queued (offline)',
+          employee_photos: [],
+        };
+      }
+
+      const response = await secureFetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ employee_id: employeeId }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -156,29 +180,43 @@ export const useAddFavorite = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: favoriteKeys.lists() });
     },
-    onSuccess: () => {
-      toast.success('⭐ Added to favorites!');
+    onSuccess: (_data, _employeeId, context) => {
+      // Show different message if queued offline
+      if (!context?.previousFavorites && !navigator.onLine) {
+        toast.success('📴 Queued for sync when online');
+      } else {
+        toast.success('⭐ Added to favorites!');
+      }
     },
   });
 };
 
 /**
- * Hook pour supprimer un favori avec optimistic update
+ * Hook pour supprimer un favori avec optimistic update + offline queue
  */
 export const useRemoveFavorite = () => {
   const { secureFetch } = useSecureFetch();
   const queryClient = useQueryClient();
+  const { isOnline } = useOnline();
 
   return useMutation({
     mutationFn: async (employeeId: string): Promise<void> => {
       logger.debug(`⭐ Removing employee ${employeeId} from favorites...`);
 
-      const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/favorites/${employeeId}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const url = `${import.meta.env.VITE_API_URL}/api/favorites/${employeeId}`;
+
+      // 🆕 Offline queue support
+      if (!isOnline && isOfflineQueueSupported()) {
+        logger.debug('📴 Offline - adding to queue');
+        await addToQueue(url, 'DELETE', undefined, {
+          description: `Remove favorite: ${employeeId}`,
+        });
+        return; // Return early - will sync when online
+      }
+
+      const response = await secureFetch(url, {
+        method: 'DELETE',
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -221,8 +259,13 @@ export const useRemoveFavorite = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: favoriteKeys.lists() });
     },
-    onSuccess: () => {
-      toast.success('❌ Removed from favorites');
+    onSuccess: (_data, _employeeId, context) => {
+      // Show different message if queued offline
+      if (!context?.previousFavorites && !navigator.onLine) {
+        toast.success('📴 Queued for sync when online');
+      } else {
+        toast.success('❌ Removed from favorites');
+      }
     },
   });
 };

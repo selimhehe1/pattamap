@@ -2,7 +2,7 @@
 // Handles push notifications for PWA
 // Version: 1.0.0
 
-const CACHE_NAME = 'pattamap-v2'; // v2: Added offline fallback page
+const CACHE_NAME = 'pattamap-v3'; // v3: Added background sync queue
 const urlsToCache = [
   '/',
   '/offline.html', // 🆕 v10.3 - Offline fallback page
@@ -246,21 +246,165 @@ self.addEventListener('message', (event) => {
 });
 
 // ==========================================
-// BACKGROUND SYNC (Future Enhancement)
+// BACKGROUND SYNC (Offline Queue)
 // ==========================================
 // Handle background sync for offline actions
-// Uncomment when implementing offline functionality
+// v10.4: Enabled background sync for offline queue
 
-/*
+const DB_NAME = 'pattamap-offline';
+const DB_VERSION = 1;
+const STORE_NAME = 'request-queue';
+
+/**
+ * Open IndexedDB database for offline queue
+ */
+function openQueueDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+    };
+  });
+}
+
+/**
+ * Get all queued requests from IndexedDB
+ */
+async function getQueuedRequests() {
+  const db = await openQueueDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Remove a request from the queue
+ */
+async function removeFromQueue(id) {
+  const db = await openQueueDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.delete(id);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Update retry count for a request
+ */
+async function updateRetryCount(id) {
+  const db = await openQueueDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const getRequest = store.get(id);
+
+    getRequest.onsuccess = () => {
+      const request = getRequest.result;
+      if (!request) {
+        resolve(null);
+        return;
+      }
+
+      request.retryCount = (request.retryCount || 0) + 1;
+      const putRequest = store.put(request);
+      putRequest.onsuccess = () => resolve(request);
+      putRequest.onerror = () => reject(putRequest.error);
+    };
+    getRequest.onerror = () => reject(getRequest.error);
+  });
+}
+
+/**
+ * Process the offline queue - replay all pending requests
+ */
+async function processOfflineQueue() {
+  console.log('[Service Worker] Processing offline queue...');
+
+  try {
+    const requests = await getQueuedRequests();
+    console.log(`[Service Worker] Found ${requests.length} queued requests`);
+
+    let success = 0;
+    let failed = 0;
+
+    for (const queuedRequest of requests) {
+      // Skip if max retries exceeded
+      if (queuedRequest.retryCount >= (queuedRequest.maxRetries || 3)) {
+        console.warn('[Service Worker] Max retries exceeded for:', queuedRequest.id);
+        await removeFromQueue(queuedRequest.id);
+        failed++;
+        continue;
+      }
+
+      try {
+        const response = await fetch(queuedRequest.url, {
+          method: queuedRequest.method,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(queuedRequest.headers || {}),
+          },
+          body: queuedRequest.body ? JSON.stringify(queuedRequest.body) : undefined,
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          await removeFromQueue(queuedRequest.id);
+          success++;
+          console.log('[Service Worker] Request succeeded:', queuedRequest.id);
+        } else {
+          await updateRetryCount(queuedRequest.id);
+          failed++;
+          console.warn('[Service Worker] Request failed:', response.status);
+        }
+      } catch (error) {
+        await updateRetryCount(queuedRequest.id);
+        failed++;
+        console.error('[Service Worker] Request error:', error);
+      }
+    }
+
+    console.log(`[Service Worker] Queue processed: ${success} success, ${failed} failed`);
+
+    // Notify all clients about sync completion
+    const allClients = await clients.matchAll({ type: 'window' });
+    for (const client of allClients) {
+      client.postMessage({
+        type: 'SYNC_COMPLETE',
+        payload: { success, failed }
+      });
+    }
+
+    return { success, failed };
+  } catch (error) {
+    console.error('[Service Worker] Failed to process queue:', error);
+    throw error;
+  }
+}
+
+// Background Sync Event Handler
 self.addEventListener('sync', (event) => {
   console.log('[Service Worker] Background sync:', event.tag);
 
-  if (event.tag === 'sync-notifications') {
-    event.waitUntil(
-      // Sync logic here
-    );
+  if (event.tag === 'offline-queue') {
+    event.waitUntil(processOfflineQueue());
   }
 });
-*/
 
-console.log('[Service Worker] Loaded successfully');
+console.log('[Service Worker] Loaded successfully (v3 with background sync)');

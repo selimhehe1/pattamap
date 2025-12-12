@@ -25,6 +25,17 @@
     "retry": "Réessayer"
   },
 
+  "sync": {
+    "syncing": "Synchronisation...",
+    "pending": "{{count}} en attente",
+    "pendingOffline": "{{count}} en attente (hors ligne)",
+    "partialSync": "{{success}} synchronisés, {{failed}} échoués",
+    "complete": "Tout synchronisé",
+    "upToDate": "À jour",
+    "clickToSync": "Cliquez pour synchroniser",
+    "queuedForSync": "En file d'attente pour la synchronisation"
+  },
+
   "header": {
     "title": "PATTAMAP",
     "subtitle": "Naviguez dans la vie nocturne de Pattaya",
