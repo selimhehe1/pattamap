@@ -37,6 +37,7 @@ import AnimatedButton from '../Common/AnimatedButton';
 import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
+import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import { useMapControls } from '../../contexts/MapControlsContext';
 import '../../styles/layout/header.css';
 
@@ -162,6 +163,9 @@ const Header: React.FC<HeaderProps> = ({
         <nav role="navigation" aria-label="Main actions" className="header-nav">
           {/* Notification Bell - visible seulement pour utilisateurs connectés */}
           {user && <NotificationBell />}
+
+          {/* Sync Indicator - shows pending offline actions */}
+          <SyncIndicator compact />
 
           {/* Map Controls - visible seulement sur homepage + desktop */}
           {isHomePage && (
