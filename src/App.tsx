@@ -95,6 +95,7 @@ import {
   EmployeeDashboard, // 🆕 v10.2 - Employee Dashboard
   MyOwnershipRequests, // 🆕 v10.2 - Ownership Requests
   MyAchievementsPage, // 🆕 v10.3 - Gamification
+  VisitHistoryPage, // 🆕 v10.3 - Visit History
   EmployeeForm,
   EstablishmentForm
 } from './routes/lazyComponents';
@@ -138,7 +139,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     if (establishments.length > 0) {
       logger.debug('Filtering establishments', { selectedCategories });
-      let filtered = establishments.filter(est => {
+      const filtered = establishments.filter(est => {
         const isIncluded = selectedCategories.includes(`cat-${String(est.category_id).padStart(3, '0')}`);
 
         return isIncluded &&
@@ -276,15 +277,15 @@ const AppContent: React.FC = () => {
 
       if (editingEmployeeData) {
         // Editing existing profile
-        endpoint = `${process.env.REACT_APP_API_URL}/api/employees/${editingEmployeeData.id}`;
+        endpoint = `${import.meta.env.VITE_API_URL}/api/employees/${editingEmployeeData.id}`;
         method = 'PUT';
       } else if (isSelfProfile) {
         // Creating new self-profile
-        endpoint = `${process.env.REACT_APP_API_URL}/api/employees/my-profile`;
+        endpoint = `${import.meta.env.VITE_API_URL}/api/employees/my-profile`;
         method = 'POST';
       } else {
         // Creating regular employee
-        endpoint = `${process.env.REACT_APP_API_URL}/api/employees`;
+        endpoint = `${import.meta.env.VITE_API_URL}/api/employees`;
         method = 'POST';
       }
 
@@ -323,7 +324,7 @@ const AppContent: React.FC = () => {
   const handleSubmitEstablishment = async (establishmentData: Partial<Establishment>) => {
     setIsSubmitting(true);
     try {
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/establishments`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
         method: 'POST',
         body: JSON.stringify(establishmentData)
       });
@@ -395,6 +396,7 @@ const AppContent: React.FC = () => {
                   <Route path="/my-ownership-requests" element={<MyOwnershipRequests />} /> {/* 🆕 v10.2 - Ownership Requests */}
                   <Route path="/employee/dashboard" element={<EmployeeDashboard />} /> {/* 🆕 v10.2 - Employee Dashboard */}
                   <Route path="/achievements" element={<MyAchievementsPage />} /> {/* 🆕 v10.3 - Gamification Achievements */}
+                  <Route path="/my-visits" element={<VisitHistoryPage />} /> {/* 🆕 v10.3 - Visit History */}
                   {/* SEO-friendly URL with zone and slug */}
                   <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
                   {/* Legacy redirect for old /bar/:id URLs */}

@@ -30,6 +30,7 @@
     "addEstablishment": "Add Establishment",
     "favorites": "Favorites",
     "achievements": "My Achievements",
+    "myVisits": "My Visits",
     "login": "Login",
     "logout": "Logout",
     "register": "Register",
@@ -1937,6 +1938,30 @@
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
     }
+  },
+
+  "visitHistory": {
+    "title": "My Visit History",
+    "subtitle": "Track your check-ins and verified visits",
+    "description": "Track your visits and check-ins across Pattaya",
+    "totalVisits": "Total Visits",
+    "zonesVisited": "Zones Visited",
+    "verified": "Verified",
+    "noVisits": "No visits yet",
+    "noVisitsMessage": "Start exploring and check in at establishments to track your visits!",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "older": "Older",
+    "away": "away",
+    "allZones": "All Zones",
+    "allStatus": "All Status",
+    "verifiedOnly": "Verified Only",
+    "unverifiedOnly": "Unverified Only",
+    "loading": "Loading your visits...",
+    "fetchError": "Failed to load visit history",
+    "loginRequired": "Login Required",
+    "loginMessage": "Please log in to view your visit history."
   },
 
   "footer": {

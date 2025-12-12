@@ -30,6 +30,7 @@
     "addEstablishment": "Ajouter un établissement",
     "favorites": "Favoris",
     "achievements": "Mes réalisations",
+    "myVisits": "Mes visites",
     "login": "Connexion",
     "logout": "Déconnexion",
     "register": "Inscription",
@@ -1958,5 +1959,29 @@
       "streakContinued": "Série de {{days}} jours !",
       "firstCheckIn": "Premier enregistrement !"
     }
+  },
+
+  "visitHistory": {
+    "title": "Mon historique de visites",
+    "subtitle": "Suivez vos enregistrements et visites vérifiées",
+    "description": "Suivez vos visites et enregistrements à Pattaya",
+    "totalVisits": "Total des visites",
+    "zonesVisited": "Zones visitées",
+    "verified": "Vérifié",
+    "noVisits": "Aucune visite",
+    "noVisitsMessage": "Commencez à explorer et enregistrez-vous dans les établissements pour suivre vos visites !",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "thisWeek": "Cette semaine",
+    "older": "Plus ancien",
+    "away": "de distance",
+    "allZones": "Toutes les zones",
+    "allStatus": "Tous les statuts",
+    "verifiedOnly": "Vérifiés uniquement",
+    "unverifiedOnly": "Non vérifiés",
+    "loading": "Chargement de vos visites...",
+    "fetchError": "Échec du chargement de l'historique",
+    "loginRequired": "Connexion requise",
+    "loginMessage": "Veuillez vous connecter pour voir votre historique de visites."
   }
 }

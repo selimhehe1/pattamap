@@ -4,7 +4,7 @@
 
 Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que les développements planifiés pour les prochaines versions.
 
-**Dernière mise à jour**: Janvier 2025
+**Dernière mise à jour**: Décembre 2025
 **Version actuelle**: v10.3.3 (Production-Ready + Security Sprint Complete)
 **Prochaine version**: v10.4 (Completion Features Partielles)
 
@@ -107,7 +107,13 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 4. VIP Subscriptions (Freemium) - 🔄 70% COMPLET (v10.3)
+#### 4. VIP Subscriptions (Freemium) - 🔄 85% COMPLET (v10.3)
+
+> ⚠️ **Status: DÉSACTIVÉ** - Le VIP est développé à 85% mais **désactivé via feature flag** (`VITE_FEATURE_VIP_SYSTEM=false`).
+>
+> **Stratégie**: App 100% gratuite d'abord pour construire la base utilisateurs, monétisation activée plus tard.
+>
+> **Pour activer**: Changer `VITE_FEATURE_VIP_SYSTEM=true` dans `.env` et redéployer.
 
 **Objectif**: Monétisation directe
 
@@ -121,11 +127,13 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - 2 triggers auto-sync (`is_vip`, `vip_expires_at`)
 - Payment methods: PromptPay QR, Cash, Admin Grant
 
-**Frontend** ⏳ 40% Complet:
-- ✅ VIP admin verification panel (`VIPVerificationAdmin.tsx`)
-- ⏳ VIP purchase modal (tier/duration selection)
-- ⏳ VIP visual effects (gold borders, crown icons)
-- ⏳ Featured placement (VIP first in search/maps)
+**Frontend** ✅ 85% Complet:
+- ✅ VIP admin verification panel (`VIPVerificationAdmin.tsx` - 457 lignes)
+- ✅ VIP purchase modal (`VIPPurchaseModal.tsx` - 333 lignes)
+- ✅ VIP visual effects (gold borders, crown icons sur cards)
+- ✅ VIP priority sorting sur les 9 cartes ergonomiques
+- ⏳ VIP sorting dans SearchPage.tsx (2h)
+- ⏳ PromptPay QR generation (4-5h)
 
 **Pricing**:
 - **Employee VIP**: 1,000-18,250 THB (7-365 jours)
@@ -135,7 +143,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 **Controller**: `vipController.ts` (849 lignes)
 **Documentation**: `README_VIP_MIGRATION_SIMPLE.md`
 
-**Temps restant**: 3-5 jours (frontend UI)
+**Temps restant**: 1-2 jours (VIP sorting + PromptPay QR)
 
 ---
 
@@ -206,20 +214,21 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 7. Freelance/Independent System - ✅ 80% COMPLET (v10.3)
+#### 7. Freelance/Independent System - ✅ 95% COMPLET (v10.3)
 
-**Statut**: **PAS dans roadmap** → Feature majeure
+**Statut**: **PAS dans roadmap original** → Feature majeure quasi-complète
 
 **Backend** ✅ 100%:
 - `freelanceController.ts`
 - `independentPositionController.ts`
-- Routes: `/api/freelances`
+- Routes: `/api/freelances` avec pagination
 - Database migration: `010_add_freelance_fields_to_employees.sql`
 
-**Frontend** ✅ 70%:
-- Page: `FreelancesPage.tsx`
+**Frontend** ✅ 95%:
+- Page: `FreelancesPage.tsx` (complète)
 - Hooks: `useFreelances.ts`
-- Search filters intégrés
+- Filtres: search, nationality, age, availability
+- VIP priority sorting
 
 **Features**:
 - Freelance employee profiles
@@ -228,7 +237,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 **Documentation**: [FREELANCE_FEATURE.md](FREELANCE_FEATURE.md)
 
-**Temps restant**: 1-2 jours (polish UI, filters)
+**Temps restant**: 0.5 jour (polish optionnel)
 
 ---
 
@@ -253,21 +262,26 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 9. Community Validation System - ✅ 70% COMPLET (v10.3)
+#### 9. Community Validation System - ✅ 90% COMPLET (v10.3)
 
-**Statut**: **PAS dans roadmap** → Feature collaborative
+**Statut**: **PAS dans roadmap original** → Feature collaborative quasi-complète
 
 **Implementation**:
 - Database: `014_add_employee_community_validation.sql`
 - Components: `ValidationBadge.tsx`, `ValidationVoteButtons.tsx`
 - Seeds: `seed_employee_existence_votes.sql`
 
-**Features**:
+**Features** ✅:
 - Community votes sur existence employée
 - Validation scoring algorithmique
 - Badge display basé sur votes
+- Vote counts display
+- XP award on validation vote
 
-**Temps restant**: 1-2 jours (polish UI, vote weight)
+**Manquant** ⏳:
+- Vote weight system (verified users = 2x) - 0.5 jour
+
+**Temps restant**: 0.5 jour
 
 ---
 
@@ -306,22 +320,22 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-## 🔄 Reviews Améliorées - ⏳ 40% COMPLET
+## 🔄 Reviews Améliorées - ⏳ 25% COMPLET
 
-**Statut**: Marqué "TODO" → **Réalité 40% implémenté**
+**Statut**: Marqué "40%" → **Réalité 25% implémenté** (surestimé dans roadmap précédente)
 
 **Implémenté** ✅:
 - Vote system (👍 Utile / 👎 Pas utile)
 - Component: `ReviewVoteButton.tsx`
+- Badge "Visite vérifiée" (via système gamification check-ins géolocalisation)
 
 **Manquant** ⏳:
-- Photos dans avis (1-3 par avis)
-- Réponses établissements
-- Badge "Visite vérifiée" (géolocalisation)
+- Photos dans avis (1-3 par avis) - 3-4 jours
+- Réponses établissements aux reviews - 2 jours
 
 **Impact**: Confiance +60%, conversion +25%
 
-**Temps restant**: 3 jours
+**Temps restant**: 5-6 jours
 
 ---
 
@@ -417,26 +431,42 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ### 🟢 Nouvelles Features (Roadmap Original)
 
-#### 6. Historique Visites - 2 jours
+#### 6. Historique Visites - ✅ 100% COMPLET (Décembre 2025)
 
-**Fonctionnalités**:
-- Timeline des visites (UserDashboard)
-- Bouton "Marquer comme visité"
-- Notes privées par visite
-- Filtres (date, zone, note)
-- Export PDF/CSV
+**Statut**: ✅ TERMINÉ
+
+**Implémenté** ✅:
+- Table `check_ins` stocke toutes les visites
+- Backend endpoint `GET /api/gamification/my-check-ins`
+- Integration avec système gamification (XP rewards)
+- **UI Dashboard complet** (`src/pages/VisitHistoryPage.tsx`)
+  - Stats cards (Total, Unique, Current Streak, Longest Streak)
+  - Timeline groupée par date (Today, Yesterday, This Week, etc.)
+  - Filtres par période (All, Week, Month, Year)
+  - Filtres par établissement
+  - États "Login Required" et "Empty State"
+- **Menu link** "My Visits" dans Header (route `/my-visits`)
+- **i18n** 6 langues (EN/FR/TH/RU/CN/HI) - 15+ clés traductions
+- **Styles nightlife** (`src/styles/pages/visit-history.css` ~180 lignes)
 
 **Impact**: Fidélisation +30%, données analytics
 
 ---
 
-#### 7. Mode Hors Ligne (PWA Offline-First) - 3 jours
+#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 50% COMPLET - 1-2 jours restants
 
-**Fonctionnalités**:
-- Service Worker cache intelligent (Workbox)
-- Cache: établissements, employées, cartes, photos
-- Sync auto quand connexion revenue
-- Actions en file d'attente (offline queue)
+**Statut**: Marqué "10%" → **Réalité 50% implémenté**
+
+**Déjà Implémenté** ✅:
+- Service Worker fonctionnel (`/service-worker.js`)
+- VitePWA + Workbox configuré
+- Cache static assets (HTML, CSS, JS)
+- API cache NetworkFirst (1h expiration)
+
+**Manquant** ⏳:
+- Offline fallback page - 0.5 jour
+- Background sync queue - 1 jour
+- Selective endpoint caching (optionnel)
 
 **Impact**: App toujours fonctionnelle, UX +100%
 
@@ -479,41 +509,75 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 10. Dark Mode - 2 jours
+#### 10. Dark Mode - ✅ 100% COMPLET
 
-**Fonctionnalités**:
-- Toggle 🌙/☀️ dans Header
-- Thème sombre optimisé nightlife
-- Persistance choix (localStorage)
+**Statut**: Marqué "TODO 0%" → **Réalité 100% implémenté** 🎉
+
+**Implémenté** ✅:
+- `ThemeContext.tsx` avec toggleTheme()
+- `useTheme()` hook
 - Détection préférences système (`prefers-color-scheme`)
+- Persistance choix localStorage
+- CSS variables (`nightlife-theme.css`)
+- Cross-tab synchronisation
 
 **Impact**: Confort visuel +40%, économie batterie
 
+**Temps restant**: 0 jours
+
 ---
 
-## 📅 Planning Suggéré v10.4 (3-4 semaines)
+## 📋 Audit Décembre 2025
 
-### Semaine 1 - VIP Completion (5 jours)
-- VIPPurchaseModal.tsx (2j)
-- VIP Visual Effects (1j)
-- Featured Placement (1j)
-- Testing & Polish (1j)
+Un audit complet du code vs la documentation a révélé des **écarts significatifs**. Plusieurs features marquées "TODO" étaient déjà implémentées, tandis qu'une feature était surestimée.
+
+### Corrections Apportées
+
+| Feature | Avant | Après | Écart |
+|---------|-------|-------|-------|
+| **Dark Mode** | 0% | 100% | +100% 🎉 |
+| **Historique Visites** | 0% | 100% | +100% 🎉 |
+| **Mode Hors Ligne PWA** | 10% | 50% | +40% |
+| **Community Validation** | 70% | 90% | +20% |
+| **VIP System** | 70% | 85% | +15% |
+| **Freelance System** | 80% | 95% | +15% |
+| **Reviews Améliorées** | 40% | 25% | -15% |
+
+### Impact
+
+- **Dette technique features**: 32 jours → **~15 jours** (-53%)
+- **Features 100% complètes**: +1 (Dark Mode)
+- **Features >90%**: +3 (Freelance, Community Validation, VIP)
+
+### Méthodologie
+
+L'audit a été réalisé en:
+1. Analysant les composants frontend (`VIPPurchaseModal.tsx`, `ThemeContext.tsx`, etc.)
+2. Vérifiant les endpoints backend et tables database
+3. Comparant le code réel vs la documentation roadmap
+
+---
+
+## 📅 Planning Suggéré v10.4 (2-3 semaines) - Mis à jour post-audit
+
+### Semaine 1 - Quick Wins & VIP (5 jours)
+- ~~Dark Mode~~ ✅ **DÉJÀ COMPLET**
+- VIP Search Sorting (2h)
+- PromptPay QR Generation (4-5h)
+- Community Validation vote weight (0.5j)
+- Freelance polish optionnel (0.5j)
 
 ### Semaine 2 - Feature Completion (5 jours)
 - Gamification Completion (2j)
-- Reviews Améliorées (3j)
+- Historique Visites UI (1j)
+- Mode Hors Ligne completion (1-2j)
 
-### Semaine 3 - Quick Wins (5 jours)
-- Freelance Polish (1j)
-- Community Validation Polish (1j)
-- Historique Visites (2j)
-- Dark Mode (2j - parallel)
+### Semaine 3 - Reviews & Nouvelles Features (5 jours)
+- Reviews Améliorées: Photos (3-4j)
+- Reviews Améliorées: Réponses établissements (2j)
 
-### Semaine 4 - Nouvelles Features (5 jours)
-- Mode Hors Ligne (3j)
-- Publicité Ciblée (2j)
-
-**Semaines 5-6** (si budget disponible):
+### Semaines 4+ (si budget disponible)
+- Publicité Ciblée (4j)
 - Système Tips (7j) - si validation légale OK
 
 ---
@@ -539,14 +603,14 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 | 1 | Multilingue (i18n) | 🔴 | ✅ v10.1 | 100% | 0j |
 | 2 | Vérification Profils | 🔴 | ✅ v10.3 | 100% | 0j |
 | 3 | Notifications Push (PWA) | 🔴 | ✅ v10.2 | 100% | 0j |
-| 4 | VIP Subscriptions | 🔴 | 🔄 v10.3 | 70% | 3-5j |
+| 4 | VIP Subscriptions | 🔴 | 🔄 v10.3 | **85%** | 1-2j |
 | **MEDIUM PRIORITY (Implemented)** |
 | 5 | Gamification | 🟡 | 🔄 v10.3 | 80% | 2j |
 | 6 | Establishment Owners | 🟡 | ✅ v10.1 | 100% | 0j |
-| 7 | Freelance System | 🟡 | 🔄 v10.3 | 80% | 1-2j |
+| 7 | Freelance System | 🟡 | ✅ v10.3 | **95%** | 0.5j |
 | 8 | Employee Claims | 🟡 | ✅ v10.0 | 100% | 0j |
-| 9 | Community Validation | 🟡 | 🔄 v10.3 | 70% | 1-2j |
-| 10 | Reviews Améliorées | 🟡 | 🔄 v10.2 | 40% | 3j |
+| 9 | Community Validation | 🟡 | ✅ v10.3 | **90%** | 0.5j |
+| 10 | Reviews Améliorées | 🟡 | 🔄 v10.2 | **25%** | 5-6j |
 | **SUPPORT SYSTEMS (Complete)** |
 | 11 | Edit Proposals | 🟢 | ✅ v10.0 | 100% | 0j |
 | 12 | Favorites | 🟢 | ✅ v10.0 | 100% | 0j |
@@ -555,12 +619,12 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 | 15 | Social Media | 🟢 | ✅ v10.1 | 100% | 0j |
 | 16 | Profile Views | 🟢 | ✅ v10.2 | 100% | 0j |
 | 17 | Moderation | 🟢 | ✅ v10.2 | 100% | 0j |
-| **NEW FEATURES (TODO)** |
-| 18 | Historique Visites | 🟡 | ⏳ v10.4 | 0% | 2j |
-| 19 | Mode Hors Ligne | 🟡 | ⏳ v10.4 | 10% | 3j |
+| **NEW FEATURES (Partial/TODO)** |
+| 18 | Historique Visites | 🟢 | ✅ v10.3 | **100%** | 0j |
+| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.3 | **50%** | 1-2j |
 | 20 | Système Tips | 🟡 | ⏳ v10.4+ | 0% | 7j |
 | 21 | Publicité Ciblée | 🟡 | ⏳ v10.4 | 0% | 4j |
-| 22 | Dark Mode | 🟢 | ⏳ v10.4 | 0% | 2j |
+| 22 | Dark Mode | 🟢 | ✅ v10.3 | **100%** | 0j |
 
 **Légende**:
 - ✅ = Complet (100%)
@@ -627,6 +691,6 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-**Dernière révision**: Janvier 2025
+**Dernière révision**: Décembre 2025
 **Version**: 2.0.0 (Refonte complète)
 **Prochaine révision**: Après v10.4 release

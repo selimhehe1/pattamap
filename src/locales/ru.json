@@ -29,6 +29,7 @@
     "addEstablishment": "Добавить заведение",
     "favorites": "Избранное",
     "achievements": "Мои достижения",
+    "myVisits": "Мои посещения",
     "login": "Войти",
     "logout": "Выйти",
     "register": "Регистрация",
@@ -1922,5 +1923,25 @@
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
     }
+  },
+  "visitHistory": {
+    "title": "История посещений",
+    "subtitle": "Отслеживайте свои чек-ины и подтвержденные посещения",
+    "totalVisits": "Всего посещений",
+    "uniqueZones": "Посещённых зон",
+    "verifiedVisits": "Подтверждённых",
+    "noVisits": "Посещений пока нет",
+    "noVisitsDesc": "Начните исследовать и делать чек-ины в заведениях",
+    "startExploring": "Начать исследование",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "thisWeek": "На этой неделе",
+    "older": "Ранее",
+    "verified": "Подтверждено",
+    "unverified": "Не подтверждено",
+    "distanceAway": "{{distance}}м",
+    "allZones": "Все зоны",
+    "allStatus": "Все статусы",
+    "verifiedOnly": "Только подтверждённые"
   }
 }

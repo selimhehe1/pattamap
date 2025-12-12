@@ -418,15 +418,16 @@ npm start                    # → http://localhost:3000
 **Priorité Haute** 🔴:
 1. ~~**Multilingue (i18n)**~~ - ✅ **COMPLÉTÉ** (v10.1) - 6 langues 100% coverage
 2. ~~**Notifications Push (PWA)**~~ - ✅ **COMPLÉTÉ** (v10.2) - PWA Push + Enhanced UI
-3. **Vérification Profils** - Badge vérifié (2j) → Confiance +80%
-4. **Freemium Model** - Monétisation (5j) → Revenus récurrents
+3. ~~**Historique Visites**~~ - ✅ **COMPLÉTÉ** (v10.3) - UI Dashboard + Timeline + Stats
+4. **Vérification Profils** - Badge vérifié (2j) → Confiance +80%
+5. **Freemium Model** - Monétisation (5j) → Revenus récurrents
 
 **Priorité Moyenne** 🟡:
-- Historique Visites, Mode Hors Ligne, Système Tips
+- Mode Hors Ligne, Système Tips
 - Gamification, Reviews++, Publicité Ciblée
 
 **Priorité Basse** 🟢:
-- Dark Mode (2j)
+- ~~Dark Mode~~ - ✅ **COMPLÉTÉ** (v10.3)
 
 **Total estimé**: ~32 jours (~1.5 mois)
 
@@ -1222,6 +1223,24 @@ WHERE proname IN ('get_user_notifications', 'mark_notification_read',
 
 ## 💎 VIP Subscriptions System (v10.3)
 
+### ⚠️ Status: DÉSACTIVÉ (Feature Flag)
+
+**Stratégie Business**: L'app est actuellement **100% gratuite** pour construire la base utilisateurs. Le VIP sera activé plus tard quand la communauté sera établie.
+
+**Feature Flag**: `VITE_FEATURE_VIP_SYSTEM=false` dans `.env`
+
+**Pour activer le VIP**:
+1. Modifier `.env`: `VITE_FEATURE_VIP_SYSTEM=true`
+2. Redéployer l'application
+
+**Composants cachés quand désactivé**:
+- `EmployeeCard.tsx` - Badge VIP, styling gold
+- `EmployeeDashboard.tsx` - Bouton achat VIP
+- `MyEmployeesList.tsx` - "Buy VIP" buttons
+- `GirlProfile.tsx` - Status VIP
+- `AdminPanel.tsx` - Tab "VIP Verification"
+- `AdminDashboard.tsx` - Stats VIP
+
 ### Vue d'ensemble
 
 Le système **VIP Subscriptions** permet la monétisation de PattaMap via des abonnements premium pour employées et établissements, offrant visibilité accrue et features exclusives.
@@ -1242,10 +1261,13 @@ Le système **VIP Subscriptions** permet la monétisation de PattaMap via des ab
 - ✅ 2 triggers auto-sync (met à jour `is_vip` et `vip_expires_at` quand subscription change)
 - ✅ Extension `btree_gist` (prévient overlapping subscriptions)
 
-**Frontend** (À implémenter Phase 2):
-- ⏳ VIPPurchaseModal (modal achat avec selection tier/duration)
-- ⏳ VIPVerificationAdmin (admin panel pour verify cash payments)
-- ⏳ VIP visual effects (gold border, crown icon sur profils/cartes)
+**Frontend** (85% complet - désactivé via feature flag):
+- ✅ VIPPurchaseModal (`VIPPurchaseModal.tsx` - 333 lignes)
+- ✅ VIPVerificationAdmin (`VIPVerificationAdmin.tsx` - 457 lignes)
+- ✅ VIP visual effects (gold borders, crown icons sur cards)
+- ✅ VIP priority sorting sur les 9 cartes ergonomiques
+- ⏳ VIP sorting dans SearchPage.tsx (2h)
+- ⏳ PromptPay QR generation (4-5h)
 
 ### Fonctionnement
 

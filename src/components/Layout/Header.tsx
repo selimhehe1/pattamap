@@ -15,7 +15,8 @@ import {
   BarChart3,
   FileEdit,
   ClipboardList,
-  Building
+  Building,
+  MapPin // 🆕 v10.3 - Visit History icon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -28,7 +29,8 @@ import {
   importMyEstablishmentsPage, // 🆕 v10.1 - Owner Dashboard preload
   importMyOwnershipRequests, // 🆕 v10.2 - Ownership Requests preload
   importEmployeeDashboard, // 🆕 v10.2 - Employee Dashboard preload
-  importMyAchievementsPage // 🆕 v10.3 - Gamification preload
+  importMyAchievementsPage, // 🆕 v10.3 - Gamification preload
+  importVisitHistoryPage // 🆕 v10.3 - Visit History preload
 } from '../../routes/lazyComponents';
 import ThemeToggle from '../Common/ThemeToggle';
 import AnimatedButton from '../Common/AnimatedButton';
@@ -317,6 +319,19 @@ const Header: React.FC<HeaderProps> = ({
                         >
                           <span className="menu-item-icon"><Trophy size={18} /></span>
                           <span className="menu-item-text">{t('header.achievements')}</span>
+                        </AnimatedButton>
+
+                        <AnimatedButton
+                          ariaLabel="View my visit history"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onMouseEnter={createPreloadHandler(importVisitHistoryPage, 'VisitHistoryPage')}
+                          onClick={() => handleNavigate('/my-visits')}
+                        >
+                          <span className="menu-item-icon"><MapPin size={18} /></span>
+                          <span className="menu-item-text">{t('header.myVisits')}</span>
                         </AnimatedButton>
                       </div>
 

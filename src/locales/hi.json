@@ -29,6 +29,7 @@
     "addEstablishment": "प्रतिष्ठान जोड़ें",
     "favorites": "पसंदीदा",
     "achievements": "मेरी उपलब्धियां",
+    "myVisits": "मेरी यात्राएं",
     "login": "लॉगिन",
     "logout": "लॉगआउट",
     "register": "पंजीकरण",
@@ -1918,5 +1919,25 @@
       "streakContinued": "{{days}} day streak!",
       "firstCheckIn": "First check-in!"
     }
+  },
+  "visitHistory": {
+    "title": "यात्रा इतिहास",
+    "subtitle": "अपने चेक-इन और सत्यापित यात्राओं को ट्रैक करें",
+    "totalVisits": "कुल यात्राएं",
+    "uniqueZones": "विज़िट किए गए क्षेत्र",
+    "verifiedVisits": "सत्यापित",
+    "noVisits": "अभी तक कोई यात्रा नहीं",
+    "noVisitsDesc": "खोजना शुरू करें और प्रतिष्ठानों में चेक-इन करें",
+    "startExploring": "खोजना शुरू करें",
+    "today": "आज",
+    "yesterday": "कल",
+    "thisWeek": "इस सप्ताह",
+    "older": "पुराना",
+    "verified": "सत्यापित",
+    "unverified": "असत्यापित",
+    "distanceAway": "{{distance}}मी दूर",
+    "allZones": "सभी क्षेत्र",
+    "allStatus": "सभी स्थिति",
+    "verifiedOnly": "केवल सत्यापित"
   }
 }

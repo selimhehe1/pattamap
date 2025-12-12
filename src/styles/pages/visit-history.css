@@ -1,0 +1,297 @@
+/* ================================================
+   Visit History Page - Nightlife Theme
+   ================================================ */
+
+.visit-history-page {
+  min-height: 100vh;
+  padding: 80px 20px 40px;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a2a 100%);
+}
+
+.visit-history-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header */
+.visit-history-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.visit-history-header h1 {
+  font-size: 2rem;
+  background: linear-gradient(90deg, #00e5ff 0%, #ff00ff 50%, #00e5ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 10px 0;
+}
+
+.visit-history-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Stats Row */
+.visit-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.visit-stat-card {
+  background: linear-gradient(145deg, rgba(0, 229, 255, 0.1), rgba(255, 0, 255, 0.05));
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px 15px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.visit-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+.visit-stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.visit-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00e5ff;
+  line-height: 1;
+}
+
+.visit-stat-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5px;
+}
+
+/* Filters */
+.visit-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.visit-filter-select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.visit-filter-select:hover,
+.visit-filter-select:focus {
+  border-color: rgba(0, 229, 255, 0.5);
+  outline: none;
+}
+
+.visit-filter-select option {
+  background: #1a1a3a;
+  color: white;
+}
+
+/* Content */
+.visit-history-content {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 300px;
+}
+
+/* Loading */
+.visit-history-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.visit-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 229, 255, 0.2);
+  border-top-color: #00e5ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.visit-history-error {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.visit-history-error h2 {
+  color: #ff6b6b;
+  margin-bottom: 10px;
+}
+
+/* Empty State */
+.visit-history-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.visit-empty-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+  margin-bottom: 15px;
+}
+
+.visit-history-empty h3 {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 10px 0;
+}
+
+.visit-history-empty p {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* Timeline */
+.visit-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.visit-group {
+  position: relative;
+}
+
+.visit-group-title {
+  font-size: 1rem;
+  color: #00e5ff;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  font-weight: 600;
+}
+
+.visit-group-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Visit Card */
+.visit-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.visit-card:hover {
+  transform: translateX(5px);
+  border-color: rgba(0, 229, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.1);
+}
+
+.visit-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.visit-card-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.visit-verified-badge {
+  background: linear-gradient(90deg, #00c853, #00e676);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.visit-card-zone {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.visit-card-date {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.visit-card-distance {
+  color: rgba(0, 229, 255, 0.7);
+  font-size: 0.85rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .visit-history-page {
+    padding: 70px 15px 30px;
+  }
+
+  .visit-history-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .visit-stats-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .visit-stat-card {
+    padding: 15px 10px;
+  }
+
+  .visit-stat-value {
+    font-size: 1.5rem;
+  }
+
+  .visit-stat-label {
+    font-size: 0.75rem;
+  }
+
+  .visit-filters {
+    flex-direction: column;
+  }
+
+  .visit-filter-select {
+    width: 100%;
+  }
+
+  .visit-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
