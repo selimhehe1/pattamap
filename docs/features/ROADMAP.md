@@ -453,9 +453,9 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 7. Mode Hors Ligne (PWA Offline-First) - 🔄 90% COMPLET - 0.5 jour restant
+#### 7. Mode Hors Ligne (PWA Offline-First) - ✅ 100% COMPLET
 
-**Statut**: Marqué "50%" → **Réalité 90% implémenté** (Décembre 2025)
+**Statut**: ✅ TERMINÉ (Décembre 2025)
 
 **Déjà Implémenté** ✅:
 - Service Worker fonctionnel (`/service-worker.js` v3)
@@ -470,9 +470,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - **useOfflineQueue hook** - React integration
 - **SyncIndicator component** - UI badge avec count pending
 - **useFavorites offline** - Add/remove favorites work offline
-
-**Manquant** ⏳:
-- Selective endpoint caching (optionnel) - 0.5 jour
+- **CheckInButton offline** - Check-ins work offline with geolocation
 
 **Impact**: App toujours fonctionnelle, UX +100%
 
@@ -627,7 +625,7 @@ L'audit a été réalisé en:
 | 17 | Moderation | 🟢 | ✅ v10.2 | 100% | 0j |
 | **NEW FEATURES (Partial/TODO)** |
 | 18 | Historique Visites | 🟢 | ✅ v10.3 | **100%** | 0j |
-| 19 | Mode Hors Ligne | 🟡 | 🔄 v10.4 | **90%** | 0.5j |
+| 19 | Mode Hors Ligne | 🟢 | ✅ v10.4 | **100%** | 0j |
 | 20 | Système Tips | 🟡 | ⏳ v10.4+ | 0% | 7j |
 | 21 | Publicité Ciblée | 🟡 | ⏳ v10.4 | 0% | 4j |
 | 22 | Dark Mode | 🟢 | ✅ v10.3 | **100%** | 0j |
