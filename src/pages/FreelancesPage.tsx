@@ -14,6 +14,25 @@ import { GirlProfile } from '../routes/lazyComponents';
 import { Employee } from '../types';
 import { logger } from '../utils/logger';
 import '../styles/layout/search-layout.css';
+import '../styles/pages/freelances.css';
+
+/**
+ * Skeleton loading component for freelance cards
+ */
+const FreelanceCardSkeleton: React.FC = () => (
+  <div className="freelance-card-skeleton">
+    <div className="skeleton-image skeleton-pulse" />
+    <div className="skeleton-content">
+      <div className="skeleton-badge skeleton-pulse" />
+      <div className="skeleton-title skeleton-pulse" />
+      <div className="skeleton-subtitle skeleton-pulse" />
+      <div className="skeleton-tags">
+        <div className="skeleton-tag skeleton-pulse" />
+        <div className="skeleton-tag skeleton-pulse" />
+      </div>
+    </div>
+  </div>
+);
 
 const FreelancesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -38,60 +57,63 @@ const FreelancesPage: React.FC = () => {
 
   // Available filter options (populated from API)
   const [availableNationalities, setAvailableNationalities] = useState<string[]>([]);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Helper function to trigger refresh
+  const refreshFreelances = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
-    fetchFreelances();
-  }, [filters, currentPage]);
+    const fetchFreelances = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const fetchFreelances = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+        // Build query params
+        const params = new URLSearchParams();
+        params.set('page', currentPage.toString());
+        params.set('limit', '20');
 
-      // Build query params
-      const params = new URLSearchParams();
-      params.set('page', currentPage.toString());
-      params.set('limit', '20');
+        if (filters.search) params.set('search', filters.search);
+        if (filters.nationality) params.set('nationality', filters.nationality);
+        if (filters.age_min) params.set('age_min', filters.age_min);
+        if (filters.age_max) params.set('age_max', filters.age_max);
+        if (filters.has_nightclub !== 'all') params.set('has_nightclub', filters.has_nightclub);
+        if (filters.sort_by) params.set('sort_by', filters.sort_by);
 
-      if (filters.search) params.set('search', filters.search);
-      if (filters.nationality) params.set('nationality', filters.nationality);
-      if (filters.age_min) params.set('age_min', filters.age_min);
-      if (filters.age_max) params.set('age_max', filters.age_max);
-      if (filters.has_nightclub !== 'all') params.set('has_nightclub', filters.has_nightclub);
-      if (filters.sort_by) params.set('sort_by', filters.sort_by);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/freelances?${params.toString()}`
+        );
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/freelances?${params.toString()}`
-      );
+        if (!response.ok) {
+          throw new Error('Failed to fetch freelances');
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch freelances');
+        const data = await response.json();
+
+        setFreelances(data.freelances || []);
+        setTotalCount(data.pagination?.total || 0);
+        setTotalPages(data.pagination?.total_pages || 1);
+
+        // Extract unique nationalities for filter
+        const nationalities = Array.from(new Set(
+          (data.freelances || []).map((f: Employee) => f.nationality).filter(Boolean)
+        )).sort();
+        setAvailableNationalities(nationalities as string[]);
+
+        logger.debug('Freelances fetched', {
+          count: data.freelances?.length,
+          total: data.pagination?.total
+        });
+
+      } catch (err) {
+        logger.error('Error fetching freelances:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load freelances');
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-
-      setFreelances(data.freelances || []);
-      setTotalCount(data.pagination?.total || 0);
-      setTotalPages(data.pagination?.total_pages || 1);
-
-      // Extract unique nationalities for filter
-      const nationalities = Array.from(new Set(
-        (data.freelances || []).map((f: Employee) => f.nationality).filter(Boolean)
-      )).sort();
-      setAvailableNationalities(nationalities as string[]);
-
-      logger.debug('Freelances fetched', {
-        count: data.freelances?.length,
-        total: data.pagination?.total
-      });
-
-    } catch (err) {
-      logger.error('Error fetching freelances:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load freelances');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchFreelances();
+  }, [filters, currentPage, refreshCounter]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -402,21 +424,11 @@ const FreelancesPage: React.FC = () => {
 
       {/* Results */}
       {loading && currentPage === 1 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          color: 'rgba(255,255,255,0.7)'
-        }}>
-          <div className="spinner" style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid rgba(157, 78, 221, 0.3)',
-            borderTop: '4px solid #9D4EDD',
-            borderRadius: '50%',
-            margin: '0 auto 20px',
-            animation: 'spin 1s linear infinite'
-          }} />
-          <p>{t('loading', 'Loading freelances...')}</p>
+        <div className="freelances-skeleton-grid">
+          {/* Render 6 skeleton cards while loading */}
+          {[...Array(6)].map((_, index) => (
+            <FreelanceCardSkeleton key={`skeleton-${index}`} />
+          ))}
         </div>
       ) : error ? (
         <div style={{
@@ -426,7 +438,7 @@ const FreelancesPage: React.FC = () => {
         }}>
           <p>⚠️ {error}</p>
           <button
-            onClick={fetchFreelances}
+            onClick={refreshFreelances}
             style={{
               marginTop: '20px',
               padding: '10px 20px',
@@ -456,14 +468,9 @@ const FreelancesPage: React.FC = () => {
       ) : (
         <>
           {/* Results Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '20px',
-            marginBottom: '30px'
-          }}>
+          <div className="freelances-grid">
             {freelances.map((freelance: any) => (
-              <div key={freelance.id} style={{ position: 'relative' }}>
+              <div key={freelance.id} className="freelance-card-wrapper">
                 {/* Freelance Badge */}
                 <div style={{
                   position: 'absolute',
@@ -564,13 +571,6 @@ const FreelancesPage: React.FC = () => {
         </>
       )}
 
-      {/* CSS Animation */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };
