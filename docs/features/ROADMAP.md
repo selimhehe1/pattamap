@@ -107,9 +107,9 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 4. VIP Subscriptions (Freemium) - 🔄 85% COMPLET (v10.3)
+#### 4. VIP Subscriptions (Freemium) - ✅ 100% COMPLET (v10.4)
 
-> ⚠️ **Status: DÉSACTIVÉ** - Le VIP est développé à 85% mais **désactivé via feature flag** (`VITE_FEATURE_VIP_SYSTEM=false`).
+> ⚠️ **Status: DÉSACTIVÉ** - Le VIP est développé à 100% mais **désactivé via feature flag** (`VITE_FEATURE_VIP_SYSTEM=false`).
 >
 > **Stratégie**: App 100% gratuite d'abord pour construire la base utilisateurs, monétisation activée plus tard.
 >
@@ -126,14 +126,15 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - 5 fonctions helper PostgreSQL
 - 2 triggers auto-sync (`is_vip`, `vip_expires_at`)
 - Payment methods: PromptPay QR, Cash, Admin Grant
+- PromptPay QR generation service (`promptpayService.ts`)
 
-**Frontend** ✅ 85% Complet:
+**Frontend** ✅ 100% Complet:
 - ✅ VIP admin verification panel (`VIPVerificationAdmin.tsx` - 457 lignes)
-- ✅ VIP purchase modal (`VIPPurchaseModal.tsx` - 333 lignes)
+- ✅ VIP purchase modal (`VIPPurchaseModal.tsx` - 391 lignes)
 - ✅ VIP visual effects (gold borders, crown icons sur cards)
 - ✅ VIP priority sorting sur les 9 cartes ergonomiques
-- ⏳ VIP sorting dans SearchPage.tsx (2h)
-- ⏳ PromptPay QR generation (4-5h)
+- ✅ VIP sorting dans SearchFilters (option "VIP Priority")
+- ✅ PromptPay QR display avec instructions (8 langues)
 
 **Pricing**:
 - **Employee VIP**: 1,000-18,250 THB (7-365 jours)
@@ -142,8 +143,6 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 **Impact Business**: Revenus estimés 150,000฿/mois (~4,000€)
 **Controller**: `vipController.ts` (849 lignes)
 **Documentation**: `README_VIP_MIGRATION_SIMPLE.md`
-
-**Temps restant**: 1-2 jours (VIP sorting + PromptPay QR)
 
 ---
 
@@ -264,13 +263,14 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 9. Community Validation System - ✅ 90% COMPLET (v10.3)
+#### 9. Community Validation System - ✅ 100% COMPLET (v10.4)
 
-**Statut**: **PAS dans roadmap original** → Feature collaborative quasi-complète
+**Statut**: **PAS dans roadmap original** → Feature collaborative complète
 
 **Implementation**:
 - Database: `014_add_employee_community_validation.sql`
 - Components: `ValidationBadge.tsx`, `ValidationVoteButtons.tsx`
+- Controller: `employeeValidationController.ts`
 - Seeds: `seed_employee_existence_votes.sql`
 
 **Features** ✅:
@@ -279,11 +279,14 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - Badge display basé sur votes
 - Vote counts display
 - XP award on validation vote
-
-**Manquant** ⏳:
-- Vote weight system (verified users = 2x) - 0.5 jour
-
-**Temps restant**: 0.5 jour
+- **Vote weight system basé sur niveau XP**:
+  - Levels 1-3: 1.0x (nouveaux utilisateurs)
+  - Level 4: 1.5x (Insider)
+  - Level 5: 2.0x (VIP)
+  - Level 6: 2.5x (Legend)
+  - Level 7: 3.0x (Ambassador)
+- Calcul `weightedExistsVotes` / `weightedNotExistsVotes`
+- Validation percentage basé sur votes pondérés
 
 ---
 
@@ -345,24 +348,22 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ### 🔴 Priorité Haute (Finir features partielles)
 
-#### 1. VIP Frontend UI - 3-5 jours
-**Objectif**: Compléter les 30% manquants de VIP Subscriptions
+#### 1. VIP Frontend UI - ✅ COMPLET (Décembre 2025)
 
-**Tasks**:
-- [ ] `VIPPurchaseModal.tsx`
+**Statut**: ✅ TERMINÉ
+
+**Réalisé**:
+- [x] `VIPPurchaseModal.tsx` - Modal achat complet (391 lignes)
   - Tier selection (employee/establishment)
   - Duration selection (7/30/90/365 jours)
   - Payment method (PromptPay QR/Cash/Admin Grant)
   - Checkout flow + confirmation
-- [ ] VIP Visual Effects
-  - Gold border sur profiles/cartes VIP
-  - Crown icon badge
-  - Shimmer animation (optionnel)
-- [ ] Featured Placement
-  - VIP first in search results
-  - VIP first on maps
+- [x] VIP Visual Effects - Gold borders, crown icons
+- [x] Featured Placement - VIP priority sort dans SearchFilters
+- [x] PromptPay QR generation (`promptpayService.ts`)
+- [x] PromptPay QR display avec instructions (8 langues)
 
-**Impact Business**: Unlock 150,000฿/mois revenus récurrents
+**Impact Business**: Revenus potentiels 150,000฿/mois quand activé
 
 ---
 
@@ -405,16 +406,18 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 ---
 
-#### 4. Community Validation Polish - 1-2 jours
-**Objectif**: Passer de 70% → 100%
+#### 4. Community Validation Polish - ✅ COMPLET (Décembre 2025)
 
-**Tasks**:
-- [ ] Vote Weight System
-  - Verified users = 2x weight
-  - Regular users = 1x weight
-- [ ] UI Enhancements
-  - Vote count display
-  - Progress bar validation score
+**Statut**: ✅ TERMINÉ
+
+**Réalisé**:
+- [x] Vote Weight System basé sur niveau XP (plus sophistiqué que prévu)
+  - Levels 1-3: 1.0x weight (nouveaux utilisateurs)
+  - Level 4: 1.5x (Insider) / Level 5: 2.0x (VIP)
+  - Level 6: 2.5x (Legend) / Level 7: 3.0x (Ambassador)
+- [x] UI Enhancements
+  - Vote count display (`ValidationVoteButtons.tsx`)
+  - Badge display basé sur validation score (`ValidationBadge.tsx`)
 
 ---
 
@@ -530,17 +533,17 @@ Un audit complet du code vs la documentation a révélé des **écarts significa
 |---------|-------|-------|-------|
 | **Dark Mode** | 0% | 100% | +100% 🎉 |
 | **Historique Visites** | 0% | 100% | +100% 🎉 |
-| **Mode Hors Ligne PWA** | 10% | 90% | +80% |
-| **Community Validation** | 70% | 90% | +20% |
-| **VIP System** | 70% | 85% | +15% |
-| **Freelance System** | 80% | 95% | +15% |
+| **Mode Hors Ligne PWA** | 10% | 100% | +90% 🎉 |
+| **Community Validation** | 70% | 100% | +30% 🎉 |
+| **VIP System** | 70% | 100% | +30% 🎉 |
+| **Freelance System** | 80% | 100% | +20% 🎉 |
 | **Reviews Améliorées** | 40% | 25% | -15% |
 
 ### Impact
 
-- **Dette technique features**: 32 jours → **~15 jours** (-53%)
-- **Features 100% complètes**: +1 (Dark Mode)
-- **Features >90%**: +3 (Freelance, Community Validation, VIP)
+- **Dette technique features**: 32 jours → **~10 jours** (-69%)
+- **Features 100% complètes**: +6 (Dark Mode, Historique, Offline, Validation, VIP, Freelance)
+- **Features restantes**: Gamification (80%), Reviews (25%)
 
 ### Méthodologie
 
@@ -596,13 +599,13 @@ L'audit a été réalisé en:
 | 1 | Multilingue (i18n) | 🔴 | ✅ v10.1 | 100% | 0j |
 | 2 | Vérification Profils | 🔴 | ✅ v10.3 | 100% | 0j |
 | 3 | Notifications Push (PWA) | 🔴 | ✅ v10.2 | 100% | 0j |
-| 4 | VIP Subscriptions | 🔴 | 🔄 v10.3 | **85%** | 1-2j |
+| 4 | VIP Subscriptions | 🔴 | ✅ v10.4 | **100%** | 0j |
 | **MEDIUM PRIORITY (Implemented)** |
 | 5 | Gamification | 🟡 | 🔄 v10.3 | 80% | 2j |
 | 6 | Establishment Owners | 🟡 | ✅ v10.1 | 100% | 0j |
 | 7 | Freelance System | 🟡 | ✅ v10.4 | **100%** | 0j |
 | 8 | Employee Claims | 🟡 | ✅ v10.0 | 100% | 0j |
-| 9 | Community Validation | 🟡 | ✅ v10.3 | **90%** | 0.5j |
+| 9 | Community Validation | 🟡 | ✅ v10.4 | **100%** | 0j |
 | 10 | Reviews Améliorées | 🟡 | 🔄 v10.2 | **25%** | 5-6j |
 | **SUPPORT SYSTEMS (Complete)** |
 | 11 | Edit Proposals | 🟢 | ✅ v10.0 | 100% | 0j |
