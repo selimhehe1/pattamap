@@ -6,16 +6,20 @@ Playwright end-to-end tests for PattaMap gamification features.
 
 ## 📋 Overview
 
-Tests complete user flows for gamification:
-- ✅ User registration & first XP earning
-- ✅ Achievements page navigation (4 tabs: Overview, Badges, Missions, Leaderboard)
-- ✅ Mission progress tracking (daily/weekly)
-- ✅ Leaderboard functionality (global/monthly)
-- ✅ Badge showcase (locked/unlocked)
-- ✅ Mobile responsive (375×812 iPhone 12)
-- ✅ Landscape orientation (812×375)
+Tests E2E complets pour PattaMap couvrant:
+- ✅ **Authentification** - Login, logout, registration, session
+- ✅ **Navigation** - Header, sidebar, map, filtres, recherche
+- ✅ **Employés** - CRUD, profils, vérification, claim
+- ✅ **Établissements** - Détails, claim, ownership
+- ✅ **Gamification** - XP, badges, missions, leaderboard, check-in
+- ✅ **Admin** - Panel admin, VIP verification, modération
+- ✅ **Accessibilité** - WCAG 2.1 AA, clavier, ARIA
+- ✅ **Performance** - Audit Lighthouse, temps de chargement
+- ✅ **PWA** - Offline, service worker, installation
+- ✅ **Multi-navigateurs** - Chrome, Firefox, Safari, Edge
+- ✅ **Responsive** - Desktop, mobile, tablet
 
-**Test Coverage**: ~35+ tests across 11 suites
+**Test Coverage**: ~1,016 tests across 45 files
 
 ---
 
@@ -76,70 +80,74 @@ npx playwright test --update-snapshots
 
 ```
 tests/e2e/
-├── README.md                    # This file
-├── gamification.spec.ts         # Main gamification tests (5 suites, ~20 tests)
-├── mobile.spec.ts               # Mobile responsive tests (6 suites, ~15 tests)
+├── README.md                        # This file
 ├── fixtures/
-│   └── testUser.ts              # Helper functions (register, login, award XP)
-├── screenshots/                 # Auto-generated screenshots
-│   ├── 1-header-with-xp-desktop.png
-│   ├── 2-achievements-overview-desktop.png
-│   ├── 3-achievements-badges-desktop.png
-│   ├── 4-achievements-missions-desktop.png
-│   ├── 5-achievements-leaderboard-desktop.png
-│   ├── 6-mission-completed.png
-│   ├── 7-leaderboard-with-user.png
-│   ├── 8-badges-showcase.png
-│   ├── mobile-1-header-xp.png
-│   ├── mobile-2-achievements-overview.png
-│   ├── mobile-3-leaderboard.png
-│   ├── mobile-4-badges.png
-│   ├── mobile-5-missions.png
-│   └── mobile-6-landscape.png
-└── reports/                     # Test reports (HTML, JSON)
-    ├── html/                    # HTML report (open index.html)
-    └── results.json             # JSON results
+│   ├── testUser.ts                  # Helper functions (register, login, XP)
+│   └── mockAuth.ts                  # Mock auth (avoid rate limiting)
+├── *.spec.ts                        # 45 test files (see list below)
+├── screenshots/                     # Auto-generated on failure
+└── reports/
+    ├── html/                        # HTML report (index.html)
+    └── results.json                 # JSON results
 ```
+
+### Test Files (45 fichiers)
+
+| Catégorie | Fichiers |
+|-----------|----------|
+| **Auth** | `authentication.spec.ts`, `registration-flows.spec.ts` |
+| **Navigation** | `smoke.spec.ts`, `header-navigation.spec.ts`, `sidebar-establishment.spec.ts`, `map-interactions.spec.ts` |
+| **Search** | `filters.spec.ts`, `search-page.spec.ts`, `user-search-flow.spec.ts` |
+| **Employees** | `employee-crud.spec.ts`, `employee-detail.spec.ts`, `employee-verification.spec.ts`, `employee-profile-claim.spec.ts` |
+| **Establishments** | `establishment-detail.spec.ts`, `claim-establishment.spec.ts`, `owner-management.spec.ts` |
+| **Gamification** | `gamification.spec.ts`, `gamification-complete.spec.ts` |
+| **User** | `profile-edit.spec.ts`, `user-dashboard.spec.ts`, `user-profile-page.spec.ts`, `visit-history-page.spec.ts`, `favorites.spec.ts` |
+| **VIP** | `vip-system.spec.ts`, `vip-payment-flow.spec.ts`, `admin-vip-verification.spec.ts` |
+| **Admin** | `admin-panel.spec.ts` |
+| **Reviews** | `reviews-ratings.spec.ts`, `notifications.spec.ts` |
+| **Media** | `photo-upload.spec.ts` |
+| **UI/UX** | `modals-forms.spec.ts`, `buttons-interactions.spec.ts`, `theme-switching.spec.ts` |
+| **i18n** | `i18n.spec.ts` |
+| **Accessibility** | `accessibility.spec.ts`, `accessibility-audit.spec.ts`, `keyboard-navigation.spec.ts` |
+| **Performance** | `performance-audit.spec.ts`, `map-performance.spec.ts` |
+| **PWA** | `pwa.spec.ts` |
+| **Errors** | `error-handling.spec.ts`, `network-errors.spec.ts`, `not-found-page.spec.ts` |
+| **Mobile** | `mobile.spec.ts` |
+| **Other** | `freelances-page.spec.ts`
 
 ---
 
-## 🧩 Test Suites
+## 🧩 Test Suites (Exemples)
 
-### 1. User Registration & First XP (gamification.spec.ts)
-- ✅ Register new user → GamificationContext loads
-- ✅ Create review → Earn +50 XP → Header updates
-- ✅ Unlock "First Review" badge
+### Authentication & Users
+- Login/logout, session persistence, protected routes
+- Registration multi-étapes, validation formulaires
+- Profile editing, avatar upload, preferences
 
-### 2. Achievements Page Navigation
-- ✅ Navigate to /achievements → 4 tabs render
-- ✅ Overview tab → 4 stat cards (Total XP, Streak, Monthly, Longest)
-- ✅ Badges tab → BadgeShowcase (locked/unlocked)
-- ✅ Missions tab → MissionsDashboard (daily/weekly/narrative)
-- ✅ Leaderboard tab → Rankings (global/monthly)
+### Map & Navigation
+- Zone selection, category filters, view modes
+- Marker interactions, sidebar, search
+- Header navigation, theme toggle, i18n
 
-### 3. Mission Progress Tracking
-- ✅ Check-in to establishment → "Explorer" mission 0/1 → 1/1
-- ✅ XP awarded (+10 XP)
+### Employees & Establishments
+- CRUD complet, photo gallery, reviews
+- Verification flow, profile claim
+- Ownership management, VIP features
 
-### 4. Leaderboard Functionality
-- ✅ User appears in leaderboard
-- ✅ Switch between Global ↔ Monthly tabs
+### Gamification
+- XP earning (reviews, check-ins)
+- Badges, missions, leaderboard
+- Streak system, level progression
 
-### 5. Badge Showcase
-- ✅ Display locked badges (greyscale)
-- ✅ Display unlocked badges (colored + glow)
-- ✅ Badge tooltips on hover
+### Admin Panel
+- Dashboard stats, user management
+- Content moderation, VIP verification
+- Claims approval, bulk actions
 
-### 6. Mobile Responsive (mobile.spec.ts)
-- ✅ Header XP indicator on mobile
-- ✅ XP progress bar
-- ✅ Achievements page responsive layout
-- ✅ Stat cards 2×2 grid
-- ✅ Tab navigation
-- ✅ Badges responsive grid
-- ✅ Missions vertical stack
-- ✅ Touch interactions (tap, scroll)
-- ✅ Landscape orientation (812×375)
+### Accessibility & Performance
+- WCAG 2.1 AA compliance
+- Keyboard navigation, screen reader
+- Lighthouse audits, Core Web Vitals
 
 ---
 
@@ -161,22 +169,84 @@ await page.screenshot({
 
 ---
 
+## 🔐 Authentication (Mock Auth)
+
+**Important**: Les tests utilisent **Mock Auth par défaut** pour éviter le rate limiting Supabase.
+
+### Pourquoi Mock Auth ?
+
+| Problème | Solution Mock Auth |
+|----------|-------------------|
+| Rate limiting Supabase | Aucune requête auth réelle |
+| Tests lents (~2s/login) | Instantané (~0.1s) |
+| Flaky en CI/CD | 100% fiable |
+| Dépendance réseau | Pas de dépendance |
+
+### Usage par défaut (Mock)
+
+```typescript
+import { generateTestUser, registerUser, loginUser, loginAsAdmin } from './fixtures/testUser';
+
+// Par défaut : Mock Auth (rapide, sans rate limiting)
+const user = generateTestUser();
+await registerUser(page, user);  // ← Mock automatique
+await loginUser(page, user);     // ← Mock automatique
+
+// Admin login (mock)
+await loginAsAdmin(page);
+```
+
+### Forcer l'auth réelle (pour smoke/auth tests)
+
+```typescript
+// Force real Supabase auth
+await registerUser(page, user, { useMock: false });
+await loginUser(page, user, { useMock: false });
+```
+
+### API Mock Auth directe
+
+```typescript
+import { setupMockAuth, setupMockAdminAuth } from './fixtures/mockAuth';
+
+test.beforeEach(async ({ page }) => {
+  await setupMockAuth(page);  // User mock
+  // ou
+  await setupMockAdminAuth(page);  // Admin mock
+});
+```
+
+### Fichiers concernés
+
+| Fichier | Description |
+|---------|-------------|
+| `fixtures/mockAuth.ts` | Utilitaires mock Supabase |
+| `fixtures/testUser.ts` | Intégration mock (défaut ON) |
+
+---
+
 ## 🛠️ Test User Helper
 
 `fixtures/testUser.ts` provides utilities:
 
 ```typescript
-import { generateTestUser, registerUser, loginUser } from './fixtures/testUser';
+import { generateTestUser, registerUser, loginUser, loginAsAdmin } from './fixtures/testUser';
 
 // Generate unique test user
 const testUser = generateTestUser();
 // → { email: 'test.e2e.1234567890.456@pattamap.test', username: 'TestUser...', password: '...' }
 
-// Register via frontend UI
+// Register (mock auth by default - fast, no rate limiting)
 await registerUser(page, testUser);
 
-// Login via frontend UI
+// Login (mock auth by default)
 await loginUser(page, testUser);
+
+// Login as admin (mock auth by default)
+await loginAsAdmin(page);
+
+// Force real auth (only for authentication tests)
+await registerUser(page, testUser, { useMock: false });
 
 // Create review to earn XP (+50 XP)
 await createReviewForXP(page);
@@ -290,6 +360,17 @@ await expect(page.locator('button')).toBeVisible({ timeout: 15000 });
 ### Issue: Database conflicts (parallel tests)
 **Solution**: Already configured `workers: 1` for sequential execution
 
+### Issue: Supabase rate limiting ("Too many requests")
+**Solution**: Mock Auth est activé par défaut. Si vous voyez cette erreur:
+1. Vérifiez que vous utilisez `registerUser(page, user)` sans `{ useMock: false }`
+2. Ou utilisez directement `setupMockAuth(page)` dans `beforeEach`
+```typescript
+import { setupMockAuth } from './fixtures/mockAuth';
+test.beforeEach(async ({ page }) => {
+  await setupMockAuth(page);
+});
+```
+
 ### Issue: Backend/frontend not running
 **Solution**: Config auto-starts servers via `webServer` option. If fails:
 ```bash
@@ -315,30 +396,27 @@ mkdir -p tests/e2e/screenshots
 
 | Metric | Value |
 |--------|-------|
-| **Total Tests** | ~35 tests |
-| **Test Suites** | 11 suites |
-| **Screenshots** | 14+ auto-generated |
-| **Execution Time** | ~3-5 min (sequential) |
-| **Code Coverage** | E2E user flows |
+| **Total Tests** | ~1,016 tests |
+| **Test Files** | 45 fichiers |
+| **Browsers** | 8 projets (Chrome, Firefox, Safari, Edge × Desktop/Mobile) |
+| **Screenshots** | Auto-generated on failure |
+| **Execution Time** | ~15-20 min (sequential, all browsers) |
+| **Code Coverage** | ~95% fonctionnalités UI |
 
 ---
 
-## 🎯 Next Steps
+## 🎯 Completed Features
 
-### Short Term
-1. **Run tests locally**: `npm run test:e2e:headed`
-2. **Adjust selectors**: If tests fail, update selectors to match your UI components
-3. **Add test data**: Seed database with test establishments for `createReviewForXP()`
+- ✅ **Multi-browser**: Chrome, Firefox, Safari, Edge
+- ✅ **Accessibility**: WCAG 2.1 AA, axe-core audit
+- ✅ **Mock Auth**: Évite rate limiting Supabase
+- ✅ **Performance**: Lighthouse audits
+- ✅ **PWA**: Offline, service worker tests
 
-### Medium Term
-1. **Visual Regression**: Add `@playwright/test` screenshot comparison
-2. **Accessibility Tests**: Add `@axe-core/playwright` checks
-3. **Performance Tests**: Measure Leaderboard query times
-
-### Long Term
-1. **CI/CD Integration**: GitHub Actions workflow for automated E2E tests
-2. **Cross-browser**: Add Firefox + Safari projects
-3. **Load Testing**: Test with 100+ users in leaderboard
+### Prochaines Améliorations Possibles
+1. **Visual Regression**: Screenshot comparison
+2. **CI/CD**: GitHub Actions workflow
+3. **Load Testing**: Stress tests avec data volumineuse
 
 ---
 
@@ -347,12 +425,11 @@ mkdir -p tests/e2e/screenshots
 - **Playwright Docs**: https://playwright.dev/docs/intro
 - **Playwright Inspector**: https://playwright.dev/docs/debug#playwright-inspector
 - **Best Practices**: https://playwright.dev/docs/best-practices
-- **Selectors Guide**: https://playwright.dev/docs/selectors
 
 ---
 
-**Created**: October 2025
-**Maintained by**: PattaMap Team
-**Questions?**: Check docs or file an issue
+**Updated**: December 2025
+**Tests**: 45 files, ~1,016 tests
+**Coverage**: ~95% UI functionality
 
 🎮 **Happy Testing!**

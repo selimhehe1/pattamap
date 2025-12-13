@@ -82,3 +82,6 @@ playwright/.cache/
 
 # Vercel
 .vercel/
+
+# Playwright auth state files
+tests/e2e/.auth/

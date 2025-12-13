@@ -3,12 +3,27 @@
  *
  * Helper functions to create authenticated test users with XP and badges
  * for gamification testing.
+ *
+ * RATE LIMITING NOTE:
+ * By default, this module now uses MOCK AUTH to avoid Supabase rate limiting.
+ * Set USE_MOCK_AUTH=false to use real authentication (for smoke/auth tests only).
+ *
+ * Usage:
+ *   // Default: Mock auth (fast, no rate limiting)
+ *   await registerUser(page, user);
+ *
+ *   // Force real auth (for authentication-specific tests)
+ *   await registerUser(page, user, { useMock: false });
  */
 
 import { Page } from '@playwright/test';
 import axios from 'axios';
+import { setupMockAuth, setupMockAdminAuth, mockUser, mockAdminUser } from './mockAuth';
 
 const API_BASE_URL = 'http://localhost:8080/api';
+
+// Set to false only for authentication.spec.ts and smoke.spec.ts
+const USE_MOCK_AUTH = process.env.E2E_USE_MOCK_AUTH !== 'false';
 
 export interface TestUser {
   id?: string;
@@ -38,8 +53,29 @@ export function generateTestUser(): TestUser {
  * Register a new user via backend API (faster and more reliable for E2E tests)
  * @param page - Playwright page object
  * @param user - Test user credentials
+ * @param options - Options (useMock: false to force real auth)
  */
-export async function registerUser(page: Page, user: TestUser): Promise<void> {
+export async function registerUser(
+  page: Page,
+  user: TestUser,
+  options: { useMock?: boolean } = {}
+): Promise<void> {
+  const useMock = options.useMock ?? USE_MOCK_AUTH;
+
+  // Use mock auth by default (avoids rate limiting)
+  if (useMock) {
+    console.log(`🔐 Using MOCK AUTH for: ${user.email}`);
+    await setupMockAuth(page);
+    user.id = mockUser.id;
+    user.csrfToken = 'mock-csrf-token';
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    console.log(`✅ Mock user ready: ${user.email}`);
+    return;
+  }
+
+  // Real auth (only for authentication.spec.ts and smoke.spec.ts)
+  console.log(`🔑 Using REAL AUTH for: ${user.email}`);
   try {
     // Register via API directly
     const response = await axios.post(
@@ -129,8 +165,28 @@ export async function registerUser(page: Page, user: TestUser): Promise<void> {
  * Login user via backend API (faster and more reliable for E2E tests)
  * @param page - Playwright page object
  * @param user - Test user credentials
+ * @param options - Options (useMock: false to force real auth)
  */
-export async function loginUser(page: Page, user: TestUser): Promise<void> {
+export async function loginUser(
+  page: Page,
+  user: TestUser,
+  options: { useMock?: boolean } = {}
+): Promise<void> {
+  const useMock = options.useMock ?? USE_MOCK_AUTH;
+
+  // Use mock auth by default (avoids rate limiting)
+  if (useMock) {
+    console.log(`🔐 Using MOCK AUTH login for: ${user.email}`);
+    await setupMockAuth(page);
+    user.csrfToken = 'mock-csrf-token';
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    console.log(`✅ Mock login ready: ${user.email}`);
+    return;
+  }
+
+  // Real auth (only for authentication.spec.ts and smoke.spec.ts)
+  console.log(`🔑 Using REAL AUTH login for: ${user.email}`);
   try {
     // Login via API to get auth cookies
     const loginResponse = await axios.post(
@@ -424,3 +480,49 @@ export async function waitForXPUpdate(
 
   throw new Error(`Timeout: XP did not reach ${expectedXP} within ${timeout}ms`);
 }
+
+// ========================================
+// ADMIN USER HELPERS
+// ========================================
+
+/**
+ * Login as admin user (uses mock auth by default)
+ * @param page - Playwright page object
+ * @param options - Options (useMock: false to force real auth)
+ */
+export async function loginAsAdmin(
+  page: Page,
+  options: { useMock?: boolean } = {}
+): Promise<TestUser> {
+  const useMock = options.useMock ?? USE_MOCK_AUTH;
+
+  if (useMock) {
+    console.log(`🔐 Using MOCK ADMIN AUTH`);
+    await setupMockAdminAuth(page);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    console.log(`✅ Mock admin ready`);
+    return {
+      id: mockAdminUser.id,
+      email: mockAdminUser.email,
+      username: mockAdminUser.user_metadata.pseudonym,
+      password: 'MockPassword123!',
+      account_type: 'regular',
+      csrfToken: 'mock-csrf-token'
+    };
+  }
+
+  // Real admin login
+  const adminUser: TestUser = {
+    email: 'admin@test.com',
+    username: 'AdminUser',
+    password: 'SecureTestP@ssw0rd2024!',
+    account_type: 'regular'
+  };
+
+  await loginUser(page, adminUser, { useMock: false });
+  return adminUser;
+}
+
+// Re-export mock auth utilities for convenience
+export { setupMockAuth, setupMockAdminAuth, mockUser, mockAdminUser } from './mockAuth';

@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Playwright Configuration - PattaMap E2E Tests
@@ -16,18 +18,30 @@ import { defineConfig, devices } from '@playwright/test';
  *   npm run test:e2e:debug        # Debug mode with Playwright Inspector
  */
 
+// ES Module compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Auth state file paths
+const AUTH_STATE_DIR = path.join(__dirname, 'tests/e2e/.auth');
+const ADMIN_STATE_FILE = path.join(AUTH_STATE_DIR, 'admin.json');
+const USER_STATE_FILE = path.join(AUTH_STATE_DIR, 'user.json');
+
 export default defineConfig({
   // Test directory
   testDir: './tests/e2e',
+
+  // Global setup - pre-authenticate to avoid rate limiting
+  globalSetup: './tests/e2e/global-setup.ts',
 
   // Maximum time one test can run for
   timeout: 60 * 1000, // 60 seconds per test
 
   // Test execution settings
-  fullyParallel: true, // Run tests in parallel for speed
+  fullyParallel: false, // Sequential to avoid rate limiting on auth
   forbidOnly: !!process.env.CI, // Fail on .only() in CI
-  retries: process.env.CI ? 1 : 0, // Retry failed tests in CI (reduced to 1 for speed)
-  workers: process.env.CI ? 4 : 2, // 4 parallel workers in CI, 2 locally
+  retries: process.env.CI ? 2 : 1, // Retry failed tests (rate limit may have passed)
+  workers: 1, // Single worker to avoid Supabase rate limiting on auth
 
   // Reporter config
   reporter: [
@@ -58,6 +72,7 @@ export default defineConfig({
 
   // Projects for different browsers/viewports
   projects: [
+    // ============ CHROMIUM (Chrome) ============
     {
       name: 'chromium-desktop',
       use: {
@@ -65,7 +80,6 @@ export default defineConfig({
         viewport: { width: 1920, height: 1080 },
       },
     },
-
     {
       name: 'chromium-mobile',
       use: {
@@ -73,12 +87,54 @@ export default defineConfig({
         viewport: { width: 375, height: 812 },
       },
     },
-
     {
       name: 'chromium-tablet',
       use: {
         ...devices['iPad Pro'],
         viewport: { width: 1024, height: 1366 },
+      },
+    },
+
+    // ============ FIREFOX ============
+    {
+      name: 'firefox-desktop',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+    {
+      name: 'firefox-mobile',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 375, height: 812 },
+        isMobile: true,
+      },
+    },
+
+    // ============ WEBKIT (Safari) ============
+    {
+      name: 'webkit-desktop',
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+    {
+      name: 'webkit-mobile',
+      use: {
+        ...devices['iPhone 13'],
+        viewport: { width: 390, height: 844 },
+      },
+    },
+
+    // ============ EDGE ============
+    {
+      name: 'edge-desktop',
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge',
+        viewport: { width: 1920, height: 1080 },
       },
     },
   ],
