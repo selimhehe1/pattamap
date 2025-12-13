@@ -81,12 +81,13 @@ describe('FavoriteController', () => {
 
   describe('getFavorites', () => {
     it('should return user favorites with employee details', async () => {
+      // Note: Supabase returns nested relations as arrays
       const mockFavorites = [
         {
           id: 'fav-1',
           employee_id: 'emp-1',
           created_at: new Date().toISOString(),
-          employee: {
+          employee: [{
             id: 'emp-1',
             name: 'Alice',
             nickname: 'Ali',
@@ -95,11 +96,13 @@ describe('FavoriteController', () => {
             photos: ['photo1.jpg'],
             description: 'Friendly',
             social_media: { instagram: '@alice' }
-          }
+          }]
         }
       ];
 
-      const mockEmployment = {
+      // Note: Supabase returns nested relations as arrays
+      const mockEmployment = [{
+        employee_id: 'emp-1',
         establishment_id: 'est-1',
         establishments: {
           id: 'est-1',
@@ -107,9 +110,9 @@ describe('FavoriteController', () => {
           zone: 'walking_street',
           address: '123 Main St'
         }
-      };
+      }];
 
-      const mockRatings = [{ rating: 5 }, { rating: 4 }];
+      const mockRatings = [{ employee_id: 'emp-1', rating: 5 }, { employee_id: 'emp-1', rating: 4 }];
 
       // Mock queries: 1) get favorites, 2) get employment, 3) get ratings
       (supabase.from as jest.Mock)
@@ -138,9 +141,11 @@ describe('FavoriteController', () => {
     });
 
     it('should return empty array when user has no favorites', async () => {
-      (supabase.from as jest.Mock).mockReturnValueOnce(
-        createMockQueryBuilder(mockSuccess([]))
-      );
+      // Mock all 3 queries: favorites, employment, comments (even though last 2 will get empty arrays)
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
 
       await getFavorites(mockRequest as Request, mockResponse as Response);
 

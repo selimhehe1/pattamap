@@ -3,6 +3,7 @@
 -- Date: 2025-01-18
 -- Description: Adds VIP status columns to entity tables for frontend visual effects
 -- Dependencies: add_vip_subscriptions.sql must be applied first
+BEGIN;
 
 -- =====================================================
 -- 1. ADD VIP COLUMNS TO ESTABLISHMENTS TABLE
@@ -151,3 +152,5 @@ EXECUTE FUNCTION sync_employee_vip_status();
 --
 -- IMPORTANT: This migration must be applied AFTER add_vip_subscriptions.sql
 -- =====================================================
+
+COMMIT;

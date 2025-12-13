@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Create gamification tables (points, badges, missions, leaderboards, social features)
 -- ========================================
+BEGIN;
 
 -- Purpose: Implement advanced gamification system to boost user engagement and contributions
 -- Goals: +50% engagement, +80% contributions, +40% retention
@@ -492,3 +493,5 @@ $$ LANGUAGE plpgsql;
 -- DROP TABLE IF EXISTS user_badges CASCADE;
 -- DROP TABLE IF EXISTS badges CASCADE;
 -- DROP TABLE IF EXISTS user_points CASCADE;
+
+COMMIT;

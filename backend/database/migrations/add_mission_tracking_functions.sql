@@ -4,6 +4,7 @@
 -- Date: 2025-01-20
 -- Description: PostgreSQL functions for efficient mission progress tracking
 -- ========================================
+BEGIN;
 
 -- Purpose: Provide atomic, optimized functions for mission tracking service
 -- Performance: RPC functions are faster than multiple sequential queries
@@ -316,3 +317,5 @@ BEGIN
   RAISE NOTICE 'Indexes created: 4 performance indexes';
   RAISE NOTICE '========================================';
 END $$;
+
+COMMIT;

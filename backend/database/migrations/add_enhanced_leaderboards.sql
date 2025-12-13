@@ -4,6 +4,7 @@
 -- Date: 2025-12-12
 -- Description: Create materialized views for weekly and category leaderboards
 -- ========================================
+BEGIN;
 
 -- Purpose: Add weekly leaderboards and category-based leaderboards
 -- (top reviewers, photographers, check-ins, helpful voters)
@@ -184,3 +185,5 @@ COMMENT ON FUNCTION refresh_leaderboard_views() IS 'Refresh all leaderboard mate
 -- SELECT COUNT(*) FROM leaderboard_photographers;
 -- SELECT COUNT(*) FROM leaderboard_checkins;
 -- SELECT COUNT(*) FROM leaderboard_helpful;
+
+COMMIT;

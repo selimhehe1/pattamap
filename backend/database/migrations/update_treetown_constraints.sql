@@ -12,6 +12,7 @@
 --
 -- MASKED POSITIONS: (2,1) and (2,10) interfere with vertical roads
 -- ============================================================
+BEGIN;
 
 -- Drop existing grid constraints
 ALTER TABLE establishments
@@ -99,3 +100,5 @@ COMMENT ON CONSTRAINT check_grid_row ON establishments IS
 
 COMMENT ON CONSTRAINT check_grid_col ON establishments IS
 'Grid column validation with variable limits per zone and row. Tree Town: rows 1-2 (10 cols), rows 3-8 (2 cols), rows 9-14 (2 cols)';
+
+COMMIT;

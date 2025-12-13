@@ -3,6 +3,7 @@
 -- Version: 10.3
 -- Date: 2025-01-19
 -- =====================================================
+BEGIN;
 -- Description: Refactor freelance logic to remove map positioning (independent_positions)
 -- and restrict freelances to nightclub-only associations with multi-nightclub support.
 --
@@ -158,3 +159,5 @@ CREATE INDEX IF NOT EXISTS idx_employment_freelance_nightclub
 --    - Drop trigger: DROP TRIGGER trigger_validate_freelance_nightclub ON employment_history;
 --    - Drop function: DROP FUNCTION validate_freelance_nightclub_only();
 -- =====================================================
+
+COMMIT;

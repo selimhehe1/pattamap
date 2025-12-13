@@ -7,6 +7,7 @@
 -- Description: Crée les 3 tables VIP avec RLS policies BASIQUES (admin-only)
 -- À exécuter APRÈS supabase_step0_enable_extensions.sql
 -- =====================================================
+BEGIN;
 
 -- =====================================================
 -- 1. VIP PAYMENT TRANSACTIONS (créée EN PREMIER car référencée par les autres)
@@ -367,3 +368,5 @@ $$ LANGUAGE plpgsql;
 --
 -- ➡️ NEXT STEP: Exécuter supabase_step2_vip_entity_columns.sql
 -- =====================================================
+
+COMMIT;

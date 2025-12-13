@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
@@ -30,7 +30,7 @@ interface EmployeeCardProps {
  *
  * Used in: GirlsGallery, SearchResults, EmployeesGridView
  */
-const EmployeeCard: React.FC<EmployeeCardProps> = ({
+const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
   employee,
   onClick,
   showEstablishment = false,
@@ -211,6 +211,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
+
+EmployeeCard.displayName = 'EmployeeCard';
 
 export default EmployeeCard;

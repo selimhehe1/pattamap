@@ -4,6 +4,78 @@ import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth'
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
 import { getVIPTransactions, verifyPayment, rejectPayment } from '../controllers/vipController';
+import { Establishment, Employee, EmploymentHistory, User, EstablishmentCategory } from '../types';
+
+// Type-safe error message extraction
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return 'Unknown error';
+};
+
+// Database record types (may differ from API types)
+// Note: These are standalone types, not extending base types due to structural differences
+interface DbEstablishment {
+  id: string;
+  name: string;
+  address: string;
+  zone: string;
+  grid_row?: number;
+  grid_col?: number;
+  category_id: number;
+  description?: string;
+  phone?: string;
+  website?: string;
+  opening_hours?: Record<string, unknown>;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  logo_url?: string;
+  is_vip?: boolean;
+  status: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  latitude?: number;
+  longitude?: number;
+  category?: EstablishmentCategory;
+  user?: User;
+}
+
+interface DbEmploymentHistory {
+  id: string;
+  employee_id: string;
+  establishment_id: string;
+  is_current: boolean;
+  start_date?: string;
+  end_date?: string;
+  position?: string;
+  establishment?: DbEstablishment;
+}
+
+interface DbEmployee {
+  id: string;
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[];
+  photos?: string[];
+  description?: string;
+  social_media?: Record<string, string>;
+  status: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  is_verified?: boolean;
+  verified_at?: string;
+  is_vip?: boolean;
+  vip_expires_at?: string;
+  vote_count?: number;
+  average_rating?: number;
+  is_freelance?: boolean;
+  current_employment?: DbEmploymentHistory[];
+  employment_history?: DbEmploymentHistory[];
+}
 
 const router = express.Router();
 
@@ -77,14 +149,14 @@ const findUuidByNumber = async (table: string, numericId: string): Promise<strin
     logger.error(`❌ No UUID found for numeric ID: ${numericId} after checking ${data.length} records`);
     logger.debug(`🎯 Searched in table: ${table}, target number: ${targetNumber}`);
     return null;
-  } catch (error: any) {
-    logger.error('💥 Error in findUuidByNumber:', error);
+  } catch (error: unknown) {
+    logger.error('💥 Error in findUuidByNumber:', getErrorMessage(error));
     return null;
   }
 };
 
 // Transform establishment data for admin interface
-const transformEstablishment = (est: any) => {
+const transformEstablishment = (est: DbEstablishment) => {
   logger.debug('🔥 TRANSFORM EST - Input ID' + JSON.stringify({ id: est.id, type: typeof est.id }));
   const result = {
     ...est,
@@ -105,11 +177,11 @@ const transformEstablishment = (est: any) => {
 };
 
 // Transform employee data for admin interface
-const transformEmployee = (emp: any) => ({
+const transformEmployee = (emp: DbEmployee) => ({
   ...emp,
   id: emp.id, // Keep original UUID instead of converting to number
   created_by: emp.created_by || null, // Keep original UUID if present
-  current_employment: emp.current_employment?.map((job: any) => ({
+  current_employment: emp.current_employment?.map((job: DbEmploymentHistory) => ({
     ...job,
     id: job.id, // Keep original UUID
     employee_id: job.employee_id, // Keep original UUID
@@ -154,7 +226,7 @@ router.post('/setup-postgis-functions', async (req, res) => {
     }
 
     res.json({ message: 'PostGIS functions created successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Setup error:', error);
     res.status(500).json({ error: 'Failed to setup PostGIS functions' });
   }
@@ -199,7 +271,7 @@ router.post('/add-soi6-bars', async (req, res) => {
     }
 
     res.json({ message: `${soi6Bars.length} Soi 6 bars added successfully`, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error adding Soi 6 bars:', error);
     res.status(500).json({ error: 'Failed to add Soi 6 bars' });
   }
@@ -226,7 +298,7 @@ router.post('/create-basic-consumables', async (req, res) => {
     }
 
     res.json({ message: `${consumables.length} consumables created successfully`, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating consumables:', error);
     res.status(500).json({ error: 'Failed to create consumables' });
   }
@@ -296,7 +368,7 @@ router.get('/dashboard-stats', async (req, res) => {
     };
 
     res.json({ stats });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching dashboard stats:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard statistics' });
   }
@@ -335,7 +407,7 @@ router.get('/establishments', async (req, res) => {
     const transformedData = (data || []).map(transformEstablishment);
 
     res.json({ establishments: transformedData });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching establishments:', error);
     res.status(500).json({ error: 'Failed to fetch establishments' });
   }
@@ -452,7 +524,7 @@ router.put('/establishments/:id', async (req, res) => {
     }
 
     res.json({ establishment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating establishment:', error);
     res.status(500).json({ error: 'Failed to update establishment' });
   }
@@ -528,7 +600,7 @@ router.post('/establishments/:id/approve', async (req, res) => {
     }
 
     res.json({ establishment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error approving establishment:', error);
     res.status(500).json({ error: 'Failed to approve establishment' });
   }
@@ -615,7 +687,7 @@ router.post('/establishments/:id/reject', async (req, res) => {
     // TODO: Optionellement enregistrer la raison du rejet dans une table séparée
 
     res.json({ establishment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error rejecting establishment:', error);
     res.status(500).json({ error: 'Failed to reject establishment' });
   }
@@ -642,7 +714,7 @@ router.delete('/establishments/:id', async (req, res) => {
     }
 
     res.json({ message: 'Establishment deleted successfully', establishment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error deleting establishment:', error);
     res.status(500).json({ error: 'Failed to delete establishment' });
   }
@@ -690,7 +762,7 @@ router.get('/employees', async (req, res) => {
       const baseEmployee = transformEmployee(emp);
       return {
         ...baseEmployee,
-        employment_history: emp.employment_history?.map((eh: any) => ({
+        employment_history: emp.employment_history?.map((eh: DbEmploymentHistory) => ({
           id: eh.id, // Keep original UUID
           employee_id: emp.id, // Keep original UUID
           establishment_id: eh.establishment_id, // Keep original UUID
@@ -712,7 +784,7 @@ router.get('/employees', async (req, res) => {
     });
 
     res.json({ employees: transformedEmployees });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching employees:', error);
     res.status(500).json({ error: 'Failed to fetch employees' });
   }
@@ -843,7 +915,7 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
 
     logger.debug('Employee updated successfully:', data);
     res.json({ employee: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating employee:', error);
     res.status(500).json({ error: 'Failed to update employee' });
   }
@@ -885,7 +957,7 @@ router.post('/employees/:id/approve', async (req, res) => {
     }
 
     res.json({ employee: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error approving employee:', error);
     res.status(500).json({ error: 'Failed to approve employee' });
   }
@@ -930,7 +1002,7 @@ router.post('/employees/:id/reject', async (req, res) => {
     }
 
     res.json({ employee: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error rejecting employee:', error);
     res.status(500).json({ error: 'Failed to reject employee' });
   }
@@ -1079,7 +1151,7 @@ router.get('/users', async (req, res) => {
     );
 
     res.json({ users: usersWithStats });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
@@ -1131,7 +1203,7 @@ router.put('/users/:id', async (req, res) => {
     }
 
     res.json({ user: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating user:', error);
     res.status(500).json({ error: 'Failed to update user' });
   }
@@ -1168,7 +1240,7 @@ router.post('/users/:id/role', async (req, res) => {
     }
 
     res.json({ user: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating user role:', error);
     res.status(500).json({ error: 'Failed to update user role' });
   }
@@ -1211,7 +1283,7 @@ router.post('/users/:id/toggle-active', async (req, res) => {
     }
 
     res.json({ user: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error toggling user status:', error);
     res.status(500).json({ error: 'Failed to toggle user status' });
   }
@@ -1235,7 +1307,7 @@ router.get('/consumables', async (req, res) => {
     }
 
     res.json({ consumables: data || [] });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching consumables:', error);
     res.status(500).json({ error: 'Failed to fetch consumables' });
   }
@@ -1265,7 +1337,7 @@ router.post('/consumables', async (req: AuthRequest, res) => {
     }
 
     res.json({ consumable: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating consumable:', error);
     res.status(500).json({ error: 'Failed to create consumable' });
   }
@@ -1295,7 +1367,7 @@ router.put('/consumables/:id', async (req, res) => {
     }
 
     res.json({ consumable: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating consumable:', error);
     res.status(500).json({ error: 'Failed to update consumable' });
   }
@@ -1316,7 +1388,7 @@ router.delete('/consumables/:id', async (req, res) => {
     }
 
     res.json({ message: 'Consumable deleted successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error deleting consumable:', error);
     res.status(500).json({ error: 'Failed to delete consumable' });
   }
@@ -1343,7 +1415,7 @@ router.put('/consumables/:id/status', async (req, res) => {
     }
 
     res.json({ consumable: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating consumable status:', error);
     res.status(500).json({ error: 'Failed to update consumable status' });
   }
@@ -1375,7 +1447,7 @@ router.get('/establishments/:id/consumables', async (req, res) => {
     }
 
     res.json({ consumables: data || [] });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching establishment consumables:', error);
     res.status(500).json({ error: 'Failed to fetch establishment consumables' });
   }
@@ -1410,7 +1482,7 @@ router.post('/establishments/:id/consumables', async (req, res) => {
     }
 
     res.json({ consumable: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error adding consumable to establishment:', error);
     res.status(500).json({ error: 'Failed to add consumable to establishment' });
   }
@@ -1442,7 +1514,7 @@ router.put('/establishments/:establishment_id/consumables/:consumable_id', async
     }
 
     res.json({ consumable: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating establishment consumable:', error);
     res.status(500).json({ error: 'Failed to update establishment consumable' });
   }
@@ -1464,7 +1536,7 @@ router.delete('/establishments/:establishment_id/consumables/:consumable_id', as
     }
 
     res.json({ message: 'Consumable removed from establishment successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error removing consumable from establishment:', error);
     res.status(500).json({ error: 'Failed to remove consumable from establishment' });
   }
@@ -1499,7 +1571,7 @@ router.get('/comments', async (req, res) => {
     }
 
     res.json({ comments: data || [] });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching comments:', error);
     res.status(500).json({ error: 'Failed to fetch comments' });
   }
@@ -1531,7 +1603,7 @@ router.post('/comments/:id/approve', async (req, res) => {
     }
 
     res.json({ comment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error approving comment:', error);
     res.status(500).json({ error: 'Failed to approve comment' });
   }
@@ -1564,7 +1636,7 @@ router.post('/comments/:id/reject', async (req, res) => {
     }
 
     res.json({ comment: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error rejecting comment:', error);
     res.status(500).json({ error: 'Failed to reject comment' });
   }
@@ -1607,7 +1679,7 @@ router.post('/comments/:id/dismiss-reports', async (req, res) => {
     }
 
     res.json({ message: 'Reports dismissed successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error dismissing reports:', error);
     res.status(500).json({ error: 'Failed to dismiss reports' });
   }
@@ -1768,7 +1840,7 @@ router.post('/add-soi6-bars', async (req, res) => {
       message: `Successfully added ${data.length} Soi 6 bars`,
       bars: data
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error adding Soi 6 bars:', error);
     res.status(500).json({ error: 'Failed to add Soi 6 bars' });
   }
@@ -1791,7 +1863,7 @@ router.post('/approve-soi6-bars', async (req, res) => {
       message: `Successfully approved ${data.length} Soi 6 bars`,
       bars: data
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error approving Soi 6 bars:', error);
     res.status(500).json({ error: 'Failed to approve Soi 6 bars' });
   }
@@ -1952,7 +2024,7 @@ router.post('/create-realistic-employees', async (req, res) => {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Employee creation error:', error);
     // SECURITY FIX: Don't expose error details to client
     res.status(500).json({
@@ -2027,7 +2099,7 @@ router.post('/create-basic-consumables', async (req, res) => {
       consumables: data
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Consumables creation error:', error);
     // SECURITY FIX: Don't expose error details to client
     res.status(500).json({

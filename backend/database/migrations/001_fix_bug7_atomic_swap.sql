@@ -4,6 +4,7 @@
 -- Purpose: Prevent establishments from disappearing when swap fails
 -- Issue: If STEP 2 or STEP 3 fails, source remains at (NULL, NULL)
 -- Solution: Wrap entire swap in a PostgreSQL transaction
+BEGIN;
 
 CREATE OR REPLACE FUNCTION swap_establishment_positions(
   p_source_id UUID,
@@ -122,3 +123,5 @@ COMMENT ON FUNCTION swap_establishment_positions IS
 --   'target-establishment-uuid'::UUID,
 --   'walking-street'::TEXT
 -- );
+
+COMMIT;

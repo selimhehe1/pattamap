@@ -8,6 +8,7 @@
 -- Note: Cette migration NE SUPPRIME PAS les données existantes, elle met
 -- seulement à jour les contraintes pour permettre la nouvelle grille.
 -- ============================================================================
+BEGIN;
 
 -- Étape 1: Supprimer l'ancienne contrainte de grille Soi Buakhao (si existe)
 ALTER TABLE establishments DROP CONSTRAINT IF EXISTS check_soibuakhao_grid;
@@ -46,3 +47,5 @@ WHERE zone = 'soibuakhao'
 -- 2. Tester le drag & drop en mode Edit sur la carte Soi Buakhao
 -- 3. Vérifier que les 6 intersections s'affichent correctement
 -- ============================================================================
+
+COMMIT;

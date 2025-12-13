@@ -2,6 +2,7 @@
 -- Description: Update approve function to handle self-profiles that are already linked
 -- Version: v10.0.1
 -- Date: 2025-01-11
+BEGIN;
 
 -- ============================================
 -- Update approve function to handle self-profiles
@@ -118,3 +119,5 @@ END;
 $$;
 
 COMMENT ON FUNCTION approve_employee_claim_request IS 'Approve claim request - handles both self-profiles (already linked) and claim requests (create link)';
+
+COMMIT;

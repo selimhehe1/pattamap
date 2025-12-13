@@ -11,6 +11,7 @@
 -- 2. Copy and paste this entire file
 -- 3. Click "Run" to execute
 -- ========================================
+BEGIN;
 
 -- Function: Award XP to user (UPDATED - now with automatic streak update)
 CREATE OR REPLACE FUNCTION award_xp(
@@ -100,3 +101,5 @@ $$ LANGUAGE plpgsql;
 -- ✅ Streaks update automatically on every XP award
 -- ✅ Level-up notifications work in frontend
 -- ========================================
+
+COMMIT;

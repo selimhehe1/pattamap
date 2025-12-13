@@ -6,6 +6,7 @@
 -- Description: Active l'extension btree_gist pour supporter les contraintes EXCLUDE USING gist avec UUID
 -- À exécuter EN TOUT PREMIER avant supabase_step1_vip_tables.sql
 -- =====================================================
+BEGIN;
 
 -- Activer l'extension btree_gist
 -- Cette extension ajoute le support des types de données standards (UUID, INT, TEXT, etc.)
@@ -24,3 +25,5 @@ SELECT * FROM pg_extension WHERE extname = 'btree_gist';
 --
 -- ➡️ NEXT STEP: Exécuter supabase_step1_vip_tables.sql
 -- =====================================================
+
+COMMIT;

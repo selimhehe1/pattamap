@@ -2,6 +2,7 @@
 -- Description: Allow community to vote on employee profile existence + owner/admin control visibility
 -- Date: 2025-01-19
 -- Version: v10.3
+BEGIN;
 
 -- ============================================
 -- PART 1: COMMUNITY VOTES TABLE
@@ -117,3 +118,5 @@ COMMENT ON COLUMN employees.hide_reason IS 'Reason for hiding profile (e.g., "Co
 
 -- Example: Test visibility control
 -- UPDATE employees SET is_hidden = false WHERE id = '<employee-id>';
+
+COMMIT;

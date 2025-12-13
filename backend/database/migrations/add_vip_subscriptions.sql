@@ -2,6 +2,7 @@
 -- Migration: Add VIP subscription tables for employees and establishments
 -- Date: 2025-01-XX
 -- Description: Creates tables for VIP subscriptions, payment transactions, and related functionality
+BEGIN;
 
 -- =====================================================
 -- 1. EMPLOYEE VIP SUBSCRIPTIONS
@@ -340,3 +341,39 @@ COMMENT ON COLUMN vip_payment_transactions.subscription_type IS 'Type of subscri
 -- 4. Verify tables created: \dt employee_vip*, establishment_vip*, vip_payment*
 -- 5. Verify indexes created: \di idx_employee_vip*, idx_establishment_vip*, idx_vip_transactions*
 -- =====================================================
+
+-- =====================================================
+-- ROLLBACK (if needed)
+-- =====================================================
+-- To rollback this migration, run:
+/*
+BEGIN;
+-- Drop policies first (RLS)
+DROP POLICY IF EXISTS "Anyone can view active employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Establishment owners can view their employees' VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can view all employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can insert employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can update employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Anyone can view active establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Establishment owners can view their establishments' VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can view all establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can insert establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can update establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Users can view their own payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Admins can view all payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Users can insert their own payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Admins can update payment transactions" ON vip_payment_transactions;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS is_employee_vip(UUID);
+DROP FUNCTION IF EXISTS is_establishment_vip(UUID);
+DROP FUNCTION IF EXISTS expire_vip_subscriptions();
+
+-- Drop tables (order matters due to FK)
+DROP TABLE IF EXISTS employee_vip_subscriptions CASCADE;
+DROP TABLE IF EXISTS establishment_vip_subscriptions CASCADE;
+DROP TABLE IF EXISTS vip_payment_transactions CASCADE;
+COMMIT;
+*/
+
+COMMIT;

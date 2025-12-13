@@ -4,6 +4,7 @@
 -- Date: 2025-01-21
 -- Description: Disable Weekly Contributor until Phase 3 photo tracking implemented
 -- ========================================
+BEGIN;
 
 -- Purpose: Fix inconsistency - mission was activated but getReviewsWithPhotosCount returns 0
 -- Issue: activate_safe_missions.sql activated Weekly Contributor (lines 94-98)
@@ -139,3 +140,5 @@ END $$;
 -- UPDATE missions SET is_active = true WHERE name = 'Weekly Contributor';
 
 COMMENT ON TABLE missions IS 'Mission system: 21/30 active (70%). 6 photo-dependent pending Phase 3. 2 event missions inactive (seasonal). 1 narrative step requires photos.';
+
+COMMIT;

@@ -6,6 +6,7 @@
 -- Version: v10.3 (Phase 3 Complete)
 -- Prerequisites: Migration 015 (user_photo_uploads table) must be applied first
 -- ========================================
+BEGIN;
 
 -- ========================================
 -- MISSION STATUS BEFORE
@@ -158,3 +159,5 @@ ORDER BY type, name;
 -- ========================================
 -- END OF MIGRATION 016
 -- ========================================
+
+COMMIT;

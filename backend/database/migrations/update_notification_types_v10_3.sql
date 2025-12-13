@@ -4,6 +4,7 @@
 -- Date: 2025-01-20
 -- Description: Update notifications table CHECK constraint to support 36 notification types (21 existing + 15 new)
 -- ========================================
+BEGIN;
 
 -- CONTEXT:
 -- The original migrations (add_notifications.sql and fix_notification_types_constraint.sql) only
@@ -167,3 +168,5 @@ ALTER TABLE notifications ADD CONSTRAINT notifications_type_check CHECK (type IN
   'other'
 ));
 */
+
+COMMIT;

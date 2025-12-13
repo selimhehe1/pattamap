@@ -11,6 +11,7 @@
 --   - Soi 15 (13-18): 6 rows
 --   - Soi 16 (19-24): 6 rows
 --   - BJ Alley (25-30): 6 rows
+BEGIN;
 
 -- Drop old global constraints (too restrictive)
 ALTER TABLE establishments DROP CONSTRAINT IF EXISTS establishments_grid_row_check;
@@ -60,3 +61,5 @@ SELECT
 FROM pg_constraint
 WHERE conname IN ('check_grid_row', 'check_grid_col')
   AND conrelid = 'establishments'::regclass;
+
+COMMIT;

@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Create notifications table for in-app notification system
 -- ========================================
+BEGIN;
 
 -- Purpose: Store in-app notifications for users (ownership requests status, admin alerts, etc.)
 -- Supports real-time notifications for ownership approval workflow
@@ -131,3 +132,5 @@ $$ LANGUAGE plpgsql;
 -- DROP FUNCTION IF EXISTS delete_notification(UUID, UUID);
 -- DROP FUNCTION IF EXISTS get_unread_count(UUID);
 -- DROP TABLE IF EXISTS notifications CASCADE;
+
+COMMIT;

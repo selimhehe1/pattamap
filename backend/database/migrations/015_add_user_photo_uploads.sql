@@ -8,6 +8,7 @@
 -- Impact: Activates 5 photo-dependent missions (Photo Hunter, Photo Marathon, etc.)
 -- Status: Additive only - NO breaking changes to existing functionality
 -- ========================================
+BEGIN;
 
 -- ========================================
 -- 1. CREATE TABLE user_photo_uploads
@@ -113,3 +114,5 @@ END $$;
 -- ========================================
 -- END OF MIGRATION 015
 -- ========================================
+
+COMMIT;

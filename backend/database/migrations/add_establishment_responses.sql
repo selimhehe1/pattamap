@@ -1,6 +1,7 @@
 -- Migration: add_establishment_responses.sql
 -- Description: Add establishment responses support to reviews
 -- Date: 2025-12-12
+BEGIN;
 
 -- Add columns to identify establishment responses
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_establishment_response BOOLEAN DEFAULT FALSE;
@@ -51,3 +52,5 @@ CREATE POLICY IF NOT EXISTS "establishment_response_insert_policy" ON comments
 COMMENT ON COLUMN comments.is_establishment_response IS 'True if this comment is an official response from an establishment owner';
 COMMENT ON COLUMN comments.responding_establishment_id IS 'The establishment ID if this is an establishment response';
 COMMENT ON FUNCTION check_establishment_ownership IS 'Checks if a user owns/manages an establishment';
+
+COMMIT;

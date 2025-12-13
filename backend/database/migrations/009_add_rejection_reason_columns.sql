@@ -1,6 +1,7 @@
 -- ===========================================
 -- Migration #009: Add rejection_reason columns
 -- ===========================================
+BEGIN;
 -- Description: Add rejection_reason TEXT columns to establishments and employees tables
 --              to persist admin/moderator rejection reasons for better tracking and transparency.
 --
@@ -145,3 +146,5 @@ WHERE status = 'rejected';
 -- [ ] Consider backfilling rejection_reason for old rejections (optional)
 -- [ ] Update API documentation to reflect required 'reason' field
 -- ===========================================
+
+COMMIT;

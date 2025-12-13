@@ -3,6 +3,7 @@
 -- Version: 10.x
 -- Date: 2025-01-15
 -- =====================================================
+BEGIN;
 -- Description: Add is_freelance and freelance_zone columns to employees table
 -- to support simple freelance mode without requiring map position (independent_positions).
 --
@@ -59,3 +60,5 @@ COMMENT ON COLUMN employees.freelance_zone IS 'Zone where freelance employee wor
 --    - Include freelances in search: WHERE is_freelance = true OR employment_history.is_current = true
 --    - Filter by zone: WHERE freelance_zone = 'beachroad' OR establishment.zone = 'beachroad'
 -- =====================================================
+
+COMMIT;

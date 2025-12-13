@@ -14,6 +14,7 @@
  *
  * Impact: Improves visual display in frontend
  */
+BEGIN;
 
 -- Update Bar icon
 UPDATE establishment_categories
@@ -39,3 +40,5 @@ WHERE name = 'Nightclub';
 SELECT id, name, icon, color
 FROM establishment_categories
 ORDER BY id;
+
+COMMIT;

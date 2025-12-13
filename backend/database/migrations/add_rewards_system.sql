@@ -4,6 +4,7 @@
 -- Date: 2025-12-12
 -- Description: Create tables for feature unlocks based on user level/XP/badges
 -- ========================================
+BEGIN;
 
 -- Purpose: Allow users to unlock features, cosmetics, and titles as they progress
 -- This creates a reward system that gives tangible benefits for leveling up
@@ -231,3 +232,5 @@ END $$;
 -- SELECT * FROM feature_unlocks ORDER BY sort_order;
 -- SELECT COUNT(*) FROM user_unlocks;
 -- SELECT * FROM get_user_rewards('user-id-here');
+
+COMMIT;

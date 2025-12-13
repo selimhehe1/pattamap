@@ -2,6 +2,7 @@
 -- Description: Replace unused services TEXT[] with Instagram, Twitter/X, and TikTok URLs
 -- Version: v10.1.0
 -- Date: 2025-01-12
+BEGIN;
 
 -- ============================================
 -- STEP 1: Add social media columns
@@ -98,3 +99,5 @@ WHERE tiktok IS NOT NULL;
 --   COUNT(*) FILTER (WHERE tiktok IS NOT NULL) as has_tiktok,
 --   COUNT(*) FILTER (WHERE instagram IS NOT NULL OR twitter IS NOT NULL OR tiktok IS NOT NULL) as has_any_social
 -- FROM establishments;
+
+COMMIT;

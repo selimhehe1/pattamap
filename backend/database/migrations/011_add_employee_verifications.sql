@@ -2,6 +2,7 @@
 -- Description: Create employee_verifications table and add verification fields to employees
 -- Date: 2025-01-15
 -- Version: v10.2
+BEGIN;
 
 -- ============================================
 -- 1. Create employee_verifications table
@@ -75,3 +76,5 @@ COMMENT ON COLUMN employee_verifications.admin_notes IS 'Admin notes for manual 
 
 COMMENT ON COLUMN employees.is_verified IS 'True if employee has successfully verified their profile';
 COMMENT ON COLUMN employees.verified_at IS 'Timestamp when profile was verified (either auto-approved or manually approved by admin)';
+
+COMMIT;

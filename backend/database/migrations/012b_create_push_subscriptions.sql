@@ -1,6 +1,7 @@
 -- Migration 012: Push Subscriptions for PWA Notifications
 -- Created: 2025-01-XX
 -- Purpose: Store user push notification subscriptions for PWA
+BEGIN;
 
 -- ==========================================
 -- TABLE: push_subscriptions
@@ -115,3 +116,5 @@ COMMENT ON COLUMN push_subscriptions.endpoint IS 'Unique push service URL (ident
 COMMENT ON COLUMN push_subscriptions.p256dh_key IS 'Public key for encrypting notification payloads';
 COMMENT ON COLUMN push_subscriptions.auth_key IS 'Authentication secret for push service';
 COMMENT ON COLUMN push_subscriptions.last_used_at IS 'Last time subscription was successfully used (for cleanup)';
+
+COMMIT;

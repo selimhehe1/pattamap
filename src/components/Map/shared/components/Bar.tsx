@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useMemo, memo } from 'react';
 import { Establishment } from '../../../../types';
 import { getBarStyle, BarType, DEFAULT_BAR_TYPE } from '../../../../utils/mapConstants';
 import LazyImage from '../../../Common/LazyImage';
@@ -114,7 +114,7 @@ function getEstablishmentIcon(
  *   onDragStart={(e) => handleDragStart(bar, e)}
  * />
  */
-export const Bar = forwardRef<HTMLDivElement, BarProps>(
+export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
   (
     {
       bar,
@@ -342,7 +342,7 @@ export const Bar = forwardRef<HTMLDivElement, BarProps>(
       </div>
     );
   }
-);
+));
 
 Bar.displayName = 'Bar';
 

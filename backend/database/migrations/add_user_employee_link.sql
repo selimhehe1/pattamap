@@ -2,6 +2,7 @@
 -- Description: Allow users to be linked to employee profiles (self-managed profiles)
 -- Version: v10.0.0
 -- Date: 2025-01-11
+BEGIN;
 
 -- ============================================
 -- STEP 1: Add account_type to users table
@@ -105,3 +106,5 @@ UPDATE employees SET is_self_profile = FALSE WHERE is_self_profile IS NULL;
 -- WHERE table_name IN ('users', 'employees')
 -- AND constraint_name LIKE '%account%' OR constraint_name LIKE '%linked%' OR constraint_name LIKE '%user_id%'
 -- ORDER BY table_name, constraint_name;
+
+COMMIT;

@@ -1,12 +1,101 @@
 import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest, isEstablishmentOwner } from '../middleware/auth';
-import { CreateEstablishmentRequest, Establishment } from '../types';
+import { CreateEstablishmentRequest, Establishment, Employee } from '../types';
 import { validateTextInput, validateNumericInput, prepareFilterParams } from '../utils/validation';
 import { logger } from '../utils/logger';
 import { paginateQuery, validatePaginationParams, offsetFromPage, buildOffsetPaginationMeta } from '../utils/pagination';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 import { notifyAdminsPendingContent } from '../utils/notificationHelper';
+
+// Database types for establishment queries - Supabase returns nested relations as arrays
+interface DbEstablishmentWithLocation {
+  id: string;
+  name: string;
+  address: string;
+  zone: string;
+  grid_row?: number;
+  grid_col?: number;
+  category_id: number;
+  description?: string;
+  phone?: string;
+  website?: string;
+  location?: string; // PostGIS binary format
+  opening_hours?: Record<string, unknown>;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  logo_url?: string;
+  is_vip?: boolean;
+  status: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  category?: { id: number; name: string }[];
+}
+
+interface EmploymentRecord {
+  establishment_id: string;
+  employees?: { status: string }[];
+}
+
+interface EstablishmentConsumable {
+  consumable_id: string;
+  price: number;
+  consumables: {
+    name: string;
+    icon: string;
+    category: string;
+  };
+}
+
+interface ConsumableInput {
+  consumable_id: string;
+  price: number;
+}
+
+// Consumable with joined template data - Supabase returns nested relations as arrays
+interface EstablishmentConsumableWithTemplate {
+  id: string;
+  consumable_id: string;
+  price: number;
+  consumable?: {
+    id: string;
+    name: string;
+    category: string;
+    icon: string;
+    default_price: number;
+  }[];
+}
+
+// Employee with ID for mapping
+interface EmployeeWithId {
+  id: string;
+}
+
+// Create establishment request body
+interface CreateEstablishmentBody {
+  name: string;
+  address: string;
+  zone: string;
+  category_id: string | number;
+  description?: string;
+  phone?: string;
+  website?: string;
+  opening_hours?: Record<string, unknown>;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  pricing?: {
+    consumables?: ConsumableInput[];
+    ladydrink?: string;
+    barfine?: string;
+    rooms?: string | { available?: boolean; price?: string };
+  };
+  logo_url?: string;
+  latitude?: string | number;
+  longitude?: string | number;
+}
 
 export const getEstablishments = async (req: AuthRequest, res: Response) => {
   try {
@@ -151,7 +240,7 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
     let employeeCounts: { [key: string]: number } = {};
     let approvedEmployeeCounts: { [key: string]: number } = {};
     if (establishments && establishments.length > 0) {
-      const establishmentIds = establishments.map((est: any) => est.id);
+      const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
 
       // Count all current employees
       const { data: employmentData, error: employmentError } = await supabase
@@ -162,7 +251,7 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
 
       if (!employmentError && employmentData) {
         // Count employees per establishment
-        employmentData.forEach((emp: any) => {
+        employmentData.forEach((emp: EmploymentRecord) => {
           const estId = emp.establishment_id;
           employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
         });
@@ -178,7 +267,7 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
 
       if (!approvedEmploymentError && approvedEmploymentData) {
         // Count approved employees per establishment
-        approvedEmploymentData.forEach((emp: any) => {
+        approvedEmploymentData.forEach((emp: EmploymentRecord) => {
           const estId = emp.establishment_id;
           approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
         });
@@ -193,7 +282,7 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
     // Fix: Keep native INTEGER format for consistency (DB INTEGER ↔ API INTEGER)
 
     // Extract coordinates only (no category_id transformation)
-    const establishmentsWithCoords = establishments?.map((est: any) => {
+    const establishmentsWithCoords = establishments?.map((est: DbEstablishmentWithLocation) => {
       let latitude = null;
       let longitude = null;
 
@@ -383,12 +472,13 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
     }
 
     // Format consumables for frontend (pricing.consumables format)
-    const formattedConsumables = (consumables || []).map((ec: any) => ({
+    // Note: Supabase returns nested relations as arrays
+    const formattedConsumables = (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
       id: ec.id,
       consumable_id: ec.consumable_id,
-      name: ec.consumable?.name,
-      category: ec.consumable?.category,
-      icon: ec.consumable?.icon,
+      name: ec.consumable?.[0]?.name,
+      category: ec.consumable?.[0]?.category,
+      icon: ec.consumable?.[0]?.icon,
       price: ec.price
     }));
 
@@ -426,7 +516,7 @@ export const getEstablishment = async (req: AuthRequest, res: Response) => {
 export const createEstablishment = async (req: AuthRequest, res: Response) => {
   try {
     logger.debug('🔥 CREATE ESTABLISHMENT V3 - FINAL RELOAD FORCE - Body:', req.body);
-    const { name, address, zone, category_id, description, phone, website, opening_hours, instagram, twitter, tiktok, pricing, logo_url, latitude, longitude }: any = req.body;
+    const { name, address, zone, category_id, description, phone, website, opening_hours, instagram, twitter, tiktok, pricing, logo_url, latitude, longitude } = req.body as CreateEstablishmentBody;
     logger.debug('🏢 CREATE ESTABLISHMENT - Extracted logo_url:', logo_url);
 
     if (!name || !address || !zone || !category_id) {
@@ -438,8 +528,8 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
     // ========================================
     // Validate latitude/longitude if provided by user
     if (latitude !== undefined || longitude !== undefined) {
-      const lat = parseFloat(latitude);
-      const lng = parseFloat(longitude);
+      const lat = parseFloat(String(latitude));
+      const lng = parseFloat(String(longitude));
 
       // Validate latitude range (-90 to 90)
       if (isNaN(lat) || lat < -90 || lat > 90) {
@@ -481,7 +571,7 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
 
     // Use provided coordinates or generate defaults
     const coords = (latitude !== undefined && longitude !== undefined)
-      ? { latitude: parseFloat(latitude), longitude: parseFloat(longitude) }
+      ? { latitude: parseFloat(String(latitude)), longitude: parseFloat(String(longitude)) }
       : getZoneCoordinates(zone);
 
     // Create location point for PostGIS
@@ -505,7 +595,7 @@ export const createEstablishment = async (req: AuthRequest, res: Response) => {
         tiktok,
         ladydrink: pricing?.ladydrink || null,
         barfine: pricing?.barfine || null,
-        rooms: pricing?.rooms?.available ? pricing.rooms.price : 'N/A',
+        rooms: typeof pricing?.rooms === 'object' && pricing.rooms?.available ? pricing.rooms.price : (typeof pricing?.rooms === 'string' ? pricing.rooms : 'N/A'),
         status: req.user!.role === 'admin' ? 'approved' : 'pending', // Auto-approve for admins
         created_by: req.user!.id
       })
@@ -739,7 +829,7 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
 
       // Insert new consumables
       if (updates.pricing.consumables.length > 0) {
-        const consumablesToInsert = updates.pricing.consumables.map((c: any) => ({
+        const consumablesToInsert = updates.pricing.consumables.map((c: ConsumableInput) => ({
           establishment_id: id,
           consumable_id: c.consumable_id,
           price: c.price
@@ -875,13 +965,13 @@ export const updateEstablishment = async (req: AuthRequest, res: Response) => {
       logger.warn('Could not load consumables after update:', consumablesError);
     }
 
-    // Format consumables for frontend
-    const formattedConsumables = (consumables || []).map((ec: any) => ({
+    // Format consumables for frontend (Supabase returns nested relations as arrays)
+    const formattedConsumables = (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
       id: ec.id,
       consumable_id: ec.consumable_id,
-      name: ec.consumable?.name,
-      category: ec.consumable?.category,
-      icon: ec.consumable?.icon,
+      name: ec.consumable?.[0]?.name,
+      category: ec.consumable?.[0]?.category,
+      icon: ec.consumable?.[0]?.icon,
       price: ec.price
     }));
 
@@ -1348,8 +1438,8 @@ export const getEstablishmentEmployees = async (req: AuthRequest, res: Response)
           }));
 
         // Merge freelances with regular employees (avoid duplicates by employee_id)
-        const existingIds = new Set(employees.map((e: any) => e.id));
-        const newFreelances = freelances.filter((f: any) => !existingIds.has(f.id));
+        const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
+        const newFreelances = freelances.filter((f: EmployeeWithId) => !existingIds.has(f.id));
 
         employees = [...employees, ...newFreelances];
 
@@ -1361,35 +1451,35 @@ export const getEstablishmentEmployees = async (req: AuthRequest, res: Response)
       }
     }
 
-    // 5. Fetch VIP status for each employee (parallel)
-    const employeesWithVIP = await Promise.all(
-      employees.map(async (emp: any) => {
-        // Check if employee_vip_subscriptions table exists (will in Phase 1-3)
-        // For now, return default values
-        try {
-          const { data: vipSub } = await supabase
-            .from('employee_vip_subscriptions')
-            .select('id, expires_at, status')
-            .eq('employee_id', emp.id)
-            .eq('status', 'active')
-            .gte('expires_at', new Date().toISOString())
-            .maybeSingle();
+    // 5. Fetch VIP status for all employees in a single query (optimized from N+1)
+    let employeesWithVIP = employees;
+    try {
+      const employeeIds = employees.map((emp: EmployeeWithId) => emp.id);
+      const { data: vipSubs } = await supabase
+        .from('employee_vip_subscriptions')
+        .select('employee_id, expires_at')
+        .in('employee_id', employeeIds)
+        .eq('status', 'active')
+        .gte('expires_at', new Date().toISOString());
 
-          return {
-            ...emp,
-            is_vip: !!vipSub,
-            vip_expires_at: vipSub?.expires_at || null
-          };
-        } catch (error) {
-          // Table doesn't exist yet (VIP not implemented)
-          return {
-            ...emp,
-            is_vip: false,
-            vip_expires_at: null
-          };
-        }
-      })
-    );
+      // Create a map for O(1) lookup
+      const vipMap = new Map(
+        (vipSubs || []).map((sub: { employee_id: string; expires_at: string }) => [sub.employee_id, sub.expires_at])
+      );
+
+      employeesWithVIP = employees.map((emp: EmployeeWithId & Record<string, unknown>) => ({
+        ...emp,
+        is_vip: vipMap.has(emp.id),
+        vip_expires_at: vipMap.get(emp.id) || null
+      }));
+    } catch (error) {
+      // Table doesn't exist yet or query failed - return without VIP info
+      employeesWithVIP = employees.map((emp: EmployeeWithId & Record<string, unknown>) => ({
+        ...emp,
+        is_vip: false,
+        vip_expires_at: null
+      }));
+    }
 
     logger.debug('Successfully fetched employees', {
       establishmentId: id,

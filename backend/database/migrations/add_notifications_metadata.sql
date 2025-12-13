@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Add JSONB metadata column for i18n support (i18n_key, i18n_params)
 -- ========================================
+BEGIN;
 
 -- Purpose: Enable multilingual notifications by storing i18n keys instead of hardcoded messages
 -- Allows frontend to format notifications based on user's language preference
@@ -24,3 +25,5 @@ ON notifications USING GIN (metadata);
 -- FROM information_schema.columns
 -- WHERE table_name = 'notifications'
 -- AND column_name = 'metadata';
+
+COMMIT;

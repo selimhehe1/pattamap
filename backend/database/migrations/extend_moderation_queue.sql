@@ -2,6 +2,7 @@
 -- Description: Add support for employee profile claim requests with metadata and verification proofs
 -- Version: v10.0.0
 -- Date: 2025-01-11
+BEGIN;
 
 -- ============================================
 -- STEP 1: Extend item_type enum to include 'employee_claim'
@@ -273,3 +274,5 @@ COMMENT ON FUNCTION reject_employee_claim_request IS 'Reject claim request witho
 -- FROM pg_proc
 -- WHERE proname LIKE '%claim_request%'
 -- ORDER BY proname;
+
+COMMIT;

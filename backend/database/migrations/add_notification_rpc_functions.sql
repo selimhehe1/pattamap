@@ -4,6 +4,7 @@
 -- Date: 2025-12-12
 -- Description: Create RPC functions for notifications that bypass PostgREST cache
 -- ========================================
+BEGIN;
 
 -- Purpose: These functions provide optimized queries for notifications
 -- and bypass PostgREST cache issues encountered with direct table queries
@@ -163,3 +164,5 @@ GRANT EXECUTE ON FUNCTION get_unread_count(UUID) TO authenticated;
 -- DROP FUNCTION IF EXISTS mark_all_notifications_read(UUID);
 -- DROP FUNCTION IF EXISTS delete_notification(UUID, UUID);
 -- DROP FUNCTION IF EXISTS get_unread_count(UUID);
+
+COMMIT;

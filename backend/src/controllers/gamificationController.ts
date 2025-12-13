@@ -14,7 +14,67 @@ interface XPAwardRequest {
   reason: string;
   entityType?: string;
   entityId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
+}
+
+// Leaderboard entry types
+interface LeaderboardEntry {
+  user_id: string;
+  total_xp?: number;
+  monthly_xp?: number;
+  current_level?: number;
+  rank?: number;
+  check_ins?: number;
+}
+
+// User type for lookups
+interface UserLookup {
+  id: string;
+  pseudonym: string;
+}
+
+// Check-in type - Supabase returns nested relations as arrays
+interface ZoneCheckIn {
+  user_id: string;
+  establishment?: {
+    zone: string;
+  }[];
+}
+
+// Reward type
+interface RewardEntry {
+  id: string;
+  reward_type: string;
+  reward_value: unknown;
+  claimed_at: string | null;
+  expires_at?: string;
+  user_id: string;
+}
+
+// Database reward with user unlocks
+interface DbReward {
+  id: string;
+  name: string;
+  description: string;
+  unlock_type: string;
+  unlock_value: number;
+  category: string;
+  icon: string;
+  sort_order: number;
+  user_unlocks?: Array<{
+    unlocked_at: string;
+    claimed: boolean;
+  }>;
+}
+
+// Fallback data type
+interface FallbackLeaderboardEntry {
+  user_id: string;
+  username: string;
+  review_count?: number;
+  upload_count?: number;
+  zone_count?: number;
+  rank?: number;
 }
 
 // ========================================
@@ -244,7 +304,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
       }
 
       // Join with users to get usernames
-      const userIds = leaderboard.map((entry: any) => entry.user_id);
+      const userIds = leaderboard.map((entry: LeaderboardEntry) => entry.user_id);
       const { data: users, error: usersError } = await supabase
         .from('users')
         .select('id, pseudonym')
@@ -255,9 +315,9 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
       }
 
       // Merge user data
-      const enrichedLeaderboard = leaderboard.map((entry: any) => ({
+      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => ({
         ...entry,
-        username: users?.find((u: any) => u.id === entry.user_id)?.pseudonym || 'Unknown'
+        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
       return res.json({ leaderboard: enrichedLeaderboard, type: 'global' });
@@ -276,7 +336,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
       }
 
       // Join with users
-      const userIds = leaderboard.map((entry: any) => entry.user_id);
+      const userIds = leaderboard.map((entry: LeaderboardEntry) => entry.user_id);
       const { data: users, error: usersError } = await supabase
         .from('users')
         .select('id, pseudonym')
@@ -286,9 +346,9 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
         logger.error('Get leaderboard users error:', usersError);
       }
 
-      const enrichedLeaderboard = leaderboard.map((entry: any) => ({
+      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => ({
         ...entry,
-        username: users?.find((u: any) => u.id === entry.user_id)?.pseudonym || 'Unknown'
+        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
       return res.json({ leaderboard: enrichedLeaderboard, type: 'monthly' });
@@ -313,7 +373,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 
       // Count check-ins per user
       const userCheckInCounts: Record<string, number> = {};
-      zoneCheckIns.forEach((checkIn: any) => {
+      (zoneCheckIns as ZoneCheckIn[]).forEach((checkIn) => {
         userCheckInCounts[checkIn.user_id] = (userCheckInCounts[checkIn.user_id] || 0) + 1;
       });
 
@@ -336,7 +396,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 
       const enrichedLeaderboard = sortedUsers.map(entry => ({
         ...entry,
-        username: users?.find((u: any) => u.id === entry.user_id)?.pseudonym || 'Unknown'
+        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
       return res.json({ leaderboard: enrichedLeaderboard, type: 'zone', zone });
@@ -854,9 +914,10 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ error: 'Failed to fetch weekly leaderboard' });
       }
 
-      const fallbackLeaderboard = (fallback || []).map((entry: any, index: number) => ({
+      // Note: Supabase returns nested relations as arrays
+      const fallbackLeaderboard = (fallback || []).map((entry: LeaderboardEntry & { users?: { pseudonym: string }[] }, index: number) => ({
         user_id: entry.user_id,
-        username: entry.users?.pseudonym || 'Unknown',
+        username: entry.users?.[0]?.pseudonym || 'Unknown',
         weekly_xp: entry.total_xp, // Using total as fallback
         current_level: entry.current_level,
         rank: index + 1
@@ -866,7 +927,7 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
     }
 
     // Add rank to results
-    const enrichedLeaderboard = (leaderboard || []).map((entry: any, index: number) => ({
+    const enrichedLeaderboard = (leaderboard || []).map((entry: LeaderboardEntry, index: number) => ({
       ...entry,
       rank: index + 1
     }));
@@ -907,7 +968,7 @@ export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) =>
       logger.error(`Get ${category} leaderboard error:`, error);
 
       // Provide fallback for each category
-      let fallbackData: any[] = [];
+      let fallbackData: FallbackLeaderboardEntry[] = [];
 
       if (category === 'reviewers') {
         const { data } = await supabase
@@ -1000,7 +1061,7 @@ export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) =>
     }
 
     // Add rank to results
-    const enrichedLeaderboard = (leaderboard || []).map((entry: any, index: number) => ({
+    const enrichedLeaderboard = (leaderboard || []).map((entry: LeaderboardEntry, index: number) => ({
       ...entry,
       rank: index + 1
     }));
@@ -1114,7 +1175,7 @@ export const getMyRewards = async (req: AuthRequest, res: Response) => {
     }
 
     // Process rewards with unlock status
-    const processedRewards = (allRewards || []).map((reward: any) => {
+    const processedRewards = (allRewards || []).map((reward: DbReward) => {
       const userUnlock = reward.user_unlocks?.[0];
       return {
         id: reward.id,

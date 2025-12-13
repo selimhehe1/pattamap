@@ -6,6 +6,7 @@
 -- Description: Ajoute is_vip et vip_expires_at + triggers automatiques
 -- À exécuter APRÈS supabase_step1_vip_tables.sql
 -- =====================================================
+BEGIN;
 
 -- =====================================================
 -- 1. ADD VIP COLUMNS TO ESTABLISHMENTS TABLE
@@ -152,3 +153,37 @@ EXECUTE FUNCTION sync_employee_vip_status();
 --
 -- ➡️ NEXT STEP: Exécuter supabase_step3_verify.sql pour vérifier
 -- =====================================================
+
+-- =====================================================
+-- ROLLBACK (if needed)
+-- =====================================================
+-- To rollback this migration, run:
+/*
+BEGIN;
+-- Drop triggers first
+DROP TRIGGER IF EXISTS trigger_sync_establishment_vip ON establishment_vip_subscriptions;
+DROP TRIGGER IF EXISTS trigger_sync_employee_vip ON employee_vip_subscriptions;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS sync_establishment_vip_status();
+DROP FUNCTION IF EXISTS sync_employee_vip_status();
+
+-- Drop indexes
+DROP INDEX IF EXISTS idx_establishments_is_vip;
+DROP INDEX IF EXISTS idx_establishments_vip_expires;
+DROP INDEX IF EXISTS idx_establishments_vip_status;
+DROP INDEX IF EXISTS idx_employees_is_vip;
+DROP INDEX IF EXISTS idx_employees_vip_expires;
+DROP INDEX IF EXISTS idx_employees_vip_status;
+
+-- Drop columns from establishments
+ALTER TABLE establishments DROP COLUMN IF EXISTS is_vip;
+ALTER TABLE establishments DROP COLUMN IF EXISTS vip_expires_at;
+
+-- Drop columns from employees
+ALTER TABLE employees DROP COLUMN IF EXISTS is_vip;
+ALTER TABLE employees DROP COLUMN IF EXISTS vip_expires_at;
+COMMIT;
+*/
+
+COMMIT;

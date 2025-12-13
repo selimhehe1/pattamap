@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Update notifications table CHECK constraint to include all 21 notification types
 -- ========================================
+BEGIN;
 
 -- PROBLEM: Original migration only included 6 notification types in CHECK constraint
 -- but the code uses 21 types. This causes notifications to fail at database level.
@@ -74,3 +75,5 @@ ALTER TABLE notifications ADD CONSTRAINT notifications_type_check CHECK (type IN
 --   'system',
 --   'other'
 -- ));
+
+COMMIT;

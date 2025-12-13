@@ -2,6 +2,7 @@
 -- Description: Create profile_views table to track employee profile visits
 -- Date: 2025-01-16
 -- Version: v10.2
+BEGIN;
 
 -- ============================================
 -- 1. Create profile_views table
@@ -52,3 +53,5 @@ COMMENT ON COLUMN profile_views.employee_id IS 'Reference to the viewed employee
 COMMENT ON COLUMN profile_views.user_id IS 'ID of logged-in viewer (NULL for anonymous)';
 COMMENT ON COLUMN profile_views.viewer_ip IS 'IP address of viewer (for anonymous tracking and anti-spam)';
 COMMENT ON COLUMN profile_views.viewed_at IS 'Timestamp when profile was viewed';
+
+COMMIT;

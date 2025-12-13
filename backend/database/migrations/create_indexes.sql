@@ -3,6 +3,7 @@
 -- ========================================
 -- Note: Many indexes already exist in schema.sql
 -- This script adds only the missing ones
+BEGIN;
 
 -- 1. ESTABLISHMENTS - Additional indexes
 CREATE INDEX IF NOT EXISTS idx_establishments_status_zone ON establishments(status, zone);
@@ -33,3 +34,5 @@ SELECT
 FROM pg_indexes
 WHERE schemaname = 'public'
 ORDER BY tablename, indexname;
+
+COMMIT;

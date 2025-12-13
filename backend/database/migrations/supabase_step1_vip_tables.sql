@@ -6,6 +6,7 @@
 -- Description: Crée les 3 tables VIP avec le bon ordre de dépendances
 -- À exécuter EN PREMIER dans Supabase SQL Editor
 -- =====================================================
+BEGIN;
 
 -- =====================================================
 -- 1. VIP PAYMENT TRANSACTIONS (créée EN PREMIER car référencée par les autres)
@@ -342,3 +343,39 @@ $$ LANGUAGE plpgsql;
 --
 -- ➡️ NEXT STEP: Exécuter supabase_step2_vip_entity_columns.sql
 -- =====================================================
+
+-- =====================================================
+-- ROLLBACK (if needed)
+-- =====================================================
+-- To rollback this migration, run:
+/*
+BEGIN;
+-- Drop policies first (RLS)
+DROP POLICY IF EXISTS "Anyone can view active employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Establishment owners can view their employees' VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can view all employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can insert employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can update employee VIP subscriptions" ON employee_vip_subscriptions;
+DROP POLICY IF EXISTS "Anyone can view active establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Establishment owners can view their establishments' VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can view all establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can insert establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Admins can update establishment VIP subscriptions" ON establishment_vip_subscriptions;
+DROP POLICY IF EXISTS "Users can view their own payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Admins can view all payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Users can insert their own payment transactions" ON vip_payment_transactions;
+DROP POLICY IF EXISTS "Admins can update payment transactions" ON vip_payment_transactions;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS is_employee_vip(UUID);
+DROP FUNCTION IF EXISTS is_establishment_vip(UUID);
+DROP FUNCTION IF EXISTS expire_vip_subscriptions();
+
+-- Drop tables (order matters due to FK)
+DROP TABLE IF EXISTS employee_vip_subscriptions CASCADE;
+DROP TABLE IF EXISTS establishment_vip_subscriptions CASCADE;
+DROP TABLE IF EXISTS vip_payment_transactions CASCADE;
+COMMIT;
+*/
+
+COMMIT;

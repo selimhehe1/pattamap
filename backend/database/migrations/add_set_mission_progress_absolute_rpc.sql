@@ -4,6 +4,7 @@
 -- Date: 2025-01-21
 -- Description: Atomic SET mission progress (vs INCREMENT in update_mission_progress)
 -- ========================================
+BEGIN;
 
 -- Purpose: Fix race condition in setMissionProgress
 -- Issue: setMissionProgress does 3 separate queries (READ → CALCULATE → UPSERT)
@@ -154,3 +155,5 @@ BEGIN
   RAISE NOTICE 'Idempotent: ✅ (prevents duplicate completions)';
   RAISE NOTICE '========================================';
 END $$;
+
+COMMIT;

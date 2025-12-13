@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Create establishment_owners table to link users with establishments they can manage
 -- ========================================
+BEGIN;
 
 -- Purpose: Allow specific users (account_type='establishment_owner') to manage their establishments
 -- This enables business owners to control their listing without admin privileges
@@ -52,3 +53,5 @@ COMMENT ON COLUMN establishment_owners.assigned_by IS 'Admin user who assigned t
 -- ========================================
 -- To rollback this migration, run:
 -- DROP TABLE IF EXISTS establishment_owners CASCADE;
+
+COMMIT;

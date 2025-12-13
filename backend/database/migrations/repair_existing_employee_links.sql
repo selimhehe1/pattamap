@@ -3,6 +3,7 @@
 -- Version: v10.0.2
 -- Date: 2025-01-11
 -- Type: Data Migration (Idempotent - can be run multiple times safely)
+BEGIN;
 
 -- ============================================
 -- PROBLEM:
@@ -170,3 +171,5 @@ WHERE account_type = 'employee'
     SELECT id FROM employees WHERE user_id = users.id
   );
 */
+
+COMMIT;

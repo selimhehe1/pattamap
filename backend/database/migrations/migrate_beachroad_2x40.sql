@@ -8,6 +8,7 @@
 -- Note: Cette migration NE SUPPRIME PAS les données existantes, elle met
 -- seulement à jour les contraintes pour permettre la nouvelle grille.
 -- ============================================================================
+BEGIN;
 
 -- Étape 1: Supprimer l'ancienne contrainte de grille Beach Road (si existe)
 ALTER TABLE establishments DROP CONSTRAINT IF EXISTS check_beachroad_grid;
@@ -46,3 +47,5 @@ WHERE zone = 'beachroad'
 -- 2. Tester le drag & drop en mode Edit sur la carte Beach Road
 -- 3. Vérifier que les 6 intersections majeures s'affichent correctement
 -- ============================================================================
+
+COMMIT;

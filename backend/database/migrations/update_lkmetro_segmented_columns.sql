@@ -12,6 +12,7 @@
  * Positions 2.9, 3.1, 3.2 are masked to avoid visual overlap
  * between horizontal and vertical segments at the L-junction.
  */
+BEGIN;
 
 -- Step 1: Drop existing constraint
 ALTER TABLE establishments
@@ -110,3 +111,5 @@ WHERE zone = 'lkmetro'
 -- UPDATE establishments
 -- SET grid_row = <new_row>, grid_col = <new_col>
 -- WHERE id = '<establishment_id>';
+
+COMMIT;

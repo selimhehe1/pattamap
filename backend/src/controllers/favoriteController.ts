@@ -36,54 +36,101 @@ export const getFavorites = async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Failed to fetch favorites' });
     }
 
-    const favoritesWithEstablishment = await Promise.all(
-      (favorites || []).map(async (fav: any) => {
-        const { data: employment } = await supabase
-          .from('employment_history')
-          .select(`
-            establishment_id,
-            establishments:establishment_id (
-              id,
-              name,
-              zone,
-              address
-            )
-          `)
-          .eq('employee_id', fav.employee_id)
-          .eq('is_current', true)
-          .single();
+    // Optimized: Batch fetch all employment and comments data (N+1 → 2 queries)
+    // Note: Supabase returns nested relations as arrays
+    interface FavoriteRecord {
+      id: string;
+      employee_id: string;
+      created_at: string;
+      employee: {
+        id: string;
+        name: string;
+        nickname?: string;
+        age?: number;
+        nationality?: string[];
+        photos?: string[];
+        description?: string;
+        social_media?: Record<string, string>;
+      }[];
+    }
 
-        const { data: stats } = await supabase
-          .from('comments')
-          .select('rating')
-          .eq('employee_id', fav.employee_id);
+    const employeeIds = (favorites || []).map((fav: FavoriteRecord) => fav.employee_id);
 
-        const avgRating = stats && stats.length > 0
-          ? stats.reduce((sum, c) => sum + (c.rating || 0), 0) / stats.length
-          : 0;
+    // Batch fetch employment history for all employees
+    const { data: allEmployment } = await supabase
+      .from('employment_history')
+      .select(`
+        employee_id,
+        establishment_id,
+        establishments:establishment_id (
+          id,
+          name,
+          zone,
+          address
+        )
+      `)
+      .in('employee_id', employeeIds)
+      .eq('is_current', true);
 
-        return {
-          id: fav.id,
-          employee_id: fav.employee_id,
-          employee_name: fav.employee.name,
-          employee_nickname: fav.employee.nickname,
-          employee_photos: fav.employee.photos || [],
-          employee_age: fav.employee.age,
-          employee_nationality: fav.employee.nationality,
-          employee_description: fav.employee.description,
-          employee_social_media: fav.employee.social_media,
-          employee_rating: avgRating,
-          employee_comment_count: stats?.length || 0,
-          current_establishment: employment?.establishments ? {
-            id: (employment.establishments as any).id,
-            name: (employment.establishments as any).name,
-            zone: (employment.establishments as any).zone,
-            address: (employment.establishments as any).address
-          } : null,
-          created_at: fav.created_at
-        };
-      })
-    );
+    // Batch fetch all comments for ratings
+    const { data: allComments } = await supabase
+      .from('comments')
+      .select('employee_id, rating')
+      .in('employee_id', employeeIds);
+
+    // Create lookup maps for O(1) access
+    interface EstablishmentData {
+      id: string;
+      name: string;
+      zone: string;
+      address: string;
+    }
+    const employmentMap = new Map<string, EstablishmentData>();
+    (allEmployment || []).forEach((emp: { employee_id: string; establishments: unknown }) => {
+      if (emp.establishments) {
+        employmentMap.set(emp.employee_id, emp.establishments as EstablishmentData);
+      }
+    });
+
+    // Calculate ratings per employee
+    const ratingsMap = new Map<string, { total: number; count: number }>();
+    (allComments || []).forEach((comment: { employee_id: string; rating?: number }) => {
+      const existing = ratingsMap.get(comment.employee_id) || { total: 0, count: 0 };
+      existing.total += comment.rating || 0;
+      existing.count += 1;
+      ratingsMap.set(comment.employee_id, existing);
+    });
+
+    const favoritesWithEstablishment = (favorites || []).map((fav: FavoriteRecord) => {
+      const ratingData = ratingsMap.get(fav.employee_id);
+      const avgRating = ratingData && ratingData.count > 0
+        ? ratingData.total / ratingData.count
+        : 0;
+      const establishment = employmentMap.get(fav.employee_id);
+      // Supabase returns nested relations as arrays
+      const emp = fav.employee[0];
+
+      return {
+        id: fav.id,
+        employee_id: fav.employee_id,
+        employee_name: emp?.name || '',
+        employee_nickname: emp?.nickname,
+        employee_photos: emp?.photos || [],
+        employee_age: emp?.age,
+        employee_nationality: emp?.nationality,
+        employee_description: emp?.description,
+        employee_social_media: emp?.social_media,
+        employee_rating: avgRating,
+        employee_comment_count: ratingData?.count || 0,
+        current_establishment: establishment ? {
+          id: establishment.id,
+          name: establishment.name,
+          zone: establishment.zone,
+          address: establishment.address
+        } : null,
+        created_at: fav.created_at
+      };
+    });
 
     res.json({
       favorites: favoritesWithEstablishment,

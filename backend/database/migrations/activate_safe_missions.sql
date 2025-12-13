@@ -4,6 +4,7 @@
 -- Date: 2025-01-21
 -- Description: Activate 22/30 missions that don't require photo tracking
 -- ========================================
+BEGIN;
 
 -- Purpose: Activate missions that are production-ready with current features
 -- Excludes: 5 photo-dependent missions + 2 event missions (seasonal)
@@ -310,3 +311,5 @@ END $$;
 -- ========================================
 
 COMMENT ON TABLE missions IS 'Mission system: 22/30 active (73%). 5 photo-dependent pending Phase 3. 2 event missions inactive (seasonal).';
+
+COMMIT;

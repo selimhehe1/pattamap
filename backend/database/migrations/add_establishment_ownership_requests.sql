@@ -4,6 +4,7 @@
 -- Date: 2025-01-XX
 -- Description: Create establishment_ownership_requests table for owner verification workflow
 -- ========================================
+BEGIN;
 
 -- Purpose: Allow establishment owners to request ownership of establishments with document verification
 -- This creates a structured approval workflow for admins to review ownership claims
@@ -74,3 +75,5 @@ CREATE TRIGGER trigger_update_ownership_request_updated_at
 -- DROP TRIGGER IF EXISTS trigger_update_ownership_request_updated_at ON establishment_ownership_requests;
 -- DROP FUNCTION IF EXISTS update_ownership_request_updated_at();
 -- DROP TABLE IF EXISTS establishment_ownership_requests CASCADE;
+
+COMMIT;

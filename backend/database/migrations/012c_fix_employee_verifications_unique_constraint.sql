@@ -4,6 +4,7 @@
 -- Version: v10.2.1
 -- Issue: UNIQUE constraint on employee_id prevented multiple verification attempts,
 --        conflicting with rate limiting logic (max 3 attempts/24h)
+BEGIN;
 
 -- ============================================
 -- Remove UNIQUE constraint on employee_id
@@ -35,3 +36,5 @@ BEGIN
   RAISE NOTICE '✅ Migration 012 completed: UNIQUE constraint removed from employee_verifications.employee_id';
   RAISE NOTICE '📝 Users can now retry verification up to 3 times per 24 hours';
 END $$;
+
+COMMIT;

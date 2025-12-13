@@ -1,6 +1,7 @@
 -- Migration: add_review_photos.sql
 -- Description: Add photos support to reviews/comments
 -- Date: 2025-12-12
+BEGIN;
 
 -- Table pour stocker les photos associées aux commentaires/reviews
 CREATE TABLE IF NOT EXISTS comment_photos (
@@ -89,3 +90,5 @@ COMMENT ON TABLE comment_photos IS 'Photos attachées aux commentaires/reviews. 
 COMMENT ON COLUMN comment_photos.photo_url IS 'URL Cloudinary de la photo';
 COMMENT ON COLUMN comment_photos.cloudinary_public_id IS 'ID public Cloudinary pour suppression';
 COMMENT ON COLUMN comment_photos.display_order IS 'Ordre d''affichage (0, 1, 2)';
+
+COMMIT;
