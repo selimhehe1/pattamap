@@ -4,15 +4,16 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LoginForm from '../LoginForm';
 
 // Mock logger
-jest.mock('../../../utils/logger');
+vi.mock('../../../utils/logger');
 
 // Mock react-i18next
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key, // Return the key as-is
     i18n: { language: 'en' }
@@ -20,33 +21,35 @@ jest.mock('react-i18next', () => ({
 }));
 
 // Mock the toast utility
-jest.mock('../../../utils/toast', () => ({
-  __esModule: true,
+vi.mock('../../../utils/toast', () => ({
   default: {
-    success: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
 // Mock useAuth
-const mockLogin = jest.fn();
-jest.mock('../../../contexts/AuthContext', () => ({
-  ...jest.requireActual('../../../contexts/AuthContext'),
-  useAuth: () => ({
-    login: mockLogin,
-    user: null,
-    loading: false,
-  }),
-}));
+const mockLogin = vi.fn();
+vi.mock('../../../contexts/AuthContext', async () => {
+  const actual = await vi.importActual('../../../contexts/AuthContext');
+  return {
+    ...actual,
+    useAuth: () => ({
+      login: mockLogin,
+      user: null,
+      loading: false,
+    }),
+  };
+});
 
 // Mock useAutoSave
-jest.mock('../../../hooks/useAutoSave', () => ({
+vi.mock('../../../hooks/useAutoSave', () => ({
   useAutoSave: () => ({
     isDraft: false,
-    clearDraft: jest.fn(),
-    restoreDraft: jest.fn(() => null),
+    clearDraft: vi.fn(),
+    restoreDraft: vi.fn(() => null),
     lastSaved: null,
   }),
 }));
@@ -70,11 +73,11 @@ const renderWithProviders = (component: React.ReactElement) => {
 };
 
 describe('LoginForm', () => {
-  const mockOnClose = jest.fn();
-  const mockOnSwitchToRegister = jest.fn();
+  const mockOnClose = vi.fn();
+  const mockOnSwitchToRegister = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders login form with all fields', () => {

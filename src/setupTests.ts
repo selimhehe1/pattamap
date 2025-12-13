@@ -2,7 +2,8 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
+import { vi, beforeEach } from 'vitest';
 
 // ==============================
 // ENVIRONMENT VARIABLES
@@ -24,11 +25,11 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   }),
 });
 
@@ -53,19 +54,19 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 global.localStorage = localStorageMock as any;
 
 // Mock sessionStorage
 const sessionStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 global.sessionStorage = sessionStorageMock as any;
 
@@ -84,7 +85,7 @@ global.WebSocket = class WebSocket {
 } as any;
 
 // Mock fetch (for API calls)
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     json: async () => ({}),
@@ -100,9 +101,9 @@ global.fetch = jest.fn(() =>
 global.console = {
   ...console,
   // Suppress console.error in tests unless needed
-  error: jest.fn(),
+  error: vi.fn(),
   // Suppress console.warn in tests unless needed
-  warn: jest.fn(),
+  warn: vi.fn(),
 };
 
 // ==============================
@@ -111,7 +112,7 @@ global.console = {
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   localStorageMock.getItem.mockClear();
   localStorageMock.setItem.mockClear();
   sessionStorageMock.getItem.mockClear();

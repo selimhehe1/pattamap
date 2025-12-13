@@ -3,6 +3,7 @@
  * Tests for push notification subscription and management
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   registerServiceWorker,
   getServiceWorkerRegistration,
@@ -22,7 +23,7 @@ import {
 // ==========================================
 
 // Mock global objects
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // Mock ServiceWorkerRegistration
 class MockServiceWorkerRegistration {
@@ -33,18 +34,18 @@ class MockServiceWorkerRegistration {
   updateViaCache: ServiceWorkerUpdateViaCache = 'imports';
 
   pushManager = {
-    subscribe: jest.fn(),
-    getSubscription: jest.fn()
+    subscribe: vi.fn(),
+    getSubscription: vi.fn()
   };
 
-  showNotification = jest.fn();
-  getNotifications = jest.fn();
-  update = jest.fn();
-  unregister = jest.fn();
+  showNotification = vi.fn();
+  getNotifications = vi.fn();
+  update = vi.fn();
+  unregister = vi.fn();
 
-  addEventListener = jest.fn();
-  removeEventListener = jest.fn();
-  dispatchEvent = jest.fn();
+  addEventListener = vi.fn();
+  removeEventListener = vi.fn();
+  dispatchEvent = vi.fn();
 }
 
 // Mock PushSubscription
@@ -76,7 +77,7 @@ class MockPushSubscription {
     };
   }
 
-  unsubscribe = jest.fn().mockResolvedValue(true);
+  unsubscribe = vi.fn().mockResolvedValue(true);
 }
 
 // Mock ServiceWorker
@@ -86,16 +87,16 @@ class MockServiceWorker {
   onstatechange: ((this: ServiceWorker, ev: Event) => any) | null = null;
   onerror: ((this: AbstractWorker, ev: ErrorEvent) => any) | null = null;
 
-  addEventListener = jest.fn();
-  removeEventListener = jest.fn();
-  dispatchEvent = jest.fn();
-  postMessage = jest.fn();
+  addEventListener = vi.fn();
+  removeEventListener = vi.fn();
+  dispatchEvent = vi.fn();
+  postMessage = vi.fn();
 }
 
 // Mock Notification API
 class MockNotification {
   static permission: NotificationPermission = 'default';
-  static requestPermission = jest.fn().mockResolvedValue('granted');
+  static requestPermission = vi.fn().mockResolvedValue('granted');
 
   constructor(public title: string, public options?: NotificationOptions) {}
 }
@@ -107,14 +108,14 @@ beforeAll(() => {
 
   // @ts-ignore
   global.navigator.serviceWorker = {
-    register: jest.fn(),
+    register: vi.fn(),
     ready: Promise.resolve(new MockServiceWorkerRegistration()),
     controller: null,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-    getRegistration: jest.fn(),
-    getRegistrations: jest.fn()
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    getRegistration: vi.fn(),
+    getRegistrations: vi.fn()
   };
 
   // Mock atob - proper base64 decoding
@@ -142,10 +143,10 @@ let originalServiceWorker: ServiceWorkerContainer | undefined;
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   MockNotification.permission = 'default';
-  MockNotification.requestPermission = jest.fn().mockResolvedValue('granted');
-  (global.fetch as jest.Mock).mockClear();
+  MockNotification.requestPermission = vi.fn().mockResolvedValue('granted');
+  (global.fetch as ReturnType<typeof vi.fn>).mockClear();
 
   // Save original and restore serviceWorker
   originalServiceWorker = navigator.serviceWorker;
@@ -153,14 +154,14 @@ beforeEach(() => {
   // Reset navigator.serviceWorker with fresh mock
   // @ts-ignore
   global.navigator.serviceWorker = {
-    register: jest.fn(),
+    register: vi.fn(),
     ready: Promise.resolve(new MockServiceWorkerRegistration()),
     controller: null,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-    getRegistration: jest.fn(),
-    getRegistrations: jest.fn()
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    getRegistration: vi.fn(),
+    getRegistrations: vi.fn()
   };
 
   // @ts-ignore
@@ -252,7 +253,7 @@ describe('Push Manager', () => {
 
   describe('requestNotificationPermission', () => {
     test('requests and returns permission when granted', async () => {
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('granted');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('granted');
 
       const permission = await requestNotificationPermission();
 
@@ -261,7 +262,7 @@ describe('Push Manager', () => {
     });
 
     test('requests and returns permission when denied', async () => {
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('denied');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('denied');
 
       const permission = await requestNotificationPermission();
 
@@ -284,7 +285,7 @@ describe('Push Manager', () => {
     });
 
     test('handles request failure gracefully', async () => {
-      MockNotification.requestPermission = jest.fn().mockRejectedValue(new Error('Request failed'));
+      MockNotification.requestPermission = vi.fn().mockRejectedValue(new Error('Request failed'));
 
       const permission = await requestNotificationPermission();
 
@@ -297,7 +298,7 @@ describe('Push Manager', () => {
       const mockRegistration = new MockServiceWorkerRegistration();
       mockRegistration.active = new MockServiceWorker();
 
-      (navigator.serviceWorker.register as jest.Mock).mockResolvedValue(mockRegistration);
+      (navigator.serviceWorker.register as ReturnType<typeof vi.fn>).mockResolvedValue(mockRegistration);
 
       const registration = await registerServiceWorker();
 
@@ -312,10 +313,10 @@ describe('Push Manager', () => {
       const mockRegistration = new MockServiceWorkerRegistration();
       mockRegistration.installing = mockWorker;
 
-      (navigator.serviceWorker.register as jest.Mock).mockResolvedValue(mockRegistration);
+      (navigator.serviceWorker.register as ReturnType<typeof vi.fn>).mockResolvedValue(mockRegistration);
 
       // Mock addEventListener to immediately call the callback
-      mockWorker.addEventListener = jest.fn((event, callback) => {
+      mockWorker.addEventListener = vi.fn((event, callback) => {
         if (event === 'statechange') {
           mockWorker.state = 'activated';
           callback();
@@ -343,7 +344,7 @@ describe('Push Manager', () => {
     });
 
     test('returns null when registration fails', async () => {
-      (navigator.serviceWorker.register as jest.Mock).mockRejectedValue(new Error('Registration failed'));
+      (navigator.serviceWorker.register as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Registration failed'));
 
       const registration = await registerServiceWorker();
 
@@ -394,11 +395,11 @@ describe('Push Manager', () => {
       MockNotification.permission = 'granted';
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.subscribe = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.subscribe = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
-      (global.fetch as jest.Mock)
+      (global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ publicKey: 'test-vapid-key' })
@@ -420,15 +421,15 @@ describe('Push Manager', () => {
 
     test('requests permission if not granted', async () => {
       MockNotification.permission = 'default';
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('granted');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('granted');
 
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.subscribe = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.subscribe = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
-      (global.fetch as jest.Mock)
+      (global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ publicKey: 'test-vapid-key' })
@@ -463,7 +464,7 @@ describe('Push Manager', () => {
 
     test('throws error when permission request is not granted', async () => {
       MockNotification.permission = 'default';
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('denied');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('denied');
 
       await expect(subscribeToPush()).rejects.toThrow('Notification permission not granted');
     });
@@ -472,7 +473,7 @@ describe('Push Manager', () => {
       MockNotification.permission = 'granted';
       (navigator.serviceWorker.ready as any) = Promise.resolve(new MockServiceWorkerRegistration());
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false,
         json: async () => ({ error: 'Failed to get VAPID key' })
       });
@@ -484,11 +485,11 @@ describe('Push Manager', () => {
       MockNotification.permission = 'granted';
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.subscribe = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.subscribe = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
-      (global.fetch as jest.Mock)
+      (global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ publicKey: 'test-vapid-key' })
@@ -506,11 +507,11 @@ describe('Push Manager', () => {
     test('unsubscribes successfully', async () => {
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true })
       });
@@ -530,7 +531,7 @@ describe('Push Manager', () => {
 
     test('returns false when no subscription exists', async () => {
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(null);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(null);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -550,11 +551,11 @@ describe('Push Manager', () => {
     test('throws error when backend removal fails', async () => {
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false,
         json: async () => ({ error: 'Backend removal failed' })
       });
@@ -567,7 +568,7 @@ describe('Push Manager', () => {
     test('returns current subscription', async () => {
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -578,7 +579,7 @@ describe('Push Manager', () => {
 
     test('returns null when no subscription exists', async () => {
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(null);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(null);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -602,7 +603,7 @@ describe('Push Manager', () => {
     test('returns true when subscribed', async () => {
       const mockSubscription = new MockPushSubscription();
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(mockSubscription);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -613,7 +614,7 @@ describe('Push Manager', () => {
 
     test('returns false when not subscribed', async () => {
       const mockRegistration = new MockServiceWorkerRegistration();
-      mockRegistration.pushManager.getSubscription = jest.fn().mockResolvedValue(null);
+      mockRegistration.pushManager.getSubscription = vi.fn().mockResolvedValue(null);
 
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -631,7 +632,7 @@ describe('Push Manager', () => {
         subscriptionCount: 2
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockStatus
       });
@@ -649,7 +650,7 @@ describe('Push Manager', () => {
     });
 
     test('returns default status on fetch failure', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false
       });
 
@@ -663,7 +664,7 @@ describe('Push Manager', () => {
     });
 
     test('returns default status on network error', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
 
       const status = await getPushStatus();
 
@@ -696,7 +697,7 @@ describe('Push Manager', () => {
 
     test('requests permission before showing notification', async () => {
       MockNotification.permission = 'default';
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('granted');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('granted');
       const mockRegistration = new MockServiceWorkerRegistration();
       (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
 
@@ -720,7 +721,7 @@ describe('Push Manager', () => {
 
     test('throws error when permission is denied', async () => {
       MockNotification.permission = 'default';
-      MockNotification.requestPermission = jest.fn().mockResolvedValue('denied');
+      MockNotification.requestPermission = vi.fn().mockResolvedValue('denied');
 
       await expect(showTestNotification('Test', 'Test')).rejects.toThrow('Notification permission not granted');
     });

@@ -7,6 +7,7 @@
 
 import { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContext } from '../contexts/AuthContext';
@@ -59,11 +60,11 @@ export function AllProviders({ children, initialAuth }: AllProvidersProps) {
     },
     token: 'test-token',
     loading: false,
-    login: jest.fn(),
-    logout: jest.fn(),
-    register: jest.fn(),
-    updateUser: jest.fn(),
-    refreshAuth: jest.fn(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    updateUser: vi.fn(),
+    refreshAuth: vi.fn(),
   };
 
   const authValue = initialAuth ? { ...defaultAuthValue, ...initialAuth } : defaultAuthValue;
@@ -127,18 +128,18 @@ export const mockHooks = {
     user: null,
     token: null,
     loading: false,
-    login: jest.fn(),
-    logout: jest.fn(),
-    register: jest.fn(),
-    updateUser: jest.fn(),
-    refreshAuth: jest.fn(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    updateUser: vi.fn(),
+    refreshAuth: vi.fn(),
     ...overrides,
   }),
 
   // Mock useModal hook
   useModal: (overrides = {}) => ({
-    openModal: jest.fn(),
-    closeModal: jest.fn(),
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
     isModalOpen: false,
     modalContent: null,
     ...overrides,
@@ -147,9 +148,9 @@ export const mockHooks = {
   // Mock useMapControls hook
   useMapControls: (overrides = {}) => ({
     viewMode: 'map' as const,
-    setViewMode: jest.fn(),
+    setViewMode: vi.fn(),
     selectedZone: null,
-    setSelectedZone: jest.fn(),
+    setSelectedZone: vi.fn(),
     ...overrides,
   }),
 };
@@ -213,7 +214,7 @@ export const waitForLoadingToFinish = () =>
  * Mock fetch responses
  */
 export const mockFetchResponse = (data: any, ok = true) => {
-  global.fetch = jest.fn(() =>
+  global.fetch = vi.fn(() =>
     Promise.resolve({
       ok,
       json: async () => data,
@@ -225,7 +226,7 @@ export const mockFetchResponse = (data: any, ok = true) => {
 };
 
 export const mockFetchError = (message = 'Network error') => {
-  global.fetch = jest.fn(() => Promise.reject(new Error(message)));
+  global.fetch = vi.fn(() => Promise.reject(new Error(message)));
 };
 
 /**

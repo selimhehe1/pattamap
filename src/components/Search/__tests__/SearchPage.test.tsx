@@ -9,29 +9,30 @@
 
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SearchPage from '../SearchPage';
 
 // Mock logger
-jest.mock('../../../utils/logger');
+vi.mock('../../../utils/logger');
 
 // Mock dependencies
-jest.mock('../../../contexts/ModalContext', () => ({
+vi.mock('../../../contexts/ModalContext', () => ({
   useModal: () => ({
-    openModal: jest.fn(),
-    closeModal: jest.fn()
+    openModal: vi.fn(),
+    closeModal: vi.fn()
   })
 }));
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
     i18n: { language: 'en' }
   })
 }));
 
-jest.mock('../../../hooks/useEmployees', () => ({
+vi.mock('../../../hooks/useEmployees', () => ({
   useEmployeeSearch: () => ({
     data: {
       employees: [],
@@ -53,7 +54,7 @@ jest.mock('../../../hooks/useEmployees', () => ({
     isLoading: false,
     isFetching: false,
     error: null,
-    refetch: jest.fn()
+    refetch: vi.fn()
   })
 }));
 
@@ -77,13 +78,13 @@ const renderWithProviders = (component: React.ReactElement) => {
 
 describe('SearchPage - Filter Fixes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   describe('Fix 1: updateUrlParams - Strict Check for Falsy Values', () => {
@@ -150,7 +151,7 @@ describe('SearchPage - Filter Fixes', () => {
 
       // Fast forward time by less than debounce
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_DELAY - 100);
+        vi.advanceTimersByTime(DEBOUNCE_DELAY - 100);
       });
 
       // Should not have updated yet
@@ -158,18 +159,18 @@ describe('SearchPage - Filter Fixes', () => {
 
       // Fast forward to complete debounce
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       // Now debounce should be complete
-      expect(jest.getTimerCount()).toBe(0);
+      expect(vi.getTimerCount()).toBe(0);
     });
 
     it('should clear previous timeout when query changes rapidly', () => {
       renderWithProviders(<SearchPage />);
 
       // Simulate rapid typing (multiple changes within 500ms)
-      const timers = jest.getTimerCount();
+      const timers = vi.getTimerCount();
 
       // After cleanup, should have at most 1 timer
       expect(timers).toBeLessThanOrEqual(1);
