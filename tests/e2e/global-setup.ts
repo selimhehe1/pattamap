@@ -77,64 +77,83 @@ async function setupAuthState(
   const page = await context.newPage();
 
   try {
-    // Attempt API login
-    const loginResponse = await axios.post(
-      `${API_BASE_URL}/auth/login`,
-      {
-        login: credentials.email,
-        password: credentials.password
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-        timeout: 10000
+    // Attempt API login with longer timeout in CI and retry logic
+    const timeout = process.env.CI ? 30000 : 10000; // 30s in CI, 10s locally
+    const maxRetries = 3;
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 1) {
+          console.log(`   🔄 Retry attempt ${attempt}/${maxRetries} for ${label}...`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+        }
+
+        const loginResponse = await axios.post(
+          `${API_BASE_URL}/auth/login`,
+          {
+            login: credentials.email,
+            password: credentials.password
+          },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            timeout
+          }
+        );
+
+        // Get cookies from response
+        const setCookies = loginResponse.headers['set-cookie'] || [];
+
+        if (setCookies.length > 0) {
+          const cookiesToAdd = [];
+
+          for (const cookie of setCookies) {
+            const [nameValue] = cookie.split(';');
+            const [name, value] = nameValue.split('=');
+
+            cookiesToAdd.push({
+              name: name.trim(),
+              value: value?.trim() || '',
+              domain: 'localhost',
+              path: '/',
+              httpOnly: true,
+              secure: false,
+              sameSite: 'Lax' as const
+            });
+          }
+
+          await context.addCookies(cookiesToAdd);
+        }
+
+        // Navigate to app to establish frontend state
+        await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
+
+        // Store CSRF token and user data in localStorage if available
+        if (loginResponse.data.csrfToken) {
+          await page.evaluate((token) => {
+            localStorage.setItem('csrfToken', token);
+          }, loginResponse.data.csrfToken);
+        }
+
+        if (loginResponse.data.user) {
+          await page.evaluate((user) => {
+            localStorage.setItem('user', JSON.stringify(user));
+          }, loginResponse.data.user);
+        }
+
+        // Save storage state
+        await context.storageState({ path: stateFile });
+
+        console.log(`   ✅ ${label} state saved to ${path.basename(stateFile)}`);
+        return; // Success - exit retry loop
+      } catch (retryError) {
+        lastError = retryError;
+        if (attempt === maxRetries) {
+          throw retryError; // Re-throw on final attempt
+        }
       }
-    );
-
-    // Get cookies from response
-    const setCookies = loginResponse.headers['set-cookie'] || [];
-
-    if (setCookies.length > 0) {
-      const cookiesToAdd = [];
-
-      for (const cookie of setCookies) {
-        const [nameValue] = cookie.split(';');
-        const [name, value] = nameValue.split('=');
-
-        cookiesToAdd.push({
-          name: name.trim(),
-          value: value?.trim() || '',
-          domain: 'localhost',
-          path: '/',
-          httpOnly: true,
-          secure: false,
-          sameSite: 'Lax' as const
-        });
-      }
-
-      await context.addCookies(cookiesToAdd);
     }
-
-    // Navigate to app to establish frontend state
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
-
-    // Store CSRF token and user data in localStorage if available
-    if (loginResponse.data.csrfToken) {
-      await page.evaluate((token) => {
-        localStorage.setItem('csrfToken', token);
-      }, loginResponse.data.csrfToken);
-    }
-
-    if (loginResponse.data.user) {
-      await page.evaluate((user) => {
-        localStorage.setItem('user', JSON.stringify(user));
-      }, loginResponse.data.user);
-    }
-
-    // Save storage state
-    await context.storageState({ path: stateFile });
-
-    console.log(`   ✅ ${label} state saved to ${path.basename(stateFile)}`);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data?.error || error.message;
