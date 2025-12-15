@@ -77,19 +77,46 @@ async function setupAuthState(
   const page = await context.newPage();
 
   try {
-    // Attempt API login
-    const loginResponse = await axios.post(
-      `${API_BASE_URL}/auth/login`,
-      {
-        login: credentials.email,
-        password: credentials.password
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-        timeout: 10000
+    // Attempt API login with longer timeout in CI and retry logic
+    const timeout = process.env.CI ? 30000 : 10000; // 30s in CI, 10s locally
+    const maxRetries = 3;
+    let lastError: any;
+    let loginResponse;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 1) {
+          console.log(`   🔄 Retry attempt ${attempt}/${maxRetries} for ${label}...`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+        }
+
+        loginResponse = await axios.post(
+          `${API_BASE_URL}/auth/login`,
+          {
+            login: credentials.email,
+            password: credentials.password
+          },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            timeout
+          }
+        );
+
+        // Success - break out of retry loop
+        break;
+      } catch (err) {
+        lastError = err;
+        if (attempt === maxRetries) {
+          throw err; // Re-throw on final attempt
+        }
+        // Continue to next retry
       }
-    );
+    }
+
+    if (!loginResponse) {
+      throw lastError || new Error('Login failed after retries');
+    }
 
     // Get cookies from response
     const setCookies = loginResponse.headers['set-cookie'] || [];
