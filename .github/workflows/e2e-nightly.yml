@@ -17,13 +17,11 @@ env:
   NODE_VERSION: '20.x'
 
 jobs:
-  # Shared setup job to avoid repeating build steps
+  # Shared setup job - builds and uploads artifacts
   setup:
     name: Setup & Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,25 +32,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Generate cache key
-        id: cache-key
-        run: echo "key=${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}" >> $GITHUB_OUTPUT
-
-      - name: Cache build artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ steps.cache-key.outputs.key }}
-
       - name: Install frontend dependencies
         run: npm ci --legacy-peer-deps
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Build frontend
         run: npm run build
@@ -70,12 +51,26 @@ jobs:
         run: npm run build
         working-directory: backend
 
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+          retention-days: 1
+
+      - name: Upload backend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
+          retention-days: 1
+
   # Job 1: Smoke Tests (Critical Path)
   e2e-smoke:
     name: Smoke Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -90,15 +85,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -109,8 +113,11 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          echo "Waiting for frontend..."
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || (echo "Frontend failed" && exit 1)
+          echo "Waiting for backend..."
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
+          echo "Servers ready!"
         env:
           NODE_ENV: test
           PORT: 8080
@@ -122,7 +129,7 @@ jobs:
 
       - name: Run Smoke Tests
         run: npx playwright test tests/e2e/smoke.spec.ts --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 8
+        timeout-minutes: 10
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -140,7 +147,7 @@ jobs:
     name: Auth & User Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -155,15 +162,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -174,8 +190,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -194,7 +210,7 @@ jobs:
             tests/e2e/user-dashboard.spec.ts \
             tests/e2e/profile-edit.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 18
+        timeout-minutes: 20
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -212,7 +228,7 @@ jobs:
     name: CRUD & Management Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -227,15 +243,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -246,8 +271,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -270,7 +295,7 @@ jobs:
             tests/e2e/admin-panel.spec.ts \
             tests/e2e/admin-vip-verification.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 23
+        timeout-minutes: 25
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -288,7 +313,7 @@ jobs:
     name: Features Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -303,15 +328,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -322,8 +356,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -344,7 +378,7 @@ jobs:
             tests/e2e/notifications.spec.ts \
             tests/e2e/reviews-ratings.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 23
+        timeout-minutes: 25
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -362,7 +396,7 @@ jobs:
     name: UI & Accessibility Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -377,15 +411,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -396,8 +439,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -420,7 +463,7 @@ jobs:
             tests/e2e/header-navigation.spec.ts \
             tests/e2e/i18n.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 23
+        timeout-minutes: 25
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -438,7 +481,7 @@ jobs:
     name: Pages & Navigation Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -453,15 +496,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -472,8 +524,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -494,7 +546,7 @@ jobs:
             tests/e2e/visit-history-page.spec.ts \
             tests/e2e/sidebar-establishment.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 18
+        timeout-minutes: 20
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
@@ -512,7 +564,7 @@ jobs:
     name: Maps & Performance Tests
     runs-on: ubuntu-latest
     needs: setup
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -527,15 +579,24 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Restore build cache
-        uses: actions/cache@v4
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            build
-            backend/dist
-            node_modules
-            backend/node_modules
-          key: ${{ needs.setup.outputs.cache-key }}
+          name: frontend-build
+          path: build/
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: backend/dist/
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -546,8 +607,8 @@ jobs:
           sleep 5
           npx serve -s build -l 3000 &
           sleep 3
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
           NODE_ENV: test
           PORT: 8080
@@ -568,7 +629,7 @@ jobs:
             tests/e2e/photo-upload.spec.ts \
             tests/e2e/pwa.spec.ts \
             --project=${{ matrix.project }} --workers=2
-        timeout-minutes: 18
+        timeout-minutes: 20
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
