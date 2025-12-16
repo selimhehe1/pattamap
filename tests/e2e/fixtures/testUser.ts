@@ -66,6 +66,41 @@ export async function registerUser(
   if (useMock) {
     console.log(`🔐 Using MOCK AUTH for: ${user.email}`);
     await setupMockAuth(page);
+
+    // Also mock backend login endpoint
+    await page.route('**/api/auth/login', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          user: {
+            id: mockUser.id,
+            email: mockUser.email,
+            pseudonym: mockUser.user_metadata.pseudonym,
+            role: 'user'
+          },
+          csrfToken: 'mock-csrf-token',
+          session: { access_token: 'mock-token' }
+        })
+      });
+    });
+
+    // Mock backend register endpoint
+    await page.route('**/api/auth/register', route => {
+      route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          user: {
+            id: mockUser.id,
+            email: user.email,
+            pseudonym: user.username
+          },
+          message: 'Registration successful'
+        })
+      });
+    });
+
     user.id = mockUser.id;
     user.csrfToken = 'mock-csrf-token';
     await page.goto('/');

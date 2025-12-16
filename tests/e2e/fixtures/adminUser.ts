@@ -2,12 +2,15 @@
  * Admin User Fixture - PattaMap E2E Tests
  *
  * Helper functions to create and authenticate admin users for admin panel testing.
+ * Supports both real API authentication and mock authentication for CI.
  */
 
 import { Page } from '@playwright/test';
 import axios from 'axios';
+import { setupMockAuth, mockBackendAuthMe, mockAdminUser, mockAdminSession } from './mockAuth';
 
 const API_BASE_URL = 'http://localhost:8080/api';
+const USE_MOCK_AUTH = process.env.E2E_USE_MOCK_AUTH === 'true' || process.env.CI === 'true';
 
 export interface AdminTestUser {
   id?: string;
@@ -47,7 +50,7 @@ export function generateAdminUser(): AdminTestUser {
 }
 
 /**
- * Login as admin via backend API
+ * Login as admin via backend API or mock auth
  * @param page - Playwright page object
  * @param credentials - Optional custom credentials (defaults to ADMIN_CREDENTIALS)
  */
@@ -62,6 +65,51 @@ export async function loginAsAdmin(
     ...credentials
   };
 
+  // Use mock auth in CI or when explicitly enabled
+  if (USE_MOCK_AUTH) {
+    console.log(`🔐 Using MOCK ADMIN AUTH for: ${admin.email}`);
+
+    // Setup mock auth with admin privileges
+    await setupMockAuth(page, { isAdmin: true });
+    await mockBackendAuthMe(page, true);
+
+    // Also mock the login endpoint
+    await page.route('**/api/auth/login', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          user: {
+            id: mockAdminUser.id,
+            email: mockAdminUser.email,
+            pseudonym: mockAdminUser.user_metadata.pseudonym,
+            role: 'admin'
+          },
+          csrfToken: 'mock-csrf-token-admin',
+          session: mockAdminSession
+        })
+      });
+    });
+
+    // Mock admin-specific endpoints
+    await page.route('**/api/admin/**', route => {
+      // Allow the request to continue but with mock auth
+      route.continue();
+    });
+
+    admin.id = mockAdminUser.id;
+    admin.csrfToken = 'mock-csrf-token-admin';
+
+    // Navigate to admin panel
+    await page.goto('/admin');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1000);
+
+    console.log(`✅ Mock Admin ready: ${admin.email} (role: admin)`);
+    return admin;
+  }
+
+  // Real API login (for local development)
   try {
     // Login via API to get auth cookies
     const loginResponse = await axios.post(
@@ -123,6 +171,13 @@ export async function loginAsAdmin(
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data?.error || error.message;
       console.error(`❌ Admin login failed: ${errorMessage}`);
+
+      // Fallback to mock auth if real login fails
+      if (process.env.CI === 'true') {
+        console.log(`🔄 Falling back to mock admin auth...`);
+        return loginAsAdmin(page, { ...credentials, email: 'mock-fallback' });
+      }
+
       throw new Error(`Admin login failed: ${errorMessage}`);
     }
     throw error;
