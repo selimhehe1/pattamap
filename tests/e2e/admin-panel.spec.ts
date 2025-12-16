@@ -34,7 +34,7 @@ test.describe('Admin Access Control', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show access denied or redirect
     const accessDenied = page.locator('text=/access denied|unauthorized|forbidden/i').first();
@@ -50,7 +50,7 @@ test.describe('Admin Access Control', () => {
 
   test('should deny access to unauthenticated users', async ({ page }) => {
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal or redirect
     const loginModal = page.locator('text="Welcome Back", text="Sign in"').first();
@@ -69,7 +69,7 @@ test.describe('Admin Access Control', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Admin panel should be visible
     const adminPanel = page.locator('.admin-panel, [data-testid="admin"], h1:has-text("Admin")').first();
@@ -92,7 +92,7 @@ test.describe('Admin Tab Navigation', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const tabs = page.locator('[role="tablist"], .admin-tabs, .nav-tabs');
     const hasTabs = await tabs.first().isVisible({ timeout: 5000 }).catch(() => false);
@@ -108,7 +108,7 @@ test.describe('Admin Tab Navigation', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const usersTab = page.locator('button:has-text("Users"), [data-tab="users"]').first();
 
@@ -129,7 +129,7 @@ test.describe('Admin Tab Navigation', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const activeTab = page.locator('[role="tab"][aria-selected="true"], .tab.active').first();
     const hasActive = await activeTab.isVisible({ timeout: 5000 }).catch(() => false);
@@ -151,7 +151,7 @@ test.describe('Admin Dashboard', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const stats = page.locator('.stats, .dashboard-stats, [data-testid="stats"]').first();
     const hasStats = await stats.isVisible({ timeout: 5000 }).catch(() => false);
@@ -167,7 +167,7 @@ test.describe('Admin Dashboard', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const usersCount = page.locator('.stat-users, text=/users/i, [data-stat="users"]').first();
     const hasCount = await usersCount.isVisible({ timeout: 5000 }).catch(() => false);
@@ -183,7 +183,7 @@ test.describe('Admin Dashboard', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const establishmentsCount = page.locator('.stat-establishments, text=/establishments/i').first();
     const hasCount = await establishmentsCount.isVisible({ timeout: 5000 }).catch(() => false);
@@ -205,7 +205,7 @@ test.describe('Establishments Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const establishmentsTab = page.locator('button:has-text("Establishments"), [data-tab="establishments"]').first();
 
@@ -225,7 +225,7 @@ test.describe('Establishments Admin', () => {
     }
 
     await page.goto('/admin?tab=establishments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const table = page.locator('table, .establishments-list, [data-testid="establishments-table"]').first();
     const hasTable = await table.isVisible({ timeout: 5000 }).catch(() => false);
@@ -241,7 +241,7 @@ test.describe('Establishments Admin', () => {
     }
 
     await page.goto('/admin?tab=establishments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit"), [data-action="edit"]').first();
     const hasEdit = await editBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -263,7 +263,7 @@ test.describe('Employees Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeesTab = page.locator('button:has-text("Employees"), [data-tab="employees"]').first();
 
@@ -283,7 +283,7 @@ test.describe('Employees Admin', () => {
     }
 
     await page.goto('/admin?tab=employees');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const list = page.locator('.employees-list, table, [data-testid="employees-admin"]').first();
     const hasList = await list.isVisible({ timeout: 5000 }).catch(() => false);
@@ -299,7 +299,7 @@ test.describe('Employees Admin', () => {
     }
 
     await page.goto('/admin?tab=employees');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filters = page.locator('.filters, .employee-filters, [data-testid="filters"]').first();
     const hasFilters = await filters.isVisible({ timeout: 5000 }).catch(() => false);
@@ -321,7 +321,7 @@ test.describe('Comments Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const commentsTab = page.locator('button:has-text("Comments"), [data-tab="comments"]').first();
 
@@ -341,7 +341,7 @@ test.describe('Comments Admin', () => {
     }
 
     await page.goto('/admin?tab=comments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const list = page.locator('.comments-list, table, [data-testid="comments-admin"]').first();
     const hasList = await list.isVisible({ timeout: 5000 }).catch(() => false);
@@ -357,7 +357,7 @@ test.describe('Comments Admin', () => {
     }
 
     await page.goto('/admin?tab=comments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const approveBtn = page.locator('button:has-text("Approve"), [data-action="approve"]').first();
     const rejectBtn = page.locator('button:has-text("Reject"), [data-action="reject"]').first();
@@ -382,7 +382,7 @@ test.describe('Users Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const usersTab = page.locator('button:has-text("Users"), [data-tab="users"]').first();
 
@@ -402,7 +402,7 @@ test.describe('Users Admin', () => {
     }
 
     await page.goto('/admin?tab=users');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const table = page.locator('table, .users-list, [data-testid="users-admin"]').first();
     const hasTable = await table.isVisible({ timeout: 5000 }).catch(() => false);
@@ -418,7 +418,7 @@ test.describe('Users Admin', () => {
     }
 
     await page.goto('/admin?tab=users');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit"), [data-action="edit-user"]').first();
     const hasEdit = await editBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -440,7 +440,7 @@ test.describe('Claims Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const claimsTab = page.locator('button:has-text("Claims"), [data-tab="claims"]').first();
 
@@ -460,7 +460,7 @@ test.describe('Claims Admin', () => {
     }
 
     await page.goto('/admin?tab=claims');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const list = page.locator('.claims-list, table, [data-testid="claims-admin"]').first();
     const hasList = await list.isVisible({ timeout: 5000 }).catch(() => false);
@@ -476,7 +476,7 @@ test.describe('Claims Admin', () => {
     }
 
     await page.goto('/admin?tab=claims');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const approveBtn = page.locator('button:has-text("Approve"), [data-action="approve"]').first();
     const hasApprove = await approveBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -498,7 +498,7 @@ test.describe('Verifications Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const verificationsTab = page.locator('button:has-text("Verifications"), [data-tab="verifications"]').first();
 
@@ -518,7 +518,7 @@ test.describe('Verifications Admin', () => {
     }
 
     await page.goto('/admin?tab=verifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const list = page.locator('.verifications-list, table, [data-testid="verifications-admin"]').first();
     const hasList = await list.isVisible({ timeout: 5000 }).catch(() => false);
@@ -540,7 +540,7 @@ test.describe('VIP Admin', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipTab = page.locator('button:has-text("VIP"), [data-tab="vip"]').first();
 
@@ -560,7 +560,7 @@ test.describe('VIP Admin', () => {
     }
 
     await page.goto('/admin?tab=vip');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const list = page.locator('.vip-list, table, [data-testid="vip-admin"]').first();
     const hasList = await list.isVisible({ timeout: 5000 }).catch(() => false);
@@ -576,7 +576,7 @@ test.describe('VIP Admin', () => {
     }
 
     await page.goto('/admin?tab=vip');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const verifyBtn = page.locator('button:has-text("Verify"), [data-action="verify-vip"]').first();
     const hasVerify = await verifyBtn.isVisible({ timeout: 5000 }).catch(() => false);

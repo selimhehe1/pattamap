@@ -28,7 +28,7 @@ test.describe('API Error Handling', () => {
     });
 
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Error message or fallback should be displayed
     const errorMessage = page.locator('.error, .error-message, text=/error|failed|problem/i');
@@ -46,7 +46,7 @@ test.describe('API Error Handling', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should still be functional
     await expect(page.locator('body')).toBeVisible();
@@ -61,7 +61,7 @@ test.describe('API Error Handling', () => {
     });
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login required or handle gracefully
     const authMessage = page.locator('text=/login|sign in|unauthorized/i');
@@ -102,7 +102,7 @@ test.describe('Timeout Handling', () => {
     const loadingIndicator = page.locator('.loading, .skeleton, [data-loading="true"]');
     const hasLoading = await loadingIndicator.first().isVisible({ timeout: 2000 }).catch(() => false);
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('body')).toBeVisible();
   });
 });
@@ -114,7 +114,7 @@ test.describe('Timeout Handling', () => {
 test.describe('Offline Detection', () => {
   test('should detect when browser goes offline', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Simulate offline
     await context.setOffline(true);
@@ -132,7 +132,7 @@ test.describe('Offline Detection', () => {
 
   test('should recover when connection is restored', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go offline
     await context.setOffline(true);
@@ -160,7 +160,7 @@ test.describe('Offline Detection', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go offline
     await context.setOffline(true);
@@ -209,7 +209,7 @@ test.describe('Error Toast Notifications', () => {
 
     // Try to add a favorite
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const favoriteBtn = page.locator('button.favorite, .favorite-button, [data-action="favorite"]').first();
 
@@ -228,7 +228,7 @@ test.describe('Error Toast Notifications', () => {
   test('should auto-dismiss toast after timeout', async ({ page }) => {
     // This test checks that toasts disappear after a few seconds
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // If there's a toast, it should eventually disappear
     const toast = page.locator('.toast, .notification:visible');
@@ -255,7 +255,7 @@ test.describe('Graceful Degradation', () => {
     await page.route('**/*.{png,jpg,jpeg,webp}', route => route.abort());
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should still be functional with placeholder images
     await expect(page.locator('body')).toBeVisible();
@@ -285,7 +285,7 @@ test.describe('Graceful Degradation', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Empty state should be displayed
     const emptyState = page.locator('.empty-state, .no-results, text=/no results|no establishments/i');
@@ -319,7 +319,7 @@ test.describe('Retry Mechanisms', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Retry button should be available
     const retryBtn = page.locator('button:has-text("Retry"), button:has-text("Try Again")');
@@ -352,7 +352,7 @@ test.describe('Retry Mechanisms', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should eventually load (after retry)
     await expect(page.locator('body')).toBeVisible();
@@ -375,7 +375,7 @@ test.describe('Network Status Indicator', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Sync indicator may appear during data operations
     const syncIndicator = page.locator('.sync-indicator, .syncing, text=/syncing|saving/i');
@@ -391,7 +391,7 @@ test.describe('Network Status Indicator', () => {
     const loadingIndicator = page.locator('.loading-indicator, .skeleton, [aria-busy="true"]');
     const hasLoading = await loadingIndicator.first().isVisible({ timeout: 2000 }).catch(() => false);
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('body')).toBeVisible();
   });
 });

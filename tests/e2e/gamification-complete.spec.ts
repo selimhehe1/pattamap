@@ -33,7 +33,7 @@ test.describe('XP Progress Bar', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const progressBar = page.locator('.xp-progress, .progress-bar, [data-testid="xp-progress"]').first();
     const hasProgress = await progressBar.isVisible({ timeout: 5000 }).catch(() => false);
@@ -52,7 +52,7 @@ test.describe('XP Progress Bar', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const xpValue = page.locator('.xp-value, [data-testid="xp"], text=/\\d+\\s*XP/i').first();
     const hasXP = await xpValue.isVisible({ timeout: 5000 }).catch(() => false);
@@ -71,7 +71,7 @@ test.describe('XP Progress Bar', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nextLevel = page.locator('.xp-next, [data-testid="xp-next"], text=/next level|level \\d+/i').first();
     const hasNext = await nextLevel.isVisible({ timeout: 5000 }).catch(() => false);
@@ -90,7 +90,7 @@ test.describe('XP Progress Bar', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const level = page.locator('.level, [data-testid="level"], text=/level\\s*\\d+/i').first();
     const hasLevel = await level.isVisible({ timeout: 5000 }).catch(() => false);
@@ -133,7 +133,7 @@ test.describe('Level Up Animation', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Progress bar should have animation class
     const progressBar = page.locator('.xp-progress, .progress-bar');
@@ -159,7 +159,7 @@ test.describe('Badge Unlock', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const badges = page.locator('.badges, .badge-list, [data-testid="badges"]').first();
     const hasBadges = await badges.isVisible({ timeout: 5000 }).catch(() => false);
@@ -178,7 +178,7 @@ test.describe('Badge Unlock', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const lockedBadge = page.locator('.badge.locked, [data-badge-status="locked"]').first();
     const unlockedBadge = page.locator('.badge.unlocked, [data-badge-status="unlocked"]').first();
@@ -198,7 +198,7 @@ test.describe('Badge Unlock', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const badge = page.locator('.badge, [data-testid="badge"]').first();
 
@@ -230,7 +230,7 @@ test.describe('Missions Dashboard', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const missions = page.locator('.missions, .missions-list, [data-testid="missions"]').first();
     const hasMissions = await missions.isVisible({ timeout: 5000 }).catch(() => false);
@@ -249,7 +249,7 @@ test.describe('Missions Dashboard', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const dailyMissions = page.locator('.daily-missions, text=/daily/i, [data-mission-type="daily"]').first();
     const hasDaily = await dailyMissions.isVisible({ timeout: 5000 }).catch(() => false);
@@ -268,7 +268,7 @@ test.describe('Missions Dashboard', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const weeklyMissions = page.locator('.weekly-missions, text=/weekly/i, [data-mission-type="weekly"]').first();
     const hasWeekly = await weeklyMissions.isVisible({ timeout: 5000 }).catch(() => false);
@@ -293,7 +293,7 @@ test.describe('Mission Progress', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const progress = page.locator('.mission-progress, [data-testid="mission-progress"], text=/\\d+\\s*\\/\\s*\\d+/').first();
     const hasProgress = await progress.isVisible({ timeout: 5000 }).catch(() => false);
@@ -319,7 +319,7 @@ test.describe('Mission Progress', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -341,7 +341,7 @@ test.describe('Mission Completion', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const completedMission = page.locator('.mission.completed, [data-mission-status="completed"]').first();
     const hasCompleted = await completedMission.isVisible({ timeout: 5000 }).catch(() => false);
@@ -360,7 +360,7 @@ test.describe('Mission Completion', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const reward = page.locator('.mission-reward, [data-testid="mission-reward"], text=/reward|\\+\\d+\\s*XP/i').first();
     const hasReward = await reward.isVisible({ timeout: 5000 }).catch(() => false);
@@ -376,7 +376,7 @@ test.describe('Mission Completion', () => {
 test.describe('Leaderboard', () => {
   test('should display leaderboard', async ({ page }) => {
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const leaderboard = page.locator('.leaderboard, [data-testid="leaderboard"]').first();
     const hasLeaderboard = await leaderboard.isVisible({ timeout: 5000 }).catch(() => false);
@@ -386,7 +386,7 @@ test.describe('Leaderboard', () => {
 
   test('should show user rankings', async ({ page }) => {
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const rankings = page.locator('.ranking, .leaderboard-entry, [data-testid="ranking"]');
     const rankCount = await rankings.count();
@@ -406,7 +406,7 @@ test.describe('Leaderboard', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const monthlyFilter = page.locator('button:has-text("Monthly"), [data-period="monthly"]').first();
 
@@ -429,7 +429,7 @@ test.describe('Leaderboard', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const currentUser = page.locator('.leaderboard .current-user, .leaderboard .highlight').first();
     const hasHighlight = await currentUser.isVisible({ timeout: 5000 }).catch(() => false);
@@ -454,7 +454,7 @@ test.describe('Rewards Showcase', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const rewards = page.locator('.rewards, .rewards-showcase, [data-testid="rewards"]').first();
     const hasRewards = await rewards.isVisible({ timeout: 5000 }).catch(() => false);
@@ -473,7 +473,7 @@ test.describe('Rewards Showcase', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const rewardItems = page.locator('.reward-item, [data-testid="reward"]');
     const rewardCount = await rewardItems.count();
@@ -492,7 +492,7 @@ test.describe('Rewards Showcase', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const requirements = page.locator('.reward-requirements, text=/requires|unlock at/i').first();
     const hasRequirements = await requirements.isVisible({ timeout: 5000 }).catch(() => false);
@@ -517,7 +517,7 @@ test.describe('Streak System', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const streak = page.locator('.streak, [data-testid="streak"], text=/streak|day/i').first();
     const hasStreak = await streak.isVisible({ timeout: 5000 }).catch(() => false);
@@ -536,7 +536,7 @@ test.describe('Streak System', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const streakBonus = page.locator('.streak-bonus, text=/bonus|multiplier/i').first();
     const hasBonus = await streakBonus.isVisible({ timeout: 5000 }).catch(() => false);
@@ -552,7 +552,7 @@ test.describe('Streak System', () => {
 test.describe('Check-In XP', () => {
   test('should show check-in button on establishment', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click on an establishment
     const establishment = page.locator('.establishment-card, .marker').first();
@@ -583,7 +583,7 @@ test.describe('Check-In XP', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and click check-in
     const checkInBtn = page.locator('button:has-text("Check In")').first();

@@ -21,7 +21,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Employee Profile Claim', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test.describe('Claim Discovery', () => {
@@ -86,7 +86,7 @@ test.describe('Employee Profile Claim', () => {
         await page.fill('input[type="email"]', 'owner@test.com');
         await page.fill('input[type="password"]', 'password123');
         await page.click('button[type="submit"]');
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Go back to same employee
         await page.goto('/');
@@ -153,7 +153,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -188,7 +188,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -223,7 +223,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -256,7 +256,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -289,7 +289,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -344,11 +344,11 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Go to profile/dashboard
       await page.goto('/profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should see pending claims section
       const claimsSection = page.locator('[data-testid="my-claims"]')
@@ -366,7 +366,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should notify owner when employee claims profile', async ({ page }) => {
@@ -387,7 +387,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should show pending claim requests in owner dashboard', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimRequests = page.locator('[data-testid="claim-requests"]')
         .or(page.locator('[data-testid="pending-employee-claims"]'))
@@ -398,7 +398,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should display claim details with verification documents', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-request-item"]')
         .or(page.locator('[class*="claim-request"]'))
@@ -420,7 +420,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow owner to approve claim', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-request-item"]')
         .or(page.locator('[class*="claim-request"]'))
@@ -455,7 +455,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow owner to reject claim with reason', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-request-item"]')
         .or(page.locator('[class*="claim-request"]'))
@@ -498,7 +498,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow owner to request more information', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-request-item"]').first();
 
@@ -522,12 +522,12 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'admin@test.com');
       await page.fill('input[type="password"]', 'admin123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should show disputed claims in admin panel', async ({ page }) => {
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const disputedClaims = page.locator('[data-testid="disputed-claims"]')
         .or(page.locator('a:has-text("Disputed")'))
@@ -538,7 +538,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow admin to review and decide disputed claims', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const disputedClaim = page.locator('[data-testid="disputed-claim-item"]')
         .or(page.locator('tr:has-text("Disputed")'))
@@ -563,7 +563,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow admin to override owner rejection', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const rejectedClaim = page.locator('tr:has-text("Rejected")')
         .or(page.locator('[data-testid="rejected-claim"]'))
@@ -588,12 +588,12 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'claimed-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should allow employee to edit their own bio', async ({ page }) => {
       await page.goto('/my-profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const editBioButton = page.locator('[data-testid="edit-bio"]')
         .or(page.locator('button:has-text("Edit bio")'))
@@ -622,7 +622,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow employee to upload their own photos', async ({ page }) => {
       await page.goto('/my-profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const photoUpload = page.locator('[data-testid="photo-upload"]')
         .or(page.locator('input[type="file"][accept*="image"]'))
@@ -633,7 +633,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow employee to set their own availability', async ({ page }) => {
       await page.goto('/my-profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const availabilityToggle = page.locator('[data-testid="availability-toggle"]')
         .or(page.locator('input[type="checkbox"][name*="available"]'))
@@ -645,7 +645,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should show verified badge after claim approval', async ({ page }) => {
       await page.goto('/my-profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const verifiedBadge = page.locator('[data-testid="verified-badge"]')
         .or(page.locator('[class*="verified"]'))
@@ -676,12 +676,12 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should still see claimed employee in dashboard', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeesList = page.locator('[data-testid="my-employees"]')
         .or(page.locator('[class*="employee-list"]'));
@@ -697,7 +697,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should indicate which employees have claimed their profiles', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeeCard = page.locator('[data-testid="employee-card"]').first();
 
@@ -714,7 +714,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should allow owner to remove employee from establishment', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeeCard = page.locator('[data-testid="employee-card"]').first();
 
@@ -730,7 +730,7 @@ test.describe('Employee Profile Claim', () => {
 
     test('should NOT allow owner to edit claimed employee details', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimedEmployeeCard = page.locator('[data-testid="employee-card"]:has([class*="claimed"])')
         .or(page.locator('.employee-card:has(.verified)'))
@@ -759,7 +759,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'other-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -783,7 +783,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -814,7 +814,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/profile');
 
@@ -833,7 +833,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'rejected-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -860,7 +860,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'approved-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const notificationBell = page.locator('[data-testid="notification-bell"]')
         .or(page.locator('[aria-label*="notification"]'));
@@ -879,7 +879,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'rejected-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const notificationBell = page.locator('[data-testid="notification-bell"]')
         .or(page.locator('[aria-label*="notification"]'));
@@ -898,7 +898,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'pending-employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const notificationBell = page.locator('[data-testid="notification-bell"]')
         .or(page.locator('[aria-label*="notification"]'));
@@ -935,7 +935,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -971,7 +971,7 @@ test.describe('Employee Profile Claim', () => {
       await page.fill('input[type="email"]', 'employee@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 

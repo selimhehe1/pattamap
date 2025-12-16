@@ -21,7 +21,7 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('Text Search', () => {
   test('should have search input', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"], input[placeholder*="Search"]').first();
 
@@ -30,7 +30,7 @@ test.describe('Text Search', () => {
 
   test('should search by name', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"], input[placeholder*="Search"]').first();
 
@@ -46,7 +46,7 @@ test.describe('Text Search', () => {
 
   test('should show search suggestions', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"]').first();
 
@@ -64,7 +64,7 @@ test.describe('Text Search', () => {
 
   test('should clear search on X click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"]').first();
 
@@ -86,7 +86,7 @@ test.describe('Text Search', () => {
 
   test('should search in real-time', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"]').first();
 
@@ -107,7 +107,7 @@ test.describe('Text Search', () => {
 test.describe('Category Filters', () => {
   test('should display category filter options', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for category filters
     const categoryFilter = page.locator('[data-testid="category-filter"], .category-filter, select[name="category"]').first();
@@ -118,7 +118,7 @@ test.describe('Category Filters', () => {
 
   test('should filter by GoGo bar category', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const gogoFilter = page.locator('button:has-text("GoGo"), [data-category="gogo"], label:has-text("GoGo")').first();
 
@@ -133,7 +133,7 @@ test.describe('Category Filters', () => {
 
   test('should filter by Beer bar category', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const beerBarFilter = page.locator('button:has-text("Beer Bar"), [data-category="beer-bar"]').first();
 
@@ -147,7 +147,7 @@ test.describe('Category Filters', () => {
 
   test('should filter by Nightclub category', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nightclubFilter = page.locator('button:has-text("Nightclub"), [data-category="nightclub"]').first();
 
@@ -161,7 +161,7 @@ test.describe('Category Filters', () => {
 
   test('should allow multiple category selection', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const category1 = page.locator('[data-category]:not(.active)').first();
     const category2 = page.locator('[data-category]:not(.active)').nth(1);
@@ -188,7 +188,7 @@ test.describe('Category Filters', () => {
 test.describe('Location Filters', () => {
   test('should display zone filter options', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for zone/location filters
     const zoneFilter = page.locator('[data-testid="zone-filter"], .zone-filter, select[name="zone"]').first();
@@ -198,7 +198,7 @@ test.describe('Location Filters', () => {
 
   test('should filter by Walking Street zone', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const walkingStreetFilter = page.locator('button:has-text("Walking Street"), [data-zone="walking-street"]').first();
 
@@ -212,7 +212,7 @@ test.describe('Location Filters', () => {
 
   test('should filter by Soi Buakhao zone', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const soiBuakhaoFilter = page.locator('button:has-text("Soi Buakhao"), [data-zone="soi-buakhao"]').first();
 
@@ -226,7 +226,7 @@ test.describe('Location Filters', () => {
 
   test('should filter by map viewport', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Pan/zoom the map
     const map = page.locator('.leaflet-container, canvas, [data-testid="map"]').first();
@@ -249,7 +249,7 @@ test.describe('Location Filters', () => {
 
   test('should have "Near Me" filter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nearMeFilter = page.locator('button:has-text("Near Me"), button:has-text("My Location")').first();
 
@@ -265,7 +265,7 @@ test.describe('Location Filters', () => {
 test.describe('Rating Filters', () => {
   test('should display rating filter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const ratingFilter = page.locator('[data-testid="rating-filter"], .rating-filter, input[name="rating"]').first();
 
@@ -274,7 +274,7 @@ test.describe('Rating Filters', () => {
 
   test('should filter by minimum rating', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const rating4Stars = page.locator('button:has-text("4+"), [data-rating="4"]').first();
 
@@ -289,7 +289,7 @@ test.describe('Rating Filters', () => {
 
   test('should filter by VIP verified', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipFilter = page.locator('button:has-text("VIP"), [data-filter="vip"], label:has-text("VIP")').first();
 
@@ -309,7 +309,7 @@ test.describe('Rating Filters', () => {
 test.describe('Availability Filters', () => {
   test('should filter by open now', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const openNowFilter = page.locator('button:has-text("Open Now"), [data-filter="open"], label:has-text("Open")').first();
 
@@ -324,7 +324,7 @@ test.describe('Availability Filters', () => {
 
   test('should filter by employee availability', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const availableFilter = page.locator('button:has-text("Available"), [data-filter="available"]').first();
 
@@ -344,7 +344,7 @@ test.describe('Availability Filters', () => {
 test.describe('Combined Filters', () => {
   test('should apply multiple filters', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Apply category filter
     const categoryFilter = page.locator('[data-category]').first();
@@ -366,7 +366,7 @@ test.describe('Combined Filters', () => {
 
   test('should show filter count badge', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Apply some filters
     const filter = page.locator('[data-category], [data-zone]').first();
@@ -384,7 +384,7 @@ test.describe('Combined Filters', () => {
 
   test('should show applied filters summary', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
@@ -407,7 +407,7 @@ test.describe('Combined Filters', () => {
 test.describe('Filter Persistence', () => {
   test('should persist filters in URL', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
@@ -424,7 +424,7 @@ test.describe('Filter Persistence', () => {
   test('should restore filters from URL', async ({ page }) => {
     // Navigate with filter params
     await page.goto('/?category=gogo');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Filters should be applied
     await expect(page.locator('body')).toBeVisible();
@@ -432,7 +432,7 @@ test.describe('Filter Persistence', () => {
 
   test('should persist filters on refresh', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
@@ -441,7 +441,7 @@ test.describe('Filter Persistence', () => {
 
       // Refresh page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Filters may or may not persist
       await expect(page.locator('body')).toBeVisible();
@@ -456,7 +456,7 @@ test.describe('Filter Persistence', () => {
 test.describe('Clear Filters', () => {
   test('should have clear all filters button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Apply a filter first
     const filter = page.locator('[data-category]').first();
@@ -474,7 +474,7 @@ test.describe('Clear Filters', () => {
 
   test('should clear all filters on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
@@ -495,7 +495,7 @@ test.describe('Clear Filters', () => {
 
   test('should remove individual filter chip', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
@@ -527,7 +527,7 @@ test.describe('Mobile Filters', () => {
 
   test('should have filter button on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filterBtn = page.locator('button:has-text("Filter"), button[aria-label*="filter"]').first();
 
@@ -536,7 +536,7 @@ test.describe('Mobile Filters', () => {
 
   test('should open filter panel on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filterBtn = page.locator('button:has-text("Filter"), button[aria-label*="filter"]').first();
 
@@ -554,7 +554,7 @@ test.describe('Mobile Filters', () => {
 
   test('should close filter panel after applying', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filterBtn = page.locator('button:has-text("Filter")').first();
 
@@ -576,7 +576,7 @@ test.describe('Mobile Filters', () => {
 
   test('should show filter count on mobile button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filterBtn = page.locator('button:has-text("Filter")').first();
 
@@ -611,7 +611,7 @@ test.describe('Mobile Filters', () => {
 test.describe('Sort Options', () => {
   test('should have sort dropdown', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortDropdown = page.locator('select[name="sort"], [data-testid="sort"], button:has-text("Sort")').first();
 
@@ -620,7 +620,7 @@ test.describe('Sort Options', () => {
 
   test('should sort by rating', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortByRating = page.locator('option[value="rating"], button:has-text("Rating")').first();
 
@@ -634,7 +634,7 @@ test.describe('Sort Options', () => {
 
   test('should sort by distance', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortByDistance = page.locator('option[value="distance"], button:has-text("Distance")').first();
 
@@ -648,7 +648,7 @@ test.describe('Sort Options', () => {
 
   test('should sort by name', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortByName = page.locator('option[value="name"], button:has-text("Name")').first();
 

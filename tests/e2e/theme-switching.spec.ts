@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Theme Switching', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test.describe('Theme Toggle Button', () => {
@@ -39,7 +39,7 @@ test.describe('Theme Switching', () => {
         document.body.setAttribute('data-theme', 'dark');
       });
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await openMenuIfNeeded(page);
 
       // In dark mode, "Light Mode" button is shown (to switch to light)
@@ -57,7 +57,7 @@ test.describe('Theme Switching', () => {
         document.body.setAttribute('data-theme', 'light');
       });
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await openMenuIfNeeded(page);
 
       // In light mode, "Dark Mode" button is shown (to switch to dark)
@@ -184,7 +184,7 @@ test.describe('Theme Switching', () => {
 
       // Reload page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify theme was restored
       const isLight = await page.evaluate(() =>
@@ -209,7 +209,7 @@ test.describe('Theme Switching', () => {
 
       if (await searchLink.first().isVisible()) {
         await searchLink.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Verify theme is still dark
         const isDark = await page.evaluate(() =>
@@ -229,7 +229,7 @@ test.describe('Theme Switching', () => {
       // Open new page in same context
       const newPage = await context.newPage();
       await newPage.goto('/');
-      await newPage.waitForLoadState('networkidle');
+      await newPage.waitForLoadState('domcontentloaded');
 
       // Verify theme persists
       const isDark = await newPage.evaluate(() =>

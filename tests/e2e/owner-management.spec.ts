@@ -24,7 +24,7 @@ test.describe('Owner Management Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Start at homepage
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should navigate to login page', async ({ page }) => {

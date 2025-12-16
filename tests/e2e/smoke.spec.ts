@@ -16,7 +16,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // ========================================
   test('homepage loads correctly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // App should render without crashing
     await expect(page.locator('body')).toBeVisible();
@@ -31,7 +31,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // ========================================
   test('main navigation is accessible', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should be able to navigate (map or list view should exist)
     const mainContent = page.locator('main')
@@ -46,7 +46,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // ========================================
   test('search page is accessible', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Search page should load
     const searchInput = page.locator('input[type="search"], input[placeholder*="Search"], input[placeholder*="search"]');
@@ -81,7 +81,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     // App should not have any uncaught exceptions
@@ -94,7 +94,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   test('login functionality is accessible', async ({ page }) => {
     // Try to access a protected route or login page
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should either show login form or redirect
     const pageContent = await page.content();
@@ -112,7 +112,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // ========================================
   test('zone selection is functional', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should load without crashing
     const bodyVisible = await page.locator('body').isVisible();

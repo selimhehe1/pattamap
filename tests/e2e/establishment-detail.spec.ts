@@ -37,7 +37,7 @@ test.describe('Establishment Page Load', () => {
       }
     }
 
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('body')).toBeVisible();
   });
 
@@ -46,7 +46,7 @@ test.describe('Establishment Page Load', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const name = page.locator('h1, .establishment-name, [data-testid="establishment-name"]').first();
       await expect(name).toBeVisible({ timeout: 5000 });
@@ -58,7 +58,7 @@ test.describe('Establishment Page Load', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const category = page.locator('.category, .badge, [data-testid="category"]').first();
       const hasCategory = await category.isVisible({ timeout: 5000 }).catch(() => false);
@@ -72,7 +72,7 @@ test.describe('Establishment Page Load', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const address = page.locator('.address, [data-testid="address"], text=/Soi|Street|Road/i').first();
       const hasAddress = await address.isVisible({ timeout: 5000 }).catch(() => false);
@@ -86,7 +86,7 @@ test.describe('Establishment Page Load', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const hours = page.locator('.opening-hours, [data-testid="hours"], text=/\\d{1,2}:\\d{2}/').first();
       const hasHours = await hours.isVisible({ timeout: 5000 }).catch(() => false);
@@ -106,7 +106,7 @@ test.describe('Tab Navigation', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const tabs = page.locator('[role="tablist"], .tabs, .tab-navigation');
       const hasTabs = await tabs.first().isVisible({ timeout: 5000 }).catch(() => false);
@@ -120,7 +120,7 @@ test.describe('Tab Navigation', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls"), [role="tab"]:has-text("Employees")').first();
 
@@ -140,7 +140,7 @@ test.describe('Tab Navigation', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewsTab = page.locator('button:has-text("Reviews"), [role="tab"]:has-text("Reviews")').first();
 
@@ -160,7 +160,7 @@ test.describe('Tab Navigation', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const activeTab = page.locator('[role="tab"][aria-selected="true"], .tab.active, .tab-button.active').first();
       const hasActive = await activeTab.isVisible({ timeout: 5000 }).catch(() => false);
@@ -180,7 +180,7 @@ test.describe('Photo Gallery', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const gallery = page.locator('.photo-gallery, .gallery, [data-testid="gallery"], img').first();
       await expect(gallery).toBeVisible({ timeout: 5000 });
@@ -192,7 +192,7 @@ test.describe('Photo Gallery', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const galleryImage = page.locator('.gallery img, [data-testid="gallery-image"]').first();
 
@@ -214,7 +214,7 @@ test.describe('Photo Gallery', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const nextButton = page.locator('.gallery-next, button[aria-label*="next" i], .carousel-next').first();
 
@@ -233,7 +233,7 @@ test.describe('Photo Gallery', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const galleryImage = page.locator('.gallery img').first();
 
@@ -261,7 +261,7 @@ test.describe('Employee Cards', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Switch to employees tab if needed
       const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
@@ -283,7 +283,7 @@ test.describe('Employee Cards', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeeCard = page.locator('.employee-card, .girl-card').first();
 
@@ -303,7 +303,7 @@ test.describe('Employee Cards', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const employeePhoto = page.locator('.employee-card img, .girl-card img').first();
       const hasPhoto = await employeePhoto.isVisible({ timeout: 5000 }).catch(() => false);
@@ -323,7 +323,7 @@ test.describe('Reviews Section', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Switch to reviews tab if needed
       const reviewsTab = page.locator('button:has-text("Reviews")').first();
@@ -345,7 +345,7 @@ test.describe('Reviews Section', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const rating = page.locator('.review-rating, .stars, [data-testid="rating"]').first();
       const hasRating = await rating.isVisible({ timeout: 5000 }).catch(() => false);
@@ -359,7 +359,7 @@ test.describe('Reviews Section', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for pagination
       const pagination = page.locator('.pagination, [data-testid="pagination"], button:has-text("Next")');
@@ -390,7 +390,7 @@ test.describe('Add Review', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const addReviewBtn = page.locator('button:has-text("Add Review"), button:has-text("Write Review")').first();
       const hasButton = await addReviewBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -413,7 +413,7 @@ test.describe('Add Review', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const addReviewBtn = page.locator('button:has-text("Add Review"), button:has-text("Write Review")').first();
 
@@ -433,7 +433,7 @@ test.describe('Add Review', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const addReviewBtn = page.locator('button:has-text("Add Review")').first();
 
@@ -461,7 +461,7 @@ test.describe('Favorite Toggle', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const favoriteBtn = page.locator('[data-testid="favorite-button"], .favorite-btn, button[aria-label*="favorite" i]').first();
       const hasFavorite = await favoriteBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -484,7 +484,7 @@ test.describe('Favorite Toggle', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const favoriteBtn = page.locator('[data-testid="favorite-button"], .favorite-btn').first();
 
@@ -509,7 +509,7 @@ test.describe('Share Button', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const shareBtn = page.locator('button:has-text("Share"), button[aria-label*="share" i], [data-testid="share-button"]').first();
       const hasShare = await shareBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -523,7 +523,7 @@ test.describe('Share Button', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const shareBtn = page.locator('button:has-text("Share"), [data-testid="share-button"]').first();
 
@@ -560,7 +560,7 @@ test.describe('Edit Button', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const editBtn = page.locator('button:has-text("Edit"), [data-testid="edit-establishment"]').first();
       const hasEdit = await editBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -591,7 +591,7 @@ test.describe('Claim Ownership', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimBtn = page.locator('button:has-text("Claim"), button:has-text("Request Ownership"), [data-testid="claim-ownership"]').first();
       const hasClaim = await claimBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -614,7 +614,7 @@ test.describe('Claim Ownership', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimBtn = page.locator('button:has-text("Claim"), button:has-text("Request Ownership")').first();
 
@@ -645,7 +645,7 @@ test.describe('Mobile Detail Page', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Content should be visible and properly sized
       const content = page.locator('main, .content, .establishment-detail');
@@ -662,7 +662,7 @@ test.describe('Mobile Detail Page', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const buttons = page.locator('button:visible');
       const buttonCount = await buttons.count();

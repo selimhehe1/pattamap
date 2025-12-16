@@ -24,7 +24,7 @@ import { generateTestUser, registerUser, loginUser, TestUser } from './fixtures/
 test.describe('Dashboard Access', () => {
   test('should require login for dashboard', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal or redirect to login
     const loginModal = page.locator('text="Welcome Back", text="Sign in"').first();
@@ -45,7 +45,7 @@ test.describe('Dashboard Access', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Dashboard should be accessible
     const dashboard = page.locator('.dashboard, [data-testid="dashboard"], h1:has-text("Dashboard")').first();
@@ -56,7 +56,7 @@ test.describe('Dashboard Access', () => {
     const testUser = generateTestUser();
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     try {
       // Fill login form
@@ -95,7 +95,7 @@ test.describe('Profile Info', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const pseudonym = page.locator('.username, .pseudonym, [data-testid="username"]').first();
     await expect(pseudonym).toBeVisible({ timeout: 5000 });
@@ -110,7 +110,7 @@ test.describe('Profile Info', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const email = page.locator('.email, [data-testid="email"], text=/@/').first();
     const hasEmail = await email.isVisible({ timeout: 5000 }).catch(() => false);
@@ -127,7 +127,7 @@ test.describe('Profile Info', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const accountType = page.locator('.account-type, [data-testid="account-type"], text=/regular|employee|owner/i').first();
     const hasType = await accountType.isVisible({ timeout: 5000 }).catch(() => false);
@@ -144,7 +144,7 @@ test.describe('Profile Info', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const avatar = page.locator('.avatar, [data-testid="avatar"], .user-avatar').first();
     const hasAvatar = await avatar.isVisible({ timeout: 5000 }).catch(() => false);
@@ -169,7 +169,7 @@ test.describe('Statistics Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const reviewsCount = page.locator('.stat-reviews, [data-testid="reviews-count"], text=/reviews|comments/i').first();
     const hasCount = await reviewsCount.isVisible({ timeout: 5000 }).catch(() => false);
@@ -188,7 +188,7 @@ test.describe('Statistics Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const favoritesCount = page.locator('.stat-favorites, [data-testid="favorites-count"], text=/favorites/i').first();
     const hasCount = await favoritesCount.isVisible({ timeout: 5000 }).catch(() => false);
@@ -207,7 +207,7 @@ test.describe('Statistics Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const xpDisplay = page.locator('.xp, [data-testid="xp"], text=/XP|Level/i').first();
     const hasXP = await xpDisplay.isVisible({ timeout: 5000 }).catch(() => false);
@@ -232,7 +232,7 @@ test.describe('Linked Employee Profile', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const linkedProfile = page.locator('.linked-profile, [data-testid="linked-employee"], text=/linked profile|your profile/i').first();
     const hasLinked = await linkedProfile.isVisible({ timeout: 5000 }).catch(() => false);
@@ -251,7 +251,7 @@ test.describe('Linked Employee Profile', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const claimOption = page.locator('button:has-text("Claim"), button:has-text("Link Profile")').first();
     const hasClaim = await claimOption.isVisible({ timeout: 5000 }).catch(() => false);
@@ -276,7 +276,7 @@ test.describe('Edit Profile', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit Profile"), button:has-text("Edit"), [data-testid="edit-profile"]').first();
     await expect(editBtn).toBeVisible({ timeout: 5000 });
@@ -293,7 +293,7 @@ test.describe('Edit Profile', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit Profile"), button:has-text("Edit")').first();
 
@@ -317,7 +317,7 @@ test.describe('Edit Profile', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit Profile")').first();
 
@@ -360,7 +360,7 @@ test.describe('My Establishments', () => {
     }
 
     await page.goto('/my-establishments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -376,7 +376,7 @@ test.describe('My Establishments', () => {
     }
 
     await page.goto('/my-establishments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emptyState = page.locator('.empty-state, text=/no establishments|you don.t own/i').first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
@@ -395,7 +395,7 @@ test.describe('My Establishments', () => {
     }
 
     await page.goto('/my-establishments');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add"), button:has-text("Request Ownership")').first();
     const hasAdd = await addBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -420,7 +420,7 @@ test.describe('My Achievements', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -436,7 +436,7 @@ test.describe('My Achievements', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const badges = page.locator('.badges, .badge-list, [data-testid="badges"]').first();
     const hasBadges = await badges.isVisible({ timeout: 5000 }).catch(() => false);
@@ -455,7 +455,7 @@ test.describe('My Achievements', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const xpProgress = page.locator('.xp-progress, .progress-bar, [data-testid="xp-progress"]').first();
     const hasProgress = await xpProgress.isVisible({ timeout: 5000 }).catch(() => false);
@@ -480,7 +480,7 @@ test.describe('Visit History', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -496,7 +496,7 @@ test.describe('Visit History', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emptyState = page.locator('.empty-state, text=/no visits|haven.t visited/i').first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
@@ -521,7 +521,7 @@ test.describe('Ownership Requests', () => {
     }
 
     await page.goto('/my-ownership-requests');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -537,7 +537,7 @@ test.describe('Ownership Requests', () => {
     }
 
     await page.goto('/my-ownership-requests');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // May show empty state or list of requests
     await expect(page.locator('body')).toBeVisible();
@@ -560,7 +560,7 @@ test.describe('User Settings', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const settingsLink = page.locator('a:has-text("Settings"), button:has-text("Settings")').first();
     const hasSettings = await settingsLink.isVisible({ timeout: 5000 }).catch(() => false);
@@ -579,7 +579,7 @@ test.describe('User Settings', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const notificationSettings = page.locator('.notification-settings, [data-testid="notification-prefs"]').first();
     const hasNotificationSettings = await notificationSettings.isVisible({ timeout: 5000 }).catch(() => false);

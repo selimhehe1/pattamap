@@ -23,7 +23,7 @@ const TEST_OWNER = {
 // Helper to login as owner
 async function loginAsOwner(page: Page) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[type="email"]').first().fill(TEST_OWNER.email);
   await page.locator('input[type="password"]').first().fill(TEST_OWNER.password);
   await page.locator('button[type="submit"]').first().click();

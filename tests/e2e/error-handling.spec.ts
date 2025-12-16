@@ -20,7 +20,7 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('404 Page Not Found', () => {
   test('should display 404 page for non-existent route', async ({ page }) => {
     await page.goto('/this-page-does-not-exist-12345');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show 404 page or redirect
     const is404 = page.locator('text=/404|not found|page not found/i').first();
@@ -32,7 +32,7 @@ test.describe('404 Page Not Found', () => {
 
   test('should have link back to home on 404 page', async ({ page }) => {
     await page.goto('/non-existent-page');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for home link
     const homeLink = page.locator('a[href="/"], a:has-text("Home"), a:has-text("Back")').first();
@@ -51,7 +51,7 @@ test.describe('404 Page Not Found', () => {
 
   test('should handle 404 for non-existent employee', async ({ page }) => {
     await page.goto('/employee/non-existent-id-12345');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show error or redirect
     const errorMessage = page.locator('text=/not found|does not exist|error/i').first();
@@ -61,7 +61,7 @@ test.describe('404 Page Not Found', () => {
 
   test('should handle 404 for non-existent establishment', async ({ page }) => {
     await page.goto('/establishment/non-existent-id-12345');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show error or redirect
     await expect(page.locator('body')).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('404 Page Not Found', () => {
 test.describe('Network Errors', () => {
   test('should handle offline mode', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go offline
     await context.setOffline(true);
@@ -93,7 +93,7 @@ test.describe('Network Errors', () => {
 
   test('should recover when coming back online', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go offline then online
     await context.setOffline(true);
@@ -103,7 +103,7 @@ test.describe('Network Errors', () => {
 
     // Refresh and check
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -150,7 +150,7 @@ test.describe('API Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should still be usable
     await expect(page.locator('body')).toBeVisible();
@@ -165,7 +165,7 @@ test.describe('API Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show maintenance message or cached data
     await expect(page.locator('body')).toBeVisible();
@@ -180,7 +180,7 @@ test.describe('API Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should not crash
     await expect(page.locator('body')).toBeVisible();
@@ -199,7 +199,7 @@ test.describe('API Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     // May or may not implement retry logic
@@ -214,7 +214,7 @@ test.describe('API Errors', () => {
 test.describe('Form Validation Errors', () => {
   test('should display validation errors inline', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to submit empty form
     const submitBtn = page.locator('button:has-text("Sign In")').first();
@@ -232,7 +232,7 @@ test.describe('Form Validation Errors', () => {
 
   test('should clear errors when input is corrected', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const submitBtn = page.locator('button:has-text("Sign In")').first();
@@ -253,7 +253,7 @@ test.describe('Form Validation Errors', () => {
 
   test('should not submit form with validation errors', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const submitBtn = page.locator('button:has-text("Sign In")').first();
 
@@ -270,7 +270,7 @@ test.describe('Form Validation Errors', () => {
 
   test('should show server-side validation errors', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -297,7 +297,7 @@ test.describe('Form Validation Errors', () => {
 test.describe('Session Expiration', () => {
   test('should handle expired session', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Clear session storage/cookies
     await page.evaluate(() => {
@@ -308,7 +308,7 @@ test.describe('Session Expiration', () => {
 
     // Try to access protected route
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should redirect to login
     const loginModal = page.locator('text="Welcome Back"').first();
@@ -324,7 +324,7 @@ test.describe('Session Expiration', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login or redirect
     await expect(page.locator('body')).toBeVisible();
@@ -332,7 +332,7 @@ test.describe('Session Expiration', () => {
 
   test('should preserve intended destination after re-login', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Note the intended URL
     // After login, should return to /dashboard
@@ -355,7 +355,7 @@ test.describe('Rate Limiting', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show rate limit message
     await expect(page.locator('body')).toBeVisible();
@@ -373,7 +373,7 @@ test.describe('Rate Limiting', () => {
     });
 
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for rate limit message
     const rateLimitMsg = page.locator('text=/too many|rate limit|try again/i').first();
@@ -398,7 +398,7 @@ test.describe('Server Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should not show raw error, should be user-friendly
     await expect(page.locator('body')).toBeVisible();
@@ -417,7 +417,7 @@ test.describe('Server Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should not show stack traces or SQL queries in UI
     const pageContent = await page.content();
@@ -438,7 +438,7 @@ test.describe('Server Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should still be functional
     await expect(page.locator('body')).toBeVisible();
@@ -462,14 +462,14 @@ test.describe('Error Recovery', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Now fix the API
     shouldFail = false;
 
     // Refresh should work
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -480,7 +480,7 @@ test.describe('Error Recovery', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for retry button
     const retryBtn = page.locator('button:has-text("Retry"), button:has-text("Try Again")').first();
@@ -503,7 +503,7 @@ test.describe('Error Recovery', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Errors should be logged (for debugging) but not shown to user
     await expect(page.locator('body')).toBeVisible();
@@ -522,7 +522,7 @@ test.describe('Mobile Error Handling', () => {
 
   test('should display errors properly on mobile', async ({ page }) => {
     await page.goto('/non-existent-page');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Error page should be readable on mobile
     await expect(page.locator('body')).toBeVisible();
@@ -530,7 +530,7 @@ test.describe('Mobile Error Handling', () => {
 
   test('should handle offline on mobile', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await context.setOffline(true);
     await page.goto('/search').catch(() => {});

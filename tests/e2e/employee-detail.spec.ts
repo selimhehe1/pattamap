@@ -25,7 +25,7 @@ import { getExistingEmployee } from './fixtures/employeeData';
 test.describe('Profile Modal Open', () => {
   test('should open profile modal on employee card click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Switch to employees view
     const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
@@ -48,7 +48,7 @@ test.describe('Profile Modal Open', () => {
 
   test('should close profile modal on X click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card, .girl-card').first();
 
@@ -71,7 +71,7 @@ test.describe('Profile Modal Open', () => {
 
   test('should close profile modal on Escape', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -94,7 +94,7 @@ test.describe('Profile Modal Open', () => {
 test.describe('Employee Photo Gallery', () => {
   test('should display employee photos', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -112,7 +112,7 @@ test.describe('Employee Photo Gallery', () => {
 
   test('should navigate photos with arrows', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -133,7 +133,7 @@ test.describe('Employee Photo Gallery', () => {
 
   test('should display photo count', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -157,7 +157,7 @@ test.describe('Employee Photo Gallery', () => {
 test.describe('Employee Basic Info', () => {
   test('should display employee name', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -173,7 +173,7 @@ test.describe('Employee Basic Info', () => {
 
   test('should display employee age', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -191,7 +191,7 @@ test.describe('Employee Basic Info', () => {
 
   test('should display employee nationality', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -209,7 +209,7 @@ test.describe('Employee Basic Info', () => {
 
   test('should display employee bio', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -231,7 +231,7 @@ test.describe('Employee Basic Info', () => {
 test.describe('Employee Work Info', () => {
   test('should display linked establishment', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -250,7 +250,7 @@ test.describe('Employee Work Info', () => {
 
   test('should indicate freelance status', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const freelanceCard = page.locator('.employee-card, .freelance-card').first();
 
@@ -274,7 +274,7 @@ test.describe('Employee Work Info', () => {
 test.describe('Verification Badge', () => {
   test('should display verification badge if verified', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -292,7 +292,7 @@ test.describe('Verification Badge', () => {
 
   test('should show verification tooltip on hover', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -320,7 +320,7 @@ test.describe('Verification Badge', () => {
 test.describe('Contact Buttons', () => {
   test('should display social media links', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -338,7 +338,7 @@ test.describe('Contact Buttons', () => {
 
   test('should open social link in new tab', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -357,7 +357,7 @@ test.describe('Contact Buttons', () => {
 
   test('should display LINE ID if available', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -379,7 +379,7 @@ test.describe('Contact Buttons', () => {
 test.describe('Employee Reviews', () => {
   test('should display employee reviews', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -397,7 +397,7 @@ test.describe('Employee Reviews', () => {
 
   test('should display average rating', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -428,7 +428,7 @@ test.describe('Add Employee Review', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -454,7 +454,7 @@ test.describe('Add Employee Review', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -483,7 +483,7 @@ test.describe('Add Employee Review', () => {
 test.describe('Report Button', () => {
   test('should display report button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -501,7 +501,7 @@ test.describe('Report Button', () => {
 
   test('should open report modal on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -538,7 +538,7 @@ test.describe('Claim Profile', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -565,7 +565,7 @@ test.describe('Claim Profile', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -599,7 +599,7 @@ test.describe('Mobile Profile', () => {
 
   test('should display mobile-friendly profile modal', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -619,7 +619,7 @@ test.describe('Mobile Profile', () => {
 
   test('should have swipeable photo gallery on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeeCard = page.locator('.employee-card').first();
 

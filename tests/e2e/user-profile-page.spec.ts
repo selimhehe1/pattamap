@@ -32,7 +32,7 @@ test.describe('Profile Loading', () => {
   test('should display error for non-existent user', async ({ page }) => {
     // Navigate to a non-existent profile
     await page.goto('/profile/non-existent-user-id-12345');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show error message
     const errorMessage = page.locator('.profile-error, text="User not found", text="not found"');
@@ -59,7 +59,7 @@ test.describe('Profile Loading', () => {
 
     if (userId) {
       await page.goto(`/profile/${userId}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should display username
       const username = page.locator('.profile-username, .profile-info h1');
@@ -85,7 +85,7 @@ test.describe('Profile Information Display', () => {
 
     // Navigate to own profile or any profile
     await page.goto('/achievements'); // Achievements page shows similar stats
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for stats cards
     const statsGrid = page.locator('.profile-stats-grid, .stats-grid, .gamification-stats');
@@ -105,7 +105,7 @@ test.describe('Profile Information Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // XP progress bar should be visible
     const xpBar = page.locator('.xp-progress-bar, .progress-bar, [data-testid="xp-bar"]');
@@ -125,7 +125,7 @@ test.describe('Profile Information Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Level display should be visible
     const levelBadge = page.locator('.profile-level-badge, .level-badge, text=/Lv\\.\\d+/');
@@ -145,7 +145,7 @@ test.describe('Profile Information Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Member since should be displayed somewhere
     const memberSince = page.locator('text=/Member since|Joined/i');
@@ -178,7 +178,7 @@ test.describe('Follow Button', () => {
 
     if (userId) {
       await page.goto(`/profile/${userId}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Follow button should NOT be visible on own profile
       const followBtn = page.locator('button:has-text("Follow"), .follow-button');
@@ -201,7 +201,7 @@ test.describe('Follow Button', () => {
 
     // Navigate to search to find another user
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for employee cards that could lead to profiles
     const employeeCard = page.locator('.employee-card, .user-card, .profile-card').first();
@@ -229,7 +229,7 @@ test.describe('Follow Button', () => {
     }
 
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and click an employee card
     const employeeCard = page.locator('.employee-card').first();
@@ -268,7 +268,7 @@ test.describe('Badge Showcase', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Badge section or tab should be visible
     const badgeSection = page.locator('.badge-showcase, .badges-section, text="Badges"');
@@ -288,7 +288,7 @@ test.describe('Badge Showcase', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Badge count should be displayed
     const badgeCount = page.locator('text=/Badges \\(\\d+\\)/, .badges-count');
@@ -314,7 +314,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Total XP stat should be visible
     const totalXp = page.locator('text=/Total XP|XP total/i, .stat-card:has-text("XP")');
@@ -334,7 +334,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Streak stat should be visible
     const streakStat = page.locator('text=/Streak|streak/i, .stat-card:has-text("Streak")');
@@ -354,7 +354,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Follower/Following counts may be displayed
     const followers = page.locator('text=/Followers|Following/i');
@@ -374,7 +374,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/achievements');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click on Leaderboard tab if available
     const leaderboardTab = page.locator('button:has-text("Leaderboard"), [data-tab="leaderboard"]').first();

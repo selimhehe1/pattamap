@@ -116,7 +116,7 @@ async function setupAuthState(
     }
 
     // Navigate to app to establish frontend state
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
+    await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
 
     // Store CSRF token and user data in localStorage if available
     if (loginResponse.data.csrfToken) {

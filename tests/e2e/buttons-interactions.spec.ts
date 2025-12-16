@@ -25,7 +25,7 @@ import { getExistingEstablishment } from './fixtures/establishmentData';
 test.describe('Basic Button Interactions', () => {
   test('should respond to click events', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const buttons = page.locator('button:visible');
     const buttonCount = await buttons.count();
@@ -43,7 +43,7 @@ test.describe('Basic Button Interactions', () => {
 
   test('should show hover state on buttons', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -58,7 +58,7 @@ test.describe('Basic Button Interactions', () => {
 
   test('should handle disabled buttons correctly', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for any disabled button
     const disabledButton = page.locator('button[disabled], button:disabled').first();
@@ -71,7 +71,7 @@ test.describe('Basic Button Interactions', () => {
 
   test('should display loading spinner on async buttons', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for forms with submit buttons
     const submitButton = page.locator('button[type="submit"]').first();
@@ -96,7 +96,7 @@ test.describe('Favorite Button', () => {
 
   test('should display favorite button on employee card', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Switch to employees view if available
     const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
@@ -121,7 +121,7 @@ test.describe('Favorite Button', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find a favorite button
     const favoriteBtn = page.locator('[data-testid="favorite-button"], .favorite-btn, button[aria-label*="favorite" i]').first();
@@ -141,7 +141,7 @@ test.describe('Favorite Button', () => {
 
   test('should show heart icon on favorite button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const heartIcon = page.locator('.favorite-btn svg, [data-testid="favorite-button"] svg, button[aria-label*="favorite"] svg').first();
     const hasIcon = await heartIcon.isVisible({ timeout: 5000 }).catch(() => false);
@@ -159,7 +159,7 @@ test.describe('Favorite Button', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const favoriteBtn = page.locator('[data-testid="favorite-button"]').first();
 
@@ -170,7 +170,7 @@ test.describe('Favorite Button', () => {
 
       // Reload page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Favorite state should persist
       await expect(page.locator('body')).toBeVisible();
@@ -185,7 +185,7 @@ test.describe('Favorite Button', () => {
 test.describe('Follow Button', () => {
   test('should display follow button on profiles', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const followBtn = page.locator('button:has-text("Follow"), [data-testid="follow-button"]').first();
     const hasFollowBtn = await followBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -205,7 +205,7 @@ test.describe('Follow Button', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const followBtn = page.locator('button:has-text("Follow")').first();
 
@@ -234,7 +234,7 @@ test.describe('Review Vote Buttons', () => {
     } else {
       await page.goto('/');
     }
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for reviews section
     const reviewsSection = page.locator('.reviews, [data-testid="reviews"]').first();
@@ -262,7 +262,7 @@ test.describe('Review Vote Buttons', () => {
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
     }
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upvoteBtn = page.locator('[data-testid="upvote"], .upvote-btn').first();
 
@@ -290,7 +290,7 @@ test.describe('Check-In Button', () => {
 
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const checkInBtn = page.locator('button:has-text("Check In"), button:has-text("Check-in"), [data-testid="check-in"]').first();
       const hasCheckIn = await checkInBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -319,7 +319,7 @@ test.describe('Check-In Button', () => {
     const establishment = await getExistingEstablishment();
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const checkInBtn = page.locator('button:has-text("Check In")').first();
 
@@ -349,7 +349,7 @@ test.describe('Check-In Button', () => {
     const establishment = await getExistingEstablishment();
     if (establishment?.id) {
       await page.goto(`/bar/${establishment.id}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const checkInBtn = page.locator('button:has-text("Check In")').first();
 
@@ -385,7 +385,7 @@ test.describe('Delete Button', () => {
 
     // Navigate to a page with delete functionality
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const deleteBtn = page.locator('button:has-text("Delete"), button[aria-label*="delete" i]').first();
 
@@ -413,7 +413,7 @@ test.describe('Delete Button', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const deleteBtn = page.locator('button:has-text("Delete")').first();
 
@@ -451,7 +451,7 @@ test.describe('Edit Button', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit"), button[aria-label*="edit" i]').first();
 
@@ -476,7 +476,7 @@ test.describe('Edit Button', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const editBtn = page.locator('button:has-text("Edit Profile"), button:has-text("Edit")').first();
 
@@ -501,7 +501,7 @@ test.describe('Edit Button', () => {
 test.describe('Submit Button Loading State', () => {
   test('should show loading spinner during submission', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for any form
     const form = page.locator('form').first();
@@ -524,7 +524,7 @@ test.describe('Submit Button Loading State', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const submitBtn = page.locator('button[type="submit"]').first();
 
@@ -537,7 +537,7 @@ test.describe('Submit Button Loading State', () => {
   test('should re-enable button after submission completes', async ({ page }) => {
     // Similar to above - verify button state after action
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const buttons = page.locator('button[type="submit"]:visible');
     const buttonCount = await buttons.count();
@@ -554,7 +554,7 @@ test.describe('Submit Button Loading State', () => {
 test.describe('Button Keyboard Navigation', () => {
   test('should activate button on Enter key', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -573,7 +573,7 @@ test.describe('Button Keyboard Navigation', () => {
 
   test('should activate button on Space key', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -592,7 +592,7 @@ test.describe('Button Keyboard Navigation', () => {
 
   test('should show focus ring on focused button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -615,7 +615,7 @@ test.describe('Button Keyboard Navigation', () => {
 
   test('should tab through buttons in correct order', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab through elements
     await page.keyboard.press('Tab');
@@ -645,7 +645,7 @@ test.describe('Mobile Button Interactions', () => {
 
   test('should have touch-friendly button sizes', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const buttons = page.locator('button:visible');
     const buttonCount = await buttons.count();
@@ -664,7 +664,7 @@ test.describe('Mobile Button Interactions', () => {
 
   test('should respond to touch events', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -680,7 +680,7 @@ test.describe('Mobile Button Interactions', () => {
 
   test('should not require hover for button activation', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 

@@ -22,7 +22,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Semantic HTML Structure', () => {
   test('should have proper document structure with landmarks', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for main landmark
     const main = page.locator('main, [role="main"]');
@@ -39,7 +39,7 @@ test.describe('Semantic HTML Structure', () => {
 
   test('should have single h1 per page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const h1Elements = page.locator('h1');
     const h1Count = await h1Elements.count();
@@ -50,7 +50,7 @@ test.describe('Semantic HTML Structure', () => {
 
   test('should have proper heading hierarchy', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Get all headings
     const headings = await page.evaluate(() => {
@@ -77,7 +77,7 @@ test.describe('Semantic HTML Structure', () => {
 
   test('should have proper list structure', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Lists should use proper semantic elements
     const lists = page.locator('ul, ol');
@@ -100,7 +100,7 @@ test.describe('Semantic HTML Structure', () => {
 test.describe('Form Accessibility', () => {
   test('should have labels for all form inputs', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Get all visible form inputs
     const inputs = await page.locator('input:visible, select:visible, textarea:visible').all();
@@ -126,7 +126,7 @@ test.describe('Form Accessibility', () => {
 
   test('should have required field indicators', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Required inputs should have aria-required or required attribute
     const requiredInputs = page.locator('input[required], input[aria-required="true"], .required');
@@ -137,7 +137,7 @@ test.describe('Form Accessibility', () => {
 
   test('should have accessible error messages', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to submit empty form to trigger validation
     const submitBtn = page.locator('button[type="submit"], button:has-text("Submit")').first();
@@ -156,7 +156,7 @@ test.describe('Form Accessibility', () => {
 
   test('should have proper autocomplete attributes', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check common input types for autocomplete
     const emailInput = page.locator('input[type="email"]').first();
@@ -177,7 +177,7 @@ test.describe('Form Accessibility', () => {
 test.describe('Interactive Elements', () => {
   test('should have focusable interactive elements', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // All buttons should be focusable
     const buttons = page.locator('button:visible');
@@ -195,7 +195,7 @@ test.describe('Interactive Elements', () => {
 
   test('should have visible focus indicators', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab to first interactive element
     await page.keyboard.press('Tab');
@@ -221,7 +221,7 @@ test.describe('Interactive Elements', () => {
 
   test('should have accessible button text', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Icon-only buttons should have aria-label
     const iconButtons = page.locator('button:has(svg):not(:has-text(/\\w{2,}/))');
@@ -243,7 +243,7 @@ test.describe('Interactive Elements', () => {
 
   test('should have proper link text', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Links should have meaningful text
     const links = page.locator('a:visible');
@@ -272,7 +272,7 @@ test.describe('Interactive Elements', () => {
 test.describe('Color and Contrast', () => {
   test('should not rely solely on color to convey information', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for error states with icons or text, not just color
     const errorElements = page.locator('.error, [data-error], .invalid');
@@ -292,7 +292,7 @@ test.describe('Color and Contrast', () => {
     await page.emulateMedia({ forcedColors: 'active' });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should still be functional
     const header = page.locator('header');
@@ -304,7 +304,7 @@ test.describe('Color and Contrast', () => {
 
   test('should maintain readability in dark mode', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Toggle to dark mode if available
     const themeToggle = page.locator('[data-testid="theme-toggle"], button:has-text("Dark"), .theme-toggle');
@@ -332,7 +332,7 @@ test.describe('Zoom and Responsive', () => {
 
     // Simulate 200% zoom by adjusting viewport
     await page.setViewportSize({ width: 640, height: 360 }); // Half of 1280x720
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Content should not overflow
     const hasHorizontalScroll = await page.evaluate(() => {
@@ -347,7 +347,7 @@ test.describe('Zoom and Responsive', () => {
     await page.setViewportSize({ width: 375, height: 812 }); // iPhone X
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Navigation should be accessible (possibly via menu)
     const nav = page.locator('nav, [role="navigation"], .mobile-menu');
@@ -358,7 +358,7 @@ test.describe('Zoom and Responsive', () => {
     await page.setViewportSize({ width: 375, height: 812 });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Interactive elements should be at least 44x44px for touch
     const buttons = page.locator('button:visible, a:visible').first();
@@ -385,7 +385,7 @@ test.describe('Reduced Motion', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check that animations are disabled or reduced
     const animatedElement = page.locator('[class*="animate"], [class*="transition"]').first();
@@ -408,7 +408,7 @@ test.describe('Reduced Motion', () => {
 
   test('should not have auto-playing animations', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for auto-playing videos or gifs
     const autoplayMedia = page.locator('video[autoplay], img[src*=".gif"]');
@@ -434,7 +434,7 @@ test.describe('Reduced Motion', () => {
 test.describe('Skip Links', () => {
   test('should have skip to content link', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Press Tab to reveal skip link
     await page.keyboard.press('Tab');
@@ -448,7 +448,7 @@ test.describe('Skip Links', () => {
 
   test('should skip to main content when activated', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await page.keyboard.press('Tab');
 
@@ -476,7 +476,7 @@ test.describe('Skip Links', () => {
 test.describe('ARIA Live Regions', () => {
   test('should have live regions for dynamic content', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for aria-live regions
     const liveRegions = page.locator('[aria-live], [role="alert"], [role="status"]');
@@ -487,7 +487,7 @@ test.describe('ARIA Live Regions', () => {
 
   test('should announce notifications to screen readers', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Trigger a notification (e.g., via an action)
     const actionButton = page.locator('button').first();

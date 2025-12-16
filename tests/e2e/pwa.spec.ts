@@ -20,7 +20,7 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('Service Worker', () => {
   test('should register service worker', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check if service worker is registered
     const swRegistered = await page.evaluate(async () => {
@@ -37,7 +37,7 @@ test.describe('Service Worker', () => {
 
   test('should have service worker scope', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const swScope = await page.evaluate(async () => {
       if ('serviceWorker' in navigator) {
@@ -53,7 +53,7 @@ test.describe('Service Worker', () => {
 
   test('should update service worker on new version', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for update mechanism
     const hasUpdate = await page.evaluate(async () => {
@@ -75,7 +75,7 @@ test.describe('Service Worker', () => {
 test.describe('Offline Support', () => {
   test('should cache critical resources', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for caching
     await page.waitForTimeout(2000);
@@ -96,7 +96,7 @@ test.describe('Offline Support', () => {
 
   test('should show offline indicator', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await context.setOffline(true);
     await page.waitForTimeout(1000);
@@ -112,7 +112,7 @@ test.describe('Offline Support', () => {
 
   test('should queue actions when offline', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await context.setOffline(true);
 
@@ -131,7 +131,7 @@ test.describe('Offline Support', () => {
 
   test('should sync queued actions when back online', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go offline, perform action, go online
     await context.setOffline(true);
@@ -145,7 +145,7 @@ test.describe('Offline Support', () => {
 
   test('should work with cached map tiles', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Let map tiles cache
     await page.waitForTimeout(3000);
@@ -219,7 +219,7 @@ test.describe('App Manifest', () => {
 
   test('should link manifest in HTML', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const manifestLink = await page.evaluate(() => {
       const link = document.querySelector('link[rel="manifest"]');
@@ -238,7 +238,7 @@ test.describe('App Manifest', () => {
 test.describe('Install Prompt', () => {
   test('should not show install prompt immediately', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Install prompt should not appear immediately
     const installPrompt = page.locator('text=/install|add to home/i').first();
@@ -249,7 +249,7 @@ test.describe('Install Prompt', () => {
 
   test('should have install button when eligible', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for custom install button
     const installBtn = page.locator('button:has-text("Install"), [data-testid="install-button"]').first();
@@ -260,7 +260,7 @@ test.describe('Install Prompt', () => {
 
   test('should handle beforeinstallprompt event', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check if app handles the event
     const handlesInstall = await page.evaluate(() => {
@@ -279,7 +279,7 @@ test.describe('Install Prompt', () => {
 test.describe('Push Notifications', () => {
   test('should request notification permission', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const notificationSupport = await page.evaluate(() => {
       return 'Notification' in window;
@@ -291,7 +291,7 @@ test.describe('Push Notifications', () => {
 
   test('should have notification toggle in settings', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for notification settings
     const notificationToggle = page.locator('input[name*="notification"], label:has-text("Notification")').first();
@@ -302,7 +302,7 @@ test.describe('Push Notifications', () => {
 
   test('should subscribe to push notifications', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const canSubscribe = await page.evaluate(async () => {
       if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -328,7 +328,7 @@ test.describe('Push Notifications', () => {
 test.describe('Background Sync', () => {
   test('should support background sync', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const hasBackgroundSync = await page.evaluate(async () => {
       if ('serviceWorker' in navigator && 'SyncManager' in window) {
@@ -348,7 +348,7 @@ test.describe('Background Sync', () => {
 
   test('should queue favorites when offline', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await context.setOffline(true);
 
@@ -428,7 +428,7 @@ test.describe('Mobile PWA', () => {
 
   test('should work as standalone app', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Simulate standalone mode
     await page.evaluate(() => {
@@ -440,7 +440,7 @@ test.describe('Mobile PWA', () => {
 
   test('should handle iOS safe area', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for safe area CSS
     const hasSafeArea = await page.evaluate(() => {
@@ -455,7 +455,7 @@ test.describe('Mobile PWA', () => {
 
   test('should have apple touch icon', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const hasAppleTouchIcon = await page.evaluate(() => {
       const link = document.querySelector('link[rel="apple-touch-icon"]');
@@ -468,7 +468,7 @@ test.describe('Mobile PWA', () => {
 
   test('should handle pull to refresh', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Simulate pull to refresh
     await page.mouse.move(187, 100);
@@ -492,7 +492,7 @@ test.describe('PWA Performance', () => {
     const startTime = Date.now();
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for interactive
     await page.locator('button, a').first().waitFor({ state: 'visible' });
@@ -516,7 +516,7 @@ test.describe('PWA Performance', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check total JS size
     const totalJsSize = resources
@@ -529,7 +529,7 @@ test.describe('PWA Performance', () => {
 
   test('should lazy load images', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const lazyImages = await page.evaluate(() => {
       const images = document.querySelectorAll('img');

@@ -110,9 +110,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           echo "Waiting for frontend..."
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || (echo "Frontend failed" && exit 1)
           echo "Waiting for backend..."
@@ -128,7 +128,7 @@ jobs:
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
       - name: Run Smoke Tests
-        run: npx playwright test tests/e2e/smoke.spec.ts --project=${{ matrix.project }} --workers=2
+        run: npx playwright test tests/e2e/smoke.spec.ts --project=${{ matrix.project }} --workers=1
         timeout-minutes: 10
         env:
           CI: true
@@ -187,9 +187,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -209,7 +209,7 @@ jobs:
             tests/e2e/user-profile-page.spec.ts \
             tests/e2e/user-dashboard.spec.ts \
             tests/e2e/profile-edit.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 20
         env:
           CI: true
@@ -268,9 +268,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -294,7 +294,7 @@ jobs:
             tests/e2e/employee-verification.spec.ts \
             tests/e2e/admin-panel.spec.ts \
             tests/e2e/admin-vip-verification.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 25
         env:
           CI: true
@@ -353,9 +353,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -377,7 +377,7 @@ jobs:
             tests/e2e/favorites.spec.ts \
             tests/e2e/notifications.spec.ts \
             tests/e2e/reviews-ratings.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 25
         env:
           CI: true
@@ -436,9 +436,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -462,7 +462,7 @@ jobs:
             tests/e2e/modals-forms.spec.ts \
             tests/e2e/header-navigation.spec.ts \
             tests/e2e/i18n.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 25
         env:
           CI: true
@@ -521,9 +521,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -545,7 +545,7 @@ jobs:
             tests/e2e/user-search-flow.spec.ts \
             tests/e2e/visit-history-page.spec.ts \
             tests/e2e/sidebar-establishment.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 20
         env:
           CI: true
@@ -604,9 +604,9 @@ jobs:
       - name: Start servers
         run: |
           cd backend && npm start > backend.log 2>&1 &
-          sleep 5
+          sleep 15
           npx serve -s build -l 3000 &
-          sleep 3
+          sleep 5
           timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done' || exit 1
           timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done' || (cat backend/backend.log && exit 1)
         env:
@@ -628,7 +628,7 @@ jobs:
             tests/e2e/error-handling.spec.ts \
             tests/e2e/photo-upload.spec.ts \
             tests/e2e/pwa.spec.ts \
-            --project=${{ matrix.project }} --workers=2
+            --project=${{ matrix.project }} --workers=1
         timeout-minutes: 20
         env:
           CI: true

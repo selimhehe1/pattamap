@@ -21,7 +21,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Zone Selector', () => {
   test('should display zone selector on map page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoneSelector = page.locator('[data-testid="zone-selector"], .zone-selector, select[name="zone"], [class*="zone"]').first();
     const zoneButtons = page.locator('button:has-text("Soi 6"), button:has-text("Walking Street")').first();
@@ -35,7 +35,7 @@ test.describe('Zone Selector', () => {
 
   test('should switch to Soi 6 zone', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const soi6Button = page.locator('button:has-text("Soi 6"), [data-zone="soi6"]').first();
 
@@ -54,7 +54,7 @@ test.describe('Zone Selector', () => {
 
   test('should switch to Walking Street zone', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const walkingStreetButton = page.locator('button:has-text("Walking Street"), [data-zone="walking_street"]').first();
 
@@ -68,7 +68,7 @@ test.describe('Zone Selector', () => {
 
   test('should update establishments when zone changes', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Get initial establishment count
     const initialCards = page.locator('.establishment-card, [data-testid="establishment"]');
@@ -88,7 +88,7 @@ test.describe('Zone Selector', () => {
 
   test('should highlight active zone', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoneButtons = page.locator('[data-zone], .zone-button');
     const buttonCount = await zoneButtons.count();
@@ -111,7 +111,7 @@ test.describe('Zone Selector', () => {
 test.describe('Category Filters', () => {
   test('should display category filter buttons', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const categoryFilters = page.locator('[data-testid="category-filter"], .category-filter, button:has-text("Bar"), button:has-text("Gogo"), [class*="filter"], [class*="category"]');
 
@@ -123,7 +123,7 @@ test.describe('Category Filters', () => {
 
   test('should toggle category filter on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const barFilter = page.locator('button:has-text("Bar"), [data-category="bar"]').first();
 
@@ -141,7 +141,7 @@ test.describe('Category Filters', () => {
 
   test('should filter establishments by category', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click only "Gogo" filter
     const gogoFilter = page.locator('button:has-text("Gogo"), [data-category="gogo"]').first();
@@ -157,7 +157,7 @@ test.describe('Category Filters', () => {
 
   test('should allow multiple category selection', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const barFilter = page.locator('button:has-text("Bar"), [data-category="bar"]').first();
     const gogoFilter = page.locator('button:has-text("Gogo"), [data-category="gogo"]').first();
@@ -178,7 +178,7 @@ test.describe('Category Filters', () => {
 
   test('should show all when no category selected', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click "All" or deselect all
     const allFilter = page.locator('button:has-text("All"), [data-category="all"]').first();
@@ -200,7 +200,7 @@ test.describe('Category Filters', () => {
 test.describe('View Mode Toggle', () => {
   test('should display view mode toggle', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const viewToggle = page.locator('[data-testid="view-toggle"], .view-toggle, button:has-text("Map"), button:has-text("List"), [class*="view"], [class*="toggle"]').first();
 
@@ -212,7 +212,7 @@ test.describe('View Mode Toggle', () => {
 
   test('should switch to list view', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const listViewBtn = page.locator('button:has-text("List"), [data-view="list"]').first();
 
@@ -230,7 +230,7 @@ test.describe('View Mode Toggle', () => {
 
   test('should switch to employees grid view', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const employeesViewBtn = page.locator('button:has-text("Employees"), button:has-text("Girls"), [data-view="employees"]').first();
 
@@ -248,7 +248,7 @@ test.describe('View Mode Toggle', () => {
 
   test('should switch back to map view', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // First switch to list
     const listViewBtn = page.locator('button:has-text("List")').first();
@@ -271,7 +271,7 @@ test.describe('View Mode Toggle', () => {
 
   test('should highlight active view mode', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const activeView = page.locator('[data-view].active, .view-toggle button.active, [aria-selected="true"]').first();
     const hasActive = await activeView.isVisible({ timeout: 5000 }).catch(() => false);
@@ -288,7 +288,7 @@ test.describe('View Mode Toggle', () => {
 test.describe('Marker Interactions', () => {
   test('should display establishment markers on map', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for markers (custom map, not Leaflet)
     const markers = page.locator('.marker, [data-testid="marker"], .establishment-marker, [data-establishment-id]');
@@ -300,7 +300,7 @@ test.describe('Marker Interactions', () => {
 
   test('should open sidebar on marker click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const marker = page.locator('.marker, [data-testid="marker"], .establishment-marker').first();
 
@@ -318,7 +318,7 @@ test.describe('Marker Interactions', () => {
 
   test('should show tooltip on marker hover', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const marker = page.locator('.marker, [data-testid="marker"]').first();
 
@@ -337,7 +337,7 @@ test.describe('Marker Interactions', () => {
 
   test('should highlight selected marker', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const marker = page.locator('.marker, [data-testid="marker"]').first();
 
@@ -361,7 +361,7 @@ test.describe('Marker Interactions', () => {
 test.describe('Map Zoom Controls', () => {
   test('should display zoom controls', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoomIn = page.locator('button[aria-label*="zoom in" i], .zoom-in, button:has-text("+")').first();
     const zoomOut = page.locator('button[aria-label*="zoom out" i], .zoom-out, button:has-text("-")').first();
@@ -375,7 +375,7 @@ test.describe('Map Zoom Controls', () => {
 
   test('should zoom in on zoom in click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoomIn = page.locator('button[aria-label*="zoom in" i], .zoom-in, button:has-text("+")').first();
 
@@ -390,7 +390,7 @@ test.describe('Map Zoom Controls', () => {
 
   test('should zoom out on zoom out click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoomOut = page.locator('button[aria-label*="zoom out" i], .zoom-out, button:has-text("-")').first();
 
@@ -405,7 +405,7 @@ test.describe('Map Zoom Controls', () => {
 
   test('should zoom with mouse wheel', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const map = page.locator('.map-container, canvas, [data-testid="map"]').first();
 
@@ -427,7 +427,7 @@ test.describe('Map Zoom Controls', () => {
 test.describe('Map Pan/Drag', () => {
   test('should pan map on drag', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const map = page.locator('.map-container, canvas, [data-testid="map"]').first();
 
@@ -460,7 +460,7 @@ test.describe('Mobile Map Menu', () => {
 
   test('should display mobile menu toggle', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const mobileMenuToggle = page.locator('[data-testid="mobile-map-menu"], .mobile-menu-toggle, button[aria-label*="menu" i], .hamburger, [class*="menu"]').first();
 
@@ -472,7 +472,7 @@ test.describe('Mobile Map Menu', () => {
 
   test('should open mobile menu on toggle click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const mobileMenuToggle = page.locator('[data-testid="mobile-map-menu"], .mobile-menu-toggle, .hamburger').first();
 
@@ -490,7 +490,7 @@ test.describe('Mobile Map Menu', () => {
 
   test('should close mobile menu on close click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const mobileMenuToggle = page.locator('.mobile-menu-toggle, .hamburger').first();
 
@@ -512,7 +512,7 @@ test.describe('Mobile Map Menu', () => {
 
   test('should have touch-friendly map controls', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const controls = page.locator('.map-controls button, .zoom-controls button');
     const controlCount = await controls.count();
@@ -537,7 +537,7 @@ test.describe('Mobile Map Menu', () => {
 test.describe('Empty State', () => {
   test('should show empty state when no results', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to filter to get no results
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
@@ -558,7 +558,7 @@ test.describe('Empty State', () => {
 
   test('should show message in empty state', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Navigate to a zone with potentially no data
     const emptyMessage = page.locator('.empty-message, [data-testid="empty-message"], text=/no establishments|no results/i');
@@ -575,7 +575,7 @@ test.describe('Empty State', () => {
 test.describe('Sidebar Details', () => {
   test('should display establishment name in sidebar', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click an establishment
     const establishment = page.locator('.establishment-card, .marker, [data-testid="establishment"]').first();
@@ -594,7 +594,7 @@ test.describe('Sidebar Details', () => {
 
   test('should close sidebar on close click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const establishment = page.locator('.establishment-card, .marker').first();
 
@@ -617,7 +617,7 @@ test.describe('Sidebar Details', () => {
 
   test('should navigate to detail page from sidebar', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const establishment = page.locator('.establishment-card, .marker').first();
 

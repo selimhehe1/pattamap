@@ -20,7 +20,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Tab Navigation', () => {
   test('should move focus on Tab press', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Press Tab and check focus moves
     await page.keyboard.press('Tab');
@@ -39,7 +39,7 @@ test.describe('Tab Navigation', () => {
 
   test('should move focus backwards on Shift+Tab', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab forward several times
     await page.keyboard.press('Tab');
@@ -58,7 +58,7 @@ test.describe('Tab Navigation', () => {
 
   test('should focus interactive elements only', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const interactiveTags = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
     const focusedTags: string[] = [];
@@ -80,7 +80,7 @@ test.describe('Tab Navigation', () => {
 
   test('should cycle through all focusable elements', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const focusableElements: string[] = [];
 
@@ -106,7 +106,7 @@ test.describe('Tab Navigation', () => {
 test.describe('Skip to Content', () => {
   test('should have skip link as first focusable element', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab once
     await page.keyboard.press('Tab');
@@ -120,7 +120,7 @@ test.describe('Skip to Content', () => {
 
   test('should skip to main content on Enter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and activate skip link
     const skipLink = page.locator('a:has-text("Skip"), [href="#main"], .skip-link').first();
@@ -142,7 +142,7 @@ test.describe('Skip to Content', () => {
 
   test('should bypass header navigation', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const skipLink = page.locator('.skip-link, a[href="#main"]').first();
 
@@ -163,7 +163,7 @@ test.describe('Skip to Content', () => {
 test.describe('Modal Escape', () => {
   test('should close modal on Escape key', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Login modal should appear
     const modal = page.locator('[role="dialog"], .modal').first();
@@ -179,7 +179,7 @@ test.describe('Modal Escape', () => {
 
   test('should not close modal on other keys', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -195,7 +195,7 @@ test.describe('Modal Escape', () => {
 
   test('should return focus after modal close', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find a button that opens a modal
     const triggerButton = page.locator('button:has-text("Add"), button:has-text("Login")').first();
@@ -222,7 +222,7 @@ test.describe('Modal Escape', () => {
 test.describe('Dropdown Arrow Navigation', () => {
   test('should navigate dropdown with arrow keys', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const dropdown = page.locator('select, [role="listbox"], .dropdown').first();
 
@@ -242,7 +242,7 @@ test.describe('Dropdown Arrow Navigation', () => {
 
   test('should wrap around dropdown options', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const select = page.locator('select').first();
 
@@ -260,7 +260,7 @@ test.describe('Dropdown Arrow Navigation', () => {
 
   test('should select option on Enter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const select = page.locator('select').first();
 
@@ -282,7 +282,7 @@ test.describe('Dropdown Arrow Navigation', () => {
 test.describe('Enter/Space Activation', () => {
   test('should activate button on Enter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -297,7 +297,7 @@ test.describe('Enter/Space Activation', () => {
 
   test('should activate button on Space', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -312,7 +312,7 @@ test.describe('Enter/Space Activation', () => {
 
   test('should follow link on Enter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const link = page.locator('a[href]:visible').first();
 
@@ -330,7 +330,7 @@ test.describe('Enter/Space Activation', () => {
 
   test('should toggle checkbox on Space', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const checkbox = page.locator('input[type="checkbox"]').first();
 
@@ -353,7 +353,7 @@ test.describe('Enter/Space Activation', () => {
 test.describe('Form Tab Order', () => {
   test('should tab through form fields in order', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Focus on form (login modal should appear)
     const form = page.locator('form').first();
@@ -380,7 +380,7 @@ test.describe('Form Tab Order', () => {
 
   test('should have logical tab order', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab order should generally go: email -> password -> submit
     const expectedOrder = ['email', 'password', 'submit'];
@@ -407,7 +407,7 @@ test.describe('Form Tab Order', () => {
 test.describe('Focus Visible', () => {
   test('should show focus outline on keyboard focus', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab to an element
     await page.keyboard.press('Tab');
@@ -432,7 +432,7 @@ test.describe('Focus Visible', () => {
 
   test('should hide focus ring on mouse click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const button = page.locator('button:visible').first();
 
@@ -447,7 +447,7 @@ test.describe('Focus Visible', () => {
 
   test('should have sufficient focus contrast', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await page.keyboard.press('Tab');
 
@@ -469,7 +469,7 @@ test.describe('Focus Visible', () => {
 
   test('should not lose focus unexpectedly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tab to an element
     await page.keyboard.press('Tab');

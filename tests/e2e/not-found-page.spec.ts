@@ -18,7 +18,7 @@ import { test, expect } from '@playwright/test';
 test.describe('404 Page Display', () => {
   test('should display 404 page for non-existent route', async ({ page }) => {
     await page.goto('/this-page-does-not-exist-12345');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show 404 content
     const notFoundCode = page.locator('text="404", .not-found-code');
@@ -27,7 +27,7 @@ test.describe('404 Page Display', () => {
 
   test('should display "Page Not Found" title', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Title should be visible
     const title = page.locator('h1:has-text("Page Not Found"), .not-found-title');
@@ -36,7 +36,7 @@ test.describe('404 Page Display', () => {
 
   test('should display helpful description', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Description text should be visible
     const description = page.locator('.not-found-description, text=/doesn\'t exist|has been moved/i');
@@ -45,7 +45,7 @@ test.describe('404 Page Display', () => {
 
   test('should set correct page title', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check page title
     const pageTitle = await page.title();
@@ -60,7 +60,7 @@ test.describe('404 Page Display', () => {
 test.describe('Go Back Button', () => {
   test('should display Go Back button', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Go Back button should be visible
     const goBackBtn = page.locator('button:has-text("Go Back"), .not-found-btn:has-text("Back")');
@@ -70,18 +70,18 @@ test.describe('Go Back Button', () => {
   test('should navigate back when Go Back is clicked with history', async ({ page }) => {
     // First navigate to a real page
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Then navigate to 404
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click Go Back
     const goBackBtn = page.locator('button:has-text("Go Back")').first();
 
     if (await goBackBtn.isVisible({ timeout: 3000 })) {
       await goBackBtn.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be back on homepage
       const currentUrl = page.url();
@@ -91,7 +91,7 @@ test.describe('Go Back Button', () => {
 
   test('should have proper aria-label on Go Back button', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const goBackBtn = page.locator('button:has-text("Go Back")').first();
 
@@ -109,7 +109,7 @@ test.describe('Go Back Button', () => {
 test.describe('Home Button', () => {
   test('should display Home button', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Home button/link should be visible
     const homeBtn = page.locator('a:has-text("Home"), .not-found-btn:has-text("Home")');
@@ -118,14 +118,14 @@ test.describe('Home Button', () => {
 
   test('should navigate to homepage when Home is clicked', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click Home
     const homeBtn = page.locator('a:has-text("Home")').first();
 
     if (await homeBtn.isVisible({ timeout: 3000 })) {
       await homeBtn.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be on homepage
       const currentUrl = page.url();
@@ -135,7 +135,7 @@ test.describe('Home Button', () => {
 
   test('should have proper href on Home link', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const homeLink = page.locator('a:has-text("Home")').first();
 
@@ -153,7 +153,7 @@ test.describe('Home Button', () => {
 test.describe('Quick Navigation Links', () => {
   test('should display Search quick link', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Search link should be visible
     const searchLink = page.locator('a:has-text("Search"), .not-found-link:has-text("Search")');
@@ -162,7 +162,7 @@ test.describe('Quick Navigation Links', () => {
 
   test('should display Map quick link', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Map link should be visible
     const mapLink = page.locator('a:has-text("Map"), .not-found-link:has-text("Map")');
@@ -171,13 +171,13 @@ test.describe('Quick Navigation Links', () => {
 
   test('should navigate to Search when Search link is clicked', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchLink = page.locator('a[href="/search"], a:has-text("Search")').first();
 
     if (await searchLink.isVisible({ timeout: 3000 })) {
       await searchLink.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be on search page
       const currentUrl = page.url();
@@ -187,7 +187,7 @@ test.describe('Quick Navigation Links', () => {
 
   test('should display quick links section title', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // "Or try one of these" section
     const quickLinksTitle = page.locator('text=/Or try one of these|Try these/i, .not-found-quick-links-title');
@@ -204,7 +204,7 @@ test.describe('Quick Navigation Links', () => {
 test.describe('Accessibility', () => {
   test('should have main role on page', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Main role should be present
     const mainElement = page.locator('[role="main"], main');
@@ -213,7 +213,7 @@ test.describe('Accessibility', () => {
 
   test('should have proper heading hierarchy', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // H1 should be present
     const h1 = page.locator('h1');
@@ -222,7 +222,7 @@ test.describe('Accessibility', () => {
 
   test('should have aria-labelledby on main content', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const mainContent = page.locator('[aria-labelledby]').first();
     const hasAriaLabel = await mainContent.isVisible({ timeout: 3000 }).catch(() => false);
@@ -232,7 +232,7 @@ test.describe('Accessibility', () => {
 
   test('should have aria-hidden on decorative elements', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // 404 code should be aria-hidden (decorative)
     const decorativeElement = page.locator('.not-found-code[aria-hidden="true"]');
@@ -243,7 +243,7 @@ test.describe('Accessibility', () => {
 
   test('should have navigation landmark for quick links', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Navigation landmark
     const navLandmark = page.locator('nav[aria-label], nav');
@@ -260,7 +260,7 @@ test.describe('Accessibility', () => {
 test.describe('Visual Design', () => {
   test('should display background overlay', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Background elements
     const background = page.locator('.not-found-background, .not-found-overlay');
@@ -271,7 +271,7 @@ test.describe('Visual Design', () => {
 
   test('should have centered content', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Content container should be visible
     const content = page.locator('.not-found-content, .not-found-page');
@@ -280,7 +280,7 @@ test.describe('Visual Design', () => {
 
   test('should have action buttons styled distinctly', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Primary and secondary button styles
     const primaryBtn = page.locator('.not-found-btn-primary');

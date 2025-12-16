@@ -24,7 +24,7 @@ const TEST_USER = {
 async function loginAsUser(page: Page): Promise<boolean> {
   // Go to dashboard which will trigger login modal
   await page.goto('/dashboard');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
   // Wait for login modal to appear
   const loginModal = page.locator('text="Welcome Back"').or(page.locator('text="Sign in to your account"'));
@@ -209,7 +209,7 @@ test.describe('View Favorites List', () => {
   test('should display favorited employees', async ({ page }) => {
     // Favorites are displayed on /dashboard, not /favorites
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check if login modal is showing (auth required)
     const loginModal = page.locator('text="Welcome Back"').or(page.locator('text="Sign in to your account"'));
@@ -236,7 +236,7 @@ test.describe('View Favorites List', () => {
   test('should display favorited establishments', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required and we're not authenticated
     if (await isLoginRequired(page)) {
@@ -263,7 +263,7 @@ test.describe('View Favorites List', () => {
   test('should show favorites count', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required and we're not authenticated
     if (await isLoginRequired(page)) {
@@ -281,7 +281,7 @@ test.describe('View Favorites List', () => {
   test('should filter favorites by type', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required and we're not authenticated
     if (await isLoginRequired(page)) {
@@ -305,7 +305,7 @@ test.describe('View Favorites List', () => {
   test('should sort favorites by date added', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required and we're not authenticated
     if (await isLoginRequired(page)) {
@@ -338,7 +338,7 @@ test.describe('Remove from Favorites', () => {
   test('should remove employee from favorites', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {
@@ -364,7 +364,7 @@ test.describe('Remove from Favorites', () => {
   test('should confirm before removing from favorites', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {
@@ -416,7 +416,7 @@ test.describe('Remove from Favorites', () => {
   test('should show empty state after removing all favorites', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {
@@ -425,14 +425,18 @@ test.describe('Remove from Favorites', () => {
     }
 
     // Remove all favorites using the badge button (with max attempts to prevent infinite loop)
-    let removeBtn = page.locator('.favorite-badge-nightlife, .remove-favorite').first();
-    const maxAttempts = 50;
+    const maxAttempts = 10; // Reduced from 50 to prevent long-running tests
     let attempts = 0;
 
-    while (await removeBtn.isVisible().catch(() => false) && attempts < maxAttempts) {
+    while (attempts < maxAttempts) {
+      const removeBtn = page.locator('.favorite-badge-nightlife, .remove-favorite').first();
+      const btnCount = await removeBtn.count().catch(() => 0);
+
+      if (btnCount === 0) break; // No more buttons to click
+      if (!(await removeBtn.isVisible().catch(() => false))) break;
+
       await removeBtn.click();
-      await page.waitForTimeout(500);
-      removeBtn = page.locator('.favorite-badge-nightlife, .remove-favorite').first();
+      await page.waitForTimeout(300); // Reduced from 500ms
       attempts++;
     }
 
@@ -485,7 +489,7 @@ test.describe('Favorites Persistence', () => {
 
     // Check favorites - on dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (employeeName) {
       const favoriteItem = page.locator(`text=${employeeName}`).first();
@@ -520,7 +524,7 @@ test.describe('Favorites Persistence', () => {
 
     // Check in second tab - favorites are on /dashboard
     await page2.goto('/dashboard');
-    await page2.waitForLoadState('networkidle');
+    await page2.waitForLoadState('domcontentloaded');
 
     // Should see the favorite (after refresh)
     await expect(page2.locator('body')).toBeVisible();
@@ -539,7 +543,7 @@ test.describe('Favorites Quick Actions', () => {
   test('should navigate to employee profile from favorites', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {
@@ -642,7 +646,7 @@ test.describe('Mobile Favorites', () => {
   test('should display favorites in mobile grid', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {
@@ -659,7 +663,7 @@ test.describe('Mobile Favorites', () => {
   test('should swipe to remove favorite on mobile', async ({ page }) => {
     // Favorites are on /dashboard
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Skip if login is required
     if (await isLoginRequired(page)) {

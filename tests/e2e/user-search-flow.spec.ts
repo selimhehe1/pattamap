@@ -19,7 +19,7 @@ test.describe('User Search Flow', () => {
     await page.goto('/search');
 
     // Wait for page to be fully loaded
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should load search page with filters and results', async ({ page }) => {
@@ -271,7 +271,7 @@ test.describe('User Search Flow - Performance', () => {
 
   test('should handle rapid filter changes smoothly', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoneFilter = page.locator('select[name="zone"]').first();
     await zoneFilter.waitFor({ state: 'visible' });

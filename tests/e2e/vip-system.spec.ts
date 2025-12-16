@@ -22,7 +22,7 @@ import { generateTestUser, registerUser, loginUser, TestUser } from './fixtures/
 test.describe('VIP Badge Display', () => {
   test('should display VIP badge on VIP users', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for VIP badges on cards
     const vipBadge = page.locator('.vip-badge, [data-testid="vip-badge"], text="VIP"').first();
@@ -43,7 +43,7 @@ test.describe('VIP Badge Display', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Non-VIP user shouldn't have VIP indicator
     const vipIndicator = page.locator('header .vip, header [data-testid="vip-status"]').first();
@@ -54,7 +54,7 @@ test.describe('VIP Badge Display', () => {
 
   test('should highlight VIP profiles differently', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for VIP-styled cards
     const vipCard = page.locator('.employee-card.vip, .card.vip-member').first();
@@ -80,7 +80,7 @@ test.describe('VIP Purchase Modal', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP"), button:has-text("Upgrade"), [data-testid="vip-upgrade"]').first();
     const hasUpgrade = await upgradeBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -99,7 +99,7 @@ test.describe('VIP Purchase Modal', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP"), button:has-text("Upgrade")').first();
 
@@ -123,7 +123,7 @@ test.describe('VIP Purchase Modal', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -160,7 +160,7 @@ test.describe('VIP Pricing', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -187,7 +187,7 @@ test.describe('VIP Pricing', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -214,7 +214,7 @@ test.describe('VIP Pricing', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -246,7 +246,7 @@ test.describe('Stripe Checkout', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -272,7 +272,7 @@ test.describe('Stripe Checkout', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -309,7 +309,7 @@ test.describe('VIP Benefits', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -336,7 +336,7 @@ test.describe('VIP Benefits', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const upgradeBtn = page.locator('button:has-text("VIP")').first();
 
@@ -359,7 +359,7 @@ test.describe('VIP Expiration', () => {
   test('should show expiration date for VIP users', async ({ page }) => {
     // This would need a VIP user to test
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const expirationDate = page.locator('.vip-expiration, [data-testid="vip-expires"], text=/expires/i').first();
     const hasExpiration = await expirationDate.isVisible({ timeout: 5000 }).catch(() => false);
@@ -369,7 +369,7 @@ test.describe('VIP Expiration', () => {
 
   test('should show renewal warning before expiration', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const warning = page.locator('.renewal-warning, .expiration-warning, text=/expiring soon/i').first();
     const hasWarning = await warning.isVisible({ timeout: 5000 }).catch(() => false);
@@ -385,7 +385,7 @@ test.describe('VIP Expiration', () => {
 test.describe('VIP Renewal', () => {
   test('should show renew button for expiring VIP', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const renewBtn = page.locator('button:has-text("Renew"), [data-testid="renew-vip"]').first();
     const hasRenew = await renewBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -395,7 +395,7 @@ test.describe('VIP Renewal', () => {
 
   test('should open renewal modal', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const renewBtn = page.locator('button:has-text("Renew")').first();
 
@@ -416,7 +416,7 @@ test.describe('VIP Renewal', () => {
 test.describe('Cancel VIP', () => {
   test('should show cancel option in settings', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const cancelBtn = page.locator('button:has-text("Cancel VIP"), button:has-text("Cancel Subscription")').first();
     const hasCancel = await cancelBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -426,7 +426,7 @@ test.describe('Cancel VIP', () => {
 
   test('should show confirmation before cancel', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const cancelBtn = page.locator('button:has-text("Cancel VIP")').first();
 
@@ -443,7 +443,7 @@ test.describe('Cancel VIP', () => {
 
   test('should allow cancel cancellation', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const cancelBtn = page.locator('button:has-text("Cancel VIP")').first();
 

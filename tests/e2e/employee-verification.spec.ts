@@ -28,7 +28,7 @@ const TEST_ADMIN = {
 // Helper functions
 async function loginAsOwner(page: Page) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[type="email"]').first().fill(TEST_OWNER.email);
   await page.locator('input[type="password"]').first().fill(TEST_OWNER.password);
   await page.locator('button[type="submit"]').first().click();
@@ -37,7 +37,7 @@ async function loginAsOwner(page: Page) {
 
 async function loginAsAdmin(page: Page) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[type="email"]').first().fill(TEST_ADMIN.email);
   await page.locator('input[type="password"]').first().fill(TEST_ADMIN.password);
   await page.locator('button[type="submit"]').first().click();

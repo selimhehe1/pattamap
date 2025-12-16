@@ -27,7 +27,7 @@ const TEST_OWNER = {
 // Helper to login as owner
 async function loginAsOwner(page: Page) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[type="email"]').first().fill(TEST_OWNER.email);
   await page.locator('input[type="password"]').first().fill(TEST_OWNER.password);
   await page.locator('button[type="submit"]').first().click();
@@ -48,7 +48,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should display photo upload section in employee form', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for file input or upload area (flexible selectors)
     const fileInput = page.locator('input[type="file"]').first();
@@ -62,7 +62,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should show upload button/area for photos', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const uploadButton = page.locator('button:has-text("Upload"), button:has-text("Add Photo"), label:has-text("Upload"), [class*="upload"]').first();
     const dropzone = page.locator('.dropzone, [data-testid="dropzone"], input[type="file"]').first();
@@ -75,7 +75,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should accept image file selection', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const fileInput = page.locator('input[type="file"]').first();
 
@@ -175,7 +175,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should limit number of photos per employee', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for max photos indicator
     const maxPhotosText = page.locator('text=/max.*photo|limit.*image|up to/i').first();
@@ -192,7 +192,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should validate image file size', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for size limit info
     const sizeLimitText = page.locator('text=/MB|size.*limit|max.*size/i').first();
@@ -209,7 +209,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should show error for invalid file type', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const fileInput = page.locator('input[type="file"]').first();
 
@@ -272,7 +272,7 @@ test.describe('Establishment Logo Upload', () => {
 
   test('should validate logo dimensions', async ({ page }) => {
     await page.goto('/owner/establishment/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for dimension requirements
     const dimensionText = page.locator('text=/dimension|size|pixel|px|recommended/i').first();
@@ -375,7 +375,7 @@ test.describe('Photo Gallery Management', () => {
 
   test('should show photo count indicator', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for photo count on employee cards
     const photoCount = page.locator('.photo-count, text=/\\d+.*photo/i').first();
@@ -478,7 +478,7 @@ test.describe('Photo Upload Error Handling', () => {
 
   test('should show error for unsupported format', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const fileInput = page.locator('input[type="file"]').first();
 

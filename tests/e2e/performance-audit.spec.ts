@@ -106,7 +106,7 @@ test.describe('Home Page Performance', () => {
     const startTime = Date.now();
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const loadTime = Date.now() - startTime;
 
@@ -117,7 +117,7 @@ test.describe('Home Page Performance', () => {
 
   test('should have acceptable First Contentful Paint', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const metrics = await collectPerformanceMetrics(page);
 
@@ -130,7 +130,7 @@ test.describe('Home Page Performance', () => {
 
   test('should have acceptable Largest Contentful Paint', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000); // Wait for LCP to be recorded
 
     const metrics = await collectPerformanceMetrics(page);
@@ -144,7 +144,7 @@ test.describe('Home Page Performance', () => {
 
   test('should have acceptable Time to Interactive', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const metrics = await collectPerformanceMetrics(page);
 
@@ -155,7 +155,7 @@ test.describe('Home Page Performance', () => {
 
   test('should collect full performance report', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     const metrics = await collectPerformanceMetrics(page);
@@ -209,7 +209,7 @@ test.describe('Map Performance', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(2000);
 
     console.log(`📊 Map Tiles Loaded: ${tileRequests.length}`);
@@ -219,7 +219,7 @@ test.describe('Map Performance', () => {
 
   test('should handle map pan smoothly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const map = page.locator('.leaflet-container, canvas').first();
 
@@ -255,7 +255,7 @@ test.describe('Map Performance', () => {
 
   test('should handle map zoom smoothly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const map = page.locator('.leaflet-container, canvas').first();
 
@@ -287,7 +287,7 @@ test.describe('Map Performance', () => {
 test.describe('Search Performance', () => {
   test('should respond to search input quickly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search"]').first();
 
@@ -308,7 +308,7 @@ test.describe('Search Performance', () => {
 
   test('should filter results quickly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filterBtn = page.locator('[data-category], button:has-text("GoGo")').first();
 
@@ -334,7 +334,7 @@ test.describe('Search Performance', () => {
 test.describe('Sidebar Performance', () => {
   test('should open sidebar quickly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Click on a marker or establishment
     const marker = page.locator('.leaflet-marker-icon, .custom-marker, [data-establishment]').first();
@@ -358,7 +358,7 @@ test.describe('Sidebar Performance', () => {
 
   test('should close sidebar quickly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const marker = page.locator('.leaflet-marker-icon, .custom-marker').first();
 
@@ -408,7 +408,7 @@ test.describe('API Response Times', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const completedRequests = apiRequests.filter(r => r.endTime);
     if (completedRequests.length > 0) {
@@ -438,7 +438,7 @@ test.describe('API Response Times', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     console.log(`📊 Max Concurrent Requests: ${maxConcurrent}`);
 
@@ -469,7 +469,7 @@ test.describe('Bundle Size', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const totalJsSize = jsResources.reduce((sum, r) => sum + r.size, 0);
     const totalJsKB = totalJsSize / 1024;
@@ -506,7 +506,7 @@ test.describe('Bundle Size', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const totalCssSize = cssResources.reduce((sum, r) => sum + r.size, 0);
     const totalCssKB = totalCssSize / 1024;
@@ -525,7 +525,7 @@ test.describe('Bundle Size', () => {
 test.describe('Image Optimization', () => {
   test('should lazy load images', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const lazyImages = await page.evaluate(() => {
       const images = document.querySelectorAll('img');
@@ -567,7 +567,7 @@ test.describe('Image Optimization', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     console.log('\n📸 Image Formats Used:');
     Object.entries(imageFormats).forEach(([format, count]) => {
@@ -591,7 +591,7 @@ test.describe('Image Optimization', () => {
 test.describe('Memory Usage', () => {
   test('should not have memory leaks on navigation', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Get initial memory
     const initialMemory = await page.evaluate(() => {
@@ -602,9 +602,9 @@ test.describe('Memory Usage', () => {
     // Navigate around
     for (let i = 0; i < 5; i++) {
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Force garbage collection if available
@@ -646,7 +646,7 @@ test.describe('Memory Usage', () => {
 test.describe('Animation Performance', () => {
   test('should maintain 60fps during animations', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Enable performance metrics
     const client = await page.context().newCDPSession(page);
@@ -699,7 +699,7 @@ test.describe('Mobile Performance', () => {
     const startTime = Date.now();
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const loadTime = Date.now() - startTime;
 
@@ -718,7 +718,7 @@ test.describe('Mobile Performance', () => {
     const page = await context.newPage();
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const startTime = Date.now();
 
@@ -769,7 +769,7 @@ test.describe('Full Performance Report', () => {
 
       const startTime = Date.now();
       await page.goto(pagePath);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
       const loadTime = Date.now() - startTime;

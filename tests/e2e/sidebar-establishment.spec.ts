@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Establishment Sidebar', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test.describe('Sidebar Opening', () => {
@@ -424,7 +424,7 @@ test.describe('Establishment Sidebar', () => {
       await page.fill('input[type="email"]', 'user@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 

@@ -24,7 +24,7 @@ import { generateTestUser, registerUser, loginUser, TestUser } from './fixtures/
 test.describe('Modal Open/Close', () => {
   test('should open modal on trigger click', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Login modal should appear automatically on protected route
     const modal = page.locator('[role="dialog"], .modal').first();
@@ -33,7 +33,7 @@ test.describe('Modal Open/Close', () => {
 
   test('should close modal on X button click', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -52,7 +52,7 @@ test.describe('Modal Open/Close', () => {
 
   test('should close modal on Escape key', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -67,7 +67,7 @@ test.describe('Modal Open/Close', () => {
 
   test('should close modal on backdrop click', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -86,7 +86,7 @@ test.describe('Modal Open/Close', () => {
 
   test('should not close modal when clicking inside', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -108,7 +108,7 @@ test.describe('Modal Open/Close', () => {
 test.describe('Modal Focus Trap', () => {
   test('should trap focus inside modal', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -132,7 +132,7 @@ test.describe('Modal Focus Trap', () => {
 
   test('should focus first focusable element when modal opens', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -150,7 +150,7 @@ test.describe('Modal Focus Trap', () => {
 
   test('should cycle focus on Tab at end of modal', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -187,7 +187,7 @@ test.describe('Modal Stacking', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to open a modal that might open another (e.g., delete confirmation)
     const addBtn = page.locator('button:has-text("Add Employee"), button:has-text("Add")').first();
@@ -215,7 +215,7 @@ test.describe('Modal Stacking', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Open a modal
     const addBtn = page.locator('button:has-text("Add")').first();
@@ -240,7 +240,7 @@ test.describe('Modal Stacking', () => {
 test.describe('Form Validation', () => {
   test('should show error for empty required fields', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const form = page.locator('form').first();
     const submitBtn = form.locator('button[type="submit"]');
@@ -260,7 +260,7 @@ test.describe('Form Validation', () => {
 
   test('should validate email format', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[type="email"], input[name="email"]').first();
 
@@ -276,7 +276,7 @@ test.describe('Form Validation', () => {
 
   test('should validate password requirements', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const passwordInput = page.locator('input[type="password"]').first();
 
@@ -292,7 +292,7 @@ test.describe('Form Validation', () => {
 
   test('should show real-time validation on blur', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const input = page.locator('input[required]').first();
 
@@ -309,7 +309,7 @@ test.describe('Form Validation', () => {
 
   test('should clear error when valid input provided', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[type="email"]').first();
 
@@ -345,7 +345,7 @@ test.describe('Form Auto-Save', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Open form modal
     const addBtn = page.locator('button:has-text("Add Employee"), button:has-text("Add")').first();
@@ -384,7 +384,7 @@ test.describe('Form Auto-Save', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add")').first();
 
@@ -418,7 +418,7 @@ test.describe('Form Draft Restore', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -460,7 +460,7 @@ test.describe('Form Draft Restore', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add")').first();
 
@@ -476,7 +476,7 @@ test.describe('Form Draft Restore', () => {
 
       // Reload page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for restore prompt
       const restorePrompt = page.locator('text=/restore|draft|continue/i').first();
@@ -508,7 +508,7 @@ test.describe('Employee Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee"), button:has-text("Add Girl")').first();
 
@@ -538,7 +538,7 @@ test.describe('Employee Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -568,7 +568,7 @@ test.describe('Employee Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -602,7 +602,7 @@ test.describe('Establishment Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Establishment"), button:has-text("Add Bar")').first();
 
@@ -633,7 +633,7 @@ test.describe('Establishment Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Establishment")').first();
 
@@ -665,7 +665,7 @@ test.describe('Establishment Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Establishment")').first();
 
@@ -692,7 +692,7 @@ test.describe('Establishment Form', () => {
 test.describe('Review Form', () => {
   test('should display star rating component', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Navigate to establishment with reviews
     const establishment = page.locator('.establishment-card, [data-testid="establishment"]').first();
@@ -726,7 +726,7 @@ test.describe('Review Form', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and click on establishment
     const establishment = page.locator('.establishment-card').first();
@@ -756,7 +756,7 @@ test.describe('Review Form', () => {
 
   test('should have textarea for review content', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to open review modal
     const reviewBtn = page.locator('button:has-text("Review"), button:has-text("Add Review")').first();
@@ -787,7 +787,7 @@ test.describe('Photo Upload', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -818,7 +818,7 @@ test.describe('Photo Upload', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -846,7 +846,7 @@ test.describe('Photo Upload', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -876,7 +876,7 @@ test.describe('Photo Upload', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addBtn = page.locator('button:has-text("Add Employee")').first();
 
@@ -904,7 +904,7 @@ test.describe('Mobile Form Interactions', () => {
 
   test('should display modal in fullscreen on mobile', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
@@ -920,7 +920,7 @@ test.describe('Mobile Form Interactions', () => {
 
   test('should have touch-friendly input fields', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const inputs = page.locator('input:visible');
     const inputCount = await inputs.count();
@@ -938,7 +938,7 @@ test.describe('Mobile Form Interactions', () => {
 
   test('should scroll modal content on mobile', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const modal = page.locator('[role="dialog"], .modal').first();
 

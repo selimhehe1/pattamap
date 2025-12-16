@@ -29,7 +29,7 @@ test.describe('VIP Plan Selection', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // VIP upgrade button should be visible
     const vipUpgradeBtn = page.locator('button:has-text("VIP"), button:has-text("Upgrade"), [data-testid="vip-upgrade"]');
@@ -49,7 +49,7 @@ test.describe('VIP Plan Selection', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -76,7 +76,7 @@ test.describe('VIP Plan Selection', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -104,7 +104,7 @@ test.describe('VIP Plan Selection', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -137,7 +137,7 @@ test.describe('Stripe Checkout Integration', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -177,7 +177,7 @@ test.describe('Stripe Checkout Integration', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -217,7 +217,7 @@ test.describe('Stripe Checkout Integration', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -257,7 +257,7 @@ test.describe('Payment Success Handling', () => {
 
     // Simulate successful payment callback
     await page.goto('/dashboard?payment=success&session_id=cs_test_123');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Success message should be displayed
     const successMessage = page.locator('text=/success|thank you|confirmed/i, .success-message');
@@ -292,7 +292,7 @@ test.describe('Payment Success Handling', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // VIP badge should be visible
     const vipBadge = page.locator('.vip-badge, [data-testid="vip-badge"], text="VIP"');
@@ -319,7 +319,7 @@ test.describe('Payment Failure Handling', () => {
 
     // Simulate cancelled payment
     await page.goto('/dashboard?payment=cancelled');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Cancellation message or return to normal state
     const cancelMessage = page.locator('text=/cancelled|try again/i');
@@ -347,7 +347,7 @@ test.describe('Payment Failure Handling', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 
@@ -381,7 +381,7 @@ test.describe('Payment Failure Handling', () => {
     }
 
     await page.goto('/dashboard?payment=failed');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Retry or try again option should be available
     const retryOption = page.locator('button:has-text("Try Again"), button:has-text("Retry"), a:has-text("Upgrade")');
@@ -421,7 +421,7 @@ test.describe('VIP Expiration', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Expiration info should be visible
     const expirationInfo = page.locator('text=/expires|valid until|days left/i, .vip-expiration');
@@ -455,7 +455,7 @@ test.describe('VIP Expiration', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Warning should be displayed
     const warning = page.locator('text=/expiring soon|renew|expires in/i, .vip-warning');
@@ -495,7 +495,7 @@ test.describe('VIP Renewal', () => {
     });
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Renew button should be available
     const renewBtn = page.locator('button:has-text("Renew"), button:has-text("Extend")');
@@ -515,7 +515,7 @@ test.describe('VIP Renewal', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const renewBtn = page.locator('button:has-text("Renew")').first();
 
@@ -548,7 +548,7 @@ test.describe('VIP Benefits Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP"), button:has-text("Upgrade")').first();
 
@@ -575,7 +575,7 @@ test.describe('VIP Benefits Display', () => {
     }
 
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const vipBtn = page.locator('button:has-text("VIP")').first();
 

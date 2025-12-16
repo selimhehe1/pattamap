@@ -22,7 +22,7 @@ const TEST_USER = {
 // Helper to login
 async function loginAsUser(page: Page): Promise<boolean> {
   await page.goto('/dashboard');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
   const loginModal = page.locator('text="Welcome Back"').or(page.locator('text="Sign in to your account"'));
   const modalVisible = await loginModal.first().isVisible().catch(() => false);
@@ -70,7 +70,7 @@ test.describe('View Profile', () => {
       await page.waitForTimeout(1000);
     } else {
       await page.goto('/profile');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     }
 
     await expect(page.locator('body')).toBeVisible();
@@ -79,7 +79,7 @@ test.describe('View Profile', () => {
   test('should display user name', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const userName = page.locator('.user-name, .profile-name, h1, h2').first();
@@ -90,7 +90,7 @@ test.describe('View Profile', () => {
   test('should display user avatar', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const avatar = page.locator('.avatar, .profile-avatar, img[alt*="avatar"], img[alt*="profile"]').first();
@@ -101,7 +101,7 @@ test.describe('View Profile', () => {
   test('should display user email', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const email = page.locator('text=@').first();
@@ -112,7 +112,7 @@ test.describe('View Profile', () => {
   test('should display account type', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const accountType = page.locator('text=/user|owner|employee|admin/i').first();
@@ -132,7 +132,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should have edit button', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const editBtn = page.locator('button:has-text("Edit"), a:has-text("Edit"), button[aria-label*="edit"]').first();
@@ -142,7 +142,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should open edit form', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const editBtn = page.locator('button:has-text("Edit")').first();
@@ -160,7 +160,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should edit display name', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const nameInput = page.locator('input[name="name"], input[name="displayName"], input[placeholder*="name"]').first();
@@ -174,7 +174,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should edit bio/description', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const bioInput = page.locator('textarea[name="bio"], textarea[name="description"], textarea[placeholder*="bio"]').first();
@@ -188,7 +188,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should save profile changes', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const saveBtn = page.locator('button:has-text("Save"), button[type="submit"]').first();
@@ -205,7 +205,7 @@ test.describe('Edit Basic Info', () => {
 
   test('should cancel edit without saving', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const cancelBtn = page.locator('button:has-text("Cancel"), a:has-text("Cancel")').first();
@@ -232,7 +232,7 @@ test.describe('Change Avatar', () => {
 
   test('should have avatar upload button', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const uploadBtn = page.locator('button:has-text("Change"), input[type="file"], .avatar-upload').first();
@@ -242,7 +242,7 @@ test.describe('Change Avatar', () => {
 
   test('should open file picker for avatar', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const fileInput = page.locator('input[type="file"][accept*="image"]').first();
@@ -256,7 +256,7 @@ test.describe('Change Avatar', () => {
 
   test('should preview avatar before upload', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       // This would require actual file upload testing
@@ -266,7 +266,7 @@ test.describe('Change Avatar', () => {
 
   test('should validate avatar file type', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const fileInput = page.locator('input[type="file"]').first();
@@ -281,7 +281,7 @@ test.describe('Change Avatar', () => {
 
   test('should validate avatar file size', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       // Size validation would show error for large files
@@ -301,7 +301,7 @@ test.describe('Update Password', () => {
 
   test('should have change password option', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const changePasswordBtn = page.locator('button:has-text("Password"), a:has-text("Password"), a[href*="password"]').first();
@@ -311,7 +311,7 @@ test.describe('Update Password', () => {
 
   test('should navigate to password change form', async ({ page }) => {
     await page.goto('/profile/change-password');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const passwordForm = page.locator('form, input[type="password"]').first();
@@ -321,7 +321,7 @@ test.describe('Update Password', () => {
 
   test('should require current password', async ({ page }) => {
     await page.goto('/profile/change-password');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const currentPasswordInput = page.locator('input[name="currentPassword"], input[name="oldPassword"]').first();
@@ -334,7 +334,7 @@ test.describe('Update Password', () => {
 
   test('should validate password strength', async ({ page }) => {
     await page.goto('/profile/change-password');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const newPasswordInput = page.locator('input[name="newPassword"], input[name="password"]').first();
@@ -351,7 +351,7 @@ test.describe('Update Password', () => {
 
   test('should confirm password match', async ({ page }) => {
     await page.goto('/profile/change-password');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const newPasswordInput = page.locator('input[name="newPassword"]').first();
@@ -385,7 +385,7 @@ test.describe('Privacy Settings', () => {
 
   test('should access privacy settings', async ({ page }) => {
     await page.goto('/settings/privacy');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       await expect(page.locator('body')).toBeVisible();
@@ -394,7 +394,7 @@ test.describe('Privacy Settings', () => {
 
   test('should toggle profile visibility', async ({ page }) => {
     await page.goto('/settings/privacy');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const visibilityToggle = page.locator('input[name="profileVisibility"], input[name="public"]').first();
@@ -410,7 +410,7 @@ test.describe('Privacy Settings', () => {
 
   test('should toggle activity visibility', async ({ page }) => {
     await page.goto('/settings/privacy');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const activityToggle = page.locator('input[name="showActivity"], label:has-text("Activity")').first();
@@ -426,7 +426,7 @@ test.describe('Privacy Settings', () => {
 
   test('should toggle favorites visibility', async ({ page }) => {
     await page.goto('/settings/privacy');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const favoritesToggle = page.locator('input[name="showFavorites"], label:has-text("Favorites")').first();
@@ -452,7 +452,7 @@ test.describe('Notification Preferences', () => {
 
   test('should access notification settings', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       await expect(page.locator('body')).toBeVisible();
@@ -461,7 +461,7 @@ test.describe('Notification Preferences', () => {
 
   test('should toggle email notifications', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const emailToggle = page.locator('input[name="emailNotifications"], label:has-text("Email")').first();
@@ -477,7 +477,7 @@ test.describe('Notification Preferences', () => {
 
   test('should toggle push notifications', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const pushToggle = page.locator('input[name="pushNotifications"], label:has-text("Push")').first();
@@ -493,7 +493,7 @@ test.describe('Notification Preferences', () => {
 
   test('should toggle favorite updates notifications', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const favoriteToggle = page.locator('input[name="favoriteUpdates"], label:has-text("Favorite")').first();
@@ -509,7 +509,7 @@ test.describe('Notification Preferences', () => {
 
   test('should save notification preferences', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const saveBtn = page.locator('button:has-text("Save"), button[type="submit"]').first();
@@ -536,7 +536,7 @@ test.describe('Delete Account', () => {
 
   test('should have delete account option', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const deleteOption = page.locator('button:has-text("Delete Account"), a:has-text("Delete Account")').first();
@@ -546,7 +546,7 @@ test.describe('Delete Account', () => {
 
   test('should require confirmation for delete', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const deleteBtn = page.locator('button:has-text("Delete Account")').first();
@@ -564,7 +564,7 @@ test.describe('Delete Account', () => {
 
   test('should require password for delete', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const deleteBtn = page.locator('button:has-text("Delete Account")').first();
@@ -582,7 +582,7 @@ test.describe('Delete Account', () => {
 
   test('should cancel delete account', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const deleteBtn = page.locator('button:has-text("Delete Account")').first();
@@ -616,7 +616,7 @@ test.describe('Account Linking', () => {
 
   test('should show connected accounts', async ({ page }) => {
     await page.goto('/settings/accounts');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const connectedAccounts = page.locator('.connected-accounts, .linked-accounts').first();
@@ -626,7 +626,7 @@ test.describe('Account Linking', () => {
 
   test('should link Google account', async ({ page }) => {
     await page.goto('/settings/accounts');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const googleBtn = page.locator('button:has-text("Google"), a:has-text("Google")').first();
@@ -636,7 +636,7 @@ test.describe('Account Linking', () => {
 
   test('should unlink account', async ({ page }) => {
     await page.goto('/settings/accounts');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const unlinkBtn = page.locator('button:has-text("Unlink"), button:has-text("Disconnect")').first();
@@ -661,7 +661,7 @@ test.describe('Mobile Profile', () => {
 
   test('should display profile on mobile', async ({ page }) => {
     await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       await expect(page.locator('body')).toBeVisible();
@@ -670,7 +670,7 @@ test.describe('Mobile Profile', () => {
 
   test('should edit profile on mobile', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const nameInput = page.locator('input[name="name"]').first();
@@ -686,7 +686,7 @@ test.describe('Mobile Profile', () => {
 
   test('should access settings on mobile', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       // Settings should be accessible
@@ -696,7 +696,7 @@ test.describe('Mobile Profile', () => {
 
   test('should have touch-friendly form controls', async ({ page }) => {
     await page.goto('/profile/edit');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     if (await isLoggedIn(page)) {
       const inputs = page.locator('input, textarea, button');

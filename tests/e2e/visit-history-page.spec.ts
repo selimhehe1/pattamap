@@ -21,7 +21,7 @@ import { generateTestUser, registerUser, loginUser } from './fixtures/testUser';
 test.describe('Access Control', () => {
   test('should require login to view visit history', async ({ page }) => {
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login required message
     const loginRequired = page.locator('text=/Login Required|Please log in/i, .visit-history-error');
@@ -41,7 +41,7 @@ test.describe('Access Control', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show visit history page content
     const pageTitle = page.locator('text=/My Visit History|Visit History/i, h1');
@@ -67,7 +67,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Total visits stat card
     const totalVisits = page.locator('text=/Total Visits/i, .visit-stat-card:has-text("Visits")');
@@ -87,7 +87,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Zones visited stat card
     const zonesVisited = page.locator('text=/Zones Visited/i, .visit-stat-card:has-text("Zones")');
@@ -107,7 +107,7 @@ test.describe('Stats Display', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verified stat card
     const verified = page.locator('text=/Verified/i, .visit-stat-card:has-text("Verified")');
@@ -133,7 +133,7 @@ test.describe('Zone Filtering', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Zone filter select
     const zoneFilter = page.locator('select.visit-filter-select, select:has-text("All Zones")').first();
@@ -153,7 +153,7 @@ test.describe('Zone Filtering', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const zoneFilter = page.locator('select.visit-filter-select').first();
 
@@ -189,7 +189,7 @@ test.describe('Verification Status Filtering', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verification filter select
     const verifiedFilter = page.locator('select:has-text("All Status"), select:has-text("Verified")').first();
@@ -209,7 +209,7 @@ test.describe('Verification Status Filtering', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const verifiedFilter = page.locator('select.visit-filter-select').last();
 
@@ -233,7 +233,7 @@ test.describe('Verification Status Filtering', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const verifiedFilter = page.locator('select.visit-filter-select').last();
 
@@ -263,7 +263,7 @@ test.describe('Timeline Grouping', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Timeline should be visible (or empty state)
     const timeline = page.locator('.visit-timeline, .visit-group, .visit-history-empty');
@@ -284,7 +284,7 @@ test.describe('Timeline Grouping', () => {
 
     // Check-in first to have data
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to check-in at an establishment
     const checkInBtn = page.locator('button:has-text("Check"), .check-in-button').first();
@@ -295,7 +295,7 @@ test.describe('Timeline Grouping', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Today group should be visible if there are today's visits
     const todayGroup = page.locator('.visit-group-title:has-text("Today"), text="Today"');
@@ -321,7 +321,7 @@ test.describe('Visit Cards', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Visit cards with establishment names
     const visitCard = page.locator('.visit-card, .visit-card-name').first();
@@ -341,7 +341,7 @@ test.describe('Visit Cards', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Zone info on cards
     const zoneInfo = page.locator('.visit-card-zone, .visit-card:has-text("Zone")');
@@ -361,7 +361,7 @@ test.describe('Visit Cards', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Date info on cards
     const dateInfo = page.locator('.visit-card-date');
@@ -381,7 +381,7 @@ test.describe('Visit Cards', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verified badge
     const verifiedBadge = page.locator('.visit-verified-badge, .visit-card:has-text("Verified")');
@@ -407,7 +407,7 @@ test.describe('Empty State', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // New user should see empty state (or visits if they checked in)
     const emptyState = page.locator('.visit-history-empty, text=/No visits yet/i');
@@ -427,7 +427,7 @@ test.describe('Empty State', () => {
     }
 
     await page.goto('/my-visits');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Empty state message
     const emptyMessage = page.locator('text=/Start exploring|check in at/i');

@@ -69,7 +69,7 @@ export async function registerUser(
     user.id = mockUser.id;
     user.csrfToken = 'mock-csrf-token';
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     console.log(`✅ Mock user ready: ${user.email}`);
     return;
   }
@@ -180,7 +180,7 @@ export async function loginUser(
     await setupMockAuth(page);
     user.csrfToken = 'mock-csrf-token';
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     console.log(`✅ Mock login ready: ${user.email}`);
     return;
   }
@@ -500,7 +500,7 @@ export async function loginAsAdmin(
     console.log(`🔐 Using MOCK ADMIN AUTH`);
     await setupMockAdminAuth(page);
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     console.log(`✅ Mock admin ready`);
     return {
       id: mockAdminUser.id,

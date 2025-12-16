@@ -27,7 +27,7 @@ const TEST_USER = {
 test.describe('Login Modal', () => {
   test('should display login modal on protected route', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Login modal should appear
     const loginModal = page.locator('text="Welcome Back"')
@@ -38,7 +38,7 @@ test.describe('Login Modal', () => {
 
   test('should have email/pseudonym input field', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     await expect(emailInput).toBeVisible({ timeout: 5000 });
@@ -46,7 +46,7 @@ test.describe('Login Modal', () => {
 
   test('should have password input field', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const passwordInput = page.locator('input[placeholder*="password"]').first();
     await expect(passwordInput).toBeVisible({ timeout: 5000 });
@@ -54,7 +54,7 @@ test.describe('Login Modal', () => {
 
   test('should have sign in button', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const signInBtn = page.locator('button:has-text("Sign In")').first();
     await expect(signInBtn).toBeVisible({ timeout: 5000 });
@@ -62,7 +62,7 @@ test.describe('Login Modal', () => {
 
   test('should have register link', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const registerLink = page.locator('button:has-text("Register"), a:has-text("Register")').first();
     await expect(registerLink).toBeVisible({ timeout: 5000 });
@@ -70,7 +70,7 @@ test.describe('Login Modal', () => {
 
   test('should have close button', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const closeBtn = page.locator('button:has-text("×"), button[aria-label*="close"], .close-btn').first();
     await expect(closeBtn).toBeVisible({ timeout: 5000 });
@@ -78,7 +78,7 @@ test.describe('Login Modal', () => {
 
   test('should close modal on close button click', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const closeBtn = page.locator('button:has-text("×")').first();
 
@@ -99,7 +99,7 @@ test.describe('Login Modal', () => {
 test.describe('Login Form Validation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should show error for empty email', async ({ page }) => {
@@ -173,7 +173,7 @@ test.describe('Login Form Validation', () => {
 test.describe('Login Success', () => {
   test('should login with valid credentials', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -192,7 +192,7 @@ test.describe('Login Success', () => {
 
   test('should redirect to intended page after login', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -212,7 +212,7 @@ test.describe('Login Success', () => {
 
   test('should show user info after login', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -244,7 +244,7 @@ test.describe('Login Success', () => {
 test.describe('Logout', () => {
   test('should have logout option in menu', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Open menu
     const menuBtn = page.locator('button:has-text("☰"), button[aria-label*="menu"]').first();
@@ -262,7 +262,7 @@ test.describe('Logout', () => {
 
   test('should redirect to home after logout', async ({ page }) => {
     await page.goto('/logout');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
     // Should be redirected somewhere (home or login)
@@ -275,7 +275,7 @@ test.describe('Logout', () => {
 
     // Try to access protected route
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal
     const loginModal = page.locator('text="Welcome Back"')
@@ -293,7 +293,7 @@ test.describe('Session Persistence', () => {
   test('should persist session on page refresh', async ({ page }) => {
     // First, try to login
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -311,7 +311,7 @@ test.describe('Session Persistence', () => {
       if (loginGone) {
         // Refresh page
         await page.reload();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Should still be logged in
         const stillNoLogin = !(await page.locator('text="Welcome Back"').first().isVisible().catch(() => false));
@@ -324,7 +324,7 @@ test.describe('Session Persistence', () => {
   test('should maintain session across tabs', async ({ page, context }) => {
     // Login in first tab
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
     const passwordInput = page.locator('input[placeholder*="password"]').first();
@@ -339,7 +339,7 @@ test.describe('Session Persistence', () => {
       // Open second tab
       const page2 = await context.newPage();
       await page2.goto('/dashboard');
-      await page2.waitForLoadState('networkidle');
+      await page2.waitForLoadState('domcontentloaded');
 
       // Check login state in second tab
       await expect(page2.locator('body')).toBeVisible();
@@ -354,7 +354,7 @@ test.describe('Session Persistence', () => {
 test.describe('Protected Routes', () => {
   test('should protect /dashboard route', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal or redirect
     const loginModal = page.locator('text="Welcome Back"')
@@ -366,7 +366,7 @@ test.describe('Protected Routes', () => {
 
   test('should protect /admin route', async ({ page }) => {
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal, redirect, or access denied
     const loginModal = page.locator('text="Welcome Back"')
@@ -383,7 +383,7 @@ test.describe('Protected Routes', () => {
 
   test('should allow access to public routes', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should not require login for home page
     // Map should be visible
@@ -393,7 +393,7 @@ test.describe('Protected Routes', () => {
 
   test('should allow access to search without login', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Search should work without login
     await expect(page.locator('body')).toBeVisible();
@@ -407,7 +407,7 @@ test.describe('Protected Routes', () => {
 test.describe('Password Reset', () => {
   test('should have forgot password link', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const forgotLink = page.locator('a:has-text("Forgot"), button:has-text("Forgot")').first();
 
@@ -417,7 +417,7 @@ test.describe('Password Reset', () => {
 
   test('should navigate to password reset page', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const forgotLink = page.locator('a:has-text("Forgot"), button:has-text("Forgot")').first();
 
@@ -432,7 +432,7 @@ test.describe('Password Reset', () => {
 
   test('should validate email on password reset', async ({ page }) => {
     await page.goto('/forgot-password');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[type="email"], input[placeholder*="email"]').first();
     const submitBtn = page.locator('button[type="submit"], button:has-text("Reset"), button:has-text("Send")').first();
@@ -460,7 +460,7 @@ test.describe('Mobile Authentication', () => {
 
   test('should display login modal correctly on mobile', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const loginModal = page.locator('text="Welcome Back"')
       .or(page.locator('text="Sign in to your account"'));
@@ -470,7 +470,7 @@ test.describe('Mobile Authentication', () => {
 
   test('should have touch-friendly input fields on mobile', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
 
@@ -486,7 +486,7 @@ test.describe('Mobile Authentication', () => {
 
   test('should work with mobile keyboard', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Use broader selector to handle i18n placeholders
     const emailInput = page.locator('input[type="email"], input[type="text"]').first();

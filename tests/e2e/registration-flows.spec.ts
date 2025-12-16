@@ -27,7 +27,7 @@ const generateUniqueUsername = (prefix: string) =>
 test.describe('User Registration Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should display registration form with all fields', async ({ page }) => {
@@ -181,7 +181,7 @@ test.describe('Owner Registration Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to owner registration (might be separate page or role selector)
     await page.goto('/register');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should allow selecting owner role during registration', async ({ page }) => {
@@ -197,7 +197,7 @@ test.describe('Owner Registration Flow', () => {
     } else {
       // Owner registration might be at /register/owner
       await page.goto('/register/owner');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const form = page.locator('form').first();
       await expect(form).toBeVisible();
@@ -458,7 +458,7 @@ test.describe('Email Verification Flow', () => {
     const testPassword = 'SecureP@ssw0rd2024!';
 
     await page.goto('/register');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Register new user
     await page.locator('input[name="email"], input[type="email"]').first().fill(testEmail);

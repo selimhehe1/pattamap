@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Claim Establishment', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test.describe('Claim Button Visibility', () => {
@@ -16,7 +16,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // Look for claim button on unclaimed establishment
@@ -47,7 +47,7 @@ test.describe('Claim Establishment', () => {
         const establishment = page.locator('[data-testid="establishment-card"]').first();
         if (await establishment.isVisible()) {
           await establishment.click();
-          await page.waitForLoadState('networkidle');
+          await page.waitForLoadState('domcontentloaded');
 
           // Claim button should not appear
           const claimButton = page.locator('[data-testid="claim-button"]')
@@ -64,7 +64,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'));
@@ -96,7 +96,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should open claim form when clicking claim button', async ({ page }) => {
@@ -107,7 +107,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -134,7 +134,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -161,7 +161,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -214,7 +214,7 @@ test.describe('Claim Establishment', () => {
     test('should show claim status after submission', async ({ page }) => {
       // Go to user's claims/requests page
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimsSection = page.locator('[data-testid="my-claims"]')
         .or(page.locator('a:has-text("My Claims")'))
@@ -223,7 +223,7 @@ test.describe('Claim Establishment', () => {
 
       if (await claimsSection.first().isVisible()) {
         await claimsSection.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Should see list of claim requests with status
         const claimStatus = page.locator('[data-testid="claim-status"]')
@@ -241,7 +241,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should offer standard claim option', async ({ page }) => {
@@ -251,7 +251,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -278,7 +278,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -305,7 +305,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -329,7 +329,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))
@@ -377,12 +377,12 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'admin@test.com');
       await page.fill('input[type="password"]', 'admin123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should display pending claims in admin dashboard', async ({ page }) => {
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Admin panel should be visible
       const adminPanel = page.locator('[data-testid="admin-panel"]')
@@ -404,7 +404,7 @@ test.describe('Claim Establishment', () => {
 
     test('should show claim details for review', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-item"]')
         .or(page.locator('tr:has-text("Pending")'))
@@ -426,7 +426,7 @@ test.describe('Claim Establishment', () => {
 
     test('should allow admin to approve claim', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-item"]')
         .or(page.locator('tr:has-text("Pending")'))
@@ -462,7 +462,7 @@ test.describe('Claim Establishment', () => {
 
     test('should allow admin to reject claim with reason', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-item"]')
         .or(page.locator('tr:has-text("Pending")'))
@@ -506,7 +506,7 @@ test.describe('Claim Establishment', () => {
 
     test('should show claim history/audit trail', async ({ page }) => {
       await page.goto('/admin/claims');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const claimItem = page.locator('[data-testid="claim-item"]').first();
 
@@ -532,12 +532,12 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'currentowner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should allow owner to transfer ownership', async ({ page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Navigate to establishment settings
       const settingsLink = page.locator('[data-testid="establishment-settings"]')
@@ -546,7 +546,7 @@ test.describe('Claim Establishment', () => {
 
       if (await settingsLink.first().isVisible()) {
         await settingsLink.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Look for transfer ownership option
         const transferOption = page.locator('[data-testid="transfer-ownership"]')
@@ -559,7 +559,7 @@ test.describe('Claim Establishment', () => {
 
     test('should require confirmation for ownership transfer', async ({ page }) => {
       await page.goto('/dashboard/settings');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const transferButton = page.locator('[data-testid="transfer-ownership"]')
         .or(page.locator('button:has-text("Transfer")'));
@@ -585,7 +585,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check notifications
       const notificationBell = page.locator('[data-testid="notification-bell"]')
@@ -607,7 +607,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const notificationBell = page.locator('[data-testid="notification-bell"]')
         .or(page.locator('[aria-label*="notification"]'));
@@ -627,10 +627,10 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/settings');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for email notification settings
       const emailSettings = page.locator('[data-testid="email-notifications"]')
@@ -646,7 +646,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'disputeowner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should allow disputing an existing claim', async ({ page }) => {
@@ -657,7 +657,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Look for dispute option
         const disputeButton = page.locator('[data-testid="dispute-claim"]')
@@ -675,7 +675,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const disputeButton = page.locator('[data-testid="dispute-claim"]')
           .or(page.locator('button:has-text("Dispute")'))
@@ -704,7 +704,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'));
@@ -720,7 +720,7 @@ test.describe('Claim Establishment', () => {
       await page.fill('input[type="email"]', 'owner@test.com');
       await page.fill('input[type="password"]', 'password123');
       await page.click('button[type="submit"]');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.goto('/');
 
@@ -728,7 +728,7 @@ test.describe('Claim Establishment', () => {
 
       if (await establishment.isVisible()) {
         await establishment.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         const claimButton = page.locator('[data-testid="claim-button"]')
           .or(page.locator('button:has-text("Claim")'))

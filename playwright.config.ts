@@ -35,12 +35,12 @@ export default defineConfig({
   globalSetup: './tests/e2e/global-setup.ts',
 
   // Maximum time one test can run for
-  timeout: 60 * 1000, // 60 seconds per test
+  timeout: 30 * 1000, // 30 seconds per test (reduced from 60s)
 
   // Test execution settings
   fullyParallel: false, // Sequential to avoid rate limiting on auth
   forbidOnly: !!process.env.CI, // Fail on .only() in CI
-  retries: process.env.CI ? 2 : 1, // Retry failed tests (rate limit may have passed)
+  retries: process.env.CI ? 1 : 0, // Reduced retries to speed up failure detection
   workers: 1, // Single worker to avoid Supabase rate limiting on auth
 
   // Reporter config
@@ -55,9 +55,9 @@ export default defineConfig({
     // Base URL for navigation
     baseURL: 'http://localhost:3000',
 
-    // Timeouts
-    actionTimeout: 15 * 1000, // 15s per action
-    navigationTimeout: 30 * 1000, // 30s page load
+    // Timeouts (reduced to fail faster)
+    actionTimeout: 10 * 1000, // 10s per action
+    navigationTimeout: 15 * 1000, // 15s page load
 
     // Screenshots & videos
     screenshot: 'only-on-failure', // Capture on test failure

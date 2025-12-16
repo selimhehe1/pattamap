@@ -23,7 +23,7 @@ import { generateTestUser, registerUser, loginUser, TestUser } from './fixtures/
 test.describe('Logo Navigation', () => {
   test('should display logo in header', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const logo = page.locator('header img[alt*="logo"], header .logo, header a[href="/"]').first();
     await expect(logo).toBeVisible({ timeout: 5000 });
@@ -31,20 +31,20 @@ test.describe('Logo Navigation', () => {
 
   test('should navigate to home when clicking logo', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const logo = page.locator('header a[href="/"], header .logo').first();
 
     if (await logo.isVisible({ timeout: 3000 }).catch(() => false)) {
       await logo.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toMatch(/\/$/);
     }
   });
 
   test('should navigate to home from nested page', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to click logo (even if login modal appears)
     const logo = page.locator('header a[href="/"], header .logo, [data-testid="logo"]').first();
@@ -65,7 +65,7 @@ test.describe('Logo Navigation', () => {
 test.describe('Search Bar', () => {
   test('should display search input in header', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('header input[type="search"], header input[placeholder*="search"], header input[placeholder*="Search"]').first();
 
@@ -80,7 +80,7 @@ test.describe('Search Bar', () => {
 
   test('should focus search input on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
 
@@ -92,7 +92,7 @@ test.describe('Search Bar', () => {
 
   test('should accept text input', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
 
@@ -104,7 +104,7 @@ test.describe('Search Bar', () => {
 
   test('should submit search on Enter', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
 
@@ -124,7 +124,7 @@ test.describe('Search Bar', () => {
 
   test('should show autocomplete suggestions', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
 
@@ -153,7 +153,7 @@ test.describe('User Menu', () => {
 
   test('should show login button when not authenticated', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const loginBtn = page.locator('button:has-text("Login"), button:has-text("Sign In"), a:has-text("Login")').first();
     const userMenu = page.locator('[data-testid="user-menu"], .user-avatar, .user-menu').first();
@@ -167,7 +167,7 @@ test.describe('User Menu', () => {
 
   test('should open user menu dropdown on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Register and login
     try {
@@ -177,7 +177,7 @@ test.describe('User Menu', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const userMenuButton = page.locator('[data-testid="user-menu"], .user-avatar, button:has(.avatar)').first();
 
@@ -193,7 +193,7 @@ test.describe('User Menu', () => {
 
   test('should show user options in dropdown', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     try {
       await loginUser(page, testUser);
@@ -203,7 +203,7 @@ test.describe('User Menu', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const userMenuButton = page.locator('[data-testid="user-menu"], .user-avatar').first();
 
@@ -224,7 +224,7 @@ test.describe('User Menu', () => {
 
   test('should close user menu on outside click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     try {
       await loginUser(page, testUser);
@@ -233,7 +233,7 @@ test.describe('User Menu', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const userMenuButton = page.locator('[data-testid="user-menu"], .user-avatar').first();
 
@@ -259,7 +259,7 @@ test.describe('User Menu', () => {
 test.describe('Notification Bell', () => {
   test('should display notification bell in header', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const notificationBell = page.locator('[data-testid="notification-bell"], .notification-bell, button[aria-label*="notification" i]').first();
 
@@ -270,7 +270,7 @@ test.describe('Notification Bell', () => {
   test('should show notification count badge', async ({ page }) => {
     // This test requires a logged-in user with notifications
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const badge = page.locator('.notification-badge, .badge, [data-testid="notification-count"]').first();
 
@@ -280,7 +280,7 @@ test.describe('Notification Bell', () => {
 
   test('should open notification dropdown on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const testUser = generateTestUser();
     try {
@@ -290,7 +290,7 @@ test.describe('Notification Bell', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const notificationBell = page.locator('[data-testid="notification-bell"], .notification-bell, button[aria-label*="notification" i]').first();
 
@@ -315,7 +315,7 @@ test.describe('Notification Bell', () => {
 test.describe('Theme Toggle', () => {
   test('should display theme toggle button', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const themeToggle = page.locator('[data-testid="theme-toggle"], .theme-toggle, button[aria-label*="theme" i], button[aria-label*="dark" i], button[aria-label*="light" i]').first();
 
@@ -325,7 +325,7 @@ test.describe('Theme Toggle', () => {
 
   test('should toggle dark mode on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const themeToggle = page.locator('[data-testid="theme-toggle"], .theme-toggle, button[aria-label*="theme" i]').first();
 
@@ -354,7 +354,7 @@ test.describe('Theme Toggle', () => {
 
   test('should persist theme preference', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const themeToggle = page.locator('[data-testid="theme-toggle"], .theme-toggle').first();
 
@@ -364,7 +364,7 @@ test.describe('Theme Toggle', () => {
 
       // Reload page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Theme should persist (check localStorage)
       const storedTheme = await page.evaluate(() => localStorage.getItem('theme'));
@@ -381,7 +381,7 @@ test.describe('Theme Toggle', () => {
 test.describe('Language Selector', () => {
   test('should display language selector', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"], .language-selector, select[name="language"], button:has-text("EN"), button:has-text("TH")').first();
 
@@ -391,7 +391,7 @@ test.describe('Language Selector', () => {
 
   test('should show language options on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"], .language-selector').first();
 
@@ -410,7 +410,7 @@ test.describe('Language Selector', () => {
 
   test('should change language when selecting option', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"], .language-selector').first();
 
@@ -441,7 +441,7 @@ test.describe('XP Display', () => {
     const testUser = generateTestUser();
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     try {
       await registerUser(page, testUser);
@@ -450,7 +450,7 @@ test.describe('XP Display', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const xpDisplay = page.locator('.xp-display, [data-testid="xp"], .user-xp, text=/\\d+\\s*XP/i').first();
     const hasXP = await xpDisplay.isVisible({ timeout: 5000 }).catch(() => false);
@@ -470,7 +470,7 @@ test.describe('XP Display', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const levelDisplay = page.locator('.level, [data-testid="level"], text=/Level\\s*\\d+/i, text=/Lv\\.?\\s*\\d+/i').first();
     const hasLevel = await levelDisplay.isVisible({ timeout: 5000 }).catch(() => false);
@@ -487,7 +487,7 @@ test.describe('XP Display', () => {
 test.describe('Back Button', () => {
   test('should show back button on non-homepage', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const backButton = page.locator('button[aria-label*="back" i], a[aria-label*="back" i], .back-button, [data-testid="back-button"]').first();
 
@@ -498,7 +498,7 @@ test.describe('Back Button', () => {
 
   test('should not show back button on homepage', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const backButton = page.locator('.back-button, [data-testid="back-button"]').first();
     const hasBackButton = await backButton.isVisible({ timeout: 2000 }).catch(() => false);
@@ -509,16 +509,16 @@ test.describe('Back Button', () => {
 
   test('should navigate back on click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await page.goto('/search');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const backButton = page.locator('button[aria-label*="back" i], .back-button').first();
 
     if (await backButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await backButton.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should go back to previous page
       expect(page.url()).not.toContain('/search');
@@ -542,7 +542,7 @@ test.describe('Add Buttons', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addEmployeeBtn = page.locator('button:has-text("Add Employee"), button:has-text("Add Girl"), [data-testid="add-employee"]').first();
     const hasButton = await addEmployeeBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -562,7 +562,7 @@ test.describe('Add Buttons', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addEmployeeBtn = page.locator('button:has-text("Add Employee"), button:has-text("Add Girl")').first();
 
@@ -587,7 +587,7 @@ test.describe('Add Buttons', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addEstablishmentBtn = page.locator('button:has-text("Add Establishment"), button:has-text("Add Bar"), [data-testid="add-establishment"]').first();
     const hasButton = await addEstablishmentBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -607,7 +607,7 @@ test.describe('Add Buttons', () => {
     }
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const addEstablishmentBtn = page.locator('button:has-text("Add Establishment"), button:has-text("Add Bar")').first();
 
@@ -634,7 +634,7 @@ test.describe('Mobile Header', () => {
 
   test('should display hamburger menu on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const hamburger = page.locator('button[aria-label*="menu" i], .hamburger, .menu-toggle, [data-testid="mobile-menu"]').first();
     const hasHamburger = await hamburger.isVisible({ timeout: 5000 }).catch(() => false);
@@ -644,7 +644,7 @@ test.describe('Mobile Header', () => {
 
   test('should open mobile menu on hamburger click', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const hamburger = page.locator('button[aria-label*="menu" i], .hamburger, .menu-toggle').first();
 
@@ -660,7 +660,7 @@ test.describe('Mobile Header', () => {
 
   test('should have touch-friendly header elements', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const headerButtons = page.locator('header button');
     const buttonCount = await headerButtons.count();

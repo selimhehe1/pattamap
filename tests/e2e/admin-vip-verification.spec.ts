@@ -39,7 +39,7 @@ test.describe('Admin VIP Verification Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to login
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     // Dismiss any dev overlays
     await dismissDevOverlay(page);
   });
@@ -340,7 +340,7 @@ test.describe('Admin VIP Verification Flow', () => {
     }
 
     await page.goto('/admin/vip-verification');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await dismissDevOverlay(page);
 
     // Look for refresh button - use class instead of text which may be translated
@@ -367,7 +367,7 @@ test.describe('Admin VIP Verification Flow', () => {
     }
 
     await page.goto('/admin/vip-verification');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await dismissDevOverlay(page);
 
     // Find refresh button - use class instead of text which may be translated
@@ -407,7 +407,7 @@ test.describe('Admin VIP Verification - Security', () => {
 
     // Login as regular owner (not admin)
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await dismissDevOverlay(page);
     await page.locator('input[type="email"]').first().fill('owner@test.com');
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');

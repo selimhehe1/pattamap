@@ -136,7 +136,7 @@ export async function loginAsAdmin(
 export async function verifyAdminAccess(page: Page): Promise<boolean> {
   try {
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for admin panel indicators
     const adminIndicators = [
@@ -191,7 +191,7 @@ export async function navigateToAdminTab(
   }
 
   await page.goto('/admin');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
   const tab = page.locator(selector).first();
   if (await tab.isVisible({ timeout: 5000 })) {

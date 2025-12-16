@@ -32,7 +32,7 @@ async function openMenuIfNeeded(page: Page) {
 test.describe('Language Switcher', () => {
   test('should display language switcher', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -49,7 +49,7 @@ test.describe('Language Switcher', () => {
 
   test('should show available languages', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -63,7 +63,7 @@ test.describe('Language Switcher', () => {
 
   test('should have accessible language switcher', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -82,7 +82,7 @@ test.describe('Language Switcher', () => {
 test.describe('Language Switching', () => {
   test('should switch to Thai', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -103,7 +103,7 @@ test.describe('Language Switching', () => {
 
   test('should switch to Russian', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -124,7 +124,7 @@ test.describe('Language Switching', () => {
 
   test('should switch to Chinese', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -145,7 +145,7 @@ test.describe('Language Switching', () => {
 
   test('should switch back to English', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -172,7 +172,7 @@ test.describe('Language Switching', () => {
 test.describe('Text Translations', () => {
   test('should translate navigation items', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check default navigation text exists
     const navText = page.locator('nav, header').first();
@@ -181,7 +181,7 @@ test.describe('Text Translations', () => {
 
   test('should translate button labels', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check buttons have text
     const buttons = page.locator('button:not(:empty)').first();
@@ -190,7 +190,7 @@ test.describe('Text Translations', () => {
 
   test('should translate form labels', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check form labels in login modal
     const formLabels = page.locator('label, .form-label').first();
@@ -201,7 +201,7 @@ test.describe('Text Translations', () => {
 
   test('should translate error messages', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to trigger an error
     const signInBtn = page.locator('button:has-text("Sign In")').first();
@@ -217,7 +217,7 @@ test.describe('Text Translations', () => {
 
   test('should translate placeholder text', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check placeholders
     const inputWithPlaceholder = page.locator('input[placeholder]').first();
@@ -236,7 +236,7 @@ test.describe('Text Translations', () => {
 test.describe('Language Persistence', () => {
   test('should persist language preference in localStorage', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check localStorage for language preference
     const storedLang = await page.evaluate(() => {
@@ -251,7 +251,7 @@ test.describe('Language Persistence', () => {
 
   test('should maintain language after page refresh', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -264,7 +264,7 @@ test.describe('Language Persistence', () => {
 
       // Refresh page
       await page.reload();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if language persisted
       await expect(page.locator('body')).toBeVisible();
@@ -273,7 +273,7 @@ test.describe('Language Persistence', () => {
 
   test('should maintain language across navigation', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -286,7 +286,7 @@ test.describe('Language Persistence', () => {
 
       // Navigate to another page
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Language should be maintained
       await expect(page.locator('body')).toBeVisible();
@@ -302,7 +302,7 @@ test.describe('URL-based Language', () => {
   test('should support language in URL path', async ({ page }) => {
     // Try accessing with language prefix
     await page.goto('/th');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // May redirect or show Thai content
     await expect(page.locator('body')).toBeVisible();
@@ -310,7 +310,7 @@ test.describe('URL-based Language', () => {
 
   test('should support language query parameter', async ({ page }) => {
     await page.goto('/?lang=th');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // May or may not support query param
     await expect(page.locator('body')).toBeVisible();
@@ -323,7 +323,7 @@ test.describe('URL-based Language', () => {
         'Accept-Language': 'th-TH,th;q=0.9,en;q=0.8'
       }
     });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // May auto-detect Thai
     await expect(page.locator('body')).toBeVisible();
@@ -337,7 +337,7 @@ test.describe('URL-based Language', () => {
 test.describe('Date/Time Formatting', () => {
   test('should format dates according to locale', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for dates on page
     const dateElements = page.locator('[data-date], time, .date').first();
@@ -348,7 +348,7 @@ test.describe('Date/Time Formatting', () => {
 
   test('should format times according to locale', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for time elements
     const timeElements = page.locator('[data-time], .time, .hours').first();
@@ -365,7 +365,7 @@ test.describe('Date/Time Formatting', () => {
 test.describe('Number Formatting', () => {
   test('should format numbers according to locale', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for numbers on page (prices, counts, etc.)
     const numberElements = page.locator('[data-price], .price, .count').first();
@@ -376,7 +376,7 @@ test.describe('Number Formatting', () => {
 
   test('should format currency according to locale', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for currency on page
     const currencyElements = page.locator('text=/฿|THB|\\$/').first();
@@ -398,7 +398,7 @@ test.describe('Mobile i18n', () => {
 
   test('should display language switcher on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -408,7 +408,7 @@ test.describe('Mobile i18n', () => {
 
   test('should switch language on mobile', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await openMenuIfNeeded(page);
 
@@ -425,7 +425,7 @@ test.describe('Mobile i18n', () => {
 
   test('should handle long translations without breaking layout', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check that content doesn't overflow
     const hasHorizontalScroll = await page.evaluate(() => {
@@ -444,7 +444,7 @@ test.describe('Mobile i18n', () => {
 test.describe('Fallback Behavior', () => {
   test('should fallback to English for missing translations', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Page should always have readable content
     const textContent = await page.locator('body').textContent();
@@ -454,7 +454,7 @@ test.describe('Fallback Behavior', () => {
 
   test('should not show translation keys', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for untranslated keys (typically in format "key.subkey")
     const textContent = await page.locator('body').textContent();
@@ -467,7 +467,7 @@ test.describe('Fallback Behavior', () => {
   test('should handle missing language gracefully', async ({ page }) => {
     // Try invalid language
     await page.goto('/?lang=xx');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Should not crash, should fallback to default
     await expect(page.locator('body')).toBeVisible();

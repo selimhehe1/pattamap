@@ -17,7 +17,7 @@ test.describe('Map Performance - Desktop', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to a map page (e.g., Walking Street zone)
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('should load map within 2 seconds', async ({ page }) => {
@@ -56,7 +56,7 @@ test.describe('Map Performance - Desktop', () => {
   test('should render establishment cards in grid', async ({ page }) => {
     // Navigate directly to map page
     await page.goto('/map/walking-street');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for establishment cards with flexible selectors
     const establishmentCards = page.locator('.establishment-card, [data-testid="establishment-card"], .grid-item, [class*="card"], [class*="establishment"]');
@@ -135,7 +135,7 @@ test.describe('Map Performance - Desktop', () => {
   test('should allow clicking on establishment cards', async ({ page }) => {
     // Navigate directly to map page
     await page.goto('/map/walking-street');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find establishment cards with flexible selectors
     const establishmentCards = page.locator('.establishment-card, [data-testid="establishment-card"], .grid-item');
@@ -259,7 +259,7 @@ test.describe('Map Performance - Mobile', () => {
   test('should render establishment cards in mobile view', async ({ page }) => {
     // Navigate directly to map
     await page.goto('/map/walking-street');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Cards should still be visible on mobile (flexible selectors)
     const establishmentCards = page.locator('.establishment-card, [data-testid="establishment-card"], .grid-item, [class*="card"]');

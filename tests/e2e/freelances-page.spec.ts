@@ -19,14 +19,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Freelances Page Load', () => {
   test('should load freelances page', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('should display page title', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const title = page.locator('h1:has-text("Freelance"), h1:has-text("Independent")').first();
     const hasTitle = await title.isVisible({ timeout: 5000 }).catch(() => false);
@@ -36,7 +36,7 @@ test.describe('Freelances Page Load', () => {
 
   test('should display freelance cards', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const cards = page.locator('.freelance-card, .employee-card, [data-testid="freelance-card"]');
     const cardCount = await cards.count();
@@ -47,7 +47,7 @@ test.describe('Freelances Page Load', () => {
 
   test('should display freelance count', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const count = page.locator('.freelance-count, [data-testid="count"], text=/\\d+\\s*freelance/i').first();
     const hasCount = await count.isVisible({ timeout: 5000 }).catch(() => false);
@@ -63,7 +63,7 @@ test.describe('Freelances Page Load', () => {
 test.describe('Filter Freelances', () => {
   test('should display nationality filter', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nationalityFilter = page.locator('[data-testid="nationality-filter"], select[name="nationality"], .nationality-filter').first();
     const hasFilter = await nationalityFilter.isVisible({ timeout: 5000 }).catch(() => false);
@@ -73,7 +73,7 @@ test.describe('Filter Freelances', () => {
 
   test('should filter by nationality', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nationalitySelect = page.locator('select[name="nationality"]').first();
 
@@ -88,7 +88,7 @@ test.describe('Filter Freelances', () => {
 
   test('should filter by age range', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const minAge = page.locator('input[name="minAge"]').first();
     const maxAge = page.locator('input[name="maxAge"]').first();
@@ -107,7 +107,7 @@ test.describe('Filter Freelances', () => {
 
   test('should combine filters', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nationalitySelect = page.locator('select[name="nationality"]').first();
     const minAge = page.locator('input[name="minAge"]').first();
@@ -132,7 +132,7 @@ test.describe('Filter Freelances', () => {
 test.describe('Sort Freelances', () => {
   test('should display sort options', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortSelect = page.locator('select[name="sort"], [data-testid="sort"], button:has-text("Sort")').first();
     const hasSort = await sortSelect.isVisible({ timeout: 5000 }).catch(() => false);
@@ -142,7 +142,7 @@ test.describe('Sort Freelances', () => {
 
   test('should sort by rating', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortSelect = page.locator('select[name="sort"]').first();
 
@@ -156,7 +156,7 @@ test.describe('Sort Freelances', () => {
 
   test('should sort by recent', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortSelect = page.locator('select[name="sort"]').first();
 
@@ -170,7 +170,7 @@ test.describe('Sort Freelances', () => {
 
   test('should persist sort in URL', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sortSelect = page.locator('select[name="sort"]').first();
 
@@ -191,7 +191,7 @@ test.describe('Sort Freelances', () => {
 test.describe('Freelance Card', () => {
   test('should display freelance photo', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const card = page.locator('.freelance-card, .employee-card').first();
 
@@ -203,7 +203,7 @@ test.describe('Freelance Card', () => {
 
   test('should display freelance name', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const card = page.locator('.freelance-card, .employee-card').first();
 
@@ -215,7 +215,7 @@ test.describe('Freelance Card', () => {
 
   test('should display freelance badge', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const freelanceBadge = page.locator('.freelance-badge, text="Freelance", [data-type="freelance"]').first();
     const hasBadge = await freelanceBadge.isVisible({ timeout: 5000 }).catch(() => false);
@@ -225,7 +225,7 @@ test.describe('Freelance Card', () => {
 
   test('should open profile modal on card click', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const card = page.locator('.freelance-card, .employee-card').first();
 
@@ -240,7 +240,7 @@ test.describe('Freelance Card', () => {
 
   test('should show rating on card', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const card = page.locator('.freelance-card, .employee-card').first();
 
@@ -260,7 +260,7 @@ test.describe('Freelance Card', () => {
 test.describe('Freelances Pagination', () => {
   test('should display pagination if many results', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const pagination = page.locator('.pagination, [data-testid="pagination"]').first();
     const hasPagination = await pagination.isVisible({ timeout: 5000 }).catch(() => false);
@@ -271,7 +271,7 @@ test.describe('Freelances Pagination', () => {
 
   test('should navigate to next page', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const nextBtn = page.locator('button:has-text("Next"), [aria-label="Next"]').first();
 
@@ -286,7 +286,7 @@ test.describe('Freelances Pagination', () => {
 
   test('should show page numbers', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const pageNumbers = page.locator('.pagination button, .pagination a');
     const count = await pageNumbers.count();
@@ -303,7 +303,7 @@ test.describe('Freelances Pagination', () => {
 test.describe('Freelances Empty State', () => {
   test('should show empty state when no freelances match filters', async ({ page }) => {
     await page.goto('/freelances?nationality=XYZ&minAge=99');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const emptyState = page.locator('.empty-state, [data-testid="no-results"], text=/no freelance|not found/i').first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
@@ -313,7 +313,7 @@ test.describe('Freelances Empty State', () => {
 
   test('should show reset filters option in empty state', async ({ page }) => {
     await page.goto('/freelances?minAge=99');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const resetBtn = page.locator('button:has-text("Reset"), button:has-text("Clear")').first();
     const hasReset = await resetBtn.isVisible({ timeout: 5000 }).catch(() => false);
@@ -334,7 +334,7 @@ test.describe('Mobile Freelances', () => {
 
   test('should display mobile-friendly grid', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const cards = page.locator('.freelance-card, .employee-card');
     const cardCount = await cards.count();
@@ -352,7 +352,7 @@ test.describe('Mobile Freelances', () => {
 
   test('should show filters in drawer on mobile', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const filtersBtn = page.locator('button:has-text("Filters"), [data-testid="mobile-filters"]').first();
 

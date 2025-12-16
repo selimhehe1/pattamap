@@ -23,7 +23,7 @@ const TEST_USER = {
 // Helper to login
 async function loginAsUser(page: Page) {
   await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[type="email"]').first().fill(TEST_USER.email);
   await page.locator('input[type="password"]').first().fill(TEST_USER.password);
   await page.locator('button[type="submit"]').first().click();
