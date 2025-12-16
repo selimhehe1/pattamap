@@ -83,15 +83,19 @@ export default defineConfig({
     {
       name: 'chromium-mobile',
       use: {
-        ...devices['iPhone 12'],
+        ...devices['Desktop Chrome'],
         viewport: { width: 375, height: 812 },
+        isMobile: true,
+        hasTouch: true,
       },
     },
     {
       name: 'chromium-tablet',
       use: {
-        ...devices['iPad Pro'],
+        ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 1366 },
+        isMobile: true,
+        hasTouch: true,
       },
     },
 
