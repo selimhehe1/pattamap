@@ -424,13 +424,16 @@ test.describe('Remove from Favorites', () => {
       return;
     }
 
-    // Remove all favorites using the badge button
+    // Remove all favorites using the badge button (with max attempts to prevent infinite loop)
     let removeBtn = page.locator('.favorite-badge-nightlife, .remove-favorite').first();
+    const maxAttempts = 50;
+    let attempts = 0;
 
-    while (await removeBtn.isVisible().catch(() => false)) {
+    while (await removeBtn.isVisible().catch(() => false) && attempts < maxAttempts) {
       await removeBtn.click();
       await page.waitForTimeout(500);
       removeBtn = page.locator('.favorite-badge-nightlife, .remove-favorite').first();
+      attempts++;
     }
 
     // Should show empty state or just verify page is stable

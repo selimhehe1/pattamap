@@ -1,27 +1,29 @@
 name: E2E Nightly
 
 # Runs comprehensive E2E tests every night at 2 AM UTC
-# Tests all browsers and viewports for full coverage
+# Tests are split into parallel jobs by category for faster execution
 
 on:
   schedule:
     - cron: '0 2 * * *' # Every day at 2 AM UTC
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 env:
   NODE_VERSION: '20.x'
 
 jobs:
-  e2e-full:
-    name: E2E Full Suite
+  # Shared setup job to avoid repeating build steps
+  setup:
+    name: Setup & Build
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [chromium-desktop, chromium-mobile, chromium-tablet]
-
+    timeout-minutes: 15
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,6 +33,20 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ steps.cache-key.outputs.key }}
 
       - name: Install frontend dependencies
         run: npm ci --legacy-peer-deps
@@ -54,61 +70,522 @@ jobs:
         run: npm run build
         working-directory: backend
 
-      - name: Start backend server
+  # Job 1: Smoke Tests (Critical Path)
+  e2e-smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop, chromium-mobile, chromium-tablet]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
         run: |
-          npm start > backend.log 2>&1 &
-          sleep 10
-        working-directory: backend
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
         env:
           NODE_ENV: test
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
-          SENTRY_DSN: ""
 
-      - name: Start frontend server
-        run: |
-          npx serve -s build -l 3000 &
-          sleep 3
-
-      - name: Wait for servers
-        run: |
-          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
-
-      - name: Run E2E tests (${{ matrix.project }})
-        run: npm run test:e2e -- --project=${{ matrix.project }} --workers=4
-        timeout-minutes: 45
+      - name: Run Smoke Tests
+        run: npx playwright test tests/e2e/smoke.spec.ts --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 8
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
 
-      - name: Upload E2E report
+      - name: Upload report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.project }}
-          path: |
-            playwright-report/
-            tests/e2e/reports/
-          retention-days: 14
+          name: report-smoke-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
 
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
+  # Job 2: Authentication & User Tests
+  e2e-auth:
+    name: Auth & User Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop, chromium-mobile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          name: e2e-screenshots-${{ matrix.project }}
-          path: tests/e2e/screenshots/
-          retention-days: 14
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-  # Notify on failure
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run Auth Tests
+        run: |
+          npx playwright test \
+            tests/e2e/authentication.spec.ts \
+            tests/e2e/registration-flows.spec.ts \
+            tests/e2e/user-profile-page.spec.ts \
+            tests/e2e/user-dashboard.spec.ts \
+            tests/e2e/profile-edit.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 18
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-auth-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 3: CRUD & Management Tests
+  e2e-crud:
+    name: CRUD & Management Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run CRUD Tests
+        run: |
+          npx playwright test \
+            tests/e2e/employee-crud.spec.ts \
+            tests/e2e/employee-detail.spec.ts \
+            tests/e2e/establishment-detail.spec.ts \
+            tests/e2e/claim-establishment.spec.ts \
+            tests/e2e/owner-management.spec.ts \
+            tests/e2e/employee-profile-claim.spec.ts \
+            tests/e2e/employee-verification.spec.ts \
+            tests/e2e/admin-panel.spec.ts \
+            tests/e2e/admin-vip-verification.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 23
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-crud-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 4: Features Tests (Gamification, VIP, Favorites, etc.)
+  e2e-features:
+    name: Features Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop, chromium-mobile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run Features Tests
+        run: |
+          npx playwright test \
+            tests/e2e/gamification.spec.ts \
+            tests/e2e/gamification-complete.spec.ts \
+            tests/e2e/vip-system.spec.ts \
+            tests/e2e/vip-payment-flow.spec.ts \
+            tests/e2e/favorites.spec.ts \
+            tests/e2e/notifications.spec.ts \
+            tests/e2e/reviews-ratings.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 23
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-features-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 5: UI & Accessibility Tests
+  e2e-ui:
+    name: UI & Accessibility Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop, chromium-mobile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run UI Tests
+        run: |
+          npx playwright test \
+            tests/e2e/accessibility.spec.ts \
+            tests/e2e/accessibility-audit.spec.ts \
+            tests/e2e/theme-switching.spec.ts \
+            tests/e2e/keyboard-navigation.spec.ts \
+            tests/e2e/mobile.spec.ts \
+            tests/e2e/buttons-interactions.spec.ts \
+            tests/e2e/modals-forms.spec.ts \
+            tests/e2e/header-navigation.spec.ts \
+            tests/e2e/i18n.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 23
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-ui-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 6: Pages & Navigation Tests
+  e2e-pages:
+    name: Pages & Navigation Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop, chromium-mobile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run Pages Tests
+        run: |
+          npx playwright test \
+            tests/e2e/search-page.spec.ts \
+            tests/e2e/filters.spec.ts \
+            tests/e2e/freelances-page.spec.ts \
+            tests/e2e/not-found-page.spec.ts \
+            tests/e2e/user-search-flow.spec.ts \
+            tests/e2e/visit-history-page.spec.ts \
+            tests/e2e/sidebar-establishment.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 18
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-pages-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Job 7: Maps & Performance Tests
+  e2e-maps-perf:
+    name: Maps & Performance Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium-desktop]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            backend/dist
+            node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start servers
+        run: |
+          cd backend && npm start > backend.log 2>&1 &
+          sleep 5
+          npx serve -s build -l 3000 &
+          sleep 3
+          timeout 60 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          NODE_ENV: test
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
+          SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Run Maps & Performance Tests
+        run: |
+          npx playwright test \
+            tests/e2e/map-interactions.spec.ts \
+            tests/e2e/map-performance.spec.ts \
+            tests/e2e/performance-audit.spec.ts \
+            tests/e2e/network-errors.spec.ts \
+            tests/e2e/error-handling.spec.ts \
+            tests/e2e/photo-upload.spec.ts \
+            tests/e2e/pwa.spec.ts \
+            --project=${{ matrix.project }} --workers=2
+        timeout-minutes: 18
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-maps-perf-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Notify on failure - creates GitHub issue
   notify:
     name: Notify on Failure
     runs-on: ubuntu-latest
-    needs: [e2e-full]
+    needs: [e2e-smoke, e2e-auth, e2e-crud, e2e-features, e2e-ui, e2e-pages, e2e-maps-perf]
     if: failure()
 
     steps:
@@ -117,10 +594,36 @@ jobs:
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
+            const body = [
+              '## E2E Nightly Tests Failed',
+              '',
+              `**Date:** ${date}`,
+              `**Run ID:** ${context.runId}`,
+              '',
+              '### Test Categories',
+              'The following test categories were executed:',
+              '- Smoke Tests',
+              '- Auth & User Tests',
+              '- CRUD & Management Tests',
+              '- Features Tests (Gamification, VIP, etc.)',
+              '- UI & Accessibility Tests',
+              '- Pages & Navigation Tests',
+              '- Maps & Performance Tests',
+              '',
+              '### Details',
+              `Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for detailed logs and artifacts.`,
+              '',
+              '### Artifacts',
+              'Test reports have been uploaded as artifacts for each failed job.',
+              '',
+              '---',
+              '*This issue was automatically created by the E2E Nightly workflow.*'
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `E2E Nightly Tests Failed - ${date}`,
-              body: `The nightly E2E tests failed on ${date}.\n\nCheck the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
+              body: body,
               labels: ['bug', 'e2e-tests', 'automated']
             });
