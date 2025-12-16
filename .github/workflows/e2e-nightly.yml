@@ -123,9 +123,16 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
+
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
       - name: Run Smoke Tests
         run: npx playwright test tests/e2e/smoke.spec.ts --project=${{ matrix.project }} --workers=1
@@ -133,6 +140,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'false'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -143,12 +151,10 @@ jobs:
           retention-days: 7
 
   # Job 2: Authentication & User Tests
-  # DISABLED: Requires real test accounts in Supabase
   e2e-auth:
     name: Auth & User Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -199,7 +205,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -216,6 +222,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -226,12 +233,10 @@ jobs:
           retention-days: 7
 
   # Job 3: CRUD & Management Tests
-  # DISABLED: Requires admin authentication
   e2e-crud:
     name: CRUD & Management Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -282,7 +287,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -303,6 +308,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -313,12 +319,10 @@ jobs:
           retention-days: 7
 
   # Job 4: Features Tests (Gamification, VIP, Favorites, etc.)
-  # DISABLED: Requires user authentication
   e2e-features:
     name: Features Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -369,7 +373,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -388,6 +392,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -398,12 +403,10 @@ jobs:
           retention-days: 7
 
   # Job 5: UI & Accessibility Tests
-  # DISABLED: Some tests require authentication
   e2e-ui:
     name: UI & Accessibility Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -454,7 +457,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -475,6 +478,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -485,12 +489,10 @@ jobs:
           retention-days: 7
 
   # Job 6: Pages & Navigation Tests
-  # DISABLED: Some tests require authentication
   e2e-pages:
     name: Pages & Navigation Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -541,7 +543,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -560,6 +562,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -570,12 +573,10 @@ jobs:
           retention-days: 7
 
   # Job 7: Maps & Performance Tests
-  # DISABLED: Some tests require authentication
   e2e-maps-perf:
     name: Maps & Performance Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: false  # Disabled until test accounts are created
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -626,7 +627,7 @@ jobs:
           PORT: 8080
           SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
@@ -645,6 +646,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -658,7 +660,7 @@ jobs:
   notify:
     name: Notify on Failure
     runs-on: ubuntu-latest
-    needs: [e2e-smoke]  # Only depends on smoke tests (other jobs disabled)
+    needs: [e2e-smoke, e2e-auth, e2e-crud, e2e-features, e2e-ui, e2e-pages, e2e-maps-perf]
     if: failure()
 
     steps:
@@ -674,9 +676,14 @@ jobs:
               `**Run ID:** ${context.runId}`,
               '',
               '### Test Categories',
-              'Currently running: **Smoke Tests only**',
-              '',
-              '> Note: Other test categories (Auth, CRUD, Features, UI, Pages, Maps) are temporarily disabled pending test account setup in Supabase.',
+              'The following test categories were executed:',
+              '- Smoke Tests (Real Supabase Auth)',
+              '- Auth & User Tests (Mock Auth)',
+              '- CRUD & Management Tests (Mock Auth)',
+              '- Features Tests (Mock Auth)',
+              '- UI & Accessibility Tests (Mock Auth)',
+              '- Pages & Navigation Tests (Mock Auth)',
+              '- Maps & Performance Tests (Mock Auth)',
               '',
               '### Details',
               `Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for detailed logs and artifacts.`,
