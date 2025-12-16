@@ -139,7 +139,7 @@ jobs:
         if: always()
         with:
           name: report-smoke-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 2: Authentication & User Tests
@@ -220,7 +220,7 @@ jobs:
         if: always()
         with:
           name: report-auth-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 3: CRUD & Management Tests
@@ -305,7 +305,7 @@ jobs:
         if: always()
         with:
           name: report-crud-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 4: Features Tests (Gamification, VIP, Favorites, etc.)
@@ -388,7 +388,7 @@ jobs:
         if: always()
         with:
           name: report-features-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 5: UI & Accessibility Tests
@@ -473,7 +473,7 @@ jobs:
         if: always()
         with:
           name: report-ui-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 6: Pages & Navigation Tests
@@ -556,7 +556,7 @@ jobs:
         if: always()
         with:
           name: report-pages-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Job 7: Maps & Performance Tests
@@ -639,7 +639,7 @@ jobs:
         if: always()
         with:
           name: report-maps-perf-${{ matrix.project }}
-          path: playwright-report/
+          path: tests/e2e/reports/
           retention-days: 7
 
   # Notify on failure - creates GitHub issue
