@@ -74,7 +74,7 @@ test.describe('Establishment Page Load', () => {
       await page.goto(`/bar/${establishment.id}`);
       await page.waitForLoadState('domcontentloaded');
 
-      const address = page.locator('.address, [data-testid="address"], text=/Soi|Street|Road/i').first();
+      const address = page.locator('.address, [data-testid="address"]').or(page.locator('text=/Soi|Street|Road/i')).first();
       const hasAddress = await address.isVisible({ timeout: 5000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();
@@ -88,7 +88,7 @@ test.describe('Establishment Page Load', () => {
       await page.goto(`/bar/${establishment.id}`);
       await page.waitForLoadState('domcontentloaded');
 
-      const hours = page.locator('.opening-hours, [data-testid="hours"], text=/\\d{1,2}:\\d{2}/').first();
+      const hours = page.locator('.opening-hours, [data-testid="hours"]').or(page.locator('text=/\\d{1,2}:\\d{2}/')).first();
       const hasHours = await hours.isVisible({ timeout: 5000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();

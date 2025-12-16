@@ -31,7 +31,7 @@ test.describe('API Error Handling', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Error message or fallback should be displayed
-    const errorMessage = page.locator('.error, .error-message, text=/error|failed|problem/i');
+    const errorMessage = page.locator('.error, .error-message').or(page.locator('text=/error|failed|problem/i'));
     const hasError = await errorMessage.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -121,7 +121,7 @@ test.describe('Offline Detection', () => {
     await page.waitForTimeout(1000);
 
     // Offline banner or indicator should appear
-    const offlineBanner = page.locator('.offline-banner, .offline-indicator, text=/offline|no connection/i');
+    const offlineBanner = page.locator('.offline-banner, .offline-indicator').or(page.locator('text=/offline|no connection/i'));
     const hasOffline = await offlineBanner.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     // Restore online
@@ -288,7 +288,7 @@ test.describe('Graceful Degradation', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Empty state should be displayed
-    const emptyState = page.locator('.empty-state, .no-results, text=/no results|no establishments/i');
+    const emptyState = page.locator('.empty-state, .no-results').or(page.locator('text=/no results|no establishments/i'));
     const hasEmpty = await emptyState.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -378,7 +378,7 @@ test.describe('Network Status Indicator', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Sync indicator may appear during data operations
-    const syncIndicator = page.locator('.sync-indicator, .syncing, text=/syncing|saving/i');
+    const syncIndicator = page.locator('.sync-indicator, .syncing').or(page.locator('text=/syncing|saving/i'));
     const hasSyncIndicator = await syncIndicator.first().isVisible({ timeout: 3000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

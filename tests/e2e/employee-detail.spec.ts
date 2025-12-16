@@ -200,7 +200,7 @@ test.describe('Employee Basic Info', () => {
       await page.waitForTimeout(500);
 
       // Nationality should be visible
-      const nationality = page.locator('[role="dialog"] .nationality, [role="dialog"] .flag, text=/Thai|Vietnamese|Cambodian/i').first();
+      const nationality = page.locator('[role="dialog"] .nationality, [role="dialog"] .flag').or(page.locator('text=/Thai|Vietnamese|Cambodian/i')).first();
       const hasNationality = await nationality.isVisible({ timeout: 2000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();
@@ -283,7 +283,7 @@ test.describe('Verification Badge', () => {
       await page.waitForTimeout(500);
 
       // Verification badge may or may not be present
-      const verifiedBadge = page.locator('[role="dialog"] .verified-badge, [role="dialog"] [data-testid="verified"], text=/verified/i').first();
+      const verifiedBadge = page.locator('[role="dialog"] .verified-badge, [role="dialog"] [data-testid="verified"]').or(page.locator('text=/verified/i')).first();
       const hasVerified = await verifiedBadge.isVisible({ timeout: 2000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();
@@ -406,7 +406,7 @@ test.describe('Employee Reviews', () => {
       await page.waitForTimeout(500);
 
       // Average rating may be displayed
-      const rating = page.locator('[role="dialog"] .rating, [role="dialog"] .stars, text=/\\d+\\.\\d+/').first();
+      const rating = page.locator('[role="dialog"] .rating, [role="dialog"] .stars').or(page.locator('text=/\\d+\\.\\d+/')).first();
       await expect(page.locator('body')).toBeVisible();
     }
   });

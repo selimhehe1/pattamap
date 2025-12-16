@@ -169,7 +169,7 @@ test.describe('VIP Pricing', () => {
       await page.waitForTimeout(500);
 
       // Pricing should be visible
-      const pricing = page.locator('.pricing, .plan, text=/\\$|THB|฿/').first();
+      const pricing = page.locator('.pricing, .plan').or(page.locator('text=/\\$|THB|฿/')).first();
       const hasPricing = await pricing.isVisible({ timeout: 3000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();
@@ -361,7 +361,7 @@ test.describe('VIP Expiration', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const expirationDate = page.locator('.vip-expiration, [data-testid="vip-expires"], text=/expires/i').first();
+    const expirationDate = page.locator('.vip-expiration, [data-testid="vip-expires"]').or(page.locator('text=/expires/i')).first();
     const hasExpiration = await expirationDate.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -371,7 +371,7 @@ test.describe('VIP Expiration', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const warning = page.locator('.renewal-warning, .expiration-warning, text=/expiring soon/i').first();
+    const warning = page.locator('.renewal-warning, .expiration-warning').or(page.locator('text=/expiring soon/i')).first();
     const hasWarning = await warning.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -434,7 +434,7 @@ test.describe('Cancel VIP', () => {
       await cancelBtn.click();
       await page.waitForTimeout(500);
 
-      const confirmation = page.locator('[role="alertdialog"], .confirm-dialog, text=/are you sure/i').first();
+      const confirmation = page.locator('[role="alertdialog"], .confirm-dialog').or(page.locator('text=/are you sure/i')).first();
       const hasConfirm = await confirmation.isVisible({ timeout: 3000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();

@@ -49,7 +49,7 @@ test.describe('Freelances Page Load', () => {
     await page.goto('/freelances');
     await page.waitForLoadState('domcontentloaded');
 
-    const count = page.locator('.freelance-count, [data-testid="count"], text=/\\d+\\s*freelance/i').first();
+    const count = page.locator('.freelance-count, [data-testid="count"]').or(page.locator('text=/\\d+\\s*freelance/i')).first();
     const hasCount = await count.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -245,7 +245,7 @@ test.describe('Freelance Card', () => {
     const card = page.locator('.freelance-card, .employee-card').first();
 
     if (await card.isVisible({ timeout: 5000 })) {
-      const rating = card.locator('.rating, .stars, text=/\\d+\\.\\d+/');
+      const rating = card.locator('.rating, .stars').or(card.locator('text=/\\d+\\.\\d+/'));
       const hasRating = await rating.first().isVisible({ timeout: 2000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();
@@ -305,7 +305,7 @@ test.describe('Freelances Empty State', () => {
     await page.goto('/freelances?nationality=XYZ&minAge=99');
     await page.waitForLoadState('domcontentloaded');
 
-    const emptyState = page.locator('.empty-state, [data-testid="no-results"], text=/no freelance|not found/i').first();
+    const emptyState = page.locator('.empty-state, [data-testid="no-results"]').or(page.locator('text=/no freelance|not found/i')).first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

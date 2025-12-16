@@ -128,7 +128,7 @@ test.describe('Profile Information Display', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Level display should be visible
-    const levelBadge = page.locator('.profile-level-badge, .level-badge, text=/Lv\\.\\d+/');
+    const levelBadge = page.locator('.profile-level-badge, .level-badge').or(page.locator('text=/Lv\\.\\d+/'));
     const hasLevel = await levelBadge.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

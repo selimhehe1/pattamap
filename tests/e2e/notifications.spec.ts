@@ -146,7 +146,7 @@ test.describe('Notification List', () => {
         expect(message!.length).toBeGreaterThan(0);
 
         // Should have timestamp
-        const timestamp = notification.locator('.timestamp, .time, text=/ago|minute|hour|day/i').first();
+        const timestamp = notification.locator('.timestamp, .time').or(notification.locator('text=/ago|minute|hour|day/i')).first();
         await expect(timestamp).toBeVisible();
       }
     }
@@ -454,7 +454,7 @@ test.describe('Clear Notifications', () => {
       await page.waitForTimeout(500);
 
       // Should show confirmation
-      const confirmDialog = page.locator('[role="dialog"], .confirm-modal, text=/confirm|sure/i').first();
+      const confirmDialog = page.locator('[role="dialog"], .confirm-modal').or(page.locator('text=/confirm|sure/i')).first();
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     }
   });

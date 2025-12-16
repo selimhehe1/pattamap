@@ -224,7 +224,7 @@ test.describe('Form Validation Errors', () => {
       await page.waitForTimeout(500);
 
       // Should show validation error
-      const errorVisible = await page.locator('.error, [class*="error"], text=/required|invalid/i').first().isVisible().catch(() => false);
+      const errorVisible = await page.locator('.error, [class*="error"]').or(page.locator('text=/required|invalid/i')).first().isVisible().catch(() => false);
       // May show inline error or HTML5 validation
       await expect(page.locator('body')).toBeVisible();
     }

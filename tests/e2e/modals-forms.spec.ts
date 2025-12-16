@@ -393,7 +393,7 @@ test.describe('Form Auto-Save', () => {
       await page.waitForTimeout(500);
 
       // Look for auto-save indicator
-      const saveIndicator = page.locator('.auto-save, .draft-saved, text=/saved|saving/i').first();
+      const saveIndicator = page.locator('.auto-save, .draft-saved').or(page.locator('text=/saved|saving/i')).first();
       const hasIndicator = await saveIndicator.isVisible({ timeout: 5000 }).catch(() => false);
 
       // Auto-save indicator may be present

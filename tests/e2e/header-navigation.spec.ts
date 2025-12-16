@@ -452,7 +452,7 @@ test.describe('XP Display', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    const xpDisplay = page.locator('.xp-display, [data-testid="xp"], .user-xp, text=/\\d+\\s*XP/i').first();
+    const xpDisplay = page.locator('.xp-display, [data-testid="xp"], .user-xp').or(page.locator('text=/\\d+\\s*XP/i')).first();
     const hasXP = await xpDisplay.isVisible({ timeout: 5000 }).catch(() => false);
 
     // XP display should be visible for logged-in users
@@ -472,7 +472,7 @@ test.describe('XP Display', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    const levelDisplay = page.locator('.level, [data-testid="level"], text=/Level\\s*\\d+/i, text=/Lv\\.?\\s*\\d+/i').first();
+    const levelDisplay = page.locator('.level, [data-testid="level"]').or(page.locator('text=/Level\\s*\\d+/i')).or(page.locator('text=/Lv\\.?\\s*\\d+/i')).first();
     const hasLevel = await levelDisplay.isVisible({ timeout: 5000 }).catch(() => false);
 
     // May or may not show level depending on UI design

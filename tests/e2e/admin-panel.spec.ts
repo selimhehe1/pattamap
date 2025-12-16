@@ -169,7 +169,7 @@ test.describe('Admin Dashboard', () => {
     await page.goto('/admin');
     await page.waitForLoadState('domcontentloaded');
 
-    const usersCount = page.locator('.stat-users, text=/users/i, [data-stat="users"]').first();
+    const usersCount = page.locator('.stat-users, [data-stat="users"]').or(page.locator('text=/users/i')).first();
     const hasCount = await usersCount.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -185,7 +185,7 @@ test.describe('Admin Dashboard', () => {
     await page.goto('/admin');
     await page.waitForLoadState('domcontentloaded');
 
-    const establishmentsCount = page.locator('.stat-establishments, text=/establishments/i').first();
+    const establishmentsCount = page.locator('.stat-establishments').or(page.locator('text=/establishments/i')).first();
     const hasCount = await establishmentsCount.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

@@ -183,7 +183,7 @@ test.describe('No Results State', () => {
       await searchInput.press('Enter');
       await page.waitForTimeout(1000);
 
-      const emptyState = page.locator('.empty-state, [data-testid="no-results"], text=/no results|not found/i').first();
+      const emptyState = page.locator('.empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i')).first();
       const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
       // Should show empty state message
@@ -195,7 +195,7 @@ test.describe('No Results State', () => {
     await page.goto('/search?q=xyznonexistent12345');
     await page.waitForLoadState('domcontentloaded');
 
-    const suggestions = page.locator('.suggestions, text=/try|suggest/i').first();
+    const suggestions = page.locator('.suggestions').or(page.locator('text=/try|suggest/i')).first();
     const hasSuggestions = await suggestions.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -544,7 +544,7 @@ test.describe('Results Count', () => {
     await page.goto('/search?q=bar');
     await page.waitForLoadState('domcontentloaded');
 
-    const resultsCount = page.locator('.results-count, [data-testid="results-count"], text=/\\d+\\s*results?/i').first();
+    const resultsCount = page.locator('.results-count, [data-testid="results-count"]').or(page.locator('text=/\\d+\\s*results?/i')).first();
     const hasCount = await resultsCount.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

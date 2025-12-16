@@ -410,7 +410,7 @@ test.describe('Empty State', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // New user should see empty state (or visits if they checked in)
-    const emptyState = page.locator('.visit-history-empty, text=/No visits yet/i');
+    const emptyState = page.locator('.visit-history-empty').or(page.locator('text=/No visits yet/i'));
     const hasEmpty = await emptyState.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

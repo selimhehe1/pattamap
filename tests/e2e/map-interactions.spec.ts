@@ -548,7 +548,7 @@ test.describe('Empty State', () => {
       await page.waitForTimeout(1000);
 
       // Should show empty state
-      const emptyState = page.locator('.empty-state, [data-testid="no-results"], text=/no results|not found/i');
+      const emptyState = page.locator('.empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i'));
       const hasEmpty = await emptyState.first().isVisible({ timeout: 3000 }).catch(() => false);
 
       // May or may not show empty state depending on search implementation
@@ -561,7 +561,7 @@ test.describe('Empty State', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Navigate to a zone with potentially no data
-    const emptyMessage = page.locator('.empty-message, [data-testid="empty-message"], text=/no establishments|no results/i');
+    const emptyMessage = page.locator('.empty-message, [data-testid="empty-message"]').or(page.locator('text=/no establishments|no results/i'));
 
     // Empty message may or may not be visible
     await expect(page.locator('body')).toBeVisible();

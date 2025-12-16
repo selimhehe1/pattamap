@@ -54,7 +54,7 @@ test.describe('XP Progress Bar', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const xpValue = page.locator('.xp-value, [data-testid="xp"], text=/\\d+\\s*XP/i').first();
+    const xpValue = page.locator('.xp-value, [data-testid="xp"]').or(page.locator('text=/\\d+\\s*XP/i')).first();
     const hasXP = await xpValue.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -73,7 +73,7 @@ test.describe('XP Progress Bar', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const nextLevel = page.locator('.xp-next, [data-testid="xp-next"], text=/next level|level \\d+/i').first();
+    const nextLevel = page.locator('.xp-next, [data-testid="xp-next"]').or(page.locator('text=/next level/i')).first();
     const hasNext = await nextLevel.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -92,7 +92,7 @@ test.describe('XP Progress Bar', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const level = page.locator('.level, [data-testid="level"], text=/level\\s*\\d+/i').first();
+    const level = page.locator('.level, [data-testid="level"]').or(page.locator('text=/level\\s*\\d+/i')).first();
     const hasLevel = await level.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -116,7 +116,7 @@ test.describe('Level Up Animation', () => {
     }
 
     // Look for XP toast notification
-    const xpToast = page.locator('.xp-toast, .xp-notification, text=/\\+\\d+\\s*XP/i').first();
+    const xpToast = page.locator('.xp-toast, .xp-notification').or(page.locator('text=/\\+\\d+\\s*XP/i')).first();
     const hasToast = await xpToast.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -251,7 +251,7 @@ test.describe('Missions Dashboard', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const dailyMissions = page.locator('.daily-missions, text=/daily/i, [data-mission-type="daily"]').first();
+    const dailyMissions = page.locator('.daily-missions, [data-mission-type="daily"]').or(page.locator('text=/daily/i')).first();
     const hasDaily = await dailyMissions.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -270,7 +270,7 @@ test.describe('Missions Dashboard', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const weeklyMissions = page.locator('.weekly-missions, text=/weekly/i, [data-mission-type="weekly"]').first();
+    const weeklyMissions = page.locator('.weekly-missions, [data-mission-type="weekly"]').or(page.locator('text=/weekly/i')).first();
     const hasWeekly = await weeklyMissions.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -295,7 +295,7 @@ test.describe('Mission Progress', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const progress = page.locator('.mission-progress, [data-testid="mission-progress"], text=/\\d+\\s*\\/\\s*\\d+/').first();
+    const progress = page.locator('.mission-progress, [data-testid="mission-progress"]').or(page.locator('text=/\\d+\\s*\\/\\s*\\d+/')).first();
     const hasProgress = await progress.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -362,7 +362,7 @@ test.describe('Mission Completion', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const reward = page.locator('.mission-reward, [data-testid="mission-reward"], text=/reward|\\+\\d+\\s*XP/i').first();
+    const reward = page.locator('.mission-reward, [data-testid="mission-reward"]').or(page.locator('text=/reward|\\+\\d+\\s*XP/i')).first();
     const hasReward = await reward.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -494,7 +494,7 @@ test.describe('Rewards Showcase', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const requirements = page.locator('.reward-requirements, text=/requires|unlock at/i').first();
+    const requirements = page.locator('.reward-requirements').or(page.locator('text=/requires|unlock at/i')).first();
     const hasRequirements = await requirements.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -519,7 +519,7 @@ test.describe('Streak System', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const streak = page.locator('.streak, [data-testid="streak"], text=/streak|day/i').first();
+    const streak = page.locator('.streak, [data-testid="streak"]').or(page.locator('text=/streak|day/i')).first();
     const hasStreak = await streak.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -538,7 +538,7 @@ test.describe('Streak System', () => {
     await page.goto('/achievements');
     await page.waitForLoadState('domcontentloaded');
 
-    const streakBonus = page.locator('.streak-bonus, text=/bonus|multiplier/i').first();
+    const streakBonus = page.locator('.streak-bonus').or(page.locator('text=/bonus|multiplier/i')).first();
     const hasBonus = await streakBonus.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -593,7 +593,7 @@ test.describe('Check-In XP', () => {
       await page.waitForTimeout(2000);
 
       // Look for XP notification
-      const xpNotification = page.locator('.xp-toast, text=/\\+\\d+\\s*XP/i').first();
+      const xpNotification = page.locator('.xp-toast').or(page.locator('text=/\\+\\d+\\s*XP/i')).first();
       const hasXP = await xpNotification.isVisible({ timeout: 5000 }).catch(() => false);
 
       await expect(page.locator('body')).toBeVisible();

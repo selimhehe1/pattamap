@@ -112,7 +112,7 @@ test.describe('Profile Info', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const email = page.locator('.email, [data-testid="email"], text=/@/').first();
+    const email = page.locator('.email, [data-testid="email"]').or(page.locator('text=/@/')).first();
     const hasEmail = await email.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -129,7 +129,7 @@ test.describe('Profile Info', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const accountType = page.locator('.account-type, [data-testid="account-type"], text=/regular|employee|owner/i').first();
+    const accountType = page.locator('.account-type, [data-testid="account-type"]').or(page.locator('text=/regular|employee|owner/i')).first();
     const hasType = await accountType.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -171,7 +171,7 @@ test.describe('Statistics Display', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const reviewsCount = page.locator('.stat-reviews, [data-testid="reviews-count"], text=/reviews|comments/i').first();
+    const reviewsCount = page.locator('.stat-reviews, [data-testid="reviews-count"]').or(page.locator('text=/reviews|comments/i')).first();
     const hasCount = await reviewsCount.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -190,7 +190,7 @@ test.describe('Statistics Display', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const favoritesCount = page.locator('.stat-favorites, [data-testid="favorites-count"], text=/favorites/i').first();
+    const favoritesCount = page.locator('.stat-favorites, [data-testid="favorites-count"]').or(page.locator('text=/favorites/i')).first();
     const hasCount = await favoritesCount.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -209,7 +209,7 @@ test.describe('Statistics Display', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const xpDisplay = page.locator('.xp, [data-testid="xp"], text=/XP|Level/i').first();
+    const xpDisplay = page.locator('.xp, [data-testid="xp"]').or(page.locator('text=/XP|Level/i')).first();
     const hasXP = await xpDisplay.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -234,7 +234,7 @@ test.describe('Linked Employee Profile', () => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
 
-    const linkedProfile = page.locator('.linked-profile, [data-testid="linked-employee"], text=/linked profile|your profile/i').first();
+    const linkedProfile = page.locator('.linked-profile, [data-testid="linked-employee"]').or(page.locator('text=/linked profile|your profile/i')).first();
     const hasLinked = await linkedProfile.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -378,7 +378,7 @@ test.describe('My Establishments', () => {
     await page.goto('/my-establishments');
     await page.waitForLoadState('domcontentloaded');
 
-    const emptyState = page.locator('.empty-state, text=/no establishments|you don.t own/i').first();
+    const emptyState = page.locator('.empty-state').or(page.locator('text=/no establishments|you don.t own/i')).first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -498,7 +498,7 @@ test.describe('Visit History', () => {
     await page.goto('/my-visits');
     await page.waitForLoadState('domcontentloaded');
 
-    const emptyState = page.locator('.empty-state, text=/no visits|haven.t visited/i').first();
+    const emptyState = page.locator('.empty-state').or(page.locator('text=/no visits|haven.t visited/i')).first();
     const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();

@@ -335,7 +335,7 @@ test.describe('View Reviews', () => {
       await page.waitForTimeout(1000);
 
       // Look for average rating
-      const avgRating = page.locator('.average-rating, .rating-badge, text=/\\d\\.\\d.*stars?/i').first();
+      const avgRating = page.locator('.average-rating, .rating-badge').or(page.locator('text=/\\d\\.\\d.*stars?/i')).first();
 
       // May or may not have reviews yet
       await expect(page.locator('body')).toBeVisible();
@@ -512,7 +512,7 @@ test.describe('Delete Own Review', () => {
       await page.waitForTimeout(500);
 
       // Should show confirmation
-      const confirmDialog = page.locator('[role="dialog"], .confirm-modal, text=/confirm|sure/i').first();
+      const confirmDialog = page.locator('[role="dialog"], .confirm-modal').or(page.locator('text=/confirm|sure/i')).first();
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     }
   });

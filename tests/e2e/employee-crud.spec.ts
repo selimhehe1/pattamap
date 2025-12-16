@@ -477,7 +477,7 @@ test.describe('Employee Deletion', () => {
       await page.waitForTimeout(500);
 
       // Should show confirmation
-      const confirmDialog = page.locator('[role="dialog"], .confirm-modal, text=/confirm|sure|delete/i').first();
+      const confirmDialog = page.locator('[role="dialog"], .confirm-modal').or(page.locator('text=/confirm|sure|delete/i')).first();
       await expect(confirmDialog).toBeVisible({ timeout: 5000 });
     }
   });
@@ -607,8 +607,8 @@ test.describe('Employee Availability', () => {
     await page.waitForTimeout(2000);
 
     // Look for availability indicators
-    const availableIndicator = page.locator('.available, .status-available, text=/available/i').first();
-    const unavailableIndicator = page.locator('.unavailable, .status-unavailable, text=/unavailable|off/i').first();
+    const availableIndicator = page.locator('.available, .status-available').or(page.locator('text=/available/i')).first();
+    const unavailableIndicator = page.locator('.unavailable, .status-unavailable').or(page.locator('text=/unavailable|off/i')).first();
 
     // Should have some status indicator
     const hasIndicators = await availableIndicator.count() > 0 || await unavailableIndicator.count() > 0;
@@ -640,7 +640,7 @@ test.describe('Employee Bulk Operations', () => {
       await checkboxes.nth(1).check();
 
       // Verify bulk actions appear
-      const bulkActions = page.locator('.bulk-actions, button:has-text("Bulk"), text=/selected/i').first();
+      const bulkActions = page.locator('.bulk-actions, button:has-text("Bulk")').or(page.locator('text=/selected/i')).first();
       expect(await bulkActions.count() > 0).toBeTruthy();
     }
   });

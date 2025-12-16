@@ -239,7 +239,7 @@ test.describe('Establishment Logo Upload', () => {
     await page.waitForTimeout(2000);
 
     // Look for logo upload section
-    const logoSection = page.locator('.logo-upload, [data-testid="logo-upload"], text=/logo/i').first();
+    const logoSection = page.locator('.logo-upload, [data-testid="logo-upload"]').or(page.locator('text=/logo/i')).first();
 
     if (await logoSection.count() > 0) {
       await expect(logoSection).toBeVisible();
@@ -367,7 +367,7 @@ test.describe('Photo Gallery Management', () => {
         await page.waitForTimeout(1000);
 
         // Verify primary indicator
-        const primaryIndicator = page.locator('.primary-badge, .is-primary, text=/primary/i').first();
+        const primaryIndicator = page.locator('.primary-badge, .is-primary').or(page.locator('text=/primary/i')).first();
         expect(await primaryIndicator.count() > 0).toBeTruthy();
       }
     }
@@ -378,7 +378,7 @@ test.describe('Photo Gallery Management', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Look for photo count on employee cards
-    const photoCount = page.locator('.photo-count, text=/\\d+.*photo/i').first();
+    const photoCount = page.locator('.photo-count').or(page.locator('text=/\\d+.*photo/i')).first();
 
     if (await photoCount.count() > 0) {
       const text = await photoCount.textContent();
@@ -526,7 +526,7 @@ test.describe('Photo Moderation', () => {
     await page.waitForTimeout(2000);
 
     // Look for pending status indicators
-    const pendingStatus = page.locator('.pending, .awaiting-approval, text=/pending.*review/i').first();
+    const pendingStatus = page.locator('.pending, .awaiting-approval').or(page.locator('text=/pending.*review/i')).first();
 
     if (await pendingStatus.count() > 0) {
       await expect(pendingStatus).toBeVisible();
@@ -539,7 +539,7 @@ test.describe('Photo Moderation', () => {
     await page.waitForTimeout(2000);
 
     // Look for approved indicators
-    const approvedStatus = page.locator('.approved, .verified, text=/approved/i').first();
+    const approvedStatus = page.locator('.approved, .verified').or(page.locator('text=/approved/i')).first();
 
     // May or may not have approved photos
     await expect(page.locator('body')).toBeVisible();
@@ -551,7 +551,7 @@ test.describe('Photo Moderation', () => {
     await page.waitForTimeout(2000);
 
     // Look for rejected indicators
-    const rejectedStatus = page.locator('.rejected, text=/rejected|not approved/i').first();
+    const rejectedStatus = page.locator('.rejected').or(page.locator('text=/rejected|not approved/i')).first();
 
     // May or may not have rejected photos
     await expect(page.locator('body')).toBeVisible();

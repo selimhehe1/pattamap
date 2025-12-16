@@ -58,7 +58,7 @@ test.describe('Owner - Request Verification', () => {
     await page.waitForTimeout(2000);
 
     // Look for verification status indicators
-    const verificationStatus = page.locator('.verification-status, .verified-badge, text=/verified|pending|unverified/i').first();
+    const verificationStatus = page.locator('.verification-status, .verified-badge').or(page.locator('text=/verified|pending|unverified/i')).first();
 
     // Should show some status
     await expect(page.locator('body')).toBeVisible();
@@ -165,7 +165,7 @@ test.describe('Owner - Request Verification', () => {
     await page.waitForTimeout(2000);
 
     // Look for pending status
-    const pendingStatus = page.locator('.pending, .status-pending, text=/pending.*verification|awaiting.*review/i').first();
+    const pendingStatus = page.locator('.pending, .status-pending').or(page.locator('text=/pending.*verification|awaiting.*review/i')).first();
 
     // May or may not have pending verifications
     await expect(page.locator('body')).toBeVisible();
@@ -444,14 +444,14 @@ test.describe('Re-verification After Rejection', () => {
     await page.waitForTimeout(2000);
 
     // Look for rejected status
-    const rejectedStatus = page.locator('.rejected, .status-rejected, text=/rejected/i').first();
+    const rejectedStatus = page.locator('.rejected, .status-rejected').or(page.locator('text=/rejected/i')).first();
 
     if (await rejectedStatus.count() > 0) {
       await rejectedStatus.click();
       await page.waitForTimeout(1000);
 
       // Should show rejection reason
-      const reason = page.locator('.rejection-reason, text=/reason|why/i').first();
+      const reason = page.locator('.rejection-reason').or(page.locator('text=/reason|why/i')).first();
       await expect(reason).toBeVisible({ timeout: 5000 });
     }
   });
