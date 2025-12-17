@@ -158,7 +158,19 @@ export async function getExistingEstablishment(
 
     return null;
   } catch (error) {
-    console.warn('⚠️  Could not fetch existing establishment:', error);
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.error || error.message;
+      // Check for common Supabase/API key issues
+      if (errorMessage.includes('Invalid API key') || errorMessage.includes('API key')) {
+        console.warn(`⚠️  Supabase API key issue detected: ${errorMessage}`);
+        console.warn('   This usually means SUPABASE_SERVICE_KEY GitHub secret is missing or invalid.');
+        console.warn('   Tests will continue but establishment fetch will be skipped.');
+      } else {
+        console.warn(`⚠️  Could not fetch existing establishment: ${errorMessage}`);
+      }
+    } else {
+      console.warn('⚠️  Could not fetch existing establishment:', error);
+    }
     return null;
   }
 }
