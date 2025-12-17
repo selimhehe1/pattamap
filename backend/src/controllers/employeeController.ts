@@ -1322,45 +1322,49 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
     //   return 0;
     // });
 
-    // Get available filters for suggestions
+    // Get available filters for suggestions - PARALLELIZED for performance
     // v10.4: Nationality is now TEXT[] array, flatten to get unique values
-    const { data: nationalitiesData } = await supabase
-      .from('employees')
-      .select('nationality')
-      .eq('status', 'approved')
-      .not('nationality', 'is', null);
+    const [
+      nationalitiesResult,
+      zonesResult,
+      establishmentsResult,
+      categoriesResult
+    ] = await Promise.all([
+      supabase
+        .from('employees')
+        .select('nationality')
+        .eq('status', 'approved')
+        .not('nationality', 'is', null),
+      supabase
+        .from('establishments')
+        .select('zone')
+        .not('zone', 'is', null),
+      supabase
+        .from('establishments')
+        .select('id, name, zone')
+        .eq('status', 'approved')
+        .order('name'),
+      supabase
+        .from('establishment_categories')
+        .select('id, name, icon')
+        .order('name')
+    ]);
 
     // Flatten nationality arrays and get unique values
     const availableNationalities = Array.from(new Set(
-      nationalitiesData?.flatMap(n => Array.isArray(n.nationality) ? n.nationality : []).filter(Boolean) || []
+      nationalitiesResult.data?.flatMap(n => Array.isArray(n.nationality) ? n.nationality : []).filter(Boolean) || []
     )).sort();
 
     // Get available zones
-    const { data: zonesData } = await supabase
-      .from('establishments')
-      .select('zone')
-      .not('zone', 'is', null);
-
     const availableZones = Array.from(new Set(
-      zonesData?.map(z => z.zone?.toLowerCase().replace(/\s+/g, '')).filter(Boolean) || []
+      zonesResult.data?.map(z => z.zone?.toLowerCase().replace(/\s+/g, '')).filter(Boolean) || []
     )).sort();
 
     // Get available establishments with zone info
-    const { data: establishmentsData } = await supabase
-      .from('establishments')
-      .select('id, name, zone')
-      .eq('status', 'approved')
-      .order('name');
-
-    const availableEstablishments = establishmentsData || [];
+    const availableEstablishments = establishmentsResult.data || [];
 
     // Get available categories
-    const { data: categoriesData } = await supabase
-      .from('establishment_categories')
-      .select('id, name, icon')
-      .order('name');
-
-    const availableCategories = categoriesData || [];
+    const availableCategories = categoriesResult.data || [];
 
     // ========================================
     // BUG #10 FIX - Standardize response structure

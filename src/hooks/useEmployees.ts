@@ -181,8 +181,8 @@ export const useEmployeeSearch = (params: EmployeeSearchParams) => {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes (recherche change plus souvent)
     gcTime: 5 * 60 * 1000,
-    refetchOnMount: true, // Override global config to ensure initial fetch on mount
-    // Always enabled - search can run even with no params (returns all)
+    // Removed refetchOnMount: true - trust React Query's staleTime logic
+    // This improves CI performance by using cache when data is fresh
     placeholderData: (previousData) => previousData, // Keep previous data while fetching new results
   });
 };
