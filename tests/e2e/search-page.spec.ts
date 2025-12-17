@@ -306,6 +306,8 @@ test.describe('Filter by Nationality', () => {
     const nationalitySelect = page.locator('[data-testid="nationality-filter"], select[name="nationality"], [data-testid="nationality-select"]').first();
 
     if (await nationalitySelect.isVisible({ timeout: 3000 })) {
+      // Wait for filter to be enabled (loading complete)
+      await expect(nationalitySelect).toBeEnabled({ timeout: 30000 });
       await nationalitySelect.selectOption({ label: 'Thai' });
       await page.waitForTimeout(500);
 

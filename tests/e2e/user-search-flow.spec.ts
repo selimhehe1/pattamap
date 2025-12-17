@@ -44,6 +44,9 @@ test.describe('User Search Flow', () => {
     // Wait for filter to be available
     await zoneFilter.waitFor({ state: 'visible', timeout: 10000 });
 
+    // Wait for filter to be enabled (loading complete)
+    await expect(zoneFilter).toBeEnabled({ timeout: 30000 });
+
     // Select a zone (e.g., "Walking Street")
     await zoneFilter.click();
     await page.locator('option:has-text("Walking Street"), [role="option"]:has-text("Walking Street")').first().click();
@@ -65,6 +68,9 @@ test.describe('User Search Flow', () => {
 
     // Wait for filter to be available
     await nationalityFilter.waitFor({ state: 'visible', timeout: 10000 });
+
+    // Wait for filter to be enabled (loading complete)
+    await expect(nationalityFilter).toBeEnabled({ timeout: 30000 });
 
     // Select a nationality (e.g., "Thai")
     await nationalityFilter.click();
@@ -232,6 +238,8 @@ test.describe('User Search Flow', () => {
     // Set a zone filter
     const zoneFilter = page.locator('[data-testid="zone-filter"], select[name="zone"]').first();
     await zoneFilter.waitFor({ state: 'visible', timeout: 10000 });
+    // Wait for filter to be enabled (loading complete)
+    await expect(zoneFilter).toBeEnabled({ timeout: 30000 });
     await zoneFilter.selectOption({ index: 1 }); // Select first option after "All"
 
     // Wait for URL to update
@@ -285,6 +293,8 @@ test.describe('User Search Flow - Performance', () => {
 
     const zoneFilter = page.locator('[data-testid="zone-filter"], select[name="zone"]').first();
     await zoneFilter.waitFor({ state: 'visible' });
+    // Wait for filter to be enabled (loading complete)
+    await expect(zoneFilter).toBeEnabled({ timeout: 30000 });
 
     // Rapidly change filters
     for (let i = 0; i < 3; i++) {
