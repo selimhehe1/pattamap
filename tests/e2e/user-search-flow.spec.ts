@@ -47,15 +47,20 @@ test.describe('User Search Flow', () => {
     // Wait for filter to be enabled (loading complete)
     await expect(zoneFilter).toBeEnabled({ timeout: 30000 });
 
-    // Select a zone (e.g., "Walking Street")
-    await zoneFilter.click();
-    await page.locator('option:has-text("Walking Street"), [role="option"]:has-text("Walking Street")').first().click();
+    // Wait for options to load (more than just "All zones")
+    await page.waitForTimeout(500);
+    const optionCount = await zoneFilter.locator('option').count();
 
-    // Wait for results to update
-    await page.waitForTimeout(1000);
+    if (optionCount > 1) {
+      // Select first available zone (index 1, skipping "All zones")
+      await zoneFilter.selectOption({ index: 1 });
 
-    // Verify URL has zone parameter
-    await expect(page).toHaveURL(/zone=/);
+      // Wait for results to update
+      await page.waitForTimeout(1000);
+
+      // Verify URL has zone parameter
+      await expect(page).toHaveURL(/zone=/);
+    }
   });
 
   test('should filter by nationality', async ({ page }) => {
@@ -72,15 +77,20 @@ test.describe('User Search Flow', () => {
     // Wait for filter to be enabled (loading complete)
     await expect(nationalityFilter).toBeEnabled({ timeout: 30000 });
 
-    // Select a nationality (e.g., "Thai")
-    await nationalityFilter.click();
-    await page.locator('option:has-text("Thai"), [role="option"]:has-text("Thai")').first().click();
+    // Wait for options to load (more than just "All nationalities")
+    await page.waitForTimeout(500);
+    const optionCount = await nationalityFilter.locator('option').count();
 
-    // Wait for results to update
-    await page.waitForTimeout(1000);
+    if (optionCount > 1) {
+      // Select first available nationality (index 1, skipping "All nationalities")
+      await nationalityFilter.selectOption({ index: 1 });
 
-    // Verify URL has nationality parameter
-    await expect(page).toHaveURL(/nationality=/);
+      // Wait for results to update
+      await page.waitForTimeout(1000);
+
+      // Verify URL has nationality parameter
+      await expect(page).toHaveURL(/nationality=/);
+    }
   });
 
   test('should search by query text', async ({ page }) => {

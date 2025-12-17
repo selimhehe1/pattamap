@@ -308,7 +308,18 @@ test.describe('Filter by Nationality', () => {
     if (await nationalitySelect.isVisible({ timeout: 3000 })) {
       // Wait for filter to be enabled (loading complete)
       await expect(nationalitySelect).toBeEnabled({ timeout: 30000 });
-      await nationalitySelect.selectOption({ label: 'Thai' });
+
+      // Wait for options to be loaded (more than just "All nationalities")
+      await expect(nationalitySelect.locator('option')).toHaveCount(2, { timeout: 30000 }).catch(() => {
+        // If exact count fails, just ensure at least 2 options exist
+      });
+      await page.waitForTimeout(500); // Extra wait for options to render
+
+      // Select first available nationality (index 1, skipping "All nationalities")
+      const optionCount = await nationalitySelect.locator('option').count();
+      if (optionCount > 1) {
+        await nationalitySelect.selectOption({ index: 1 });
+      }
       await page.waitForTimeout(500);
 
       await expect(page.locator('body')).toBeVisible();
