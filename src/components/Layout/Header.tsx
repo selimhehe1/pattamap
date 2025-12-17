@@ -129,7 +129,8 @@ const Header: React.FC<HeaderProps> = ({
       <header
         role="banner"
         aria-label="Main navigation"
-        className="header-modern">
+        className="header-modern"
+        data-testid="header">
         {/* Section gauche avec bouton retour et titre */}
         <div className="header-logo-section">
           {/* Bouton retour - masqué sur la page d'accueil */}
@@ -141,12 +142,13 @@ const Header: React.FC<HeaderProps> = ({
               enableHaptic
               hapticLevel="light"
               className="header-back-btn"
+              data-testid="back-button"
             >
               <span className="header-back-icon">←</span>
             </AnimatedButton>
           )}
 
-          <div className="header-branding">
+          <div className="header-branding" data-testid="logo">
             <h1 className="header-title">
               {t('header.title')}
               {process.env.NODE_ENV === 'development' && (
@@ -212,6 +214,7 @@ const Header: React.FC<HeaderProps> = ({
               title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
               onClick={() => navigate('/achievements')}
               aria-label={`Experience Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP total`}
+              data-testid="xp"
             >
               <span className="header-xp-level">Lvl {userProgress.current_level}</span>
               <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
@@ -239,6 +242,7 @@ const Header: React.FC<HeaderProps> = ({
             enableHaptic
             hapticLevel="light"
             className="header-menu-btn"
+            data-testid="mobile-menu"
           >
             <span className="header-menu-icon">{showUserMenu ? '✕' : '☰'}</span>
           </AnimatedButton>
@@ -246,7 +250,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* Shared Dropdown - Accessible from hamburger button */}
           <div style={{ position: 'relative' }} ref={userMenuRef}>
             {showUserMenu && user && (
-                    <div className="user-menu-dropdown-modern">
+                    <div className="user-menu-dropdown-modern" data-testid="user-menu" role="menu">
                       {/* User Info - Compact */}
                       <div className="user-menu-header">
                         <button
@@ -486,7 +490,7 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Non-logged users dropdown */}
             {showUserMenu && !user && (
-              <div className="user-menu-dropdown-modern">
+              <div className="user-menu-dropdown-modern" data-testid="guest-menu" role="menu">
                 {/* Navigation Section */}
                 <div className="menu-section">
                   <div className="menu-section-label">NAVIGATION</div>
@@ -534,6 +538,7 @@ const Header: React.FC<HeaderProps> = ({
                     enableHaptic
                     hapticLevel="medium"
                     className="menu-item-modern menu-item-login"
+                    data-testid="login-button"
                   >
                     <span className="menu-item-icon"><Rocket size={18} /></span>
                     <span className="menu-item-text">{t('header.login')} / {t('header.register')}</span>

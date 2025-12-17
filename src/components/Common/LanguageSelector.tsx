@@ -162,7 +162,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   // Menu Item variant (inline dropdown, no modal)
   if (actualVariant === 'menu-item') {
     return (
-      <div className="language-menu-item-container" ref={dropdownRef}>
+      <div className="language-menu-item-container" ref={dropdownRef} data-testid="language-selector">
         <button
           ref={buttonRef}
           type="button"
@@ -202,6 +202,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     role="menuitem"
                     aria-label={`Switch to ${config.name}`}
                     type="button"
+                    data-testid="language-option"
                   >
                     <span className="language-menu-dropdown-code">{config.code.toUpperCase()}</span>
                     <span className="language-menu-dropdown-native">{config.nativeName}</span>
@@ -220,7 +221,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   // Compact mode: Dropdown menu
   if (actualVariant === 'dropdown') {
     return (
-      <div className={`language-selector-dropdown-container ${className}`} ref={dropdownRef}>
+      <div className={`language-selector-dropdown-container ${className}`} ref={dropdownRef} data-testid="language-selector">
         {/* Main button showing current language */}
         <button
           onClick={() => setShowDropdown(!showDropdown)}
@@ -266,7 +267,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   // Non-compact mode: Inline list (for mobile menu)
   return (
-    <div className={`language-selector ${className}`}>
+    <div className={`language-selector ${className}`} data-testid="language-selector">
       {Object.entries(SUPPORTED_LANGUAGES).map(([code, config]) => {
         const isActive = currentLanguage === code || i18n.language.startsWith(code);
 

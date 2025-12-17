@@ -78,6 +78,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
         className="menu-item-modern"
         aria-label={ariaLabel || defaultAriaLabel}
         title={tooltipText}
+        data-testid="theme-toggle"
       >
         <span className="menu-item-icon">
           {isDark ? <Moon size={18} /> : <Sun size={18} />}
@@ -100,6 +101,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
       aria-label={ariaLabel || defaultAriaLabel}
       title={showTooltip ? tooltipText : undefined}
       data-theme={theme}
+      data-testid="theme-toggle"
     >
       <span className="theme-toggle__icon-wrapper">
         {isDark ? (
