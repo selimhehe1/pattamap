@@ -57,7 +57,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   return (
     <>
       {/* Sidebar Container */}
-      <div className={`map-sidebar-nightlife ${isOpen ? '' : 'collapsed'}`}>
+      <div className={`map-sidebar-nightlife ${isOpen ? '' : 'collapsed'}`} data-testid="map-sidebar">
         {/* Header avec titre */}
         <div className="sidebar-header-nightlife">
           <div className="sidebar-title-nightlife">
@@ -181,6 +181,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
           role="button"
           tabIndex={0}
           onClick={onToggle}
+          data-testid="sidebar-overlay"
         />
       )}
     </>

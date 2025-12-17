@@ -32,6 +32,8 @@ test.describe('Login Modal', () => {
 
     // Login modal or redirect to login page should happen
     const loginIndicators = [
+      page.locator('[data-testid="login-modal"]').first(),
+      page.locator('[data-testid="login-form"]').first(),
       page.locator('text="Welcome Back"').first(),
       page.locator('text="Sign in to your account"').first(),
       page.locator('text="Login"').first(),
@@ -60,6 +62,7 @@ test.describe('Login Modal', () => {
     await page.waitForTimeout(1000);
 
     const emailInputSelectors = [
+      '[data-testid="login-input"]',
       'input[placeholder*="email" i]',
       'input[placeholder*="pseudonym" i]',
       'input[type="email"]',
@@ -87,7 +90,7 @@ test.describe('Login Modal', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
-    const passwordInput = page.locator('input[type="password"], input[placeholder*="password" i]').first();
+    const passwordInput = page.locator('[data-testid="password-input"], input[type="password"], input[placeholder*="password" i]').first();
     const isVisible = await passwordInput.isVisible({ timeout: 3000 }).catch(() => false);
 
     // Password input might be on a different page
@@ -102,6 +105,7 @@ test.describe('Login Modal', () => {
     await page.waitForTimeout(1000);
 
     const signInBtnSelectors = [
+      '[data-testid="login-button"]',
       'button:has-text("Sign In")',
       'button:has-text("Login")',
       'button:has-text("Log In")',
@@ -129,6 +133,7 @@ test.describe('Login Modal', () => {
     await page.waitForTimeout(1000);
 
     const registerLinkSelectors = [
+      '[data-testid="register-link"]',
       'button:has-text("Register")',
       'a:has-text("Register")',
       'button:has-text("Sign Up")',
@@ -459,7 +464,9 @@ test.describe('Protected Routes', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal or redirect
-    const loginModal = page.locator('text="Welcome Back"')
+    const loginModal = page.locator('[data-testid="login-modal"]')
+      .or(page.locator('[data-testid="login-form"]'))
+      .or(page.locator('text="Welcome Back"'))
       .or(page.locator('text="Sign in to your account"'));
     const onLoginPage = page.url().includes('/login');
 
@@ -471,7 +478,9 @@ test.describe('Protected Routes', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Should show login modal, redirect, or access denied
-    const loginModal = page.locator('text="Welcome Back"')
+    const loginModal = page.locator('[data-testid="login-modal"]')
+      .or(page.locator('[data-testid="login-form"]'))
+      .or(page.locator('text="Welcome Back"'))
       .or(page.locator('text="Sign in to your account"'));
     const accessDenied = page.locator('text=/access denied|unauthorized|forbidden/i').first();
     const onLoginPage = page.url().includes('/login');

@@ -31,17 +31,17 @@ test.describe('User Registration Flow', () => {
   });
 
   test('should display registration form with all fields', async ({ page }) => {
-    // Verify form exists
-    const form = page.locator('form').first();
+    // Verify form exists (using data-testid or fallback to form element)
+    const form = page.locator('[data-testid="register-form"], [data-testid="multistep-register-form"], form').first();
     await expect(form).toBeVisible();
 
-    // Verify required fields exist
-    await expect(page.locator('input[name="email"], input[type="email"]').first()).toBeVisible();
-    await expect(page.locator('input[name="password"], input[type="password"]').first()).toBeVisible();
-    await expect(page.locator('input[name="pseudonym"], input[name="username"]').first()).toBeVisible();
+    // Verify required fields exist (using data-testid or fallback selectors)
+    await expect(page.locator('[data-testid="email-input"], input[name="email"], input[type="email"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="register-password-input"], input[name="password"], input[type="password"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="pseudonym-input"], input[name="pseudonym"], input[name="username"]').first()).toBeVisible();
 
     // Verify submit button
-    await expect(page.locator('button[type="submit"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="register-button"], button[type="submit"]').first()).toBeVisible();
   });
 
   test('should register new user successfully', async ({ page }) => {
@@ -49,13 +49,13 @@ test.describe('User Registration Flow', () => {
     const testUsername = generateUniqueUsername('user');
     const testPassword = 'SecureP@ssw0rd2024!';
 
-    // Fill registration form
-    await page.locator('input[name="email"], input[type="email"]').first().fill(testEmail);
-    await page.locator('input[name="pseudonym"], input[name="username"]').first().fill(testUsername);
-    await page.locator('input[name="password"], input[type="password"]').first().fill(testPassword);
+    // Fill registration form (using data-testid or fallback selectors)
+    await page.locator('[data-testid="email-input"], input[name="email"], input[type="email"]').first().fill(testEmail);
+    await page.locator('[data-testid="pseudonym-input"], input[name="pseudonym"], input[name="username"]').first().fill(testUsername);
+    await page.locator('[data-testid="register-password-input"], input[name="password"], input[type="password"]').first().fill(testPassword);
 
     // Fill confirm password if exists
-    const confirmPassword = page.locator('input[name="confirmPassword"], input[name="password_confirm"]').first();
+    const confirmPassword = page.locator('[data-testid="confirm-password-input"], input[name="confirmPassword"], input[name="password_confirm"]').first();
     if (await confirmPassword.count() > 0) {
       await confirmPassword.fill(testPassword);
     }
@@ -67,7 +67,7 @@ test.describe('User Registration Flow', () => {
     }
 
     // Submit form
-    await page.locator('button[type="submit"]').first().click();
+    await page.locator('[data-testid="register-button"], button[type="submit"]').first().click();
 
     // Wait for redirect or success message
     await page.waitForTimeout(3000);

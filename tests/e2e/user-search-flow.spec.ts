@@ -26,17 +26,17 @@ test.describe('User Search Flow', () => {
     // Verify search page title
     await expect(page.locator('h1')).toContainText(/search/i);
 
-    // Verify filters are visible
-    await expect(page.locator('[data-testid="search-filters"]').or(page.locator('.search-filters'))).toBeVisible();
+    // Verify filters are visible - prioritize data-testid
+    await expect(page.locator('[data-testid="search-filters"]').or(page.locator('.search-filters-fixed-nightlife')).or(page.locator('.search-filters'))).toBeVisible();
 
-    // Verify results container exists
-    await expect(page.locator('[data-testid="search-results"]').or(page.locator('.search-results'))).toBeVisible();
+    // Verify results container exists - prioritize data-testid
+    await expect(page.locator('[data-testid="search-results"]').or(page.locator('[data-testid="search-results-grid"]')).or(page.locator('.employee-search-grid')).or(page.locator('.search-results'))).toBeVisible();
   });
 
   test('should filter by zone', async ({ page }) => {
-    // Find zone filter dropdown/select
-    const zoneFilter = page.locator('select[name="zone"]').or(
-      page.locator('[data-testid="zone-filter"]')
+    // Find zone filter dropdown/select - prioritize data-testid
+    const zoneFilter = page.locator('[data-testid="zone-filter"]').or(
+      page.locator('select[name="zone"]')
     ).or(
       page.getByLabel(/zone/i)
     ).first();
@@ -56,9 +56,9 @@ test.describe('User Search Flow', () => {
   });
 
   test('should filter by nationality', async ({ page }) => {
-    // Find nationality filter
-    const nationalityFilter = page.locator('select[name="nationality"]').or(
-      page.locator('[data-testid="nationality-filter"]')
+    // Find nationality filter - prioritize data-testid
+    const nationalityFilter = page.locator('[data-testid="nationality-filter"]').or(
+      page.locator('select[name="nationality"]')
     ).or(
       page.getByLabel(/nationality/i)
     ).first();
@@ -78,11 +78,13 @@ test.describe('User Search Flow', () => {
   });
 
   test('should search by query text', async ({ page }) => {
-    // Find search input
-    const searchInput = page.locator('input[type="search"]').or(
+    // Find search input - prioritize data-testid
+    const searchInput = page.locator('[data-testid="search-input"]').or(
+      page.locator('input[type="search"]')
+    ).or(
       page.locator('input[placeholder*="Search"]')
     ).or(
-      page.locator('[data-testid="search-input"]')
+      page.locator('.input-nightlife')
     ).first();
 
     // Type search query
@@ -99,9 +101,11 @@ test.describe('User Search Flow', () => {
     // Wait for results to load
     await page.waitForTimeout(2000);
 
-    // Look for employee cards - try multiple selectors
-    const employeeCards = page.locator('.employee-card').or(
-      page.locator('[data-testid="employee-card"]')
+    // Look for employee cards - prioritize data-testid
+    const employeeCards = page.locator('[data-testid="employee-card"]').or(
+      page.locator('.employee-card')
+    ).or(
+      page.locator('.employee-card-wrapper')
     ).or(
       page.locator('[class*="card"]')
     );
@@ -120,9 +124,9 @@ test.describe('User Search Flow', () => {
 
       expect(hasImage || hasName).toBeTruthy();
     } else {
-      // Empty state is also valid
-      const emptyState = page.locator('.empty-state').or(
-        page.locator('[data-testid="empty-state"]')
+      // Empty state is also valid - prioritize data-testid
+      const emptyState = page.locator('[data-testid="empty-state"]').or(
+        page.locator('.empty-state')
       ).or(
         page.getByText(/no.*found/i)
       );
@@ -135,13 +139,15 @@ test.describe('User Search Flow', () => {
     // Wait for results to load
     await page.waitForTimeout(2000);
 
-    // Find first employee card
-    const firstCard = page.locator('.employee-card').or(
-      page.locator('[data-testid="employee-card"]')
+    // Find first employee card - prioritize data-testid
+    const firstCard = page.locator('[data-testid="employee-card"]').or(
+      page.locator('.employee-card')
+    ).or(
+      page.locator('.employee-card-wrapper')
     ).first();
 
     // Skip test if no results
-    const cardCount = await page.locator('.employee-card').count();
+    const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
     if (cardCount === 0) {
       test.skip();
       return;
@@ -173,14 +179,14 @@ test.describe('User Search Flow', () => {
     await page.waitForTimeout(2000);
 
     // Skip if no results
-    const cardCount = await page.locator('.employee-card').count();
+    const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
     if (cardCount === 0) {
       test.skip();
       return;
     }
 
     // Open modal
-    await page.locator('.employee-card').first().click();
+    await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
     await page.waitForTimeout(500);
 
     // Find close button
@@ -203,14 +209,14 @@ test.describe('User Search Flow', () => {
     await page.waitForTimeout(2000);
 
     // Skip if no results
-    const cardCount = await page.locator('.employee-card').count();
+    const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
     if (cardCount === 0) {
       test.skip();
       return;
     }
 
     // Open modal
-    await page.locator('.employee-card').first().click();
+    await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
     await page.waitForTimeout(1000);
 
     // Look for images in modal
@@ -224,7 +230,7 @@ test.describe('User Search Flow', () => {
 
   test('should preserve filters when navigating back from modal', async ({ page }) => {
     // Set a zone filter
-    const zoneFilter = page.locator('select[name="zone"]').first();
+    const zoneFilter = page.locator('[data-testid="zone-filter"], select[name="zone"]').first();
     await zoneFilter.waitFor({ state: 'visible', timeout: 10000 });
     await zoneFilter.selectOption({ index: 1 }); // Select first option after "All"
 
@@ -233,14 +239,14 @@ test.describe('User Search Flow', () => {
     const urlWithFilter = page.url();
 
     // Skip if no results
-    const cardCount = await page.locator('.employee-card').count();
+    const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
     if (cardCount === 0) {
       test.skip();
       return;
     }
 
     // Open and close modal
-    await page.locator('.employee-card').first().click();
+    await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
     await page.waitForTimeout(500);
 
     const closeButton = page.locator('[aria-label*="close"]').first();
@@ -258,9 +264,13 @@ test.describe('User Search Flow - Performance', () => {
     // Navigate to search page
     await page.goto('/search');
 
-    // Wait for results to be visible
-    await page.locator('.search-results').or(
-      page.locator('[data-testid="search-results"]')
+    // Wait for results to be visible - prioritize data-testid
+    await page.locator('[data-testid="search-results"]').or(
+      page.locator('[data-testid="search-results-grid"]')
+    ).or(
+      page.locator('.employee-search-grid')
+    ).or(
+      page.locator('.search-results')
     ).first().waitFor({ state: 'visible', timeout: 10000 });
 
     const loadTime = Date.now() - startTime;
@@ -273,7 +283,7 @@ test.describe('User Search Flow - Performance', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const zoneFilter = page.locator('select[name="zone"]').first();
+    const zoneFilter = page.locator('[data-testid="zone-filter"], select[name="zone"]').first();
     await zoneFilter.waitFor({ state: 'visible' });
 
     // Rapidly change filters

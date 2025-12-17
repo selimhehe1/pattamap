@@ -212,7 +212,7 @@ const SearchPage: React.FC = () => {
   }, [openModal, closeModal]);
 
   return (
-    <div id="main-content" className="bg-nightlife-gradient-main page-content-with-header-nightlife" tabIndex={-1}>
+    <div id="main-content" className="bg-nightlife-gradient-main page-content-with-header-nightlife" tabIndex={-1} data-testid="search-page">
       {/* Header Section - AVANT search-results-container pour éviter d'être caché par le padding-left de la sidebar */}
       <div className="header-centered-nightlife" style={{
         padding: '30px 20px',
@@ -246,7 +246,7 @@ const SearchPage: React.FC = () => {
         )}
       </div>
 
-      <div className="search-results-container-nightlife">
+      <div className="search-results-container-nightlife" data-testid="search-results-container">
         {/* Fixed Filters Sidebar */}
         <SearchFilters
           filters={filters}

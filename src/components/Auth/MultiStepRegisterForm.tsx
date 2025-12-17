@@ -544,12 +544,13 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     : currentStep === 1 ? 50 : 100;
 
   return (
-    <div className="modal-overlay-nightlife">
+    <div className="modal-overlay-nightlife" data-testid="multistep-register-modal">
       <div className="modal-form-container" style={{ maxWidth: '700px' }}>
         <button
           onClick={handleClose}
           className="modal-close-button"
           aria-label="Close"
+          data-testid="close-multistep-register-modal"
         >
           ×
         </button>
@@ -793,7 +794,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         )}
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="form-layout">
+        <form onSubmit={handleSubmit} className="form-layout" data-testid="multistep-register-form">
           {/* STEP 1: Account Type Selection */}
           {currentStep === 1 && (
             <div style={{ marginBottom: '20px' }}>

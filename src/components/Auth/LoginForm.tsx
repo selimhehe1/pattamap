@@ -122,12 +122,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
   };
 
   return (
-    <div className="modal-overlay-nightlife">
+    <div className="modal-overlay-nightlife" data-testid="login-modal">
       <div className="modal-form-container">
         <button
           onClick={handleClose}
           className="modal-close-button"
           aria-label={t('common.close')}
+          data-testid="close-login-modal"
         >
           ×
         </button>
@@ -196,7 +197,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="form-layout" noValidate>
+        <form onSubmit={handleSubmit} className="form-layout" noValidate data-testid="login-form">
           <FormField
             label={`👤 ${t('auth.pseudonymOrEmail')}`}
             name="login"
@@ -209,6 +210,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             placeholder={t('auth.enterPseudonymOrEmail')}
             required
             autoComplete="username"
+            testId="login-input"
           />
 
           <FormField
@@ -224,10 +226,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             required
             minLength={6}
             autoComplete="current-password"
+            testId="password-input"
           />
 
           {error && (
-            <div className="error-message-nightlife error-shake">
+            <div className="error-message-nightlife error-shake" data-testid="login-error">
               ⚠️ {error}
             </div>
           )}
@@ -236,6 +239,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             type="submit"
             disabled={isLoading}
             className={`btn-nightlife-base btn-primary-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            data-testid="login-button"
           >
             {isLoading ? (
               <span className="loading-flex">
@@ -255,6 +259,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
               type="button"
               onClick={onSwitchToRegister}
               className="auth-switch-button"
+              data-testid="register-link"
             >
               {t('auth.registerHere')}
             </button>

@@ -160,12 +160,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
   };
 
   return (
-    <div className="modal-overlay-nightlife">
+    <div className="modal-overlay-nightlife" data-testid="register-modal">
       <div className="modal-form-container">
         <button
           onClick={handleClose}
           className="modal-close-button"
           aria-label="Close"
+          data-testid="close-register-modal"
         >
           ×
         </button>
@@ -262,9 +263,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="form-layout">
+        <form onSubmit={handleSubmit} className="form-layout" data-testid="register-form">
           {/* 🆕 v10.0 - Account Type Selection */}
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '20px' }} data-testid="account-type-section">
             <label style={{
               display: 'block',
               color: '#00E5FF',
@@ -301,6 +302,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                   checked={formData.accountType === 'regular'}
                   onChange={() => setFormData(prev => ({ ...prev, accountType: 'regular' }))}
                   style={{ accentColor: '#00E5FF' }}
+                  data-testid="account-type-regular"
                 />
                 <div>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
@@ -334,6 +336,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                   checked={formData.accountType === 'employee'}
                   onChange={() => setFormData(prev => ({ ...prev, accountType: 'employee' }))}
                   style={{ accentColor: '#C19A6B' }}
+                  data-testid="account-type-employee"
                 />
                 <div>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
@@ -384,6 +387,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             maxLength={50}
             showCounter
             helpText={t('register.pseudonymHelp')}
+            testId="pseudonym-input"
           />
 
           <FormField
@@ -397,6 +401,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             onBlur={(e) => handleInputBlur('email', e.target.value)}
             placeholder={t('register.emailPlaceholder')}
             required
+            testId="email-input"
           />
 
           <FormField
@@ -412,6 +417,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             required
             minLength={6}
             helpText={t('register.passwordHelp')}
+            testId="register-password-input"
           />
 
           <FormField
@@ -425,10 +431,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
             placeholder={t('register.confirmPasswordPlaceholder')}
             required
+            testId="confirm-password-input"
           />
 
           {submitError && (
-            <div className="error-message-nightlife error-shake">
+            <div className="error-message-nightlife error-shake" data-testid="register-error">
               ⚠️ {submitError}
             </div>
           )}
@@ -437,6 +444,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             type="submit"
             disabled={isLoading}
             className={`btn-nightlife-base btn-success-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            data-testid="register-button"
           >
             {isLoading ? (
               <span className="loading-flex">
@@ -456,6 +464,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
               type="button"
               onClick={onSwitchToLogin}
               className="auth-switch-button"
+              data-testid="login-link"
             >
               {t('register.loginHere')}
             </button>

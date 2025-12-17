@@ -74,6 +74,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
         }
       }}
       aria-label={t('employeeCard.ariaViewProfile', { name: employee.name })}
+      data-testid="employee-card-inner"
     >
       {/* Full Height Image */}
       <div className="employee-card-image">

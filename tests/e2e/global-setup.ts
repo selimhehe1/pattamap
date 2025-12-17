@@ -8,6 +8,9 @@
  * 1. Login as admin user
  * 2. Login as standard test user
  * 3. Save browser states to reuse in tests
+ *
+ * If E2E_USE_MOCK_AUTH=true (default), creates empty state files
+ * and lets individual tests use mock auth instead.
  */
 
 import { chromium, FullConfig } from '@playwright/test';
@@ -21,6 +24,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const API_BASE_URL = 'http://localhost:8080/api';
+
+// Check if mock auth is enabled (default: true for E2E tests)
+const USE_MOCK_AUTH = process.env.E2E_USE_MOCK_AUTH !== 'false';
 
 // Auth state storage paths
 export const AUTH_STATE_DIR = path.join(__dirname, '.auth');
@@ -45,6 +51,25 @@ async function globalSetup(config: FullConfig) {
   if (!fs.existsSync(AUTH_STATE_DIR)) {
     fs.mkdirSync(AUTH_STATE_DIR, { recursive: true });
   }
+
+  // If mock auth is enabled, just create empty state files
+  // Tests will use mock auth instead of pre-authenticated states
+  if (USE_MOCK_AUTH) {
+    console.log('ℹ️  Mock auth enabled (E2E_USE_MOCK_AUTH=true)');
+    console.log('   Creating empty auth state files - tests will use mock auth\n');
+
+    // Create empty state files
+    const emptyState = JSON.stringify({ cookies: [], origins: [] });
+    fs.writeFileSync(ADMIN_STATE_FILE, emptyState);
+    fs.writeFileSync(USER_STATE_FILE, emptyState);
+
+    console.log('✅ Global Setup complete (mock auth mode)!\n');
+    return;
+  }
+
+  // Real auth mode - attempt to pre-authenticate with the API
+  console.log('ℹ️  Real auth mode (E2E_USE_MOCK_AUTH=false)');
+  console.log('   Attempting to pre-authenticate with backend API...\n');
 
   const browser = await chromium.launch();
 

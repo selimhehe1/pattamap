@@ -501,13 +501,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   }, [establishmentSearch, filterEstablishmentsByQuery]);
 
   return (
-    <div className="search-filters-fixed-nightlife">
+    <div className="search-filters-fixed-nightlife" data-testid="search-filters">
       {/* Mobile Toggle Button */}
       {isMobile && (
         <button
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
           className={`search-filters-toggle-btn ${isFiltersOpen ? 'search-filters-toggle-btn--expanded' : ''}`}
           aria-expanded={isFiltersOpen}
+          data-testid="mobile-filters-toggle"
         >
           <span>
             🔍 {t('search.filters')}
@@ -541,6 +542,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               onClick={handleClearFilters}
               disabled={loading}
               className="btn-clear-filters-nightlife"
+              data-testid="clear-filters"
             >
               🗑️ {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
             </button>
@@ -554,6 +556,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onClick={() => onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true')}
           disabled={loading}
           className={`verified-filter-nightlife ${filters.is_verified === 'true' ? 'verified-filter-active' : ''} ${loading ? 'verified-filter-disabled' : ''}`}
+          data-testid="verified-filter"
         >
           <span className={`verified-badge-icon-nightlife ${filters.is_verified === 'true' ? 'verified-badge-icon-active' : 'verified-badge-icon-inactive'}`}>
             ✓
@@ -574,6 +577,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onChange={(e) => onFilterChange('type', e.target.value)}
           disabled={loading}
           className="select-nightlife"
+          data-testid="type-filter"
         >
           <option value="all" style={{ background: '#1a1a2e', color: '#ffffff' }}>
             {t('search.allEmployeeTypes')}
@@ -615,6 +619,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           placeholder={t('search.enterName')}
           disabled={loading}
           className="input-nightlife"
+          data-testid="search-input"
           onFocus={() => {
             // Réafficher suggestions si disponibles
             if (autocompleteState.suggestions.length > 0) {
@@ -678,6 +683,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             max="60"
             disabled={loading}
             className="input-nightlife"
+            data-testid="age-min-input"
           />
           <input
             ref={ageMaxRef}
@@ -689,6 +695,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             max="60"
             disabled={loading}
             className="input-nightlife"
+            data-testid="age-max-input"
           />
         </div>
 
@@ -740,6 +747,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onChange={(e) => onFilterChange('nationality', e.target.value)}
           disabled={loading}
           className="select-nightlife"
+          data-testid="nationality-filter"
         >
           <option value="">{t('search.allNationalities')}</option>
           {availableFilters.nationalities.map(nationality => (
@@ -760,6 +768,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onChange={(e) => handleZoneChangeInternal(e.target.value)}
           disabled={loading}
           className="select-nightlife"
+          data-testid="zone-filter"
         >
           <option value="">{t('search.allZones')}</option>
           {availableFilters.zones.map(zone => (
@@ -780,6 +789,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onChange={(e) => onFilterChange('category_id', e.target.value)}
           disabled={loading}
           className="select-nightlife"
+          data-testid="category-filter"
         >
           <option value="">{t('search.allTypes')}</option>
           {availableFilters.categories.map(category => (
@@ -811,6 +821,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             placeholder={t('search.allEstablishments')}
             disabled={loading}
             className="input-nightlife"
+            data-testid="establishment-filter"
             style={{
               paddingRight: filters.establishment_id ? '40px' : '12px'
             }}
@@ -944,6 +955,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           onChange={(e) => onFilterChange('sort_by', e.target.value)}
           disabled={loading}
           className="select-nightlife"
+          data-testid="sort-filter"
         >
           {sortOptions.map(option => (
             <option key={option.value} value={option.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>

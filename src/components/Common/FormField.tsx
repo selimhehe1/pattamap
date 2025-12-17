@@ -62,6 +62,8 @@ interface FormFieldProps {
   helpText?: string;
   /** Autocomplete attribute for browser */
   autoComplete?: string;
+  /** Test ID for E2E testing */
+  testId?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -82,7 +84,8 @@ const FormField: React.FC<FormFieldProps> = ({
   options = [],
   className = '',
   helpText,
-  autoComplete
+  autoComplete,
+  testId
 }) => {
   const hasError = !!error;
   const isValid = status === 'valid' && !hasError;
@@ -114,7 +117,8 @@ const FormField: React.FC<FormFieldProps> = ({
       className: `input-nightlife ${hasError ? 'input-error' : ''} ${isValid ? 'input-valid' : ''}`,
       'aria-invalid': hasError,
       'aria-describedby': hasError ? `${name}-error` : helpText ? `${name}-help` : undefined,
-      'aria-required': required
+      'aria-required': required,
+      'data-testid': testId
     };
 
     if (type === 'textarea') {

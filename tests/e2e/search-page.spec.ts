@@ -27,14 +27,15 @@ test.describe('Search Input', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
-    // Try multiple selectors for search input
+    // Try multiple selectors for search input - prioritize data-testid
     const searchInputSelectors = [
+      '[data-testid="search-input"]',
       'input[type="search"]',
       'input[placeholder*="search" i]',
       'input[name="q"]',
       'input[type="text"]',
-      '[data-testid="search-input"]',
-      '.search-input'
+      '.search-input',
+      '.input-nightlife'
     ];
 
     let found = false;
@@ -128,8 +129,8 @@ test.describe('Search Submit', () => {
       await searchInput.press('Enter');
       await page.waitForTimeout(1000);
 
-      // Results should appear
-      const results = page.locator('.search-results, [data-testid="results"], .result-card');
+      // Results should appear - prioritize data-testid
+      const results = page.locator('[data-testid="search-results"], [data-testid="search-results-grid"], [data-testid="employee-card"], .employee-search-grid, .search-results, .result-card');
       await expect(results.first()).toBeVisible({ timeout: 5000 });
     }
   });
@@ -183,7 +184,7 @@ test.describe('No Results State', () => {
       await searchInput.press('Enter');
       await page.waitForTimeout(1000);
 
-      const emptyState = page.locator('.empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i')).first();
+      const emptyState = page.locator('[data-testid="empty-state"], .empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i')).first();
       const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
       // Should show empty state message
@@ -212,16 +213,18 @@ test.describe('Filter by Type', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
-    // Try multiple selectors for type filter
+    // Try multiple selectors for type filter - prioritize data-testid
     const typeFilterSelectors = [
       '[data-testid="type-filter"]',
+      'select[name="type"]',
       '.type-filter',
       'button:has-text("Employees")',
       'button:has-text("Establishments")',
       'button:has-text("Girls")',
       'button:has-text("Bars")',
       '[role="tablist"]',
-      '.filter-tabs'
+      '.filter-tabs',
+      '.select-nightlife'
     ];
 
     let found = false;
@@ -290,7 +293,7 @@ test.describe('Filter by Nationality', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const nationalityFilter = page.locator('[data-testid="nationality-filter"], .nationality-filter, select[name="nationality"]').first();
+    const nationalityFilter = page.locator('[data-testid="nationality-filter"], select[name="nationality"], .nationality-filter, .select-nightlife').first();
     const hasFilter = await nationalityFilter.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -300,7 +303,7 @@ test.describe('Filter by Nationality', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const nationalitySelect = page.locator('select[name="nationality"], [data-testid="nationality-select"]').first();
+    const nationalitySelect = page.locator('[data-testid="nationality-filter"], select[name="nationality"], [data-testid="nationality-select"]').first();
 
     if (await nationalitySelect.isVisible({ timeout: 3000 })) {
       await nationalitySelect.selectOption({ label: 'Thai' });
@@ -336,7 +339,7 @@ test.describe('Filter by Age', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const ageFilter = page.locator('[data-testid="age-filter"], .age-filter, input[name="minAge"], input[name="maxAge"]').first();
+    const ageFilter = page.locator('[data-testid="age-min-input"], [data-testid="age-max-input"], [data-testid="age-filter"], .age-filter, input[name="minAge"], input[name="maxAge"]').first();
     const hasFilter = await ageFilter.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -346,7 +349,7 @@ test.describe('Filter by Age', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const minAgeInput = page.locator('input[name="minAge"], [data-testid="min-age"]').first();
+    const minAgeInput = page.locator('[data-testid="age-min-input"], input[name="minAge"], input[name="age_min"], [data-testid="min-age"]').first();
 
     if (await minAgeInput.isVisible({ timeout: 3000 })) {
       await minAgeInput.fill('25');
@@ -360,7 +363,7 @@ test.describe('Filter by Age', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const maxAgeInput = page.locator('input[name="maxAge"], [data-testid="max-age"]').first();
+    const maxAgeInput = page.locator('[data-testid="age-max-input"], input[name="maxAge"], input[name="age_max"], [data-testid="max-age"]').first();
 
     if (await maxAgeInput.isVisible({ timeout: 3000 })) {
       await maxAgeInput.fill('30');
@@ -380,7 +383,7 @@ test.describe('Filter by Verification', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const verifiedFilter = page.locator('[data-testid="verified-filter"], input[name="verified"], button:has-text("Verified")').first();
+    const verifiedFilter = page.locator('[data-testid="verified-filter"], .verified-filter-nightlife, input[name="verified"], button:has-text("Verified")').first();
     const hasFilter = await verifiedFilter.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -411,14 +414,16 @@ test.describe('Sort Options', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
-    // Try multiple selectors for sort dropdown
+    // Try multiple selectors for sort dropdown - prioritize data-testid
     const sortSelectors = [
+      '[data-testid="sort-filter"]',
       'select[name="sort"]',
+      'select[name="sort_by"]',
       '[data-testid="sort-select"]',
       'button:has-text("Sort")',
       '.sort-dropdown',
       '[aria-label*="sort" i]',
-      'select'
+      '.select-nightlife'
     ];
 
     let found = false;
@@ -576,7 +581,7 @@ test.describe('Reset Filters', () => {
     await page.goto('/search?q=bar&type=employees');
     await page.waitForLoadState('domcontentloaded');
 
-    const resetBtn = page.locator('button:has-text("Reset"), button:has-text("Clear"), [data-testid="reset-filters"]').first();
+    const resetBtn = page.locator('[data-testid="clear-filters"], button:has-text("Reset"), button:has-text("Clear"), [data-testid="reset-filters"], .btn-clear-filters-nightlife').first();
     const hasReset = await resetBtn.isVisible({ timeout: 5000 }).catch(() => false);
 
     await expect(page.locator('body')).toBeVisible();
@@ -586,7 +591,7 @@ test.describe('Reset Filters', () => {
     await page.goto('/search?q=bar&type=employees&minAge=25');
     await page.waitForLoadState('domcontentloaded');
 
-    const resetBtn = page.locator('button:has-text("Reset"), button:has-text("Clear Filters")').first();
+    const resetBtn = page.locator('[data-testid="clear-filters"], button:has-text("Reset"), button:has-text("Clear Filters"), .btn-clear-filters-nightlife').first();
 
     if (await resetBtn.isVisible({ timeout: 3000 })) {
       await resetBtn.click();
@@ -640,7 +645,7 @@ test.describe('Mobile Search', () => {
     await page.goto('/search');
     await page.waitForLoadState('domcontentloaded');
 
-    const filtersBtn = page.locator('button:has-text("Filters"), [data-testid="mobile-filters"]').first();
+    const filtersBtn = page.locator('[data-testid="mobile-filters-toggle"], button:has-text("Filters"), [data-testid="mobile-filters"], .search-filters-toggle-btn').first();
 
     if (await filtersBtn.isVisible({ timeout: 3000 })) {
       await filtersBtn.click();

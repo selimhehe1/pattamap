@@ -9,7 +9,10 @@ test.describe('Establishment Sidebar', () => {
   test.describe('Sidebar Opening', () => {
     test('should open sidebar when clicking on establishment card', async ({ page }) => {
       const establishmentCard = page.locator('[data-testid="establishment-card"]')
+        .or(page.locator('[data-testid="employee-card"]'))
+        .or(page.locator('[data-testid="employee-card-inner"]'))
         .or(page.locator('.establishment-card'))
+        .or(page.locator('.employee-card-tinder'))
         .or(page.locator('[class*="EstablishmentCard"]'))
         .first();
 
@@ -17,8 +20,10 @@ test.describe('Establishment Sidebar', () => {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        // Sidebar should appear
+        // Sidebar should appear - prioritize data-testid
         const sidebar = page.locator('[data-testid="establishment-sidebar"]')
+          .or(page.locator('[data-testid="map-sidebar"]'))
+          .or(page.locator('.sidebar-container-nightlife'))
           .or(page.locator('[class*="sidebar"]'))
           .or(page.locator('[class*="Sidebar"]'))
           .or(page.locator('[role="dialog"]'))
@@ -53,16 +58,14 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should animate sidebar opening', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         // Check for transform/transition before click
         await establishmentCard.click();
 
         // Sidebar should slide in
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           // Check CSS transition/animation
@@ -77,15 +80,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Content - Basic Info', () => {
     test('should display establishment name', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const name = sidebar.locator('h1, h2, [class*="title"], [class*="name"]').first();
@@ -97,15 +98,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display establishment logo/photo', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const image = sidebar.locator('img').first();
@@ -115,15 +114,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display establishment category/type', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const category = sidebar.locator('[data-testid="category"]')
@@ -136,15 +133,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display establishment zone/location', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const location = sidebar.locator('[data-testid="location"]')
@@ -167,9 +162,7 @@ test.describe('Establishment Sidebar', () => {
         await vipCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const vipBadge = sidebar.locator('[data-testid="vip-badge"]')
@@ -184,15 +177,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Content - Details', () => {
     test('should display opening hours', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const hours = sidebar.locator('[data-testid="opening-hours"]')
@@ -205,15 +196,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display contact information', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const contact = sidebar.locator('[data-testid="contact"]')
@@ -227,15 +216,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display establishment description', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const description = sidebar.locator('[data-testid="description"]')
@@ -248,15 +235,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display average rating and review count', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const rating = sidebar.locator('[data-testid="rating"]')
@@ -270,15 +255,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display consumables/drinks section', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const consumables = sidebar.locator('[data-testid="consumables"]')
@@ -294,15 +277,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Content - Employees', () => {
     test('should display employees section', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const employeesSection = sidebar.locator('[data-testid="employees-section"]')
@@ -315,15 +296,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should display employee cards with photos', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const employeeCard = sidebar.locator('[data-testid="employee-card"]')
@@ -340,15 +319,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should show employee availability status', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const availabilityStatus = sidebar.locator('[data-testid="availability"]')
@@ -362,15 +339,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should navigate to employee detail on click', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const employeeCard = sidebar.locator('[data-testid="employee-card"]')
@@ -396,15 +371,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Actions', () => {
     test('should have favorite/bookmark button', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const favoriteButton = sidebar.locator('[data-testid="favorite-button"]')
@@ -428,15 +401,13 @@ test.describe('Establishment Sidebar', () => {
 
       await page.goto('/');
 
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const favoriteButton = sidebar.locator('[data-testid="favorite-button"]')
@@ -459,15 +430,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should have share button', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const shareButton = sidebar.locator('[data-testid="share-button"]')
@@ -480,15 +449,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should have directions/map link', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const directionsLink = sidebar.locator('[data-testid="directions"]')
@@ -502,15 +469,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should have write review button', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const reviewButton = sidebar.locator('[data-testid="write-review"]')
@@ -526,15 +491,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Closing', () => {
     test('should close sidebar when clicking close button', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const closeButton = sidebar.locator('[data-testid="close-sidebar"]')
@@ -551,19 +514,18 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should close sidebar when clicking outside (overlay)', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
-          // Click on overlay/backdrop
+          // Click on overlay/backdrop - prioritize data-testid
           const overlay = page.locator('[data-testid="sidebar-overlay"]')
+            .or(page.locator('.sidebar-overlay-nightlife'))
             .or(page.locator('[class*="overlay"]'))
             .or(page.locator('[class*="backdrop"]'));
 
@@ -578,15 +540,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should close sidebar when pressing Escape key', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           await page.keyboard.press('Escape');
@@ -598,15 +558,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should animate sidebar closing', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const closeButton = sidebar.locator('[data-testid="close-sidebar"]')
@@ -624,15 +582,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Navigation', () => {
     test('should allow scrolling within sidebar for long content', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           // Check if sidebar is scrollable
@@ -654,15 +610,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should have tabs for different sections', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           // Look for tab navigation
@@ -676,15 +630,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should switch content when clicking tabs', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const tab = sidebar.locator('[role="tab"]')
@@ -708,15 +660,13 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Photo Gallery', () => {
     test('should display photo gallery', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const gallery = sidebar.locator('[data-testid="photo-gallery"]')
@@ -729,15 +679,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should open lightbox on photo click', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const galleryPhoto = sidebar.locator('[data-testid="gallery-photo"]')
@@ -760,15 +708,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should navigate between photos in lightbox', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const galleryPhoto = sidebar.locator('[data-testid="gallery-photo"]')
@@ -795,15 +741,13 @@ test.describe('Establishment Sidebar', () => {
     test.use({ viewport: { width: 375, height: 812 } });
 
     test('should display full-screen sidebar on mobile', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const box = await sidebar.boundingBox();
@@ -817,15 +761,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should support swipe to close on mobile', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.tap();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const box = await sidebar.boundingBox();
@@ -845,15 +787,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should have touch-friendly buttons on mobile', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.tap();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           const button = sidebar.locator('button').first();
@@ -873,7 +813,7 @@ test.describe('Establishment Sidebar', () => {
 
   test.describe('Sidebar Accessibility', () => {
     test('should have proper ARIA labels', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
@@ -906,15 +846,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should trap focus within sidebar', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           // Tab through elements
@@ -931,15 +869,13 @@ test.describe('Establishment Sidebar', () => {
     });
 
     test('should return focus on close', async ({ page }) => {
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
         await page.waitForTimeout(500);
 
-        const sidebar = page.locator('[data-testid="establishment-sidebar"]')
-          .or(page.locator('[class*="sidebar"]'))
-          .first();
+        const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           await page.keyboard.press('Escape');
@@ -962,7 +898,7 @@ test.describe('Establishment Sidebar', () => {
         await route.continue();
       });
 
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
@@ -986,7 +922,7 @@ test.describe('Establishment Sidebar', () => {
         });
       });
 
-      const establishmentCard = page.locator('[data-testid="establishment-card"]').first();
+      const establishmentCard = page.locator('[data-testid="establishment-card"], [data-testid="employee-card"], [data-testid="employee-card-inner"], .employee-card-tinder').first();
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();

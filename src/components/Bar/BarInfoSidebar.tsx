@@ -206,7 +206,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
   const currentBar = editedBar || bar;
 
   return (
-    <div className="establishment-section-nightlife sidebar-container-nightlife">
+    <div className="establishment-section-nightlife sidebar-container-nightlife" data-testid="establishment-sidebar">
       {/* Section pricing - Header supprimé, commence directement ici */}
       <div className="sidebar-pricing-container-nightlife">
         <h4 className="establishment-section-title-nightlife">

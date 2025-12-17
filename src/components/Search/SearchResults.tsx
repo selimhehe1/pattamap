@@ -45,7 +45,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         background: 'rgba(0,0,0,0.3)',
         borderRadius: '20px',
         border: '2px solid rgba(193, 154, 107,0.3)'
-      }}>
+      }} data-testid="empty-state">
         <div style={{ fontSize: '64px', marginBottom: '20px' }}>🔍</div>
         <h3 style={{
           fontSize: '24px',
@@ -67,16 +67,18 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   return (
-    <div>
+    <div data-testid="search-results">
       {/* Results Grid - CSS animation instead of Framer Motion to avoid first-render issues */}
       <div
         className={`employee-search-grid ${hasAnimated ? 'animated' : ''}`}
+        data-testid="search-results-grid"
       >
         {(results || []).filter(employee => employee != null).map((employee, index) => (
           <div
             key={employee.id}
             className="employee-card-wrapper"
             style={{ animationDelay: `${index * 0.05}s` }}
+            data-testid="employee-card"
           >
             <EmployeeCard
               employee={employee}
