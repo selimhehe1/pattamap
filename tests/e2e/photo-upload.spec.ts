@@ -31,7 +31,7 @@ async function loginAsOwner(page: Page) {
   await page.locator('input[type="email"]').first().fill(TEST_OWNER.email);
   await page.locator('input[type="password"]').first().fill(TEST_OWNER.password);
   await page.locator('button[type="submit"]').first().click();
-  await page.waitForTimeout(3000);
+  await page.waitForLoadState('networkidle');
 }
 
 // Test image path (create a test image or use existing)
@@ -96,7 +96,7 @@ test.describe('Employee Photo Upload', () => {
 
   test('should show upload progress indicator', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const fileInput = page.locator('input[type="file"]').first();
 
@@ -122,14 +122,14 @@ test.describe('Employee Photo Upload', () => {
 
   test('should display uploaded photo preview', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to edit existing employee with photos
     const editButton = page.locator('button:has-text("Edit")').first();
 
     if (await editButton.count() > 0) {
       await editButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for photo previews
       const photoPreview = page.locator('.photo-preview, .uploaded-photo, img[src*="cloudinary"]').first();
@@ -141,13 +141,13 @@ test.describe('Employee Photo Upload', () => {
 
   test('should allow removing uploaded photo', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const editButton = page.locator('button:has-text("Edit")').first();
 
     if (await editButton.count() > 0) {
       await editButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for remove button on photos
       const removePhotoBtn = page.locator('.photo-remove-btn, button[aria-label*="remove"], .delete-photo').first();
@@ -157,13 +157,13 @@ test.describe('Employee Photo Upload', () => {
         const photosBefore = await page.locator('.photo-preview, .uploaded-photo').count();
 
         await removePhotoBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Confirm if dialog appears
         const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Yes")').first();
         if (await confirmBtn.count() > 0) {
           await confirmBtn.click();
-          await page.waitForTimeout(1000);
+          await page.waitForLoadState('domcontentloaded');
         }
 
         // Photo count should decrease
@@ -236,7 +236,7 @@ test.describe('Establishment Logo Upload', () => {
 
   test('should display logo upload in establishment settings', async ({ page }) => {
     await page.goto('/owner/establishment/settings');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for logo upload section
     const logoSection = page.locator('.logo-upload, [data-testid="logo-upload"]').or(page.locator('text=/logo/i')).first();
@@ -248,7 +248,7 @@ test.describe('Establishment Logo Upload', () => {
 
   test('should show current logo preview', async ({ page }) => {
     await page.goto('/owner/establishment/settings');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for logo image
     const logoImage = page.locator('.establishment-logo img, .logo-preview img').first();
@@ -260,7 +260,7 @@ test.describe('Establishment Logo Upload', () => {
 
   test('should allow logo replacement', async ({ page }) => {
     await page.goto('/owner/establishment/settings');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const changeLogoBtn = page.locator('button:has-text("Change Logo"), button:has-text("Upload Logo")').first();
 
@@ -299,14 +299,14 @@ test.describe('Photo Gallery Management', () => {
 
   test('should display photo gallery grid', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Click on employee to view gallery
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for gallery
       const gallery = page.locator('.photo-gallery, .employee-photos, [data-testid="photo-gallery"]').first();
@@ -319,13 +319,13 @@ test.describe('Photo Gallery Management', () => {
 
   test('should allow drag-and-drop reordering of photos', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const editButton = page.locator('button:has-text("Edit")').first();
 
     if (await editButton.count() > 0) {
       await editButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for draggable photos
       const draggablePhotos = page.locator('[draggable="true"], .draggable-photo');
@@ -342,7 +342,7 @@ test.describe('Photo Gallery Management', () => {
           await page.mouse.move(boundingBox.x + 200, boundingBox.y);
           await page.mouse.up();
 
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
           await expect(page.locator('body')).toBeVisible();
         }
       }
@@ -351,20 +351,20 @@ test.describe('Photo Gallery Management', () => {
 
   test('should set primary photo', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const editButton = page.locator('button:has-text("Edit")').first();
 
     if (await editButton.count() > 0) {
       await editButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for "Set as primary" button
       const setPrimaryBtn = page.locator('button:has-text("Primary"), button:has-text("Set as main")').first();
 
       if (await setPrimaryBtn.count() > 0) {
         await setPrimaryBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         // Verify primary indicator
         const primaryIndicator = page.locator('.primary-badge, .is-primary').or(page.locator('text=/primary/i')).first();
@@ -401,7 +401,7 @@ test.describe('Image Optimization', () => {
 
   test('should display optimized images (webp format)', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for images
     const images = page.locator('img[src*="cloudinary"]');
@@ -422,7 +422,7 @@ test.describe('Image Optimization', () => {
 
   test('should lazy load images', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for lazy loaded images
     const lazyImages = page.locator('img[loading="lazy"], img[data-src]');
@@ -434,7 +434,7 @@ test.describe('Image Optimization', () => {
 
   test('should show loading placeholder before image loads', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(500); // Short wait to catch placeholder
+    await page.waitForLoadState('domcontentloaded'); // Quick wait to catch placeholder
 
     // Look for skeleton/placeholder
     const placeholder = page.locator('.skeleton, .placeholder, .loading-image').first();
@@ -445,7 +445,7 @@ test.describe('Image Optimization', () => {
 
   test('should display responsive image sizes', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const images = page.locator('img[srcset], img[sizes]');
     const imageCount = await images.count();
@@ -466,7 +466,7 @@ test.describe('Photo Upload Error Handling', () => {
 
   test('should show error for oversized file', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for size validation info
     const sizeInfo = page.locator('text=/max.*MB|limit/i').first();
@@ -493,7 +493,7 @@ test.describe('Photo Upload Error Handling', () => {
 
   test('should handle upload failure gracefully', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Simulate network error (would need to intercept request)
     // For now, just verify error handling UI exists
@@ -505,7 +505,7 @@ test.describe('Photo Upload Error Handling', () => {
 
   test('should allow retry after upload failure', async ({ page }) => {
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for retry button (would appear after error)
     const retryButton = page.locator('button:has-text("Retry"), button:has-text("Try Again")').first();
@@ -523,7 +523,7 @@ test.describe('Photo Moderation', () => {
   test('should show photo pending moderation status', async ({ page }) => {
     await loginAsOwner(page);
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for pending status indicators
     const pendingStatus = page.locator('.pending, .awaiting-approval').or(page.locator('text=/pending.*review/i')).first();
@@ -536,7 +536,7 @@ test.describe('Photo Moderation', () => {
   test('should show approved photo status', async ({ page }) => {
     await loginAsOwner(page);
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for approved indicators
     const approvedStatus = page.locator('.approved, .verified').or(page.locator('text=/approved/i')).first();
@@ -548,7 +548,7 @@ test.describe('Photo Moderation', () => {
   test('should show rejected photo with reason', async ({ page }) => {
     await loginAsOwner(page);
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for rejected indicators
     const rejectedStatus = page.locator('.rejected').or(page.locator('text=/rejected|not approved/i')).first();
@@ -572,7 +572,7 @@ test.describe('Mobile Photo Upload', () => {
   test('should show mobile-optimized upload interface', async ({ page }) => {
     await loginAsOwner(page);
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Upload area should be touch-friendly
     const uploadArea = page.locator('.upload-area, input[type="file"]').first();
@@ -590,7 +590,7 @@ test.describe('Mobile Photo Upload', () => {
   test('should support camera capture on mobile', async ({ page }) => {
     await loginAsOwner(page);
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for camera capture option
     const fileInput = page.locator('input[type="file"][capture], input[type="file"][accept*="camera"]').first();
