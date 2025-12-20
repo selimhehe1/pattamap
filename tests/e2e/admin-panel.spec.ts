@@ -34,29 +34,39 @@ test.describe('Admin Access Control', () => {
     }
 
     await page.goto('/admin');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
 
-    // Should show access denied or redirect
-    const accessDenied = page.locator('text=/access denied|unauthorized|forbidden/i').first();
-    const loginModal = page.locator('text="Welcome Back", text="Sign in"').first();
-    const notOnAdmin = !page.url().includes('/admin');
+    // Should show access denied or redirect to login
+    const accessDenied = page.locator('text=/access denied|unauthorized|forbidden|not authorized/i').first();
+    const onLoginPage = page.url().includes('/login');
+    const loginForm = page.locator('input[type="email"], input[type="password"]').first();
 
     const isDenied = await accessDenied.isVisible({ timeout: 3000 }).catch(() => false) ||
-                     await loginModal.isVisible({ timeout: 3000 }).catch(() => false) ||
-                     notOnAdmin;
+                     await loginForm.isVisible({ timeout: 3000 }).catch(() => false) ||
+                     onLoginPage;
+
+    if (isDenied) {
+      console.log('✅ Admin access denied for non-admin user');
+    }
 
     expect(isDenied).toBeTruthy();
   });
 
   test('should deny access to unauthenticated users', async ({ page }) => {
     await page.goto('/admin');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
 
-    // Should show login modal or redirect
-    const loginModal = page.locator('text="Welcome Back", text="Sign in"').first();
+    // ProtectedRoute redirects to /login when not authenticated
     const onLoginPage = page.url().includes('/login');
+    const loginForm = page.locator('input[type="email"], input[type="password"]').first();
+    const hasLoginForm = await loginForm.isVisible({ timeout: 3000 }).catch(() => false);
 
-    const needsAuth = await loginModal.isVisible({ timeout: 5000 }).catch(() => false) || onLoginPage;
+    const needsAuth = onLoginPage || hasLoginForm;
+
+    if (needsAuth) {
+      console.log(`✅ /admin requires auth (redirected: ${onLoginPage}, login form: ${hasLoginForm})`);
+    }
+
     expect(needsAuth).toBeTruthy();
   });
 

@@ -454,33 +454,55 @@ test.describe('Session Persistence', () => {
 test.describe('Protected Routes', () => {
   test('should protect /dashboard route', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
 
-    // Should show login modal or redirect
-    const loginModal = page.locator('[data-testid="login-modal"]')
-      .or(page.locator('[data-testid="login-form"]'))
-      .or(page.locator('text="Welcome Back"'))
-      .or(page.locator('text="Sign in to your account"'));
-    const onLoginPage = page.url().includes('/login');
+    // ProtectedRoute redirects to /login when not authenticated
+    // Check for redirect OR login page content
+    const currentUrl = page.url();
+    const onLoginPage = currentUrl.includes('/login');
 
-    expect(await loginModal.first().isVisible().catch(() => false) || onLoginPage).toBeTruthy();
+    // Also check for login form elements on current page
+    const loginForm = page.locator('input[type="email"], input[type="password"], input[placeholder*="email"]').first();
+    const loginButton = page.locator('button:has-text("Sign in"), button:has-text("Login"), button[type="submit"]').first();
+    const hasLoginForm = await loginForm.isVisible({ timeout: 3000 }).catch(() => false);
+
+    // Route is protected if redirected to login OR shows login form
+    const isProtected = onLoginPage || hasLoginForm;
+
+    if (isProtected) {
+      console.log(`✅ /dashboard is protected (redirected: ${onLoginPage}, login form: ${hasLoginForm})`);
+    } else {
+      console.log('⚠️ /dashboard protection status unclear');
+    }
+
+    expect(isProtected).toBeTruthy();
   });
 
   test('should protect /admin route', async ({ page }) => {
     await page.goto('/admin');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
 
-    // Should show login modal, redirect, or access denied
-    const loginModal = page.locator('[data-testid="login-modal"]')
-      .or(page.locator('[data-testid="login-form"]'))
-      .or(page.locator('text="Welcome Back"'))
-      .or(page.locator('text="Sign in to your account"'));
-    const accessDenied = page.locator('text=/access denied|unauthorized|forbidden/i').first();
-    const onLoginPage = page.url().includes('/login');
+    // ProtectedRoute redirects to /login when not authenticated
+    // For admin routes, may also show AccessDenied component
+    const currentUrl = page.url();
+    const onLoginPage = currentUrl.includes('/login');
 
-    const isProtected = await loginModal.first().isVisible().catch(() => false) ||
-                       await accessDenied.isVisible().catch(() => false) ||
-                       onLoginPage;
+    // Check for access denied message
+    const accessDenied = page.locator('text=/access denied|unauthorized|forbidden|not authorized/i').first();
+    const hasAccessDenied = await accessDenied.isVisible({ timeout: 3000 }).catch(() => false);
+
+    // Check for login form
+    const loginForm = page.locator('input[type="email"], input[type="password"]').first();
+    const hasLoginForm = await loginForm.isVisible({ timeout: 3000 }).catch(() => false);
+
+    // Route is protected if any of these conditions are met
+    const isProtected = onLoginPage || hasAccessDenied || hasLoginForm;
+
+    if (isProtected) {
+      console.log(`✅ /admin is protected (redirected: ${onLoginPage}, access denied: ${hasAccessDenied}, login form: ${hasLoginForm})`);
+    } else {
+      console.log('⚠️ /admin protection status unclear');
+    }
 
     expect(isProtected).toBeTruthy();
   });
