@@ -41,7 +41,7 @@ test.describe('Zone Selector', () => {
 
     if (await soi6Button.isVisible({ timeout: 3000 }).catch(() => false)) {
       await soi6Button.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // URL or UI should reflect zone change
       const url = page.url();
@@ -60,7 +60,7 @@ test.describe('Zone Selector', () => {
 
     if (await walkingStreetButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await walkingStreetButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -79,7 +79,7 @@ test.describe('Zone Selector', () => {
 
     if (await zoneButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await zoneButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Count may change
       await expect(page.locator('body')).toBeVisible();
@@ -132,7 +132,7 @@ test.describe('Category Filters', () => {
       const initialClass = await barFilter.getAttribute('class');
 
       await barFilter.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // State should toggle
       await expect(page.locator('body')).toBeVisible();
@@ -148,7 +148,7 @@ test.describe('Category Filters', () => {
 
     if (await gogoFilter.isVisible({ timeout: 3000 }).catch(() => false)) {
       await gogoFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Establishments should be filtered
       await expect(page.locator('body')).toBeVisible();
@@ -164,12 +164,12 @@ test.describe('Category Filters', () => {
 
     if (await barFilter.isVisible({ timeout: 3000 }).catch(() => false)) {
       await barFilter.click();
-      await page.waitForTimeout(200);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     if (await gogoFilter.isVisible({ timeout: 3000 }).catch(() => false)) {
       await gogoFilter.click();
-      await page.waitForTimeout(200);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Multiple categories should be active
@@ -185,7 +185,7 @@ test.describe('Category Filters', () => {
 
     if (await allFilter.isVisible({ timeout: 3000 }).catch(() => false)) {
       await allFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Should show all establishments
@@ -218,7 +218,7 @@ test.describe('View Mode Toggle', () => {
 
     if (await listViewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await listViewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // List view should be displayed
       const listView = page.locator('.list-view, [data-testid="list-view"], .establishment-list');
@@ -236,7 +236,7 @@ test.describe('View Mode Toggle', () => {
 
     if (await employeesViewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await employeesViewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Employees grid should be displayed
       const employeesGrid = page.locator('.employees-grid, [data-testid="employees-view"], .girl-cards');
@@ -254,14 +254,14 @@ test.describe('View Mode Toggle', () => {
     const listViewBtn = page.locator('button:has-text("List")').first();
     if (await listViewBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await listViewBtn.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Then switch back to map
     const mapViewBtn = page.locator('button:has-text("Map"), [data-view="map"]').first();
     if (await mapViewBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await mapViewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Map should be displayed
       const map = page.locator('.map-container, canvas, [data-testid="map"]');
@@ -306,7 +306,7 @@ test.describe('Marker Interactions', () => {
 
     if (await marker.isVisible({ timeout: 5000 }).catch(() => false)) {
       await marker.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Sidebar should open with establishment details
       const sidebar = page.locator('.sidebar, [data-testid="sidebar"], .establishment-details');
@@ -324,7 +324,7 @@ test.describe('Marker Interactions', () => {
 
     if (await marker.isVisible({ timeout: 5000 }).catch(() => false)) {
       await marker.hover();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Tooltip should appear
       const tooltip = page.locator('.tooltip, [role="tooltip"], .marker-tooltip');
@@ -343,7 +343,7 @@ test.describe('Marker Interactions', () => {
 
     if (await marker.isVisible({ timeout: 5000 }).catch(() => false)) {
       await marker.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Marker should have selected state
       const selectedMarker = page.locator('.marker.selected, .marker.active, [data-selected="true"]').first();
@@ -381,7 +381,7 @@ test.describe('Map Zoom Controls', () => {
 
     if (await zoomIn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await zoomIn.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Map should zoom in
       await expect(page.locator('body')).toBeVisible();
@@ -396,7 +396,7 @@ test.describe('Map Zoom Controls', () => {
 
     if (await zoomOut.isVisible({ timeout: 3000 }).catch(() => false)) {
       await zoomOut.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Map should zoom out
       await expect(page.locator('body')).toBeVisible();
@@ -413,7 +413,7 @@ test.describe('Map Zoom Controls', () => {
       // Scroll on map
       await map.hover();
       await page.mouse.wheel(0, -100); // Scroll up to zoom in
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -440,7 +440,7 @@ test.describe('Map Pan/Drag', () => {
         await page.mouse.down();
         await page.mouse.move(box.x + box.width / 2 + 100, box.y + box.height / 2);
         await page.mouse.up();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       await expect(page.locator('body')).toBeVisible();
@@ -478,7 +478,7 @@ test.describe('Mobile Map Menu', () => {
 
     if (await mobileMenuToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
       await mobileMenuToggle.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Mobile menu should open
       const mobileMenu = page.locator('.mobile-menu, [data-testid="mobile-nav"], .mobile-filters');
@@ -496,13 +496,13 @@ test.describe('Mobile Map Menu', () => {
 
     if (await mobileMenuToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
       await mobileMenuToggle.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       const closeBtn = page.locator('.mobile-menu button:has-text("×"), .mobile-menu .close').first();
 
       if (await closeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await closeBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Menu should close
         await expect(page.locator('body')).toBeVisible();
@@ -545,7 +545,7 @@ test.describe('Empty State', () => {
     if (await searchInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await searchInput.fill('xyznonexistent12345');
       await searchInput.press('Enter');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Should show empty state
       const emptyState = page.locator('.empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i'));
@@ -582,7 +582,7 @@ test.describe('Sidebar Details', () => {
 
     if (await establishment.isVisible({ timeout: 5000 }).catch(() => false)) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Sidebar should show name
       const sidebar = page.locator('.sidebar, [data-testid="sidebar"]');
@@ -600,13 +600,13 @@ test.describe('Sidebar Details', () => {
 
     if (await establishment.isVisible({ timeout: 5000 }).catch(() => false)) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const closeBtn = page.locator('.sidebar button:has-text("×"), .sidebar .close-button').first();
 
       if (await closeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await closeBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Sidebar should close
         const sidebar = page.locator('.sidebar');
@@ -623,13 +623,13 @@ test.describe('Sidebar Details', () => {
 
     if (await establishment.isVisible({ timeout: 5000 }).catch(() => false)) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const viewMoreBtn = page.locator('.sidebar a:has-text("View"), .sidebar button:has-text("Details")').first();
 
       if (await viewMoreBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await viewMoreBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should navigate to detail page
         const url = page.url();

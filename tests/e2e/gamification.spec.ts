@@ -139,7 +139,7 @@ test.describe('Achievements Page Navigation', () => {
     if (!reviewCreated) {
       console.log('⚠️  Review creation skipped in beforeAll. Tests will continue with mock data.');
     }
-    await page.waitForTimeout(2000); // Wait for XP to settle
+    await page.waitForLoadState('networkidle');
   });
 
   test('should navigate to /achievements and render all 4 tabs', async () => {
@@ -191,7 +191,7 @@ test.describe('Achievements Page Navigation', () => {
     await page.click('button:has-text("Badges")');
 
     // Wait for badges to load
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Verify at least some badges exist
     const badges = page.locator('[class*="badge"]');
@@ -212,7 +212,7 @@ test.describe('Achievements Page Navigation', () => {
     await page.click('button:has-text("Missions")');
 
     // Wait for missions to load
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Verify missions sections (Daily, Weekly, Narrative)
     const hasDailyMissions = await page.locator('text=/Daily/i').count() > 0;
@@ -234,7 +234,7 @@ test.describe('Achievements Page Navigation', () => {
     await page.click('button:has-text("Leaderboard")');
 
     // Wait for leaderboard to load
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify leaderboard tabs (Global, Monthly)
     const hasGlobal = await page.locator('button:has-text("Global")').count() > 0;
@@ -285,7 +285,7 @@ test.describe('Mission Progress Tracking', () => {
     await page.click('button:has-text("Missions")');
 
     // Verify progress updated to 1/1
-    await page.waitForTimeout(2000); // Wait for progress update
+    await page.waitForLoadState('networkidle');
     const completedProgress = await explorerMission.locator('text=/1.*1/').count();
     expect(completedProgress).toBeGreaterThan(0);
 
@@ -315,14 +315,14 @@ test.describe('Leaderboard', () => {
 
     // Earn some XP to appear in leaderboard (may fail if API unavailable)
     const reviewCreated = await createReviewForXP(page, testUser);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to leaderboard
     await page.goto('/achievements');
     await page.click('button:has-text("Leaderboard")');
 
     // Wait for leaderboard to load
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     if (!reviewCreated) {
       console.log('⚠️  Review creation skipped. Verifying leaderboard page loads.');
@@ -353,7 +353,7 @@ test.describe('Leaderboard', () => {
     const globalTab = page.locator('button:has-text("Global")').first();
     if (await globalTab.count() > 0) {
       await globalTab.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
       console.log('✅ Global tab clicked');
     }
 
@@ -361,7 +361,7 @@ test.describe('Leaderboard', () => {
     const monthlyTab = page.locator('button:has-text("Monthly")').first();
     if (await monthlyTab.count() > 0) {
       await monthlyTab.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
       console.log('✅ Monthly tab clicked');
     }
   });
@@ -384,7 +384,7 @@ test.describe('Badge Showcase', () => {
     // Go to badges tab
     await page.goto('/achievements');
     await page.click('button:has-text("Badges")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Count locked badges (greyscale/disabled)
     const lockedBadges = page.locator('[class*="badge-locked"], [class*="locked"]');
