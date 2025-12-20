@@ -376,13 +376,15 @@ test.describe('Skip Links', () => {
 
     const skipLink = page.locator('a[href="#main-content"], a:has-text("Skip to main"), a:has-text("Skip")').first();
 
-    if (await skipLink.isVisible().catch(() => false)) {
+    if (await skipLink.isVisible({ timeout: 3000 }).catch(() => false)) {
       await skipLink.click();
       await page.waitForLoadState('domcontentloaded');
 
       // Focus should be on main content
       const focusedId = await page.evaluate(() => document.activeElement?.id);
       // May or may not work depending on implementation
+    } else {
+      console.log('Skip link not visible - skip links may not be implemented');
     }
 
     // Skip link functionality is optional - just verify page works
