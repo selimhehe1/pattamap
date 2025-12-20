@@ -295,7 +295,7 @@ export async function clickEstablishmentOnMap(
 
   if (await marker.isVisible({ timeout: 5000 })) {
     await marker.click();
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
     console.log(`✅ Clicked establishment marker: ${establishmentName}`);
   } else {
     throw new Error(`Establishment marker not found: ${establishmentName}`);

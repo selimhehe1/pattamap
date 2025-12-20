@@ -47,8 +47,8 @@ test.describe('User Search Flow', () => {
     // Wait for filter to be enabled (loading complete)
     await expect(zoneFilter).toBeEnabled({ timeout: 30000 });
 
-    // Wait for options to load (more than just "All zones")
-    await page.waitForTimeout(500);
+    // Wait for options to load
+    await page.waitForLoadState('networkidle');
     const optionCount = await zoneFilter.locator('option').count();
 
     if (optionCount > 1) {
@@ -56,7 +56,7 @@ test.describe('User Search Flow', () => {
       await zoneFilter.selectOption({ index: 1 });
 
       // Wait for results to update
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Verify URL has zone parameter
       await expect(page).toHaveURL(/zone=/);
@@ -77,8 +77,8 @@ test.describe('User Search Flow', () => {
     // Wait for filter to be enabled (loading complete)
     await expect(nationalityFilter).toBeEnabled({ timeout: 30000 });
 
-    // Wait for options to load (more than just "All nationalities")
-    await page.waitForTimeout(500);
+    // Wait for options to load
+    await page.waitForLoadState('networkidle');
     const optionCount = await nationalityFilter.locator('option').count();
 
     if (optionCount > 1) {
@@ -86,7 +86,7 @@ test.describe('User Search Flow', () => {
       await nationalityFilter.selectOption({ index: 1 });
 
       // Wait for results to update
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Verify URL has nationality parameter
       await expect(page).toHaveURL(/nationality=/);
@@ -106,8 +106,8 @@ test.describe('User Search Flow', () => {
     // Type search query
     await searchInput.fill('Jane');
 
-    // Wait for debounce (500ms as per SearchPage implementation)
-    await page.waitForTimeout(600);
+    // Wait for debounce and network
+    await page.waitForLoadState('networkidle');
 
     // Verify URL has query parameter
     await expect(page).toHaveURL(/q=Jane/);
@@ -115,7 +115,7 @@ test.describe('User Search Flow', () => {
 
   test('should display employee cards in results', async ({ page }) => {
     // Wait for results to load
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for employee cards - prioritize data-testid
     const employeeCards = page.locator('[data-testid="employee-card"]').or(
@@ -153,7 +153,7 @@ test.describe('User Search Flow', () => {
 
   test('should open employee profile modal on card click', async ({ page }) => {
     // Wait for results to load
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Find first employee card - prioritize data-testid
     const firstCard = page.locator('[data-testid="employee-card"]').or(
@@ -173,7 +173,7 @@ test.describe('User Search Flow', () => {
     await firstCard.click();
 
     // Wait for modal to appear
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify modal is visible
     const modal = page.locator('[role="dialog"]').or(
@@ -192,7 +192,7 @@ test.describe('User Search Flow', () => {
 
   test('should close employee profile modal with close button', async ({ page }) => {
     // Wait for results
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Skip if no results
     const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
@@ -203,7 +203,7 @@ test.describe('User Search Flow', () => {
 
     // Open modal
     await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
 
     // Find close button
     const closeButton = page.locator('[aria-label*="close"]').or(
@@ -222,7 +222,7 @@ test.describe('User Search Flow', () => {
 
   test('should display employee photos in modal', async ({ page }) => {
     // Wait for results
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Skip if no results
     const cardCount = await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').count();
@@ -233,7 +233,7 @@ test.describe('User Search Flow', () => {
 
     // Open modal
     await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Look for images in modal
     const modal = page.locator('[role="dialog"]').first();
@@ -253,7 +253,7 @@ test.describe('User Search Flow', () => {
     await zoneFilter.selectOption({ index: 1 }); // Select first option after "All"
 
     // Wait for URL to update
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
     const urlWithFilter = page.url();
 
     // Skip if no results
@@ -265,7 +265,7 @@ test.describe('User Search Flow', () => {
 
     // Open and close modal
     await page.locator('[data-testid="employee-card"], .employee-card, .employee-card-wrapper').first().click();
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
 
     const closeButton = page.locator('[aria-label*="close"]').first();
     await closeButton.click();
@@ -309,7 +309,7 @@ test.describe('User Search Flow - Performance', () => {
     // Rapidly change filters
     for (let i = 0; i < 3; i++) {
       await zoneFilter.selectOption({ index: i });
-      await page.waitForTimeout(100); // Faster than debounce
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Page should not crash

@@ -130,8 +130,7 @@ test.describe('Home Page Performance', () => {
 
   test('should have acceptable Largest Contentful Paint', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000); // Wait for LCP to be recorded
+    await page.waitForLoadState('networkidle');
 
     const metrics = await collectPerformanceMetrics(page);
 
@@ -155,8 +154,7 @@ test.describe('Home Page Performance', () => {
 
   test('should collect full performance report', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const metrics = await collectPerformanceMetrics(page);
 
@@ -209,8 +207,7 @@ test.describe('Map Performance', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     console.log(`📊 Map Tiles Loaded: ${tileRequests.length}`);
 
@@ -268,7 +265,7 @@ test.describe('Map Performance', () => {
         // Simulate zoom
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
         await page.mouse.wheel(0, -200);
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const zoomTime = Date.now() - startTime;
 
@@ -295,7 +292,7 @@ test.describe('Search Performance', () => {
       const startTime = Date.now();
 
       await searchInput.fill('bar');
-      await page.waitForTimeout(500); // Wait for debounce
+      await page.waitForLoadState('networkidle');
 
       const responseTime = Date.now() - startTime;
 
@@ -316,7 +313,7 @@ test.describe('Search Performance', () => {
       const startTime = Date.now();
 
       await filterBtn.click();
-      await page.waitForTimeout(100);
+      await page.waitForLoadState('domcontentloaded');
 
       const filterTime = Date.now() - startTime;
 
@@ -364,7 +361,7 @@ test.describe('Sidebar Performance', () => {
 
     if (await marker.isVisible().catch(() => false)) {
       await marker.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const closeBtn = page.locator('button:has-text("×"), .close-btn, button[aria-label*="close"]').first();
 
@@ -372,7 +369,7 @@ test.describe('Sidebar Performance', () => {
         const startTime = Date.now();
 
         await closeBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         const closeTime = Date.now() - startTime;
 
@@ -614,7 +611,7 @@ test.describe('Memory Usage', () => {
       }
     });
 
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Get final memory
     const finalMemory = await page.evaluate(() => {
@@ -660,7 +657,7 @@ test.describe('Animation Performance', () => {
       const btn = buttons.nth(i);
       if (await btn.isVisible().catch(() => false)) {
         await btn.hover();
-        await page.waitForTimeout(100);
+        await page.waitForLoadState('domcontentloaded');
       }
     }
 
@@ -769,8 +766,7 @@ test.describe('Full Performance Report', () => {
 
       const startTime = Date.now();
       await page.goto(pagePath);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       const loadTime = Date.now() - startTime;
       const metrics = await collectPerformanceMetrics(page);

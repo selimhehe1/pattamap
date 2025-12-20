@@ -114,7 +114,7 @@ test.describe('Admin Tab Navigation', () => {
 
     if (await usersTab.isVisible({ timeout: 3000 }).catch(() => false)) {
       await usersTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Users content should be visible
       await expect(page.locator('body')).toBeVisible();
@@ -211,7 +211,7 @@ test.describe('Establishments Admin', () => {
 
     if (await establishmentsTab.isVisible({ timeout: 3000 })) {
       await establishmentsTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -269,7 +269,7 @@ test.describe('Employees Admin', () => {
 
     if (await employeesTab.isVisible({ timeout: 3000 })) {
       await employeesTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -327,7 +327,7 @@ test.describe('Comments Admin', () => {
 
     if (await commentsTab.isVisible({ timeout: 3000 })) {
       await commentsTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -388,7 +388,7 @@ test.describe('Users Admin', () => {
 
     if (await usersTab.isVisible({ timeout: 3000 })) {
       await usersTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -446,7 +446,7 @@ test.describe('Claims Admin', () => {
 
     if (await claimsTab.isVisible({ timeout: 3000 })) {
       await claimsTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -504,7 +504,7 @@ test.describe('Verifications Admin', () => {
 
     if (await verificationsTab.isVisible({ timeout: 3000 })) {
       await verificationsTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -546,7 +546,7 @@ test.describe('VIP Admin', () => {
 
     if (await vipTab.isVisible({ timeout: 3000 })) {
       await vipTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }

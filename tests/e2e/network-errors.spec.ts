@@ -118,7 +118,7 @@ test.describe('Offline Detection', () => {
 
     // Simulate offline
     await context.setOffline(true);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Offline banner or indicator should appear
     const offlineBanner = page.locator('.offline-banner, .offline-indicator').or(page.locator('text=/offline|no connection/i'));
@@ -136,11 +136,11 @@ test.describe('Offline Detection', () => {
 
     // Go offline
     await context.setOffline(true);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Go back online
     await context.setOffline(false);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Offline banner should disappear
     const offlineBanner = page.locator('.offline-banner:visible');
@@ -170,7 +170,7 @@ test.describe('Offline Detection', () => {
 
     if (await checkInBtn.isVisible({ timeout: 3000 })) {
       await checkInBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show queued or offline message
       const queueMessage = page.locator('text=/queued|offline|will sync/i');
@@ -215,7 +215,7 @@ test.describe('Error Toast Notifications', () => {
 
     if (await favoriteBtn.isVisible({ timeout: 5000 })) {
       await favoriteBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Toast notification should appear
       const toast = page.locator('.toast, .notification, [role="alert"]');
@@ -235,7 +235,7 @@ test.describe('Error Toast Notifications', () => {
 
     if (await toast.first().isVisible({ timeout: 3000 }).catch(() => false)) {
       // Wait for auto-dismiss (typically 3-5 seconds)
-      await page.waitForTimeout(6000);
+      await page.waitForLoadState('networkidle');
 
       const stillVisible = await toast.first().isVisible({ timeout: 1000 }).catch(() => false);
       // Toast should be gone or different
@@ -327,7 +327,7 @@ test.describe('Retry Mechanisms', () => {
 
     if (hasRetry) {
       await retryBtn.first().click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Second call should succeed
       expect(callCount).toBeGreaterThan(1);

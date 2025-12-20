@@ -204,7 +204,7 @@ test.describe('Badge Unlock', () => {
 
     if (await badge.isVisible({ timeout: 3000 })) {
       await badge.hover();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       const tooltip = page.locator('.badge-tooltip, [role="tooltip"]').first();
       const hasTooltip = await tooltip.isVisible({ timeout: 2000 }).catch(() => false);
@@ -412,7 +412,7 @@ test.describe('Leaderboard', () => {
 
     if (await monthlyFilter.isVisible({ timeout: 3000 })) {
       await monthlyFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -559,7 +559,7 @@ test.describe('Check-In XP', () => {
 
     if (await establishment.isVisible({ timeout: 5000 })) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const checkInBtn = page.locator('button:has-text("Check In"), button:has-text("Check-in")').first();
       const hasCheckIn = await checkInBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -590,7 +590,7 @@ test.describe('Check-In XP', () => {
 
     if (await checkInBtn.isVisible({ timeout: 3000 })) {
       await checkInBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Look for XP notification
       const xpNotification = page.locator('.xp-toast').or(page.locator('text=/\\+\\d+\\s*XP/i')).first();

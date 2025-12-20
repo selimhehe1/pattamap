@@ -10,7 +10,10 @@ import axios from 'axios';
 import { setupMockAuth, mockBackendAuthMe, mockAdminUser, mockAdminSession } from './mockAuth';
 
 const API_BASE_URL = 'http://localhost:8080/api';
-const USE_MOCK_AUTH = process.env.E2E_USE_MOCK_AUTH === 'true' || process.env.CI === 'true';
+
+// Match testUser.ts behavior: use mock auth by default, unless explicitly disabled
+// This ensures consistent behavior and avoids rate limiting issues
+const USE_MOCK_AUTH = process.env.E2E_USE_MOCK_AUTH !== 'false';
 
 export interface AdminTestUser {
   id?: string;
@@ -65,7 +68,7 @@ export async function loginAsAdmin(
     ...credentials
   };
 
-  // Use mock auth in CI or when explicitly enabled
+  // Use mock auth by default (avoids rate limiting and backend dependency)
   if (USE_MOCK_AUTH) {
     console.log(`🔐 Using MOCK ADMIN AUTH for: ${admin.email}`);
 
@@ -91,19 +94,37 @@ export async function loginAsAdmin(
       });
     });
 
-    // Mock admin-specific endpoints
+    // Mock admin-specific endpoints to return success responses
+    await page.route('**/api/admin/stats**', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalUsers: 150,
+          totalEstablishments: 45,
+          totalEmployees: 320,
+          pendingClaims: 5,
+          pendingVerifications: 3
+        })
+      });
+    });
+
+    // Allow other admin routes to continue (they'll use mocked auth)
     await page.route('**/api/admin/**', route => {
-      // Allow the request to continue but with mock auth
       route.continue();
     });
 
     admin.id = mockAdminUser.id;
     admin.csrfToken = 'mock-csrf-token-admin';
 
-    // Navigate to admin panel
+    // IMPORTANT: First navigate to home to let AuthContext initialize with mock auth
+    // This ensures the user state is properly set before accessing protected routes
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Now navigate to admin panel
     await page.goto('/admin');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     console.log(`✅ Mock Admin ready: ${admin.email} (role: admin)`);
     return admin;
@@ -163,7 +184,7 @@ export async function loginAsAdmin(
 
     // Navigate to admin panel to verify access
     await page.goto('/admin');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     console.log(`✅ Admin logged in: ${admin.email} (role: ${userRole})`);
     return admin;
@@ -251,7 +272,7 @@ export async function navigateToAdminTab(
   const tab = page.locator(selector).first();
   if (await tab.isVisible({ timeout: 5000 })) {
     await tab.click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
     console.log(`✅ Navigated to admin tab: ${tabName}`);
   } else {
     throw new Error(`Admin tab not found: ${tabName}`);

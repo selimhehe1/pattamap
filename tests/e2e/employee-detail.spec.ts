@@ -2,16 +2,16 @@
  * E2E Tests - Employee Detail/Profile
  *
  * Tests employee profile display:
- * 1. Profile modal open → click from card
- * 2. Photo gallery → navigation
- * 3. Basic info → name, age, nationality
- * 4. Work info → linked establishment
- * 5. Verification badge → display
- * 6. Contact buttons → social links
- * 7. Reviews section → employee reviews
- * 8. Add review → form
- * 9. Report button → inappropriate content
- * 10. Claim profile → flow
+ * 1. Profile modal open -> click from card
+ * 2. Photo gallery -> navigation
+ * 3. Basic info -> name, age, nationality
+ * 4. Work info -> linked establishment
+ * 5. Verification badge -> display
+ * 6. Contact buttons -> social links
+ * 7. Reviews section -> employee reviews
+ * 8. Add review -> form
+ * 9. Report button -> inappropriate content
+ * 10. Claim profile -> flow
  */
 
 import { test, expect } from '@playwright/test';
@@ -31,14 +31,14 @@ test.describe('Profile Modal Open', () => {
     const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
     if (await employeesTab.isVisible({ timeout: 3000 }).catch(() => false)) {
       await employeesTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     const employeeCard = page.locator('.employee-card, .girl-card, [data-testid="employee-card"]').first();
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Profile modal should open
       const profileModal = page.locator('[role="dialog"], .modal, .profile-modal');
@@ -54,13 +54,13 @@ test.describe('Profile Modal Open', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const closeBtn = page.locator('[role="dialog"] button:has-text("×"), .modal .close-button').first();
 
       if (await closeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await closeBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Modal should close
         const modal = page.locator('[role="dialog"], .modal');
@@ -77,10 +77,10 @@ test.describe('Profile Modal Open', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -100,7 +100,7 @@ test.describe('Employee Photo Gallery', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Photos should be visible in modal
       const photos = page.locator('[role="dialog"] img, .profile-modal img');
@@ -118,13 +118,13 @@ test.describe('Employee Photo Gallery', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const nextBtn = page.locator('[role="dialog"] button[aria-label*="next" i], .gallery-next').first();
 
       if (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await nextBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -139,7 +139,7 @@ test.describe('Employee Photo Gallery', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for photo counter (e.g., "1 / 5")
       const counter = page.locator('text=/\\d+\\s*\\/\\s*\\d+/, .photo-counter').first();
@@ -163,7 +163,7 @@ test.describe('Employee Basic Info', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Name should be visible
       const name = page.locator('[role="dialog"] h1, [role="dialog"] h2, .profile-name').first();
@@ -179,7 +179,7 @@ test.describe('Employee Basic Info', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Age should be visible
       const age = page.locator('[role="dialog"] text=/\\d+\\s*y\\.?o\\.?|age/i, .employee-age').first();
@@ -197,7 +197,7 @@ test.describe('Employee Basic Info', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Nationality should be visible
       const nationality = page.locator('[role="dialog"] .nationality, [role="dialog"] .flag').or(page.locator('text=/Thai|Vietnamese|Cambodian/i')).first();
@@ -215,7 +215,7 @@ test.describe('Employee Basic Info', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Bio may or may not be present
       const bio = page.locator('[role="dialog"] .bio, [role="dialog"] .description').first();
@@ -237,7 +237,7 @@ test.describe('Employee Work Info', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Establishment link should be visible
       const establishment = page.locator('[role="dialog"] a[href*="/bar/"], [role="dialog"] .establishment-link').first();
@@ -256,7 +256,7 @@ test.describe('Employee Work Info', () => {
 
     if (await freelanceCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await freelanceCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Freelance indicator should be visible
       const freelanceIndicator = page.locator('text=/freelance|independent/i, .freelance-badge').first();
@@ -280,7 +280,7 @@ test.describe('Verification Badge', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Verification badge may or may not be present
       const verifiedBadge = page.locator('[role="dialog"] .verified-badge, [role="dialog"] [data-testid="verified"]').or(page.locator('text=/verified/i')).first();
@@ -298,13 +298,13 @@ test.describe('Verification Badge', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const verifiedBadge = page.locator('.verified-badge').first();
 
       if (await verifiedBadge.isVisible({ timeout: 2000 }).catch(() => false)) {
         await verifiedBadge.hover();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Tooltip may appear
         await expect(page.locator('body')).toBeVisible();
@@ -326,7 +326,7 @@ test.describe('Contact Buttons', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Social links may be present
       const socialLinks = page.locator('[role="dialog"] a[href*="instagram"], [role="dialog"] a[href*="line.me"], .social-links');
@@ -344,7 +344,7 @@ test.describe('Contact Buttons', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const socialLink = page.locator('[role="dialog"] a[href*="instagram"]').first();
 
@@ -363,7 +363,7 @@ test.describe('Contact Buttons', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // LINE ID may be displayed
       const lineId = page.locator('text=/LINE|line id/i, .line-contact').first();
@@ -385,7 +385,7 @@ test.describe('Employee Reviews', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Reviews section may be in modal
       const reviews = page.locator('[role="dialog"] .reviews, [role="dialog"] .review-list').first();
@@ -403,7 +403,7 @@ test.describe('Employee Reviews', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Average rating may be displayed
       const rating = page.locator('[role="dialog"] .rating, [role="dialog"] .stars').or(page.locator('text=/\\d+\\.\\d+/')).first();
@@ -434,7 +434,7 @@ test.describe('Add Employee Review', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const addReviewBtn = page.locator('[role="dialog"] button:has-text("Review"), [role="dialog"] button:has-text("Add Review")').first();
       const hasButton = await addReviewBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -460,13 +460,13 @@ test.describe('Add Employee Review', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const addReviewBtn = page.locator('[role="dialog"] button:has-text("Review")').first();
 
       if (await addReviewBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await addReviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Review form should appear
         const reviewForm = page.locator('form, .review-form, textarea');
@@ -489,7 +489,7 @@ test.describe('Report Button', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const reportBtn = page.locator('[role="dialog"] button:has-text("Report"), [role="dialog"] [data-testid="report"]').first();
       const hasReport = await reportBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -507,13 +507,13 @@ test.describe('Report Button', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const reportBtn = page.locator('[role="dialog"] button:has-text("Report")').first();
 
       if (await reportBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await reportBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Report modal/form should appear
         await expect(page.locator('body')).toBeVisible();
@@ -544,7 +544,7 @@ test.describe('Claim Profile', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const claimBtn = page.locator('[role="dialog"] button:has-text("Claim"), [role="dialog"] button:has-text("This is me")').first();
       const hasClaim = await claimBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -571,13 +571,13 @@ test.describe('Claim Profile', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const claimBtn = page.locator('[role="dialog"] button:has-text("Claim")').first();
 
       if (await claimBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await claimBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Claim form/modal should appear
         const claimForm = page.locator('.claim-form, .claim-modal, [data-testid="claim-wizard"]');
@@ -605,7 +605,7 @@ test.describe('Mobile Profile', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should be full-width on mobile
       const modal = page.locator('[role="dialog"], .modal');
@@ -625,7 +625,7 @@ test.describe('Mobile Profile', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Gallery should be touch-friendly
       const gallery = page.locator('[role="dialog"] .gallery, .photo-slider');

@@ -22,7 +22,6 @@ test.describe('Text Search', () => {
   test('should have search input', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     // Look for search input - may be in header, sidebar, or search page
     const searchInputSelectors = [
@@ -47,7 +46,6 @@ test.describe('Text Search', () => {
     if (!found) {
       await page.goto('/search');
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForTimeout(1000);
 
       const searchPageInput = page.locator('input[type="search"], input[placeholder*="search" i], input[type="text"]').first();
       const isVisible = await searchPageInput.isVisible({ timeout: 5000 }).catch(() => false);
@@ -66,7 +64,7 @@ test.describe('Text Search', () => {
     if (await searchInput.isVisible().catch(() => false)) {
       await searchInput.fill('test');
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should filter results or show search results
       await expect(page.locator('body')).toBeVisible();
@@ -81,7 +79,7 @@ test.describe('Text Search', () => {
 
     if (await searchInput.isVisible().catch(() => false)) {
       await searchInput.fill('bar');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for suggestions dropdown
       const suggestions = page.locator('[role="listbox"], .suggestions, .autocomplete').first();
@@ -105,7 +103,7 @@ test.describe('Text Search', () => {
 
       if (await clearBtn.isVisible().catch(() => false)) {
         await clearBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const value = await searchInput.inputValue();
         expect(value).toBe('');
@@ -121,7 +119,7 @@ test.describe('Text Search', () => {
 
     if (await searchInput.isVisible().catch(() => false)) {
       await searchInput.fill('a');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Results should start filtering
       await expect(page.locator('body')).toBeVisible();
@@ -153,7 +151,7 @@ test.describe('Category Filters', () => {
 
     if (await gogoFilter.isVisible().catch(() => false)) {
       await gogoFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Results should be filtered
       await expect(page.locator('body')).toBeVisible();
@@ -168,7 +166,7 @@ test.describe('Category Filters', () => {
 
     if (await beerBarFilter.isVisible().catch(() => false)) {
       await beerBarFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -182,7 +180,7 @@ test.describe('Category Filters', () => {
 
     if (await nightclubFilter.isVisible().catch(() => false)) {
       await nightclubFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -197,11 +195,11 @@ test.describe('Category Filters', () => {
 
     if (await category1.isVisible().catch(() => false)) {
       await category1.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       if (await category2.isVisible().catch(() => false)) {
         await category2.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // May support multiple selection or single selection
@@ -233,7 +231,7 @@ test.describe('Location Filters', () => {
 
     if (await walkingStreetFilter.isVisible().catch(() => false)) {
       await walkingStreetFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -247,7 +245,7 @@ test.describe('Location Filters', () => {
 
     if (await soiBuakhaoFilter.isVisible().catch(() => false)) {
       await soiBuakhaoFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -268,7 +266,7 @@ test.describe('Location Filters', () => {
         await page.mouse.down();
         await page.mouse.move(box.x + box.width / 2 + 100, box.y + box.height / 2, { steps: 10 });
         await page.mouse.up();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // Results should update based on map view
@@ -309,7 +307,7 @@ test.describe('Rating Filters', () => {
 
     if (await rating4Stars.isVisible().catch(() => false)) {
       await rating4Stars.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should only show 4+ star results
       await expect(page.locator('body')).toBeVisible();
@@ -324,7 +322,7 @@ test.describe('Rating Filters', () => {
 
     if (await vipFilter.isVisible().catch(() => false)) {
       await vipFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -344,7 +342,7 @@ test.describe('Availability Filters', () => {
 
     if (await openNowFilter.isVisible().catch(() => false)) {
       await openNowFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should only show currently open establishments
       await expect(page.locator('body')).toBeVisible();
@@ -359,7 +357,7 @@ test.describe('Availability Filters', () => {
 
     if (await availableFilter.isVisible().catch(() => false)) {
       await availableFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -379,14 +377,14 @@ test.describe('Combined Filters', () => {
     const categoryFilter = page.locator('[data-category]').first();
     if (await categoryFilter.isVisible().catch(() => false)) {
       await categoryFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Apply zone filter
     const zoneFilter = page.locator('[data-zone]').first();
     if (await zoneFilter.isVisible().catch(() => false)) {
       await zoneFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Results should be filtered by both
@@ -401,7 +399,7 @@ test.describe('Combined Filters', () => {
     const filter = page.locator('[data-category], [data-zone]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for filter count badge
       const badge = page.locator('.filter-count, .badge, [data-filter-count]').first();
@@ -418,7 +416,7 @@ test.describe('Combined Filters', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for filter chips/tags
       const filterChips = page.locator('.filter-chip, .filter-tag, .active-filter').first();
@@ -441,7 +439,7 @@ test.describe('Filter Persistence', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // URL should contain filter params
       const url = page.url();
@@ -466,7 +464,7 @@ test.describe('Filter Persistence', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Refresh page
       await page.reload();
@@ -491,7 +489,7 @@ test.describe('Clear Filters', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for clear filters button
       const clearBtn = page.locator('button:has-text("Clear"), button:has-text("Reset"), .clear-filters').first();
@@ -508,13 +506,13 @@ test.describe('Clear Filters', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const clearBtn = page.locator('button:has-text("Clear"), button:has-text("Reset")').first();
 
       if (await clearBtn.isVisible().catch(() => false)) {
         await clearBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Filters should be cleared
         await expect(page.locator('body')).toBeVisible();
@@ -529,14 +527,14 @@ test.describe('Clear Filters', () => {
     const filter = page.locator('[data-category]').first();
     if (await filter.isVisible().catch(() => false)) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for individual filter remove button
       const removeBtn = page.locator('.filter-chip button, .filter-tag .remove').first();
 
       if (await removeBtn.isVisible().catch(() => false)) {
         await removeBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       await expect(page.locator('body')).toBeVisible();
@@ -571,7 +569,7 @@ test.describe('Mobile Filters', () => {
 
     if (await filterBtn.isVisible().catch(() => false)) {
       await filterBtn.tap();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Filter panel should open
       const filterPanel = page.locator('[data-testid="filter-panel"], .filter-panel, .filter-drawer').first();
@@ -589,14 +587,14 @@ test.describe('Mobile Filters', () => {
 
     if (await filterBtn.isVisible().catch(() => false)) {
       await filterBtn.tap();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Apply filter
       const applyBtn = page.locator('button:has-text("Apply"), button:has-text("Done")').first();
 
       if (await applyBtn.isVisible().catch(() => false)) {
         await applyBtn.tap();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       await expect(page.locator('body')).toBeVisible();
@@ -611,20 +609,20 @@ test.describe('Mobile Filters', () => {
 
     if (await filterBtn.isVisible().catch(() => false)) {
       await filterBtn.tap();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Select a filter
       const filter = page.locator('[data-category]').first();
       if (await filter.isVisible().catch(() => false)) {
         await filter.tap();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // Apply
       const applyBtn = page.locator('button:has-text("Apply")').first();
       if (await applyBtn.isVisible().catch(() => false)) {
         await applyBtn.tap();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // Filter button should show count
@@ -655,7 +653,7 @@ test.describe('Sort Options', () => {
 
     if (await sortByRating.isVisible().catch(() => false)) {
       await sortByRating.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -669,7 +667,7 @@ test.describe('Sort Options', () => {
 
     if (await sortByDistance.isVisible().catch(() => false)) {
       await sortByDistance.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -683,7 +681,7 @@ test.describe('Sort Options', () => {
 
     if (await sortByName.isVisible().catch(() => false)) {
       await sortByName.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }

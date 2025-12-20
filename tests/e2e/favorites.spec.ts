@@ -13,49 +13,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-
-// Test credentials
-const TEST_USER = {
-  email: 'user@test.com',
-  password: 'SecureTestP@ssw0rd2024!'
-};
-
-// Helper to login - uses modal that appears on protected routes
-async function loginAsUser(page: Page): Promise<boolean> {
-  // Go to dashboard which will trigger login modal
-  await page.goto('/dashboard');
-  await page.waitForLoadState('domcontentloaded');
-
-  // Wait for login modal to appear
-  const loginModal = page.locator('text="Welcome Back"').or(page.locator('text="Sign in to your account"'));
-  const modalVisible = await loginModal.first().isVisible().catch(() => false);
-
-  if (modalVisible) {
-    // Fill in credentials - modal uses textbox inputs
-    const emailInput = page.locator('input[placeholder*="email"], input[placeholder*="pseudonym"]').first();
-    const passwordInput = page.locator('input[placeholder*="password"]').first();
-
-    await emailInput.fill(TEST_USER.email);
-    await passwordInput.fill(TEST_USER.password);
-
-    // Click sign in button
-    await page.locator('button:has-text("Sign In")').first().click();
-
-    // Wait for modal to disappear or dashboard content to appear
-    await page.waitForTimeout(2000);
-
-    // Check if still on login modal - if so, login failed
-    const stillOnLogin = await loginModal.first().isVisible().catch(() => false);
-
-    if (stillOnLogin) {
-      // Test user may not exist
-      return false;
-    }
-    return true;
-  }
-  // Already logged in
-  return true;
-}
+import { loginAsUser } from './fixtures/loginHelper';
 
 // Helper to check if page requires authentication
 async function isLoginRequired(page: Page): Promise<boolean> {
@@ -68,13 +26,17 @@ async function isLoginRequired(page: Page): Promise<boolean> {
 // ========================================
 
 test.describe('Add to Favorites', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should display favorite button on employee card', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -87,7 +49,7 @@ test.describe('Add to Favorites', () => {
 
   test('should add employee to favorites on click', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -99,7 +61,7 @@ test.describe('Add to Favorites', () => {
         const isInitiallyFavorited = await favoriteBtn.locator('.favorited, .active').count() > 0;
 
         await favoriteBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should toggle state
         const isNowFavorited = await favoriteBtn.locator('.favorited, .active').count() > 0;
@@ -110,7 +72,7 @@ test.describe('Add to Favorites', () => {
 
   test('should show favorite animation on add', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -129,7 +91,7 @@ test.describe('Add to Favorites', () => {
 
   test('should add establishment to favorites', async ({ page }) => {
     await page.goto('/establishments');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const establishmentCard = page.locator('.establishment-card').first();
 
@@ -138,7 +100,7 @@ test.describe('Add to Favorites', () => {
 
       if (await favoriteBtn.count() > 0) {
         await favoriteBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show favorited state
         await expect(page.locator('body')).toBeVisible();
@@ -149,10 +111,10 @@ test.describe('Add to Favorites', () => {
   test('should require login to favorite', async ({ page }) => {
     // Logout first
     await page.goto('/logout');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
@@ -161,7 +123,7 @@ test.describe('Add to Favorites', () => {
 
       if (await favoriteBtn.count() > 0) {
         await favoriteBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should redirect to login or show login prompt
         const loginPrompt = page.locator('text=/login|sign in/i, [href*="/login"]').first();
@@ -178,20 +140,24 @@ test.describe('Add to Favorites', () => {
 // ========================================
 
 test.describe('View Favorites List', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should navigate to favorites page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for dashboard/favorites link
     const favoritesLink = page.locator('a[href*="/dashboard"], a:has-text("Dashboard"), a:has-text("Favorites"), a:has-text("Saved")').first();
 
     if (await favoritesLink.count() > 0) {
       await favoritesLink.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be on dashboard or redirected to login
       const url = page.url();
@@ -199,7 +165,7 @@ test.describe('View Favorites List', () => {
     } else {
       // Navigate directly - favorites are on /dashboard
       await page.goto('/dashboard');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
       // May redirect to login if not authenticated
       const url = page.url();
       expect(url.includes('/dashboard') || url.includes('/login')).toBeTruthy();
@@ -213,9 +179,9 @@ test.describe('View Favorites List', () => {
 
     // Check if login modal is showing (auth required)
     const loginModal = page.locator('text="Welcome Back"').or(page.locator('text="Sign in to your account"'));
-    const isLoginRequired = await loginModal.first().isVisible().catch(() => false);
+    const loginRequired = await loginModal.first().isVisible().catch(() => false);
 
-    if (isLoginRequired) {
+    if (loginRequired) {
       // If login is required, the dashboard is protected - that's correct behavior
       await expect(loginModal.first()).toBeVisible();
     } else {
@@ -249,7 +215,7 @@ test.describe('View Favorites List', () => {
 
     if (await establishmentTab.count() > 0) {
       await establishmentTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Look for favorited establishments or empty state
@@ -295,7 +261,7 @@ test.describe('View Favorites List', () => {
 
     if (await employeesTab.count() > 0 && await establishmentsTab.count() > 0) {
       await establishmentsTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should filter results
       await expect(page.locator('body')).toBeVisible();
@@ -318,7 +284,7 @@ test.describe('View Favorites List', () => {
 
     if (await sortDropdown.count() > 0) {
       await sortDropdown.selectOption({ label: 'Newest' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Results should reorder
       await expect(page.locator('body')).toBeVisible();
@@ -331,8 +297,12 @@ test.describe('View Favorites List', () => {
 // ========================================
 
 test.describe('Remove from Favorites', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should remove employee from favorites', async ({ page }) => {
@@ -353,7 +323,7 @@ test.describe('Remove from Favorites', () => {
 
       if (await removeBtn.count() > 0) {
         await removeBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         const favoritesAfter = await page.locator('.favorite-card-nightlife, .favorite-item, .employee-card').count();
         expect(favoritesAfter).toBeLessThan(favoritesBefore);
@@ -376,7 +346,7 @@ test.describe('Remove from Favorites', () => {
 
     if (await removeBtn.count() > 0) {
       await removeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // May show confirmation or remove immediately
       // Both are valid UX patterns
@@ -387,13 +357,13 @@ test.describe('Remove from Favorites', () => {
   test('should unfavorite from employee profile', async ({ page }) => {
     // First add to favorites
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for favorite button in profile
       const favoriteBtn = page.locator('.favorite-btn, button[aria-label*="favorite"]').first();
@@ -401,11 +371,11 @@ test.describe('Remove from Favorites', () => {
       if (await favoriteBtn.count() > 0) {
         // Toggle favorite
         await favoriteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Toggle again to unfavorite
         await favoriteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should be unfavorited
         await expect(page.locator('body')).toBeVisible();
@@ -436,7 +406,7 @@ test.describe('Remove from Favorites', () => {
       if (!(await removeBtn.isVisible().catch(() => false))) break;
 
       await removeBtn.click();
-      await page.waitForTimeout(300); // Reduced from 500ms
+      await page.waitForLoadState('domcontentloaded');
       attempts++;
     }
 
@@ -454,18 +424,18 @@ test.describe('Remove from Favorites', () => {
 // ========================================
 
 test.describe('Favorites Persistence', () => {
-  test('should persist favorites after logout/login', async ({ page }) => {
+  test('should persist favorites after logout/login', async ({ page }, testInfo) => {
     // Login and add favorite
     const loggedIn = await loginAsUser(page);
 
     // Skip if login failed (test user doesn't exist)
     if (!loggedIn || await isLoginRequired(page)) {
-      await expect(page.locator('body')).toBeVisible();
+      testInfo.skip(true, 'User login not available');
       return;
     }
 
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
     let employeeName = '';
@@ -476,13 +446,13 @@ test.describe('Favorites Persistence', () => {
       const favoriteBtn = employeeCard.locator('.favorite-btn').first();
       if (await favoriteBtn.count() > 0) {
         await favoriteBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
       }
     }
 
     // Logout
     await page.goto('/logout');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Login again
     await loginAsUser(page);
@@ -498,28 +468,28 @@ test.describe('Favorites Persistence', () => {
     }
   });
 
-  test('should sync favorites across browser tabs', async ({ page, context }) => {
+  test('should sync favorites across browser tabs', async ({ page, context }, testInfo) => {
     const loggedIn = await loginAsUser(page);
 
     // Skip if login failed
     if (!loggedIn || await isLoginRequired(page)) {
-      await expect(page.locator('body')).toBeVisible();
+      testInfo.skip(true, 'User login not available');
       return;
     }
 
     // Open second tab
     const page2 = await context.newPage();
     await page2.goto('/search');
-    await page2.waitForTimeout(2000);
+    await page2.waitForLoadState('networkidle');
 
     // Add favorite in first tab
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const favoriteBtn = page.locator('.favorite-btn').first();
     if (await favoriteBtn.count() > 0) {
       await favoriteBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Check in second tab - favorites are on /dashboard
@@ -536,8 +506,12 @@ test.describe('Favorites Persistence', () => {
 // ========================================
 
 test.describe('Favorites Quick Actions', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should navigate to employee profile from favorites', async ({ page }) => {
@@ -555,7 +529,7 @@ test.describe('Favorites Quick Actions', () => {
 
     if (await favoriteCard.count() > 0) {
       await favoriteCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should open profile modal or navigate to profile
       const profileModal = page.locator('[role="dialog"]').first();
@@ -568,20 +542,20 @@ test.describe('Favorites Quick Actions', () => {
   test('should show favorite status indicator', async ({ page }) => {
     // First, add something to favorites
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const favoriteBtn = page.locator('.favorite-btn').first();
     if (await favoriteBtn.count() > 0) {
       await favoriteBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Navigate away and back
     await page.goto('/');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Favorited item should show indicator
     const favoritedIndicator = page.locator('.favorited, .is-favorite, .favorite-btn.active').first();
@@ -594,8 +568,12 @@ test.describe('Favorites Quick Actions', () => {
 // ========================================
 
 test.describe('Favorites Notifications', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should receive notification when favorite employee becomes available', async ({ page }) => {
@@ -603,7 +581,7 @@ test.describe('Favorites Notifications', () => {
     // For now, just verify notification settings exist
 
     await page.goto('/settings/notifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const favoriteNotificationToggle = page.locator('input[name*="favorite"], label:has-text("Favorite") input').first();
 
@@ -614,14 +592,14 @@ test.describe('Favorites Notifications', () => {
 
   test('should enable/disable favorite notifications', async ({ page }) => {
     await page.goto('/settings/notifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const favoriteNotificationToggle = page.locator('input[name*="favorite"]').first();
 
     if (await favoriteNotificationToggle.count() > 0) {
       const initialState = await favoriteNotificationToggle.isChecked();
       await favoriteNotificationToggle.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const newState = await favoriteNotificationToggle.isChecked();
       expect(newState).not.toBe(initialState);
@@ -639,8 +617,12 @@ test.describe('Mobile Favorites', () => {
     isMobile: true,
   });
 
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should display favorites in mobile grid', async ({ page }) => {
@@ -683,7 +665,7 @@ test.describe('Mobile Favorites', () => {
         await page.mouse.move(box.x + 10, box.y + box.height / 2, { steps: 10 });
         await page.mouse.up();
 
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // May show delete button or remove directly
         await expect(page.locator('body')).toBeVisible();
@@ -693,7 +675,7 @@ test.describe('Mobile Favorites', () => {
 
   test('should show favorite button clearly on mobile cards', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const favoriteBtn = page.locator('.favorite-btn').first();
 

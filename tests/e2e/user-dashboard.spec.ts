@@ -299,7 +299,7 @@ test.describe('Edit Profile', () => {
 
     if (await editBtn.isVisible({ timeout: 3000 })) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const editModal = page.locator('[role="dialog"], .modal, .edit-modal');
       await expect(editModal.first()).toBeVisible({ timeout: 3000 });
@@ -323,7 +323,7 @@ test.describe('Edit Profile', () => {
 
     if (await editBtn.isVisible({ timeout: 3000 })) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Find and modify a field
       const input = page.locator('[role="dialog"] input').first();
@@ -336,7 +336,7 @@ test.describe('Edit Profile', () => {
       const saveBtn = page.locator('[role="dialog"] button:has-text("Save"), [role="dialog"] button[type="submit"]').first();
       if (await saveBtn.isVisible()) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
       }
 
       await expect(page.locator('body')).toBeVisible();

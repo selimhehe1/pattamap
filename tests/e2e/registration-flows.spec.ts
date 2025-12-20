@@ -70,7 +70,7 @@ test.describe('User Registration Flow', () => {
     await page.locator('[data-testid="register-button"], button[type="submit"]').first().click();
 
     // Wait for redirect or success message
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Verify success (redirect to dashboard/home or success message)
     const currentUrl = page.url();
@@ -98,7 +98,7 @@ test.describe('User Registration Flow', () => {
     }
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Should show error message
     const errorMessage = page.locator('.error, [role="alert"]')
@@ -138,7 +138,7 @@ test.describe('User Registration Flow', () => {
     await page.locator('input[name="password"], input[type="password"]').first().fill('123');
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show password strength error
     const errorMessage = page.locator('text=/password.*weak|password.*short|password.*requirement/i').first();
@@ -162,7 +162,7 @@ test.describe('User Registration Flow', () => {
     if (await confirmPassword.count() > 0) {
       await confirmPassword.fill('DifferentPassword123!');
       await page.locator('button[type="submit"]').first().click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show mismatch error
       const errorMessage = page.locator('text=/password.*match|passwords.*different/i').first();
@@ -180,7 +180,7 @@ test.describe('User Registration Flow', () => {
     const isVisible = await loginLink.isVisible({ timeout: 5000 }).catch(() => false);
     if (isVisible) {
       await loginLink.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
       // May or may not redirect to /login
     }
     // Test passes if page loads
@@ -229,7 +229,7 @@ test.describe('Owner Registration Flow', () => {
     const ownerOption = page.locator('input[value="owner"], button:has-text("Owner")').first();
     if (await ownerOption.count() > 0) {
       await ownerOption.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Fill basic info
@@ -263,7 +263,7 @@ test.describe('Owner Registration Flow', () => {
 
     // Submit
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Verify success
     const currentUrl = page.url();
@@ -281,7 +281,7 @@ test.describe('Owner Registration Flow', () => {
     const ownerOption = page.locator('input[value="owner"], button:has-text("Owner")').first();
     if (await ownerOption.count() > 0) {
       await ownerOption.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Fill form without establishment name
@@ -296,7 +296,7 @@ test.describe('Owner Registration Flow', () => {
     }
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Should show validation error or stay on page
     const stillOnRegister = page.url().includes('/register');
@@ -318,14 +318,14 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to add employee
     const addEmployeeBtn = page.locator('a[href*="/employee"], button:has-text("Add Employee")').first();
 
     if (await addEmployeeBtn.count() > 0) {
       await addEmployeeBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify employee form appears
       const employeeForm = page.locator('form').first();
@@ -340,11 +340,11 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to employee management
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Check for employee-specific fields
     const nicknameField = page.locator('input[name="nickname"], input[name="name"]').first();
@@ -365,11 +365,11 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to add employee
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Fill employee form
     const nicknameField = page.locator('input[name="nickname"], input[name="name"]').first();
@@ -391,7 +391,7 @@ test.describe('Employee Registration Flow', () => {
     const submitBtn = page.locator('button[type="submit"]').first();
     if (await submitBtn.count() > 0) {
       await submitBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Verify success
       const successMessage = page.locator('text=/success|added|created/i').first();
@@ -408,11 +408,11 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to add employee
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Try to enter age under 18
     const ageField = page.locator('input[name="age"]').first();
@@ -425,7 +425,7 @@ test.describe('Employee Registration Flow', () => {
       }
 
       await page.locator('button[type="submit"]').first().click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show age validation error
       const errorMessage = page.locator('text=/age.*18|must.*adult|underage/i').first();
@@ -442,9 +442,9 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
     await page.goto('/owner/employees/add');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for type selector
     const typeSelect = page.locator('select[name="type"]').first();
@@ -491,7 +491,7 @@ test.describe('Email Verification Flow', () => {
     }
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Should show verification message
     const verifyMessage = page.locator('text=/verify.*email|check.*inbox|confirmation.*sent/i').first();
@@ -506,7 +506,7 @@ test.describe('Email Verification Flow', () => {
   test('should have resend verification email option', async ({ page }) => {
     // Navigate to verification page directly (for testing)
     await page.goto('/verify-email');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for resend button
     const resendButton = page.locator('button:has-text("Resend"), a:has-text("Resend")').first();
@@ -532,7 +532,7 @@ test.describe('Registration Security', () => {
     await page.locator('input[name="password"], input[type="password"]').first().fill('SecureP@ssw0rd2024!');
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify no alert was triggered (XSS blocked)
     // Playwright would throw if alert appeared
@@ -548,7 +548,7 @@ test.describe('Registration Security', () => {
       await page.locator('input[name="pseudonym"], input[name="username"]').first().fill(`ratetest${i}`);
       await page.locator('input[name="password"], input[type="password"]').first().fill('password123');
       await page.locator('button[type="submit"]').first().click();
-      await page.waitForTimeout(200);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Should show rate limit error eventually
@@ -567,7 +567,7 @@ test.describe('Registration Security', () => {
     await page.locator('input[name="password"], input[type="password"]').first().fill('SecureP@ssw0rd2024!');
 
     await page.locator('button[type="submit"]').first().click();
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Page should not crash and should show validation error or sanitized input
     await expect(page.locator('body')).toBeVisible();

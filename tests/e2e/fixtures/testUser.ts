@@ -180,7 +180,7 @@ export async function registerUser(
 
       // Navigate to homepage to activate auth state
       await page.goto('/');
-      await page.waitForTimeout(2000); // Wait for AuthContext to load
+      await page.waitForLoadState('networkidle');
 
       console.log(`✅ User registered & logged in via API: ${user.email}`);
     } else {
@@ -271,7 +271,7 @@ export async function loginUser(
 
     // Navigate to homepage to activate auth state
     await page.goto('/');
-    await page.waitForTimeout(2000); // Wait for AuthContext to load
+    await page.waitForLoadState('networkidle');
 
     console.log(`✅ User logged in via API: ${user.email}`);
   } catch (error) {
@@ -374,11 +374,11 @@ export async function createReviewForXP(
       console.log(`✅ Review created via API (+50 XP expected)`);
 
       // Wait for backend to process XP award
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Reload page to see XP update in header
       await page.reload();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
       return true;
     }
     return false;
@@ -466,11 +466,11 @@ export async function checkInForXP(
       console.log(`✅ Check-in ${verified ? 'verified' : 'recorded'}: ${message} (+${xpAwarded} XP)`);
 
       // Wait for backend to process mission progress
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Reload page to see updated mission progress
       await page.reload();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -521,7 +521,7 @@ export async function waitForXPUpdate(
       return;
     }
 
-    await page.waitForTimeout(500); // Check every 500ms
+    await page.waitForLoadState('domcontentloaded'); // Check every iteration
   }
 
   throw new Error(`Timeout: XP did not reach ${expectedXP} within ${timeout}ms`);

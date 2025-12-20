@@ -55,7 +55,7 @@ test.describe('VIP Plan Selection', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Pricing plans should be visible
       const pricingPlans = page.locator('.pricing-plan, .vip-plan, [data-plan]');
@@ -82,7 +82,7 @@ test.describe('VIP Plan Selection', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Multiple plan options (e.g., monthly, yearly)
       const planOptions = page.locator('.plan-option, .pricing-tier, [data-plan]');
@@ -110,7 +110,7 @@ test.describe('VIP Plan Selection', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Recommended plan should be highlighted
       const recommendedPlan = page.locator('.recommended, .best-value, .popular, [data-recommended]');
@@ -143,7 +143,7 @@ test.describe('Stripe Checkout Integration', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Checkout button should be present
       const checkoutBtn = page.locator('button:has-text("Subscribe"), button:has-text("Checkout"), button:has-text("Buy"), button:has-text("Purchase")');
@@ -183,13 +183,13 @@ test.describe('Stripe Checkout Integration', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const checkoutBtn = page.locator('button:has-text("Subscribe"), button:has-text("Checkout")').first();
 
       if (await checkoutBtn.isVisible({ timeout: 3000 })) {
         await checkoutBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Payment API should have been called
         await expect(page.locator('body')).toBeVisible();
@@ -223,7 +223,7 @@ test.describe('Stripe Checkout Integration', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const checkoutBtn = page.locator('button:has-text("Subscribe")').first();
 
@@ -353,13 +353,13 @@ test.describe('Payment Failure Handling', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const checkoutBtn = page.locator('button:has-text("Subscribe")').first();
 
       if (await checkoutBtn.isVisible({ timeout: 3000 })) {
         await checkoutBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Error message should be displayed
         const errorMessage = page.locator('text=/error|failed|problem/i, .error-message');
@@ -521,7 +521,7 @@ test.describe('VIP Renewal', () => {
 
     if (await renewBtn.isVisible({ timeout: 3000 })) {
       await renewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Renewal modal should appear
       const modal = page.locator('[role="dialog"], .modal, .vip-modal');
@@ -554,7 +554,7 @@ test.describe('VIP Benefits Display', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Benefits list should be visible
       const benefitsList = page.locator('.benefits, .features, ul.vip-benefits, li:has-text("benefit")');
@@ -581,7 +581,7 @@ test.describe('VIP Benefits Display', () => {
 
     if (await vipBtn.isVisible({ timeout: 3000 })) {
       await vipBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Price should be visible
       const prices = page.locator('text=/\\$|THB|฿|€|price/i');

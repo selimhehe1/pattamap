@@ -105,7 +105,7 @@ test.describe('VIP Purchase Modal', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const vipModal = page.locator('[role="dialog"], .modal, .vip-modal');
       await expect(vipModal.first()).toBeVisible({ timeout: 3000 });
@@ -129,13 +129,13 @@ test.describe('VIP Purchase Modal', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const cancelBtn = page.locator('[role="dialog"] button:has-text("Cancel"), [role="dialog"] button:has-text("×")').first();
 
       if (await cancelBtn.isVisible()) {
         await cancelBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         const modal = page.locator('[role="dialog"]');
         await expect(modal.first()).toBeHidden({ timeout: 2000 });
@@ -166,7 +166,7 @@ test.describe('VIP Pricing', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Pricing should be visible
       const pricing = page.locator('.pricing, .plan').or(page.locator('text=/\\$|THB|฿/')).first();
@@ -193,7 +193,7 @@ test.describe('VIP Pricing', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for plan options
       const plans = page.locator('.plan-option, .pricing-tier, [data-plan]');
@@ -220,7 +220,7 @@ test.describe('VIP Pricing', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const recommended = page.locator('.recommended, .best-value, .popular').first();
       const hasRecommended = await recommended.isVisible({ timeout: 2000 }).catch(() => false);
@@ -252,7 +252,7 @@ test.describe('Stripe Checkout', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const checkoutBtn = page.locator('button:has-text("Subscribe"), button:has-text("Buy"), button:has-text("Checkout")').first();
       const hasCheckout = await checkoutBtn.isVisible({ timeout: 3000 }).catch(() => false);
@@ -278,13 +278,13 @@ test.describe('Stripe Checkout', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Select a plan if needed
       const planBtn = page.locator('.plan-option button, [data-plan] button').first();
       if (await planBtn.isVisible()) {
         await planBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       // Check if redirected to Stripe (would need mock in test env)
@@ -315,7 +315,7 @@ test.describe('VIP Benefits', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Benefits list should be visible
       const benefits = page.locator('.benefits, .features, ul li').first();
@@ -342,7 +342,7 @@ test.describe('VIP Benefits', () => {
 
     if (await upgradeBtn.isVisible({ timeout: 3000 })) {
       await upgradeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Feature comparison may be shown
       const comparison = page.locator('.comparison, .feature-table').first();
@@ -401,7 +401,7 @@ test.describe('VIP Renewal', () => {
 
     if (await renewBtn.isVisible({ timeout: 3000 })) {
       await renewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const modal = page.locator('[role="dialog"], .modal');
       await expect(modal.first()).toBeVisible({ timeout: 3000 });
@@ -432,7 +432,7 @@ test.describe('Cancel VIP', () => {
 
     if (await cancelBtn.isVisible({ timeout: 3000 })) {
       await cancelBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const confirmation = page.locator('[role="alertdialog"], .confirm-dialog').or(page.locator('text=/are you sure/i')).first();
       const hasConfirm = await confirmation.isVisible({ timeout: 3000 }).catch(() => false);
@@ -449,13 +449,13 @@ test.describe('Cancel VIP', () => {
 
     if (await cancelBtn.isVisible({ timeout: 3000 })) {
       await cancelBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const keepBtn = page.locator('button:has-text("Keep"), button:has-text("No")').first();
 
       if (await keepBtn.isVisible({ timeout: 2000 })) {
         await keepBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Modal should close
         await expect(page.locator('body')).toBeVisible();

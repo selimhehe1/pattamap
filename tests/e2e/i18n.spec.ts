@@ -21,7 +21,7 @@ async function openMenuIfNeeded(page: Page) {
   const menuBtn = page.locator('button:has-text("☰"), button[aria-label*="menu"]').first();
   if (await menuBtn.isVisible().catch(() => false)) {
     await menuBtn.click();
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
   }
 }
 
@@ -91,7 +91,7 @@ test.describe('Language Switching', () => {
 
     if (await thaiOption.isVisible().catch(() => false)) {
       await thaiOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Check for Thai text on page
       const thaiText = page.locator('text=/[ก-๙]+/').first();
@@ -112,7 +112,7 @@ test.describe('Language Switching', () => {
 
     if (await russianOption.isVisible().catch(() => false)) {
       await russianOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Check for Cyrillic text on page
       const russianText = page.locator('text=/[а-яА-Я]+/').first();
@@ -133,7 +133,7 @@ test.describe('Language Switching', () => {
 
     if (await chineseOption.isVisible().catch(() => false)) {
       await chineseOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Check for Chinese characters on page
       const chineseText = page.locator('text=/[\\u4e00-\\u9fff]+/').first();
@@ -154,7 +154,7 @@ test.describe('Language Switching', () => {
 
     if (await englishOption.isVisible().catch(() => false)) {
       await englishOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Check for English text
       const englishText = page.locator('text=/Navigate|Search|Map|Explore/i').first();
@@ -208,7 +208,7 @@ test.describe('Text Translations', () => {
 
     if (await signInBtn.isVisible().catch(() => false)) {
       await signInBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Error messages should appear
       await expect(page.locator('body')).toBeVisible();
@@ -260,7 +260,7 @@ test.describe('Language Persistence', () => {
 
     if (await thaiOption.isVisible().catch(() => false)) {
       await thaiOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Refresh page
       await page.reload();
@@ -282,7 +282,7 @@ test.describe('Language Persistence', () => {
 
     if (await thaiOption.isVisible().catch(() => false)) {
       await thaiOption.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Navigate to another page
       await page.goto('/search');
@@ -417,7 +417,7 @@ test.describe('Mobile i18n', () => {
 
     if (await langOption.isVisible().catch(() => false)) {
       await langOption.tap();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
     }
 
     await expect(page.locator('body')).toBeVisible();

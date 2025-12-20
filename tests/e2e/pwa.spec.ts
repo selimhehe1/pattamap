@@ -75,17 +75,14 @@ test.describe('Service Worker', () => {
 test.describe('Offline Support', () => {
   test('should cache critical resources', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-
-    // Wait for caching
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Go offline
     await context.setOffline(true);
 
     // Try to reload
     await page.reload().catch(() => {});
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     // Should show cached content or offline page
     const hasContent = await page.locator('body').isVisible();
@@ -99,7 +96,7 @@ test.describe('Offline Support', () => {
     await page.waitForLoadState('domcontentloaded');
 
     await context.setOffline(true);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     // Look for offline indicator
     const offlineIndicator = page.locator('text=/offline|no connection|no internet/i').first();
@@ -120,7 +117,7 @@ test.describe('Offline Support', () => {
     const button = page.locator('button').first();
     if (await button.isVisible().catch(() => false)) {
       await button.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
     }
 
     // Should queue or show message
@@ -135,9 +132,9 @@ test.describe('Offline Support', () => {
 
     // Go offline, perform action, go online
     await context.setOffline(true);
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
     await context.setOffline(false);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle').catch(() => {});
 
     // Should sync any queued actions
     await expect(page.locator('body')).toBeVisible();
@@ -145,10 +142,7 @@ test.describe('Offline Support', () => {
 
   test('should work with cached map tiles', async ({ page, context }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-
-    // Let map tiles cache
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     await context.setOffline(true);
 
@@ -357,7 +351,7 @@ test.describe('Background Sync', () => {
 
     if (await favoriteBtn.isVisible().catch(() => false)) {
       await favoriteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
     }
 
     // Should queue action
@@ -476,7 +470,7 @@ test.describe('Mobile PWA', () => {
     await page.mouse.move(187, 400, { steps: 10 });
     await page.mouse.up();
 
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Page should handle pull to refresh
     await expect(page.locator('body')).toBeVisible();

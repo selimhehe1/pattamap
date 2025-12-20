@@ -2,16 +2,16 @@
  * E2E Tests - Modals & Forms
  *
  * Tests modal dialogs and form interactions:
- * 1. Modal open/close → backdrop, X button, Escape
- * 2. Modal focus trap → tab stays in modal
- * 3. Modal stacking → multiple modals
- * 4. Form validation → real-time errors
- * 5. Form auto-save → draft persistence
- * 6. Form draft restore → reload recovery
- * 7. EmployeeForm → all fields
- * 8. EstablishmentForm → all fields
- * 9. ReviewForm → stars + text
- * 10. PhotoUpload → preview
+ * 1. Modal open/close - backdrop, X button, Escape
+ * 2. Modal focus trap - tab stays in modal
+ * 3. Modal stacking - multiple modals
+ * 4. Form validation - real-time errors
+ * 5. Form auto-save - draft persistence
+ * 6. Form draft restore - reload recovery
+ * 7. EmployeeForm - all fields
+ * 8. EstablishmentForm - all fields
+ * 9. ReviewForm - stars + text
+ * 10. PhotoUpload - preview
  */
 
 import { test, expect } from '@playwright/test';
@@ -42,7 +42,7 @@ test.describe('Modal Open/Close', () => {
 
       if (await closeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await closeBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Modal should be closed or page redirected
         await expect(page.locator('body')).toBeVisible();
@@ -58,7 +58,7 @@ test.describe('Modal Open/Close', () => {
 
     if (await modal.isVisible({ timeout: 3000 }).catch(() => false)) {
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal may close on Escape
       await expect(page.locator('body')).toBeVisible();
@@ -77,7 +77,7 @@ test.describe('Modal Open/Close', () => {
 
       if (await backdrop.isVisible({ timeout: 2000 }).catch(() => false)) {
         await backdrop.click({ position: { x: 10, y: 10 }, force: true });
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       await expect(page.locator('body')).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('Modal Open/Close', () => {
     if (await modal.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Click inside modal
       await modal.click({ position: { x: 100, y: 100 } });
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should still be visible
       await expect(modal).toBeVisible();
@@ -116,7 +116,6 @@ test.describe('Modal Focus Trap', () => {
       // Tab multiple times
       for (let i = 0; i < 10; i++) {
         await page.keyboard.press('Tab');
-        await page.waitForTimeout(100);
       }
 
       // Focus should still be inside modal
@@ -194,7 +193,7 @@ test.describe('Modal Stacking', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const modals = page.locator('[role="dialog"], .modal');
       const modalCount = await modals.count();
@@ -222,10 +221,10 @@ test.describe('Modal Stacking', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should close
       await expect(page.locator('body')).toBeVisible();
@@ -247,7 +246,7 @@ test.describe('Form Validation', () => {
 
     if (await submitBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await submitBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for error messages
       const errorMessages = page.locator('.error, .error-message, [role="alert"], .field-error');
@@ -267,7 +266,7 @@ test.describe('Form Validation', () => {
     if (await emailInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await emailInput.fill('invalid-email');
       await emailInput.blur();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show validation error
       await expect(page.locator('body')).toBeVisible();
@@ -283,7 +282,7 @@ test.describe('Form Validation', () => {
     if (await passwordInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await passwordInput.fill('weak');
       await passwordInput.blur();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show password requirement error
       await expect(page.locator('body')).toBeVisible();
@@ -300,7 +299,7 @@ test.describe('Form Validation', () => {
       // Focus and blur without entering value
       await input.focus();
       await input.blur();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show required field error
       await expect(page.locator('body')).toBeVisible();
@@ -317,11 +316,11 @@ test.describe('Form Validation', () => {
       // Enter invalid then valid
       await emailInput.fill('invalid');
       await emailInput.blur();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       await emailInput.fill('valid@email.com');
       await emailInput.blur();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Error should be cleared
       await expect(page.locator('body')).toBeVisible();
@@ -352,13 +351,13 @@ test.describe('Form Auto-Save', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const nameInput = page.locator('input[name="name"], input[placeholder*="name" i]').first();
 
       if (await nameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
         await nameInput.fill('Test Draft Name');
-        await page.waitForTimeout(2000); // Wait for auto-save debounce
+        await page.waitForLoadState('networkidle');
 
         // Check localStorage for draft
         const draft = await page.evaluate(() => {
@@ -390,7 +389,7 @@ test.describe('Form Auto-Save', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for auto-save indicator
       const saveIndicator = page.locator('.auto-save, .draft-saved').or(page.locator('text=/saved|saving/i')).first();
@@ -425,21 +424,21 @@ test.describe('Form Draft Restore', () => {
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Open form, enter data, close
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const nameInput = page.locator('input[name="name"]').first();
       if (await nameInput.isVisible()) {
         await nameInput.fill('Test Restore Draft');
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
       }
 
       // Close modal
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Reopen form
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if draft restored
       const restoredValue = await nameInput.inputValue().catch(() => '');
@@ -466,12 +465,12 @@ test.describe('Form Draft Restore', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const input = page.locator('input').first();
       if (await input.isVisible()) {
         await input.fill('Draft before reload');
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
       }
 
       // Reload page
@@ -514,7 +513,7 @@ test.describe('Employee Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check for required fields
       const nameField = page.locator('input[name="name"], input[placeholder*="name" i]');
@@ -544,14 +543,14 @@ test.describe('Employee Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const ageInput = page.locator('input[name="age"]').first();
 
       if (await ageInput.isVisible()) {
         await ageInput.fill('15'); // Invalid age
         await ageInput.blur();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show age validation error
         await expect(page.locator('body')).toBeVisible();
@@ -574,7 +573,7 @@ test.describe('Employee Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const establishmentSelect = page.locator('select[name="establishment"], [data-testid="establishment-select"]').first();
 
@@ -608,7 +607,7 @@ test.describe('Establishment Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check for required fields
       const nameField = page.locator('input[name="name"]');
@@ -639,14 +638,14 @@ test.describe('Establishment Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const nameInput = page.locator('input[name="name"]').first();
 
       if (await nameInput.isVisible()) {
         await nameInput.fill('Existing Bar Name');
         await nameInput.blur();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // May show uniqueness error if name exists
         await expect(page.locator('body')).toBeVisible();
@@ -671,7 +670,7 @@ test.describe('Establishment Form', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const zoneSelect = page.locator('select[name="zone"], [data-testid="zone-select"]').first();
 
@@ -699,14 +698,14 @@ test.describe('Review Form', () => {
 
     if (await establishment.isVisible({ timeout: 5000 }).catch(() => false)) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for review section
       const reviewBtn = page.locator('button:has-text("Review"), button:has-text("Add Review")').first();
 
       if (await reviewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Star rating should be visible
         const stars = page.locator('.star-rating, [data-testid="star-rating"], .rating-stars');
@@ -733,20 +732,20 @@ test.describe('Review Form', () => {
 
     if (await establishment.isVisible({ timeout: 3000 }).catch(() => false)) {
       await establishment.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.isVisible()) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Click on 4th star
         const star = page.locator('.star-rating button, .star').nth(3);
 
         if (await star.isVisible()) {
           await star.click();
-          await page.waitForTimeout(300);
+          await page.waitForLoadState('domcontentloaded');
         }
       }
     }
@@ -763,7 +762,7 @@ test.describe('Review Form', () => {
 
     if (await reviewBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await reviewBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const textarea = page.locator('textarea[name="content"], textarea[placeholder*="review" i]');
       await expect(textarea.first()).toBeVisible({ timeout: 3000 });
@@ -793,7 +792,7 @@ test.describe('Photo Upload', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for file input or drop zone
       const fileInput = page.locator('input[type="file"]');
@@ -824,7 +823,7 @@ test.describe('Photo Upload', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const fileInput = page.locator('input[type="file"]').first();
 
@@ -852,7 +851,7 @@ test.describe('Photo Upload', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const fileInput = page.locator('input[type="file"]').first();
 
@@ -882,7 +881,7 @@ test.describe('Photo Upload', () => {
 
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for remove button (would appear after upload)
       const removeBtn = page.locator('button[aria-label*="remove" i], .remove-photo, button:has-text("Remove")');

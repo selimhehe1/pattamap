@@ -2,16 +2,16 @@
  * E2E Tests - Establishment Detail Page
  *
  * Tests establishment detail page:
- * 1. Page load → data display
- * 2. Tab navigation → Infos/Employees/Reviews
- * 3. Photo gallery → carousel, fullscreen
- * 4. Employee cards → profile modal
- * 5. Reviews section → list, pagination
- * 6. Add review → modal (logged in)
- * 7. Favorite toggle → add/remove
- * 8. Share button → copy URL
- * 9. Edit button (owner) → modal
- * 10. Claim ownership → modal
+ * 1. Page load - data display
+ * 2. Tab navigation - Infos/Employees/Reviews
+ * 3. Photo gallery - carousel, fullscreen
+ * 4. Employee cards - profile modal
+ * 5. Reviews section - list, pagination
+ * 6. Add review - modal (logged in)
+ * 7. Favorite toggle - add/remove
+ * 8. Share button - copy URL
+ * 9. Edit button (owner) - modal
+ * 10. Claim ownership - modal
  */
 
 import { test, expect } from '@playwright/test';
@@ -32,7 +32,7 @@ test.describe('Establishment Page Load', () => {
       await page.goto('/');
       // Click on first establishment
       const card = page.locator('.establishment-card, [data-testid="establishment"]').first();
-      if (await card.isVisible({ timeout: 5000 })) {
+      if (await card.isVisible({ timeout: 5000 }).catch(() => false)) {
         await card.click();
       }
     }
@@ -126,7 +126,7 @@ test.describe('Tab Navigation', () => {
 
       if (await employeesTab.isVisible({ timeout: 3000 }).catch(() => false)) {
         await employeesTab.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Employees content should be visible
         const employeesContent = page.locator('.employees-list, .employee-cards, [data-testid="employees-tab"]');
@@ -146,7 +146,7 @@ test.describe('Tab Navigation', () => {
 
       if (await reviewsTab.isVisible({ timeout: 3000 }).catch(() => false)) {
         await reviewsTab.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Reviews content should be visible
         const reviewsContent = page.locator('.reviews-list, .review-cards, [data-testid="reviews-tab"]');
@@ -198,7 +198,7 @@ test.describe('Photo Gallery', () => {
 
       if (await galleryImage.isVisible({ timeout: 3000 }).catch(() => false)) {
         await galleryImage.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Fullscreen modal should open
         const fullscreenModal = page.locator('.gallery-modal, [data-testid="fullscreen-gallery"], .lightbox');
@@ -220,7 +220,7 @@ test.describe('Photo Gallery', () => {
 
       if (await nextButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await nextButton.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should move to next image
         await expect(page.locator('body')).toBeVisible();
@@ -239,11 +239,11 @@ test.describe('Photo Gallery', () => {
 
       if (await galleryImage.isVisible({ timeout: 3000 }).catch(() => false)) {
         await galleryImage.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Press Escape to close
         await page.keyboard.press('Escape');
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -267,7 +267,7 @@ test.describe('Employee Cards', () => {
       const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
       if (await employeesTab.isVisible({ timeout: 2000 }).catch(() => false)) {
         await employeesTab.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       const employeeCards = page.locator('.employee-card, .girl-card, [data-testid="employee-card"]');
@@ -289,7 +289,7 @@ test.describe('Employee Cards', () => {
 
       if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
         await employeeCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Profile modal should open
         const profileModal = page.locator('[role="dialog"], .modal, .profile-modal');
@@ -329,7 +329,7 @@ test.describe('Reviews Section', () => {
       const reviewsTab = page.locator('button:has-text("Reviews")').first();
       if (await reviewsTab.isVisible({ timeout: 2000 }).catch(() => false)) {
         await reviewsTab.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       const reviews = page.locator('.review-card, .review-item, [data-testid="review"]');
@@ -419,7 +419,7 @@ test.describe('Add Review', () => {
 
       if (await addReviewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await addReviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Review modal should open
         const reviewModal = page.locator('[role="dialog"], .modal, .review-modal');
@@ -439,7 +439,7 @@ test.describe('Add Review', () => {
 
       if (await addReviewBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await addReviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show login modal or redirect
         const loginModal = page.locator('text="Welcome Back", text="Sign in"');
@@ -490,7 +490,7 @@ test.describe('Favorite Toggle', () => {
 
       if (await favoriteBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await favoriteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Button state should change
         await expect(page.locator('body')).toBeVisible();
@@ -529,7 +529,7 @@ test.describe('Share Button', () => {
 
       if (await shareBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await shareBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show copied notification or share menu
         const notification = page.locator('text=/copied|share/i').first();
@@ -620,7 +620,7 @@ test.describe('Claim Ownership', () => {
 
       if (await claimBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await claimBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Claim modal should open
         const claimModal = page.locator('[role="dialog"], .modal, .claim-modal');

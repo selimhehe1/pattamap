@@ -2,17 +2,17 @@
  * E2E Tests - Search Page
  *
  * Tests search functionality:
- * 1. Search input → autocomplete
- * 2. Search submit → results
- * 3. No results → empty state
- * 4. Filter by type → employees/establishments
- * 5. Filter by nationality → multi-select
- * 6. Filter by age → range
- * 7. Filter by verification → toggle
- * 8. Sort options → order
- * 9. Pagination → pages
- * 10. Results count → display
- * 11. Reset filters → clear
+ * 1. Search input -> autocomplete
+ * 2. Search submit -> results
+ * 3. No results -> empty state
+ * 4. Filter by type -> employees/establishments
+ * 5. Filter by nationality -> multi-select
+ * 6. Filter by age -> range
+ * 7. Filter by verification -> toggle
+ * 8. Sort options -> order
+ * 9. Pagination -> pages
+ * 10. Results count -> display
+ * 11. Reset filters -> clear
  */
 
 import { test, expect } from '@playwright/test';
@@ -24,8 +24,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Search Input', () => {
   test('should display search input', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Try multiple selectors for search input - prioritize data-testid
     const searchInputSelectors = [
@@ -56,8 +55,7 @@ test.describe('Search Input', () => {
 
   test('should focus search input on page load', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="search" i], input[type="text"]').first();
 
@@ -82,7 +80,7 @@ test.describe('Search Input', () => {
 
     if (await searchInput.isVisible()) {
       await searchInput.fill('soi');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const suggestions = page.locator('.autocomplete, .suggestions, [data-testid="suggestions"]');
       const hasSuggestions = await suggestions.first().isVisible({ timeout: 3000 }).catch(() => false);
@@ -104,7 +102,7 @@ test.describe('Search Input', () => {
 
       if (await clearBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await clearBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         const value = await searchInput.inputValue();
         expect(value).toBe('');
@@ -127,7 +125,7 @@ test.describe('Search Submit', () => {
     if (await searchInput.isVisible()) {
       await searchInput.fill('bar');
       await searchInput.press('Enter');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Results should appear - prioritize data-testid
       const results = page.locator('[data-testid="search-results"], [data-testid="search-results-grid"], [data-testid="employee-card"], .employee-search-grid, .search-results, .result-card');
@@ -145,7 +143,7 @@ test.describe('Search Submit', () => {
     if (await searchInput.isVisible() && await searchBtn.isVisible()) {
       await searchInput.fill('gogo');
       await searchBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -160,7 +158,7 @@ test.describe('Search Submit', () => {
     if (await searchInput.isVisible()) {
       await searchInput.fill('walking street');
       await searchInput.press('Enter');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       const url = page.url();
       expect(url).toMatch(/q=|search=/i);
@@ -182,7 +180,7 @@ test.describe('No Results State', () => {
     if (await searchInput.isVisible()) {
       await searchInput.fill('xyznonexistent12345');
       await searchInput.press('Enter');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       const emptyState = page.locator('[data-testid="empty-state"], .empty-state, [data-testid="no-results"]').or(page.locator('text=/no results|not found/i')).first();
       const hasEmpty = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
@@ -194,7 +192,7 @@ test.describe('No Results State', () => {
 
   test('should show suggestions in empty state', async ({ page }) => {
     await page.goto('/search?q=xyznonexistent12345');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
 
     const suggestions = page.locator('.suggestions').or(page.locator('text=/try|suggest/i')).first();
     const hasSuggestions = await suggestions.isVisible({ timeout: 5000 }).catch(() => false);
@@ -210,8 +208,7 @@ test.describe('No Results State', () => {
 test.describe('Filter by Type', () => {
   test('should display type filter', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Try multiple selectors for type filter - prioritize data-testid
     const typeFilterSelectors = [
@@ -250,7 +247,7 @@ test.describe('Filter by Type', () => {
 
     if (await employeesFilter.isVisible({ timeout: 3000 })) {
       await employeesFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Results should show employees
       await expect(page.locator('body')).toBeVisible();
@@ -265,7 +262,7 @@ test.describe('Filter by Type', () => {
 
     if (await establishmentsFilter.isVisible({ timeout: 3000 })) {
       await establishmentsFilter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -313,14 +310,14 @@ test.describe('Filter by Nationality', () => {
       await expect(nationalitySelect.locator('option')).toHaveCount(2, { timeout: 30000 }).catch(() => {
         // If exact count fails, just ensure at least 2 options exist
       });
-      await page.waitForTimeout(500); // Extra wait for options to render
+      await page.waitForLoadState('networkidle');
 
       // Select first available nationality (index 1, skipping "All nationalities")
       const optionCount = await nationalitySelect.locator('option').count();
       if (optionCount > 1) {
         await nationalitySelect.selectOption({ index: 1 });
       }
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -336,7 +333,7 @@ test.describe('Filter by Nationality', () => {
     if (checkboxCount > 1) {
       await nationalityCheckboxes.first().check();
       await nationalityCheckboxes.nth(1).check();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -366,7 +363,7 @@ test.describe('Filter by Age', () => {
 
     if (await minAgeInput.isVisible({ timeout: 3000 })) {
       await minAgeInput.fill('25');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -380,7 +377,7 @@ test.describe('Filter by Age', () => {
 
     if (await maxAgeInput.isVisible({ timeout: 3000 })) {
       await maxAgeInput.fill('30');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -410,7 +407,7 @@ test.describe('Filter by Verification', () => {
 
     if (await verifiedToggle.isVisible({ timeout: 3000 })) {
       await verifiedToggle.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -424,8 +421,7 @@ test.describe('Filter by Verification', () => {
 test.describe('Sort Options', () => {
   test('should display sort dropdown', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Try multiple selectors for sort dropdown - prioritize data-testid
     const sortSelectors = [
@@ -462,7 +458,7 @@ test.describe('Sort Options', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Relevance' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -476,7 +472,7 @@ test.describe('Sort Options', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Newest' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -490,7 +486,7 @@ test.describe('Sort Options', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Highest Rated' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -520,7 +516,7 @@ test.describe('Pagination', () => {
 
     if (await nextBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await nextBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const url = page.url();
       expect(url).toMatch(/page=2/);
@@ -535,7 +531,7 @@ test.describe('Pagination', () => {
 
     if (await prevBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await prevBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const url = page.url();
       expect(url).not.toMatch(/page=2/);
@@ -577,7 +573,7 @@ test.describe('Results Count', () => {
 
     if (await filter.isVisible({ timeout: 3000 })) {
       await filter.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Count should update
       await expect(page.locator('body')).toBeVisible();
@@ -608,7 +604,7 @@ test.describe('Reset Filters', () => {
 
     if (await resetBtn.isVisible({ timeout: 3000 })) {
       await resetBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Filters should be cleared
       const url = page.url();
@@ -624,7 +620,7 @@ test.describe('Reset Filters', () => {
 
     if (await resetBtn.isVisible({ timeout: 3000 })) {
       await resetBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -662,7 +658,7 @@ test.describe('Mobile Search', () => {
 
     if (await filtersBtn.isVisible({ timeout: 3000 })) {
       await filtersBtn.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Filter drawer should open
       const drawer = page.locator('.filter-drawer, .filters-modal, [role="dialog"]');

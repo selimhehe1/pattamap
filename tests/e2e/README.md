@@ -263,6 +263,103 @@ await waitForXPUpdate(page, expectedXP, timeout);
 
 ---
 
+## 🔑 Pre-Authenticated Sessions (storageState)
+
+Tests use **pre-authenticated browser sessions** to avoid rate limiting and speed up test execution.
+
+### How It Works
+
+1. **Global Setup** (`global-setup.ts`) runs before all tests
+2. Creates authenticated sessions for admin and owner users
+3. Saves browser state (cookies, localStorage) to `.auth/` folder
+4. Tests load this state instead of logging in each time
+
+### Auth State Files
+
+| File | User | Account Type | Usage |
+|------|------|--------------|-------|
+| `.auth/admin.json` | admin@test.com | Admin | Admin panel tests, VIP verification |
+| `.auth/user.json` | owner@test.com | Establishment Owner | Owner dashboard, employee management |
+
+### Using storageState in Tests
+
+```typescript
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// For admin tests
+const ADMIN_STATE_FILE = path.join(__dirname, '.auth', 'admin.json');
+
+// For owner/user tests
+const USER_STATE_FILE = path.join(__dirname, '.auth', 'user.json');
+
+// Apply to all tests in file
+test.use({
+  storageState: ADMIN_STATE_FILE, // or USER_STATE_FILE
+});
+
+test.describe('My Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    // User is already authenticated!
+  });
+});
+```
+
+### Mock Auth vs storageState
+
+| Approach | Pros | Cons | Best For |
+|----------|------|------|----------|
+| **storageState** | Real cookies, faster, works with backend | Requires global-setup | Admin, Owner tests |
+| **Mock Auth** | No backend needed, isolated | Frontend only | Unit-style E2E |
+
+---
+
+## 🚩 Feature Flags
+
+Some tests depend on feature flags. Tests skip gracefully when features are disabled.
+
+### Current Feature Flags
+
+| Flag | Default | Tests Affected |
+|------|---------|----------------|
+| `VITE_FEATURE_VIP_SYSTEM` | `false` | `admin-vip-verification.spec.ts`, `vip-*.spec.ts` |
+| `VITE_FEATURE_PAYMENTS` | `false` | Payment flow tests |
+| `VITE_FEATURE_GAMIFICATION` | `true` | `gamification.spec.ts` |
+
+### Enabling VIP Tests
+
+To run VIP verification tests, set in `.env`:
+```env
+VITE_FEATURE_VIP_SYSTEM=true
+VITE_FEATURE_PAYMENTS=true
+```
+
+### How Tests Handle Disabled Features
+
+```typescript
+// Tests check if feature is enabled before running
+async function isVIPEnabled(page): Promise<boolean> {
+  await page.goto('/admin');
+  const vipTab = page.locator('[data-testid="vip-verification-link"]');
+  return await vipTab.isVisible({ timeout: 5000 }).catch(() => false);
+}
+
+test('VIP specific test', async ({ page }) => {
+  if (!await isVIPEnabled(page)) {
+    test.skip(); // Skip gracefully, not fail
+    return;
+  }
+  // ... test code
+});
+```
+
+---
+
 ## ⚙️ Configuration
 
 `playwright.config.ts` includes:

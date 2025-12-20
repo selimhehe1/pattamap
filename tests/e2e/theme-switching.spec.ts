@@ -13,9 +13,9 @@ test.describe('Theme Switching', () => {
         .or(page.locator('button[aria-label*="menu"]'))
         .or(page.locator('[data-testid="mobile-menu"]'));
 
-      if (await hamburger.first().isVisible()) {
+      if (await hamburger.first().isVisible().catch(() => false)) {
         await hamburger.first().click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
       }
     }
 
@@ -95,7 +95,7 @@ test.describe('Theme Switching', () => {
         .first();
 
       await themeToggle.click();
-      await page.waitForTimeout(300); // Animation time
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify light mode is now active
       const isLight = await page.evaluate(() =>
@@ -123,7 +123,7 @@ test.describe('Theme Switching', () => {
         .first();
 
       await themeToggle.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify dark mode is now active
       const isDark = await page.evaluate(() =>
@@ -147,7 +147,7 @@ test.describe('Theme Switching', () => {
       // Toggle 4 times - should end up at initial theme
       for (let i = 0; i < 4; i++) {
         await themeToggle.click();
-        await page.waitForTimeout(200);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       const finalTheme = await getTheme();
@@ -169,7 +169,7 @@ test.describe('Theme Switching', () => {
         .first();
 
       await themeToggle.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify localStorage was updated
       const storedTheme = await page.evaluate(() => localStorage.getItem('theme-preference'));
@@ -207,7 +207,7 @@ test.describe('Theme Switching', () => {
         .or(page.locator('a[href*="explore"]'))
         .or(page.locator('nav a').first());
 
-      if (await searchLink.first().isVisible()) {
+      if (await searchLink.first().isVisible().catch(() => false)) {
         await searchLink.first().click();
         await page.waitForLoadState('domcontentloaded');
 
@@ -296,7 +296,7 @@ test.describe('Theme Switching', () => {
       // Find main heading or text
       const textElement = page.locator('h1, h2, p').first();
 
-      if (await textElement.isVisible()) {
+      if (await textElement.isVisible().catch(() => false)) {
         const textColor = await textElement.evaluate(el => {
           return window.getComputedStyle(el).color;
         });
@@ -320,7 +320,7 @@ test.describe('Theme Switching', () => {
 
       const textElement = page.locator('h1, h2, p').first();
 
-      if (await textElement.isVisible()) {
+      if (await textElement.isVisible().catch(() => false)) {
         const textColor = await textElement.evaluate(el => {
           return window.getComputedStyle(el).color;
         });
@@ -343,7 +343,7 @@ test.describe('Theme Switching', () => {
 
       const button = page.locator('button').first();
 
-      if (await button.isVisible()) {
+      if (await button.isVisible().catch(() => false)) {
         const buttonStyle = await button.evaluate(el => {
           const style = window.getComputedStyle(el);
           return {
@@ -367,7 +367,7 @@ test.describe('Theme Switching', () => {
 
       const card = page.locator('[class*="card"], [class*="Card"], [class*="panel"]').first();
 
-      if (await card.isVisible()) {
+      if (await card.isVisible().catch(() => false)) {
         const cardBg = await card.evaluate(el => {
           return window.getComputedStyle(el).backgroundColor;
         });
@@ -390,7 +390,7 @@ test.describe('Theme Switching', () => {
       await page.reload();
 
       // Wait for theme to be applied
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const isDark = await page.evaluate(() =>
         document.documentElement.classList.contains('dark') ||
@@ -410,7 +410,7 @@ test.describe('Theme Switching', () => {
       await page.emulateMedia({ colorScheme: 'light' });
       await page.reload();
 
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const isLight = await page.evaluate(() =>
         !document.documentElement.classList.contains('dark') ||
@@ -460,7 +460,7 @@ test.describe('Theme Switching', () => {
       await themeToggle.click();
 
       // Should not have jarring flash
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
     });
 
     test('should animate theme toggle icon', async ({ page }) => {
@@ -469,15 +469,15 @@ test.describe('Theme Switching', () => {
         .or(page.locator('.theme-toggle'))
         .first();
 
-      if (await themeToggle.isVisible()) {
+      if (await themeToggle.isVisible().catch(() => false)) {
         // Check for transform or animation on icon
         const icon = themeToggle.locator('svg').first();
 
-        if (await icon.isVisible()) {
+        if (await icon.isVisible().catch(() => false)) {
           await themeToggle.click();
 
           // Icon should have some animation/transform
-          await page.waitForTimeout(100);
+          await page.waitForLoadState('domcontentloaded');
         }
       }
     });
@@ -496,14 +496,14 @@ test.describe('Theme Switching', () => {
         .or(page.locator('input[placeholder*="search"]'))
         .or(page.locator('[data-testid="search-input"]'));
 
-      if (await searchInput.first().isVisible()) {
+      if (await searchInput.first().isVisible().catch(() => false)) {
         await searchInput.first().fill('test');
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('networkidle');
 
         // Check if any modal/dropdown appeared
         const dropdown = page.locator('[class*="dropdown"], [class*="modal"], [role="dialog"]').first();
 
-        if (await dropdown.isVisible()) {
+        if (await dropdown.isVisible().catch(() => false)) {
           const bgColor = await dropdown.evaluate(el =>
             window.getComputedStyle(el).backgroundColor
           );
@@ -527,7 +527,7 @@ test.describe('Theme Switching', () => {
 
       const nav = page.locator('nav, [class*="sidebar"], [class*="navigation"]').first();
 
-      if (await nav.isVisible()) {
+      if (await nav.isVisible().catch(() => false)) {
         const navBg = await nav.evaluate(el =>
           window.getComputedStyle(el).backgroundColor
         );
@@ -546,7 +546,7 @@ test.describe('Theme Switching', () => {
 
       const input = page.locator('input[type="text"], input[type="search"]').first();
 
-      if (await input.isVisible()) {
+      if (await input.isVisible().catch(() => false)) {
         const inputStyle = await input.evaluate(el => {
           const style = window.getComputedStyle(el);
           return {
@@ -570,7 +570,7 @@ test.describe('Theme Switching', () => {
         .or(page.locator('.theme-toggle'))
         .first();
 
-      if (await themeToggle.isVisible()) {
+      if (await themeToggle.isVisible().catch(() => false)) {
         // Check for aria-label
         const hasAriaLabel = await themeToggle.evaluate(el => {
           return el.hasAttribute('aria-label') ||
@@ -588,7 +588,7 @@ test.describe('Theme Switching', () => {
         .or(page.locator('.theme-toggle'))
         .first();
 
-      if (await themeToggle.isVisible()) {
+      if (await themeToggle.isVisible().catch(() => false)) {
         // Focus on toggle
         await themeToggle.focus();
 
@@ -600,7 +600,7 @@ test.describe('Theme Switching', () => {
 
         // Press Enter to toggle
         await page.keyboard.press('Enter');
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
       }
     });
 
@@ -617,7 +617,7 @@ test.describe('Theme Switching', () => {
 
         const button = page.locator('button').first();
 
-        if (await button.isVisible()) {
+        if (await button.isVisible().catch(() => false)) {
           await button.focus();
 
           const focusStyle = await button.evaluate(el => {
@@ -650,9 +650,9 @@ test.describe('Theme Switching', () => {
         .or(page.locator('button[aria-label*="menu"]'))
         .or(page.locator('.hamburger'));
 
-      if (await hamburger.first().isVisible()) {
+      if (await hamburger.first().isVisible().catch(() => false)) {
         await hamburger.first().click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
       }
 
       await expect(themeToggle).toBeVisible();
@@ -674,14 +674,14 @@ test.describe('Theme Switching', () => {
       const hamburger = page.locator('[data-testid="mobile-menu"]')
         .or(page.locator('button[aria-label*="menu"]'));
 
-      if (await hamburger.first().isVisible()) {
+      if (await hamburger.first().isVisible().catch(() => false)) {
         await hamburger.first().tap();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
       }
 
-      if (await themeToggle.isVisible()) {
+      if (await themeToggle.isVisible().catch(() => false)) {
         await themeToggle.tap();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         const isLight = await page.evaluate(() =>
           localStorage.getItem('theme-preference') === 'light'

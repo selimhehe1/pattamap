@@ -150,11 +150,35 @@ jobs:
         run: |
           echo "Starting backend server..."
           npm start > backend.log 2>&1 &
-          echo "Backend PID: $!"
-          sleep 10
-          echo "=== Backend log (first 50 lines) ==="
-          head -50 backend.log || echo "No log yet"
-          echo "=== End backend log ==="
+          BACKEND_PID=$!
+          echo "Backend PID: $BACKEND_PID"
+
+          # Robust health check with retry loop
+          MAX_ATTEMPTS=30
+          ATTEMPT=1
+
+          echo "Waiting for backend to be ready..."
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health 2>/dev/null | grep -q "200"; then
+              echo "Backend is ready!"
+              break
+            fi
+
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+              echo "Backend failed to start after $MAX_ATTEMPTS attempts"
+              echo "=== Backend log ==="
+              cat backend.log || echo "No log file"
+              exit 1
+            fi
+
+            sleep 2
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+
+          echo "=== Backend log (first 30 lines) ==="
+          head -30 backend.log || echo "No log yet"
         working-directory: backend
         env:
           NODE_ENV: test
@@ -168,21 +192,20 @@ jobs:
 
       - name: Start frontend server
         run: |
+          echo "Starting frontend server..."
           npx serve -s build -l 3000 &
-          sleep 3
 
-      - name: Wait for servers to be ready
-        run: |
-          echo "Waiting for frontend..."
-          timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
-          echo "Frontend ready!"
-          echo "Waiting for backend..."
-          echo "Checking backend process..."
-          ps aux | grep node || true
-          echo "Checking backend log..."
-          cat backend/backend.log || true
-          timeout 60 bash -c 'until curl -s http://localhost:8080/api/health > /dev/null 2>&1 || curl -s http://localhost:8080 > /dev/null 2>&1; do sleep 2; echo "Retrying..."; done'
-          echo "Backend ready!"
+          # Wait for frontend to be ready
+          MAX_ATTEMPTS=15
+          ATTEMPT=1
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            if curl -s -o /dev/null http://localhost:3000 2>/dev/null; then
+              echo "Frontend is ready!"
+              break
+            fi
+            sleep 2
+            ATTEMPT=$((ATTEMPT + 1))
+          done
 
       - name: Run E2E smoke tests
         run: npx playwright test tests/e2e/smoke.spec.ts --project=chromium-desktop --workers=2
@@ -190,19 +213,25 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          E2E_USE_MOCK_AUTH: 'true'
 
       - name: Upload E2E report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            tests/e2e/reports/
           retention-days: 7
 
-      - name: Upload test screenshots
+      - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-screenshots
-          path: tests/e2e/screenshots/
+          name: e2e-test-artifacts
+          path: |
+            test-results/
+            tests/e2e/screenshots/
           retention-days: 7
+          if-no-files-found: ignore

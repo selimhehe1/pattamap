@@ -144,7 +144,7 @@ test.describe('Form Accessibility', () => {
 
     if (await submitBtn.isVisible({ timeout: 3000 })) {
       await submitBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Error messages should be associated with inputs
       const errorMessages = page.locator('[role="alert"], .error-message, .validation-error');
@@ -311,7 +311,7 @@ test.describe('Color and Contrast', () => {
 
     if (await themeToggle.first().isVisible({ timeout: 3000 })) {
       await themeToggle.first().click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Content should still be visible
       const mainContent = page.locator('main, .main-content');
@@ -456,7 +456,7 @@ test.describe('Skip Links', () => {
 
     if (await skipLink.isVisible({ timeout: 3000 })) {
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Focus should be on main content
       const focusedElement = page.locator(':focus');
@@ -494,7 +494,7 @@ test.describe('ARIA Live Regions', () => {
 
     if (await actionButton.isVisible({ timeout: 3000 })) {
       await actionButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Check for notification with proper role
       const notification = page.locator('[role="alert"], [role="status"], .toast, .notification');

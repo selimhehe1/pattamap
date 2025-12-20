@@ -34,7 +34,7 @@ async function loginAsUser(page: Page): Promise<boolean> {
     await emailInput.fill(TEST_USER.email);
     await passwordInput.fill(TEST_USER.password);
     await page.locator('button:has-text("Sign In")').first().click();
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     const stillOnLogin = await loginModal.first().isVisible().catch(() => false);
     return !stillOnLogin;
@@ -60,14 +60,14 @@ test.describe('View Profile', () => {
     const menuBtn = page.locator('button:has-text("☰"), button[aria-label*="menu"]').first();
     if (await menuBtn.isVisible().catch(() => false)) {
       await menuBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     const profileLink = page.locator('a[href*="/profile"], button:has-text("Profile"), a:has-text("Profile")').first();
 
     if (await profileLink.isVisible().catch(() => false)) {
       await profileLink.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
     } else {
       await page.goto('/profile');
       await page.waitForLoadState('domcontentloaded');
@@ -149,7 +149,7 @@ test.describe('Edit Basic Info', () => {
 
       if (await editBtn.isVisible().catch(() => false)) {
         await editBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Edit form should appear
         const form = page.locator('form, [role="dialog"], .edit-form').first();
@@ -195,7 +195,7 @@ test.describe('Edit Basic Info', () => {
 
       if (await saveBtn.isVisible().catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success or redirect
         await expect(page.locator('body')).toBeVisible();
@@ -212,7 +212,7 @@ test.describe('Edit Basic Info', () => {
 
       if (await cancelBtn.isVisible().catch(() => false)) {
         await cancelBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should go back without saving
         await expect(page.locator('body')).toBeVisible();
@@ -341,7 +341,7 @@ test.describe('Update Password', () => {
 
       if (await newPasswordInput.isVisible().catch(() => false)) {
         await newPasswordInput.fill('weak');
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show strength indicator or error
         await expect(page.locator('body')).toBeVisible();
@@ -364,7 +364,7 @@ test.describe('Update Password', () => {
         const submitBtn = page.locator('button[type="submit"]').first();
         if (await submitBtn.isVisible().catch(() => false)) {
           await submitBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           // Should show mismatch error
           await expect(page.locator('body')).toBeVisible();
@@ -401,7 +401,7 @@ test.describe('Privacy Settings', () => {
 
       if (await visibilityToggle.isVisible().catch(() => false)) {
         await visibilityToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -417,7 +417,7 @@ test.describe('Privacy Settings', () => {
 
       if (await activityToggle.isVisible().catch(() => false)) {
         await activityToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -433,7 +433,7 @@ test.describe('Privacy Settings', () => {
 
       if (await favoritesToggle.isVisible().catch(() => false)) {
         await favoritesToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -468,7 +468,7 @@ test.describe('Notification Preferences', () => {
 
       if (await emailToggle.isVisible().catch(() => false)) {
         await emailToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -484,7 +484,7 @@ test.describe('Notification Preferences', () => {
 
       if (await pushToggle.isVisible().catch(() => false)) {
         await pushToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -500,7 +500,7 @@ test.describe('Notification Preferences', () => {
 
       if (await favoriteToggle.isVisible().catch(() => false)) {
         await favoriteToggle.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         await expect(page.locator('body')).toBeVisible();
       }
@@ -516,7 +516,7 @@ test.describe('Notification Preferences', () => {
 
       if (await saveBtn.isVisible().catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success message
         await expect(page.locator('body')).toBeVisible();
@@ -553,7 +553,7 @@ test.describe('Delete Account', () => {
 
       if (await deleteBtn.isVisible().catch(() => false)) {
         await deleteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Confirmation dialog should appear
         const confirmDialog = page.locator('[role="dialog"], .modal, .confirm-dialog').first();
@@ -571,7 +571,7 @@ test.describe('Delete Account', () => {
 
       if (await deleteBtn.isVisible().catch(() => false)) {
         await deleteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should require password confirmation
         const passwordInput = page.locator('input[type="password"]').first();
@@ -589,13 +589,13 @@ test.describe('Delete Account', () => {
 
       if (await deleteBtn.isVisible().catch(() => false)) {
         await deleteBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const cancelBtn = page.locator('button:has-text("Cancel"), button:has-text("No")').first();
 
         if (await cancelBtn.isVisible().catch(() => false)) {
           await cancelBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           // Should close dialog
           await expect(page.locator('body')).toBeVisible();

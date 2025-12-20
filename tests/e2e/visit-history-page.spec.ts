@@ -164,7 +164,7 @@ test.describe('Zone Filtering', () => {
       if (options > 1) {
         // Select a specific zone
         await zoneFilter.selectOption({ index: 1 });
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('networkidle');
 
         // Results should be filtered
         await expect(page.locator('body')).toBeVisible();
@@ -215,7 +215,7 @@ test.describe('Verification Status Filtering', () => {
 
     if (await verifiedFilter.isVisible({ timeout: 3000 })) {
       await verifiedFilter.selectOption('verified');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Only verified visits should show
       await expect(page.locator('body')).toBeVisible();
@@ -239,7 +239,7 @@ test.describe('Verification Status Filtering', () => {
 
     if (await verifiedFilter.isVisible({ timeout: 3000 })) {
       await verifiedFilter.selectOption('unverified');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Only unverified visits should show
       await expect(page.locator('body')).toBeVisible();
@@ -291,7 +291,7 @@ test.describe('Timeline Grouping', () => {
 
     if (await checkInBtn.isVisible({ timeout: 3000 })) {
       await checkInBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
     }
 
     await page.goto('/my-visits');

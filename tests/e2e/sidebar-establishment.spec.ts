@@ -18,7 +18,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Sidebar should appear - prioritize data-testid
         const sidebar = page.locator('[data-testid="establishment-sidebar"]')
@@ -47,7 +47,7 @@ test.describe('Establishment Sidebar', () => {
 
         if (await marker.isVisible()) {
           await marker.click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           const sidebar = page.locator('[data-testid="establishment-sidebar"]')
             .or(page.locator('[class*="sidebar"]'));
@@ -84,7 +84,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -102,7 +102,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -118,7 +118,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -137,7 +137,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -160,7 +160,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await vipCard.isVisible()) {
         await vipCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -181,7 +181,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -200,7 +200,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -220,7 +220,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -239,7 +239,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -259,7 +259,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -281,7 +281,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -300,7 +300,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -323,7 +323,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -343,7 +343,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -354,7 +354,7 @@ test.describe('Establishment Sidebar', () => {
 
           if (await employeeCard.isVisible()) {
             await employeeCard.click();
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
 
             // Should show employee details or navigate
             const employeeDetail = page.locator('[data-testid="employee-detail"]')
@@ -375,7 +375,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -405,7 +405,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -420,7 +420,7 @@ test.describe('Establishment Sidebar', () => {
             const initialClass = await favoriteButton.getAttribute('class');
 
             await favoriteButton.click();
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
 
             // Class or aria-pressed should change
             const newClass = await favoriteButton.getAttribute('class');
@@ -434,7 +434,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -453,7 +453,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -473,7 +473,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -495,7 +495,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -506,7 +506,7 @@ test.describe('Establishment Sidebar', () => {
             .or(sidebar.locator('button:has-text("×")'));
 
           await closeButton.first().click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           await expect(sidebar).not.toBeVisible();
         }
@@ -518,7 +518,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -531,7 +531,7 @@ test.describe('Establishment Sidebar', () => {
 
           if (await overlay.first().isVisible()) {
             await overlay.first().click({ position: { x: 10, y: 10 } });
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
 
             await expect(sidebar).not.toBeVisible();
           }
@@ -544,13 +544,13 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           await page.keyboard.press('Escape');
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           await expect(sidebar).not.toBeVisible();
         }
@@ -562,7 +562,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -574,7 +574,7 @@ test.describe('Establishment Sidebar', () => {
           await closeButton.click();
 
           // Should animate out (not instantly disappear)
-          await page.waitForTimeout(100);
+          await page.waitForLoadState('domcontentloaded');
         }
       }
     });
@@ -586,7 +586,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -614,7 +614,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -634,7 +634,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -645,7 +645,7 @@ test.describe('Establishment Sidebar', () => {
 
           if (await tab.isVisible()) {
             await tab.click();
-            await page.waitForTimeout(300);
+            await page.waitForLoadState('domcontentloaded');
 
             // Content should change
             const tabPanel = sidebar.locator('[role="tabpanel"]')
@@ -664,7 +664,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -683,7 +683,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -694,7 +694,7 @@ test.describe('Establishment Sidebar', () => {
 
           if (await galleryPhoto.isVisible()) {
             await galleryPhoto.click();
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
 
             // Lightbox should appear
             const lightbox = page.locator('[data-testid="lightbox"]')
@@ -712,7 +712,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -723,7 +723,7 @@ test.describe('Establishment Sidebar', () => {
 
           if (await galleryPhoto.isVisible()) {
             await galleryPhoto.click();
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
 
             // Look for navigation arrows
             const nextButton = page.locator('[data-testid="lightbox-next"]')
@@ -745,7 +745,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -765,7 +765,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.tap();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -780,7 +780,7 @@ test.describe('Establishment Sidebar', () => {
             await page.mouse.move(box.x + 250, box.y + 100, { steps: 10 });
             await page.mouse.up();
 
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('domcontentloaded');
           }
         }
       }
@@ -791,7 +791,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.tap();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -817,7 +817,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"]')
           .or(page.locator('[class*="sidebar"]'))
@@ -850,7 +850,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
@@ -873,13 +873,13 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         const sidebar = page.locator('[data-testid="establishment-sidebar"], [data-testid="map-sidebar"], .sidebar-container-nightlife, [class*="sidebar"]').first();
 
         if (await sidebar.isVisible()) {
           await page.keyboard.press('Escape');
-          await page.waitForTimeout(500);
+          await page.waitForLoadState('domcontentloaded');
 
           // Focus should return to trigger element or body
           const activeElement = await page.evaluate(() =>
@@ -926,7 +926,7 @@ test.describe('Establishment Sidebar', () => {
 
       if (await establishmentCard.isVisible()) {
         await establishmentCard.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show error message
         const errorMessage = page.getByText(/error|failed|try again/i);

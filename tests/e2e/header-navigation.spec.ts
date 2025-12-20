@@ -2,15 +2,15 @@
  * E2E Tests - Header Navigation
  *
  * Tests all header interactive elements:
- * 1. Logo click → home navigation
- * 2. Search bar → focus, type, submit
- * 3. User menu dropdown → open/close
- * 4. Notification bell → badge, dropdown, mark as read
- * 5. Theme toggle → dark/light switch
- * 6. Language selector → change language
- * 7. XP display → correct display
- * 8. Back button → navigation
- * 9. Add buttons → open modals
+ * 1. Logo click -> home navigation
+ * 2. Search bar -> focus, type, submit
+ * 3. User menu dropdown -> open/close
+ * 4. Notification bell -> badge, dropdown, mark as read
+ * 5. Theme toggle -> dark/light switch
+ * 6. Language selector -> change language
+ * 7. XP display -> correct display
+ * 8. Back button -> navigation
+ * 9. Add buttons -> open modals
  */
 
 import { test, expect } from '@playwright/test';
@@ -53,7 +53,7 @@ test.describe('Logo Navigation', () => {
 
     if (await backButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await backButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
       // Should either be home or still on dashboard (if modal blocks)
       await expect(page.locator('body')).toBeVisible();
     }
@@ -72,7 +72,7 @@ test.describe('Search Bar', () => {
     // Open menu to access search
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Search link should be in the menu
     const searchLink = page.locator('text="Search", [aria-label*="Search"]').first();
@@ -88,7 +88,7 @@ test.describe('Search Bar', () => {
     // Open menu
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Click search link
     const searchLink = page.locator('text="Search", [aria-label*="Search employees"]').first();
@@ -127,7 +127,7 @@ test.describe('Search Bar', () => {
 
     if (await searchInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await searchInput.fill('bar');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // URL should update with query param
       const url = page.url();
@@ -157,7 +157,7 @@ test.describe('User Menu', () => {
     // Open menu first (hamburger button)
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Look for login button in guest menu
     const loginBtn = page.locator('[data-testid="login-button"], [aria-label*="Login"]').first();
@@ -187,7 +187,7 @@ test.describe('User Menu', () => {
     // Click hamburger to open menu
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Dropdown should be visible
     const dropdown = page.locator('[data-testid="user-menu"], [role="menu"]').first();
@@ -211,7 +211,7 @@ test.describe('User Menu', () => {
     // Click hamburger to open menu
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Check for common menu items
     const favoritesLink = page.locator('[aria-label*="favorites" i], text="Favorites"').first();
@@ -239,11 +239,11 @@ test.describe('User Menu', () => {
     // Click hamburger to open menu
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Click outside
     await page.locator('body').click({ position: { x: 10, y: 10 } });
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Dropdown should be hidden
     const dropdown = page.locator('[data-testid="user-menu"], [data-testid="guest-menu"]').first();
@@ -295,7 +295,7 @@ test.describe('Notification Bell', () => {
 
     if (await notificationBell.isVisible({ timeout: 3000 }).catch(() => false)) {
       await notificationBell.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Dropdown should appear
       const dropdown = page.locator('.notification-dropdown, [data-testid="notification-list"], [role="menu"]');
@@ -319,7 +319,7 @@ test.describe('Theme Toggle', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     // Theme toggle should be in menu
     const themeToggle = page.locator('[data-testid="theme-toggle"]').first();
@@ -334,7 +334,7 @@ test.describe('Theme Toggle', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     const themeToggle = page.locator('[data-testid="theme-toggle"]').first();
 
@@ -347,7 +347,7 @@ test.describe('Theme Toggle', () => {
       });
 
       await themeToggle.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if theme changed
       const newTheme = await page.evaluate(() => {
@@ -368,13 +368,13 @@ test.describe('Theme Toggle', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     const themeToggle = page.locator('[data-testid="theme-toggle"]').first();
 
     if (await themeToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
       await themeToggle.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Reload page
       await page.reload();
@@ -400,7 +400,7 @@ test.describe('Language Selector', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"]').first();
     const hasSelector = await languageSelector.isVisible({ timeout: 5000 }).catch(() => false);
@@ -414,14 +414,14 @@ test.describe('Language Selector', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"]').first();
 
     if (await languageSelector.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Click the language button inside the selector
       await languageSelector.locator('button').first().click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for language options
       const options = page.locator('[data-testid="language-option"]');
@@ -439,21 +439,21 @@ test.describe('Language Selector', () => {
     // Open menu first
     const menuButton = page.locator('[data-testid="mobile-menu"]').first();
     await menuButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('domcontentloaded');
 
     const languageSelector = page.locator('[data-testid="language-selector"]').first();
 
     if (await languageSelector.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Click the language button inside the selector
       await languageSelector.locator('button').first().click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Click Thai option
       const thaiOption = page.locator('[data-testid="language-option"]:has-text("TH")').first();
 
       if (await thaiOption.isVisible({ timeout: 2000 }).catch(() => false)) {
         await thaiOption.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Page should update with Thai content
         await expect(page.locator('body')).toBeVisible();
@@ -600,7 +600,7 @@ test.describe('Add Buttons', () => {
 
     if (await addEmployeeBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addEmployeeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should open
       const modal = page.locator('[role="dialog"], .modal, [data-testid="employee-form-modal"]');
@@ -645,7 +645,7 @@ test.describe('Add Buttons', () => {
 
     if (await addEstablishmentBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addEstablishmentBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should open
       const modal = page.locator('[role="dialog"], .modal, [data-testid="establishment-form-modal"]');
@@ -682,7 +682,7 @@ test.describe('Mobile Header', () => {
 
     if (await hamburger.isVisible({ timeout: 3000 }).catch(() => false)) {
       await hamburger.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Mobile menu should open (user-menu or guest-menu depending on auth state)
       const mobileMenu = page.locator('[data-testid="user-menu"], [data-testid="guest-menu"], [role="menu"]').first();

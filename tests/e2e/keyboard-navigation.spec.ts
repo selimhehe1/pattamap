@@ -2,13 +2,13 @@
  * E2E Tests - Keyboard Navigation
  *
  * Tests accessibility keyboard navigation:
- * 1. Tab navigation → sequential focus
- * 2. Skip to content → bypass header
- * 3. Modal Escape → close modal
- * 4. Dropdown arrows → navigation
- * 5. Enter/Space → activation
- * 6. Form tab order → logical order
- * 7. Focus visible → outline display
+ * 1. Tab navigation - sequential focus
+ * 2. Skip to content - bypass header
+ * 3. Modal Escape - close modal
+ * 4. Dropdown arrows - navigation
+ * 5. Enter/Space - activation
+ * 6. Form tab order - logical order
+ * 7. Focus visible - outline display
  */
 
 import { test, expect } from '@playwright/test';
@@ -24,12 +24,10 @@ test.describe('Tab Navigation', () => {
 
     // Press Tab and check focus moves
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(100);
 
     const firstFocused = await page.evaluate(() => document.activeElement?.tagName);
 
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(100);
 
     const secondFocused = await page.evaluate(() => document.activeElement?.tagName);
 
@@ -128,7 +126,7 @@ test.describe('Skip to Content', () => {
     if (await skipLink.isVisible({ timeout: 2000 }).catch(() => false)) {
       await skipLink.focus();
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Focus should be on main content
       const mainFocused = await page.evaluate(() => {
@@ -148,7 +146,7 @@ test.describe('Skip to Content', () => {
 
     if (await skipLink.isVisible({ timeout: 2000 }).catch(() => false)) {
       await skipLink.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Scroll position should change or focus should be past header
       await expect(page.locator('body')).toBeVisible();
@@ -168,9 +166,9 @@ test.describe('Modal Escape', () => {
     // Login modal should appear
     const modal = page.locator('[role="dialog"], .modal').first();
 
-    if (await modal.isVisible({ timeout: 5000 })) {
+    if (await modal.isVisible({ timeout: 5000 }).catch(() => false)) {
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal may close or remain (depends on implementation)
       await expect(page.locator('body')).toBeVisible();
@@ -183,9 +181,8 @@ test.describe('Modal Escape', () => {
 
     const modal = page.locator('[role="dialog"], .modal').first();
 
-    if (await modal.isVisible({ timeout: 5000 })) {
+    if (await modal.isVisible({ timeout: 5000 }).catch(() => false)) {
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
 
       // Modal should still be visible
       const stillVisible = await modal.isVisible();
@@ -200,14 +197,14 @@ test.describe('Modal Escape', () => {
     // Find a button that opens a modal
     const triggerButton = page.locator('button:has-text("Add"), button:has-text("Login")').first();
 
-    if (await triggerButton.isVisible({ timeout: 3000 })) {
+    if (await triggerButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await triggerButton.focus();
       await triggerButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Close modal
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Focus should return to trigger
       await expect(page.locator('body')).toBeVisible();
@@ -226,15 +223,12 @@ test.describe('Dropdown Arrow Navigation', () => {
 
     const dropdown = page.locator('select, [role="listbox"], .dropdown').first();
 
-    if (await dropdown.isVisible({ timeout: 5000 })) {
+    if (await dropdown.isVisible({ timeout: 5000 }).catch(() => false)) {
       await dropdown.focus();
 
       // Navigate with arrow keys
       await page.keyboard.press('ArrowDown');
-      await page.waitForTimeout(100);
-
       await page.keyboard.press('ArrowDown');
-      await page.waitForTimeout(100);
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -246,7 +240,7 @@ test.describe('Dropdown Arrow Navigation', () => {
 
     const select = page.locator('select').first();
 
-    if (await select.isVisible({ timeout: 5000 })) {
+    if (await select.isVisible({ timeout: 5000 }).catch(() => false)) {
       await select.focus();
 
       // Navigate to end
@@ -264,7 +258,7 @@ test.describe('Dropdown Arrow Navigation', () => {
 
     const select = page.locator('select').first();
 
-    if (await select.isVisible({ timeout: 5000 })) {
+    if (await select.isVisible({ timeout: 5000 }).catch(() => false)) {
       await select.focus();
       await page.keyboard.press('ArrowDown');
       await page.keyboard.press('Enter');
@@ -286,10 +280,9 @@ test.describe('Enter/Space Activation', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(100);
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -301,10 +294,9 @@ test.describe('Enter/Space Activation', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await page.keyboard.press('Space');
-      await page.waitForTimeout(100);
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -316,12 +308,12 @@ test.describe('Enter/Space Activation', () => {
 
     const link = page.locator('a[href]:visible').first();
 
-    if (await link.isVisible({ timeout: 3000 })) {
+    if (await link.isVisible({ timeout: 3000 }).catch(() => false)) {
       const href = await link.getAttribute('href');
 
       await link.focus();
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Page should navigate or stay (if href is #)
       await expect(page.locator('body')).toBeVisible();
@@ -334,7 +326,7 @@ test.describe('Enter/Space Activation', () => {
 
     const checkbox = page.locator('input[type="checkbox"]').first();
 
-    if (await checkbox.isVisible({ timeout: 5000 })) {
+    if (await checkbox.isVisible({ timeout: 5000 }).catch(() => false)) {
       const initialState = await checkbox.isChecked();
 
       await checkbox.focus();
@@ -358,7 +350,7 @@ test.describe('Form Tab Order', () => {
     // Focus on form (login modal should appear)
     const form = page.locator('form').first();
 
-    if (await form.isVisible({ timeout: 5000 })) {
+    if (await form.isVisible({ timeout: 5000 }).catch(() => false)) {
       // Tab through form fields
       const fieldOrder: string[] = [];
 
@@ -436,7 +428,7 @@ test.describe('Focus Visible', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       // Click with mouse
       await button.click();
 
@@ -453,7 +445,7 @@ test.describe('Focus Visible', () => {
 
     const focusedElement = page.locator(':focus').first();
 
-    if (await focusedElement.isVisible()) {
+    if (await focusedElement.isVisible().catch(() => false)) {
       const styles = await focusedElement.evaluate(el => {
         const computed = window.getComputedStyle(el);
         return {
@@ -477,8 +469,8 @@ test.describe('Focus Visible', () => {
 
     const beforeWait = await page.evaluate(() => document.activeElement?.tagName);
 
-    // Wait briefly
-    await page.waitForTimeout(1000);
+    // Wait for network idle instead of arbitrary timeout
+    await page.waitForLoadState('networkidle');
 
     const afterWait = await page.evaluate(() => document.activeElement?.tagName);
 

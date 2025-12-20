@@ -82,7 +82,7 @@ test.describe('Network Errors', () => {
 
     // Try to navigate
     await page.goto('/search').catch(() => {});
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     // Should show offline message or cached content
     await expect(page.locator('body')).toBeVisible();
@@ -97,9 +97,9 @@ test.describe('Network Errors', () => {
 
     // Go offline then online
     await context.setOffline(true);
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
     await context.setOffline(false);
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     // Refresh and check
     await page.reload();
@@ -199,8 +199,7 @@ test.describe('API Errors', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // May or may not implement retry logic
     await expect(page.locator('body')).toBeVisible();
@@ -221,7 +220,7 @@ test.describe('Form Validation Errors', () => {
 
     if (await submitBtn.isVisible().catch(() => false)) {
       await submitBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show validation error
       const errorVisible = await page.locator('.error, [class*="error"]').or(page.locator('text=/required|invalid/i')).first().isVisible().catch(() => false);
@@ -240,11 +239,11 @@ test.describe('Form Validation Errors', () => {
     if (await submitBtn.isVisible().catch(() => false)) {
       // Submit empty to trigger error
       await submitBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Fill in the field
       await emailInput.fill('test@example.com');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Error should be cleared or reduced
       await expect(page.locator('body')).toBeVisible();
@@ -260,7 +259,7 @@ test.describe('Form Validation Errors', () => {
     if (await submitBtn.isVisible().catch(() => false)) {
       const urlBefore = page.url();
       await submitBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Should stay on same page with errors
       // (or show validation popup)
@@ -280,7 +279,7 @@ test.describe('Form Validation Errors', () => {
       await emailInput.fill('nonexistent@test.com');
       await passwordInput.fill('wrongpassword');
       await submitBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Should show server-side error
       const serverError = page.locator('text=/invalid|incorrect|error/i').first();

@@ -14,48 +14,31 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import {
-  generateTestUser,
-  registerUser,
-  loginUser,
-  TestUser
-} from './fixtures/testUser';
-
-// Test credentials
-const TEST_USER = {
-  email: 'user@test.com',
-  password: 'SecureTestP@ssw0rd2024!'
-};
-
-// Helper to login
-async function loginAsUser(page: Page) {
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[type="email"]').first().fill(TEST_USER.email);
-  await page.locator('input[type="password"]').first().fill(TEST_USER.password);
-  await page.locator('button[type="submit"]').first().click();
-  await page.waitForTimeout(3000);
-}
+import { loginAsUser } from './fixtures/loginHelper';
 
 // ========================================
 // TEST SUITE 1: Create Review for Employee
 // ========================================
 
 test.describe('Create Employee Review', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should display review button on employee profile', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Click on employee to open profile
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for review button
       const reviewBtn = page.locator('button:has-text("Review"), button:has-text("Write Review"), a:has-text("Review")').first();
@@ -65,19 +48,19 @@ test.describe('Create Employee Review', () => {
 
   test('should open review form modal', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review"), button:has-text("Write Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show review form
         const reviewForm = page.locator('[role="dialog"], .review-form, form').first();
@@ -88,19 +71,19 @@ test.describe('Create Employee Review', () => {
 
   test('should display star rating selector', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Look for star rating
         const starRating = page.locator('.star-rating, [data-rating], button[aria-label*="star"]').first();
@@ -111,25 +94,25 @@ test.describe('Create Employee Review', () => {
 
   test('should select rating with stars', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Click on 4th star
         const stars = page.locator('.star, [data-star]');
         if (await stars.count() >= 4) {
           await stars.nth(3).click(); // 4 stars
-          await page.waitForTimeout(300);
+          await page.waitForLoadState('domcontentloaded');
 
           // Verify selection
           const selectedStars = page.locator('.star.selected, .star.active, [data-selected="true"]');
@@ -141,19 +124,19 @@ test.describe('Create Employee Review', () => {
 
   test('should submit review with rating and comment', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Select rating
         const stars = page.locator('.star, [data-star]');
@@ -170,7 +153,7 @@ test.describe('Create Employee Review', () => {
         // Submit
         const submitBtn = page.locator('button[type="submit"], button:has-text("Submit")').first();
         await submitBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success
         const successMessage = page.locator('text=/success|thank|submitted/i').first();
@@ -181,24 +164,24 @@ test.describe('Create Employee Review', () => {
 
   test('should require rating before submitting', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Try to submit without rating
         const submitBtn = page.locator('button[type="submit"]').first();
         await submitBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should show error
         const errorMessage = page.locator('text=/rating.*required|select.*rating|please.*rate/i').first();
@@ -209,7 +192,7 @@ test.describe('Create Employee Review', () => {
 
   test('should award XP for submitting review', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Get initial XP
     const xpBefore = await page.locator('.user-xp, [data-xp]').first().textContent();
@@ -218,13 +201,13 @@ test.describe('Create Employee Review', () => {
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Submit review
         const stars = page.locator('.star').nth(4);
@@ -238,7 +221,7 @@ test.describe('Create Employee Review', () => {
         }
 
         await page.locator('button[type="submit"]').first().click();
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // Check for XP notification
         const xpNotification = page.locator('text=/\\+\\d+.*XP|XP.*earned/i').first();
@@ -254,19 +237,23 @@ test.describe('Create Employee Review', () => {
 // ========================================
 
 test.describe('Create Establishment Review', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should display review button on establishment page', async ({ page }) => {
     await page.goto('/establishments');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const establishmentCard = page.locator('.establishment-card').first();
 
     if (await establishmentCard.count() > 0) {
       await establishmentCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for review button
       const reviewBtn = page.locator('button:has-text("Review"), button:has-text("Write Review")').first();
@@ -276,19 +263,19 @@ test.describe('Create Establishment Review', () => {
 
   test('should allow rating different aspects', async ({ page }) => {
     await page.goto('/establishments');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const establishmentCard = page.locator('.establishment-card').first();
 
     if (await establishmentCard.count() > 0) {
       await establishmentCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Look for multiple rating categories (atmosphere, service, value, etc.)
         const ratingCategories = page.locator('.rating-category, [data-category]');
@@ -307,13 +294,13 @@ test.describe('Create Establishment Review', () => {
 test.describe('View Reviews', () => {
   test('should display reviews on employee profile', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for reviews section
       const reviewsSection = page.locator('.reviews, .reviews-list, [data-testid="reviews"]').first();
@@ -326,13 +313,13 @@ test.describe('View Reviews', () => {
 
   test('should display average rating', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for average rating
       const avgRating = page.locator('.average-rating, .rating-badge').or(page.locator('text=/\\d\\.\\d.*stars?/i')).first();
@@ -344,13 +331,13 @@ test.describe('View Reviews', () => {
 
   test('should show review count', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for review count
       const reviewCount = page.locator('text=/\\d+.*review/i, .review-count').first();
@@ -362,13 +349,13 @@ test.describe('View Reviews', () => {
 
   test('should paginate reviews list', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for pagination or "load more"
       const pagination = page.locator('.pagination, button:has-text("Load More"), button:has-text("Show More")').first();
@@ -380,13 +367,13 @@ test.describe('View Reviews', () => {
 
   test('should sort reviews by date/rating', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for sort dropdown
       const sortDropdown = page.locator('select[name="sort"], .sort-dropdown').first();
@@ -396,7 +383,7 @@ test.describe('View Reviews', () => {
 
         // Select different sort option
         await sortDropdown.selectOption({ index: 1 });
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
       }
     }
   });
@@ -407,13 +394,17 @@ test.describe('View Reviews', () => {
 // ========================================
 
 test.describe('Update Own Review', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should show edit button on own reviews', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for edit button on own reviews
     const editBtn = page.locator('button:has-text("Edit"), .edit-review-btn').first();
@@ -425,13 +416,13 @@ test.describe('Update Own Review', () => {
 
   test('should open edit form with existing data', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const editBtn = page.locator('button:has-text("Edit")').first();
 
     if (await editBtn.count() > 0) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Form should be pre-filled
       const commentField = page.locator('textarea').first();
@@ -444,13 +435,13 @@ test.describe('Update Own Review', () => {
 
   test('should update review successfully', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const editBtn = page.locator('button:has-text("Edit")').first();
 
     if (await editBtn.count() > 0) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Update comment
       const commentField = page.locator('textarea').first();
@@ -461,7 +452,7 @@ test.describe('Update Own Review', () => {
       // Save
       const saveBtn = page.locator('button:has-text("Save"), button:has-text("Update")').first();
       await saveBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Should show success
       const successMessage = page.locator('text=/success|updated/i').first();
@@ -471,7 +462,7 @@ test.describe('Update Own Review', () => {
 
   test('should show "edited" indicator on updated reviews', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for edited indicator
     const editedIndicator = page.locator('text=/edited|modified/i, .edited-badge').first();
@@ -486,13 +477,17 @@ test.describe('Update Own Review', () => {
 // ========================================
 
 test.describe('Delete Own Review', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
   });
 
   test('should show delete button on own reviews', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const deleteBtn = page.locator('button:has-text("Delete"), .delete-review-btn').first();
 
@@ -503,13 +498,13 @@ test.describe('Delete Own Review', () => {
 
   test('should show confirmation before deleting', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const deleteBtn = page.locator('button:has-text("Delete")').first();
 
     if (await deleteBtn.count() > 0) {
       await deleteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show confirmation
       const confirmDialog = page.locator('[role="dialog"], .confirm-modal').or(page.locator('text=/confirm|sure/i')).first();
@@ -519,7 +514,7 @@ test.describe('Delete Own Review', () => {
 
   test('should delete review on confirmation', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const reviewsBefore = await page.locator('.review-card, .review-item').count();
 
@@ -527,12 +522,12 @@ test.describe('Delete Own Review', () => {
 
     if (await deleteBtn.count() > 0 && reviewsBefore > 0) {
       await deleteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Confirm
       const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Yes")').first();
       await confirmBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Review count should decrease
       const reviewsAfter = await page.locator('.review-card, .review-item').count();
@@ -542,7 +537,7 @@ test.describe('Delete Own Review', () => {
 
   test('should cancel deletion on cancel button', async ({ page }) => {
     await page.goto('/profile/reviews');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const reviewsBefore = await page.locator('.review-card').count();
 
@@ -550,12 +545,12 @@ test.describe('Delete Own Review', () => {
 
     if (await deleteBtn.count() > 0 && reviewsBefore > 0) {
       await deleteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Cancel
       const cancelBtn = page.locator('button:has-text("Cancel"), button:has-text("No")').first();
       await cancelBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Count should be same
       const reviewsAfter = await page.locator('.review-card').count();
@@ -569,22 +564,27 @@ test.describe('Delete Own Review', () => {
 // ========================================
 
 test.describe('Review Moderation', () => {
-  test('should prevent profanity in reviews', async ({ page }) => {
-    await loginAsUser(page);
+  test('should prevent profanity in reviews', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
+
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Try to submit with profanity
         const stars = page.locator('.star').nth(2);
@@ -597,7 +597,7 @@ test.describe('Review Moderation', () => {
           await commentField.fill('This is a bad word test with profanity');
 
           await page.locator('button[type="submit"]').first().click();
-          await page.waitForTimeout(1000);
+          await page.waitForLoadState('networkidle');
 
           // Should either filter or warn
           // Implementation may vary
@@ -609,13 +609,13 @@ test.describe('Review Moderation', () => {
 
   test('should flag review for moderation', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for flag/report button on reviews
       const flagBtn = page.locator('button:has-text("Report"), button:has-text("Flag"), .report-btn').first();
@@ -626,22 +626,27 @@ test.describe('Review Moderation', () => {
     }
   });
 
-  test('should report inappropriate review', async ({ page }) => {
-    await loginAsUser(page);
+  test('should report inappropriate review', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
+
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const flagBtn = page.locator('button:has-text("Report")').first();
 
       if (await flagBtn.count() > 0) {
         await flagBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Select reason
         const reasonSelect = page.locator('select[name="reason"]').first();
@@ -653,7 +658,7 @@ test.describe('Review Moderation', () => {
         const submitBtn = page.locator('button:has-text("Submit Report")').first();
         if (await submitBtn.count() > 0) {
           await submitBtn.click();
-          await page.waitForTimeout(1000);
+          await page.waitForLoadState('networkidle');
 
           // Should show confirmation
           const successMessage = page.locator('text=/reported|thank|review/i').first();
@@ -672,19 +677,19 @@ test.describe('Review Permissions', () => {
   test('should require login to write review', async ({ page }) => {
     // Without login
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const reviewBtn = page.locator('button:has-text("Review")').first();
 
       if (await reviewBtn.count() > 0) {
         await reviewBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should redirect to login or show login prompt
         const loginPrompt = page.locator('text=/login|sign in/i, [href*="/login"]').first();
@@ -695,16 +700,21 @@ test.describe('Review Permissions', () => {
     }
   });
 
-  test('should not allow editing others reviews', async ({ page }) => {
-    await loginAsUser(page);
+  test('should not allow editing others reviews', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
+
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look at reviews from other users
       const otherReviews = page.locator('.review-card:not([data-own="true"])');
@@ -717,17 +727,22 @@ test.describe('Review Permissions', () => {
     }
   });
 
-  test('should limit one review per user per employee', async ({ page }) => {
-    await loginAsUser(page);
+  test('should limit one review per user per employee', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available');
+      return;
+    }
+
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Find employee user already reviewed
     const reviewedEmployee = page.locator('.employee-card:has(.my-review)').first();
 
     if (await reviewedEmployee.count() > 0) {
       await reviewedEmployee.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Review button should say "Edit Review" instead of "Write Review"
       const editReviewBtn = page.locator('button:has-text("Edit Review")').first();

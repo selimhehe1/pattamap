@@ -299,7 +299,7 @@ export async function openEmployeeProfile(
 
   if (await employeeCard.isVisible({ timeout: 5000 })) {
     await employeeCard.click();
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for modal to appear
     const modal = page.locator('[role="dialog"], .modal, .profile-modal');

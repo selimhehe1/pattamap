@@ -28,7 +28,6 @@ test.describe('Login Modal', () => {
   test('should display login modal on protected route', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     // Login modal or redirect to login page should happen
     const loginIndicators = [
@@ -59,7 +58,6 @@ test.describe('Login Modal', () => {
   test('should have email/pseudonym input field', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     const emailInputSelectors = [
       '[data-testid="login-input"]',
@@ -88,7 +86,6 @@ test.describe('Login Modal', () => {
   test('should have password input field', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     const passwordInput = page.locator('[data-testid="password-input"], input[type="password"], input[placeholder*="password" i]').first();
     const isVisible = await passwordInput.isVisible({ timeout: 3000 }).catch(() => false);
@@ -102,7 +99,6 @@ test.describe('Login Modal', () => {
   test('should have sign in button', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     const signInBtnSelectors = [
       '[data-testid="login-button"]',
@@ -130,7 +126,6 @@ test.describe('Login Modal', () => {
   test('should have register link', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     const registerLinkSelectors = [
       '[data-testid="register-link"]',
@@ -158,7 +153,6 @@ test.describe('Login Modal', () => {
   test('should have close button', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
 
     const closeBtnSelectors = [
       'button:has-text("×")',
@@ -191,7 +185,7 @@ test.describe('Login Modal', () => {
 
     if (await closeBtn.isVisible().catch(() => false)) {
       await closeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal should be closed or user redirected
       await expect(page.locator('body')).toBeVisible();
@@ -216,7 +210,7 @@ test.describe('Login Form Validation', () => {
     if (await signInBtn.isVisible().catch(() => false)) {
       await passwordInput.fill('somepassword');
       await signInBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show validation error or remain on form
       await expect(page.locator('body')).toBeVisible();
@@ -230,7 +224,7 @@ test.describe('Login Form Validation', () => {
     if (await signInBtn.isVisible().catch(() => false)) {
       await emailInput.fill('test@example.com');
       await signInBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show validation error or remain on form
       await expect(page.locator('body')).toBeVisible();
@@ -246,7 +240,7 @@ test.describe('Login Form Validation', () => {
       await emailInput.fill('invalidemail');
       await passwordInput.fill('password123');
       await signInBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Should show error or attempt login (pseudonym might be valid)
       await expect(page.locator('body')).toBeVisible();
@@ -262,7 +256,7 @@ test.describe('Login Form Validation', () => {
       await emailInput.fill('nonexistent@example.com');
       await passwordInput.fill('wrongpassword');
       await signInBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('networkidle');
 
       // Should still be on login modal or show error
       const stillOnLogin = await page.locator('text="Welcome Back"').first().isVisible().catch(() => false);
@@ -290,7 +284,7 @@ test.describe('Login Success', () => {
       await emailInput.fill(TEST_USER.email);
       await passwordInput.fill(TEST_USER.password);
       await signInBtn.click();
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle');
 
       // Either logged in (modal closed) or login failed (test user doesn't exist)
       await expect(page.locator('body')).toBeVisible();
@@ -309,7 +303,7 @@ test.describe('Login Success', () => {
       await emailInput.fill(TEST_USER.email);
       await passwordInput.fill(TEST_USER.password);
       await signInBtn.click();
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle');
 
       // Should be on dashboard or still on login
       const url = page.url();
@@ -329,7 +323,7 @@ test.describe('Login Success', () => {
       await emailInput.fill(TEST_USER.email);
       await passwordInput.fill(TEST_USER.password);
       await signInBtn.click();
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle');
 
       // Check if login modal is gone
       const loginGone = !(await page.locator('text="Welcome Back"').first().isVisible().catch(() => false));
@@ -358,7 +352,7 @@ test.describe('Logout', () => {
 
     if (await menuBtn.isVisible().catch(() => false)) {
       await menuBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for logout option
       const logoutBtn = page.locator('button:has-text("Logout"), a:has-text("Logout"), button:has-text("Sign Out")').first();
@@ -369,8 +363,7 @@ test.describe('Logout', () => {
 
   test('should redirect to home after logout', async ({ page }) => {
     await page.goto('/logout');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Should be redirected somewhere (home or login)
     await expect(page.locator('body')).toBeVisible();
@@ -378,7 +371,7 @@ test.describe('Logout', () => {
 
   test('should clear session after logout', async ({ page }) => {
     await page.goto('/logout');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Try to access protected route
     await page.goto('/dashboard');
@@ -410,7 +403,7 @@ test.describe('Session Persistence', () => {
       await emailInput.fill(TEST_USER.email);
       await passwordInput.fill(TEST_USER.password);
       await signInBtn.click();
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle');
 
       // Check if logged in
       const loginGone = !(await page.locator('text="Welcome Back"').first().isVisible().catch(() => false));
@@ -441,7 +434,7 @@ test.describe('Session Persistence', () => {
       await emailInput.fill(TEST_USER.email);
       await passwordInput.fill(TEST_USER.password);
       await signInBtn.click();
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle');
 
       // Open second tab
       const page2 = await context.newPage();
@@ -534,7 +527,7 @@ test.describe('Password Reset', () => {
 
     if (await forgotLink.isVisible().catch(() => false)) {
       await forgotLink.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Should show password reset form or modal
       await expect(page.locator('body')).toBeVisible();
@@ -551,7 +544,7 @@ test.describe('Password Reset', () => {
     if (await emailInput.isVisible().catch(() => false) && await submitBtn.isVisible().catch(() => false)) {
       await emailInput.fill('invalid-email');
       await submitBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show validation error
       await expect(page.locator('body')).toBeVisible();

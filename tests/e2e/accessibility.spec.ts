@@ -25,7 +25,7 @@ test.describe('Keyboard Navigation', () => {
 
     // Press Tab to move focus
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(100);
+    await page.waitForLoadState('domcontentloaded');
 
     // Something should be focused
     const focusedElement = await page.evaluate(() => {
@@ -46,7 +46,7 @@ test.describe('Keyboard Navigation', () => {
 
     // Tab backwards
     await page.keyboard.press('Shift+Tab');
-    await page.waitForTimeout(100);
+    await page.waitForLoadState('domcontentloaded');
 
     // Should have focus
     const focusedElement = await page.evaluate(() => {
@@ -66,7 +66,7 @@ test.describe('Keyboard Navigation', () => {
     if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Button should have been activated
       await expect(page.locator('body')).toBeVisible();
@@ -82,7 +82,7 @@ test.describe('Keyboard Navigation', () => {
     if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -97,7 +97,7 @@ test.describe('Keyboard Navigation', () => {
 
     if (await modal.isVisible().catch(() => false)) {
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Modal may close or redirect
       await expect(page.locator('body')).toBeVisible();
@@ -114,7 +114,7 @@ test.describe('Keyboard Navigation', () => {
     if (await dropdown.isVisible().catch(() => false)) {
       await dropdown.focus();
       await page.keyboard.press('ArrowDown');
-      await page.waitForTimeout(100);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -169,7 +169,6 @@ test.describe('Focus Management', () => {
       // Tab many times to see if focus stays in modal
       for (let i = 0; i < 10; i++) {
         await page.keyboard.press('Tab');
-        await page.waitForTimeout(50);
       }
 
       // Focus should still be within modal
@@ -192,7 +191,7 @@ test.describe('Focus Management', () => {
 
     if (await closeBtn.isVisible().catch(() => false)) {
       await closeBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Focus should be restored to a logical element
       await expect(page.locator('body')).toBeVisible();
@@ -209,8 +208,8 @@ test.describe('Focus Management', () => {
 
     const focusedBefore = await page.evaluate(() => document.activeElement?.tagName);
 
-    // Wait a bit
-    await page.waitForTimeout(1000);
+    // Wait for page to settle
+    await page.waitForLoadState('networkidle');
 
     const focusedAfter = await page.evaluate(() => document.activeElement?.tagName);
 
@@ -373,13 +372,13 @@ test.describe('Skip Links', () => {
 
     // Tab to first element to reveal skip link
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(200);
+    await page.waitForLoadState('domcontentloaded');
 
     const skipLink = page.locator('a[href="#main-content"], a:has-text("Skip to main"), a:has-text("Skip")').first();
 
     if (await skipLink.isVisible().catch(() => false)) {
       await skipLink.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Focus should be on main content
       const focusedId = await page.evaluate(() => document.activeElement?.id);
@@ -440,7 +439,7 @@ test.describe('Form Accessibility', () => {
 
     if (await submitBtn.isVisible().catch(() => false)) {
       await submitBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Error messages should be present and associated with fields
       const errors = page.locator('[role="alert"], .error-message, [aria-describedby]');

@@ -18,8 +18,7 @@ import { test, expect } from '@playwright/test';
 test.describe('404 Page Display', () => {
   test('should display 404 page for non-existent route', async ({ page }) => {
     await page.goto('/this-page-does-not-exist-12345');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Should show 404 content - check multiple possible selectors
     const notFoundIndicators = [
@@ -44,8 +43,7 @@ test.describe('404 Page Display', () => {
 
   test('should display "Page Not Found" title', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Title should be visible - check multiple variations
     const titleLocators = [
@@ -68,8 +66,7 @@ test.describe('404 Page Display', () => {
 
   test('should display helpful description', async ({ page }) => {
     await page.goto('/non-existent-route');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Description text should be visible - use separate locators to avoid parsing issues
     const descriptionLocators = [

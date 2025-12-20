@@ -208,7 +208,7 @@ test.describe('Follow Button', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check for follow button in modal or profile
       const followBtn = page.locator('button:has-text("Follow"), .follow-button');
@@ -236,14 +236,14 @@ test.describe('Follow Button', () => {
 
     if (await employeeCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const followBtn = page.locator('button:has-text("Follow"), .follow-button').first();
 
       if (await followBtn.isVisible({ timeout: 3000 })) {
         const initialText = await followBtn.textContent();
         await followBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Button text should change (Follow -> Following or vice versa)
         await expect(page.locator('body')).toBeVisible();
@@ -381,7 +381,7 @@ test.describe('Stats Display', () => {
 
     if (await leaderboardTab.isVisible({ timeout: 3000 })) {
       await leaderboardTab.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Rank should be displayed
       const rank = page.locator('text=/#\\d+|Rank/i');

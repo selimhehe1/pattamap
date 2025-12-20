@@ -2,15 +2,15 @@
  * E2E Tests - Buttons Interactions
  *
  * Tests all interactive buttons:
- * 1. AnimatedButton → click, hover, disabled state
- * 2. FollowButton → toggle follow/unfollow
- * 3. ReviewVoteButton → upvote/downvote
- * 4. CheckInButton → geolocation mock
- * 5. Favorite button → add/remove
- * 6. Delete button → confirmation modal
- * 7. Edit button → opens modal
- * 8. Submit button → loading state
- * 9. Keyboard navigation → Enter/Space
+ * 1. AnimatedButton - click, hover, disabled state
+ * 2. FollowButton - toggle follow/unfollow
+ * 3. ReviewVoteButton - upvote/downvote
+ * 4. CheckInButton - geolocation mock
+ * 5. Favorite button - add/remove
+ * 6. Delete button - confirmation modal
+ * 7. Edit button - opens modal
+ * 8. Submit button - loading state
+ * 9. Keyboard navigation - Enter/Space
  */
 
 import { test, expect } from '@playwright/test';
@@ -47,9 +47,8 @@ test.describe('Basic Button Interactions', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.hover();
-      await page.waitForTimeout(100);
 
       // Button should still be visible after hover
       await expect(button).toBeVisible();
@@ -102,7 +101,7 @@ test.describe('Favorite Button', () => {
     const employeesTab = page.locator('button:has-text("Employees"), button:has-text("Girls")').first();
     if (await employeesTab.isVisible({ timeout: 3000 }).catch(() => false)) {
       await employeesTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     const favoriteBtn = page.locator('[data-testid="favorite-button"], .favorite-btn, button[aria-label*="favorite" i]').first();
@@ -132,7 +131,7 @@ test.describe('Favorite Button', () => {
 
       // Click to toggle
       await favoriteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // State should change (class or aria-pressed)
       await expect(page.locator('body')).toBeVisible();
@@ -166,7 +165,7 @@ test.describe('Favorite Button', () => {
     if (await favoriteBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Toggle favorite
       await favoriteBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
 
       // Reload page
       await page.reload();
@@ -211,7 +210,7 @@ test.describe('Follow Button', () => {
 
     if (await followBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await followBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Button text should change to "Unfollow" or "Following"
       const newText = await followBtn.textContent();
@@ -272,7 +271,7 @@ test.describe('Review Vote Buttons', () => {
       const initialCount = parseInt(await countElement.textContent() || '0');
 
       await upvoteBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Count should increment
       await expect(page.locator('body')).toBeVisible();
@@ -325,7 +324,7 @@ test.describe('Check-In Button', () => {
 
       if (await checkInBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await checkInBtn.click();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success or location error message
         await expect(page.locator('body')).toBeVisible();
@@ -355,7 +354,7 @@ test.describe('Check-In Button', () => {
 
       if (await checkInBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await checkInBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // Look for XP notification
         const xpNotification = page.locator('text=/\\+\\d+\\s*XP/i, .xp-notification').first();
@@ -391,7 +390,7 @@ test.describe('Delete Button', () => {
 
     if (await deleteBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await deleteBtn.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       // Confirmation modal should appear
       const confirmModal = page.locator('[role="alertdialog"], .confirm-modal, .confirmation-dialog');
@@ -419,13 +418,13 @@ test.describe('Delete Button', () => {
 
     if (await deleteBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await deleteBtn.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState('domcontentloaded');
 
       const cancelBtn = page.locator('button:has-text("Cancel"), button:has-text("No")').first();
 
       if (await cancelBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await cancelBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState('domcontentloaded');
 
         // Modal should close
         const confirmModal = page.locator('[role="alertdialog"], .confirm-modal');
@@ -457,7 +456,7 @@ test.describe('Edit Button', () => {
 
     if (await editBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Edit modal should open
       const editModal = page.locator('[role="dialog"], .modal, .edit-modal');
@@ -482,7 +481,7 @@ test.describe('Edit Button', () => {
 
     if (await editBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await editBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if inputs have values
       const inputs = page.locator('[role="dialog"] input');
@@ -558,13 +557,12 @@ test.describe('Button Keyboard Navigation', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await expect(button).toBeFocused();
 
       // Press Enter
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(100);
 
       // Button should be activated
       await expect(page.locator('body')).toBeVisible();
@@ -577,13 +575,12 @@ test.describe('Button Keyboard Navigation', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.focus();
       await expect(button).toBeFocused();
 
       // Press Space
       await page.keyboard.press('Space');
-      await page.waitForTimeout(100);
 
       // Button should be activated
       await expect(page.locator('body')).toBeVisible();
@@ -596,7 +593,7 @@ test.describe('Button Keyboard Navigation', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       await button.focus();
 
       // Check for focus styles (outline or ring)
@@ -619,12 +616,10 @@ test.describe('Button Keyboard Navigation', () => {
 
     // Tab through elements
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(100);
 
     const firstFocused = await page.evaluate(() => document.activeElement?.tagName);
 
     await page.keyboard.press('Tab');
-    await page.waitForTimeout(100);
 
     const secondFocused = await page.evaluate(() => document.activeElement?.tagName);
 
@@ -668,10 +663,9 @@ test.describe('Mobile Button Interactions', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       // Tap button (use click() in mobile context)
       await button.click();
-      await page.waitForTimeout(100);
 
       // Button should respond
       await expect(page.locator('body')).toBeVisible();
@@ -684,7 +678,7 @@ test.describe('Mobile Button Interactions', () => {
 
     const button = page.locator('button:visible').first();
 
-    if (await button.isVisible()) {
+    if (await button.isVisible().catch(() => false)) {
       // Direct click without hover should work
       await button.click();
 

@@ -13,49 +13,24 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-
-// Test credentials
-const TEST_OWNER = {
-  email: 'owner@test.com',
-  password: 'SecureTestP@ssw0rd2024!'
-};
-
-const TEST_ADMIN = {
-  email: 'admin@test.com',
-  password: 'SecureTestP@ssw0rd2024!'
-};
-
-// Helper functions
-async function loginAsOwner(page: Page) {
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[type="email"]').first().fill(TEST_OWNER.email);
-  await page.locator('input[type="password"]').first().fill(TEST_OWNER.password);
-  await page.locator('button[type="submit"]').first().click();
-  await page.waitForTimeout(3000);
-}
-
-async function loginAsAdmin(page: Page) {
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[type="email"]').first().fill(TEST_ADMIN.email);
-  await page.locator('input[type="password"]').first().fill(TEST_ADMIN.password);
-  await page.locator('button[type="submit"]').first().click();
-  await page.waitForTimeout(3000);
-}
+import { loginAsOwner, loginAsAdmin } from './fixtures/loginHelper';
 
 // ========================================
 // TEST SUITE 1: Request Verification (Owner)
 // ========================================
 
 test.describe('Owner - Request Verification', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsOwner(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsOwner(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Owner login not available');
+      return;
+    }
   });
 
   test('should display verification status on employee card', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for verification status indicators
     const verificationStatus = page.locator('.verification-status, .verified-badge').or(page.locator('text=/verified|pending|unverified/i')).first();
@@ -66,7 +41,7 @@ test.describe('Owner - Request Verification', () => {
 
   test('should show "Request Verification" button for unverified employees', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for request verification button
     const requestBtn = page.locator('button:has-text("Request Verification"), button:has-text("Verify"), a:has-text("Request Verification")').first();
@@ -78,13 +53,13 @@ test.describe('Owner - Request Verification', () => {
 
   test('should open verification request form', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestBtn = page.locator('button:has-text("Request Verification"), button:has-text("Verify")').first();
 
     if (await requestBtn.count() > 0) {
       await requestBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show verification form/modal
       const modal = page.locator('[role="dialog"], .modal, .verification-form').first();
@@ -94,13 +69,13 @@ test.describe('Owner - Request Verification', () => {
 
   test('should require profile completeness for verification', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestBtn = page.locator('button:has-text("Request Verification")').first();
 
     if (await requestBtn.count() > 0) {
       await requestBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for completeness requirements
       const requirements = page.locator('text=/complete.*profile|required.*field|missing|photo required/i').first();
@@ -112,13 +87,13 @@ test.describe('Owner - Request Verification', () => {
 
   test('should show verification requirements checklist', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestBtn = page.locator('button:has-text("Request Verification")').first();
 
     if (await requestBtn.count() > 0) {
       await requestBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for checklist
       const checklist = page.locator('.checklist, .requirements-list, ul, ol').first();
@@ -133,13 +108,13 @@ test.describe('Owner - Request Verification', () => {
 
   test('should submit verification request', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestBtn = page.locator('button:has-text("Request Verification")').first();
 
     if (await requestBtn.count() > 0) {
       await requestBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Fill any required fields
       const additionalNotes = page.locator('textarea[name="notes"]').first();
@@ -151,7 +126,7 @@ test.describe('Owner - Request Verification', () => {
       const submitBtn = page.locator('button[type="submit"], button:has-text("Submit")').first();
       if (await submitBtn.count() > 0) {
         await submitBtn.click();
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success or pending status
         const successMessage = page.locator('text=/success|submitted|pending|review/i').first();
@@ -162,7 +137,7 @@ test.describe('Owner - Request Verification', () => {
 
   test('should show pending verification status after request', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for pending status
     const pendingStatus = page.locator('.pending, .status-pending').or(page.locator('text=/pending.*verification|awaiting.*review/i')).first();
@@ -177,13 +152,17 @@ test.describe('Owner - Request Verification', () => {
 // ========================================
 
 test.describe('Admin - Verification Dashboard', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsAdmin(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Admin login not available');
+      return;
+    }
   });
 
   test('should access verification dashboard', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify page loaded
     const pageTitle = page.locator('h1, h2').filter({ hasText: /verification/i }).first();
@@ -192,7 +171,7 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should display pending verification requests', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for pending requests list
     const pendingList = page.locator('.pending-list, .verification-requests, [data-testid="pending-verifications"]').first();
@@ -208,7 +187,7 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should filter verifications by status', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for filter tabs
     const pendingTab = page.locator('button:has-text("Pending"), [data-status="pending"]').first();
@@ -217,7 +196,7 @@ test.describe('Admin - Verification Dashboard', () => {
 
     if (await pendingTab.count() > 0) {
       await pendingTab.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should update list
       await expect(page.locator('body')).toBeVisible();
@@ -226,14 +205,14 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should display verification request details', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Click on a verification request
     const requestCard = page.locator('.verification-card, .request-item').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show details
       const details = page.locator('.verification-details, [role="dialog"]').first();
@@ -247,13 +226,13 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should display employee photos in verification request', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestCard = page.locator('.verification-card').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show photos
       const photos = page.locator('.employee-photos img, .verification-photos img');
@@ -264,13 +243,13 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should have approve verification button', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestCard = page.locator('.verification-card').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for approve button
       const approveBtn = page.locator('button:has-text("Approve"), button:has-text("Verify")').first();
@@ -280,13 +259,13 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should have reject verification button', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestCard = page.locator('.verification-card').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for reject button
       const rejectBtn = page.locator('button:has-text("Reject"), button:has-text("Decline")').first();
@@ -296,19 +275,19 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should approve verification request', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestCard = page.locator('.verification-card').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const approveBtn = page.locator('button:has-text("Approve")').first();
 
       if (await approveBtn.count() > 0) {
         await approveBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // May need to confirm
         const confirmBtn = page.locator('button:has-text("Confirm")').first();
@@ -316,7 +295,7 @@ test.describe('Admin - Verification Dashboard', () => {
           await confirmBtn.click();
         }
 
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // Should show success
         const successMessage = page.locator('text=/success|approved|verified/i').first();
@@ -327,19 +306,19 @@ test.describe('Admin - Verification Dashboard', () => {
 
   test('should reject verification with reason', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const requestCard = page.locator('.verification-card').first();
 
     if (await requestCard.count() > 0) {
       await requestCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const rejectBtn = page.locator('button:has-text("Reject")').first();
 
       if (await rejectBtn.count() > 0) {
         await rejectBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState('domcontentloaded');
 
         // Should require reason
         const reasonInput = page.locator('textarea[name="reason"], input[name="reason"]').first();
@@ -348,7 +327,7 @@ test.describe('Admin - Verification Dashboard', () => {
 
           const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Submit")').first();
           await confirmBtn.click();
-          await page.waitForTimeout(2000);
+          await page.waitForLoadState('networkidle');
 
           // Should show success
           const successMessage = page.locator('text=/success|rejected/i').first();
@@ -366,7 +345,7 @@ test.describe('Admin - Verification Dashboard', () => {
 test.describe('Verified Badge Display', () => {
   test('should display verified badge on search results', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for verified badges
     const verifiedBadge = page.locator('.verified-badge, .verified-corner, [data-verified="true"]').first();
@@ -377,14 +356,14 @@ test.describe('Verified Badge Display', () => {
 
   test('should display verified badge in employee modal', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Click on employee card
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for verified indicator in modal
       const verifiedIndicator = page.locator('[role="dialog"] .verified, [role="dialog"] .verified-badge').first();
@@ -396,13 +375,13 @@ test.describe('Verified Badge Display', () => {
 
   test('should show verification date for verified employees', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const employeeCard = page.locator('.employee-card').first();
 
     if (await employeeCard.count() > 0) {
       await employeeCard.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for verification date
       const verificationDate = page.locator('text=/verified.*since|verified.*on|verification.*date/i').first();
@@ -414,14 +393,14 @@ test.describe('Verified Badge Display', () => {
 
   test('should filter by verified status in search', async ({ page }) => {
     await page.goto('/search');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for verified filter
     const verifiedFilter = page.locator('input[name="verified"], button:has-text("Verified"), label:has-text("Verified")').first();
 
     if (await verifiedFilter.count() > 0) {
       await verifiedFilter.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Results should update
       const url = page.url();
@@ -435,20 +414,24 @@ test.describe('Verified Badge Display', () => {
 // ========================================
 
 test.describe('Re-verification After Rejection', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsOwner(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsOwner(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Owner login not available');
+      return;
+    }
   });
 
   test('should show rejection reason to owner', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for rejected status
     const rejectedStatus = page.locator('.rejected, .status-rejected').or(page.locator('text=/rejected/i')).first();
 
     if (await rejectedStatus.count() > 0) {
       await rejectedStatus.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show rejection reason
       const reason = page.locator('.rejection-reason').or(page.locator('text=/reason|why/i')).first();
@@ -458,7 +441,7 @@ test.describe('Re-verification After Rejection', () => {
 
   test('should allow re-submitting verification after rejection', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for re-submit button on rejected employee
     const resubmitBtn = page.locator('button:has-text("Re-submit"), button:has-text("Request Again")').first();
@@ -471,13 +454,13 @@ test.describe('Re-verification After Rejection', () => {
 
   test('should require profile updates before re-verification', async ({ page }) => {
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const resubmitBtn = page.locator('button:has-text("Re-submit")').first();
 
     if (await resubmitBtn.count() > 0) {
       await resubmitBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show what needs to be fixed
       const requirements = page.locator('text=/fix|update|improve|change/i').first();
@@ -493,10 +476,15 @@ test.describe('Re-verification After Rejection', () => {
 // ========================================
 
 test.describe('Verification Expiry', () => {
-  test('should show verification expiry warning', async ({ page }) => {
-    await loginAsOwner(page);
+  test('should show verification expiry warning', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsOwner(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Owner login not available');
+      return;
+    }
+
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for expiry warning
     const expiryWarning = page.locator('text=/expir|renew|re-verify/i').first();
@@ -505,10 +493,15 @@ test.describe('Verification Expiry', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('should allow renewing verification before expiry', async ({ page }) => {
-    await loginAsOwner(page);
+  test('should allow renewing verification before expiry', async ({ page }, testInfo) => {
+    const loggedIn = await loginAsOwner(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Owner login not available');
+      return;
+    }
+
     await page.goto('/owner/employees');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for renew button
     const renewBtn = page.locator('button:has-text("Renew"), button:has-text("Re-verify")').first();
@@ -524,13 +517,17 @@ test.describe('Verification Expiry', () => {
 // ========================================
 
 test.describe('Admin - Verification Statistics', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsAdmin(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Admin login not available');
+      return;
+    }
   });
 
   test('should display verification statistics', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for stats
     const stats = page.locator('.stats, .statistics, .verification-stats').first();
@@ -548,7 +545,7 @@ test.describe('Admin - Verification Statistics', () => {
 
   test('should show verification history', async ({ page }) => {
     await page.goto('/admin/verifications?status=all');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for history list
     const historyList = page.locator('.history, .verification-history').first();
@@ -559,7 +556,7 @@ test.describe('Admin - Verification Statistics', () => {
 
   test('should filter by date range', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for date filter
     const dateFilter = page.locator('input[type="date"], .date-picker').first();
@@ -571,7 +568,7 @@ test.describe('Admin - Verification Statistics', () => {
 
   test('should export verification report', async ({ page }) => {
     await page.goto('/admin/verifications');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Look for export button
     const exportBtn = page.locator('button:has-text("Export"), button:has-text("Download")').first();

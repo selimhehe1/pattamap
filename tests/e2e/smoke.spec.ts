@@ -81,8 +81,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // App should not have any uncaught exceptions
     expect(criticalErrors.length).toBe(0);

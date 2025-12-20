@@ -79,7 +79,7 @@ test.describe('Filter Freelances', () => {
 
     if (await nationalitySelect.isVisible({ timeout: 3000 })) {
       await nationalitySelect.selectOption({ label: 'Thai' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       // Results should be filtered
       await expect(page.locator('body')).toBeVisible();
@@ -101,7 +101,7 @@ test.describe('Filter Freelances', () => {
       await maxAge.fill('28');
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('body')).toBeVisible();
   });
 
@@ -120,7 +120,7 @@ test.describe('Filter Freelances', () => {
       await minAge.fill('23');
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('body')).toBeVisible();
   });
 });
@@ -148,7 +148,7 @@ test.describe('Sort Freelances', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Highest Rated' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -162,7 +162,7 @@ test.describe('Sort Freelances', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Newest' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       await expect(page.locator('body')).toBeVisible();
     }
@@ -176,7 +176,7 @@ test.describe('Sort Freelances', () => {
 
     if (await sortSelect.isVisible({ timeout: 3000 })) {
       await sortSelect.selectOption({ label: 'Newest' });
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const url = page.url();
       expect(url).toMatch(/sort=/);
@@ -231,7 +231,7 @@ test.describe('Freelance Card', () => {
 
     if (await card.isVisible({ timeout: 5000 })) {
       await card.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       const modal = page.locator('[role="dialog"], .modal, .profile-modal');
       await expect(modal.first()).toBeVisible({ timeout: 3000 });
@@ -277,7 +277,7 @@ test.describe('Freelances Pagination', () => {
 
     if (await nextBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await nextBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
 
       const url = page.url();
       expect(url).toMatch(/page=2/);
@@ -352,8 +352,7 @@ test.describe('Mobile Freelances', () => {
 
   test('should show filters in drawer on mobile', async ({ page }) => {
     await page.goto('/freelances');
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Try multiple selectors for filters button
     const filterBtnSelectors = [
@@ -375,7 +374,7 @@ test.describe('Mobile Freelances', () => {
 
     if (filtersBtn) {
       await filtersBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
 
       // Try multiple selectors for drawer/modal
       const drawerSelectors = [

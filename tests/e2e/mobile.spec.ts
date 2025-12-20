@@ -1,7 +1,7 @@
 /**
  * E2E Tests - Mobile Responsive (PattaMap Gamification)
  *
- * Tests gamification features on mobile viewport (375×812 iPhone 12)
+ * Tests gamification features on mobile viewport (375x812 iPhone 12)
  *
  * Run:
  *   npx playwright test mobile.spec.ts --project=chromium-mobile
@@ -40,7 +40,7 @@ test.describe('Mobile: Header XP Indicator', () => {
 
     // Award XP (may fail if API unavailable)
     const reviewCreated = await createReviewForXP(page, testUser);
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Navigate to home to see header
     await page.goto('/');
@@ -49,11 +49,11 @@ test.describe('Mobile: Header XP Indicator', () => {
     const menuButton = page.locator('button[aria-label="Menu"], .menu-button, .hamburger');
     if (await menuButton.count() > 0) {
       await menuButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState('domcontentloaded');
     }
 
     if (!reviewCreated) {
-      console.log('⚠️  Review creation skipped. Verifying page loads.');
+      console.log('Warning: Review creation skipped. Verifying page loads.');
       await expect(page.locator('body')).toBeVisible();
       return;
     }
@@ -66,7 +66,7 @@ test.describe('Mobile: Header XP Indicator', () => {
     const xp = await getCurrentXP(page);
     expect(xp).toBeGreaterThan(0);
 
-    console.log(`✅ Mobile Header XP: ${xp} XP`);
+    console.log(`Mobile Header XP: ${xp} XP`);
 
     // Screenshot
     await page.screenshot({
@@ -78,7 +78,7 @@ test.describe('Mobile: Header XP Indicator', () => {
   test('should display XP progress bar correctly', async ({ page }) => {
     await registerUser(page, testUser);
     const reviewCreated = await createReviewForXP(page, testUser);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     await page.goto('/');
 
@@ -89,7 +89,7 @@ test.describe('Mobile: Header XP Indicator', () => {
     }
 
     if (!reviewCreated) {
-      console.log('⚠️  Review creation skipped. Verifying page loads.');
+      console.log('Warning: Review creation skipped. Verifying page loads.');
       await expect(page.locator('body')).toBeVisible();
       return;
     }
@@ -102,7 +102,7 @@ test.describe('Mobile: Header XP Indicator', () => {
     const barFill = progressBar.locator('.user-xp-bar-fill-mini, [class*="fill"]');
     const width = await barFill.evaluate(el => window.getComputedStyle(el).width);
 
-    console.log(`✅ XP Progress bar width: ${width}`);
+    console.log(`XP Progress bar width: ${width}`);
   });
 });
 
@@ -122,14 +122,14 @@ test.describe('Mobile: Achievements Page', () => {
     await createReviewForXP(page, testUser); // May fail if API unavailable, but test continues
 
     await page.goto('/achievements');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify tabs render horizontally (scrollable on mobile)
     const tabs = page.locator('.achievements-tabs button, button[role="tab"]');
     const tabCount = await tabs.count();
     expect(tabCount).toBeGreaterThanOrEqual(4);
 
-    console.log(`✅ ${tabCount} tabs rendered on mobile`);
+    console.log(`${tabCount} tabs rendered on mobile`);
 
     // Screenshot full page
     await page.screenshot({
@@ -138,11 +138,11 @@ test.describe('Mobile: Achievements Page', () => {
     });
   });
 
-  test('should display stat cards in 2×2 grid on mobile', async ({ page }) => {
+  test('should display stat cards in 2x2 grid on mobile', async ({ page }) => {
     await registerUser(page, testUser);
     await page.goto('/achievements');
     await page.click('button:has-text("Overview")');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
 
     // Verify 4 stat cards exist
     const statCards = page.locator('.stat-card');
@@ -154,7 +154,7 @@ test.describe('Mobile: Achievements Page', () => {
       window.getComputedStyle(el).gridTemplateColumns
     );
 
-    console.log(`✅ Stats grid columns (mobile): ${gridColumns}`);
+    console.log(`Stats grid columns (mobile): ${gridColumns}`);
     // Expect something like "repeat(2, 1fr)" or "auto auto"
   });
 
@@ -167,7 +167,7 @@ test.describe('Mobile: Achievements Page', () => {
 
     for (const tabName of tabs) {
       await page.click(`button:has-text("${tabName}")`);
-      await page.waitForTimeout(1000); // Wait for tab animation
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify tab is active
       const activeTab = page.locator(`button:has-text("${tabName}")`);
@@ -175,7 +175,7 @@ test.describe('Mobile: Achievements Page', () => {
         el.classList.contains('active') || el.classList.contains('achievements-tab-active')
       );
 
-      console.log(`✅ ${tabName} tab ${isActive ? 'active' : 'clicked'}`);
+      console.log(`${tabName} tab ${isActive ? 'active' : 'clicked'}`);
     }
 
     // Screenshot Leaderboard tab on mobile
@@ -201,14 +201,14 @@ test.describe('Mobile: Badge Showcase', () => {
     await registerUser(page, testUser);
     await page.goto('/achievements');
     await page.click('button:has-text("Badges")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Count badges
     const badges = page.locator('[class*="badge"]');
     const count = await badges.count();
     expect(count).toBeGreaterThan(0);
 
-    console.log(`✅ ${count} badges displayed on mobile`);
+    console.log(`${count} badges displayed on mobile`);
 
     // Screenshot
     await page.screenshot({
@@ -233,7 +233,7 @@ test.describe('Mobile: Mission Dashboard', () => {
     await registerUser(page, testUser);
     await page.goto('/achievements');
     await page.click('button:has-text("Missions")');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify missions sections exist
     const dailyMissions = await page.locator('text=/Daily/i').count() > 0;
@@ -241,7 +241,7 @@ test.describe('Mobile: Mission Dashboard', () => {
 
     expect(dailyMissions || weeklyMissions).toBeTruthy();
 
-    console.log(`✅ Missions visible: Daily=${dailyMissions}, Weekly=${weeklyMissions}`);
+    console.log(`Missions visible: Daily=${dailyMissions}, Weekly=${weeklyMissions}`);
 
     // Screenshot
     await page.screenshot({
@@ -269,33 +269,33 @@ test.describe('Mobile: Touch Interactions', () => {
     // Tap Badges tab using touch
     const badgesTab = page.locator('button:has-text("Badges")');
     await badgesTab.tap();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify tab switched
     const badgeShowcase = page.locator('[class*="badge"]');
     await expect(badgeShowcase.first()).toBeVisible({ timeout: 10000 });
 
-    console.log('✅ Touch tap on tab works');
+    console.log('Touch tap on tab works');
   });
 
   test('should support scroll on achievements page', async ({ page }) => {
     await registerUser(page, testUser);
     await page.goto('/achievements');
     await page.click('button:has-text("Overview")');
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Get initial scroll position
     const initialScroll = await page.evaluate(() => window.scrollY);
 
     // Scroll down
     await page.evaluate(() => window.scrollBy(0, 500));
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify scroll changed
     const finalScroll = await page.evaluate(() => window.scrollY);
     expect(finalScroll).toBeGreaterThan(initialScroll);
 
-    console.log(`✅ Scroll works: ${initialScroll} → ${finalScroll}`);
+    console.log(`Scroll works: ${initialScroll} -> ${finalScroll}`);
   });
 });
 
@@ -319,14 +319,14 @@ test.describe('Mobile: Landscape Orientation', () => {
     await registerUser(page, testUser);
     await createReviewForXP(page, testUser); // May fail if API unavailable, but test continues
     await page.goto('/achievements');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Verify tabs still visible
     const tabs = page.locator('button[role="tab"], .achievements-tab');
     const count = await tabs.count();
     expect(count).toBeGreaterThanOrEqual(4);
 
-    console.log(`✅ Landscape mode: ${count} tabs visible`);
+    console.log(`Landscape mode: ${count} tabs visible`);
 
     // Screenshot
     await page.screenshot({
