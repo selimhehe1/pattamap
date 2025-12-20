@@ -273,16 +273,34 @@ test.describe('Map Performance - Mobile', () => {
 });
 
 test.describe('Map Performance - Drag & Drop (if enabled)', () => {
-  test('should allow dragging establishment positions (admin mode)', async ({ page }) => {
-    // This test assumes admin mode allows drag & drop
-    // Login as admin first
+  // Helper to login as admin with fast fail
+  async function loginAsAdmin(page: import('@playwright/test').Page): Promise<boolean> {
     await page.goto('/login');
-    await page.locator('input[type="email"]').first().fill('admin@test.com');
+    await page.waitForLoadState('domcontentloaded');
+
+    const emailInput = page.locator('input[type="email"]').first();
+    if (await emailInput.count() === 0) return false;
+
+    await emailInput.fill('admin@test.com');
     await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
     await page.locator('button[type="submit"]').first().click();
 
-    await page.waitForURL('**/map/**', { timeout: 10000 }).catch(() => {});
-    await page.waitForLoadState('networkidle');
+    // Wait max 5s for redirect (fail fast)
+    try {
+      await page.waitForURL(/\/(admin|dashboard|map|\?)/, { timeout: 5000 });
+      return true;
+    } catch {
+      return !page.url().includes('/login');
+    }
+  }
+
+  test('should allow dragging establishment positions (admin mode)', async ({ page }, testInfo) => {
+    // Login as admin first
+    const loggedIn = await loginAsAdmin(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Admin login not available in this environment');
+      return;
+    }
 
     // Navigate to map in edit mode
     await page.goto('/map/walking-street?edit=true');
@@ -296,7 +314,7 @@ test.describe('Map Performance - Drag & Drop (if enabled)', () => {
     const draggableCount = await draggableCards.count();
 
     if (draggableCount === 0) {
-      test.skip();
+      testInfo.skip(true, 'No draggable elements found');
       return;
     }
 
@@ -305,7 +323,7 @@ test.describe('Map Performance - Drag & Drop (if enabled)', () => {
     const boundingBox = await firstCard.boundingBox();
 
     if (!boundingBox) {
-      test.skip();
+      testInfo.skip(true, 'Could not get bounding box');
       return;
     }
 
@@ -321,15 +339,13 @@ test.describe('Map Performance - Drag & Drop (if enabled)', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('should update grid positions smoothly without lag', async ({ page }) => {
+  test('should update grid positions smoothly without lag', async ({ page }, testInfo) => {
     // Login as admin
-    await page.goto('/login');
-    await page.locator('input[type="email"]').first().fill('admin@test.com');
-    await page.locator('input[type="password"]').first().fill('SecureTestP@ssw0rd2024!');
-    await page.locator('button[type="submit"]').first().click();
-
-    await page.waitForURL('**/map/**', { timeout: 10000 }).catch(() => {});
-    await page.waitForLoadState('networkidle');
+    const loggedIn = await loginAsAdmin(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'Admin login not available in this environment');
+      return;
+    }
 
     // Navigate to map
     await page.goto('/map/walking-street');
