@@ -70,6 +70,26 @@ export const mockAdminSession = {
   user: mockAdminUser
 };
 
+export const mockOwnerUser = {
+  ...mockUser,
+  id: 'mock-owner-id-12345-e2e-test',
+  email: 'owner@pattamap.com',
+  user_metadata: {
+    pseudonym: 'OwnerUser',
+    avatar_url: null
+  },
+  app_metadata: {
+    role: 'user',
+    account_type: 'establishment_owner'
+  }
+};
+
+export const mockOwnerSession = {
+  ...mockSession,
+  access_token: 'mock-owner-access-token-e2e-test',
+  user: mockOwnerUser
+};
+
 // ========================================
 // SUPABASE AUTH MOCKING
 // ========================================
@@ -87,10 +107,19 @@ export async function setupMockAuth(
     user?: typeof mockUser;
     session?: typeof mockSession;
     isAdmin?: boolean;
+    isOwner?: boolean;
   } = {}
 ): Promise<void> {
-  const user = options.isAdmin ? mockAdminUser : (options.user || mockUser);
-  const session = options.isAdmin ? mockAdminSession : (options.session || mockSession);
+  let user = options.user || mockUser;
+  let session = options.session || mockSession;
+
+  if (options.isAdmin) {
+    user = mockAdminUser;
+    session = mockAdminSession;
+  } else if (options.isOwner) {
+    user = mockOwnerUser;
+    session = mockOwnerSession;
+  }
 
   // Intercept Supabase auth token endpoint (login/refresh)
   await page.route('**/auth/v1/token**', route => {
@@ -163,7 +192,8 @@ export async function setupMockAuth(
     }));
   }, { session, user });
 
-  console.log(`✅ Mock Auth setup for: ${user.email} (${options.isAdmin ? 'admin' : 'user'})`);
+  const roleLabel = options.isAdmin ? 'admin' : options.isOwner ? 'owner' : 'user';
+  console.log(`✅ Mock Auth setup for: ${user.email} (${roleLabel})`);
 }
 
 /**
@@ -173,6 +203,15 @@ export async function setupMockAuth(
  */
 export async function setupMockAdminAuth(page: Page): Promise<void> {
   await setupMockAuth(page, { isAdmin: true });
+}
+
+/**
+ * Setup mock owner (establishment owner) authentication
+ *
+ * @param page - Playwright page object
+ */
+export async function setupMockOwnerAuth(page: Page): Promise<void> {
+  await setupMockAuth(page, { isOwner: true });
 }
 
 /**
@@ -195,34 +234,136 @@ export async function clearMockAuth(page: Page): Promise<void> {
 // ========================================
 
 /**
- * Mock backend /api/auth/me endpoint to return mock user
- * Use this if your backend validates the session
+ * Mock backend auth endpoints to return mock user
+ * Intercepts /api/auth/me, /api/auth/profile, and related endpoints
  *
  * @param page - Playwright page object
- * @param isAdmin - Whether to mock admin user
+ * @param userType - Type of user to mock: 'user', 'admin', or 'owner'
  */
-export async function mockBackendAuthMe(page: Page, isAdmin: boolean = false): Promise<void> {
-  const user = isAdmin ? mockAdminUser : mockUser;
+export async function mockBackendAuthMe(
+  page: Page,
+  userType: boolean | 'user' | 'admin' | 'owner' = 'user'
+): Promise<void> {
+  // Handle legacy boolean parameter for backwards compatibility
+  let user = mockUser;
+  if (userType === true || userType === 'admin') {
+    user = mockAdminUser;
+  } else if (userType === 'owner') {
+    user = mockOwnerUser;
+  }
 
+  const mockUserResponse = {
+    user: {
+      id: user.id,
+      email: user.email,
+      pseudonym: user.user_metadata.pseudonym,
+      role: user.app_metadata.role,
+      account_type: user.app_metadata.account_type,
+      xp: 150,
+      level: 2,
+      streak: 3
+    },
+    isAuthenticated: true
+  };
+
+  // Mock /api/auth/me endpoint
   await page.route('**/api/auth/me', route => {
+    console.log('🔧 Mock intercepted: /api/auth/me');
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        user: {
-          id: user.id,
-          email: user.email,
-          pseudonym: user.user_metadata.pseudonym,
-          role: user.app_metadata.role,
-          account_type: user.app_metadata.account_type,
-          xp: 150,
-          level: 2,
-          streak: 3
-        },
-        isAuthenticated: true
-      })
+      body: JSON.stringify(mockUserResponse)
     });
   });
+
+  // Mock /api/auth/profile endpoint (used by frontend AuthContext)
+  await page.route('**/api/auth/profile', route => {
+    console.log('🔧 Mock intercepted: /api/auth/profile');
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(mockUserResponse)
+    });
+  });
+
+  // Mock CSRF token endpoint to avoid issues
+  await page.route('**/api/csrf-token', route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ csrfToken: 'mock-csrf-token-e2e' })
+    });
+  });
+
+  // Mock admin-specific endpoints when admin user type
+  // This prevents timeout when admin pages try to fetch /api/admin/* endpoints
+  if (userType === true || userType === 'admin') {
+    // Mock admin stats endpoint
+    await page.route('**/api/admin/stats**', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalUsers: 150,
+          totalEstablishments: 45,
+          totalEmployees: 320,
+          pendingClaims: 5,
+          pendingVerifications: 3
+        })
+      });
+    });
+
+    // Mock VIP verification endpoints
+    await page.route('**/api/admin/vip-verification**', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          transactions: [],
+          total: 0
+        })
+      });
+    });
+
+    // Allow other admin routes to continue (they'll use mocked auth)
+    await page.route('**/api/admin/**', route => {
+      route.continue();
+    });
+
+    console.log('🔧 Mock admin routes configured: /api/admin/stats, /api/admin/vip-verification, /api/admin/**');
+  }
+
+  // Mock owner-specific endpoints when owner user type
+  if (userType === 'owner') {
+    // Mock owner establishments
+    await page.route('**/api/owner/establishments**', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          establishments: []
+        })
+      });
+    });
+
+    // Mock owner employees
+    await page.route('**/api/owner/employees**', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          employees: []
+        })
+      });
+    });
+
+    // Allow other owner routes to continue
+    await page.route('**/api/owner/**', route => {
+      route.continue();
+    });
+
+    console.log('🔧 Mock owner routes configured: /api/owner/establishments, /api/owner/employees, /api/owner/**');
+  }
 }
 
 /**
