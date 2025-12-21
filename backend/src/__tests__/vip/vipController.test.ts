@@ -1,28 +1,21 @@
 /**
- * 🧪 VIP Controller Tests
+ * VIP Controller Tests
  *
- * Tests for VIP subscription controller endpoints
- * - GET /api/vip/pricing/:type (5/5 tests passing ✅)
- * - POST /api/vip/purchase (6/6 tests passing ✅)
- * - GET /api/vip/my-subscriptions (2/2 tests passing ✅)
- * - PATCH /api/vip/subscriptions/:id/cancel (4/4 tests passing ✅)
+ * Tests for VIP subscription controller endpoints:
+ * - GET /api/vip/pricing/:type (5 tests)
+ * - POST /api/vip/purchase (6 tests)
+ * - GET /api/vip/my-subscriptions (2 tests)
+ * - PATCH /api/vip/subscriptions/:id/cancel (4 tests)
+ * - POST /api/admin/vip/verify-payment/:transactionId (6 tests)
+ * - GET /api/admin/vip/transactions (4 tests)
+ * - POST /api/admin/vip/reject-payment/:transactionId (5 tests)
  *
- * CURRENT STATUS: 17/17 tests passing (100%) ✅
- *
- * 🔧 FIXED (Day 3 Sprint):
- * - Jest mock was not properly loading __mocks__/supabase.ts
- * - Solution: Use explicit factory function with jest.requireActual()
- * - Authorization flows now properly mocked with table-based strategy
- * - Complex queries with joins working correctly
- *
- * 📋 TODO (Future):
- * - Add tests for admin endpoints (verifyPayment, getTransactions, rejectPayment)
- * - Add integration tests with real Supabase test instance for E2E validation
+ * Day 5+ Sprint - Security Testing
  */
 
 import request from 'supertest';
 import express from 'express';
-import { getPricingOptions, purchaseVIP, getMyVIPSubscriptions, cancelVIPSubscription } from '../../controllers/vipController';
+import { getPricingOptions, purchaseVIP, getMyVIPSubscriptions, cancelVIPSubscription, verifyPayment, getVIPTransactions, rejectPayment } from '../../controllers/vipController';
 import { authenticateToken } from '../../middleware/auth';
 import { csrfProtection } from '../../middleware/csrf';
 import {
@@ -97,6 +90,11 @@ describe('VIP Controller Tests', () => {
     app.post('/api/vip/purchase', authenticateToken, csrfProtection, purchaseVIP);
     app.get('/api/vip/my-subscriptions', authenticateToken, getMyVIPSubscriptions);
     app.patch('/api/vip/subscriptions/:id/cancel', authenticateToken, csrfProtection, cancelVIPSubscription);
+
+    // Admin routes
+    app.post('/api/admin/vip/verify-payment/:transactionId', authenticateToken, verifyPayment);
+    app.get('/api/admin/vip/transactions', authenticateToken, getVIPTransactions);
+    app.post('/api/admin/vip/reject-payment/:transactionId', authenticateToken, rejectPayment);
   });
 
   describe('GET /api/vip/pricing/:type', () => {
@@ -442,5 +440,344 @@ describe('VIP Controller Tests', () => {
       expect(response.body).toHaveProperty('error');
     });
   });
+
+  // =====================================================
+  // ADMIN ENDPOINT TESTS
+  // =====================================================
+
+  describe('POST /api/admin/vip/verify-payment/:transactionId', () => {
+    const mockTransaction = {
+      id: 'txn-123',
+      subscription_type: 'employee',
+      subscription_id: 'sub-123',
+      user_id: 'user-456',
+      amount: 3600,
+      currency: 'THB',
+      payment_method: 'cash',
+      payment_status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    const mockSubscription = {
+      id: 'sub-123',
+      employee_id: 'emp-123',
+      status: 'pending_payment',
+      tier: 'employee',
+      duration: 30,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    };
+
+    it('should verify payment successfully', async () => {
+      // Mock admin user
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        switch (table) {
+          case 'users':
+            return createMockQueryBuilder(mockSuccess({ role: 'admin' }));
+          case 'vip_payment_transactions':
+            return createMockQueryBuilder(mockSuccess(mockTransaction));
+          case 'employee_vip_subscriptions':
+            return createMockQueryBuilder(mockSuccess({ ...mockSubscription, status: 'active' }));
+          default:
+            return createMockQueryBuilder(mockNotFound());
+        }
+      });
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/txn-123')
+        .send({ admin_notes: 'Cash received' })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', 'Payment verified and subscription activated');
+    });
+
+    it('should return 401 if not authenticated', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = undefined;
+        next();
+      });
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/txn-123')
+        .send({ admin_notes: 'Cash received' })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('error', 'Unauthorized');
+    });
+
+    it('should return 403 if not admin', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'regular-user-id', role: 'user' };
+        next();
+      });
+
+      (supabase.from as jest.Mock).mockImplementation(() =>
+        createMockQueryBuilder(mockSuccess({ role: 'user' }))
+      );
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/txn-123')
+        .send({ admin_notes: 'Cash received' })
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error', 'Forbidden');
+    });
+
+    it('should return 404 if transaction not found', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ role: 'admin' })))
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()));
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/non-existent')
+        .send({ admin_notes: 'Cash received' })
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Transaction not found');
+    });
+
+    it('should return 400 if payment already verified', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+
+      const verifiedTransaction = { ...mockTransaction, payment_status: 'completed' };
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ role: 'admin' })))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(verifiedTransaction)));
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/txn-123')
+        .send({ admin_notes: 'Cash received' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Payment already verified');
+    });
+
+    it('should return 400 if payment method is not cash', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+
+      const promptpayTransaction = { ...mockTransaction, payment_method: 'promptpay' };
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ role: 'admin' })))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(promptpayTransaction)));
+
+      const response = await request(app)
+        .post('/api/admin/vip/verify-payment/txn-123')
+        .send({ admin_notes: 'Cash received' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Invalid payment method');
+    });
+  });
+
+  describe('GET /api/admin/vip/transactions', () => {
+    const mockTransactions = [
+      {
+        id: 'txn-1',
+        subscription_type: 'employee',
+        user_id: 'user-1',
+        amount: 3600,
+        payment_method: 'cash',
+        payment_status: 'pending',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'txn-2',
+        subscription_type: 'establishment',
+        user_id: 'user-2',
+        amount: 5000,
+        payment_method: 'promptpay',
+        payment_status: 'completed',
+        created_at: new Date().toISOString()
+      }
+    ];
+
+    beforeEach(() => {
+      // Reset to admin user for all transaction tests
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+    });
+
+    it('should return all transactions', async () => {
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return createMockQueryBuilder(mockSuccess(mockTransactions));
+        }
+        return createMockQueryBuilder(mockSuccess(null));
+      });
+
+      const response = await request(app)
+        .get('/api/admin/vip/transactions')
+        .expect(200);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('transactions');
+      expect(response.body.transactions).toHaveLength(2);
+    });
+
+    it('should filter by payment method', async () => {
+      const cashTransactions = mockTransactions.filter(t => t.payment_method === 'cash');
+
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return createMockQueryBuilder(mockSuccess(cashTransactions));
+        }
+        return createMockQueryBuilder(mockSuccess(null));
+      });
+
+      const response = await request(app)
+        .get('/api/admin/vip/transactions?payment_method=cash')
+        .expect(200);
+
+      expect(response.body.transactions).toHaveLength(1);
+      expect(response.body.transactions[0].payment_method).toBe('cash');
+    });
+
+    it('should filter by status', async () => {
+      const pendingTransactions = mockTransactions.filter(t => t.payment_status === 'pending');
+
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return createMockQueryBuilder(mockSuccess(pendingTransactions));
+        }
+        return createMockQueryBuilder(mockSuccess(null));
+      });
+
+      const response = await request(app)
+        .get('/api/admin/vip/transactions?status=pending')
+        .expect(200);
+
+      expect(response.body.transactions).toHaveLength(1);
+      expect(response.body.transactions[0].payment_status).toBe('pending');
+    });
+
+    it('should return empty array when no transactions', async () => {
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        if (table === 'vip_payment_transactions') {
+          return createMockQueryBuilder(mockSuccess([]));
+        }
+        return createMockQueryBuilder(mockSuccess(null));
+      });
+
+      const response = await request(app)
+        .get('/api/admin/vip/transactions')
+        .expect(200);
+
+      expect(response.body.transactions).toEqual([]);
+      expect(response.body.count).toBe(0);
+    });
+  });
+
+  describe('POST /api/admin/vip/reject-payment/:transactionId', () => {
+    const mockTransaction = {
+      id: 'txn-123',
+      subscription_type: 'employee',
+      subscription_id: 'sub-123',
+      user_id: 'user-456',
+      amount: 3600,
+      payment_method: 'cash',
+      payment_status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    beforeEach(() => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = { id: 'admin-user-id', role: 'admin' };
+        next();
+      });
+    });
+
+    it('should reject payment successfully', async () => {
+      (supabase.from as jest.Mock).mockImplementation((table: string) => {
+        switch (table) {
+          case 'vip_payment_transactions':
+            return createMockQueryBuilder(mockSuccess(mockTransaction));
+          case 'employee_vip_subscriptions':
+            return createMockQueryBuilder(mockSuccess({ tier: 'employee' }));
+          default:
+            return createMockQueryBuilder(mockSuccess(null));
+        }
+      });
+
+      const response = await request(app)
+        .post('/api/admin/vip/reject-payment/txn-123')
+        .send({ admin_notes: 'Invalid payment proof' })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', 'Payment rejected successfully');
+    });
+
+    it('should return 401 if not authenticated', async () => {
+      (authenticateToken as jest.Mock).mockImplementation((req, res, next) => {
+        req.user = undefined;
+        next();
+      });
+
+      const response = await request(app)
+        .post('/api/admin/vip/reject-payment/txn-123')
+        .send({ admin_notes: 'Invalid payment proof' })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('error', 'Authentication required');
+    });
+
+    it('should return 400 if reason is missing', async () => {
+      const response = await request(app)
+        .post('/api/admin/vip/reject-payment/txn-123')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Rejection reason (admin_notes) is required');
+    });
+
+    it('should return 404 if transaction not found', async () => {
+      (supabase.from as jest.Mock).mockImplementation(() =>
+        createMockQueryBuilder(mockNotFound())
+      );
+
+      const response = await request(app)
+        .post('/api/admin/vip/reject-payment/non-existent')
+        .send({ admin_notes: 'Invalid payment proof' })
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Transaction not found');
+    });
+
+    it('should return 400 if transaction already processed', async () => {
+      const processedTransaction = { ...mockTransaction, payment_status: 'completed' };
+
+      (supabase.from as jest.Mock).mockImplementation(() =>
+        createMockQueryBuilder(mockSuccess(processedTransaction))
+      );
+
+      const response = await request(app)
+        .post('/api/admin/vip/reject-payment/txn-123')
+        .send({ admin_notes: 'Invalid payment proof' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Transaction already processed');
+    });
+  });
+
 });
 
