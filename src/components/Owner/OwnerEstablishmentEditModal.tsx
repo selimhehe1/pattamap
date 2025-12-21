@@ -8,7 +8,7 @@ import OpeningHoursForm from '../Forms/EstablishmentFormSections/OpeningHoursFor
 import SocialMediaForm from '../Forms/EstablishmentFormSections/SocialMediaForm';
 import PricingForm from '../Forms/EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
-import { toast } from 'react-toastify';
+import toastService from '../../utils/toast';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -251,7 +251,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
       return data.logo?.url || null;
     } catch (error) {
       logger.error('❌ Logo upload error:', error);
-      toast.error(t('ownerEstablishmentModal.errorLogoUploadFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
+      toastService.error(t('ownerEstablishmentModal.errorLogoUploadFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
       return null;
     } finally {
       setUploadingLogo(false);
@@ -345,12 +345,12 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
         throw new Error(errorData.error || t('ownerEstablishmentModal.errorUpdateFailed'));
       }
 
-      toast.success(`✅ ${t('ownerEstablishmentModal.successUpdateMessage')}`);
+      toastService.success(t('ownerEstablishmentModal.successUpdateMessage'));
       onSuccess();
       onClose();
     } catch (error) {
       logger.error('Error updating establishment:', error);
-      toast.error(t('ownerEstablishmentModal.errorUpdateFailedMessage', { error: error instanceof Error ? error.message : 'Unknown error' }));
+      toastService.error(t('ownerEstablishmentModal.errorUpdateFailedMessage', { error: error instanceof Error ? error.message : 'Unknown error' }));
       setErrors(prev => ({ ...prev, submit: t('ownerEstablishmentModal.errorUpdateFailed') }));
     } finally {
       setIsLoading(false);

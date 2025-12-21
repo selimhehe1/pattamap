@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { toast } from 'react-toastify';
+import toastService from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -65,7 +65,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
         const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
         logger.error('Fetch error:', error);
         setFetchError(errorMessage);
-        toast.error(errorMessage);
+        toastService.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +80,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
 
   const handleSubmit = async (employeeData: any) => {
     if (!linkedProfile) {
-      toast.error(t('editMyProfileModal.errorNoLinkedProfile'));
+      toastService.error(t('editMyProfileModal.errorNoLinkedProfile'));
       return;
     }
 
@@ -96,12 +96,12 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
         throw new Error(errorData.error || t('editMyProfileModal.errorUpdateProfile'));
       }
 
-      toast.success(t('editMyProfileModal.successUpdate'));
+      toastService.success(t('editMyProfileModal.successUpdate'));
       onProfileUpdated?.();
       onClose();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorUpdateProfile');
-      toast.error(errorMessage);
+      toastService.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
