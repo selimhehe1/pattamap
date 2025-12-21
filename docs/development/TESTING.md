@@ -188,6 +188,105 @@ describe('useAuth', () => {
 
 ---
 
+## Frontend Context Tests
+
+### Vue d'ensemble
+
+**105 tests** couvrant les **7 contextes React** du frontend avec **63.45% coverage**.
+
+### Structure Tests
+
+```
+src/contexts/__tests__/
+├── SidebarContext.test.tsx      # 6 tests - Sidebar state (100% coverage)
+├── MapControlsContext.test.tsx  # 12 tests - Map controls (100% coverage)
+├── ThemeContext.test.tsx        # 19 tests - Theme switching (76.54% coverage)
+├── ModalContext.test.tsx        # 25 tests - Modal stack (94.82% coverage)
+├── CSRFContext.test.tsx         # 11 tests - CSRF tokens (93.1% coverage)
+├── GamificationContext.test.tsx # 16 tests - XP/levels (via mock provider)
+└── AuthContext.test.tsx         # 16 tests - Auth state (79.43% coverage)
+```
+
+### Commandes
+
+```bash
+# Run tous les tests contexts
+npm test -- --testPathPattern="contexts/__tests__"
+
+# Run avec coverage
+npm test -- --coverage --collectCoverageFrom="src/contexts/**/*.tsx"
+
+# Run un fichier spécifique
+npm test -- AuthContext.test.tsx
+```
+
+### Exemple Test - Context avec Hook
+
+```typescript
+// src/contexts/__tests__/ModalContext.test.tsx
+import { renderHook, act } from '@testing-library/react';
+import { ModalProvider, useModal } from '../ModalContext';
+
+describe('ModalContext', () => {
+  it('should open modal and add to stack', () => {
+    const { result } = renderHook(() => useModal(), {
+      wrapper: ModalProvider,
+    });
+
+    act(() => {
+      result.current.openModal('test-modal', MockComponent);
+    });
+
+    expect(result.current.modals.length).toBe(1);
+    expect(result.current.modals[0].id).toBe('test-modal');
+  });
+
+  it('should throw when used outside provider', () => {
+    expect(() => {
+      renderHook(() => useModal());
+    }).toThrow('useModal must be used within a ModalProvider');
+  });
+});
+```
+
+### Patterns de Test Contexts
+
+**1. Mock Provider Pattern** (pour contexts complexes):
+```typescript
+const createTestProvider = (initialState) => {
+  const TestProvider = ({ children }) => {
+    const [state, setState] = useState(initialState);
+    return (
+      <MyContext.Provider value={{ state, setState }}>
+        {children}
+      </MyContext.Provider>
+    );
+  };
+  return TestProvider;
+};
+```
+
+**2. Mock Date.now()** (pour timestamps):
+```typescript
+let mockTime = 1000;
+vi.spyOn(Date, 'now').mockImplementation(() => mockTime++);
+// ... test with unique timestamps
+vi.restoreAllMocks();
+```
+
+**3. Mock fetch** (pour API calls):
+```typescript
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+mockFetch.mockResolvedValueOnce({
+  ok: true,
+  json: async () => ({ data: 'test' }),
+});
+```
+
+---
+
 ## Testing Best Practices
 
 ### AAA Pattern
@@ -376,8 +475,9 @@ coverageThreshold: {
 | **Middleware** | 33 tests | 85%+ | ✅ Excellent |
 | **Services** | 63 tests | 90%+ | ✅ Excellent |
 | **Controllers** | 130+ tests | 80%+ | ✅ Excellent |
-| **E2E** | 0 tests | 0% | ❌ À implémenter |
-| **Frontend** | 0 tests | 0% | ❌ À implémenter |
+| **E2E** | 67 tests | N/A | ✅ Implémenté |
+| **Frontend Contexts** | 105 tests | 63.45% | ✅ Excellent |
+| **Frontend Components** | 30 tests | ~4% | 🟡 En cours |
 
 ### Commandes Coverage
 
@@ -439,4 +539,4 @@ Guide complet GitHub Actions workflow:
 
 ## Dernière mise à jour
 
-v10.3.2 (Janvier 2025) - Ajout CI/CD + Coverage requirements
+v10.4.0 (Décembre 2025) - Ajout 105 tests Context + E2E Auth fixes

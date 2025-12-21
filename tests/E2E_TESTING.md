@@ -84,8 +84,82 @@ tests/e2e/
 ├── user-search-flow.spec.ts          # User search & filters (11 tests)
 ├── owner-management.spec.ts           # Owner dashboard & VIP (11 tests)
 ├── admin-vip-verification.spec.ts     # Admin VIP workflow (14 tests)
-└── map-performance.spec.ts            # Map ergonomics & perf (16 tests)
+├── map-performance.spec.ts            # Map ergonomics & perf (16 tests)
+└── auth-integration.spec.ts           # Auth flows integration (15 tests)
 ```
+
+## Auth Integration Tests
+
+### Overview
+
+The `auth-integration.spec.ts` file contains **15 tests** covering authentication flows across desktop and mobile viewports.
+
+### Test Categories
+
+**Desktop Tests (10 tests)**:
+- Login form visibility
+- Registration navigation
+- Registration form visibility
+- Form validation
+- Protected routes redirect
+- Mobile menu interaction
+- Account type selection
+
+**Mobile Tests (5 tests)**:
+- Login access via hamburger menu
+- Registration access
+- Protected route redirection
+
+### Helper Functions
+
+```typescript
+// Check if user is logged in (multi-detection)
+async function isLoggedIn(page: Page): Promise<boolean> {
+  const indicators = [
+    page.locator('[data-testid="user-menu"]'),
+    page.locator('[data-testid="logout-button"]'),
+    page.locator('text=My Favorites'),
+    page.locator('text=My Profile'),
+    page.locator('text=Logout'),
+  ];
+
+  for (const indicator of indicators) {
+    if (await indicator.isVisible({ timeout: 1000 }).catch(() => false)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Login helper
+async function performLogin(page: Page, credentials: {login: string, password: string}) {
+  await page.fill('[data-testid="login-input"]', credentials.login);
+  await page.fill('[data-testid="password-input"]', credentials.password);
+  await page.click('[data-testid="login-submit"]');
+}
+```
+
+### Troubleshooting
+
+**Issue: Tests timeout on `waitForLoadState('networkidle')`**
+
+**Cause**: `networkidle` waits for no network activity for 500ms, which can timeout if the app has continuous background requests (polling, analytics, etc.).
+
+**Solution**: Use `domcontentloaded` instead:
+```typescript
+// BEFORE - Can timeout
+await page.goto('/', { waitUntil: 'networkidle' });
+
+// AFTER - More reliable
+await page.goto('/', { waitUntil: 'domcontentloaded' });
+await page.waitForSelector('[data-testid="header"]', { timeout: 10000 });
+```
+
+**Issue: Flaky login state detection**
+
+**Cause**: Single selector check may fail if UI varies between states.
+
+**Solution**: Use multi-indicator detection (see `isLoggedIn` helper above).
 
 ## Common Issues
 
