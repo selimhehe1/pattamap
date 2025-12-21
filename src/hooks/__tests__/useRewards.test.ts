@@ -2,8 +2,15 @@
  * @vitest-environment jsdom
  */
 /**
- * Tests for useRewards hook
- * Using Vitest syntax
+ * useRewards Hook Tests
+ *
+ * Tests for gamification rewards hook:
+ * - useRewards functionality (7 tests)
+ * - getLevelName helper (2 tests)
+ * - getXPForNextLevel helper (1 test)
+ * - getXPForCurrentLevel helper (1 test)
+ *
+ * Total: 11 tests
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act as _act } from '@testing-library/react';
@@ -134,6 +141,41 @@ describe('useRewards', () => {
 
     // claimReward should be a function
     expect(typeof result.current.claimReward).toBe('function');
+  });
+
+  it('should have refetch function', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({
+        rewards: [],
+        currentLevel: 1,
+        totalXp: 0
+      })
+    });
+
+    const { result } = renderHook(() => useRewards());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    // refetch should be a function
+    expect(typeof result.current.refetch).toBe('function');
+  });
+
+  it('should return false when claimReward is called without authentication', async () => {
+    delete mockLocalStorage['token'];
+    (localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(null);
+
+    const { result } = renderHook(() => useRewards());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    // Calling claimReward without auth should return false
+    const claimResult = await result.current.claimReward('r1');
+    expect(claimResult).toBe(false);
   });
 });
 

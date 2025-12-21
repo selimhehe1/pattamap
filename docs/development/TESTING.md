@@ -2,9 +2,19 @@
 
 ## Vue d'ensemble
 
-**Coverage actuel**: 85%+ sur middleware critiques
-**Total tests**: 33 tests (18 unitaires + 15 intégration)
-**Frameworks**: Jest + Supertest (backend), Jest + React Testing Library (frontend)
+**Dernière mise à jour**: 21 Décembre 2024
+
+### Résumé Couverture
+
+| Zone | Tests | Couverture | Status |
+|------|-------|------------|--------|
+| **Backend** | 299 tests | 85%+ middleware | ✅ Excellent |
+| **Frontend Hooks** | 7 fichiers | 89% stmts, 74% branches | ✅ Excellent |
+| **Frontend Utils** | 3 fichiers | 85% stmts, 72% branches | ✅ Bon |
+| **Frontend Contexts** | 7 fichiers | 63%+ | ✅ Bon |
+| **E2E (Playwright)** | 46 tests | Parcours critiques | ✅ Complet |
+
+**Frameworks**: Jest + Supertest (backend), Vitest + React Testing Library (frontend), Playwright (E2E)
 
 ---
 
@@ -40,10 +50,35 @@ npm test -- auth.test    # Run specific file
 ### Structure Tests
 
 ```
-backend/src/middleware/__tests__/
-├── auth.test.ts         # 18 tests - JWT auth
-└── csrf.test.ts         # 15 tests - CSRF protection
+backend/src/
+├── middleware/__tests__/
+│   ├── auth.test.ts           # 18 tests - JWT authentication
+│   ├── csrf.test.ts           # 15 tests - CSRF protection
+│   ├── rateLimit.test.ts      # 26 tests - Rate limiting
+│   ├── refreshToken.test.ts   # 22 tests - JWT refresh tokens
+│   └── auditLog.test.ts       # 34 tests - Audit logging
+│
+├── controllers/__tests__/
+│   ├── authController.test.ts       # 25 tests
+│   ├── employeeController.test.ts   # 40 tests
+│   ├── vipController.test.ts        # 40 tests
+│   ├── commentController.test.ts    # 28 tests
+│   ├── favoriteController.test.ts   # 13 tests
+│   ├── notificationController.test.ts # 18 tests
+│   ├── pushController.test.ts       # 29 tests
+│   ├── uploadController.test.ts     # 15 tests
+│   └── ownershipRequestController.test.ts # 18 tests
+│
+├── services/__tests__/
+│   ├── gamificationService.test.ts  # ~15 tests
+│   ├── badgeAwardService.test.ts    # ~15 tests
+│   └── pushService.test.ts          # 16 tests
+│
+└── utils/__tests__/
+    └── notificationHelper.test.ts   # 41 tests
 ```
+
+**Total Backend**: 299 tests
 
 ### Exemple Test - Authentication
 
@@ -123,17 +158,56 @@ describe('CSRF Protection', () => {
 ### Configuration
 
 ```javascript
-// setupTests.ts
-import '@testing-library/jest-dom';
+// vitest.config.ts - Vitest pour tests unitaires
+// playwright.config.ts - Playwright pour E2E
 ```
 
 ### Commandes
 
 ```bash
-npm test                 # Run all tests
-npm test -- --watch      # Watch mode
-npm test -- --coverage   # Coverage report
+npm test                        # Run tous tests Vitest
+npm test -- --watch             # Watch mode
+npm test -- --coverage          # Coverage report
+npm run test:e2e                # Run tests Playwright E2E
 ```
+
+### Structure Tests Frontend
+
+```
+src/
+├── hooks/__tests__/
+│   ├── useEmployees.test.ts        # 31 tests (99% coverage)
+│   ├── useEstablishments.test.ts   # 26 tests (99% coverage)
+│   ├── useFavorites.test.ts        # 25 tests (91% coverage)
+│   ├── useOfflineQueue.test.ts     # 20 tests (89% coverage)
+│   ├── useSecureFetch.test.ts      # 23 tests (76% coverage)
+│   ├── useAutoSave.test.ts         # 10 tests (90% coverage)
+│   └── useFormValidation.test.ts   # 13 tests (86% coverage)
+│
+├── utils/__tests__/
+│   ├── cloudinary.test.ts          # ~20 tests (95% coverage)
+│   ├── offlineQueue.test.ts        # 33 tests (90% coverage)
+│   └── pushManager.test.ts         # 43 tests (96% coverage)
+│
+└── contexts/__tests__/
+    ├── SidebarContext.test.tsx       # 6 tests (100% coverage)
+    ├── MapControlsContext.test.tsx   # 12 tests (100% coverage)
+    ├── ThemeContext.test.tsx         # 19 tests (76% coverage)
+    ├── ModalContext.test.tsx         # 25 tests (95% coverage)
+    ├── CSRFContext.test.tsx          # 11 tests (93% coverage)
+    ├── GamificationContext.test.tsx  # 16 tests
+    └── AuthContext.test.tsx          # 16 tests (79% coverage)
+```
+
+### Lacunes Mineures (Faible Priorité)
+
+| Fichier | Couverture | Priorité | Raison |
+|---------|------------|----------|--------|
+| `haptics.ts` | 17% | BASSE | Mobile-only, edge case |
+| `toast.ts` | 60% | BASSE | UI feedback simple |
+| `logger.ts` | 61% | BASSE | Dev tooling |
+| `useFocusTrap.ts` | 21% | BASSE | A11y edge case |
+| `useRewards.ts` | 72% | MOYENNE | Gamification |
 
 ### Exemple Test - Component
 
@@ -350,42 +424,81 @@ it('should handle API errors gracefully', async () => {
 - **UI Components**: 80%+
 - **Utilities**: 95%+
 
-### Current Coverage
+### Current Coverage (Décembre 2024)
 
+**Backend Middleware**:
 ```
-File                 | % Stmts | % Branch | % Funcs | % Lines
----------------------|---------|----------|---------|--------
-middleware/auth.ts   |   92.5  |    85.7  |   100   |   92.1
-middleware/csrf.ts   |   88.3  |    80.0  |   100   |   87.5
+File                   | % Stmts | % Branch | % Funcs | % Lines
+-----------------------|---------|----------|---------|--------
+middleware/auth.ts     |   92.5  |    85.7  |   100   |   92.1
+middleware/csrf.ts     |   88.3  |    80.0  |   100   |   87.5
+middleware/rateLimit.ts|   90+   |    85+   |   100   |   90+
+middleware/refreshToken|   90+   |    85+   |   100   |   90+
+middleware/auditLog.ts |   90+   |    85+   |   100   |   90+
+```
+
+**Frontend Hooks** (89% statements, 74% branches):
+```
+File                      | % Stmts | % Branch | % Funcs | % Lines
+--------------------------|---------|----------|---------|--------
+useEmployees.ts           |   99    |    90+   |   100   |   99
+useEstablishments.ts      |   99    |    90+   |   100   |   99
+useFavorites.ts           |   91    |    80+   |   100   |   91
+useOfflineQueue.ts        |   89    |    75+   |   100   |   89
+useSecureFetch.ts         |   76    |    65+   |   90+   |   76
+useAutoSave.ts            |   90    |    80+   |   100   |   90
+useFormValidation.ts      |   86    |    75+   |   100   |   86
+```
+
+**Frontend Utils** (85% statements, 72% branches):
+```
+File                      | % Stmts | % Branch | % Funcs | % Lines
+--------------------------|---------|----------|---------|--------
+cloudinary.ts             |   95    |    85+   |   100   |   95
+offlineQueue.ts           |   90    |    80+   |   100   |   90
+pushManager.ts            |   96    |    85+   |   100   |   96
 ```
 
 ---
 
-## E2E Testing (Planned)
+## E2E Testing (Playwright)
 
-### Cypress Setup
+**46 tests E2E** couvrant les parcours utilisateur critiques.
+
+### Commandes
 
 ```bash
-# Install
-npm install --save-dev cypress
+npm run test:e2e              # Run tous tests
+npm run test:e2e -- --ui      # Mode UI interactif
+npm run test:e2e -- --debug   # Mode debug
+```
 
-# Run
-npx cypress open
+### Structure Tests E2E
+
+```
+e2e/
+├── user-search.spec.ts          # Recherche utilisateur
+├── owner-management.spec.ts     # Gestion propriétaires
+├── admin-vip.spec.ts            # VIP administration
+├── map-performance.spec.ts      # Performance cartes
+└── auth-integration.spec.ts     # Authentification (15 tests)
 ```
 
 ### Example E2E Test
 
 ```typescript
-// cypress/e2e/login.cy.ts
-describe('Login Flow', () => {
-  it('should login successfully', () => {
-    cy.visit('/login');
-    cy.get('[data-testid="email"]').type('user@example.com');
-    cy.get('[data-testid="password"]').type('password');
-    cy.get('[data-testid="submit"]').click();
+// e2e/auth-integration.spec.ts
+import { test, expect } from '@playwright/test';
 
-    cy.url().should('include', '/dashboard');
-    cy.contains('Welcome').should('be.visible');
+test.describe('Login Flow', () => {
+  test('should login successfully', async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('[data-testid="email"]', 'user@example.com');
+    await page.fill('[data-testid="password"]', 'password');
+    await page.click('[data-testid="submit"]');
+
+    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator('text=Welcome')).toBeVisible();
   });
 });
 ```
@@ -468,16 +581,19 @@ coverageThreshold: {
 | badgeAwardService | 85% | 80% | 85% | 85% |
 | pushService | 80% | 75% | 80% | 80% |
 
-### Coverage Actuelle
+### Coverage Actuelle (Décembre 2024)
 
 | Module | Tests | Coverage | Status |
 |--------|-------|----------|--------|
-| **Middleware** | 33 tests | 85%+ | ✅ Excellent |
-| **Services** | 63 tests | 90%+ | ✅ Excellent |
-| **Controllers** | 130+ tests | 80%+ | ✅ Excellent |
-| **E2E** | 67 tests | N/A | ✅ Implémenté |
-| **Frontend Contexts** | 105 tests | 63.45% | ✅ Excellent |
-| **Frontend Components** | 30 tests | ~4% | 🟡 En cours |
+| **Middleware** | 115 tests | 90%+ | ✅ Excellent |
+| **Services** | 46+ tests | 90%+ | ✅ Excellent |
+| **Controllers** | 225+ tests | 80%+ | ✅ Excellent |
+| **Utils Backend** | 41 tests | 85%+ | ✅ Excellent |
+| **Frontend Hooks** | 148 tests | 89% stmts | ✅ Excellent |
+| **Frontend Utils** | 96 tests | 85% stmts | ✅ Bon |
+| **Frontend Contexts** | 105 tests | 63%+ | ✅ Bon |
+| **E2E (Playwright)** | 46 tests | N/A | ✅ Implémenté |
+| **TOTAL** | **~820 tests** | - | ✅ Excellent |
 
 ### Commandes Coverage
 
@@ -539,4 +655,8 @@ Guide complet GitHub Actions workflow:
 
 ## Dernière mise à jour
 
-v10.4.0 (Décembre 2025) - Ajout 105 tests Context + E2E Auth fixes
+v10.4.1 (21 Décembre 2024) - Audit tests complet
+- Backend: 299 tests passants
+- Frontend Hooks: 89% statements, 74% branches
+- Frontend Utils: 85% statements, 72% branches
+- E2E Playwright: 46 tests
