@@ -8,9 +8,11 @@
  * - favoriteKeys factory (2 tests)
  * - useFavorites hook (3 tests)
  * - useIsFavorite hook (2 tests)
- * - useAddFavorite mutation (4 tests)
- * - useRemoveFavorite mutation (4 tests)
- * - useToggleFavorite hook (3 tests)
+ * - useAddFavorite mutation (7 tests)
+ * - useRemoveFavorite mutation (7 tests)
+ * - useToggleFavorite hook (4 tests)
+ *
+ * Total: 25 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
@@ -25,6 +27,8 @@ import {
   favoriteKeys,
   Favorite
 } from '../useFavorites';
+import toast from '../../utils/toast';
+import { addToQueue } from '../../utils/offlineQueue';
 
 // Mock useSecureFetch
 vi.mock('../useSecureFetch', () => ({
@@ -250,6 +254,78 @@ describe('useFavorites Hook', () => {
         expect(favorites?.[1].employee_id).toBe('emp-new');
       });
     });
+
+    it('should show success toast on add', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockFavorite)
+      });
+
+      const { result } = renderHook(() => useAddFavorite(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.mutateAsync('emp-456');
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('⭐ Added to favorites!');
+      });
+    });
+
+    it('should show error toast on add failure', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Already exists' })
+      });
+
+      const { result } = renderHook(() => useAddFavorite(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('emp-456');
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('❌ Failed to add to favorites: Already exists');
+      });
+    });
+
+    it('should rollback on error', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+      });
+
+      // Pre-populate favorites cache
+      queryClient.setQueryData(favoriteKeys.lists(), [mockFavorite]);
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(QueryClientProvider, { client: queryClient }, children);
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Server error' })
+      });
+
+      const { result } = renderHook(() => useAddFavorite(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('emp-new');
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      // Check that rollback was applied (back to original 1 item)
+      await waitFor(() => {
+        const favorites = queryClient.getQueryData<Favorite[]>(favoriteKeys.lists());
+        expect(favorites).toHaveLength(1);
+        expect(favorites?.[0].employee_id).toBe('emp-456');
+      });
+    });
   });
 
   describe('useRemoveFavorite', () => {
@@ -334,6 +410,80 @@ describe('useFavorites Hook', () => {
         expect(favorites?.[0].employee_id).toBe('emp-other');
       });
     });
+
+    it('should show success toast on remove', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({})
+      });
+
+      const { result } = renderHook(() => useRemoveFavorite(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.mutateAsync('emp-456');
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('❌ Removed from favorites');
+      });
+    });
+
+    it('should show error toast on remove failure', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Not found' })
+      });
+
+      const { result } = renderHook(() => useRemoveFavorite(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('emp-456');
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('❌ Failed to remove from favorites: Not found');
+      });
+    });
+
+    it('should rollback on remove error', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+      });
+
+      // Pre-populate favorites cache with 2 items
+      queryClient.setQueryData(favoriteKeys.lists(), [
+        mockFavorite,
+        { ...mockFavorite, id: 'fav-2', employee_id: 'emp-other' }
+      ]);
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(QueryClientProvider, { client: queryClient }, children);
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Server error' })
+      });
+
+      const { result } = renderHook(() => useRemoveFavorite(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('emp-456');
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      // Check that rollback was applied (back to original 2 items)
+      await waitFor(() => {
+        const favorites = queryClient.getQueryData<Favorite[]>(favoriteKeys.lists());
+        expect(favorites).toHaveLength(2);
+      });
+    });
   });
 
   describe('useToggleFavorite', () => {
@@ -409,6 +559,33 @@ describe('useFavorites Hook', () => {
           expect.stringContaining('/api/favorites'),
           expect.objectContaining({ method: 'POST' })
         );
+      });
+    });
+
+    it('should expose isLoading state during mutation', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+      });
+
+      // Pre-populate with empty favorites
+      queryClient.setQueryData(favoriteKeys.lists(), []);
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(QueryClientProvider, { client: queryClient }, children);
+
+      // Never resolves to keep isLoading true
+      mockFetch.mockImplementation(() => new Promise(() => {}));
+
+      const { result } = renderHook(() => useToggleFavorite('emp-456'), { wrapper });
+
+      expect(result.current.isLoading).toBe(false);
+
+      act(() => {
+        result.current.toggle();
+      });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(true);
       });
     });
   });
