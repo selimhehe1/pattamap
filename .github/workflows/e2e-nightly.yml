@@ -42,6 +42,7 @@ jobs:
           GENERATE_SOURCEMAP: false
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          VITE_API_URL: http://localhost:8080
 
       - name: Install backend dependencies
         run: npm ci
