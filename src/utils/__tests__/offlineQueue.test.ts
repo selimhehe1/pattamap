@@ -6,16 +6,16 @@
  *
  * Tests for IndexedDB-based offline request queue:
  * - isOfflineQueueSupported (2 tests)
- * - initDB (3 tests)
- * - addToQueue (4 tests)
+ * - initDB (4 tests)
+ * - addToQueue (5 tests)
  * - getQueuedRequests (3 tests)
  * - getQueueCount (2 tests)
  * - removeFromQueue (3 tests)
  * - updateRetryCount (3 tests)
  * - clearQueue (2 tests)
- * - processQueue (5 tests)
+ * - processQueue (9 tests)
  *
- * Total: 27 tests
+ * Total: 33 tests
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -288,6 +288,31 @@ describe('Offline Queue', () => {
 
       await expect(initDB()).rejects.toThrow();
     });
+
+    it('should create object store on upgrade if not exists', async () => {
+      vi.resetModules();
+
+      mockIndexedDB.open.mockImplementationOnce(() => {
+        const request = new MockIDBOpenDBRequest();
+        const db = new MockIDBDatabase();
+        db.objectStoreNames.contains = vi.fn().mockReturnValue(false);
+
+        setTimeout(() => {
+          // Trigger upgrade first
+          if (request.onupgradeneeded) {
+            request.onupgradeneeded({ target: { result: db } } as unknown as IDBVersionChangeEvent);
+          }
+          request._triggerSuccess(db);
+        }, 0);
+
+        return request;
+      });
+
+      const { initDB } = await import('../offlineQueue');
+      const db = await initDB();
+
+      expect(db).toBeDefined();
+    });
   });
 
   describe('addToQueue', () => {
@@ -346,6 +371,15 @@ describe('Offline Queue', () => {
       });
 
       expect(request.headers).toEqual({ Authorization: 'Bearer token' });
+    });
+
+    it('should handle undefined body', async () => {
+      const { addToQueue } = await import('../offlineQueue');
+
+      const request = await addToQueue('/api/test', 'DELETE');
+
+      expect(request.body).toBeUndefined();
+      expect(request.method).toBe('DELETE');
     });
   });
 
@@ -607,6 +641,84 @@ describe('Offline Queue', () => {
             failed: 0,
             remaining: 0,
           }),
+        })
+      );
+    });
+
+    it('should handle empty queue gracefully', async () => {
+      const { processQueue } = await import('../offlineQueue');
+
+      const result = await processQueue();
+
+      expect(result.success).toBe(0);
+      expect(result.failed).toBe(0);
+      expect(result.remaining).toBe(0);
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('should process multiple requests with mixed results', async () => {
+      vi.mocked(global.fetch)
+        .mockResolvedValueOnce({ ok: true, status: 200 } as Response)
+        .mockResolvedValueOnce({ ok: false, status: 500 } as Response)
+        .mockResolvedValueOnce({ ok: true, status: 201 } as Response);
+
+      const { addToQueue, processQueue } = await import('../offlineQueue');
+
+      await addToQueue('/api/test1', 'POST');
+      await addToQueue('/api/test2', 'PUT');
+      await addToQueue('/api/test3', 'DELETE');
+
+      const result = await processQueue();
+
+      expect(result.success).toBe(2);
+      expect(result.failed).toBe(1);
+      expect(result.remaining).toBe(1);
+    });
+
+    it('should include custom headers in fetch request', async () => {
+      vi.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+        status: 200,
+      } as Response);
+
+      const { addToQueue, processQueue } = await import('../offlineQueue');
+
+      await addToQueue('/api/test', 'POST', { data: 'test' }, {
+        headers: { 'Authorization': 'Bearer token123', 'X-Custom': 'value' }
+      });
+
+      await processQueue();
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/test',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer token123',
+            'X-Custom': 'value',
+          }),
+        })
+      );
+    });
+
+    it('should not include body when undefined', async () => {
+      vi.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+        status: 200,
+      } as Response);
+
+      const { addToQueue, processQueue } = await import('../offlineQueue');
+
+      await addToQueue('/api/test/123', 'DELETE');
+
+      await processQueue();
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/test/123',
+        expect.objectContaining({
+          method: 'DELETE',
+          body: undefined,
         })
       );
     });
