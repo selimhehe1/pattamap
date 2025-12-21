@@ -415,9 +415,13 @@ test.describe('Mobile i18n', () => {
     // Try to switch language
     const langOption = page.locator('button:has-text("TH"), button:has-text("EN")').first();
 
-    if (await langOption.isVisible().catch(() => false)) {
-      await langOption.tap();
+    if (await langOption.isVisible({ timeout: 3000 }).catch(() => false)) {
+      // Use click instead of tap for better reliability
+      await langOption.click();
       await page.waitForLoadState('networkidle');
+      console.log('Language option clicked');
+    } else {
+      console.log('Language option not visible on mobile');
     }
 
     await expect(page.locator('body')).toBeVisible();
