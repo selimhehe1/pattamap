@@ -248,21 +248,29 @@ test.describe('Interactive Elements', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    // Icon-only buttons should have aria-label
-    const iconButtons = page.locator('button:has(svg):not(:has-text(/\\w{2,}/))');
-    const iconButtonCount = await iconButtons.count();
+    // Check all buttons with SVG for accessibility attributes
+    const buttonsWithSvg = page.locator('button:has(svg)');
+    const buttonCount = await buttonsWithSvg.count();
 
-    for (let i = 0; i < Math.min(iconButtonCount, 5); i++) {
-      const button = iconButtons.nth(i);
+    let iconOnlyCount = 0;
+    for (let i = 0; i < Math.min(buttonCount, 10); i++) {
+      const button = buttonsWithSvg.nth(i);
+      const text = await button.textContent().catch(() => '');
       const ariaLabel = await button.getAttribute('aria-label');
       const title = await button.getAttribute('title');
 
-      // Should have accessible name
-      if (!ariaLabel && !title) {
-        console.warn('Icon button without accessible name');
+      // Check if button has minimal text (icon-only)
+      const trimmedText = text?.trim() || '';
+      if (trimmedText.length < 3) {
+        iconOnlyCount++;
+        // Should have accessible name
+        if (!ariaLabel && !title) {
+          console.warn('Icon button without accessible name');
+        }
       }
     }
 
+    console.log(`Found ${iconOnlyCount} icon-only buttons`);
     await expect(page.locator('body')).toBeVisible();
   });
 
