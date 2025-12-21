@@ -86,9 +86,13 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['framer-motion', 'lucide-react'],
+          ui: ['framer-motion', 'lucide-react', 'react-icons'],
           query: ['@tanstack/react-query'],
-          i18n: ['i18next', 'react-i18next']
+          i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+          supabase: ['@supabase/supabase-js'],
+          sentry: ['@sentry/react'],
+          charts: ['recharts'],
+          utils: ['lodash', 'axios', 'dompurify']
         }
       }
     }
