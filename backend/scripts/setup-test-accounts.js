@@ -71,6 +71,7 @@ async function setupTestAccounts() {
 
     const adminUser = users.find(u => u.email === 'admin@test.com');
     const ownerUser = users.find(u => u.email === 'owner@test.com');
+    const e2eTestUser = users.find(u => u.email === 'e2e-test@pattamap.com');
 
     if (!adminUser) {
       console.error('❌ admin@test.com not found in Supabase Auth!');
@@ -98,8 +99,19 @@ async function setupTestAccounts() {
       process.exit(1);
     }
 
+    // Note: e2e-test@pattamap.com is optional (for auth integration tests)
+    if (!e2eTestUser) {
+      console.log('⚠️  e2e-test@pattamap.com not found - auth integration tests will skip.');
+      console.log('   To create: Authentication → Users → Add User');
+      console.log('   Email: e2e-test@pattamap.com');
+      console.log('   Password: E2eTest@Pattamap2024!');
+    }
+
     console.log('✅ Found admin user:', adminUser.id);
     console.log('✅ Found owner user:', ownerUser.id);
+    if (e2eTestUser) {
+      console.log('✅ Found e2e-test user:', e2eTestUser.id);
+    }
 
     // Step 2: Create/sync users in the users table
     console.log('\n2️⃣ Creating/syncing users in database...');
@@ -149,6 +161,33 @@ async function setupTestAccounts() {
       console.error('❌ Error creating owner in users table:', ownerDbError.message);
     } else {
       console.log('✅ Owner user synced to database');
+    }
+
+    // Create e2e-test user in users table (if exists in auth)
+    if (e2eTestUser) {
+      // Bcrypt hash for 'E2eTest@Pattamap2024!' (rounds=12)
+      const e2ePasswordHash = '$2b$12$XdF.ySo7L7dO1Pu/qCPxTOiE2TZ8SZl7KjKNsF1tYjX8DhJwxv5rO';
+
+      const { error: e2eDbError } = await supabase
+        .from('users')
+        .upsert({
+          id: e2eTestUser.id,
+          pseudonym: 'e2etester',
+          email: 'e2e-test@pattamap.com',
+          password: e2ePasswordHash,
+          role: 'user',
+          is_active: true
+        }, {
+          onConflict: 'email'
+        })
+        .select()
+        .single();
+
+      if (e2eDbError) {
+        console.error('❌ Error creating e2e-test in users table:', e2eDbError.message);
+      } else {
+        console.log('✅ E2E test user synced to database');
+      }
     }
 
     // Step 3: Update admin user metadata to add role
@@ -292,6 +331,12 @@ async function setupTestAccounts() {
     console.log('  ✅ Admin: admin@test.com (role: admin)');
     console.log('  ✅ Owner: owner@test.com (owns Test Bar)');
     console.log('  ✅ Password for both: SecureTestP@ssw0rd2024!');
+    if (e2eTestUser) {
+      console.log('  ✅ E2E Test: e2e-test@pattamap.com');
+      console.log('  ✅ Password: E2eTest@Pattamap2024!');
+    } else {
+      console.log('  ⚠️  E2E Test: Not created (optional)');
+    }
     console.log('\n🧪 You can now run E2E tests:');
     console.log('  npm run test:e2e');
 
