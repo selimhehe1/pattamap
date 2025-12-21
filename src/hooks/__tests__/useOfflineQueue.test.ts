@@ -7,11 +7,13 @@
  * Tests for offline queue management:
  * - Initial state (3 tests)
  * - addToQueue functionality (3 tests)
- * - syncQueue functionality (2 tests)
+ * - syncQueue functionality (5 tests)
  * - clearQueue functionality (2 tests)
  * - getQueue functionality (2 tests)
  * - Event handling (2 tests)
  * - Unsupported browser (3 tests)
+ *
+ * Total: 20 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
@@ -162,6 +164,76 @@ describe('useOfflineQueue Hook', () => {
       });
 
       expect(mockProcessQueue).not.toHaveBeenCalled();
+    });
+
+    it('should set isSyncing to true during sync', async () => {
+      mockGetQueueCount.mockResolvedValue(3);
+      // Create a promise we can control
+      let resolveProcess: (value: { success: number; failed: number; remaining: number }) => void;
+      mockProcessQueue.mockImplementation(() => new Promise(resolve => {
+        resolveProcess = resolve;
+      }));
+
+      const { result } = renderHook(() => useOfflineQueue());
+
+      await waitFor(() => {
+        expect(result.current.queueCount).toBe(3);
+      });
+
+      // Start sync but don't await
+      act(() => {
+        result.current.syncQueue();
+      });
+
+      // Should be syncing now
+      expect(result.current.isSyncing).toBe(true);
+
+      // Resolve the process
+      await act(async () => {
+        resolveProcess!({ success: 3, failed: 0, remaining: 0 });
+      });
+
+      expect(result.current.isSyncing).toBe(false);
+    });
+
+    it('should refresh queue count after sync', async () => {
+      // Initial count
+      mockGetQueueCount.mockResolvedValue(5);
+      mockProcessQueue.mockResolvedValue({ success: 3, failed: 0, remaining: 2 });
+
+      const { result } = renderHook(() => useOfflineQueue());
+
+      await waitFor(() => {
+        expect(result.current.queueCount).toBe(5);
+      });
+
+      // After sync, count should be refreshed
+      mockGetQueueCount.mockResolvedValue(2);
+
+      await act(async () => {
+        await result.current.syncQueue();
+      });
+
+      await waitFor(() => {
+        expect(result.current.queueCount).toBe(2);
+      });
+    });
+
+    it('should handle sync with partial failures', async () => {
+      mockGetQueueCount.mockResolvedValue(5);
+      mockProcessQueue.mockResolvedValue({ success: 3, failed: 2, remaining: 2 });
+
+      const { result } = renderHook(() => useOfflineQueue());
+
+      await waitFor(() => {
+        expect(result.current.queueCount).toBe(5);
+      });
+
+      await act(async () => {
+        await result.current.syncQueue();
+      });
+
+      expect(result.current.lastSyncResult).toEqual({ success: 3, failed: 2, remaining: 2 });
     });
   });
 
