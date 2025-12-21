@@ -240,34 +240,26 @@ test.describe('Auth Integration - Real Authentication', () => {
     }
 
     // Wait for login to complete and session to be established
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(2000);
 
     // Refresh page to ensure session is properly loaded
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Use domcontentloaded instead of networkidle to avoid timeout on long-polling connections
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
-    // Check if logged in - try multiple times as session may take time
-    let loggedIn = await isLoggedIn(page);
-    if (!loggedIn) {
-      // Wait a bit more and check again
-      await page.waitForTimeout(2000);
-      loggedIn = await isLoggedIn(page);
-    }
+    // Brief wait for any client-side session hydration
+    await page.waitForTimeout(1000);
 
-    if (!loggedIn) {
-      // Check if there was an error during login
-      const errorMessage = await page.locator('[data-testid="login-error"]').textContent().catch(() => null);
-      console.log(`Login status unclear: ${errorMessage || 'no error message visible'}`);
+    // Check if logged in
+    const loggedIn = await isLoggedIn(page);
 
-      // Try navigating to dashboard anyway - let the test continue
-      console.log('Attempting to access /dashboard despite uncertain login status');
-    } else {
+    if (loggedIn) {
       console.log('Login confirmed - user is authenticated');
+    } else {
+      console.log('Login status uncertain - continuing with test');
     }
 
     // Navigate to protected route
-    await page.goto('/dashboard');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Check the result
     const currentUrl = page.url();
@@ -278,7 +270,6 @@ test.describe('Auth Integration - Real Authentication', () => {
       console.log('Successfully accessed protected route /dashboard');
     } else if (onLogin) {
       console.log('Redirected to login - session may not have persisted');
-      // This is acceptable - the real auth flow works, just session management needs work
     } else {
       console.log(`Ended up at: ${currentUrl}`);
     }
@@ -324,28 +315,23 @@ test.describe('Auth Integration - Real Authentication', () => {
     }
 
     // Wait for login to complete
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(2000);
 
-    // Refresh to ensure session is loaded
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Refresh to ensure session is loaded - use domcontentloaded to avoid timeout
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.waitForTimeout(1000);
 
-    // Check if logged in - try multiple times
-    let loggedIn = await isLoggedIn(page);
-    if (!loggedIn) {
-      await page.waitForTimeout(2000);
-      loggedIn = await isLoggedIn(page);
-    }
+    // Check if logged in
+    const loggedIn = await isLoggedIn(page);
 
-    if (!loggedIn) {
-      console.log('Login status uncertain - attempting logout flow anyway');
-    } else {
+    if (loggedIn) {
       console.log('Login confirmed - proceeding with logout test');
+    } else {
+      console.log('Login status uncertain - attempting logout flow anyway');
     }
 
     // Try to access dashboard first
-    await page.goto('/dashboard');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     const dashboardUrl = page.url();
     if (dashboardUrl.includes('/login')) {
@@ -353,14 +339,13 @@ test.describe('Auth Integration - Real Authentication', () => {
     }
 
     // Navigate back home and try logout
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Perform logout
     const logoutSuccess = await performLogout(page);
 
     if (!logoutSuccess) {
-      console.log('Logout button not found - checking alternative methods');
+      console.log('Logout button not found - clearing session directly');
       // Try clearing session via direct action
       await page.evaluate(() => {
         localStorage.clear();
@@ -370,14 +355,13 @@ test.describe('Auth Integration - Real Authentication', () => {
       console.log('Logout button clicked');
     }
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
 
     // Clear cookies to ensure clean state
     await page.context().clearCookies();
 
     // Verify logged out by checking access to protected route
-    await page.goto('/dashboard');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Should be denied access
     const currentUrl = page.url();
