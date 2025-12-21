@@ -1,6 +1,21 @@
 /**
  * Push Manager Tests
  * Tests for push notification subscription and management
+ *
+ * Tests:
+ * - isPushSupported (4 tests)
+ * - getNotificationPermission (2 tests)
+ * - requestNotificationPermission (4 tests)
+ * - registerServiceWorker (4 tests)
+ * - getServiceWorkerRegistration (3 tests)
+ * - subscribeToPush (9 tests)
+ * - unsubscribeFromPush (4 tests)
+ * - getCurrentSubscription (3 tests)
+ * - isPushSubscribed (2 tests)
+ * - getPushStatus (3 tests)
+ * - showTestNotification (5 tests)
+ *
+ * Total: 43 tests
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -500,6 +515,69 @@ describe('Push Manager', () => {
         });
 
       await expect(subscribeToPush()).rejects.toThrow('Backend save failed');
+    });
+
+    test('registers new service worker if none exists', async () => {
+      MockNotification.permission = 'granted';
+      const mockSubscription = new MockPushSubscription();
+      const mockRegistration = new MockServiceWorkerRegistration();
+      mockRegistration.pushManager.subscribe = vi.fn().mockResolvedValue(mockSubscription);
+      mockRegistration.active = new MockServiceWorker();
+
+      // First ready call returns rejection (no registration)
+      const rejectedPromise = Promise.reject(new Error('No registration'));
+      rejectedPromise.catch(() => {}); // Prevent unhandled rejection
+      (navigator.serviceWorker.ready as any) = rejectedPromise;
+
+      // Register returns new registration
+      (navigator.serviceWorker.register as ReturnType<typeof vi.fn>).mockResolvedValue(mockRegistration);
+
+      (global.fetch as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ publicKey: 'test-vapid-key' })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true })
+        });
+
+      const subscription = await subscribeToPush();
+
+      expect(navigator.serviceWorker.register).toHaveBeenCalled();
+      expect(subscription).toBe(mockSubscription);
+    });
+
+    test('includes CSRF token in subscription request', async () => {
+      MockNotification.permission = 'granted';
+      const mockSubscription = new MockPushSubscription();
+      const mockRegistration = new MockServiceWorkerRegistration();
+      mockRegistration.pushManager.subscribe = vi.fn().mockResolvedValue(mockSubscription);
+
+      (navigator.serviceWorker.ready as any) = Promise.resolve(mockRegistration);
+
+      (global.fetch as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ publicKey: 'test-vapid-key' })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true })
+        });
+
+      await subscribeToPush();
+
+      // Check second fetch call (subscription save) includes CSRF token
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('/push/subscribe'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-CSRF-Token': 'test-csrf-token'
+          })
+        })
+      );
     });
   });
 
