@@ -344,7 +344,7 @@ export const reviewVerification = async (req: AuthRequest, res: Response) => {
     });
 
     res.json({
-      message: `Verification ${action}d successfully`,
+      message: action === 'approve' ? 'Verification approved successfully' : 'Verification rejected successfully',
       verification: {
         id,
         status: newStatus,
