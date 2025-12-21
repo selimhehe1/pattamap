@@ -6,11 +6,13 @@
  *
  * Tests for React Query establishment hooks:
  * - establishmentKeys factory (3 tests)
- * - useEstablishments hook (3 tests)
+ * - useEstablishments hook (5 tests)
  * - useEstablishment hook (3 tests)
- * - useCreateEstablishment mutation (3 tests)
- * - useUpdateEstablishment mutation (3 tests)
- * - useDeleteEstablishment mutation (3 tests)
+ * - useCreateEstablishment mutation (5 tests)
+ * - useUpdateEstablishment mutation (5 tests)
+ * - useDeleteEstablishment mutation (5 tests)
+ *
+ * Total: 26 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
@@ -24,6 +26,7 @@ import {
   useDeleteEstablishment,
   establishmentKeys
 } from '../useEstablishments';
+import toast from '../../utils/toast';
 
 // Mock useSecureFetch
 vi.mock('../useSecureFetch', () => ({
@@ -123,6 +126,34 @@ describe('useEstablishments Hook', () => {
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
     });
+
+    it('should return empty array when no establishments', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ establishments: [] })
+      });
+
+      const { result } = renderHook(() => useEstablishments(), { wrapper: createWrapper() });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data).toEqual([]);
+    });
+
+    it('should handle response with pagination wrapper', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({
+          establishments: [mockEstablishment],
+          pagination: { page: 1, limit: 200, total: 1 }
+        })
+      });
+
+      const { result } = renderHook(() => useEstablishments(), { wrapper: createWrapper() });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data).toHaveLength(1);
+      expect(result.current.data?.[0].name).toBe('Test Establishment');
+    });
   });
 
   describe('useEstablishment', () => {
@@ -208,6 +239,44 @@ describe('useEstablishments Hook', () => {
         expect.objectContaining({ method: 'POST' })
       );
     });
+
+    it('should show success toast on create', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ id: 'est-new' })
+      });
+
+      const { result } = renderHook(() => useCreateEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.mutateAsync({ name: 'Test' });
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('✅ Establishment created successfully!');
+      });
+    });
+
+    it('should show error toast on create failure', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Name already exists' })
+      });
+
+      const { result } = renderHook(() => useCreateEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({ name: 'Duplicate' });
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('❌ Failed to create establishment: Name already exists');
+      });
+    });
   });
 
   describe('useUpdateEstablishment', () => {
@@ -263,6 +332,44 @@ describe('useEstablishments Hook', () => {
         expect.objectContaining({ method: 'PUT' })
       );
     });
+
+    it('should show success toast on update', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ id: 'est-123' })
+      });
+
+      const { result } = renderHook(() => useUpdateEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.mutateAsync({ id: 'est-123', data: { name: 'Updated' } });
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('✅ Establishment updated successfully!');
+      });
+    });
+
+    it('should show error toast on update failure', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Update failed' })
+      });
+
+      const { result } = renderHook(() => useUpdateEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({ id: 'est-123', data: { name: 'Test' } });
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('❌ Failed to update establishment: Update failed');
+      });
+    });
   });
 
   describe('useDeleteEstablishment', () => {
@@ -316,6 +423,44 @@ describe('useEstablishments Hook', () => {
         expect.stringContaining('/api/establishments/est-789'),
         expect.objectContaining({ method: 'DELETE' })
       );
+    });
+
+    it('should show success toast on delete', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({})
+      });
+
+      const { result } = renderHook(() => useDeleteEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        await result.current.mutateAsync('est-123');
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('✅ Establishment deleted successfully!');
+      });
+    });
+
+    it('should show error toast on delete failure', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Cannot delete active establishment' })
+      });
+
+      const { result } = renderHook(() => useDeleteEstablishment(), { wrapper: createWrapper() });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('est-123');
+        } catch (e) {
+          // Expected
+        }
+      });
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('❌ Failed to delete establishment: Cannot delete active establishment');
+      });
     });
   });
 });
