@@ -5,11 +5,14 @@
  * useSecureFetch Hook Tests
  *
  * Tests for secure API fetch with CSRF and auth handling:
- * - Basic fetch functionality (4 tests)
- * - CSRF token handling (5 tests)
+ * - Basic fetch functionality (5 tests)
+ * - CSRF token handling (7 tests)
  * - Authentication handling (3 tests)
  * - FormData handling (2 tests)
+ * - Error handling (2 tests)
  * - createSecureApiCall helper (4 tests)
+ *
+ * Total: 23 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
@@ -131,6 +134,22 @@ describe('useSecureFetch Hook', () => {
       const callHeaders = mockFetch.mock.calls[0][1].headers;
       expect(callHeaders['X-CSRF-Token']).toBe('test-csrf-token');
     });
+
+    it('should make PATCH request with CSRF headers', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+
+      const { result } = renderHook(() => useSecureFetch());
+
+      await act(async () => {
+        await result.current.secureFetch('/api/test/123', {
+          method: 'PATCH',
+          body: JSON.stringify({ field: 'value' })
+        });
+      });
+
+      const callHeaders = mockFetch.mock.calls[0][1].headers;
+      expect(callHeaders['X-CSRF-Token']).toBe('test-csrf-token');
+    });
   });
 
   describe('CSRF token handling', () => {
@@ -214,6 +233,48 @@ describe('useSecureFetch Hook', () => {
 
       expect(mockRefreshToken).toHaveBeenCalled();
     });
+
+    it('should refresh token for critical operations (user-rating PUT)', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+
+      const { result } = renderHook(() => useSecureFetch());
+
+      await act(async () => {
+        await result.current.secureFetch('/api/comments/user-rating', {
+          method: 'PUT',
+          body: JSON.stringify({ rating: 5 })
+        });
+      });
+
+      expect(mockRefreshToken).toHaveBeenCalled();
+    });
+
+    it('should return retry response on CSRF error recovery', async () => {
+      // First call returns 403 CSRF error
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        clone: () => ({
+          json: () => Promise.resolve({ error: 'CSRF token mismatch' })
+        })
+      });
+      // Retry succeeds with data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ success: true })
+      });
+
+      const { result } = renderHook(() => useSecureFetch());
+
+      let response;
+      await act(async () => {
+        response = await result.current.secureFetch('/api/test', { method: 'POST' });
+      });
+
+      expect(response.ok).toBe(true);
+      expect(response.status).toBe(200);
+    });
   });
 
   describe('Authentication handling', () => {
@@ -292,6 +353,43 @@ describe('useSecureFetch Hook', () => {
 
       const callHeaders = mockFetch.mock.calls[0][1].headers;
       expect(callHeaders['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should throw and log network errors', async () => {
+      const networkError = new Error('Network request failed');
+      mockFetch.mockRejectedValueOnce(networkError);
+
+      const { result } = renderHook(() => useSecureFetch());
+
+      await expect(
+        act(async () => {
+          await result.current.secureFetch('/api/test');
+        })
+      ).rejects.toThrow('Network request failed');
+    });
+
+    it('should handle non-CSRF 403 errors without retry', async () => {
+      // 403 without CSRF error message should not trigger retry
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        clone: () => ({
+          json: () => Promise.resolve({ error: 'Forbidden - Access denied' })
+        })
+      });
+
+      const { result } = renderHook(() => useSecureFetch());
+
+      let response;
+      await act(async () => {
+        response = await result.current.secureFetch('/api/test', { method: 'POST' });
+      });
+
+      expect(response.status).toBe(403);
+      // Should not have retried (only 1 call)
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 
