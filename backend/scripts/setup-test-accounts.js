@@ -166,7 +166,7 @@ async function setupTestAccounts() {
     // Create e2e-test user in users table (if exists in auth)
     if (e2eTestUser) {
       // Bcrypt hash for 'E2eTest@Pattamap2024!' (rounds=12)
-      const e2ePasswordHash = '$2b$12$XdF.ySo7L7dO1Pu/qCPxTOiE2TZ8SZl7KjKNsF1tYjX8DhJwxv5rO';
+      const e2ePasswordHash = '$2b$12$LbmjKoZDIa8Df4hEPiFjEeeTEmpUGd/gnj4cZ7Yyqt2mNk2LYzZgS';
 
       const { error: e2eDbError } = await supabase
         .from('users')
