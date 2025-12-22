@@ -737,7 +737,7 @@ router.get('/employees', async (req, res) => {
         employment_history(
           id,
           establishment_id,
-          establishment:establishments(name),
+          establishment:establishments(id, name),
           position,
           start_date,
           end_date,
