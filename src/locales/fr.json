@@ -493,7 +493,6 @@
     "emailRequired": "L'email est requis",
     "emailInvalid": "Veuillez entrer une adresse email valide",
     "passwordRequired": "Le mot de passe est requis",
-    "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
     "passwordInvalid": "Mot de passe invalide",
     "passwordsNoMatch": "Les mots de passe ne correspondent pas",
     "passwordsMustMatch": "Les mots de passe doivent correspondre",
