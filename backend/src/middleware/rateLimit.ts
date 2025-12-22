@@ -156,9 +156,9 @@ export const apiRateLimit = createRateLimit({
 // Note: Uses X-Forwarded-For for real IP behind proxy (Railway/Vercel)
 // 🛡️ SECURITY FIX: Reduced from 100 to 5 attempts to prevent brute-force attacks
 export const authRateLimit = createRateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 5, // 5 attempts per 15 minutes (strict - prevents brute-force)
-  message: 'Too many authentication attempts. Please wait 15 minutes before trying again.',
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  maxRequests: 10, // 10 attempts per 10 minutes (balanced security/UX)
+  message: 'Too many authentication attempts. Please wait 10 minutes before trying again.',
   skipSuccessfulRequests: true, // Don't count successful logins
   keyGenerator: (req: Request) => {
     // Use real client IP from X-Forwarded-For header (Railway/Vercel proxy)
