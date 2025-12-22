@@ -140,17 +140,16 @@ describe('EstablishmentController', () => {
         error: null
       });
 
-      // Mock employment query (all current employees)
-      const employmentBuilder = createQueryBuilder({ data: [], error: null });
-
-      // Mock approved employment query (approved employees only)
-      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
+      // Mock combined employment query (FIX M5: now single query with employee status)
+      const employmentBuilder = createQueryBuilder({
+        data: [], // Empty array = no employees
+        error: null
+      });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(countBuilder)
         .mockReturnValueOnce(dataBuilder)
-        .mockReturnValueOnce(employmentBuilder)
-        .mockReturnValueOnce(approvedEmploymentBuilder);
+        .mockReturnValueOnce(employmentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -180,17 +179,13 @@ describe('EstablishmentController', () => {
         error: null
       });
 
-      // Mock employment query (all current employees)
+      // Mock combined employment query (FIX M5: now single query with employee status)
       const employmentBuilder = createQueryBuilder({ data: [], error: null });
-
-      // Mock approved employment query (approved employees only)
-      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(countBuilder)
         .mockReturnValueOnce(dataBuilder)
-        .mockReturnValueOnce(employmentBuilder)
-        .mockReturnValueOnce(approvedEmploymentBuilder);
+        .mockReturnValueOnce(employmentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -214,17 +209,13 @@ describe('EstablishmentController', () => {
         error: null
       });
 
-      // Mock employment query (all current employees)
+      // Mock combined employment query (FIX M5: now single query with employee status)
       const employmentBuilder = createQueryBuilder({ data: [], error: null });
-
-      // Mock approved employment query (approved employees only)
-      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(countBuilder)
         .mockReturnValueOnce(dataBuilder)
-        .mockReturnValueOnce(employmentBuilder)
-        .mockReturnValueOnce(approvedEmploymentBuilder);
+        .mockReturnValueOnce(employmentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -273,17 +264,13 @@ describe('EstablishmentController', () => {
         error: null
       });
 
-      // Mock employment query (all current employees)
+      // Mock combined employment query (FIX M5: now single query with employee status)
       const employmentBuilder = createQueryBuilder({ data: [], error: null });
-
-      // Mock approved employment query (approved employees only)
-      const approvedEmploymentBuilder = createQueryBuilder({ data: [], error: null });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(countBuilder)
         .mockReturnValueOnce(dataBuilder)
-        .mockReturnValueOnce(employmentBuilder)
-        .mockReturnValueOnce(approvedEmploymentBuilder);
+        .mockReturnValueOnce(employmentBuilder);
 
       await getEstablishments(mockRequest as AuthRequest, mockResponse as Response);
 

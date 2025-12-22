@@ -232,7 +232,10 @@ app.use(session({
     secure: cookiesSecure,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'none', // Required for cross-subdomain cookies with secure: true
+    // 🔧 FIX A7: Use 'lax' instead of 'none' for better CSRF protection
+    // 'lax' allows cookies on same-site requests and cross-site top-level navigation
+    // 'none' was overly permissive and unnecessary for same-domain subdomains
+    sameSite: 'lax',
     domain: cookieDomain // Share cookie across subdomains (e.g., .pattamap.com)
   },
   name: 'pattamap.sid'

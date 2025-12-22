@@ -236,40 +236,34 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: error.message });
     }
 
-    // Get employee counts for all establishments
+    // 🔧 FIX M5: Combine employee count queries into single query
+    // Previously: 2 separate queries (N+1 risk with large datasets)
+    // Now: 1 query with employee status, count both total and approved client-side
     let employeeCounts: { [key: string]: number } = {};
     let approvedEmployeeCounts: { [key: string]: number } = {};
     if (establishments && establishments.length > 0) {
       const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
 
-      // Count all current employees
+      // Single query to get all current employees with their status
       const { data: employmentData, error: employmentError } = await supabase
         .from('employment_history')
-        .select('establishment_id')
+        .select('establishment_id, employees(status)')
         .in('establishment_id', establishmentIds)
         .eq('is_current', true);
 
       if (!employmentError && employmentData) {
-        // Count employees per establishment
+        // Count both total and approved employees in single pass
         employmentData.forEach((emp: EmploymentRecord) => {
           const estId = emp.establishment_id;
           employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
-        });
-      }
 
-      // Count only approved employees (for sorting priority)
-      const { data: approvedEmploymentData, error: approvedEmploymentError } = await supabase
-        .from('employment_history')
-        .select('establishment_id, employees!inner(status)')
-        .in('establishment_id', establishmentIds)
-        .eq('is_current', true)
-        .eq('employees.status', 'approved');
-
-      if (!approvedEmploymentError && approvedEmploymentData) {
-        // Count approved employees per establishment
-        approvedEmploymentData.forEach((emp: EmploymentRecord) => {
-          const estId = emp.establishment_id;
-          approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
+          // Check if employee is approved (handle array or single object from Supabase)
+          const employeeStatus = Array.isArray(emp.employees)
+            ? emp.employees[0]?.status
+            : (emp.employees as { status: string } | undefined)?.status;
+          if (employeeStatus === 'approved') {
+            approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
+          }
         });
       }
     }
@@ -287,15 +281,11 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       let longitude = null;
 
       if (est.location) {
-        try {
-          // Parse PostGIS binary format (hex-encoded)
-          const coords = parsePostGISBinary(est.location);
-          if (coords) {
-            latitude = coords.latitude;
-            longitude = coords.longitude;
-          }
-        } catch (err) {
-          logger.error('Error parsing coordinates for establishment: ' + est.name, err);
+        // 🔧 FIX M6: Pass establishment ID for better error logging
+        const coords = parsePostGISBinary(est.location, est.id);
+        if (coords) {
+          latitude = coords.latitude;
+          longitude = coords.longitude;
         }
       }
 
@@ -309,35 +299,63 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       };
     }) || [];
 
-// Utility function to parse PostGIS binary format
-function parsePostGISBinary(hexString: string): {latitude: number, longitude: number} | null {
+// 🔧 FIX M6: Utility function to parse PostGIS binary format with proper error logging
+function parsePostGISBinary(hexString: string, establishmentId?: string): {latitude: number, longitude: number} | null {
   try {
-    if (!hexString || typeof hexString !== 'string') return null;
-    
+    if (!hexString || typeof hexString !== 'string') {
+      // Empty location is common and acceptable - no warning needed
+      return null;
+    }
+
     // PostGIS WKB format for POINT with SRID
     // Format: endianness(1) + type(4) + SRID(4) + point(16)
-    if (hexString.startsWith('0101000020E6100000')) {
-      // Skip the header (16 chars) and extract coordinates
-      const coordsHex = hexString.substring(16);
-      
-      if (coordsHex.length >= 32) {
-        // Each coordinate is 8 bytes (16 hex chars) in little-endian IEEE 754
-        const lngHex = coordsHex.substring(0, 16);
-        const latHex = coordsHex.substring(16, 32);
-        
-        const longitude = hexToFloat64LE(lngHex);
-        const latitude = hexToFloat64LE(latHex);
-        
-        // Validate coordinates are in reasonable range
-        if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
-          return { latitude, longitude };
-        }
-      }
+    if (!hexString.startsWith('0101000020E6100000')) {
+      // Unknown PostGIS format - log warning for debugging
+      logger.warn('PostGIS: Unknown WKB format', {
+        establishmentId,
+        headerHex: hexString.substring(0, 18),
+        expectedHeader: '0101000020E6100000'
+      });
+      return null;
     }
-    
-    return null;
+
+    // Skip the header (18 chars for SRID 4326) and extract coordinates
+    const coordsHex = hexString.substring(18);
+
+    if (coordsHex.length < 32) {
+      logger.warn('PostGIS: Coordinates hex too short', {
+        establishmentId,
+        coordsLength: coordsHex.length,
+        expectedMinLength: 32
+      });
+      return null;
+    }
+
+    // Each coordinate is 8 bytes (16 hex chars) in little-endian IEEE 754
+    const lngHex = coordsHex.substring(0, 16);
+    const latHex = coordsHex.substring(16, 32);
+
+    const longitude = hexToFloat64LE(lngHex);
+    const latitude = hexToFloat64LE(latHex);
+
+    // Validate coordinates are in reasonable range
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      logger.warn('PostGIS: Coordinates out of valid range', {
+        establishmentId,
+        latitude,
+        longitude,
+        validLatRange: '[-90, 90]',
+        validLngRange: '[-180, 180]'
+      });
+      return null;
+    }
+
+    return { latitude, longitude };
   } catch (error) {
-    logger.error('Error parsing PostGIS binary:', error);
+    logger.error('PostGIS: Exception during binary parsing', {
+      establishmentId,
+      error: error instanceof Error ? error.message : String(error)
+    });
     return null;
   }
 }
