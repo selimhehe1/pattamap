@@ -33,10 +33,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     },
     password: {
       required: true,
-      minLength: 6,
+      minLength: 12, // 🔧 FIX A5: Aligned with backend (12 chars minimum)
       message: (field, rule) => {
         if (rule === 'required') return t('auth.passwordRequired');
-        if (rule === 'minLength') return t('auth.passwordMinLength', { min: 6 });
+        if (rule === 'minLength') return t('auth.passwordMinLength', { min: 12 });
         return t('auth.invalidPassword');
       }
     }
@@ -224,7 +224,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             onBlur={(e) => handleInputBlur('password', e.target.value)}
             placeholder={t('auth.enterPassword')}
             required
-            minLength={6}
+            minLength={12}
             autoComplete="current-password"
             testId="password-input"
           />

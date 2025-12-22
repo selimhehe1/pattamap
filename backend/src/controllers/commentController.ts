@@ -3,7 +3,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { CreateCommentRequest } from '../types';
 import { logger } from '../utils/logger';
-import { sanitizeErrorForClient } from '../utils/validation';
+import { sanitizeErrorForClient, escapeLikeWildcards } from '../utils/validation';
 import { notifyCommentReply, notifyCommentMention, notifyModeratorsNewReport } from '../utils/notificationHelper';
 import { missionTrackingService } from '../services/missionTrackingService';
 import { awardXP } from '../services/gamificationService';
@@ -255,8 +255,9 @@ export const createComment = async (req: AuthRequest, res: Response) => {
         if (employeeData) {
           // Find users with these pseudonyms (case-insensitive)
           // Build OR condition for each mention
+          // 🔧 FIX S1: Escape LIKE wildcards to prevent mention injection
           const orConditions = mentions
-            .map(m => `pseudonym.ilike.${m.toLowerCase()}`)
+            .map(m => `pseudonym.ilike.${escapeLikeWildcards(m.toLowerCase())}`)
             .join(',');
 
           const { data: mentionedUsers } = await supabase

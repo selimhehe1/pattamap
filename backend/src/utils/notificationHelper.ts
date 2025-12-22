@@ -2,6 +2,7 @@ import { supabase } from '../config/supabase';
 import { logger } from './logger';
 import { NotificationType, CreateNotificationRequest } from '../types';
 import { sendPushToUser } from '../services/pushService';
+import { sanitizeInternalLink } from './validation'; // 🔧 FIX N2
 
 /**
  * Create a new in-app notification for a user
@@ -32,6 +33,16 @@ export const createNotification = async (params: CreateNotificationRequest): Pro
       return null;
     }
 
+    // 🔧 FIX N2: Validate and sanitize internal links to prevent open redirects/XSS
+    const sanitizedLink = sanitizeInternalLink(params.link);
+    if (params.link && !sanitizedLink) {
+      logger.warn('Notification link rejected (invalid format)', {
+        userId: params.user_id,
+        type: params.type,
+        originalLink: params.link?.substring(0, 100) // Log first 100 chars for debugging
+      });
+    }
+
     // Fallback values for backward compatibility
     const title = params.title || 'Notification'; // Fallback if using i18n_key only
     const message = params.message || ''; // Fallback if using i18n_key only
@@ -43,7 +54,7 @@ export const createNotification = async (params: CreateNotificationRequest): Pro
         type: params.type,
         title,
         message,
-        link: params.link,
+        link: sanitizedLink, // 🔧 Use sanitized link
         related_entity_type: params.related_entity_type,
         related_entity_id: params.related_entity_id,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,

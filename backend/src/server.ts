@@ -39,7 +39,7 @@ import compression from 'compression';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { csrfTokenGenerator, csrfProtection, getCSRFToken } from './middleware/csrf';
-import { authenticateToken, requireAdmin } from './middleware/auth';
+import { authenticateToken, requireAdmin, isEstablishmentOwner } from './middleware/auth';
 import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import establishmentRoutes from './routes/establishments';
@@ -71,7 +71,7 @@ import {
   commentRateLimit,
   healthCheckRateLimit
 } from './middleware/rateLimit';
-import { initRedis } from './config/redis';
+import { initRedis, cacheInvalidatePattern, cacheDel } from './config/redis';
 import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
 
 const app = express();
@@ -326,9 +326,9 @@ app.get('/api/health', healthCheckRateLimit, (req, res) => {
  * TODO: Refactor into establishmentController for better code organization
  *
  * @route POST /api/grid-move-workaround
- * @access Admin only (secured with authentication)
+ * @access Admin or Establishment Owner (secured with authentication)
  */
-app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
   try {
     const { supabase } = require('./config/supabase');
 
@@ -338,6 +338,24 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
     });
 
     const { establishmentId, grid_row, grid_col, zone, swap_with_id } = req.body;
+
+    // 🛡️ SECURITY: Check if user is admin OR owner of the establishment
+    const user = (req as any).user;
+    const isAdmin = user?.role === 'admin' || user?.role === 'moderator';
+    const isOwner = user?.id ? await isEstablishmentOwner(user.id, establishmentId) : false;
+
+    if (!isAdmin && !isOwner) {
+      logger.warn('Unauthorized grid move attempt', {
+        userId: user?.id,
+        establishmentId,
+        isAdmin,
+        isOwner
+      });
+      return res.status(403).json({
+        error: 'Unauthorized',
+        details: 'Only admins or establishment owners can move establishments'
+      });
+    }
 
     // Enhanced UUID validation
     const isValidUUID = (uuid: any): boolean => {
@@ -556,6 +574,10 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
             establishment2: step2Data[0]
           });
 
+          // 🔧 FIX M3: Invalidate cache after grid move
+          await cacheInvalidatePattern('establishments:*');
+          await cacheDel('dashboard:stats');
+
           return res.json({
             success: true,
             message: 'Sequential swap operation completed successfully (fallback)',
@@ -571,6 +593,10 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
 
         const sourceEstablishment = swapResult[0]?.source_establishment;
         const targetEstablishment = swapResult[0]?.target_establishment;
+
+        // 🔧 FIX M3: Invalidate cache after grid move
+        await cacheInvalidatePattern('establishments:*');
+        await cacheDel('dashboard:stats');
 
         res.json({
           success: true,
@@ -646,6 +672,11 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
 
         if (!rpcError && rpcData && rpcData.length > 0 && rpcData[0].success) {
           logger.debug('✅ ATOMIC RPC SWAP SUCCESS:', rpcData[0]);
+
+          // 🔧 FIX M3: Invalidate cache after grid move
+          await cacheInvalidatePattern('establishments:*');
+          await cacheDel('dashboard:stats');
+
           return res.json({
             success: true,
             message: 'Auto-swap operation completed successfully (atomic)',
@@ -729,6 +760,10 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
             establishment2: step2Data[0]
           });
 
+          // 🔧 FIX M3: Invalidate cache after grid move
+          await cacheInvalidatePattern('establishments:*');
+          await cacheDel('dashboard:stats');
+
           return res.json({
             success: true,
             message: 'Auto-swap operation completed successfully (sequential)',
@@ -791,6 +826,10 @@ app.post('/api/grid-move-workaround', authenticateToken, requireAdmin, async (re
         }
 
         logger.debug('✅ Position updated successfully:', data);
+
+        // 🔧 FIX M3: Invalidate cache after grid move
+        await cacheInvalidatePattern('establishments:*');
+        await cacheDel('dashboard:stats');
 
         res.json({
           success: true,

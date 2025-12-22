@@ -10,6 +10,7 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { escapeLikeWildcards } from '../utils/validation';
 
 /**
  * GET /api/freelances
@@ -61,8 +62,10 @@ export const getFreelances = async (req: Request, res: Response) => {
     query = query.eq('employment_history.is_current', true);
 
     // Search filter
+    // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
     if (search && typeof search === 'string') {
-      query = query.or(`name.ilike.%${search}%,nickname.ilike.%${search}%,description.ilike.%${search}%`);
+      const escapedSearch = escapeLikeWildcards(search);
+      query = query.or(`name.ilike.%${escapedSearch}%,nickname.ilike.%${escapedSearch}%,description.ilike.%${escapedSearch}%`);
     }
 
     // Nationality filter

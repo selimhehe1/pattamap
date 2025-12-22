@@ -6,6 +6,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { generateCSRFToken } from '../middleware/csrf'; // 🔧 Import for token regeneration
+import { escapeLikeWildcards } from '../utils/validation'; // 🔧 FIX S1
 
 // Cookie security configuration (shared with server.ts)
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -390,10 +391,12 @@ export const login = async (req: Request, res: Response) => {
 
     // Find user by pseudonym or email with security checks (case-insensitive)
     // Using ilike for case-insensitive search on pseudonym and email
+    // 🔧 FIX S1: Escape LIKE wildcards to prevent login bypass via % or _
+    const escapedLogin = escapeLikeWildcards(sanitizedLogin);
     const { data: users, error } = await supabase
       .from('users')
       .select('id, pseudonym, email, password, role, is_active, account_type, linked_employee_id')
-      .or(`pseudonym.ilike."${sanitizedLogin}",email.ilike."${sanitizedLogin}"`)
+      .or(`pseudonym.ilike."${escapedLogin}",email.ilike."${escapedLogin}"`)
       .eq('is_active', true);
 
     if (error || !users || users.length === 0) {

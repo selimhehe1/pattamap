@@ -4,7 +4,7 @@ import { AuthRequest } from '../middleware/auth';
 import { CreateEmployeeRequest, Employee } from '../types';
 import { logger } from '../utils/logger';
 import { notifyEmployeeUpdate, notifyAdminsPendingContent } from '../utils/notificationHelper';
-import { validateImageUrls } from '../utils/validation';
+import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
 
 export const getEmployees = async (req: AuthRequest, res: Response) => {
   try {
@@ -57,8 +57,10 @@ export const getEmployees = async (req: AuthRequest, res: Response) => {
     }
 
     // Advanced search functionality
+    // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
     if (search) {
-      query = query.or(`name.ilike.%${search}%,nickname.ilike.%${search}%,description.ilike.%${search}%`);
+      const escapedSearch = escapeLikeWildcards(String(search));
+      query = query.or(`name.ilike.%${escapedSearch}%,nickname.ilike.%${escapedSearch}%,description.ilike.%${escapedSearch}%`);
     }
 
     // Filter by establishment
@@ -67,8 +69,10 @@ export const getEmployees = async (req: AuthRequest, res: Response) => {
     }
 
     // Filter by nationality
+    // 🔧 FIX S1: Escape LIKE wildcards
     if (nationality) {
-      query = query.ilike('nationality', `%${nationality}%`);
+      const escapedNationality = escapeLikeWildcards(String(nationality));
+      query = query.ilike('nationality', `%${escapedNationality}%`);
     }
 
     // Filter by age range
@@ -880,19 +884,21 @@ export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response
     logger.debug(`🔍 Cache MISS for "${searchTerm}" - Fetching from DB`);
 
     // 🚀 Méthode optimisée Supabase avec double requête parallèle
+    // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
+    const escapedSearchTerm = escapeLikeWildcards(searchTerm);
     const [namesQuery, nicknamesQuery] = await Promise.all([
       supabase
         .from('employees')
         .select('name')
         .eq('status', 'approved')
-        .like('name', `%${searchTerm}%`)
+        .like('name', `%${escapedSearchTerm}%`)
         .not('name', 'is', null)
         .limit(8),
       supabase
         .from('employees')
         .select('nickname')
         .eq('status', 'approved')
-        .like('nickname', `%${searchTerm}%`)
+        .like('nickname', `%${escapedSearchTerm}%`)
         .not('nickname', 'is', null)
         .limit(8)
     ]);
@@ -1005,8 +1011,9 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
       .eq('status', 'approved');
 
     // Text search with ranking
+    // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
     if (searchQuery) {
-      const searchTerm = String(searchQuery).trim();
+      const searchTerm = escapeLikeWildcards(String(searchQuery).trim());
 
       // Use full-text search for better relevance
       // NOTE v10.4: Nationality removed from full-text search (now TEXT[] array)
@@ -1633,10 +1640,17 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
     }
 
     // Create claim request using SQL helper function (from migration)
+    // 🔧 FIX C2: Validate verification proof URLs to prevent XSS/SSRF
+    const validatedProofs = validateUrlArray(verification_proof);
+    if (verification_proof && verification_proof.length > 0 && validatedProofs.length === 0) {
+      logger.warn('All verification proof URLs rejected as invalid', {
+        userId: req.user.id,
+        employeeId,
+        originalCount: verification_proof.length
+      });
+    }
     // Handle empty arrays: PostgreSQL RPC requires NULL instead of empty array
-    const verificationProofForDB = (verification_proof && verification_proof.length > 0)
-      ? verification_proof
-      : null;
+    const verificationProofForDB = validatedProofs.length > 0 ? validatedProofs : null;
 
     const { data: claimRequest, error: claimError } = await supabase
       .rpc('create_employee_claim_request', {

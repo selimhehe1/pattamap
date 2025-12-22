@@ -10,6 +10,17 @@ export const sanitizeInput = (input: string): string => {
   return input.replace(/\0/g, '').trim();
 };
 
+// 🔧 FIX S1: Escape LIKE/ILIKE wildcards to prevent pattern injection
+// Escapes % and _ characters which are wildcards in PostgreSQL LIKE queries
+// Without this, searching for "%" would match ALL records
+export const escapeLikeWildcards = (input: string): string => {
+  if (!input || typeof input !== 'string') {
+    return '';
+  }
+  // Escape backslash first, then % and _
+  return input.replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&');
+};
+
 // SQL injection detection patterns
 const SQL_INJECTION_PATTERNS = [
   /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi,
@@ -108,6 +119,130 @@ export const validateURL = (url: string): boolean => {
   } catch {
     return false;
   }
+};
+
+// 🔧 FIX N2: Validate internal link paths for notifications
+// Prevents open redirects, XSS, and path traversal attacks
+export const sanitizeInternalLink = (link: string | undefined | null): string | null => {
+  if (!link || typeof link !== 'string') {
+    return null;
+  }
+
+  // Must start with /
+  if (!link.startsWith('/')) {
+    return null;
+  }
+
+  // Prevent javascript:, data:, and other protocol handlers
+  if (/^\/+[a-z]+:/i.test(link)) {
+    return null;
+  }
+
+  // Prevent path traversal with ..
+  if (link.includes('..')) {
+    return null;
+  }
+
+  // Prevent null bytes and control characters
+  if (/[\x00-\x1f\x7f]/.test(link)) {
+    return null;
+  }
+
+  // Only allow safe URL characters
+  // Allows: letters, numbers, /, -, _, ., ~, ?, =, &, #, @, %, +
+  if (!/^[a-zA-Z0-9\/_\-.~?=&#@%+]+$/.test(link)) {
+    return null;
+  }
+
+  // Limit length to prevent abuse
+  if (link.length > 500) {
+    return link.substring(0, 500);
+  }
+
+  return link;
+};
+
+// ========================================
+// 🔧 FIX C2 - Validate external URLs (for verification proofs, etc.)
+// ========================================
+// Validates that a URL is a secure external URL (HTTPS preferred)
+// Prevents XSS attacks (javascript:, data:, etc.) and SSRF
+export const isValidExternalUrl = (url: string): boolean => {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(url);
+
+    // 1. Protocol must be HTTPS (secure) - allow HTTP only in development
+    const NODE_ENV = process.env.NODE_ENV || 'development';
+    const allowedProtocols = NODE_ENV === 'production'
+      ? ['https:']
+      : ['http:', 'https:'];
+
+    if (!allowedProtocols.includes(parsed.protocol)) {
+      return false;
+    }
+
+    // 2. Must have valid domain
+    if (!parsed.hostname || parsed.hostname.length === 0) {
+      return false;
+    }
+
+    // 3. Prevent SSRF - Block private/internal IP ranges
+    const hostname = parsed.hostname.toLowerCase();
+    const privateIpPatterns = [
+      /^localhost$/i,
+      /^127\./,
+      /^10\./,
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+      /^192\.168\./,
+      /^169\.254\./,
+      /^0\./,
+      /^::1$/,
+      /^fc00:/i,
+      /^fe80:/i,
+      /\.local$/i,
+      /\.internal$/i,
+      /\.localhost$/i,
+    ];
+
+    if (privateIpPatterns.some(pattern => pattern.test(hostname))) {
+      return false;
+    }
+
+    // 4. Prevent XSS vectors
+    const xssPatterns = [
+      /javascript:/i,
+      /data:/i,
+      /vbscript:/i,
+      /<script/i,
+      /onerror/i,
+      /onload/i
+    ];
+
+    if (xssPatterns.some(pattern => pattern.test(url))) {
+      return false;
+    }
+
+    // 5. Limit URL length to prevent abuse
+    if (url.length > 2048) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Helper to validate and filter an array of URLs
+export const validateUrlArray = (urls: string[] | undefined | null): string[] => {
+  if (!urls || !Array.isArray(urls)) {
+    return [];
+  }
+  return urls.filter(url => isValidExternalUrl(url));
 };
 
 // ========================================

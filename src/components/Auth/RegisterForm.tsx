@@ -53,7 +53,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     },
     password: {
       required: true,
-      minLength: 6,
+      minLength: 12, // 🔧 FIX A5: Aligned with backend (12 chars minimum)
       message: (field, rule) => {
         if (rule === 'required') return t('register.passwordRequired');
         if (rule === 'minLength') return t('register.passwordMinLength');
@@ -415,7 +415,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             onBlur={(e) => handleInputBlur('password', e.target.value)}
             placeholder={t('register.passwordPlaceholder')}
             required
-            minLength={6}
+            minLength={12}
             helpText={t('register.passwordHelp')}
             testId="register-password-input"
           />

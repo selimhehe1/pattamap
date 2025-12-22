@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { register, login, getProfile, logout } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 
 const router = Router();
 
@@ -54,7 +55,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', register);
+router.post('/register', csrfProtection, register);
 
 /**
  * @swagger
@@ -107,7 +108,7 @@ router.post('/register', register);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', login);
+router.post('/login', csrfProtection, login);
 
 /**
  * @swagger
@@ -128,7 +129,7 @@ router.post('/login', login);
  *                   type: string
  *                   example: Logged out successfully
  */
-router.post('/logout', logout);
+router.post('/logout', csrfProtection, logout);
 
 /**
  * @swagger
