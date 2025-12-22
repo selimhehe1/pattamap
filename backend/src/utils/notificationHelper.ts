@@ -148,12 +148,18 @@ export const notifyAdminsNewOwnershipRequest = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some admin notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Admins notified about new ownership request', {
       requestId,
       adminCount: admins.length,
-      isNewEstablishment
+      isNewEstablishment,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify admins error:', error);
@@ -520,11 +526,17 @@ export const notifyFavoriteAvailable = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some favorite notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Users notified: favorite available', {
       employeeId,
-      userCount: favorites.length
+      userCount: favorites.length,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify favorite available error:', error);
@@ -574,12 +586,18 @@ export const notifyEmployeeUpdate = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some employee update notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Users notified: employee update', {
       employeeId,
       updateType,
-      userCount: userIds.length
+      userCount: userIds.length,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify employee update error:', error);
@@ -628,12 +646,18 @@ export const notifyAdminsPendingContent = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some admin pending content notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Admins notified: new content pending', {
       contentType,
       itemId,
-      adminCount: admins.length
+      adminCount: admins.length,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify admins pending content error:', error);
@@ -676,11 +700,17 @@ export const notifyModeratorsNewReport = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some moderator report notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Moderators notified: new report', {
       reportId,
-      moderatorCount: moderators.length
+      moderatorCount: moderators.length,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify moderators new report error:', error);
@@ -833,12 +863,18 @@ export const notifyAdminsNewVerificationRequest = async (
       })
     );
 
-    await Promise.all(notificationPromises);
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some verification request notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
 
     logger.info('Admins notified about new verification request', {
       employeeName,
       verificationId,
-      adminCount: admins.length
+      adminCount: admins.length,
+      successCount: results.length - failed.length
     });
   } catch (error) {
     logger.error('Notify admins verification request error:', error);
@@ -1006,8 +1042,13 @@ export const notifyAdminsNewEditProposal = async (
       })
     );
 
-    await Promise.all(notificationPromises);
-    logger.info('Admins notified: new edit proposal', { proposalId, entityType, entityName });
+    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
+    const results = await Promise.allSettled(notificationPromises);
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      logger.warn('Some edit proposal notifications failed', { failedCount: failed.length, totalCount: results.length });
+    }
+    logger.info('Admins notified: new edit proposal', { proposalId, entityType, entityName, successCount: results.length - failed.length });
   } catch (error) {
     logger.error('Notify admins new edit proposal error:', error);
   }
