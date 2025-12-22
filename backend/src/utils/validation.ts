@@ -143,7 +143,8 @@ export const sanitizeInternalLink = (link: string | undefined | null): string | 
     return null;
   }
 
-  // Prevent null bytes and control characters (using Unicode escapes for ESLint compatibility)
+  // Prevent null bytes and control characters
+  // eslint-disable-next-line no-control-regex -- Intentional: detecting control chars for security
   if (/[\u0000-\u001f\u007f]/.test(link)) {
     return null;
   }
