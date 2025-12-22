@@ -310,6 +310,35 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<boolea
 // ============================================================================
 
 /**
+ * Notify user when their content is pending review
+ * @param userId User ID (the creator)
+ * @param contentType Type of content (employee, establishment)
+ * @param contentName Name/title of content
+ * @param contentId ID of content
+ */
+export const notifyUserContentPendingReview = async (
+  userId: string,
+  contentType: 'employee' | 'establishment',
+  contentName: string,
+  contentId?: string
+): Promise<void> => {
+  try {
+    await createNotification({
+      user_id: userId,
+      type: 'content_pending_review',
+      i18n_key: 'notifications.contentPendingReview',
+      i18n_params: { contentType, contentName },
+      related_entity_type: contentType,
+      related_entity_id: contentId
+    });
+
+    logger.info(`User notified: ${contentType} pending review`, { userId, contentId });
+  } catch (error) {
+    logger.error('Notify content pending review error:', error);
+  }
+};
+
+/**
  * Notify user when their content is approved
  * @param userId User ID
  * @param contentType Type of content (employee, establishment, comment)

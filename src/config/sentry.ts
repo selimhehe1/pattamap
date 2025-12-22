@@ -18,8 +18,10 @@ export const initSentry = () => {
 
   // Don't initialize if no DSN provided (development without Sentry)
   if (!dsn || dsn.includes('your-sentry-dsn')) {
-    // eslint-disable-next-line no-console
-    console.log('ℹ️ Sentry not configured (no valid DSN)');
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log('ℹ️ Sentry not configured (no valid DSN)');
+    }
     return;
   }
 
@@ -118,8 +120,10 @@ export const initSentry = () => {
     },
   });
 
-  // eslint-disable-next-line no-console
-  console.log(`✅ Sentry initialized (${environment})`);
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.log(`✅ Sentry initialized (${environment})`);
+  }
 };
 
 /**

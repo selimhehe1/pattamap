@@ -327,7 +327,7 @@ export const isValidImageUrl = (url: string): boolean => {
 // Validate array of image URLs
 export const validateImageUrls = (
   urls: string[],
-  minCount: number = 1,
+  minCount: number = 0,  // Photos are optional by default
   maxCount: number = 5
 ): { valid: boolean; error?: string } => {
   if (!Array.isArray(urls)) {

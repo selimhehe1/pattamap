@@ -331,6 +331,7 @@ export type NotificationType =
   | 'establishment_owner_permissions_updated'
 
   // Moderation
+  | 'content_pending_review' // NEW - notifies creator their content is pending
   | 'employee_approved'
   | 'employee_rejected'
   | 'establishment_approved'

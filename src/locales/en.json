@@ -1685,7 +1685,8 @@
       "employeePhotosUpdated": "{{employeeName}} added new photos",
       "employeePositionChanged": "{{employeeName}} changed positions",
       "newContentPending": "{{submitterName}} submitted a new {{contentType}}: \"{{contentName}}\"",
-      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}"
+      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}",
+      "contentPendingReview": "Your {{contentType}} \"{{contentName}}\" has been submitted and is pending review by our team."
     }
   },
 

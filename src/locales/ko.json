@@ -1668,7 +1668,8 @@
       "employeePhotosUpdated": "{{employeeName}} added new photos",
       "employeePositionChanged": "{{employeeName}} changed positions",
       "newContentPending": "{{submitterName}} submitted a new {{contentType}}: \"{{contentName}}\"",
-      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}"
+      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}",
+      "contentPendingReview": "귀하의 {{contentType}} \"{{contentName}}\"이(가) 제출되었으며 팀의 검토를 기다리고 있습니다."
     }
   },
 

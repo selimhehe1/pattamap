@@ -1661,7 +1661,8 @@
       "employeePhotosUpdated": "{{employeeName}} добавил новые фотографии",
       "employeePositionChanged": "{{employeeName}} сменил позицию",
       "newContentPending": "{{submitterName}} отправил новый {{contentType}}: \"{{contentName}}\"",
-      "newReport": "Новая жалоба: \"{{reportReason}}\" на {{reportedContent}}"
+      "newReport": "Новая жалоба: \"{{reportReason}}\" на {{reportedContent}}",
+      "contentPendingReview": "Ваш {{contentType}} \"{{contentName}}\" отправлен и ожидает проверки нашей командой."
     }
   },
   "myEmployees": {

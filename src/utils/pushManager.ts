@@ -4,6 +4,7 @@
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const IS_DEV = import.meta.env.DEV;
 
 // ==========================================
 // TYPES
@@ -66,7 +67,7 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
       scope: '/'
     });
 
-    console.log('[Push Manager] Service worker registered:', registration);
+    if (IS_DEV) console.log('[Push Manager] Service worker registered:', registration);
 
     // Wait for service worker to be active
     if (registration.installing) {
@@ -142,7 +143,7 @@ export const requestNotificationPermission = async (): Promise<NotificationPermi
 
   try {
     const permission = await Notification.requestPermission();
-    console.log('[Push Manager] Permission status:', permission);
+    if (IS_DEV) console.log('[Push Manager] Permission status:', permission);
     return permission;
   } catch (error) {
     console.error('[Push Manager] Permission request failed:', error);
@@ -223,7 +224,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
       applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource
     });
 
-    console.log('[Push Manager] Push subscription created:', subscription);
+    if (IS_DEV) console.log('[Push Manager] Push subscription created:', subscription);
 
     // 7. Send subscription to backend
     const subscriptionData: PushSubscriptionData = {
@@ -250,7 +251,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
     }
 
     const data = await response.json();
-    console.log('[Push Manager] Subscription saved to backend:', data);
+    if (IS_DEV) console.log('[Push Manager] Subscription saved to backend:', data);
 
     return subscription;
   } catch (error) {
@@ -277,7 +278,7 @@ export const unsubscribeFromPush = async (): Promise<boolean> => {
 
     // Unsubscribe from browser
     const unsubscribed = await subscription.unsubscribe();
-    console.log('[Push Manager] Browser unsubscribe result:', unsubscribed);
+    if (IS_DEV) console.log('[Push Manager] Browser unsubscribe result:', unsubscribed);
 
     // Remove from backend
     const response = await fetch(`${API_BASE_URL}/push/unsubscribe`, {
@@ -295,7 +296,7 @@ export const unsubscribeFromPush = async (): Promise<boolean> => {
       throw new Error(error.error || 'Failed to remove subscription from backend');
     }
 
-    console.log('[Push Manager] Subscription removed from backend');
+    if (IS_DEV) console.log('[Push Manager] Subscription removed from backend');
     return true;
   } catch (error) {
     console.error('[Push Manager] Unsubscribe failed:', error);

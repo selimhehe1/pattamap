@@ -2,6 +2,9 @@
 // Handles push notifications for PWA
 // Version: 1.0.0
 
+// Debug mode - set to true for local development
+const DEBUG = false;
+
 const CACHE_NAME = 'pattamap-v3'; // v3: Added background sync queue
 const urlsToCache = [
   '/',
@@ -18,7 +21,7 @@ const urlsToCache = [
 // ==========================================
 // Triggered when service worker is first installed
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
+  if (DEBUG) console.log('[Service Worker] Installing...');
 
   // Skip waiting to activate immediately
   self.skipWaiting();
@@ -27,7 +30,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell');
+        if (DEBUG) console.log('[Service Worker] Caching app shell');
         return cache.addAll(urlsToCache);
       })
       .catch((error) => {
@@ -41,12 +44,12 @@ self.addEventListener('install', (event) => {
 // ==========================================
 // Triggered when service worker becomes active
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
+  if (DEBUG) console.log('[Service Worker] Activating...');
 
   // Claim all clients immediately
   event.waitUntil(
     clients.claim().then(() => {
-      console.log('[Service Worker] Claimed all clients');
+      if (DEBUG) console.log('[Service Worker] Claimed all clients');
     })
   );
 
@@ -56,7 +59,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
+            if (DEBUG) console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -70,7 +73,7 @@ self.addEventListener('activate', (event) => {
 // ==========================================
 // Triggered when a push notification is received
 self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push received:', event);
+  if (DEBUG) console.log('[Service Worker] Push received:', event);
 
   let notificationData = {
     title: 'PattaMap Notification',
@@ -86,7 +89,7 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       const payload = event.data.json();
-      console.log('[Service Worker] Push payload:', payload);
+      if (DEBUG) console.log('[Service Worker] Push payload:', payload);
 
       notificationData = {
         title: payload.title || notificationData.title,
@@ -126,7 +129,7 @@ self.addEventListener('push', (event) => {
 // ==========================================
 // Triggered when user clicks on a notification
 self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification click:', event);
+  if (DEBUG) console.log('[Service Worker] Notification click:', event);
 
   event.notification.close();
 
@@ -135,7 +138,7 @@ self.addEventListener('notificationclick', (event) => {
 
   // Handle action button clicks
   if (event.action) {
-    console.log('[Service Worker] Action clicked:', event.action);
+    if (DEBUG) console.log('[Service Worker] Action clicked:', event.action);
 
     // You can handle different actions here
     // For example: 'view', 'dismiss', 'reply', etc.
@@ -165,7 +168,7 @@ self.addEventListener('notificationclick', (event) => {
 // ==========================================
 // Triggered when user dismisses a notification
 self.addEventListener('notificationclose', (event) => {
-  console.log('[Service Worker] Notification closed:', event);
+  if (DEBUG) console.log('[Service Worker] Notification closed:', event);
 
   // Optional: Track notification dismissal analytics
   // Can send to backend or analytics service
@@ -231,7 +234,7 @@ self.addEventListener('fetch', (event) => {
 // ==========================================
 // Handle messages from the main app (e.g., skip waiting, cache update)
 self.addEventListener('message', (event) => {
-  console.log('[Service Worker] Message received:', event.data);
+  if (DEBUG) console.log('[Service Worker] Message received:', event.data);
 
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -335,11 +338,11 @@ async function updateRetryCount(id) {
  * Process the offline queue - replay all pending requests
  */
 async function processOfflineQueue() {
-  console.log('[Service Worker] Processing offline queue...');
+  if (DEBUG) console.log('[Service Worker] Processing offline queue...');
 
   try {
     const requests = await getQueuedRequests();
-    console.log(`[Service Worker] Found ${requests.length} queued requests`);
+    if (DEBUG) console.log(`[Service Worker] Found ${requests.length} queued requests`);
 
     let success = 0;
     let failed = 0;
@@ -367,7 +370,7 @@ async function processOfflineQueue() {
         if (response.ok) {
           await removeFromQueue(queuedRequest.id);
           success++;
-          console.log('[Service Worker] Request succeeded:', queuedRequest.id);
+          if (DEBUG) console.log('[Service Worker] Request succeeded:', queuedRequest.id);
         } else {
           await updateRetryCount(queuedRequest.id);
           failed++;
@@ -380,7 +383,7 @@ async function processOfflineQueue() {
       }
     }
 
-    console.log(`[Service Worker] Queue processed: ${success} success, ${failed} failed`);
+    if (DEBUG) console.log(`[Service Worker] Queue processed: ${success} success, ${failed} failed`);
 
     // Notify all clients about sync completion
     const allClients = await clients.matchAll({ type: 'window' });
@@ -400,11 +403,11 @@ async function processOfflineQueue() {
 
 // Background Sync Event Handler
 self.addEventListener('sync', (event) => {
-  console.log('[Service Worker] Background sync:', event.tag);
+  if (DEBUG) console.log('[Service Worker] Background sync:', event.tag);
 
   if (event.tag === 'offline-queue') {
     event.waitUntil(processOfflineQueue());
   }
 });
 
-console.log('[Service Worker] Loaded successfully (v3 with background sync)');
+if (DEBUG) console.log('[Service Worker] Loaded successfully (v3 with background sync)');

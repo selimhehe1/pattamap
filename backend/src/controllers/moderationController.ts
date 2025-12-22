@@ -9,6 +9,7 @@ import {
   notifyFavoriteAvailable,
   notifyCommentRemoved
 } from '../utils/notificationHelper';
+import { awardXP } from '../services/gamificationService';
 
 export const getModerationQueue = async (req: AuthRequest, res: Response) => {
   try {
@@ -226,6 +227,20 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
         contentName,
         moderationItem.item_id
       );
+
+      // 🎮 Award XP for approved content
+      try {
+        await awardXP(
+          moderationItem.submitter.id,
+          25, // XP reward for approved content
+          'admin_manual',
+          moderationItem.item_type as 'employee' | 'establishment' | 'comment',
+          moderationItem.item_id,
+          `${moderationItem.item_type} approved by moderator`
+        );
+      } catch (xpError) {
+        logger.error('XP award error on approval:', xpError);
+      }
     }
 
     // 🔔 Notify users who favorited this employee that they're now available

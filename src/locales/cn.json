@@ -1657,7 +1657,8 @@
       "employeePhotosUpdated": "{{employeeName}}添加了新照片",
       "employeePositionChanged": "{{employeeName}}更换了职位",
       "newContentPending": "{{submitterName}}提交了新的{{contentType}}：\"{{contentName}}\"",
-      "newReport": "新举报：\"{{reportReason}}\" 关于{{reportedContent}}"
+      "newReport": "新举报：\"{{reportReason}}\" 关于{{reportedContent}}",
+      "contentPendingReview": "您的{{contentType}}\"{{contentName}}\"已提交，正在等待我们团队审核。"
     }
   },
   "myEmployees": {

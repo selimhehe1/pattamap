@@ -1693,7 +1693,8 @@
       "employeePhotosUpdated": "{{employeeName}} a ajouté de nouvelles photos",
       "employeePositionChanged": "{{employeeName}} a changé de poste",
       "newContentPending": "{{submitterName}} a soumis un nouveau {{contentType}} : \"{{contentName}}\"",
-      "newReport": "Nouveau signalement : \"{{reportReason}}\" concernant {{reportedContent}}"
+      "newReport": "Nouveau signalement : \"{{reportReason}}\" concernant {{reportedContent}}",
+      "contentPendingReview": "Votre {{contentType}} \"{{contentName}}\" a été soumis et est en attente de validation par notre équipe."
     }
   },
 

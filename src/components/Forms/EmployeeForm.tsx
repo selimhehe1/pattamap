@@ -535,7 +535,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
               {t('employee.photosTitle')}
             </h3>
 
-            <div className="photo-upload-area">
+            <div className="photo-upload-area" style={{ position: 'relative' }}>
               <input
                 type="file"
                 multiple
@@ -543,10 +543,10 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit, onCancel, isLoadi
                 onChange={handlePhotoChange}
                 style={{
                   position: 'absolute',
+                  inset: 0,
                   opacity: 0,
-                  width: '100%',
-                  height: '100%',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  zIndex: 1
                 }}
               />
               <div className="text-cyan-nightlife" style={{

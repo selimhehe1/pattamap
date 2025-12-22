@@ -80,6 +80,7 @@
   max-width: 100%;
   text-align: center;
   position: relative;
+  min-height: 120px; /* Ensure clickable area is large enough */
 }
 
 /* Photo Upload Area Hover - Background plus visible */

@@ -1659,7 +1659,8 @@
       "employeePhotosUpdated": "{{employeeName}} เพิ่มรูปภาพใหม่แล้ว",
       "employeePositionChanged": "{{employeeName}} เปลี่ยนตำแหน่งแล้ว",
       "newContentPending": "{{submitterName}} ส่ง {{contentType}} ใหม่: \"{{contentName}}\"",
-      "newReport": "รายงานใหม่: \"{{reportReason}}\" เกี่ยวกับ {{reportedContent}}"
+      "newReport": "รายงานใหม่: \"{{reportReason}}\" เกี่ยวกับ {{reportedContent}}",
+      "contentPendingReview": "{{contentType}} \"{{contentName}}\" ของคุณถูกส่งแล้วและกำลังรอการตรวจสอบจากทีมงานของเรา"
     }
   },
   "myEmployees": {

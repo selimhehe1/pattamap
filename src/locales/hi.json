@@ -1657,7 +1657,8 @@
       "employeePhotosUpdated": "{{employeeName}} ने नई तस्वीरें जोड़ीं",
       "employeePositionChanged": "{{employeeName}} ने पद बदल लिया",
       "newContentPending": "{{submitterName}} ने एक नया {{contentType}} जमा किया: \"{{contentName}}\"",
-      "newReport": "नई रिपोर्ट: \"{{reportReason}}\" {{reportedContent}} के बारे में"
+      "newReport": "नई रिपोर्ट: \"{{reportReason}}\" {{reportedContent}} के बारे में",
+      "contentPendingReview": "आपका {{contentType}} \"{{contentName}}\" सबमिट किया गया है और हमारी टीम द्वारा समीक्षा की प्रतीक्षा में है।"
     }
   },
   "myEmployees": {

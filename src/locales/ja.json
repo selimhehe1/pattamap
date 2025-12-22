@@ -1668,7 +1668,8 @@
       "employeePhotosUpdated": "{{employeeName}} added new photos",
       "employeePositionChanged": "{{employeeName}} changed positions",
       "newContentPending": "{{submitterName}} submitted a new {{contentType}}: \"{{contentName}}\"",
-      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}"
+      "newReport": "New report: \"{{reportReason}}\" on {{reportedContent}}",
+      "contentPendingReview": "あなたの{{contentType}}「{{contentName}}」が送信され、チームによる審査を待っています。"
     }
   },
 

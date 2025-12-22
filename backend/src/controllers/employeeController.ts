@@ -3,7 +3,8 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { CreateEmployeeRequest, Employee } from '../types';
 import { logger } from '../utils/logger';
-import { notifyEmployeeUpdate, notifyAdminsPendingContent } from '../utils/notificationHelper';
+import { notifyEmployeeUpdate, notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
+import { awardXP } from '../services/gamificationService';
 import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
 
 export const getEmployees = async (req: AuthRequest, res: Response) => {
@@ -365,7 +366,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
     // BUG #12 FIX - Validate image URLs
     // ========================================
     // Security: Prevent malicious URLs (XSS, invalid formats)
-    const photoValidation = validateImageUrls(photos || [], 1, 5);
+    const photoValidation = validateImageUrls(photos || [], 0, 5);  // Photos optional
     if (!photoValidation.valid) {
       return res.status(400).json({
         error: photoValidation.error,
@@ -503,6 +504,32 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
       logger.error('Admin notification error:', notifyError);
     }
 
+    // 🔔 Notify the creator that their profile is pending review
+    try {
+      await notifyUserContentPendingReview(
+        req.user!.id,
+        'employee',
+        employee.name,
+        employee.id
+      );
+    } catch (notifyError) {
+      logger.error('Creator notification error:', notifyError);
+    }
+
+    // 🎮 Award XP for creating employee profile
+    try {
+      await awardXP(
+        req.user!.id,
+        20, // XP for creating employee profile
+        'profile_updated',
+        'employee',
+        employee.id,
+        'Created new employee profile'
+      );
+    } catch (xpError) {
+      logger.error('XP award error:', xpError);
+    }
+
     res.status(201).json({
       message: 'Employee profile submitted for approval',
       employee
@@ -543,7 +570,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
     // ========================================
     // Security: Prevent malicious URLs (XSS, invalid formats)
     if (updates.photos) {
-      const photoValidation = validateImageUrls(updates.photos, 1, 5);
+      const photoValidation = validateImageUrls(updates.photos, 0, 5);  // Photos optional
       if (!photoValidation.valid) {
         return res.status(400).json({
           error: photoValidation.error,
@@ -1487,10 +1514,10 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
     }: CreateEmployeeRequest = req.body;
 
     // Validation
-    if (!name || !photos || photos.length === 0) {
-      return res.status(400).json({ error: 'Name and at least one photo are required' });
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
     }
-    if (photos.length > 5) {
+    if (photos && photos.length > 5) {
       return res.status(400).json({ error: 'Maximum 5 photos allowed' });
     }
 

@@ -10,6 +10,7 @@
 const DB_NAME = 'pattamap-offline';
 const DB_VERSION = 1;
 const STORE_NAME = 'request-queue';
+const IS_DEV = import.meta.env.DEV;
 
 export interface QueuedRequest {
   id: string;
@@ -43,7 +44,7 @@ export async function initDB(): Promise<IDBDatabase> {
 
     request.onsuccess = () => {
       dbInstance = request.result;
-      console.log('[OfflineQueue] Database initialized');
+      if (IS_DEV) console.log('[OfflineQueue] Database initialized');
       resolve(dbInstance);
     };
 
@@ -54,7 +55,7 @@ export async function initDB(): Promise<IDBDatabase> {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
         store.createIndex('timestamp', 'timestamp', { unique: false });
         store.createIndex('url', 'url', { unique: false });
-        console.log('[OfflineQueue] Object store created');
+        if (IS_DEV) console.log('[OfflineQueue] Object store created');
       }
     };
   });
@@ -100,7 +101,7 @@ export async function addToQueue(
     const addRequest = store.add(request);
 
     addRequest.onsuccess = () => {
-      console.log('[OfflineQueue] Request added to queue:', request.id);
+      if (IS_DEV) console.log('[OfflineQueue] Request added to queue:', request.id);
 
       // Notify listeners that the queue has changed
       window.dispatchEvent(new CustomEvent('offline-queue-change', {
@@ -177,7 +178,7 @@ export async function removeFromQueue(id: string): Promise<void> {
     const request = store.delete(id);
 
     request.onsuccess = () => {
-      console.log('[OfflineQueue] Request removed from queue:', id);
+      if (IS_DEV) console.log('[OfflineQueue] Request removed from queue:', id);
 
       // Notify listeners that the queue has changed
       window.dispatchEvent(new CustomEvent('offline-queue-change', {
@@ -243,7 +244,7 @@ export async function clearQueue(): Promise<void> {
     const request = store.clear();
 
     request.onsuccess = () => {
-      console.log('[OfflineQueue] Queue cleared');
+      if (IS_DEV) console.log('[OfflineQueue] Queue cleared');
 
       // Notify listeners that the queue has changed
       window.dispatchEvent(new CustomEvent('offline-queue-change', {
@@ -272,7 +273,7 @@ export async function processQueue(): Promise<{
   let success = 0;
   let failed = 0;
 
-  console.log(`[OfflineQueue] Processing ${requests.length} queued requests`);
+  if (IS_DEV) console.log(`[OfflineQueue] Processing ${requests.length} queued requests`);
 
   for (const queuedRequest of requests) {
     try {
@@ -298,11 +299,11 @@ export async function processQueue(): Promise<{
       if (response.ok) {
         await removeFromQueue(queuedRequest.id);
         success++;
-        console.log('[OfflineQueue] Request succeeded:', queuedRequest.id);
+        if (IS_DEV) console.log('[OfflineQueue] Request succeeded:', queuedRequest.id);
       } else {
         await updateRetryCount(queuedRequest.id);
         failed++;
-        console.warn('[OfflineQueue] Request failed with status:', response.status);
+        if (IS_DEV) console.warn('[OfflineQueue] Request failed with status:', response.status);
       }
     } catch (error) {
       await updateRetryCount(queuedRequest.id);
@@ -318,7 +319,7 @@ export async function processQueue(): Promise<{
     detail: { success, failed, remaining }
   }));
 
-  console.log(`[OfflineQueue] Sync complete: ${success} success, ${failed} failed, ${remaining} remaining`);
+  if (IS_DEV) console.log(`[OfflineQueue] Sync complete: ${success} success, ${failed} failed, ${remaining} remaining`);
 
   return { success, failed, remaining };
 }
@@ -331,7 +332,7 @@ async function registerBackgroundSync(): Promise<void> {
     try {
       const registration = await navigator.serviceWorker.ready;
       await (registration as unknown as { sync: { register: (tag: string) => Promise<void> } }).sync.register('offline-queue');
-      console.log('[OfflineQueue] Background sync registered');
+      if (IS_DEV) console.log('[OfflineQueue] Background sync registered');
     } catch (error) {
       console.warn('[OfflineQueue] Background sync registration failed:', error);
     }
