@@ -4,6 +4,7 @@ import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth'
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
 import { getVIPTransactions, verifyPayment, rejectPayment } from '../controllers/vipController';
+import { awardXP } from '../services/gamificationService';
 import { Establishment, Employee, EmploymentHistory, User, EstablishmentCategory } from '../types';
 
 // Type-safe error message extraction
@@ -965,6 +966,21 @@ router.post('/employees/:id/approve', async (req, res) => {
         data.name,
         data.id
       );
+
+      // 🎮 Award bonus XP for approved employee profile
+      try {
+        await awardXP(
+          data.created_by,
+          10, // Bonus XP when employee profile is approved
+          'profile_approved',
+          'employee',
+          data.id,
+          'Employee profile approved by admin'
+        );
+        logger.info(`✅ Bonus XP awarded: +10 XP for approved employee ${data.id} to user ${data.created_by}`);
+      } catch (xpError) {
+        logger.error('Bonus XP award error:', xpError);
+      }
     }
 
     res.json({ employee: data });
