@@ -255,8 +255,18 @@ app.use(express.urlencoded({
   parameterLimit: 100
 }));
 
-// Global rate limiting - disabled in development
-app.use('/api', process.env.NODE_ENV === 'production' ? apiRateLimit : (req, res, next) => next());
+// Global rate limiting - disabled in development, skip for admin routes (they have auth protection)
+app.use('/api', (req, res, next) => {
+  // Skip rate limiting for admin routes in production (admins are authenticated)
+  if (req.path.startsWith('/admin')) {
+    return next();
+  }
+  // Apply rate limit only in production for non-admin routes
+  if (process.env.NODE_ENV === 'production') {
+    return apiRateLimit(req, res, next);
+  }
+  next();
+});
 
 // Security headers middleware
 app.use((req, res, next) => {
