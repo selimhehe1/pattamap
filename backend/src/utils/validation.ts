@@ -143,8 +143,8 @@ export const sanitizeInternalLink = (link: string | undefined | null): string | 
     return null;
   }
 
-  // Prevent null bytes and control characters
-  if (/[\x00-\x1f\x7f]/.test(link)) {
+  // Prevent null bytes and control characters (using Unicode escapes for ESLint compatibility)
+  if (/[\u0000-\u001f\u007f]/.test(link)) {
     return null;
   }
 
