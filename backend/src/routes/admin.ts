@@ -733,7 +733,6 @@ router.get('/employees', async (req, res) => {
       .from('employees')
       .select(`
         *,
-        user:users(id, pseudonym),
         employment_history(
           id,
           establishment_id,
