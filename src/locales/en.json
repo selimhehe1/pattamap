@@ -498,6 +498,7 @@
     "fixErrorsToast": "Please fix form errors before submitting",
     "employeeAccountCreated": "Employee account created! You can now create or claim your profile.",
     "accountCreated": "Account created successfully!",
+    "passwordBreachWarning": "Warning: This password was found in a data breach. Consider changing it for better security.",
     "registrationFailed": "Registration failed",
     "pseudonymRequired": "Pseudonym is required",
     "pseudonymMinLength": "Pseudonym must be at least 3 characters",

@@ -483,6 +483,7 @@
     "fixErrorsToast": "Please fix form errors before submitting",
     "employeeAccountCreated": "Employee account created! You can now create or claim your profile.",
     "accountCreated": "Account created successfully!",
+    "passwordBreachWarning": "경고: 이 비밀번호는 데이터 유출에서 발견되었습니다. 보안 강화를 위해 변경을 고려하세요.",
     "registrationFailed": "Registration failed",
     "pseudonymRequired": "Pseudonym is required",
     "pseudonymMinLength": "Pseudonym must be at least 3 characters",

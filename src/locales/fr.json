@@ -484,6 +484,7 @@
     "fixErrorsToast": "Veuillez corriger les erreurs avant de soumettre",
     "employeeAccountCreated": "Compte employée créé ! Vous pouvez maintenant créer ou réclamer votre profil.",
     "accountCreated": "Compte créé avec succès !",
+    "passwordBreachWarning": "Attention : Ce mot de passe a été trouvé dans une fuite de données. Pensez à le changer pour plus de sécurité.",
     "registrationFailed": "Échec de l'inscription",
     "pseudonymRequired": "Le pseudo est requis",
     "pseudonymMinLength": "Le pseudo doit contenir au moins 3 caractères",

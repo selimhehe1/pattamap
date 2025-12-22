@@ -483,6 +483,7 @@
     "fixErrorsToast": "Please fix form errors before submitting",
     "employeeAccountCreated": "Employee account created! You can now create or claim your profile.",
     "accountCreated": "Account created successfully!",
+    "passwordBreachWarning": "警告：このパスワードはデータ漏洩で発見されました。セキュリティ向上のため、変更を検討してください。",
     "registrationFailed": "Registration failed",
     "pseudonymRequired": "Pseudonym is required",
     "pseudonymMinLength": "Pseudonym must be at least 3 characters",

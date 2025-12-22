@@ -448,12 +448,20 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
     try {
       // 🔧 CSRF FIX: Register user account and get fresh CSRF token
-      const freshToken = await register(
+      const result = await register(
         formData.pseudonym,
         formData.email,
         formData.password,
         formData.accountType
       );
+      const freshToken = result?.csrfToken;
+
+      // ⚠️ Show warning if password was found in breach database
+      if (result?.passwordBreached) {
+        toast.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
+          duration: 10000 // Show longer (10 seconds)
+        });
+      }
 
       clearDraft(); // Clear draft on successful submission
 

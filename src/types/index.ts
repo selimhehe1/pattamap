@@ -177,7 +177,7 @@ export interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (login: string, password: string) => Promise<void>;
-  register: (pseudonym: string, email: string, password: string, accountType?: 'regular' | 'employee' | 'establishment_owner') => Promise<string | null>; // 🔧 Returns fresh CSRF token - v10.1 added establishment_owner
+  register: (pseudonym: string, email: string, password: string, accountType?: 'regular' | 'employee' | 'establishment_owner') => Promise<{ csrfToken: string | null; passwordBreached: boolean } | undefined>; // 🔧 Returns fresh CSRF token + breach warning flag - v10.1 added establishment_owner
   logout: () => void;
   loading: boolean;
   claimEmployeeProfile?: (employeeId: string, message: string, verificationProof?: string[], explicitToken?: string) => Promise<void>; // 🔧 Accepts explicit token

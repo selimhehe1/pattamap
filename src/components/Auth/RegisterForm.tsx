@@ -183,12 +183,20 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     setIsLoading(true);
 
     try {
-      await register(
+      const result = await register(
         formData.pseudonym,
         formData.email,
         formData.password,
         formData.accountType // 🆕 v10.0
       );
+
+      // ⚠️ Show warning if password was found in breach database
+      if (result?.passwordBreached) {
+        toast.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
+          duration: 10000 // Show longer (10 seconds)
+        });
+      }
+
       clearDraft(); // Clear draft on successful submission
       toast.success(
         formData.accountType === 'employee'

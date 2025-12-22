@@ -285,7 +285,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
       // when user state changes (see useEffect at bottom of component)
 
-      return freshToken; // 🔧 Return fresh CSRF token for immediate use
+      // ⚠️ Return object with token and password breach warning flag
+      return {
+        csrfToken: freshToken,
+        passwordBreached: data.passwordBreached || false
+      };
     } catch (error) {
       logger.error('Registration error:', error);
       throw error;

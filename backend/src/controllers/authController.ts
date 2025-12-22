@@ -204,19 +204,15 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    // 🔒 SECURITY FIX: Check if password has been breached
+    // 🔒 SECURITY: Check if password has been breached (warning only, not blocking)
     // Uses HaveIBeenPwned API with k-Anonymity (privacy-preserving)
     const isBreached = await checkPasswordBreach(password);
     if (isBreached) {
-      logger.warn('User attempted registration with breached password', {
+      logger.warn('User registering with breached password (warning issued)', {
         pseudonym, // Safe to log
         email: sanitizedEmail.substring(0, 3) + '***' // Partial email for privacy
       });
-      return res.status(400).json({
-        error: 'This password has been exposed in a data breach and cannot be used. Please choose a different password.',
-        code: 'PASSWORD_BREACHED',
-        hint: 'Use a unique password that hasn\'t been compromised'
-      });
+      // Don't block - just warn. The flag will be included in the response.
     }
 
     // Validate account_type (optional, defaults to 'regular')
@@ -346,7 +342,8 @@ export const register = async (req: Request, res: Response) => {
       res.status(201).json({
         message: 'User registered successfully',
         user: user,
-        csrfToken: freshCsrfToken // 🔧 Token synchronized with active session
+        csrfToken: freshCsrfToken, // 🔧 Token synchronized with active session
+        passwordBreached: isBreached // ⚠️ Warning flag for frontend to display
       });
     } catch (postCreationError) {
       // 🔧 ROLLBACK: Delete user if any post-creation step fails
@@ -580,18 +577,14 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // 🔒 SECURITY FIX: Check if new password has been breached
+    // 🔒 SECURITY: Check if new password has been breached (warning only, not blocking)
     const isBreached = await checkPasswordBreach(newPassword);
     if (isBreached) {
-      logger.warn('User attempted to change to breached password', {
+      logger.warn('User changing to breached password (warning issued)', {
         userId: req.user.id,
         pseudonym: req.user.pseudonym
       });
-      return res.status(400).json({
-        error: 'This password has been exposed in a data breach and cannot be used. Please choose a different password.',
-        code: 'PASSWORD_BREACHED',
-        hint: 'Use a unique password that hasn\'t been compromised'
-      });
+      // Don't block - just warn. The flag will be included in the response.
     }
 
     // Get current password hash
@@ -636,7 +629,8 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     }
 
     res.json({
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
+      passwordBreached: isBreached // ⚠️ Warning flag for frontend to display
     });
 
   } catch (error) {

@@ -476,6 +476,7 @@
     "fixErrorsToast": "请在提交前修正表单错误",
     "employeeAccountCreated": "员工账户已创建！您现在可以创建或认领您的资料。",
     "accountCreated": "账户创建成功！",
+    "passwordBreachWarning": "警告：此密码在数据泄露中被发现。为了更好的安全性，请考虑更改密码。",
     "registrationFailed": "注册失败",
     "pseudonymRequired": "昵称为必填项",
     "pseudonymMinLength": "昵称必须至少3个字符",
