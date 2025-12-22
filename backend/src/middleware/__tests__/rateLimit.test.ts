@@ -327,11 +327,11 @@ describe('rateLimit Middleware', () => {
       }));
     });
 
-    it('uploadRateLimit should allow 10 uploads per minute', async () => {
+    it('uploadRateLimit should allow 30 uploads per minute', async () => {
       await uploadRateLimit(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(setMock).toHaveBeenCalledWith(expect.objectContaining({
-        'X-RateLimit-Limit': '10'
+        'X-RateLimit-Limit': '30'
       }));
     });
 

@@ -168,10 +168,10 @@ export const authRateLimit = createRateLimit({
   }
 });
 
-// Upload rate limit
+// Upload rate limit - increased to handle multi-photo uploads (e.g., 5 employee photos + retries)
 export const uploadRateLimit = createRateLimit({
   windowMs: 60 * 1000, // 1 minute
-  maxRequests: 10,
+  maxRequests: 30,
   message: 'Too many upload requests'
 });
 
