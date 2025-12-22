@@ -1053,15 +1053,15 @@ describe('EmployeeController', () => {
         error: null
       });
 
-      // Mock get employee for each claim
-      const employeeBuilder = createQueryBuilder({
-        data: { id: 'emp-1', name: 'Test Employee', photos: [] },
+      // 🔧 FIX C4: Mock batch IN query for employees (not individual fetches)
+      const employeesBuilder = createQueryBuilder({
+        data: [{ id: 'emp-1', name: 'Test Employee', nickname: null, photos: [] }],
         error: null
       });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(claimsBuilder)
-        .mockReturnValueOnce(employeeBuilder);
+        .mockReturnValueOnce(employeesBuilder);
 
       await getClaimRequests(mockRequest as AuthRequest, mockResponse as Response);
 
@@ -1139,6 +1139,35 @@ describe('EmployeeController', () => {
         data: true,
         error: null
       });
+
+      // 🔧 FIX C2: Mock additional queries for rejection notification
+      // 1. Fetch claim data
+      const claimBuilder = createQueryBuilder({
+        data: {
+          id: 'claim-1',
+          item_id: 'emp-1',
+          submitted_by: 'user-456',
+          request_metadata: { claim_type: 'claim_existing' }
+        },
+        error: null
+      });
+
+      // 2. Fetch employee name
+      const employeeBuilder = createQueryBuilder({
+        data: { name: 'Test Employee' },
+        error: null
+      });
+
+      // 3. Insert notification
+      const notificationBuilder = createQueryBuilder({
+        data: { id: 'notif-1' },
+        error: null
+      });
+
+      (supabase.from as jest.Mock)
+        .mockReturnValueOnce(claimBuilder)
+        .mockReturnValueOnce(employeeBuilder)
+        .mockReturnValueOnce(notificationBuilder);
 
       await rejectClaimRequest(mockRequest as AuthRequest, mockResponse as Response);
 
