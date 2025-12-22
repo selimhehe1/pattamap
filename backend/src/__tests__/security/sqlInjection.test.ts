@@ -30,6 +30,13 @@ jest.mock('../../config/supabase');
 jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
 
+// Mock CSRF middleware - these tests focus on SQL injection, not CSRF
+jest.mock('../../middleware/csrf', () => ({
+  csrfProtection: (req: any, res: any, next: any) => next(),
+  csrfTokenGenerator: (req: any, res: any, next: any) => next(),
+  generateCSRFToken: () => 'mock-csrf-token'
+}));
+
 describe('SQL Injection Security Tests', () => {
   let app: Application;
   let authToken: string;
@@ -181,7 +188,7 @@ describe('SQL Injection Security Tests', () => {
         const response = await request(app)
           .post('/api/auth/login')
           .send({
-            identifier: payload,
+            login: payload, // Field name is 'login', not 'identifier'
             password: 'testpassword123'
           });
 
@@ -200,7 +207,7 @@ describe('SQL Injection Security Tests', () => {
         const response = await request(app)
           .post('/api/auth/login')
           .send({
-            identifier: 'testuser',
+            login: 'testuser', // Field name is 'login', not 'identifier'
             password: payload
           });
 

@@ -16,6 +16,17 @@ jest.mock('../../config/sentry');
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 
+// Mock CSRF protection - integration tests focus on auth flow, not CSRF
+// CSRF is tested separately in csrf.test.ts
+jest.mock('../../middleware/csrf', () => ({
+  csrfProtection: (req: any, res: any, next: any) => next(),
+  csrfTokenGenerator: (req: any, res: any, next: any) => {
+    req.csrfToken = 'mock-csrf-token';
+    next();
+  },
+  generateCSRFToken: () => 'mock-csrf-token'
+}));
+
 describe('Auth Routes Integration Tests', () => {
   let app: Application;
 

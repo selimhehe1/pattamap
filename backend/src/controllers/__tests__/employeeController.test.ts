@@ -26,7 +26,11 @@ import * as notificationHelper from '../../utils/notificationHelper';
 jest.mock('../../config/supabase');
 jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
-jest.mock('../../utils/validation');
+jest.mock('../../utils/validation', () => ({
+  validateImageUrls: jest.fn().mockReturnValue({ valid: true, urls: [] }),
+  validateUrlArray: jest.fn().mockReturnValue({ valid: true, urls: [] }),
+  escapeLikeWildcards: jest.fn((input: string) => input || ''), // Return input unchanged for tests
+}));
 jest.mock('../../utils/freelanceValidation');
 jest.mock('../../utils/notificationHelper');
 
@@ -899,9 +903,15 @@ describe('EmployeeController', () => {
         error: { code: 'PGRST116' }
       });
 
-      // Mock create claim request
-      const claimBuilder = createQueryBuilder({
-        data: { id: 'claim-1', item_id: 'emp-1', status: 'pending' },
+      // Mock admin users for notifications
+      const adminBuilder = createQueryBuilder({
+        data: [{ id: 'admin-1' }],
+        error: null
+      });
+
+      // Mock notification insert
+      const notificationBuilder = createQueryBuilder({
+        data: null,
         error: null
       });
 
@@ -909,7 +919,14 @@ describe('EmployeeController', () => {
         .mockReturnValueOnce(userCheckBuilder)
         .mockReturnValueOnce(employeeBuilder)
         .mockReturnValueOnce(existingClaimBuilder)
-        .mockReturnValueOnce(claimBuilder);
+        .mockReturnValueOnce(adminBuilder)
+        .mockReturnValueOnce(notificationBuilder);
+
+      // Mock RPC call for claim creation (now uses RPC instead of direct insert)
+      (supabase.rpc as jest.Mock) = jest.fn().mockResolvedValue({
+        data: 'claim-1',
+        error: null
+      });
 
       await claimEmployeeProfile(mockRequest as AuthRequest, mockResponse as Response);
 
