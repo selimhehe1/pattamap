@@ -10,6 +10,7 @@ interface AppModalsState {
   showEstablishmentForm: boolean;
   showLoginForm: boolean;
   showRegisterForm: boolean;
+  showForgotPasswordForm: boolean; // 🔧 FIX A4
   showEmployeeProfileWizard: boolean;
   showEditMyProfileModal: boolean;
   showUserInfoModal: boolean;
@@ -27,6 +28,8 @@ interface AppModalsActions {
   closeLoginForm: () => void;
   openRegisterForm: () => void;
   closeRegisterForm: () => void;
+  openForgotPasswordForm: () => void; // 🔧 FIX A4
+  closeForgotPasswordForm: () => void; // 🔧 FIX A4
   openEmployeeProfileWizard: () => void;
   closeEmployeeProfileWizard: () => void;
   openEditMyProfileModal: () => void;
@@ -35,6 +38,8 @@ interface AppModalsActions {
   closeUserInfoModal: () => void;
   switchLoginToRegister: () => void;
   switchRegisterToLogin: () => void;
+  switchLoginToForgotPassword: () => void; // 🔧 FIX A4
+  switchForgotPasswordToLogin: () => void; // 🔧 FIX A4
   handleSubmitEmployee: (employeeData: Partial<Employee>) => Promise<void>;
   handleSubmitEstablishment: (establishmentData: Partial<Establishment>) => Promise<void>;
   handleEditMyProfile: () => void;
@@ -52,6 +57,7 @@ export const useAppModals = (): UseAppModalsReturn => {
   const [showEstablishmentForm, setShowEstablishmentForm] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [showForgotPasswordForm, setShowForgotPasswordForm] = useState(false); // 🔧 FIX A4
   const [showEmployeeProfileWizard, setShowEmployeeProfileWizard] = useState(false);
   const [showEditMyProfileModal, setShowEditMyProfileModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
@@ -78,6 +84,10 @@ export const useAppModals = (): UseAppModalsReturn => {
   const openRegisterForm = useCallback(() => setShowRegisterForm(true), []);
   const closeRegisterForm = useCallback(() => setShowRegisterForm(false), []);
 
+  // 🔧 FIX A4: Forgot Password modal
+  const openForgotPasswordForm = useCallback(() => setShowForgotPasswordForm(true), []);
+  const closeForgotPasswordForm = useCallback(() => setShowForgotPasswordForm(false), []);
+
   const openEmployeeProfileWizard = useCallback(() => setShowEmployeeProfileWizard(true), []);
   const closeEmployeeProfileWizard = useCallback(() => setShowEmployeeProfileWizard(false), []);
 
@@ -98,6 +108,17 @@ export const useAppModals = (): UseAppModalsReturn => {
 
   const switchRegisterToLogin = useCallback(() => {
     setShowRegisterForm(false);
+    setShowLoginForm(true);
+  }, []);
+
+  // 🔧 FIX A4: Switch between login/forgot password
+  const switchLoginToForgotPassword = useCallback(() => {
+    setShowLoginForm(false);
+    setShowForgotPasswordForm(true);
+  }, []);
+
+  const switchForgotPasswordToLogin = useCallback(() => {
+    setShowForgotPasswordForm(false);
     setShowLoginForm(true);
   }, []);
 
@@ -203,6 +224,7 @@ export const useAppModals = (): UseAppModalsReturn => {
     showEstablishmentForm,
     showLoginForm,
     showRegisterForm,
+    showForgotPasswordForm, // 🔧 FIX A4
     showEmployeeProfileWizard,
     showEditMyProfileModal,
     showUserInfoModal,
@@ -218,6 +240,8 @@ export const useAppModals = (): UseAppModalsReturn => {
     closeLoginForm,
     openRegisterForm,
     closeRegisterForm,
+    openForgotPasswordForm, // 🔧 FIX A4
+    closeForgotPasswordForm, // 🔧 FIX A4
     openEmployeeProfileWizard,
     closeEmployeeProfileWizard,
     openEditMyProfileModal,
@@ -226,6 +250,8 @@ export const useAppModals = (): UseAppModalsReturn => {
     closeUserInfoModal,
     switchLoginToRegister,
     switchRegisterToLogin,
+    switchLoginToForgotPassword, // 🔧 FIX A4
+    switchForgotPasswordToLogin, // 🔧 FIX A4
     handleSubmitEmployee,
     handleSubmitEstablishment,
     handleEditMyProfile,

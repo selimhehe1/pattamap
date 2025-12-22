@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, getProfile, logout } from '../controllers/authController';
+import { register, login, getProfile, logout, forgotPassword, resetPassword } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 
@@ -159,5 +159,82 @@ router.post('/logout', csrfProtection, logout);
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/profile', authenticateToken, getProfile);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     description: Request a password reset link for the specified email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *     responses:
+ *       200:
+ *         description: Reset request processed (success response regardless of email existence for security)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: If an account exists with this email, you will receive password reset instructions.
+ *       400:
+ *         description: Invalid email format
+ */
+router.post('/forgot-password', csrfProtection, forgotPassword);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Reset password with token
+ *     description: Reset the user's password using a valid reset token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Password reset token received via email
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 12
+ *                 example: MyNewSecurePass123!
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password has been reset successfully
+ *       400:
+ *         description: Invalid token, expired token, or weak password
+ */
+router.post('/reset-password', csrfProtection, resetPassword);
 
 export default router;

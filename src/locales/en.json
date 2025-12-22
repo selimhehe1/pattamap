@@ -22,7 +22,8 @@
     "accessDenied": "Access Denied",
     "offlineMessage": "You are currently offline. Some features may be unavailable.",
     "retryConnection": "Retry connection",
-    "retry": "Retry"
+    "retry": "Retry",
+    "sending": "Sending..."
   },
 
   "sync": {
@@ -364,7 +365,19 @@
     "enterPassword": "Enter your password",
     "signingIn": "Signing in...",
     "signIn": "Sign In",
-    "registerHere": "Register here"
+    "registerHere": "Register here",
+    "forgotPasswordSubtitle": "Enter your email and we'll send you a reset link",
+    "emailRequired": "Email is required",
+    "invalidEmail": "Please enter a valid email address",
+    "resetRequestFailed": "Failed to send reset email",
+    "resetEmailSent": "Reset instructions sent!",
+    "checkYourEmail": "Check Your Email",
+    "resetInstructions": "If an account exists with this email, you will receive instructions to reset your password.",
+    "resetNote": "Don't see the email? Check your spam folder. If you still don't receive it, the email may not be registered in our system.",
+    "backToLogin": "Back to Login",
+    "enterEmail": "Enter your email address",
+    "sendResetLink": "Send Reset Link",
+    "rememberPassword": "Remember your password?"
   },
 
   "register": {

@@ -670,3 +670,204 @@ export const logout = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+// ==========================================
+// 🔧 FIX A4: Password Reset Flow
+// ==========================================
+
+// Password reset token expiry (1 hour)
+const PASSWORD_RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000;
+
+/**
+ * Request password reset
+ * Generates a secure token and stores it in the database
+ * Note: Email sending is not yet implemented - tokens are logged for manual intervention
+ */
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    // Validate email
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        error: 'Valid email address is required',
+        code: 'INVALID_EMAIL'
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if user exists (don't reveal if account exists for security)
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, email, pseudonym')
+      .ilike('email', normalizedEmail)
+      .single();
+
+    if (userError || !user) {
+      // Return success even if user doesn't exist (security best practice)
+      logger.info('Password reset requested for non-existent email', {
+        email: normalizedEmail
+      });
+      return res.json({
+        message: 'If an account exists with this email, you will receive password reset instructions.',
+        code: 'RESET_REQUESTED'
+      });
+    }
+
+    // Generate secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenExpiry = new Date(Date.now() + PASSWORD_RESET_TOKEN_EXPIRY_MS);
+
+    // Store token hash in database (never store plain token)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        password_reset_token: resetTokenHash,
+        password_reset_expires: resetTokenExpiry.toISOString()
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      logger.error('Failed to store password reset token', {
+        userId: user.id,
+        error: updateError.message
+      });
+      return res.status(500).json({
+        error: 'Failed to process password reset request',
+        code: 'INTERNAL_ERROR'
+      });
+    }
+
+    // Log reset token for manual email (until email service is configured)
+    // In production, this should send an email instead
+    logger.info('🔐 PASSWORD RESET TOKEN GENERATED', {
+      userId: user.id,
+      pseudonym: user.pseudonym,
+      email: normalizedEmail,
+      resetToken: resetToken, // Only logged for manual intervention
+      expiresAt: resetTokenExpiry.toISOString(),
+      note: 'Email service not configured - manual intervention required'
+    });
+
+    res.json({
+      message: 'If an account exists with this email, you will receive password reset instructions.',
+      code: 'RESET_REQUESTED',
+      // In development, include token for testing (remove in production)
+      ...(NODE_ENV === 'development' && { _devToken: resetToken })
+    });
+  } catch (error) {
+    logger.error('Password reset request failed:', error);
+    return res.status(500).json({
+      error: 'Password reset request failed',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+};
+
+/**
+ * Reset password with token
+ * Validates the token and updates the user's password
+ */
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Validate inputs
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({
+        error: 'Reset token is required',
+        code: 'MISSING_TOKEN'
+      });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({
+        error: 'New password is required',
+        code: 'MISSING_PASSWORD'
+      });
+    }
+
+    // Validate new password strength
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        error: passwordValidation.message,
+        code: 'WEAK_PASSWORD'
+      });
+    }
+
+    // Hash the provided token
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user with matching token that hasn't expired
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, pseudonym, email, password_reset_expires')
+      .eq('password_reset_token', tokenHash)
+      .single();
+
+    if (userError || !user) {
+      logger.warn('Invalid password reset token used', {
+        tokenHashPrefix: tokenHash.substring(0, 8)
+      });
+      return res.status(400).json({
+        error: 'Invalid or expired reset token',
+        code: 'INVALID_TOKEN'
+      });
+    }
+
+    // Check if token has expired
+    if (!user.password_reset_expires || new Date(user.password_reset_expires) < new Date()) {
+      logger.warn('Expired password reset token used', {
+        userId: user.id,
+        expiredAt: user.password_reset_expires
+      });
+      return res.status(400).json({
+        error: 'Reset token has expired. Please request a new password reset.',
+        code: 'TOKEN_EXPIRED'
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password and clear reset token
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        password_hash: hashedPassword,
+        password_reset_token: null,
+        password_reset_expires: null
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      logger.error('Failed to update password', {
+        userId: user.id,
+        error: updateError.message
+      });
+      return res.status(500).json({
+        error: 'Failed to reset password',
+        code: 'INTERNAL_ERROR'
+      });
+    }
+
+    logger.info('Password reset successfully', {
+      userId: user.id,
+      pseudonym: user.pseudonym
+    });
+
+    res.json({
+      message: 'Password has been reset successfully. You can now log in with your new password.',
+      code: 'PASSWORD_RESET_SUCCESS'
+    });
+  } catch (error) {
+    logger.error('Password reset failed:', error);
+    return res.status(500).json({
+      error: 'Password reset failed',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+};

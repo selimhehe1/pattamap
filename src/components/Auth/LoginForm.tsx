@@ -12,9 +12,11 @@ interface LoginFormProps {
   onSwitchToRegister: () => void;
   /** Optional callback for successful login. If provided, called instead of onClose after login success */
   onLoginSuccess?: () => void;
+  /** Optional callback to switch to forgot password form */
+  onSwitchToForgotPassword?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess, onSwitchToForgotPassword }) => {
   const { t } = useTranslation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -228,6 +230,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             autoComplete="current-password"
             testId="password-input"
           />
+
+          {/* 🔧 FIX A4: Forgot Password link */}
+          {onSwitchToForgotPassword && (
+            <div style={{ textAlign: 'right', marginTop: '-8px', marginBottom: '16px' }}>
+              <button
+                type="button"
+                onClick={onSwitchToForgotPassword}
+                className="auth-switch-button"
+                style={{ fontSize: '0.875rem' }}
+                data-testid="forgot-password-link"
+              >
+                {t('auth.forgotPassword')}
+              </button>
+            </div>
+          )}
 
           {error && (
             <div className="error-message-nightlife error-shake" data-testid="login-error">

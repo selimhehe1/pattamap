@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { User, AuthContextType, Employee } from '../types';
 import { logger } from '../utils/logger';
 import { setSentryUser, clearSentryUser } from '../config/sentry';
@@ -6,6 +6,10 @@ import { useCSRF } from './CSRFContext';
 
 // Export AuthContext for testing purposes
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// 🔧 FIX A3: Constants for session management
+const AUTH_CHECK_TIMEOUT_MS = 10000; // 10 second timeout for auth checks
+const SESSION_VALIDITY_CHECK_INTERVAL_MS = 5 * 60 * 1000; // Check session every 5 minutes
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -20,67 +24,146 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Get CSRF token from context (for non-register operations)
   const { csrfToken } = useCSRF();
 
-  useEffect(() => {
-    // Check if user is authenticated via backend /profile endpoint
-    // Cookies are automatically sent with requests
-    const checkAuthStatus = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
-          method: 'GET',
-          credentials: 'include', // Include cookies
-          headers: {
-            'Content-Type': 'application/json',
-          },
+  // 🔧 FIX A3: Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true);
+  const sessionCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 🔧 FIX A3: Auth check with timeout
+  const checkAuthStatus = useCallback(async (isPeriodicCheck = false) => {
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AUTH_CHECK_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!isMountedRef.current) return;
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // DEBUG: Log exactly what /api/auth/profile returns
+        logger.debug('[AuthContext] /api/auth/profile response:', {
+          hasUser: !!data.user,
+          pseudonym: data.user?.pseudonym,
+          account_type: data.user?.account_type,
+          linked_employee_id: data.user?.linked_employee_id,
+          accountTypeIsEmployee: data.user?.account_type === 'employee',
+          hasLinkedId: !!data.user?.linked_employee_id,
+          willCallGetMyLinkedProfile:
+            data.user?.account_type === 'employee' && !!data.user?.linked_employee_id,
+          isPeriodicCheck
         });
 
-        if (response.ok) {
-          const data = await response.json();
+        setUser(data.user);
+        setToken('authenticated'); // Cookie-based, so we just mark as authenticated
 
-          // DEBUG: Log exactly what /api/auth/profile returns
-          logger.debug('[AuthContext] /api/auth/profile response:', {
-            hasUser: !!data.user,
-            pseudonym: data.user?.pseudonym,
-            account_type: data.user?.account_type,
-            linked_employee_id: data.user?.linked_employee_id,
-            accountTypeIsEmployee: data.user?.account_type === 'employee',
-            hasLinkedId: !!data.user?.linked_employee_id,
-            willCallGetMyLinkedProfile:
-              data.user?.account_type === 'employee' && !!data.user?.linked_employee_id
+        // Set Sentry user context for error tracking
+        if (data.user) {
+          setSentryUser({
+            id: data.user.id,
+            pseudonym: data.user.pseudonym,
+            email: data.user.email,
+            role: data.user.role,
           });
-
-          setUser(data.user);
-          setToken('authenticated'); // Cookie-based, so we just mark as authenticated
-
-          // Set Sentry user context for error tracking
-          if (data.user) {
-            setSentryUser({
-              id: data.user.id,
-              pseudonym: data.user.pseudonym,
-              email: data.user.email,
-              role: data.user.role,
-            });
-          }
-
-          // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
-          // when user state changes (see useEffect at bottom of component)
-          logger.debug('[AuthContext] User loaded, profile will be fetched via useEffect if needed');
-        } else {
-          // Not authenticated or token expired
-          setUser(null);
-          setToken(null);
-          clearSentryUser();
         }
-      } catch (error) {
-        logger.error('Auth check failed:', error);
+
+        // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
+        // when user state changes (see useEffect at bottom of component)
+        logger.debug('[AuthContext] User loaded, profile will be fetched via useEffect if needed');
+      } else {
+        // Not authenticated or token expired
+        if (isPeriodicCheck && user) {
+          logger.warn('[AuthContext] Session expired - user will be logged out');
+        }
         setUser(null);
         setToken(null);
-      } finally {
+        setLinkedEmployeeProfile(null);
+        clearSentryUser();
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (!isMountedRef.current) return;
+
+      // 🔧 FIX A3: Handle timeout specifically
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.warn(`[AuthContext] Auth check timed out after ${AUTH_CHECK_TIMEOUT_MS}ms`);
+      } else {
+        logger.error('Auth check failed:', error);
+      }
+
+      // Only clear user state on initial load, not on periodic network failures
+      if (!isPeriodicCheck) {
+        setUser(null);
+        setToken(null);
+      }
+    } finally {
+      if (isMountedRef.current && !isPeriodicCheck) {
         setLoading(false);
+      }
+    }
+  }, [user]);
+
+  // 🔧 FIX A3: Initial auth check on mount
+  useEffect(() => {
+    isMountedRef.current = true;
+    checkAuthStatus(false);
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 🔧 FIX A3: Periodic session validity check
+  useEffect(() => {
+    // Only start periodic checks when user is authenticated
+    if (!user) {
+      if (sessionCheckIntervalRef.current) {
+        clearInterval(sessionCheckIntervalRef.current);
+        sessionCheckIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Start periodic session validity check
+    sessionCheckIntervalRef.current = setInterval(() => {
+      logger.debug('[AuthContext] Performing periodic session check');
+      checkAuthStatus(true);
+    }, SESSION_VALIDITY_CHECK_INTERVAL_MS);
+
+    return () => {
+      if (sessionCheckIntervalRef.current) {
+        clearInterval(sessionCheckIntervalRef.current);
+        sessionCheckIntervalRef.current = null;
+      }
+    };
+  }, [user, checkAuthStatus]);
+
+  // 🔧 FIX A3: Re-check session when window gains focus (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user) {
+        logger.debug('[AuthContext] Tab became visible - checking session validity');
+        checkAuthStatus(true);
       }
     };
 
-    checkAuthStatus();
-  }, []);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [user, checkAuthStatus]);
 
   const login = async (login: string, password: string) => {
     try {

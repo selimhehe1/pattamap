@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { UseAppModalsReturn } from '../../hooks/useAppModals';
 import LoadingFallback from '../Common/LoadingFallback';
 import LoginForm from '../Auth/LoginForm';
+import ForgotPasswordForm from '../Auth/ForgotPasswordForm'; // 🔧 FIX A4
 import { EmployeeForm, EstablishmentForm } from '../../routes/lazyComponents';
 
 // Lazy-loaded modal components
@@ -27,6 +28,19 @@ const AppModals: React.FC<AppModalsProps> = ({ modals }) => {
             <LoginForm
               onClose={modals.closeLoginForm}
               onSwitchToRegister={modals.switchLoginToRegister}
+              onSwitchToForgotPassword={modals.switchLoginToForgotPassword}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 🔧 FIX A4: Forgot Password Form Modal */}
+      {modals.showForgotPasswordForm && (
+        <div className="modal-app-overlay">
+          <div className="modal-app-login-container">
+            <ForgotPasswordForm
+              onClose={modals.closeForgotPasswordForm}
+              onSwitchToLogin={modals.switchForgotPasswordToLogin}
             />
           </div>
         </div>

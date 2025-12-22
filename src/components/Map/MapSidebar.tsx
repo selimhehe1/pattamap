@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Zone } from './ZoneSelector';
 import '../../styles/components/map-sidebar.css';
+
+// 🔧 FIX M14: Debounce delay in milliseconds
+const SEARCH_DEBOUNCE_MS = 300;
 
 interface EstablishmentCategory {
   id: string;
@@ -48,6 +51,39 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   onViewModeToggle: _onViewModeToggle
 }) => {
   const { t } = useTranslation();
+
+  // 🔧 FIX M14: Local state for immediate input feedback + debounced callback
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync local state when external searchTerm changes (e.g., on clear filters)
+  useEffect(() => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
+
+  // Debounced search handler
+  const handleSearchChange = (value: string) => {
+    setLocalSearchTerm(value); // Immediate visual update
+
+    // Clear any existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new debounced callback
+    debounceTimerRef.current = setTimeout(() => {
+      onSearchChange?.(value);
+    }, SEARCH_DEBOUNCE_MS);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Helper to map zone IDs to translation keys
   const getZoneTranslationKey = (zoneId: string): string => {
@@ -111,13 +147,13 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
                 </button>
               </div>
 
-              {/* Search */}
+              {/* Search - 🔧 FIX M14: Now uses debounced local state */}
               <div className="sidebar-search-container-nightlife">
                 <input
                   type="text"
                   placeholder={t('search.placeholder')}
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange?.(e.target.value)}
+                  value={localSearchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="sidebar-search-input-nightlife"
                 />
               </div>
