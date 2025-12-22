@@ -63,6 +63,27 @@ export const subscribe = async (req: AuthRequest, res: Response) => {
       .eq('endpoint', subscription.endpoint)
       .single();
 
+    // 🔧 FIX N5: Check subscription count limit (max 10 per user)
+    const MAX_SUBSCRIPTIONS_PER_USER = 10;
+    if (!existing) {
+      const { count: subscriptionCount } = await supabase
+        .from('push_subscriptions')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', req.user.id);
+
+      if ((subscriptionCount || 0) >= MAX_SUBSCRIPTIONS_PER_USER) {
+        logger.warn('Push subscription limit reached', {
+          userId: req.user.id,
+          currentCount: subscriptionCount,
+          limit: MAX_SUBSCRIPTIONS_PER_USER
+        });
+        return res.status(400).json({
+          error: `Maximum ${MAX_SUBSCRIPTIONS_PER_USER} push subscriptions allowed. Please remove an old subscription first.`,
+          code: 'SUBSCRIPTION_LIMIT_REACHED'
+        });
+      }
+    }
+
     if (existing) {
       // Update existing subscription (in case user_id changed)
       const { error: updateError } = await supabase

@@ -122,7 +122,13 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     searchEmployeeByName(suggestion);
   };
 
+  // 🔧 FIX C7: Limit proof URLs to 5 max
+  const MAX_PROOF_URLS = 5;
+
   const addProofField = () => {
+    if (verificationProofs.length >= MAX_PROOF_URLS) {
+      return; // Don't add more than 5
+    }
     setVerificationProofs([...verificationProofs, '']);
   };
 
@@ -422,21 +428,23 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
               </div>
             ))}
 
+            {/* 🔧 FIX C7: Disable button when at max proof URLs */}
             <button
               type="button"
               onClick={addProofField}
+              disabled={verificationProofs.length >= MAX_PROOF_URLS}
               style={{
                 padding: '8px 16px',
-                background: 'rgba(0,229,255,0.1)',
-                border: '1px solid #00E5FF',
+                background: verificationProofs.length >= MAX_PROOF_URLS ? 'rgba(128,128,128,0.1)' : 'rgba(0,229,255,0.1)',
+                border: `1px solid ${verificationProofs.length >= MAX_PROOF_URLS ? '#666' : '#00E5FF'}`,
                 borderRadius: '8px',
-                color: '#00E5FF',
-                cursor: 'pointer',
+                color: verificationProofs.length >= MAX_PROOF_URLS ? '#666' : '#00E5FF',
+                cursor: verificationProofs.length >= MAX_PROOF_URLS ? 'not-allowed' : 'pointer',
                 fontSize: '13px',
                 marginTop: '8px',
               }}
             >
-              + {t('claimEmployeeModal.addProofButton')}
+              + {t('claimEmployeeModal.addProofButton')} ({verificationProofs.length}/{MAX_PROOF_URLS})
             </button>
           </div>
 

@@ -16,12 +16,15 @@ import {
 export const getMyNotifications = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { unread_only, limit = '50' } = req.query;
+    const { unread_only, limit: rawLimit = '50' } = req.query;
+
+    // 🔧 FIX N4: Validate and sanitize limit parameter (1-100)
+    const limit = Math.min(100, Math.max(1, parseInt(rawLimit as string, 10) || 50));
 
     // Use RPC function to bypass PostgREST cache issue
     const { data: notifications, error } = await supabase.rpc('get_user_notifications', {
       p_user_id: userId,
-      p_limit: parseInt(limit as string, 10),
+      p_limit: limit,
       p_unread_only: unread_only === 'true'
     });
 

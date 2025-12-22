@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { notificationRateLimit, notificationMutationRateLimit } from '../middleware/rateLimit'; // 🔧 FIX N3
 import {
   getMyNotifications,
   getUnreadCount,
@@ -58,7 +59,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticateToken, getMyNotifications);
+router.get('/', authenticateToken, notificationRateLimit, getMyNotifications); // 🔧 FIX N3: Rate limited
 
 /**
  * @swagger
@@ -86,7 +87,7 @@ router.get('/', authenticateToken, getMyNotifications);
  *       500:
  *         description: Internal server error
  */
-router.get('/unread-count', authenticateToken, getUnreadCount);
+router.get('/unread-count', authenticateToken, notificationRateLimit, getUnreadCount); // 🔧 FIX N3: Rate limited
 
 /**
  * @swagger
@@ -126,7 +127,7 @@ router.get('/unread-count', authenticateToken, getUnreadCount);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/read', authenticateToken, csrfProtection, markAsRead);
+router.patch('/:id/read', authenticateToken, notificationMutationRateLimit, csrfProtection, markAsRead); // 🔧 FIX N3: Rate limited
 
 /**
  * @swagger
@@ -156,7 +157,7 @@ router.patch('/:id/read', authenticateToken, csrfProtection, markAsRead);
  *       500:
  *         description: Internal server error or operation failed
  */
-router.patch('/mark-all-read', authenticateToken, csrfProtection, markAllRead);
+router.patch('/mark-all-read', authenticateToken, notificationMutationRateLimit, csrfProtection, markAllRead); // 🔧 FIX N3: Rate limited
 
 /**
  * @swagger
@@ -194,6 +195,6 @@ router.patch('/mark-all-read', authenticateToken, csrfProtection, markAllRead);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticateToken, csrfProtection, deleteNotification);
+router.delete('/:id', authenticateToken, notificationMutationRateLimit, csrfProtection, deleteNotification); // 🔧 FIX N3: Rate limited
 
 export default router;

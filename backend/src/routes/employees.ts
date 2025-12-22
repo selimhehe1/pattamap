@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticateToken, requireRole, requireAdmin } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { searchSuggestionsRateLimit, employeeSearchRateLimit } from '../middleware/rateLimit'; // 🔧 FIX S4
 import {
   getEmployees,
   getEmployee,
@@ -28,8 +29,8 @@ const router = Router();
 
 // Public routes (specific routes BEFORE parameterized routes)
 router.get('/', getEmployees);
-router.get('/search', searchEmployees); // Advanced search endpoint
-router.get('/suggestions/names', getEmployeeNameSuggestions); // Autocomplete suggestions
+router.get('/search', employeeSearchRateLimit, searchEmployees); // 🔧 FIX S4: Rate limited search
+router.get('/suggestions/names', searchSuggestionsRateLimit, getEmployeeNameSuggestions); // 🔧 FIX S4: Rate limited autocomplete
 
 // ==========================================
 // 🆕 EMPLOYEE CLAIM SYSTEM ROUTES (v10.0)

@@ -77,6 +77,10 @@ interface Notification {
   };
 }
 
+// 🔧 FIX N6: Exponential backoff constants
+const BASE_POLL_INTERVAL_MS = 30000; // 30 seconds base
+const MAX_POLL_INTERVAL_MS = 300000; // 5 minutes max
+
 const NotificationBell: React.FC = () => {
   const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
@@ -93,20 +97,28 @@ const NotificationBell: React.FC = () => {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // 🔧 FIX N6: Exponential backoff state
+  const consecutiveErrorsRef = useRef(0);
+  const currentIntervalRef = useRef(BASE_POLL_INTERVAL_MS);
+
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   // Fetch unread count
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user) return;
+  // 🔧 FIX N6: Returns success boolean for exponential backoff
+  const fetchUnreadCount = useCallback(async (): Promise<boolean> => {
+    if (!user) return true; // No error if no user
 
     try {
       const response = await secureFetch(`${API_URL}/api/notifications/unread-count`);
       if (response.ok) {
         const data = await response.json();
         setUnreadCount(data.count || 0);
+        return true; // Success
       }
+      return false; // Non-ok response is an error
     } catch (error) {
       logger.error('Failed to fetch unread notification count:', error);
+      return false; // Network error
     }
   }, [user, secureFetch, API_URL]);
 
@@ -129,19 +141,53 @@ const NotificationBell: React.FC = () => {
   }, [user, secureFetch, API_URL]);
 
   // Initial fetch and periodic refresh
+  // 🔧 FIX N6: Exponential backoff on polling errors
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
       // Only fetch notifications on mount, not on every dependency change
       fetchNotifications();
 
-      // Auto-refresh every 30 seconds
-      const interval = setInterval(() => {
-        fetchUnreadCount();
-        // Don't auto-refresh notifications list, only on dropdown open
-      }, 30000);
+      // Reset backoff state on mount
+      consecutiveErrorsRef.current = 0;
+      currentIntervalRef.current = BASE_POLL_INTERVAL_MS;
 
-      return () => clearInterval(interval);
+      let timeoutId: NodeJS.Timeout;
+
+      // 🔧 FIX N6: Use setTimeout with dynamic interval for exponential backoff
+      const scheduleNextPoll = () => {
+        timeoutId = setTimeout(async () => {
+          const success = await fetchUnreadCount();
+
+          if (success) {
+            // Reset on success
+            if (consecutiveErrorsRef.current > 0) {
+              logger.debug('Notification polling recovered, resetting interval');
+            }
+            consecutiveErrorsRef.current = 0;
+            currentIntervalRef.current = BASE_POLL_INTERVAL_MS;
+          } else {
+            // Exponential backoff on error
+            consecutiveErrorsRef.current++;
+            const backoffMultiplier = Math.pow(2, consecutiveErrorsRef.current);
+            currentIntervalRef.current = Math.min(
+              BASE_POLL_INTERVAL_MS * backoffMultiplier,
+              MAX_POLL_INTERVAL_MS
+            );
+            logger.warn(`Notification polling error #${consecutiveErrorsRef.current}, next poll in ${currentIntervalRef.current / 1000}s`);
+          }
+
+          // Schedule next poll with current interval
+          scheduleNextPoll();
+        }, currentIntervalRef.current);
+      };
+
+      // Start polling
+      scheduleNextPoll();
+
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]); // Only re-run when user changes

@@ -273,4 +273,54 @@ export const healthCheckRateLimit = createRateLimit({
   }
 });
 
+// 🔧 FIX S4: Search suggestions rate limit
+// Autocomplete can be hammered on each keystroke, limit to prevent abuse
+export const searchSuggestionsRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 60, // Max 60 requests per minute (1 per second avg)
+  message: 'Too many search requests. Please slow down.',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `search-suggestions:${userIdFromToken}:${ip}`;
+  }
+});
+
+// 🔧 FIX S4: Employee search rate limit
+export const employeeSearchRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 30, // Max 30 searches per minute
+  message: 'Too many search requests. Please wait before searching again.',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `employee-search:${userIdFromToken}:${ip}`;
+  }
+});
+
+// 🔧 FIX N3: Notification endpoints rate limit
+// Unread-count is polled frequently, limit to prevent abuse
+export const notificationRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 30, // Max 30 requests per minute (1 per 2 seconds avg)
+  message: 'Too many notification requests. Please wait.',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `notifications:${userIdFromToken}:${ip}`;
+  }
+});
+
+// 🔧 FIX N3: Stricter rate limit for notification mutations (mark read, delete)
+export const notificationMutationRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 60, // Max 60 mutations per minute
+  message: 'Too many notification actions. Please slow down.',
+  keyGenerator: (req: Request) => {
+    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `notification-mutations:${userIdFromToken}:${ip}`;
+  }
+});
+
 export { store as rateLimitStore };

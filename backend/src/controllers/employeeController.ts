@@ -861,6 +861,24 @@ interface CacheEntry {
 
 const suggestionCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
+const MAX_CACHE_SIZE = 1000; // 🔧 FIX S2: Limit cache size to prevent memory leak
+
+/**
+ * 🔧 FIX S2: Simple LRU eviction - removes oldest entries when cache is full
+ */
+const evictOldestCacheEntries = () => {
+  if (suggestionCache.size <= MAX_CACHE_SIZE) return;
+
+  // Convert to array, sort by timestamp, keep only newest MAX_CACHE_SIZE entries
+  const entries = Array.from(suggestionCache.entries())
+    .sort((a, b) => b[1].timestamp - a[1].timestamp) // newest first
+    .slice(0, MAX_CACHE_SIZE);
+
+  suggestionCache.clear();
+  entries.forEach(([key, value]) => suggestionCache.set(key, value));
+
+  logger.debug(`🧹 Cache eviction: reduced to ${suggestionCache.size} entries`);
+};
 
 export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response) => {
   try {
@@ -957,6 +975,9 @@ export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response
       timestamp: Date.now()
     });
 
+    // 🔧 FIX S2: Evict old entries if cache is full
+    evictOldestCacheEntries();
+
     logger.debug(`✅ Returning ${finalSuggestions.length} suggestions for "${searchTerm}"`);
     res.json({ suggestions: finalSuggestions });
 
@@ -980,12 +1001,16 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
       is_verified,
       sort_by = 'relevance',
       sort_order = 'desc',
-      page = 1,
-      limit = 20
+      page: rawPage = 1,
+      limit: rawLimit = 20
     } = req.query;
 
+    // 🔧 FIX S3: Validate and sanitize pagination parameters
+    const page = Math.max(1, Number(rawPage) || 1);
+    const limit = Math.min(100, Math.max(1, Number(rawLimit) || 20));
+
     // Calculate offset for pagination
-    const offset = (Number(page) - 1) * Number(limit);
+    const offset = (page - 1) * limit;
 
     // If zone filter is provided, filter will be applied after query (to include freelances)
     let normalizedZoneFilter: string | null = null;
@@ -1590,6 +1615,15 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // 🔧 FIX C7: Limit proof URLs to 5 max
+    const MAX_PROOF_URLS = 5;
+    if (verification_proof && verification_proof.length > MAX_PROOF_URLS) {
+      return res.status(400).json({
+        error: `Maximum ${MAX_PROOF_URLS} proof URLs allowed`,
+        code: 'TOO_MANY_PROOFS'
+      });
+    }
+
     // Check if user already has a linked profile
     const { data: existingUser } = await supabase
       .from('users')
@@ -1835,37 +1869,50 @@ export const getClaimRequests = async (req: AuthRequest, res: Response) => {
     // Get claim requests from moderation_queue
     // 🔧 v10.2 FIX: Show ALL claims (self_profile AND claim_existing)
     // This ensures all employee claim requests appear in the admin dashboard
-    const { data: claims, error } = await supabase
+    let query = supabase
       .from('moderation_queue')
       .select(`
         *,
         submitted_by_user:users!moderation_queue_submitted_by_fkey(id, pseudonym, email),
         moderator_user:users!moderation_queue_moderator_id_fkey(id, pseudonym)
       `)
-      .eq('item_type', 'employee_claim')
-      .eq('status', status)
-      .order('created_at', { ascending: false });
+      .eq('item_type', 'employee_claim');
+
+    // 🔧 FIX C3: Only apply status filter if NOT 'all'
+    if (status && status !== 'all') {
+      query = query.eq('status', status);
+    }
+
+    const { data: claims, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       logger.error('Get claim requests error:', error);
       return res.status(400).json({ error: error.message });
     }
 
-    // Manually fetch employee data for each claim
-    const enrichedClaims = await Promise.all(
-      (claims || []).map(async (claim) => {
-        const { data: employee } = await supabase
-          .from('employees')
-          .select('id, name, nickname, photos')
-          .eq('id', claim.item_id)
-          .single();
+    // 🔧 FIX C4: Batch fetch employee data with IN query instead of N+1
+    const employeeIds = [...new Set((claims || []).map(c => c.item_id).filter(Boolean))];
+    let employeesMap: Record<string, { id: string; name: string; nickname: string; photos: string[] }> = {};
 
-        return {
-          ...claim,
-          employee
-        };
-      })
-    );
+    if (employeeIds.length > 0) {
+      const { data: employees } = await supabase
+        .from('employees')
+        .select('id, name, nickname, photos')
+        .in('id', employeeIds);
+
+      if (employees) {
+        employeesMap = employees.reduce((acc, emp) => {
+          acc[emp.id] = emp;
+          return acc;
+        }, {} as typeof employeesMap);
+      }
+    }
+
+    // Enrich claims with pre-fetched employee data (O(1) lookup)
+    const enrichedClaims = (claims || []).map(claim => ({
+      ...claim,
+      employee: employeesMap[claim.item_id] || null
+    }));
 
     res.json({
       claims: enrichedClaims,
@@ -2056,6 +2103,20 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // 🔧 FIX C2: First get the claim details to send notification later
+    const { data: claim, error: claimError } = await supabase
+      .from('moderation_queue')
+      .select('*, request_metadata')
+      .eq('id', claimId)
+      .eq('status', 'pending')
+      .eq('item_type', 'employee_claim')
+      .single();
+
+    if (claimError || !claim) {
+      logger.error('Claim not found:', claimError);
+      return res.status(404).json({ error: 'Claim request not found or already processed' });
+    }
+
     // Use SQL helper function to reject claim
     const { data: success, error: rejectError } = await supabase
       .rpc('reject_employee_claim_request', {
@@ -2072,6 +2133,46 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
     }
 
     logger.info(`Claim request ${claimId} rejected by admin ${req.user.id}`);
+
+    // 🔧 FIX C2: Notify user that their claim was rejected
+    try {
+      // Get employee name for notification message
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('name')
+        .eq('id', claim.item_id)
+        .single();
+
+      const employeeName = employee?.name || 'the employee profile';
+      const claimType = claim.request_metadata?.claim_type;
+      const isSelftProfile = claimType === 'self_profile';
+
+      const { error: notifError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: claim.submitted_by,
+          type: 'ownership_request_rejected',
+          title: isSelftProfile ? 'Employee Profile Rejected' : 'Claim Request Rejected',
+          message: isSelftProfile
+            ? `Your employee profile request has been rejected. Reason: ${moderator_notes.trim()}`
+            : `Your claim request for "${employeeName}" has been rejected. Reason: ${moderator_notes.trim()}`,
+          link: '/my-claims',
+          related_entity_type: 'employee_claim',
+          related_entity_id: claimId,
+          metadata: {
+            i18n_key: isSelftProfile ? 'notifications.selfProfileRejected' : 'notifications.claimRejected',
+            i18n_params: { employeeName, reason: moderator_notes.trim() }
+          }
+        });
+
+      if (notifError) {
+        logger.error('Failed to create user notification for rejected claim:', notifError);
+      } else {
+        logger.info(`Notified user ${claim.submitted_by} of rejected claim for ${employeeName}`);
+      }
+    } catch (notifError) {
+      logger.error('User notification error:', notifError);
+    }
 
     res.json({
       message: 'Claim request rejected successfully.',
