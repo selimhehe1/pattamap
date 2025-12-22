@@ -177,11 +177,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ login, password }),
       });
 
-      const data = await response.json();
-
+      // 🔧 FIX L1: Check response.ok BEFORE parsing JSON to prevent "Unexpected end of JSON input"
+      // Server may return empty body on certain errors (500, network issues)
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // JSON parsing failed - use status-based message
+          if (response.status === 401) {
+            errorMessage = 'Invalid credentials';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
 
       setUser(data.user);
       setToken('authenticated'); // Cookie-based authentication
@@ -226,11 +240,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }),
       });
 
-      const data = await response.json();
-
+      // 🔧 FIX L1: Check response.ok BEFORE parsing JSON (same pattern as login)
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
 
       setUser(data.user);
       setToken('authenticated'); // Cookie-based authentication

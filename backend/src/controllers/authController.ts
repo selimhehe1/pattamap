@@ -21,10 +21,10 @@ const validateEmail = (email: string): boolean => {
 };
 
 /**
- * 🔒 SECURITY FIX: Strengthened Password Policy (CVSS 6.5)
+ * 🔒 Password Policy
  *
- * Requirements (NIST SP 800-63B compliant):
- * - Minimum 12 characters (was 8)
+ * Requirements:
+ * - Minimum 8 characters (user request: not a high-security site)
  * - At least one lowercase letter
  * - At least one uppercase letter
  * - At least one number
@@ -37,11 +37,11 @@ const validateEmail = (email: string): boolean => {
  * - Credential stuffing
  */
 const validatePassword = (password: string): { valid: boolean; message?: string } => {
-  // Length checks
-  if (password.length < 12) {
+  // Length checks - 🔧 FIX P1: Changed from 12 to 8 (user request)
+  if (password.length < 8) {
     return {
       valid: false,
-      message: 'Password must be at least 12 characters long'
+      message: 'Password must be at least 8 characters long'
     };
   }
   if (password.length > 128) {

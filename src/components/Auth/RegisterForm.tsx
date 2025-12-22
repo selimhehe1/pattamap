@@ -53,7 +53,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     },
     password: {
       required: true,
-      minLength: 12, // 🔧 FIX A5: Aligned with backend (12 chars minimum)
+      minLength: 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
       message: (field, rule) => {
         if (rule === 'required') return t('register.passwordRequired');
         if (rule === 'minLength') return t('register.passwordMinLength');
