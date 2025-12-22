@@ -41,7 +41,7 @@ export default defineConfig({
   fullyParallel: false, // Sequential to avoid rate limiting on auth
   forbidOnly: !!process.env.CI, // Fail on .only() in CI
   retries: process.env.CI ? 2 : 0, // 2 retries in CI for flaky test resilience
-  workers: 1, // Single worker to avoid Supabase rate limiting on auth
+  workers: process.env.CI ? 2 : 1, // 2 workers in CI for performance, 1 locally to avoid Supabase rate limiting
 
   // Reporter config
   reporter: [

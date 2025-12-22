@@ -75,7 +75,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [chromium-desktop, chromium-mobile, chromium-tablet]
+        include:
+          - project: chromium-desktop
+            browser: chromium
+          - project: chromium-mobile
+            browser: chromium
+          - project: firefox-desktop
+            browser: firefox
+          - project: webkit-desktop
+            browser: webkit
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -106,7 +114,7 @@ jobs:
           path: backend/dist/
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Start servers
         run: |
@@ -212,6 +220,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run Auth Tests
         run: |
           npx playwright test \
@@ -225,7 +240,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -294,6 +311,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run CRUD Tests
         run: |
           npx playwright test \
@@ -311,7 +335,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -380,6 +406,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run Features Tests
         run: |
           npx playwright test \
@@ -395,7 +428,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -464,6 +499,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run UI Tests
         run: |
           npx playwright test \
@@ -481,7 +523,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -550,6 +594,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run Pages Tests
         run: |
           npx playwright test \
@@ -565,7 +616,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -634,6 +687,13 @@ jobs:
           JWT_SECRET: e2e-test-jwt-secret-that-is-at-least-32-characters-long
           SESSION_SECRET: e2e-test-session-secret-for-ci-pipeline
 
+      - name: Setup test accounts
+        run: node backend/scripts/setup-test-accounts.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
       - name: Run Maps & Performance Tests
         run: |
           npx playwright test \
@@ -649,7 +709,9 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          E2E_USE_MOCK_AUTH: 'true'
+          E2E_USE_MOCK_AUTH: 'false'
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
 
       - name: Upload report
         uses: actions/upload-artifact@v4
