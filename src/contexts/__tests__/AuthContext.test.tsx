@@ -274,9 +274,9 @@ describe('AuthContext', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      let returnedToken: string | undefined;
+      let returnedResult: { csrfToken?: string; passwordBreached?: boolean } | undefined;
       await act(async () => {
-        returnedToken = await result.current.register(
+        returnedResult = await result.current.register(
           'newuser',
           'new@example.com',
           'SecurePassword123!'
@@ -285,7 +285,7 @@ describe('AuthContext', () => {
 
       expect(result.current.user).toEqual(mockUser);
       expect(result.current.token).toBe('authenticated');
-      expect(returnedToken).toBe('new-csrf');
+      expect(returnedResult?.csrfToken).toBe('new-csrf');
     });
 
     it('should register with account type', async () => {

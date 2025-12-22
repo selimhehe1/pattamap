@@ -319,11 +319,11 @@ describe('rateLimit Middleware', () => {
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('authRateLimit should allow 5 auth attempts (security hardened - FIX A2)', async () => {
+    it('authRateLimit should allow 10 auth attempts (balanced security/UX)', async () => {
       await authRateLimit(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(setMock).toHaveBeenCalledWith(expect.objectContaining({
-        'X-RateLimit-Limit': '5'
+        'X-RateLimit-Limit': '10'
       }));
     });
 

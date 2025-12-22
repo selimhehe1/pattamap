@@ -140,7 +140,8 @@ describe('AuthController', () => {
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'User registered successfully',
         user: newUser,
-        csrfToken: 'new-csrf-token'
+        csrfToken: 'new-csrf-token',
+        passwordBreached: false
       });
     });
 
@@ -696,7 +697,8 @@ describe('AuthController', () => {
       await changePassword(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(jsonMock).toHaveBeenCalledWith({
-        message: 'Password changed successfully'
+        message: 'Password changed successfully',
+        passwordBreached: false
       });
     });
 
