@@ -754,38 +754,50 @@ router.get('/employees', async (req, res) => {
     const { data, error } = await query;
 
     if (error) {
+      logger.error('Supabase query error:', error);
       throw error;
     }
 
+    logger.debug(`Found ${data?.length || 0} employees`);
+
     // Transform data using the utility function
-    const transformedEmployees = (data || []).map(emp => {
-      const baseEmployee = transformEmployee(emp);
-      return {
-        ...baseEmployee,
-        employment_history: emp.employment_history?.map((eh: DbEmploymentHistory) => ({
-          id: eh.id, // Keep original UUID
-          employee_id: emp.id, // Keep original UUID
-          establishment_id: eh.establishment_id, // Keep original UUID
-          establishment_name: eh.establishment?.name || 'Unknown',
-          position: eh.position,
-          start_date: eh.start_date,
-          end_date: eh.end_date,
-          is_current: eh.is_current,
-          notes: `Working at ${eh.establishment?.name}`,
-          created_by: emp.created_by || null, // Keep original UUID if present
-          created_at: emp.created_at,
-          updated_at: emp.updated_at,
-          establishment: eh.establishment ? {
-            ...eh.establishment,
-            id: eh.establishment.id // Keep original UUID
-          } : null
-        })) || []
-      };
+    const transformedEmployees = (data || []).map((emp, index) => {
+      try {
+        const baseEmployee = transformEmployee(emp);
+        return {
+          ...baseEmployee,
+          employment_history: emp.employment_history?.map((eh: DbEmploymentHistory) => ({
+            id: eh.id,
+            employee_id: emp.id,
+            establishment_id: eh.establishment_id,
+            establishment_name: eh.establishment?.name || 'Unknown',
+            position: eh.position,
+            start_date: eh.start_date,
+            end_date: eh.end_date,
+            is_current: eh.is_current,
+            notes: `Working at ${eh.establishment?.name || 'Unknown'}`,
+            created_by: emp.created_by || null,
+            created_at: emp.created_at,
+            updated_at: emp.updated_at,
+            establishment: eh.establishment ? {
+              ...eh.establishment,
+              id: eh.establishment.id
+            } : null
+          })) || []
+        };
+      } catch (transformError) {
+        logger.error(`Error transforming employee ${index}:`, transformError);
+        logger.error('Employee data:', JSON.stringify(emp, null, 2));
+        throw transformError;
+      }
     });
 
     res.json({ employees: transformedEmployees });
   } catch (error: unknown) {
     logger.error('Error fetching employees:', error);
+    if (error instanceof Error) {
+      logger.error('Error stack:', error.stack);
+    }
     res.status(500).json({ error: 'Failed to fetch employees' });
   }
 });
