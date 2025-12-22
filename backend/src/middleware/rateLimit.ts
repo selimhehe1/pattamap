@@ -323,4 +323,16 @@ export const notificationMutationRateLimit = createRateLimit({
   }
 });
 
+// 🔧 Phase 9: Availability check rate limit (pseudonym/email during registration)
+// More permissive than auth endpoints since it's used during typing
+export const availabilityCheckRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 60, // Max 60 requests per minute (1 per second avg with debounce)
+  message: 'Too many availability checks. Please slow down.',
+  keyGenerator: (req: Request) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `availability:${ip}`;
+  }
+});
+
 export { store as rateLimitStore };

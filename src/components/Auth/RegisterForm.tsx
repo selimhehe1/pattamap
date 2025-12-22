@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
+import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import FormField from '../Common/FormField';
 import toast from '../../utils/toast';
 import '../../styles/components/modal-forms.css';
@@ -91,6 +92,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     enabled: true
   });
 
+  // 🔧 Phase 9: Real-time availability check
+  const pseudonymAvailability = useAvailabilityCheck('pseudonym');
+  const emailAvailability = useAvailabilityCheck('email');
+
   // Restore draft on mount
   useEffect(() => {
     if (isDraft) {
@@ -110,6 +115,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     }));
     handleFieldChange(fieldName as keyof typeof formData, value);
     setSubmitError('');
+
+    // 🔧 Phase 9: Trigger availability check
+    if (fieldName === 'pseudonym') {
+      pseudonymAvailability.checkAvailability(value);
+    } else if (fieldName === 'email') {
+      emailAvailability.checkAvailability(value);
+    }
   };
 
   const handleInputBlur = (fieldName: string, value: string) => {
@@ -120,11 +132,51 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     onClose();
   };
 
+  // 🔧 Phase 9: Helper to render availability feedback
+  const renderAvailabilityFeedback = (
+    status: 'idle' | 'checking' | 'available' | 'taken' | 'error' | 'invalid',
+    message: string | null
+  ) => {
+    if (status === 'idle') return null;
+
+    const styles: Record<string, React.CSSProperties> = {
+      checking: { color: '#00E5FF', fontSize: '12px', marginTop: '4px' },
+      available: { color: '#4CAF50', fontSize: '12px', marginTop: '4px' },
+      taken: { color: '#FF5252', fontSize: '12px', marginTop: '4px' },
+      invalid: { color: '#FF9800', fontSize: '12px', marginTop: '4px' },
+      error: { color: '#FF9800', fontSize: '12px', marginTop: '4px' },
+    };
+
+    const icons: Record<string, string> = {
+      checking: '⏳',
+      available: '✓',
+      taken: '✗',
+      invalid: '⚠️',
+      error: '⚠️',
+    };
+
+    return (
+      <div style={styles[status]}>
+        {icons[status]} {message}
+      </div>
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       toast.error(t('register.fixErrorsToast'));
+      return;
+    }
+
+    // 🔧 Phase 9: Block submit if pseudonym or email is taken
+    if (pseudonymAvailability.status === 'taken') {
+      toast.error(t('register.pseudonymTaken'));
+      return;
+    }
+    if (emailAvailability.status === 'taken') {
+      toast.error(t('register.emailTaken'));
       return;
     }
 
@@ -374,35 +426,41 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             )}
           </div>
 
-          <FormField
-            label={`👤 ${t('register.pseudonymLabel')}`}
-            name="pseudonym"
-            value={formData.pseudonym}
-            error={errors.pseudonym}
-            status={fieldStatus.pseudonym}
-            onChange={(e) => handleInputChange('pseudonym', e.target.value)}
-            onBlur={(e) => handleInputBlur('pseudonym', e.target.value)}
-            placeholder={t('register.pseudonymPlaceholder')}
-            required
-            maxLength={50}
-            showCounter
-            helpText={t('register.pseudonymHelp')}
-            testId="pseudonym-input"
-          />
+          <div>
+            <FormField
+              label={`👤 ${t('register.pseudonymLabel')}`}
+              name="pseudonym"
+              value={formData.pseudonym}
+              error={errors.pseudonym}
+              status={fieldStatus.pseudonym}
+              onChange={(e) => handleInputChange('pseudonym', e.target.value)}
+              onBlur={(e) => handleInputBlur('pseudonym', e.target.value)}
+              placeholder={t('register.pseudonymPlaceholder')}
+              required
+              maxLength={50}
+              showCounter
+              helpText={t('register.pseudonymHelp')}
+              testId="pseudonym-input"
+            />
+            {renderAvailabilityFeedback(pseudonymAvailability.status, pseudonymAvailability.message)}
+          </div>
 
-          <FormField
-            label={`📧 ${t('register.emailLabel')}`}
-            name="email"
-            type="email"
-            value={formData.email}
-            error={errors.email}
-            status={fieldStatus.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            onBlur={(e) => handleInputBlur('email', e.target.value)}
-            placeholder={t('register.emailPlaceholder')}
-            required
-            testId="email-input"
-          />
+          <div>
+            <FormField
+              label={`📧 ${t('register.emailLabel')}`}
+              name="email"
+              type="email"
+              value={formData.email}
+              error={errors.email}
+              status={fieldStatus.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              onBlur={(e) => handleInputBlur('email', e.target.value)}
+              placeholder={t('register.emailPlaceholder')}
+              required
+              testId="email-input"
+            />
+            {renderAvailabilityFeedback(emailAvailability.status, emailAvailability.message)}
+          </div>
 
           <FormField
             label={`🔒 ${t('register.passwordLabel')}`}
@@ -415,7 +473,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             onBlur={(e) => handleInputBlur('password', e.target.value)}
             placeholder={t('register.passwordPlaceholder')}
             required
-            minLength={12}
+            minLength={8}
             helpText={t('register.passwordHelp')}
             testId="register-password-input"
           />

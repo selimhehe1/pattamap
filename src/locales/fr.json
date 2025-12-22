@@ -497,6 +497,8 @@
     "passwordInvalid": "Mot de passe invalide",
     "passwordsNoMatch": "Les mots de passe ne correspondent pas",
     "passwordsMustMatch": "Les mots de passe doivent correspondre",
+    "pseudonymTaken": "Ce pseudonyme est déjà utilisé",
+    "emailTaken": "Cet email est déjà utilisé",
     "draftCleared": "Brouillon effacé",
     "draftClearedToast": "Brouillon effacé",
     "zones": {

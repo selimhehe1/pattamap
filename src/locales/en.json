@@ -511,6 +511,8 @@
     "passwordInvalid": "Invalid password",
     "passwordsNoMatch": "Passwords do not match",
     "passwordsMustMatch": "Passwords must match",
+    "pseudonymTaken": "This pseudonym is already taken",
+    "emailTaken": "This email is already taken",
     "zones": {
       "beachroad": "Beach Road",
       "walkingstreet": "Walking Street",

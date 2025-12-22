@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { register, login, getProfile, logout, forgotPassword, resetPassword } from '../controllers/authController';
+import { register, login, getProfile, logout, forgotPassword, resetPassword, checkAvailability } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { availabilityCheckRateLimit } from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -236,5 +237,48 @@ router.post('/forgot-password', csrfProtection, forgotPassword);
  *         description: Invalid token, expired token, or weak password
  */
 router.post('/reset-password', csrfProtection, resetPassword);
+
+/**
+ * @swagger
+ * /api/auth/check-availability:
+ *   get:
+ *     summary: Check pseudonym/email availability
+ *     description: Real-time check if pseudonym or email is available during registration
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: pseudonym
+ *         schema:
+ *           type: string
+ *         description: Pseudonym to check
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Email to check
+ *     responses:
+ *       200:
+ *         description: Availability check result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pseudonymAvailable:
+ *                   type: boolean
+ *                 emailAvailable:
+ *                   type: boolean
+ *                 pseudonymError:
+ *                   type: string
+ *                   description: INVALID_FORMAT if format is wrong
+ *                 emailError:
+ *                   type: string
+ *                   description: INVALID_FORMAT if format is wrong
+ *       400:
+ *         description: Missing parameters
+ *       429:
+ *         description: Rate limit exceeded
+ */
+router.get('/check-availability', availabilityCheckRateLimit, checkAvailability);
 
 export default router;

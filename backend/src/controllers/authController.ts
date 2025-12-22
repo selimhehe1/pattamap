@@ -871,3 +871,83 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
   }
 };
+
+// ==========================================
+// 🔧 Phase 9: Real-time Availability Check
+// ==========================================
+
+/**
+ * Check if pseudonym and/or email are available
+ * GET /api/auth/check-availability?pseudonym=xxx&email=xxx
+ *
+ * Used for real-time validation during registration
+ * Rate limited separately (more permissive than auth endpoints)
+ */
+export const checkAvailability = async (req: Request, res: Response) => {
+  try {
+    const { pseudonym, email } = req.query;
+
+    // At least one field must be provided
+    if (!pseudonym && !email) {
+      return res.status(400).json({
+        error: 'At least one of pseudonym or email must be provided',
+        code: 'MISSING_FIELD'
+      });
+    }
+
+    const result: {
+      pseudonymAvailable?: boolean;
+      emailAvailable?: boolean;
+      pseudonymError?: string;
+      emailError?: string;
+    } = {};
+
+    // Check pseudonym availability
+    if (pseudonym && typeof pseudonym === 'string') {
+      const trimmedPseudonym = pseudonym.trim();
+
+      // Validate format first
+      if (!validatePseudonym(trimmedPseudonym)) {
+        result.pseudonymAvailable = false;
+        result.pseudonymError = 'INVALID_FORMAT';
+      } else {
+        // Check if exists in database
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .ilike('pseudonym', trimmedPseudonym)
+          .single();
+
+        result.pseudonymAvailable = !existingUser;
+      }
+    }
+
+    // Check email availability
+    if (email && typeof email === 'string') {
+      const sanitizedEmail = sanitizeInput(email);
+
+      // Validate format first
+      if (!validateEmail(sanitizedEmail)) {
+        result.emailAvailable = false;
+        result.emailError = 'INVALID_FORMAT';
+      } else {
+        // Check if exists in database
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .ilike('email', sanitizedEmail)
+          .single();
+
+        result.emailAvailable = !existingUser;
+      }
+    }
+
+    res.json(result);
+  } catch (error) {
+    logger.error('Check availability error:', error);
+    return res.status(500).json({
+      error: 'Failed to check availability',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+};
