@@ -53,3 +53,15 @@ export { useWebPSupport } from './useWebPSupport';
 
 // Animations
 export { useScrollAnimation, useScrollAnimations } from './useScrollAnimation';
+
+// IntersectionObserver (Phase 5.1)
+export { useIntersectionObserver } from './useIntersectionObserver';
+export type { UseIntersectionObserverOptions, UseIntersectionObserverReturn } from './useIntersectionObserver';
+
+// Lazy Loading (Phase 5.1)
+export { useLazyLoad, useLazyLoadMultiple } from './useLazyLoad';
+export type { UseLazyLoadOptions, UseLazyLoadReturn } from './useLazyLoad';
+
+// Infinite Scroll (Phase 5.1)
+export { useInfiniteScroll, useInfiniteScrollWithReset } from './useInfiniteScroll';
+export type { UseInfiniteScrollOptions, UseInfiniteScrollReturn } from './useInfiniteScroll';
