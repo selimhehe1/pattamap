@@ -12,7 +12,7 @@ import '../../styles/layout/search-layout.css';
 
 // Development logging helper
 const isDev = process.env.NODE_ENV === 'development';
-const debugLog = (message: string, data?: any) => {
+const debugLog = (message: string, data?: unknown) => {
   if (isDev) logger.debug(message, data);
 };
 

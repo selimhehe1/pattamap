@@ -13,14 +13,15 @@ import EmployeesGridView from './EmployeesGridView';
 
 // Note: Leaflet replaced by custom zone maps
 
-import { Establishment } from '../../types';
+import { Establishment, EstablishmentCategory } from '../../types';
+import { IndependentPosition } from '../../hooks/useFreelances';
 import { logger } from '../../utils/logger';
 
 type ViewMode = 'map' | 'list' | 'employees';
 
 interface PattayaMapProps {
   establishments: Establishment[];
-  freelances?: any[]; // Independent position employees
+  freelances?: IndependentPosition[]; // Independent position employees
   onEstablishmentClick?: (establishment: Establishment) => void;
   selectedEstablishment?: string;
   currentZone?: string;
@@ -42,7 +43,7 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
   const { t: _t } = useTranslation();
   const { openModal, closeModal } = useModal();
   const [currentZone, setCurrentZone] = useState<string>(propCurrentZone || 'soi6'); // Default to Soi 6
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [mapKey, setMapKey] = useState(0); // Force re-render on sidebar toggle
   const [isMobile, setIsMobile] = useState(false);
@@ -74,7 +75,7 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
           const data = await response.json();
           setCategories(data.categories || []);
           // Select all categories by default - Convert INTEGER id to STRING format 'cat-XXX'
-          setSelectedCategories((data.categories || []).map((cat: any) => `cat-${String(cat.id).padStart(3, '0')}`));
+          setSelectedCategories((data.categories || []).map((cat: EstablishmentCategory) => `cat-${String(cat.id).padStart(3, '0')}`));
         }
       } catch (error) {
         logger.error('Error fetching categories:', error);
@@ -98,7 +99,7 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
 
   const handleClearFilters = () => {
     // Reset categories to all selected
-    setSelectedCategories(categories.map((cat: any) => `cat-${String(cat.id).padStart(3, '0')}`));
+    setSelectedCategories(categories.map((cat) => `cat-${String(cat.id).padStart(3, '0')}`));
     // Clear search term
     setSearchTerm('');
   };

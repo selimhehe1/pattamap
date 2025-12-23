@@ -70,7 +70,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
     loadCategories();
   }, []);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -276,7 +276,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     setFormData(prev => ({ ...prev, selectedEmployee: employee }));
   };
 
-  const handleInputChange = (fieldName: keyof FormData, value: any) => {
+  const handleInputChange = (fieldName: keyof FormData, value: FormData[keyof FormData]) => {
     setFormData(prev => ({
       ...prev,
       [fieldName]: value
@@ -287,7 +287,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     setSubmitError('');
   };
 
-  const handleInputBlur = (fieldName: keyof FormData, value: any) => {
+  const handleInputBlur = (fieldName: keyof FormData, value: FormData[keyof FormData]) => {
     if (fieldName in validationRules) {
       handleFieldBlur(fieldName, value);
     }
@@ -359,7 +359,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           throw new Error(data.error || 'Failed to upload photos');
         }
 
-        return data.images.map((img: any) => img.url);
+        return data.images.map((img: { url: string }) => img.url);
       } else {
         // Fallback to secureFetch for other cases (not during registration)
         logger.debug('🛡️ Refreshing CSRF token before photo upload...');
@@ -377,7 +377,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           throw new Error(data.error || 'Failed to upload photos');
         }
 
-        return data.images.map((img: any) => img.url);
+        return data.images.map((img: { url: string }) => img.url);
       }
     } catch (error) {
       logger.error('Photo upload error:', error);

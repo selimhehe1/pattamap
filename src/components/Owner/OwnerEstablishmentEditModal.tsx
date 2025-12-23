@@ -161,7 +161,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
         price: selectedConsumable.price
       };
 
-      const exists = formData.pricing.consumables.some((c: any) => c.consumable_id === newConsumable.consumable_id);
+      const exists = formData.pricing.consumables.some((c) => c.consumable_id === newConsumable.consumable_id);
       if (!exists) {
         setFormData(prev => ({
           ...prev,
@@ -180,7 +180,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.filter((_: any, i: number) => i !== index)
+        consumables: prev.pricing.consumables.filter((_, i) => i !== index)
       }
     }));
   };
@@ -190,7 +190,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.map((consumable: any, i: number) =>
+        consumables: prev.pricing.consumables.map((consumable, i) =>
           i === index ? { ...consumable, price: newPrice } : consumable
         )
       }
@@ -295,7 +295,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
       }
 
       // Build update payload based on permissions
-      const updatePayload: any = {};
+      const updatePayload: Partial<Establishment> = {};
 
       if (permissions.can_edit_info) {
         updatePayload.name = formData.name;
@@ -319,7 +319,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
           consumables: formData.pricing.consumables,
           ladydrink: formData.pricing.ladydrink,
           barfine: formData.pricing.barfine,
-          rooms: formData.pricing.rooms
+          rooms: formData.pricing.rooms.available ? formData.pricing.rooms.price : 'N/A'
         };
       }
 

@@ -13,7 +13,7 @@ interface BarInfoSidebarProps {
   employees?: Employee[]; // 🆕 v10.3 - For verification stats
   isEditMode?: boolean;
   editedBar?: Establishment | null;
-  onUpdateField?: (field: string, value: any) => void;
+  onUpdateField?: (field: string, value: string | number | boolean | string[] | Establishment['pricing']) => void;
 }
 
 const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
@@ -107,7 +107,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     // Utiliser les colonnes directes en priorité, fallback sur pricing object puis valeurs par défaut
     return {
       consumables: currentBar.pricing?.consumables || [],
-      ladyDrink: currentBar.ladydrink || currentBar.pricing?.ladydrink || '130',
+      ladydrink: currentBar.ladydrink || currentBar.pricing?.ladydrink || '130',
       barfine: currentBar.barfine || currentBar.pricing?.barfine || '400',
       rooms: currentBar.rooms || currentBar.pricing?.rooms || 'N/A'
     };
@@ -198,7 +198,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     // L'affichage utilise getCurrentPricing() qui lit depuis les colonnes
   };
 
-  const _formatHours = (hours: any) => {
+  const _formatHours = (hours: { open?: string; close?: string } | null | undefined) => {
     if (!hours) return '14:00 - 02:00';
     return `${hours.open || '14:00'} - ${hours.close || '02:00'}`;
   };
@@ -397,14 +397,14 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           <div className="sidebar-price-card-nightlife sidebar-price-card-ladydrink-nightlife">
             <div className="sidebar-price-icon-nightlife">💃</div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-ladydrink-nightlife">
-              {t('barInfoSidebar.services.ladyDrink')}
+              {t('barInfoSidebar.services.ladydrink')}
             </div>
             <div className="sidebar-price-value-nightlife">
               {isEditMode ? (
                 <div className="sidebar-price-input-group-nightlife">
                   <input
                     type="number"
-                    value={pricing.ladyDrink}
+                    value={pricing.ladydrink}
                     onChange={(e) => updateServicePrice('ladydrink', e.target.value)}
                     className="sidebar-price-input-ladydrink-nightlife"
                   />
@@ -412,7 +412,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 </div>
               ) : (
                 <span className="sidebar-price-chip-nightlife">
-                  {pricing.ladyDrink}฿
+                  {pricing.ladydrink}฿
                 </span>
               )}
             </div>

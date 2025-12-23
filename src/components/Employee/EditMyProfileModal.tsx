@@ -4,7 +4,7 @@ import toastService from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import { Employee } from '../../types';
+import { Employee, EmployeeFormData } from '../../types';
 import { logger } from '../../utils/logger';
 
 interface EditMyProfileModalProps {
@@ -78,7 +78,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
     }
   }, [isOpen, secureFetch, t, retryCount]);
 
-  const handleSubmit = async (employeeData: any) => {
+  const handleSubmit = async (employeeData: EmployeeFormData) => {
     if (!linkedProfile) {
       toastService.error(t('editMyProfileModal.errorNoLinkedProfile'));
       return;

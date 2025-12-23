@@ -11,8 +11,13 @@ import { useTranslation } from 'react-i18next';
 import { useModal } from '../contexts/ModalContext';
 import EmployeeCard from '../components/Common/EmployeeCard';
 import { GirlProfile } from '../routes/lazyComponents';
-import { Employee } from '../types';
+import { Employee, Establishment } from '../types';
 import { logger } from '../utils/logger';
+
+/** Freelance employee with additional nightclub associations from API */
+interface FreelanceEmployee extends Employee {
+  nightclubs?: Array<{ id: string; name: string }>;
+}
 import '../styles/layout/search-layout.css';
 import '../styles/pages/freelances.css';
 
@@ -38,7 +43,7 @@ const FreelancesPage: React.FC = () => {
   const { t } = useTranslation();
   const { openModal, closeModal } = useModal();
 
-  const [freelances, setFreelances] = useState<Employee[]>([]);
+  const [freelances, setFreelances] = useState<FreelanceEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -469,7 +474,7 @@ const FreelancesPage: React.FC = () => {
         <>
           {/* Results Grid */}
           <div className="freelances-grid">
-            {freelances.map((freelance: any) => (
+            {freelances.map((freelance) => (
               <div key={freelance.id} className="freelance-card-wrapper">
                 {/* Freelance Badge */}
                 <div style={{
@@ -504,7 +509,7 @@ const FreelancesPage: React.FC = () => {
                     fontSize: '12px',
                     color: 'rgba(255,255,255,0.9)'
                   }}>
-                    🎵 {freelance.nightclubs.map((nc: any) => nc.name).join(', ')}
+                    🎵 {freelance.nightclubs.map((nc) => nc.name).join(', ')}
                   </div>
                 )}
               </div>

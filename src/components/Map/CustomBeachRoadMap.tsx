@@ -6,7 +6,8 @@
  */
 import React, { useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Establishment, CustomBar } from '../../types';
+import { Establishment, CustomBar, Employee } from '../../types';
+import { IndependentPosition } from '../../hooks/useFreelances';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useModal } from '../../contexts/ModalContext';
 import { getZoneConfig } from '../../utils/zoneConfig';
@@ -40,12 +41,12 @@ export interface Bar {
   grid_row?: number;
   grid_col?: number;
   isFreelance?: boolean;
-  employeeData?: any;
+  employeeData?: Employee;
 }
 
 interface CustomBeachRoadMapProps {
   establishments: Establishment[];
-  freelances?: any[];
+  freelances?: IndependentPosition[];
   onEstablishmentClick?: (establishment: Establishment) => void;
   selectedEstablishment?: string;
   onBarClick?: (bar: CustomBar) => void;
@@ -108,17 +109,21 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
   });
 };
 
-const freelancesToVisualBars = (freelances: any[], isMobile: boolean, containerElement?: HTMLElement): Bar[] => {
+const freelancesToVisualBars = (freelances: IndependentPosition[], isMobile: boolean, containerElement?: HTMLElement): Bar[] => {
   if (!freelances?.length) return [];
   const style = TYPE_STYLES.freelance;
-  return freelances.filter(f => f.zone === ZONE && f.is_active).map(freelance => {
-    const { x, y } = calculateResponsivePosition(freelance.grid_row || 1, freelance.grid_col || 1, isMobile, containerElement);
+  // Filter by zone - hook returns all positions, we need to filter for this zone
+  return freelances.filter(f => f.zone === ZONE).map(freelance => {
+    // Use grid_x/grid_y from hook (maps to grid_row/grid_col for position calculation)
+    const gridRow = freelance.grid_y || 1;
+    const gridCol = freelance.grid_x || 1;
+    const { x, y } = calculateResponsivePosition(gridRow, gridCol, isMobile, containerElement);
     return {
       id: freelance.employee_id,
-      name: freelance.employee?.name || freelance.employee?.nickname || 'Freelancer',
+      name: freelance.employee_name || 'Freelancer',
       type: 'gogo' as const, position: { x, y }, color: style.color, icon: style.icon,
-      grid_row: freelance.grid_row || 1, grid_col: freelance.grid_col || 1,
-      isFreelance: true, employeeData: freelance.employee
+      grid_row: gridRow, grid_col: gridCol,
+      isFreelance: true
     };
   });
 };
@@ -208,7 +213,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
   const findBarAtPosition = useCallback((row: number, col: number): Bar | null => {
     const establishment = establishments.find(est => est.zone === ZONE && est.grid_row === row && est.grid_col === col);
     if (establishment) return allBars.find(bar => bar.id === establishment.id) || null;
-    const freelance = freelances.find(f => f.zone === ZONE && f.grid_row === row && f.grid_col === col);
+    const freelance = freelances.find(f => f.zone === ZONE && f.grid_y === row && f.grid_x === col);
     if (freelance) return allBars.find(bar => bar.id === freelance.employee_id) || null;
     return null;
   }, [allBars, establishments, freelances]);
@@ -266,10 +271,10 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
   }, [establishments, onEstablishmentClick, onBarClick, navigate, isEditMode, openModal, closeModal]);
 
   const getEstablishmentIcon = useCallback((bar: Bar, establishments: Establishment[]) => {
-    if (bar.isFreelance && bar.employeeData?.profile_photo) {
+    if (bar.isFreelance && bar.employeeData?.photos?.[0]) {
       return (
         <div className="map-logo-container-nightlife">
-          <LazyImage src={bar.employeeData.profile_photo} alt={bar.name}
+          <LazyImage src={bar.employeeData.photos[0]} alt={bar.name}
             cloudinaryPreset="employeePhoto" className="map-logo-image-nightlife" objectFit="cover" />
         </div>
       );

@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Establishment } from '../../types';
+import { IndependentPosition } from '../../hooks/useFreelances';
 
 // Lazy load all zone maps for better performance (code splitting)
 const CustomSoi6Map = lazy(() => import('./CustomSoi6Map'));
@@ -12,7 +13,7 @@ const CustomTreetownMap = lazy(() => import('./CustomTreetownMap'));
 interface ZoneMapRendererProps {
   currentZone: string;
   establishments: Establishment[];
-  freelances?: any[]; // Independent position employees
+  freelances?: IndependentPosition[]; // Independent position employees
   onEstablishmentClick?: (establishment: Establishment) => void;
   selectedEstablishment?: string;
   onEstablishmentUpdate?: () => Promise<void>;

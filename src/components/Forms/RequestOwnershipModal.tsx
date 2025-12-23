@@ -4,7 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import { Establishment } from '../../types';
+import { Establishment, EstablishmentCategory, EstablishmentFormData } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
@@ -21,6 +21,14 @@ interface DocumentPreview {
   name: string;
 }
 
+interface OwnershipRequestBody {
+  documents_urls: string[];
+  verification_code?: string;
+  request_message?: string;
+  establishment_id?: string;
+  establishment_data?: Partial<Establishment>;
+}
+
 const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
@@ -33,7 +41,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [selectedEstablishment, setSelectedEstablishment] = useState<Establishment | null>(null);
   const [createMode, setCreateMode] = useState(false); // Toggle between search and create
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
 
   // New establishment data (when creating)
   const [newEstablishment, setNewEstablishment] = useState({
@@ -217,7 +225,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
       const documentUrls = await uploadDocumentsToCloudinary();
 
       // Prepare request body
-      const requestBody: any = {
+      const requestBody: OwnershipRequestBody = {
         documents_urls: documentUrls,
         verification_code: verificationCode || undefined,
         request_message: requestMessage || undefined

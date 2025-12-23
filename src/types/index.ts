@@ -347,6 +347,11 @@ export interface IndependentPosition {
   updated_at: string;
 }
 
+/** Freelance position with embedded employee data for map rendering */
+export interface FreelanceWithEmployee extends IndependentPosition {
+  employee?: Employee;
+}
+
 export interface CreateIndependentPositionRequest {
   employee_id: string;
   zone: string;

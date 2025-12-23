@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { ConsumableTemplate } from '../../../types';
 import '../../../styles/components/establishment-ui.css';
 
-// Force recompile 3
+interface ConsumableGroup {
+  category: string;
+  displayName: string;
+  templates: ConsumableTemplate[];
+}
 
 interface PricingFormProps {
   formData: {
@@ -145,7 +149,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                     }
                     return a.category.localeCompare(b.category);
                   })
-                  .reduce((groups: any[], template) => {
+                  .reduce<ConsumableGroup[]>((groups, template) => {
                     const lastGroup = groups[groups.length - 1];
                     if (!lastGroup || lastGroup.category !== template.category) {
                       groups.push({
@@ -160,7 +164,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                   }, [])
                   .map(group => (
                     <optgroup key={group.category} label={`📂 ${group.displayName}`}>
-                      {group.templates.map((template: any) => (
+                      {group.templates.map((template) => (
                         <option key={template.id} value={template.id.toString()}>
                           {template.icon} {template.name} ({t('establishment.pricing.defaultLabel')}: {template.default_price}฿)
                         </option>

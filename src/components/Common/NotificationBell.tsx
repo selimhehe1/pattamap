@@ -72,8 +72,8 @@ interface Notification {
   related_entity_id?: string;
   metadata?: {
     i18n_key?: string;
-    i18n_params?: Record<string, any>;
-    [key: string]: any;
+    i18n_params?: Record<string, string | number | boolean | null>;
+    [key: string]: string | number | boolean | null | Record<string, string | number | boolean | null> | undefined;
   };
 }
 
@@ -332,7 +332,7 @@ const NotificationBell: React.FC = () => {
 
         // Format date parameters if present (e.g., expiresAt)
         const formattedParams = { ...i18n_params };
-        if (i18n_params?.expiresAt) {
+        if (i18n_params?.expiresAt && typeof i18n_params.expiresAt === 'string') {
           const date = new Date(i18n_params.expiresAt);
           formattedParams.expiresAt = date.toLocaleDateString(undefined, {
             year: 'numeric',
