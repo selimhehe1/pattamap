@@ -57,7 +57,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
 
   return (
     <motion.div
-      className={`employee-card-tinder ${isVIP ? 'employee-card-vip' : ''} ${className}`}
+      className={`employee-card-tinder employee-card-container employee-card-scroll-reveal ${isVIP ? 'employee-card-vip' : ''} ${className}`}
       onClick={() => onClick?.(employee)}
       whileHover={{
         scale: 1.05,

@@ -122,7 +122,7 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
   }, [employees, searchTerm]);
 
   return (
-    <div className="employees-grid-view">
+    <div className="employees-grid-view container-card-grid">
       {/* Header with search */}
       <div className="employees-grid-view__header">
         <h2 className="employees-grid-view__title">
@@ -179,9 +179,9 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
         </div>
       )}
 
-      {/* Employees Grid - Tinder Style */}
+      {/* Employees Grid - Tinder Style + Container Query Grid */}
       {!loading && filteredEmployees.length > 0 && (
-        <div className="employees-grid-view__grid">
+        <div className="employees-grid-view__grid scroll-reveal-stagger cq-grid-auto">
           {filteredEmployees.map((employee) => (
             <EmployeeCard
               key={employee.id}

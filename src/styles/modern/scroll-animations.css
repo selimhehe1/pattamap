@@ -1,0 +1,409 @@
+/**
+ * ============================================
+ * SCROLL-DRIVEN ANIMATIONS - CSS Modern Feature
+ * ============================================
+ *
+ * Scroll-driven animations allow animations to be controlled by
+ * scroll position rather than time. Creates engaging scroll effects
+ * without JavaScript.
+ *
+ * Browser Support (2025):
+ * - Chrome 115+ ✓
+ * - Firefox 110+ ✓ (with flag)
+ * - Safari 16.4+ ✓ (partial)
+ * - Edge 115+ ✓
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline
+ * @version 1.0.0
+ * @created 2025-01-08 - Phase 5.2
+ */
+
+/* ============================================
+   SCROLL TIMELINE DEFINITIONS
+   ============================================ */
+
+/**
+ * Named scroll timelines for different scroll contexts.
+ * Use scroll-timeline-name to create reusable timelines.
+ */
+
+/* Main page scroll timeline */
+.scroll-timeline-page {
+  scroll-timeline-name: --page-scroll;
+  scroll-timeline-axis: block;
+}
+
+/* Horizontal scroll timeline (for carousels) */
+.scroll-timeline-horizontal {
+  scroll-timeline-name: --horizontal-scroll;
+  scroll-timeline-axis: inline;
+}
+
+/* ============================================
+   SCROLL-LINKED ANIMATIONS - KEYFRAMES
+   ============================================ */
+
+/* Fade in from bottom */
+@keyframes scroll-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in from left */
+@keyframes scroll-fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade in from right */
+@keyframes scroll-fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in */
+@keyframes scroll-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reveal (clip-path) */
+@keyframes scroll-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Progress bar fill */
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Parallax effect */
+@keyframes scroll-parallax-slow {
+  from {
+    transform: translateY(-20%);
+  }
+  to {
+    transform: translateY(20%);
+  }
+}
+
+@keyframes scroll-parallax-fast {
+  from {
+    transform: translateY(-40%);
+  }
+  to {
+    transform: translateY(40%);
+  }
+}
+
+/* ============================================
+   VIEW TIMELINE ANIMATIONS
+   ============================================ */
+
+/**
+ * View timelines animate based on element visibility
+ * in the scroll container. Perfect for scroll-reveal effects.
+ */
+
+/* Basic scroll reveal - animates as element enters viewport */
+.scroll-reveal {
+  animation: scroll-fade-in-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+/* Staggered reveal for lists */
+.scroll-reveal-stagger > * {
+  animation: scroll-fade-in-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+.scroll-reveal-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.scroll-reveal-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.scroll-reveal-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.scroll-reveal-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.scroll-reveal-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.scroll-reveal-stagger > *:nth-child(6) { animation-delay: 250ms; }
+
+/* Reveal from left */
+.scroll-reveal-left {
+  animation: scroll-fade-in-left linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+/* Reveal from right */
+.scroll-reveal-right {
+  animation: scroll-fade-in-right linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+/* Scale reveal */
+.scroll-reveal-scale {
+  animation: scroll-scale-in linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+/* Clip-path reveal */
+.scroll-reveal-clip {
+  animation: scroll-reveal linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+/* ============================================
+   SCROLL PROGRESS INDICATORS
+   ============================================ */
+
+/**
+ * Progress bar that fills based on scroll position.
+ * Great for reading progress or page position indication.
+ */
+
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary, #C19A6B);
+  transform-origin: left;
+  animation: scroll-progress linear;
+  animation-timeline: scroll(root);
+  z-index: var(--z-fixed, 1000);
+}
+
+/* Gradient progress bar */
+.scroll-progress-bar-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary, #C19A6B),
+    var(--color-accent, #FF6B9D)
+  );
+  transform-origin: left;
+  animation: scroll-progress linear;
+  animation-timeline: scroll(root);
+  z-index: var(--z-fixed, 1000);
+}
+
+/* ============================================
+   PARALLAX EFFECTS
+   ============================================ */
+
+/**
+ * Parallax scrolling effects using scroll-driven animations.
+ * More performant than JS-based solutions.
+ */
+
+.scroll-parallax-slow {
+  animation: scroll-parallax-slow linear;
+  animation-timeline: scroll();
+}
+
+.scroll-parallax-fast {
+  animation: scroll-parallax-fast linear;
+  animation-timeline: scroll();
+}
+
+/* Hero parallax background */
+.scroll-parallax-hero {
+  animation: scroll-parallax-slow linear;
+  animation-timeline: scroll();
+  will-change: transform;
+}
+
+/* ============================================
+   HEADER TRANSFORMATIONS
+   ============================================ */
+
+/**
+ * Header that shrinks/transforms on scroll.
+ */
+
+@keyframes header-shrink {
+  from {
+    padding-block: var(--spacing-4, 1rem);
+    background-color: transparent;
+  }
+  to {
+    padding-block: var(--spacing-2, 0.5rem);
+    background-color: var(--color-surface, rgba(255, 255, 255, 0.95));
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.scroll-header-shrink {
+  animation: header-shrink linear both;
+  animation-timeline: scroll();
+  animation-range: 0 200px;
+}
+
+/* ============================================
+   CARD ANIMATIONS
+   ============================================ */
+
+/**
+ * Card-specific scroll animations for PattaMap.
+ */
+
+/* Employee card reveal */
+.employee-card-scroll-reveal {
+  animation: scroll-fade-in-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 80%;
+}
+
+/* Establishment card reveal */
+.establishment-card-scroll-reveal {
+  animation: scroll-scale-in linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 80%;
+}
+
+/* ============================================
+   SCROLL SNAP WITH ANIMATIONS
+   ============================================ */
+
+/**
+ * Combine scroll snapping with scroll-driven animations
+ * for carousel-like experiences.
+ */
+
+.scroll-snap-container {
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;
+  scroll-timeline-name: --carousel-scroll;
+  scroll-timeline-axis: inline;
+}
+
+.scroll-snap-item {
+  scroll-snap-align: center;
+  animation: scroll-scale-in linear both;
+  animation-timeline: view(inline);
+  animation-range: entry 0% cover 50%;
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+/**
+ * Respect user preference for reduced motion.
+ * Essential for accessibility.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal-left,
+  .scroll-reveal-right,
+  .scroll-reveal-scale,
+  .scroll-reveal-clip,
+  .scroll-reveal-stagger > *,
+  .scroll-parallax-slow,
+  .scroll-parallax-fast,
+  .scroll-parallax-hero,
+  .scroll-header-shrink,
+  .employee-card-scroll-reveal,
+  .establishment-card-scroll-reveal,
+  .scroll-snap-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  /* Keep progress bar but instant */
+  .scroll-progress-bar,
+  .scroll-progress-bar-gradient {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+/* ============================================
+   FALLBACK FOR UNSUPPORTED BROWSERS
+   ============================================ */
+
+/**
+ * Graceful degradation for browsers without
+ * scroll-driven animation support.
+ */
+
+@supports not (animation-timeline: scroll()) {
+  .scroll-reveal,
+  .scroll-reveal-left,
+  .scroll-reveal-right,
+  .scroll-reveal-scale,
+  .scroll-reveal-clip,
+  .employee-card-scroll-reveal,
+  .establishment-card-scroll-reveal {
+    /* Elements are visible by default */
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  .scroll-reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-parallax-slow,
+  .scroll-parallax-fast,
+  .scroll-parallax-hero {
+    transform: none;
+  }
+
+  .scroll-header-shrink {
+    /* Use hover/scroll JS fallback if needed */
+    transition: padding 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Progress bar needs JS fallback */
+  .scroll-progress-bar,
+  .scroll-progress-bar-gradient {
+    display: none;
+  }
+}

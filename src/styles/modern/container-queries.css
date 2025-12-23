@@ -1,0 +1,367 @@
+/**
+ * ============================================
+ * CONTAINER QUERIES - CSS Modern Feature
+ * ============================================
+ *
+ * Container queries allow components to adapt based on their
+ * container size rather than viewport size. More flexible for
+ * different layout contexts (sidebars, modals, grids).
+ *
+ * Browser Support (2025):
+ * - Chrome 105+ ✓
+ * - Firefox 110+ ✓
+ * - Safari 16+ ✓
+ * - Edge 105+ ✓
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries
+ * @version 1.0.0
+ * @created 2025-01-08 - Phase 5.2
+ */
+
+/* ============================================
+   CONTAINER DEFINITIONS
+   ============================================ */
+
+/**
+ * Define containers for query contexts.
+ * Elements with these classes can have their children
+ * use @container queries.
+ */
+
+/* Card Grid Containers */
+.container-card-grid,
+.employees-grid-view,
+.establishments-grid-view,
+.favorites-grid,
+.search-results-grid {
+  container-type: inline-size;
+  container-name: card-grid;
+}
+
+/* Individual Card Containers */
+.container-card,
+.employee-card-container,
+.establishment-card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+/* Sidebar Containers */
+.container-sidebar,
+.map-sidebar,
+.establishment-sidebar {
+  container-type: inline-size;
+  container-name: sidebar;
+}
+
+/* Modal Content Containers */
+.container-modal,
+.modal-content,
+.dialog-content {
+  container-type: inline-size;
+  container-name: modal;
+}
+
+/* Form Containers */
+.container-form,
+.form-wrapper,
+.employee-form,
+.establishment-form {
+  container-type: inline-size;
+  container-name: form;
+}
+
+/* ============================================
+   CONTAINER QUERY UTILITIES
+   ============================================ */
+
+/**
+ * Utility classes that respond to container size.
+ * Use @container instead of @media for container-aware styles.
+ */
+
+/* Container-based spacing */
+@container (min-width: 400px) {
+  .cq-gap-responsive {
+    gap: var(--spacing-4);
+  }
+
+  .cq-padding-responsive {
+    padding: var(--spacing-4);
+  }
+}
+
+@container (max-width: 399px) {
+  .cq-gap-responsive {
+    gap: var(--spacing-2);
+  }
+
+  .cq-padding-responsive {
+    padding: var(--spacing-2);
+  }
+}
+
+/* Container-based grid columns */
+@container card-grid (min-width: 800px) {
+  .cq-grid-auto {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@container card-grid (min-width: 600px) and (max-width: 799px) {
+  .cq-grid-auto {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@container card-grid (min-width: 400px) and (max-width: 599px) {
+  .cq-grid-auto {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container card-grid (max-width: 399px) {
+  .cq-grid-auto {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Container-based text sizing */
+@container (min-width: 300px) {
+  .cq-text-responsive {
+    font-size: var(--font-base);
+  }
+}
+
+@container (max-width: 299px) {
+  .cq-text-responsive {
+    font-size: var(--font-sm);
+  }
+}
+
+/* Container-based visibility */
+@container (min-width: 500px) {
+  .cq-hide-small {
+    display: block;
+  }
+  .cq-show-small {
+    display: none;
+  }
+}
+
+@container (max-width: 499px) {
+  .cq-hide-small {
+    display: none;
+  }
+  .cq-show-small {
+    display: block;
+  }
+}
+
+/* ============================================
+   EMPLOYEE CARD CONTAINER QUERIES
+   ============================================ */
+
+/**
+ * Employee card adapts to container size.
+ * Works in grid, sidebar, or modal contexts.
+ */
+
+/* Card in narrow container (sidebar, small modal) */
+@container card (max-width: 200px) {
+  .employee-card-tinder .employee-card-info {
+    padding: var(--spacing-1);
+  }
+
+  .employee-card-tinder .employee-card-name {
+    font-size: var(--font-sm);
+  }
+
+  .employee-card-tinder .employee-card-details {
+    display: none;
+  }
+
+  .employee-card-tinder .employee-card-type {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+}
+
+/* Card in medium container */
+@container card (min-width: 201px) and (max-width: 280px) {
+  .employee-card-tinder .employee-card-info {
+    padding: var(--spacing-2);
+  }
+
+  .employee-card-tinder .employee-card-name {
+    font-size: var(--font-base);
+  }
+
+  .employee-card-tinder .employee-card-info-columns {
+    gap: var(--spacing-2);
+  }
+}
+
+/* Card in wide container */
+@container card (min-width: 281px) {
+  .employee-card-tinder .employee-card-info {
+    padding: var(--spacing-3);
+  }
+
+  .employee-card-tinder .employee-card-name {
+    font-size: var(--font-lg);
+  }
+
+  .employee-card-tinder .employee-card-info-columns {
+    gap: var(--spacing-3);
+  }
+}
+
+/* ============================================
+   ESTABLISHMENT CARD CONTAINER QUERIES
+   ============================================ */
+
+@container card (max-width: 250px) {
+  .establishment-card .establishment-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+  }
+
+  .establishment-card .establishment-card-stats {
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+  }
+}
+
+/* ============================================
+   FORM CONTAINER QUERIES
+   ============================================ */
+
+/**
+ * Forms adapt to their container (modal, page, sidebar).
+ */
+
+@container form (min-width: 600px) {
+  .cq-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+  }
+
+  .cq-form-full {
+    grid-column: 1 / -1;
+  }
+}
+
+@container form (max-width: 599px) {
+  .cq-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+}
+
+/* ============================================
+   SIDEBAR CONTAINER QUERIES
+   ============================================ */
+
+@container sidebar (min-width: 350px) {
+  .cq-sidebar-expanded {
+    padding: var(--spacing-4);
+  }
+
+  .cq-sidebar-header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+@container sidebar (max-width: 349px) {
+  .cq-sidebar-expanded {
+    padding: var(--spacing-2);
+  }
+
+  .cq-sidebar-header {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+}
+
+/* ============================================
+   MODAL CONTAINER QUERIES
+   ============================================ */
+
+@container modal (min-width: 500px) {
+  .cq-modal-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--spacing-6);
+  }
+}
+
+@container modal (max-width: 499px) {
+  .cq-modal-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+}
+
+/* ============================================
+   CONTAINER QUERY FALLBACKS
+   ============================================ */
+
+/**
+ * Fallback for browsers without container query support.
+ * Uses @supports to provide graceful degradation.
+ */
+
+@supports not (container-type: inline-size) {
+  /* Fallback to media queries */
+  @media (max-width: 480px) {
+    .cq-grid-auto {
+      grid-template-columns: 1fr;
+    }
+
+    .cq-gap-responsive {
+      gap: var(--spacing-2);
+    }
+
+    .cq-hide-small {
+      display: none;
+    }
+
+    .cq-show-small {
+      display: block;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .cq-grid-auto {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cq-gap-responsive {
+      gap: var(--spacing-3);
+    }
+  }
+
+  @media (min-width: 769px) {
+    .cq-grid-auto {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .cq-gap-responsive {
+      gap: var(--spacing-4);
+    }
+
+    .cq-hide-small {
+      display: block;
+    }
+
+    .cq-show-small {
+      display: none;
+    }
+  }
+}

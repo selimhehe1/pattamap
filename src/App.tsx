@@ -52,6 +52,7 @@ import './styles/css-pro-polish.css';
 import './styles/header-ultra-visibility.css';
 import './styles/animations/scroll-animations.css';
 import './styles/css-consolidated-fixes.css';
+import './styles/modern/index.css'; // Phase 5.2: Container queries & scroll-driven animations
 
 // Lazy load main route components for code splitting
 import {

@@ -1,0 +1,25 @@
+/**
+ * ============================================
+ * MODERN CSS FEATURES - Index
+ * ============================================
+ *
+ * This file imports all modern CSS features for PattaMap.
+ * Import this single file to enable all modern CSS capabilities.
+ *
+ * Features included:
+ * - Container Queries: Component-aware responsive design
+ * - Scroll-Driven Animations: Scroll-linked visual effects
+ *
+ * Browser Support:
+ * - All features include fallbacks for older browsers
+ * - Progressive enhancement approach
+ *
+ * @version 1.0.0
+ * @created 2025-01-08 - Phase 5.2
+ */
+
+/* Container Queries - Component-responsive design */
+@import './container-queries.css';
+
+/* Scroll-Driven Animations - Scroll-linked effects */
+@import './scroll-animations.css';
