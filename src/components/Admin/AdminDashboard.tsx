@@ -51,6 +51,24 @@ interface AdminUser {
   };
 }
 
+interface TabItem {
+  id: string;
+  label: string;
+  description: string;
+  badge: number | null;
+  href?: string; // Optional - for tabs that link to external routes
+  testId?: string; // Optional - for testing
+}
+
+interface StatCard {
+  title: string;
+  value: number;
+  pending: number;
+  icon: string;
+  color: string;
+  subtitle?: string; // Optional - for additional context
+}
+
 interface AdminDashboardProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -181,7 +199,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
     );
   }
 
-  const tabItems = [
+  const tabItems: TabItem[] = [
     {
       id: 'overview',
       label: `📊 ${t('admin.overviewTab')}`,
@@ -247,7 +265,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
     },
   ];
 
-  const statCards = [
+  const statCards: StatCard[] = [
     {
       title: t('admin.totalEstablishments'),
       value: stats.totalEstablishments,
@@ -309,17 +327,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               title={t('admin.viewYourProfile')}
             >
               <div className="admin-user-avatar">
-                {(user as any).profile_picture ? (
-                  <img
-                    src={(user as any).profile_picture}
-                    alt={`${user.pseudonym} avatar`}
-                    className="admin-user-avatar-img"
-                  />
-                ) : (
-                  <span className="admin-user-avatar-fallback">
-                    {user.pseudonym.charAt(0).toUpperCase()}
-                  </span>
-                )}
+                <span className="admin-user-avatar-fallback">
+                  {user.pseudonym.charAt(0).toUpperCase()}
+                </span>
               </div>
               <div className="admin-user-info">
                 <span className="admin-user-name">{user.pseudonym}</span>
@@ -354,14 +364,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
           );
 
           // Use Link for tabs with href
-          if ((tab as any).href) {
+          if (tab.href) {
             return (
               <Link
                 key={tab.id}
-                to={(tab as any).href}
+                to={tab.href}
                 onClick={() => onTabChange(tab.id)}
                 className={`admin-tab-button ${activeTab === tab.id ? 'active' : ''}`}
-                data-testid={(tab as any).testId}
+                data-testid={tab.testId}
               >
                 {tabContent}
               </Link>
@@ -416,14 +426,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                 </div>
 
                 {/* 🆕 v10.1 - Optional subtitle for additional info */}
-                {(card as any).subtitle && (
+                {card.subtitle && (
                   <div style={{
                     fontSize: '12px',
                     color: 'rgba(255,255,255,0.6)',
                     marginTop: '5px',
                     textAlign: 'center'
                   }}>
-                    {(card as any).subtitle}
+                    {card.subtitle}
                   </div>
                 )}
 

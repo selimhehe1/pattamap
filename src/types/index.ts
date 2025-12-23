@@ -166,11 +166,27 @@ export interface Comment {
   user?: User;
   content: string;
   rating?: number;
+  /** Used when creating a reply (request body) */
   parent_comment_id?: string;
+  /** Used in API response for replies */
+  parent_id?: string | null;
   replies?: Comment[];
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
+}
+
+/** Comment with guaranteed replies array for threaded display */
+export interface ThreadedComment extends Comment {
+  replies: ThreadedComment[];
+}
+
+/** Data sent when submitting a review */
+export interface ReviewSubmitData {
+  employee_id: string;
+  content: string;
+  rating?: number;
+  parent_comment_id?: string;
 }
 
 export interface AuthContextType {

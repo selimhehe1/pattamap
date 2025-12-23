@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { EstablishmentCategory, ConsumableTemplate } from '../../types';
+import { EstablishmentCategory, ConsumableTemplate, Establishment, EstablishmentFormData } from '../../types';
 import BasicInfoForm from './EstablishmentFormSections/BasicInfoForm';
 import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
 import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
@@ -14,11 +14,27 @@ import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
 
+// Internal form data structure (differs from API structure for rooms)
+interface RoomsComplex {
+  available: boolean;
+  price: string;
+}
+
+// Extended initial data that allows complex rooms structure from internal state
+interface EstablishmentInitialData extends Omit<Establishment, 'pricing'> {
+  pricing?: {
+    consumables: Array<{ consumable_id: string; price: string }>;
+    ladydrink: string;
+    barfine: string;
+    rooms: string | RoomsComplex; // Can be string (from API) or object (from internal state)
+  };
+}
+
 interface EstablishmentEditModalProps {
-  onSubmit: (establishmentData: any) => void;
+  onSubmit: (establishmentData: Record<string, unknown>) => void;
   onCancel: () => void;
   isLoading?: boolean;
-  initialData?: any;
+  initialData?: Partial<EstablishmentInitialData>;
   isSuggestion?: boolean; // True if user is suggesting edit (not admin)
 }
 
@@ -96,10 +112,13 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       barfine: initialData?.barfine || initialData?.pricing?.barfine || '400',
       rooms: {
         // Auto-check toggle if rooms price exists (fix: detect existing rooms price)
+        // Handle both string (API) and object (internal) formats for rooms
         available:
-          initialData?.pricing?.rooms?.available ??
+          (typeof initialData?.pricing?.rooms === 'object' ? initialData.pricing.rooms.available : undefined) ??
           (initialData?.rooms && initialData.rooms !== 'N/A' ? true : false),
-        price: initialData?.rooms && initialData?.rooms !== 'N/A' ? initialData.rooms : (initialData?.pricing?.rooms?.price || '600')
+        price: initialData?.rooms && initialData?.rooms !== 'N/A'
+          ? initialData.rooms
+          : (typeof initialData?.pricing?.rooms === 'object' ? initialData.pricing.rooms.price : initialData?.pricing?.rooms) || '600'
       }
     }
   });
@@ -183,10 +202,13 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
           barfine: initialData.barfine || initialData.pricing?.barfine || '400',
           rooms: {
             // Auto-check toggle if rooms price exists (fix: detect existing rooms price)
+            // Handle both string (API) and object (internal) formats for rooms
             available:
-              initialData.pricing?.rooms?.available ??
+              (typeof initialData.pricing?.rooms === 'object' ? initialData.pricing.rooms.available : undefined) ??
               (initialData.rooms && initialData.rooms !== 'N/A' ? true : false),
-            price: initialData.rooms && initialData.rooms !== 'N/A' ? initialData.rooms : (initialData.pricing?.rooms?.price || '600')
+            price: initialData.rooms && initialData.rooms !== 'N/A'
+              ? initialData.rooms
+              : (typeof initialData.pricing?.rooms === 'object' ? initialData.pricing.rooms.price : initialData.pricing?.rooms) || '600'
           }
         }
       };
@@ -242,7 +264,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       if (draft) {
         logger.info('📥 Draft restored from localStorage', {
           draftKeys: Object.keys(draft),
-          hasName: !!(draft as any).name
+          hasName: !!draft.name
         });
         setFormData(draft);
       }
@@ -305,7 +327,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
         price: selectedConsumable.price
       };
 
-      const exists = formData.pricing.consumables.some((c: any) => c.consumable_id === newConsumable.consumable_id);
+      const exists = formData.pricing.consumables.some((c) => c.consumable_id === newConsumable.consumable_id);
       if (!exists) {
         setFormData(prev => ({
           ...prev,
@@ -324,7 +346,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.filter((_: any, i: number) => i !== index)
+        consumables: prev.pricing.consumables.filter((_, i) => i !== index)
       }
     }));
   };
@@ -334,7 +356,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
       ...prev,
       pricing: {
         ...prev.pricing,
-        consumables: prev.pricing.consumables.map((consumable: any, i: number) =>
+        consumables: prev.pricing.consumables.map((consumable, i) =>
           i === index ? { ...consumable, price: newPrice } : consumable
         )
       }
@@ -560,7 +582,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveSection(tab.id as any)}
+              onClick={() => setActiveSection(tab.id)}
               style={{
                 flex: '1',
                 minWidth: '120px',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Employee } from '../../types';
+import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
 import ReviewsList from '../Review/ReviewsList';
 import ReviewsModalContent from '../Review/ReviewsModalContent';
@@ -42,7 +42,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const navigate = useNavigate();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<ThreadedComment[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -142,13 +142,13 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   };
 
   // Helper function to organize flat comments into threaded structure
-  const organizeCommentsIntoThreads = (flatComments: any[]) => {
-    const reviewsMap = new Map<string, any>();
-    const mainReviews: any[] = [];
+  const organizeCommentsIntoThreads = (flatComments: Comment[]): ThreadedComment[] => {
+    const reviewsMap = new Map<string, ThreadedComment>();
+    const mainReviews: ThreadedComment[] = [];
 
     // First pass: create all reviews and initialize replies arrays
-    flatComments.forEach((comment: any) => {
-      const reviewWithReplies = {
+    flatComments.forEach((comment: Comment) => {
+      const reviewWithReplies: ThreadedComment = {
         ...comment,
         replies: []
       };
@@ -161,7 +161,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     });
 
     // Second pass: attach replies to their parent reviews
-    flatComments.forEach((comment: any) => {
+    flatComments.forEach((comment: Comment) => {
       if (comment.parent_id && comment.parent_id !== null && comment.parent_id !== undefined) {
         const parentReview = reviewsMap.get(String(comment.parent_id)); // Ensure string key
         const replyWithoutReplies = reviewsMap.get(String(comment.id));
@@ -172,12 +172,12 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     });
 
     // Sort main reviews by creation date (newest first)
-    mainReviews.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    mainReviews.sort((a: ThreadedComment, b: ThreadedComment) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     // Sort replies within each review by creation date (oldest first for conversation flow)
-    mainReviews.forEach((review: any) => {
+    mainReviews.forEach((review: ThreadedComment) => {
       if (review.replies && review.replies.length > 0) {
-        review.replies.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        review.replies.sort((a: ThreadedComment, b: ThreadedComment) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       }
     });
 
@@ -203,7 +203,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     }
   };
 
-  const handleReviewSubmit = async (reviewData: any) => {
+  const handleReviewSubmit = async (reviewData: ReviewSubmitData) => {
     setIsSubmittingReview(true);
     try {
       const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments`, {
@@ -333,7 +333,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                     ...girl,
                     current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
                   },
-                  onSubmit: async (employeeData: any) => {
+                  onSubmit: async (employeeData: EmployeeFormData) => {
                     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
                     const response = await secureFetch(`${API_URL}/api/edit-proposals`, {

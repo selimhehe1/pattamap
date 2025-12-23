@@ -5,7 +5,7 @@ interface Review {
   id: string;
   user_id: string;
   employee_id: string;
-  rating: number;
+  rating?: number; // Optional - comments can be posted without rating
   content: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
@@ -19,14 +19,20 @@ interface Review {
 
 interface Reply {
   id: string;
-  comment_id: string;
+  comment_id?: string; // Optional - ThreadedComment uses parent_id instead
+  parent_id?: string | null; // Alternative to comment_id for threaded comments
   user_id: string;
   content: string;
   created_at: string;
+  updated_at?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  employee_id?: string;
+  rating?: number;
   user?: {
     id: string;
     pseudonym: string;
   };
+  replies?: Reply[]; // Support recursive nested replies (ThreadedComment structure)
 }
 
 interface ReviewsModalContentProps {
