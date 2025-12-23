@@ -85,3 +85,5 @@ playwright/.cache/
 
 # Playwright auth state files
 tests/e2e/.auth/
+*.report.html
+*.report.json
