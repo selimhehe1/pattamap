@@ -26,7 +26,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  z-index: 9999;
+  z-index: var(--z-modal);
   animation: overlayFadeIn 0.2s ease-out;
 }
 
@@ -69,8 +69,8 @@
 .dialog-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 20px 24px;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-6);
   background: var(--bg-surface-alt);
   border-bottom: 1px solid var(--border-color);
 }
@@ -78,7 +78,7 @@
 .dialog-modal-header h2 {
   flex: 1;
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-xl);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -119,13 +119,13 @@
 
 /* ==================== BODY ==================== */
 .dialog-modal-body {
-  padding: 24px;
+  padding: var(--spacing-6);
   overflow-y: auto;
   flex: 1;
 }
 
 .dialog-message {
-  margin: 0 0 16px 0;
+  margin: 0 0 var(--spacing-4) 0;
   font-size: 1rem;
   line-height: 1.6;
   color: var(--text-primary);
@@ -136,8 +136,8 @@
 /* ==================== FOOTER ==================== */
 .dialog-modal-footer {
   display: flex;
-  gap: 12px;
-  padding: 20px 24px;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-6);
   background: var(--bg-surface-alt);
   border-top: 1px solid var(--border-color);
   justify-content: flex-end;

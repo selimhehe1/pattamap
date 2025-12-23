@@ -1461,7 +1461,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 onBlur={(e) => handleInputBlur('password', e.target.value)}
                 placeholder={t('register.passwordPlaceholder')}
                 required
-                minLength={12}
+                minLength={8}
                 helpText={t('register.passwordHelp')}
               />
 
