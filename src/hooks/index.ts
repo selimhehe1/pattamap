@@ -65,3 +65,12 @@ export type { UseLazyLoadOptions, UseLazyLoadReturn } from './useLazyLoad';
 // Infinite Scroll (Phase 5.1)
 export { useInfiniteScroll, useInfiniteScrollWithReset } from './useInfiniteScroll';
 export type { UseInfiniteScrollOptions, UseInfiniteScrollReturn } from './useInfiniteScroll';
+
+// Optimistic Updates (Phase 5.3 - React 19)
+export { useOptimisticRating, useOptimisticToggle } from './useOptimisticRating';
+export type {
+  UseOptimisticRatingOptions,
+  UseOptimisticRatingReturn,
+  UseOptimisticToggleOptions,
+  UseOptimisticToggleReturn
+} from './useOptimisticRating';

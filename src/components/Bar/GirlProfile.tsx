@@ -13,6 +13,7 @@ import EmployeeVerificationStatusCard from '../Employee/EmployeeVerificationStat
 import ValidationBadge from '../Employee/ValidationBadge';
 import ValidationVoteButtons from '../Employee/ValidationVoteButtons';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
+import { useToggleFavorite } from '../../hooks/useFavorites';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
@@ -44,9 +45,10 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+
+  // 🆕 Phase 5.3: Use centralized favorite hook with React Query optimistic updates
+  const { isFavorite, toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite(girl.id);
 
   // Ref for auto-focus on review form
   const reviewFormRef = useRef<HTMLDivElement>(null);
@@ -123,66 +125,20 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     );
   };
 
-  // Load reviews and favorite status on component mount
+  // Load reviews on component mount
+  // Note: favorite status is now managed by useToggleFavorite hook (React Query)
   useEffect(() => {
     loadReviews();
-    checkFavoriteStatus();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [girl.id]);
 
-  const checkFavoriteStatus = async () => {
-    if (!user) return;
-
-    try {
-      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites/check/${girl.id}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsFavorite(data.is_favorite);
-      }
-    } catch (error) {
-      logger.error('Failed to check favorite status:', error);
-    }
-  };
-
-  const handleToggleFavorite = async () => {
+  // 🆕 Phase 5.3: Simplified handler using centralized hook
+  const handleToggleFavorite = () => {
     if (!user) {
       toast.warning(t('common.loginToAddFavorites', 'Please login to add favorites'));
       return;
     }
-
-    setIsTogglingFavorite(true);
-    try {
-      if (isFavorite) {
-        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites/${girl.id}`, {
-          method: 'DELETE'
-        });
-
-        if (response.ok) {
-          setIsFavorite(false);
-        } else {
-          throw new Error('Failed to remove from favorites');
-        }
-      } else {
-        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/favorites`, {
-          method: 'POST',
-          body: JSON.stringify({ employee_id: girl.id })
-        });
-
-        if (response.ok) {
-          setIsFavorite(true);
-        } else if (response.status === 409) {
-          setIsFavorite(true);
-        } else {
-          throw new Error('Failed to add to favorites');
-        }
-      }
-    } catch (error) {
-      logger.error('Failed to toggle favorite:', error);
-      toast.error(t('common.failedToggleFavorites', `Failed to ${isFavorite ? 'remove from' : 'add to'} favorites`, { action: isFavorite ? 'remove from' : 'add to' }));
-    } finally {
-      setIsTogglingFavorite(false);
-    }
+    toggleFavorite();
   };
 
   // Helper function to organize flat comments into threaded structure
