@@ -97,9 +97,10 @@ const VIPVerificationAdmin: React.FC = () => {
 
       const data = await response.json();
       setTransactions(data.transactions || []);
-    } catch (err: any) {
-      logger.error('Error fetching VIP transactions:', err);
-      setError(err.message || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Error fetching VIP transactions:', error);
+      setError(errorMessage || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
     } finally {
       setLoading(false);
     }
@@ -139,9 +140,10 @@ const VIPVerificationAdmin: React.FC = () => {
       await fetchTransactions();
 
       toast.success(t('vipVerification.verifySuccess', 'Payment verified successfully!'));
-    } catch (err: any) {
-      logger.error('Error verifying payment:', err);
-      toast.error(err.message || t('vipVerification.verifyError', 'Failed to verify payment'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Error verifying payment:', error);
+      toast.error(errorMessage || t('vipVerification.verifyError', 'Failed to verify payment'));
     } finally {
       setVerifying(null);
     }
@@ -196,9 +198,10 @@ const VIPVerificationAdmin: React.FC = () => {
       await fetchTransactions();
 
       toast.success(t('vipVerification.rejectSuccess', 'Payment rejected successfully'));
-    } catch (err: any) {
-      logger.error('Error rejecting payment:', err);
-      toast.error(err.message || t('vipVerification.rejectError', 'Failed to reject payment'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Error rejecting payment:', error);
+      toast.error(errorMessage || t('vipVerification.rejectError', 'Failed to reject payment'));
     } finally {
       setVerifying(null);
     }
@@ -250,9 +253,10 @@ const VIPVerificationAdmin: React.FC = () => {
 
         const data = await response.json();
         setTransactions(data.transactions || []);
-      } catch (err: any) {
-        logger.error('Error fetching VIP transactions:', err);
-        setError(err.message || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.error('Error fetching VIP transactions:', error);
+        setError(errorMessage || t('vipVerification.errorFetching', 'Failed to load VIP transactions'));
       } finally {
         setLoading(false);
       }

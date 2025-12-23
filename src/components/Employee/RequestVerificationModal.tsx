@@ -135,9 +135,10 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
         onVerificationComplete();
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Verification error', error);
-      toast.error(error.message || 'Failed to submit verification');
+      toast.error(errorMessage || 'Failed to submit verification');
       setIsUploading(false);
     }
   };

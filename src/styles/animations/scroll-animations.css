@@ -1,0 +1,250 @@
+/**
+ * Scroll-based Animation Utilities
+ * Used with useScrollAnimation hook for performant lazy animations
+ *
+ * Classes:
+ * - .scroll-animate: Base class for scroll-triggered elements
+ * - .scroll-animate-in: Applied when element becomes visible
+ * - Various animation types: fade, slide, scale, blur
+ */
+
+/* ============================================
+   Base Animation Setup
+   ============================================ */
+
+/* Base class for all scroll-animated elements */
+.scroll-animate {
+  opacity: 0;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out,
+    filter 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Visible state - applied by useScrollAnimation */
+.scroll-animate.scroll-animate-in,
+.scroll-animate[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ============================================
+   Animation Types
+   ============================================ */
+
+/* Fade up (default) */
+.scroll-animate-fade-up {
+  transform: translateY(30px);
+}
+
+/* Fade down */
+.scroll-animate-fade-down {
+  transform: translateY(-30px);
+}
+
+/* Fade left */
+.scroll-animate-fade-left {
+  transform: translateX(30px);
+}
+
+/* Fade right */
+.scroll-animate-fade-right {
+  transform: translateX(-30px);
+}
+
+/* Scale up */
+.scroll-animate-scale {
+  transform: scale(0.9);
+}
+
+/* Scale down */
+.scroll-animate-scale-down {
+  transform: scale(1.1);
+}
+
+/* Blur in */
+.scroll-animate-blur {
+  filter: blur(10px);
+}
+
+/* Rotate in */
+.scroll-animate-rotate {
+  transform: rotate(-5deg) scale(0.95);
+}
+
+/* Zoom in */
+.scroll-animate-zoom {
+  transform: scale(0.5);
+  opacity: 0;
+}
+
+/* ============================================
+   Staggered Animations (for lists)
+   ============================================ */
+
+.scroll-animate-stagger > *:nth-child(1) { transition-delay: 0ms; }
+.scroll-animate-stagger > *:nth-child(2) { transition-delay: 50ms; }
+.scroll-animate-stagger > *:nth-child(3) { transition-delay: 100ms; }
+.scroll-animate-stagger > *:nth-child(4) { transition-delay: 150ms; }
+.scroll-animate-stagger > *:nth-child(5) { transition-delay: 200ms; }
+.scroll-animate-stagger > *:nth-child(6) { transition-delay: 250ms; }
+.scroll-animate-stagger > *:nth-child(7) { transition-delay: 300ms; }
+.scroll-animate-stagger > *:nth-child(8) { transition-delay: 350ms; }
+.scroll-animate-stagger > *:nth-child(9) { transition-delay: 400ms; }
+.scroll-animate-stagger > *:nth-child(10) { transition-delay: 450ms; }
+
+/* Fast stagger (25ms increments) */
+.scroll-animate-stagger-fast > *:nth-child(1) { transition-delay: 0ms; }
+.scroll-animate-stagger-fast > *:nth-child(2) { transition-delay: 25ms; }
+.scroll-animate-stagger-fast > *:nth-child(3) { transition-delay: 50ms; }
+.scroll-animate-stagger-fast > *:nth-child(4) { transition-delay: 75ms; }
+.scroll-animate-stagger-fast > *:nth-child(5) { transition-delay: 100ms; }
+.scroll-animate-stagger-fast > *:nth-child(6) { transition-delay: 125ms; }
+.scroll-animate-stagger-fast > *:nth-child(7) { transition-delay: 150ms; }
+.scroll-animate-stagger-fast > *:nth-child(8) { transition-delay: 175ms; }
+.scroll-animate-stagger-fast > *:nth-child(9) { transition-delay: 200ms; }
+.scroll-animate-stagger-fast > *:nth-child(10) { transition-delay: 225ms; }
+
+/* ============================================
+   Duration Modifiers
+   ============================================ */
+
+.scroll-animate-fast {
+  transition-duration: 0.3s;
+}
+
+.scroll-animate-slow {
+  transition-duration: 1s;
+}
+
+.scroll-animate-very-slow {
+  transition-duration: 1.5s;
+}
+
+/* ============================================
+   Easing Modifiers
+   ============================================ */
+
+.scroll-animate-ease-in {
+  transition-timing-function: ease-in;
+}
+
+.scroll-animate-ease-out {
+  transition-timing-function: ease-out;
+}
+
+.scroll-animate-ease-in-out {
+  transition-timing-function: ease-in-out;
+}
+
+.scroll-animate-spring {
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.scroll-animate-bounce {
+  transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-animate,
+  .scroll-animate-fade-up,
+  .scroll-animate-fade-down,
+  .scroll-animate-fade-left,
+  .scroll-animate-fade-right,
+  .scroll-animate-scale,
+  .scroll-animate-scale-down,
+  .scroll-animate-blur,
+  .scroll-animate-rotate,
+  .scroll-animate-zoom {
+    transition: none;
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* ============================================
+   Keyframe Animations (for more complex effects)
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Apply keyframe animations */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}

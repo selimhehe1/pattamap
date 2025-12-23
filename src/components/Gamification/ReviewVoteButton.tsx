@@ -107,8 +107,9 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
       if (onVoteChange) {
         onVoteChange(data.voteCount, newHasVoted);
       }
-    } catch (err: any) {
-      setError(err.message || t('gamification.votes.failed'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage || t('gamification.votes.failed'));
       setTimeout(() => setError(null), 3000);
     } finally {
       setLoading(false);

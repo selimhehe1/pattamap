@@ -4,15 +4,17 @@
 /**
  * useAppModals Hook Tests
  *
- * Tests for application-wide modal management:
+ * Tests for application-wide modal management with ModalContext integration:
  * - Initial state (1 test)
  * - Open/close actions (4 tests)
  * - Switch login/register (2 tests)
  * - Submit handlers (2 tests)
  */
+import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useAppModals } from '../useAppModals';
+import { useAppModals, MODAL_IDS } from '../useAppModals';
+import { ModalProvider } from '../../contexts/ModalContext';
 
 // Mock secureFetch
 const mockSecureFetch = vi.fn();
@@ -27,9 +29,10 @@ vi.mock('../useSecureFetch', () => ({
 // Mock refreshLinkedProfile
 const mockRefreshLinkedProfile = vi.fn();
 
-// Mock AuthContext
+// Mock AuthContext with user
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({
+    user: { id: 'user-123', email: 'test@test.com' },
     refreshLinkedProfile: mockRefreshLinkedProfile,
   }),
 }));
@@ -42,6 +45,20 @@ vi.mock('../../utils/toast', () => ({
   },
 }));
 
+// Mock logger
+vi.mock('../../utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// Wrapper with ModalProvider
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <ModalProvider>{children}</ModalProvider>
+);
+
 describe('useAppModals Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,16 +69,9 @@ describe('useAppModals Hook', () => {
   });
 
   describe('Initial state', () => {
-    it('should have all modals closed initially', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should have initial form states', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
-      expect(result.current.showEmployeeForm).toBe(false);
-      expect(result.current.showEstablishmentForm).toBe(false);
-      expect(result.current.showLoginForm).toBe(false);
-      expect(result.current.showRegisterForm).toBe(false);
-      expect(result.current.showEmployeeProfileWizard).toBe(false);
-      expect(result.current.showEditMyProfileModal).toBe(false);
-      expect(result.current.showUserInfoModal).toBe(false);
       expect(result.current.isSubmitting).toBe(false);
       expect(result.current.isSelfProfile).toBe(false);
       expect(result.current.editingEmployeeData).toBeNull();
@@ -69,113 +79,92 @@ describe('useAppModals Hook', () => {
   });
 
   describe('Open/close actions', () => {
-    it('should open and close employee form', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should open and close employee form via ModalContext', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openEmployeeForm();
       });
-      expect(result.current.showEmployeeForm).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.EMPLOYEE_FORM)).toBe(true);
 
       act(() => {
         result.current.closeEmployeeForm();
       });
-      expect(result.current.showEmployeeForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.EMPLOYEE_FORM)).toBe(false);
     });
 
-    it('should open and close establishment form', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should open and close establishment form via ModalContext', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openEstablishmentForm();
       });
-      expect(result.current.showEstablishmentForm).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.ESTABLISHMENT_FORM)).toBe(true);
 
       act(() => {
         result.current.closeEstablishmentForm();
       });
-      expect(result.current.showEstablishmentForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.ESTABLISHMENT_FORM)).toBe(false);
     });
 
-    it('should open and close login form', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should open and close login form via ModalContext', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openLoginForm();
       });
-      expect(result.current.showLoginForm).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.LOGIN)).toBe(true);
 
       act(() => {
         result.current.closeLoginForm();
       });
-      expect(result.current.showLoginForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.LOGIN)).toBe(false);
     });
 
-    it('should open and close user info modal', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should open and close user info modal via ModalContext', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openUserInfoModal();
       });
-      expect(result.current.showUserInfoModal).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.USER_INFO)).toBe(true);
 
       act(() => {
         result.current.closeUserInfoModal();
       });
-      expect(result.current.showUserInfoModal).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.USER_INFO)).toBe(false);
     });
   });
 
   describe('Switch login/register', () => {
     it('should switch from login to register', () => {
-      const { result } = renderHook(() => useAppModals());
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openLoginForm();
       });
-      expect(result.current.showLoginForm).toBe(true);
-      expect(result.current.showRegisterForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.LOGIN)).toBe(true);
 
       act(() => {
         result.current.switchLoginToRegister();
       });
-      expect(result.current.showLoginForm).toBe(false);
-      expect(result.current.showRegisterForm).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.LOGIN)).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.REGISTER)).toBe(true);
     });
 
     it('should switch from register to login', () => {
-      const { result } = renderHook(() => useAppModals());
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openRegisterForm();
       });
-      expect(result.current.showRegisterForm).toBe(true);
-      expect(result.current.showLoginForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.REGISTER)).toBe(true);
 
       act(() => {
         result.current.switchRegisterToLogin();
       });
-      expect(result.current.showRegisterForm).toBe(false);
-      expect(result.current.showLoginForm).toBe(true);
-    });
-  });
-
-  describe('Wizard create profile', () => {
-    it('should transition from wizard to employee form', () => {
-      const { result } = renderHook(() => useAppModals());
-
-      act(() => {
-        result.current.openEmployeeProfileWizard();
-      });
-      expect(result.current.showEmployeeProfileWizard).toBe(true);
-
-      act(() => {
-        result.current.handleWizardCreateProfile();
-      });
-
-      expect(result.current.showEmployeeProfileWizard).toBe(false);
-      expect(result.current.showEmployeeForm).toBe(true);
-      expect(result.current.isSelfProfile).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.REGISTER)).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.LOGIN)).toBe(true);
     });
   });
 
@@ -186,7 +175,7 @@ describe('useAppModals Hook', () => {
         json: async () => ({ id: 'est-123' }),
       });
 
-      const { result } = renderHook(() => useAppModals());
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.openEstablishmentForm();
@@ -206,7 +195,7 @@ describe('useAppModals Hook', () => {
         })
       );
 
-      expect(result.current.showEstablishmentForm).toBe(false);
+      expect(result.current.isModalOpen(MODAL_IDS.ESTABLISHMENT_FORM)).toBe(false);
       expect(result.current.isSubmitting).toBe(false);
     });
 
@@ -216,7 +205,7 @@ describe('useAppModals Hook', () => {
         json: async () => ({ error: 'Validation failed' }),
       });
 
-      const { result } = renderHook(() => useAppModals());
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       await act(async () => {
         try {
@@ -228,7 +217,6 @@ describe('useAppModals Hook', () => {
         }
       });
 
-      // Form should still be open after error (user might want to fix)
       expect(result.current.isSubmitting).toBe(false);
     });
 
@@ -238,7 +226,7 @@ describe('useAppModals Hook', () => {
         json: async () => ({ id: 'emp-123' }),
       });
 
-      const { result } = renderHook(() => useAppModals());
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       await act(async () => {
         await result.current.handleSubmitEmployee({
@@ -256,14 +244,14 @@ describe('useAppModals Hook', () => {
   });
 
   describe('Edit my profile', () => {
-    it('should open edit profile modal', () => {
-      const { result } = renderHook(() => useAppModals());
+    it('should open edit profile modal via ModalContext', () => {
+      const { result } = renderHook(() => useAppModals(), { wrapper });
 
       act(() => {
         result.current.handleEditMyProfile();
       });
 
-      expect(result.current.showEditMyProfileModal).toBe(true);
+      expect(result.current.isModalOpen(MODAL_IDS.EDIT_MY_PROFILE)).toBe(true);
     });
   });
 });

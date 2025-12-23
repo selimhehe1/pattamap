@@ -276,9 +276,10 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
       // Call success callback
       onSuccess?.();
       onClose?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Submit ownership request error:', error);
-      toast.error(error.message || 'Failed to submit request');
+      toast.error(errorMessage || 'Failed to submit request');
     } finally {
       setIsSubmitting(false);
     }

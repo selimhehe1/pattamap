@@ -1,6 +1,7 @@
 import React, { useState, useEffect, CSSProperties, useMemo } from 'react';
 import { logger } from '../../utils/logger';
 import { getOptimizedImageUrl, getAutoSrcSet, CloudinaryTransformOptions, isCloudinaryUrl } from '../../utils/cloudinary';
+import { validateAltText, logAltTextValidation } from '../../utils/imageValidation';
 
 /**
  * LazyImage - Optimized Image Component with Cloudinary Support
@@ -119,14 +120,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
   enableResponsive = false,
   responsiveType = 'employee'
 }) => {
-  // Development warning for missing alt text on non-decorative images
-  if (process.env.NODE_ENV === 'development' && !decorative && (!alt || alt.trim() === '')) {
-    console.warn(
-      '[LazyImage] Accessibility warning: Non-decorative images require descriptive alt text. ' +
-      `Either provide an alt prop or set decorative={true} if the image is purely decorative. ` +
-      `Image src: ${src?.substring(0, 50)}...`
-    );
-  }
+  // Enhanced alt text validation in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const result = validateAltText(alt, { isDecorative: decorative });
+      logAltTextValidation('LazyImage', src, result);
+    }
+  }, [alt, decorative, src]);
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 

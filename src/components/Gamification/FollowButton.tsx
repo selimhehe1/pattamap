@@ -110,8 +110,9 @@ const FollowButton: React.FC<FollowButtonProps> = ({
       if (onFollowChange) {
         onFollowChange(newIsFollowing);
       }
-    } catch (err: any) {
-      setError(err.message || t('gamification.follow.failed'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage || t('gamification.follow.failed'));
       setTimeout(() => setError(null), 3000);
     } finally {
       setLoading(false);

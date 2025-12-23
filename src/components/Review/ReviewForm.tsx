@@ -96,7 +96,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
         toast.info(t('reviews.photoUploading', 'Uploading photos...'));
         photoUrls = await uploadPhotosToCloudinary(photos);
         logger.info(`Uploaded ${photoUrls.length} photos for review`);
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Photo upload error:', error);
         toast.error(t('reviews.photoUploadError', 'Failed to upload photos'));
         setIsUploading(false);

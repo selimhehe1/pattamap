@@ -126,8 +126,9 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
             if (data.verified && data.xpAwarded) {
               await awardXP(data.xpAwarded, 'check_in', 'establishment', establishmentId);
             }
-          } catch (apiError: any) {
-            setError(apiError.message || t('gamification.checkIn.verificationFailed'));
+          } catch (apiError: unknown) {
+            const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
+            setError(errorMessage || t('gamification.checkIn.verificationFailed'));
           } finally {
             setLoading(false);
           }
@@ -155,9 +156,10 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
           maximumAge: 0
         }
       );
-    } catch (err: any) {
+    } catch (error: unknown) {
       setLoading(false);
-      setError(err.message || t('gamification.checkIn.locationFailed'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage || t('gamification.checkIn.locationFailed'));
     }
   };
 

@@ -123,9 +123,10 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
         onSuccess();
         onClose();
       }, 2000);
-    } catch (err: any) {
-      logger.error('Error purchasing VIP:', err);
-      setError(err.message || t('vipPurchase.errorPurchasing', 'Failed to purchase VIP subscription'));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Error purchasing VIP:', error);
+      setError(errorMessage || t('vipPurchase.errorPurchasing', 'Failed to purchase VIP subscription'));
     } finally {
       setPurchasing(false);
     }

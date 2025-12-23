@@ -1410,8 +1410,10 @@
   },
 
   "starRating": {
-    "ariaStarsSingular": "{{count}} star",
-    "ariaStarsPlural": "{{count}} stars"
+    "ariaStarsSingular": "{{count}}つ星",
+    "ariaStarsPlural": "{{count}}つ星",
+    "ariaGroupLabel": "星評価",
+    "ariaCurrentRating": "現在の評価：{{max}}つ星中{{rating}}つ星"
   },
 
   "barInfoSidebar": {

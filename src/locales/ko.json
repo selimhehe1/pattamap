@@ -1410,8 +1410,10 @@
   },
 
   "starRating": {
-    "ariaStarsSingular": "{{count}} star",
-    "ariaStarsPlural": "{{count}} stars"
+    "ariaStarsSingular": "별 {{count}}개",
+    "ariaStarsPlural": "별 {{count}}개",
+    "ariaGroupLabel": "별점 평가",
+    "ariaCurrentRating": "현재 평점: {{max}}점 만점에 {{rating}}점"
   },
 
   "barInfoSidebar": {

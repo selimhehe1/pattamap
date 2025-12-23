@@ -944,7 +944,9 @@
   },
   "starRating": {
     "ariaStarsSingular": "{{count}}星",
-    "ariaStarsPlural": "{{count}}星"
+    "ariaStarsPlural": "{{count}}星",
+    "ariaGroupLabel": "星级评分",
+    "ariaCurrentRating": "当前评分：{{rating}}/{{max}}星"
   },
   "barInfoSidebar": {
     "errors": {

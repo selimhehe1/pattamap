@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [linkedEmployeeProfile, setLinkedEmployeeProfile] = useState<Employee | null>(null); // 🆕 v10.0 - Linked employee profile
 
   // Get CSRF token from context (for non-register operations)
-  const { csrfToken } = useCSRF();
+  const { csrfToken, refreshToken: refreshCSRFToken } = useCSRF();
 
   // 🔧 FIX A3: Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
@@ -167,12 +167,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (login: string, password: string) => {
     try {
+      // 🔧 FIX: Ensure CSRF token is available before login
+      // If token is empty, try to refresh it first
+      let tokenToUse = csrfToken;
+      if (!tokenToUse) {
+        logger.debug('[AuthContext] CSRF token empty, refreshing before login...');
+        const freshToken = await refreshCSRFToken();
+        if (freshToken) {
+          tokenToUse = freshToken;
+          logger.debug('[AuthContext] Got fresh CSRF token for login');
+        } else {
+          logger.warn('[AuthContext] Could not get CSRF token for login');
+        }
+      }
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: 'POST',
         credentials: 'include', // Include cookies
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-CSRF-Token': csrfToken }), // 🛡️ CSRF protection
+          ...(tokenToUse && { 'X-CSRF-Token': tokenToUse }), // 🛡️ CSRF protection
         },
         body: JSON.stringify({ login, password }),
       });
@@ -225,12 +239,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     accountType?: 'regular' | 'employee' | 'establishment_owner'
   ) => {
     try {
+      // 🔧 FIX: Ensure CSRF token is available before register
+      let tokenToUse = csrfToken;
+      if (!tokenToUse) {
+        logger.debug('[AuthContext] CSRF token empty, refreshing before register...');
+        const freshToken = await refreshCSRFToken();
+        if (freshToken) {
+          tokenToUse = freshToken;
+          logger.debug('[AuthContext] Got fresh CSRF token for register');
+        } else {
+          logger.warn('[AuthContext] Could not get CSRF token for register');
+        }
+      }
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: 'POST',
         credentials: 'include', // Include cookies
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-CSRF-Token': csrfToken }), // 🛡️ CSRF protection
+          ...(tokenToUse && { 'X-CSRF-Token': tokenToUse }), // 🛡️ CSRF protection
         },
         body: JSON.stringify({
           pseudonym,

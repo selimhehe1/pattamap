@@ -963,7 +963,9 @@
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} étoile",
-    "ariaStarsPlural": "{{count}} étoiles"
+    "ariaStarsPlural": "{{count}} étoiles",
+    "ariaGroupLabel": "Évaluation par étoiles",
+    "ariaCurrentRating": "Note actuelle : {{rating}} sur {{max}} étoiles"
   },
 
   "barInfoSidebar": {

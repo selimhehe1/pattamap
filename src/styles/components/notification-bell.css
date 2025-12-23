@@ -243,6 +243,19 @@
   transform: translateX(3px);
 }
 
+/* Keyboard navigation focus styles */
+.notification-item:focus {
+  outline: 2px solid #C19A6B;
+  outline-offset: 2px;
+  background: rgba(193, 154, 107, 0.1);
+  border-color: rgba(193, 154, 107, 0.4);
+}
+
+.notification-item.focused {
+  background: rgba(193, 154, 107, 0.15);
+  border-color: rgba(193, 154, 107, 0.5);
+}
+
 .notification-item:last-child {
   margin-bottom: 0;
 }

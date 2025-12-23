@@ -18,6 +18,7 @@ export type XPSource =
   | 'comment_reply'
   | 'check_in'
   | 'profile_updated'
+  | 'profile_approved'
   | 'daily_login'
   | 'mission_completed'
   | 'badge_unlocked'

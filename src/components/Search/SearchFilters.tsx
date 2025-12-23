@@ -327,8 +327,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       } else {
         throw new Error(`API Error: ${response.status}`);
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name !== 'AbortError') {
         logger.error('❌ Error fetching suggestions:', error);
         setAutocompleteState({
           suggestions: [],

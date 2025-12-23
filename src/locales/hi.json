@@ -944,7 +944,9 @@
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} तारा",
-    "ariaStarsPlural": "{{count}} तारे"
+    "ariaStarsPlural": "{{count}} तारे",
+    "ariaGroupLabel": "स्टार रेटिंग",
+    "ariaCurrentRating": "वर्तमान रेटिंग: {{max}} में से {{rating}} तारे"
   },
   "barInfoSidebar": {
     "errors": {

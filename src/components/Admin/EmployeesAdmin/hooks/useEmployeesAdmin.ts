@@ -144,24 +144,34 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
   // Approve employee
   const handleApprove = useCallback(
     async (employeeId: string) => {
+      logger.debug('🔄 handleApprove called for:', employeeId);
       addProcessingId(employeeId);
       try {
         const API_URL = getApiUrl();
+        logger.debug('🔄 Making approve request to:', `${API_URL}/api/admin/employees/${employeeId}/approve`);
         const response = await secureFetch(
           `${API_URL}/api/admin/employees/${employeeId}/approve`,
           { method: 'POST' }
         );
 
+        logger.debug('🔄 Approve response:', { status: response.status, ok: response.ok });
+
         if (response.ok) {
+          toast.success(t('admin.employeeApproved', 'Employee approved successfully'));
           await loadEmployees();
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          logger.error('🔄 Approve failed:', { status: response.status, error: errorData });
+          toast.error(errorData.error || t('admin.approveError', 'Failed to approve employee'));
         }
       } catch (error) {
         logger.error('Failed to approve employee:', error);
+        toast.error(t('admin.approveError', 'Failed to approve employee'));
       } finally {
         removeProcessingId(employeeId);
       }
     },
-    [secureFetch, loadEmployees, addProcessingId, removeProcessingId]
+    [secureFetch, loadEmployees, addProcessingId, removeProcessingId, t]
   );
 
   // Reject employee

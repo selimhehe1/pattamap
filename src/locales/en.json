@@ -1428,7 +1428,9 @@
 
   "starRating": {
     "ariaStarsSingular": "{{count}} star",
-    "ariaStarsPlural": "{{count}} stars"
+    "ariaStarsPlural": "{{count}} stars",
+    "ariaGroupLabel": "Star rating",
+    "ariaCurrentRating": "Current rating: {{rating}} out of {{max}} stars"
   },
 
   "barInfoSidebar": {

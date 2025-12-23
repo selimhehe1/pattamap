@@ -95,7 +95,9 @@ const NotificationBell: React.FC = () => {
   const [showOnlyUnread, setShowOnlyUnread] = useState(false);
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('type');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationItemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // 🔧 FIX N6: Exponential backoff state
   const consecutiveErrorsRef = useRef(0);
@@ -549,6 +551,69 @@ const NotificationBell: React.FC = () => {
     });
   };
 
+  // Get flattened list of visible notification items for keyboard navigation
+  const visibleNotificationItems = useMemo(() => {
+    const items: Notification[] = [];
+    Object.keys(groupedNotifications).forEach((groupKey) => {
+      if (!collapsedGroups.has(groupKey)) {
+        items.push(...groupedNotifications[groupKey]);
+      }
+    });
+    return items;
+  }, [groupedNotifications, collapsedGroups]);
+
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (!showDropdown) return;
+
+    switch (event.key) {
+      case 'Escape':
+        setShowDropdown(false);
+        setFocusedIndex(-1);
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        setFocusedIndex(prev => {
+          const nextIndex = prev < visibleNotificationItems.length - 1 ? prev + 1 : 0;
+          notificationItemsRef.current[nextIndex]?.focus();
+          return nextIndex;
+        });
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setFocusedIndex(prev => {
+          const nextIndex = prev > 0 ? prev - 1 : visibleNotificationItems.length - 1;
+          notificationItemsRef.current[nextIndex]?.focus();
+          return nextIndex;
+        });
+        break;
+      case 'Home':
+        event.preventDefault();
+        setFocusedIndex(0);
+        notificationItemsRef.current[0]?.focus();
+        break;
+      case 'End':
+        event.preventDefault();
+        const lastIndex = visibleNotificationItems.length - 1;
+        setFocusedIndex(lastIndex);
+        notificationItemsRef.current[lastIndex]?.focus();
+        break;
+    }
+  }, [showDropdown, visibleNotificationItems.length]);
+
+  // Add keyboard event listener
+  useEffect(() => {
+    if (showDropdown) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Reset focused index when dropdown opens
+      setFocusedIndex(-1);
+      notificationItemsRef.current = [];
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showDropdown, handleKeyDown]);
+
   // Mark group as read
   const handleMarkGroupAsRead = async (groupKey: string) => {
     const groupNotifications = groupedNotifications[groupKey] || [];
@@ -725,8 +790,10 @@ const NotificationBell: React.FC = () => {
 
           {/* Grouped Notifications List */}
           {!isLoading && filteredNotifications.length > 0 && (
-            <div className="notification-list">
-              {Object.keys(groupedNotifications).map((groupKey) => {
+            <div className="notification-list" role="listbox" aria-label={t('notifications.listLabel', 'Notifications list')}>
+              {(() => {
+                let globalIndex = 0;
+                return Object.keys(groupedNotifications).map((groupKey) => {
                 const groupNotifications = groupedNotifications[groupKey];
                 const isCollapsed = collapsedGroups.has(groupKey);
                 const groupUnreadCount = groupNotifications.filter(n => !n.is_read).length;
@@ -775,15 +842,25 @@ const NotificationBell: React.FC = () => {
 
                     {/* Group Notifications */}
                     {!isCollapsed && (
-                      <div className="notification-group-items">
-                        {groupNotifications.map((notification) => (
+                      <div className="notification-group-items" role="group" aria-label={groupTitle}>
+                        {groupNotifications.map((notification) => {
+                          const itemIndex = globalIndex++;
+                          return (
                           <div
                             key={notification.id}
-                            className={`notification-item ${!notification.is_read ? 'unread' : ''} ${notification.link ? 'clickable' : ''}`}
+                            ref={(el) => { notificationItemsRef.current[itemIndex] = el; }}
+                            className={`notification-item ${!notification.is_read ? 'unread' : ''} ${notification.link ? 'clickable' : ''} ${focusedIndex === itemIndex ? 'focused' : ''}`}
                             onClick={() => handleNotificationClick(notification)}
-                            role={notification.link ? 'button' : undefined}
-                            tabIndex={notification.link ? 0 : undefined}
-                            aria-label={notification.link ? `View notification: ${notification.title}` : notification.title}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleNotificationClick(notification);
+                              }
+                            }}
+                            role="option"
+                            tabIndex={0}
+                            aria-selected={focusedIndex === itemIndex}
+                            aria-label={`${notification.title}. ${formatNotificationMessage(notification)}. ${formatDate(notification.created_at)}${!notification.is_read ? '. Unread' : ''}`}
                           >
                             {/* Unread Indicator */}
                             {!notification.is_read && (
@@ -811,12 +888,14 @@ const NotificationBell: React.FC = () => {
                               ✕
                             </button>
                           </div>
-                        ))}
+                        );
+                        })}
                       </div>
                     )}
                   </div>
                 );
-              })}
+              });
+              })()}
             </div>
           )}
 

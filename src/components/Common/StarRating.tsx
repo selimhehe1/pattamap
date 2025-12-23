@@ -68,8 +68,10 @@ const StarRating: React.FC<StarRatingProps> = ({
     return starIndex <= activeRating ? 1 : 0.3;
   };
 
+  const activeRating = hoverRating || currentRating;
+
   return (
-    <div 
+    <div
       className={className}
       style={{
         display: 'flex',
@@ -77,7 +79,28 @@ const StarRating: React.FC<StarRatingProps> = ({
         gap: sizeConfig.gap,
         cursor: readonly ? 'default' : 'pointer'
       }}
+      role="group"
+      aria-label={t('starRating.ariaGroupLabel', 'Star rating')}
     >
+      {/* Screen reader announcement for rating changes */}
+      <span
+        aria-live="polite"
+        aria-atomic="true"
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0
+        }}
+      >
+        {activeRating > 0 && t('starRating.ariaCurrentRating', { rating: activeRating, max: 5 })}
+      </span>
+
       {[1, 2, 3, 4, 5].map((starValue) => (
         <span
           key={starValue}

@@ -89,9 +89,10 @@ const MyOwnershipRequests: React.FC = () => {
 
       toast.success('Ownership request cancelled successfully');
       fetchRequests(); // Refresh the list
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Cancel ownership request error:', error);
-      toast.error(error.message || 'Failed to cancel request');
+      toast.error(errorMessage || 'Failed to cancel request');
     }
   };
 

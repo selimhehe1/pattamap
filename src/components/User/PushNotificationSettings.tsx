@@ -89,17 +89,19 @@ const PushNotificationSettings: React.FC = () => {
           logger.error('Failed to show test notification:', error);
         }
       }, 500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Subscribe failed:', error);
 
-      let errorMessage = t('notifications.push.subscribeFailed');
-      if (error.message.includes('permission denied')) {
-        errorMessage = t('notifications.push.permissionDenied');
-      } else if (error.message.includes('not supported')) {
-        errorMessage = t('notifications.push.notSupported');
+      let toastMessage = t('notifications.push.subscribeFailed');
+      if (error instanceof Error) {
+        if (error.message.includes('permission denied')) {
+          toastMessage = t('notifications.push.permissionDenied');
+        } else if (error.message.includes('not supported')) {
+          toastMessage = t('notifications.push.notSupported');
+        }
       }
 
-      toast.error(errorMessage);
+      toast.error(toastMessage);
     } finally {
       setSubscribing(false);
     }
@@ -130,15 +132,15 @@ const PushNotificationSettings: React.FC = () => {
         t('notifications.push.testMessage')
       );
       toast.success(t('notifications.push.testSent'));
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Test notification failed:', error);
 
-      let errorMessage = t('notifications.push.testFailed');
-      if (error.message.includes('permission')) {
-        errorMessage = t('notifications.push.permissionDenied');
+      let toastMessage = t('notifications.push.testFailed');
+      if (error instanceof Error && error.message.includes('permission')) {
+        toastMessage = t('notifications.push.permissionDenied');
       }
 
-      toast.error(errorMessage);
+      toast.error(toastMessage);
     }
   };
 

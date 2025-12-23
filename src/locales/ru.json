@@ -952,7 +952,9 @@
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} звезда",
-    "ariaStarsPlural": "{{count}} звезд"
+    "ariaStarsPlural": "{{count}} звезд",
+    "ariaGroupLabel": "Звёздный рейтинг",
+    "ariaCurrentRating": "Текущий рейтинг: {{rating}} из {{max}} звёзд"
   },
   "barInfoSidebar": {
     "errors": {

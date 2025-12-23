@@ -74,8 +74,9 @@ const GamifiedUserProfile: React.FC = () => {
           const statsData = await statsResponse.json();
           setStats(statsData);
         }
-      } catch (err: any) {
-        setError(err.message || 'Failed to load user profile');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setError(errorMessage || 'Failed to load user profile');
       } finally {
         setLoading(false);
       }

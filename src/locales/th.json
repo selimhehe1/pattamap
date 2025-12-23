@@ -950,7 +950,9 @@
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} ดาว",
-    "ariaStarsPlural": "{{count}} ดาว"
+    "ariaStarsPlural": "{{count}} ดาว",
+    "ariaGroupLabel": "การให้คะแนนดาว",
+    "ariaCurrentRating": "คะแนนปัจจุบัน: {{rating}} จาก {{max}} ดาว"
   },
   "barInfoSidebar": {
     "errors": {
