@@ -207,13 +207,8 @@ const AppContent: React.FC = () => {
       <OfflineBanner />
 
       {/* Header global présent sur toutes les pages */}
-      <Header
-        onAddEmployee={() => openEmployeeForm()}
-        onAddEstablishment={openEstablishmentForm}
-        onShowLogin={openLoginForm}
-        onEditMyProfile={handleEditMyProfile}
-        onShowUserInfo={openUserInfoModal}
-      />
+      {/* Phase 4.4: Header now uses useAppModals hook directly - no props drilling */}
+      <Header />
 
       {/* XP Toast Notifications - Gamification v10.3 */}
       <XPToastNotifications />

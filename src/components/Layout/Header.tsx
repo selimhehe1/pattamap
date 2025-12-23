@@ -39,23 +39,16 @@ import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import { useMapControls } from '../../contexts/MapControlsContext';
+import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
 import '../../styles/layout/header.css';
 
-interface HeaderProps {
-  onAddEmployee: () => void;
-  onAddEstablishment: () => void;
-  onShowLogin: () => void;
-  onEditMyProfile?: () => void; // 🆕 v10.0 - Edit employee profile
-  onShowUserInfo?: () => void; // 🆕 Show user info modal (for regular users)
-}
-
-const Header: React.FC<HeaderProps> = ({
-  onAddEmployee,
-  onAddEstablishment,
-  onShowLogin,
-  onEditMyProfile,
-  onShowUserInfo
-}) => {
+/**
+ * Header Component
+ *
+ * Phase 4.4 Refactor: Removed props drilling for modal callbacks.
+ * Now uses useAppModals hook directly for all modal operations.
+ */
+const Header: React.FC = () => {
   const { t } = useTranslation();
   const { user, logout, linkedEmployeeProfile } = useAuth();
   const { userProgress } = useGamification();
@@ -64,6 +57,15 @@ const Header: React.FC<HeaderProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // 🆕 Phase 4.4: Direct modal access via hook (replaces props drilling)
+  const {
+    openLoginForm,
+    openEmployeeForm,
+    openEstablishmentForm,
+    handleEditMyProfile,
+    openUserInfoModal
+  } = useAppModals();
 
   // Detect if we're on the home page
   const isHomePage = location.pathname === '/';
@@ -79,22 +81,22 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleAvatarClick = useCallback(() => {
     setShowUserMenu(false);
-    if (user?.account_type === 'employee' && onEditMyProfile) {
-      onEditMyProfile();
-    } else if (onShowUserInfo) {
-      onShowUserInfo();
+    if (user?.account_type === 'employee') {
+      handleEditMyProfile();
+    } else {
+      openUserInfoModal();
     }
-  }, [user?.account_type, onEditMyProfile, onShowUserInfo]);
+  }, [user?.account_type, handleEditMyProfile, openUserInfoModal]);
 
   const handleAddEmployee = useCallback(() => {
     setShowUserMenu(false);
-    onAddEmployee();
-  }, [onAddEmployee]);
+    openEmployeeForm();
+  }, [openEmployeeForm]);
 
   const handleAddEstablishment = useCallback(() => {
     setShowUserMenu(false);
-    onAddEstablishment();
-  }, [onAddEstablishment]);
+    openEstablishmentForm();
+  }, [openEstablishmentForm]);
 
   const handleLogout = useCallback(() => {
     setShowUserMenu(false);
@@ -438,7 +440,7 @@ const Header: React.FC<HeaderProps> = ({
                                 <span className="menu-item-text">{t('header.employeeDashboard', 'My Dashboard')}</span>
                               </AnimatedButton>
 
-                              {linkedEmployeeProfile && onEditMyProfile && (
+                              {linkedEmployeeProfile && (
                                 <AnimatedButton
                                   ariaLabel="Edit my employee profile"
                                   tabIndex={0}
@@ -531,7 +533,7 @@ const Header: React.FC<HeaderProps> = ({
                   <AnimatedButton
                     onClick={() => {
                       setShowUserMenu(false);
-                      onShowLogin();
+                      openLoginForm();
                     }}
                     ariaLabel="Login to your account"
                     tabIndex={0}
