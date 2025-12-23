@@ -223,7 +223,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
   border-radius: 50%;
   margin-left: 8px;
   font-size: 14px;
@@ -264,7 +264,7 @@
 .profile-employment-badge.freelance {
   background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.15));
   border-color: rgba(193, 154, 107, 0.5);
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 .profile-employment-badge.freelance:hover {
@@ -277,7 +277,7 @@
 .profile-employment-badge.regular {
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.15), rgba(57, 117, 228, 0.15));
   border-color: rgba(44, 62, 80, 0.5);
-  color: #2C3E50;
+  color: var(--color-secondary);
 }
 
 .profile-employment-badge.regular:hover {
@@ -502,12 +502,12 @@
 
 /* Bouton edit admin/moderator */
 .profile-action-edit {
-  background: linear-gradient(45deg, var(--color-primary), #C19A6B);
+  background: linear-gradient(45deg, var(--color-primary), var(--color-primary));
   color: white;
 }
 
 .profile-action-edit:hover {
-  background: linear-gradient(45deg, #C19A6B, var(--color-primary));
+  background: linear-gradient(45deg, var(--color-primary), var(--color-primary));
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -709,7 +709,7 @@
 
 /* Icon colors */
 .profile-header-favorite {
-  color: #FFD700; /* Explicit gold color for heart */
+  color: var(--color-gold); /* Explicit gold color for heart */
 }
 
 .profile-header-favorite.favorited {
@@ -1606,7 +1606,7 @@
 .vip-status-title {
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #FFD700;
+  color: var(--color-gold);
   text-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
   margin: 0;
 }
@@ -1635,7 +1635,7 @@
 }
 
 .vip-status-date {
-  color: #FFD700;
+  color: var(--color-gold);
   font-weight: 700;
   text-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
 }

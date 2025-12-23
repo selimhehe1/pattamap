@@ -29,13 +29,13 @@
 }
 
 .establishment-listview-container-nightlife::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(193, 154, 107, 0.5);
 }
 
 .establishment-listview-container-nightlife::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
 }
 
 /* ========================================

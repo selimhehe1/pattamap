@@ -25,7 +25,7 @@
   margin: 0 0 8px 0;
   font-size: 36px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -88,7 +88,7 @@
   margin: 0 0 16px 0;
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -303,7 +303,7 @@
   margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 700;
-  color: #FFD700;
+  color: var(--color-gold);
 }
 
 .pending-steps ul {
@@ -325,7 +325,7 @@
   margin: 24px 0;
   padding: 16px 20px;
   background: rgba(255, 215, 0, 0.1);
-  border-left: 4px solid #FFD700;
+  border-left: 4px solid var(--color-gold);
   border-radius: 8px;
   animation: fadeIn 0.5s ease-out;
 }
@@ -334,7 +334,7 @@
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: 700;
-  color: #FFD700;
+  color: var(--color-gold);
 }
 
 .pro-tip p {
@@ -376,7 +376,7 @@
 .btn-verify {
   margin-top: 16px;
   padding: 12px 28px;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   color: #fff;
   border: none;
   border-radius: 8px;

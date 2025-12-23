@@ -178,7 +178,7 @@
   white-space: nowrap;
 
   /* Visual */
-  background: linear-gradient(135deg, var(--color-primary, #C19A6B), #D4A574);
+  background: linear-gradient(135deg, var(--color-primary, var(--color-primary)), #D4A574);
   border: none;
   border-radius: var(--border-radius-md, 8px);
   box-shadow: 0 4px 12px rgba(193, 154, 107, 0.3);
@@ -189,7 +189,7 @@
 }
 
 .btn-empty-state-primary:hover {
-  background: linear-gradient(135deg, #D4A574, var(--color-primary, #C19A6B));
+  background: linear-gradient(135deg, #D4A574, var(--color-primary, var(--color-primary)));
   box-shadow: 0 6px 16px rgba(193, 154, 107, 0.4);
   transform: translateY(-2px);
 }
@@ -201,7 +201,7 @@
 
 /* Focus state - WCAG AAA */
 .btn-empty-state-primary:focus-visible {
-  outline: 3px solid var(--color-gold, #C19A6B);
+  outline: 3px solid var(--color-gold, var(--color-primary));
   outline-offset: 3px;
   box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.3);
 }
@@ -226,7 +226,7 @@
 
   /* Visual */
   background: transparent;
-  border: 2px solid var(--color-primary, #C19A6B);
+  border: 2px solid var(--color-primary, var(--color-primary));
   border-radius: var(--border-radius-md, 8px);
   cursor: pointer;
 
@@ -247,7 +247,7 @@
 
 /* Focus state - WCAG AAA */
 .btn-empty-state-secondary:focus-visible {
-  outline: 3px solid var(--color-gold, #C19A6B);
+  outline: 3px solid var(--color-gold, var(--color-primary));
   outline-offset: 3px;
   box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.3);
 }
@@ -360,7 +360,7 @@
   }
 
   .btn-empty-state-primary {
-    border: 2px solid var(--color-primary, #C19A6B);
+    border: 2px solid var(--color-primary, var(--color-primary));
   }
 
   .btn-empty-state-secondary {

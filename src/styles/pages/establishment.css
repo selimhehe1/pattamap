@@ -200,7 +200,7 @@
   margin: 1rem 0 0.75rem 0;
 
   /* Couleur solide or/rose pour lisibilité maximale */
-  color: #FFD700; /* Or brillant */
+  color: var(--color-gold); /* Or brillant */
 
   /* Ombre portée forte pour contraste */
   text-shadow:
@@ -772,7 +772,7 @@
 }
 
 .sidebar-price-label-barfine-nightlife {
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 .sidebar-price-label-rooms-nightlife {
@@ -816,9 +816,9 @@
 .sidebar-price-input-barfine-nightlife {
   width: 60px;
   background: rgba(233,30,99,0.3);
-  border: 2px solid #C19A6B;
+  border: 2px solid var(--color-primary);
   border-radius: var(--border-radius-sm);
-  color: #C19A6B;
+  color: var(--color-primary);
   font-size: var(--font-size-sm);
   padding: var(--spacing-1);
   text-align: center;

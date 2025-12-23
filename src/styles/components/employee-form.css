@@ -10,9 +10,9 @@
  * Migration: Styles inline → CSS avec variables design-system.css
  *
  * Design System:
- * - Primary: #C19A6B (or rose champagne)
- * - Secondary: #2C3E50 (bleu marine élégant)
- * - Accent: #FF6B9D (rose vif modern)
+ * - Primary: var(--color-primary) (or rose champagne)
+ * - Secondary: var(--color-secondary) (bleu marine élégant)
+ * - Accent: var(--color-accent) (rose vif modern)
  * - Success: #10B981 (émeraude)
  * - Warning: #F59E0B (ambre)
  * - Error: #EF4444 (rouge moderne)

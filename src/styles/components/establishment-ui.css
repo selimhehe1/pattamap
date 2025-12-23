@@ -201,7 +201,7 @@
   align-items: center;
   gap: 0.875rem;
   font-weight: 600;
-  color: #C19A6B;
+  color: var(--color-primary);
   font-size: 1rem;
   letter-spacing: 0.02em;
 }
@@ -228,7 +228,7 @@
 }
 
 .rooms-toggle-switch-nightlife:focus-visible {
-  outline: 2.5px solid #C19A6B;
+  outline: 2.5px solid var(--color-primary);
   outline-offset: 3px;
 }
 
@@ -297,7 +297,7 @@
 }
 
 .btn-accent-nightlife:focus-visible {
-  outline: 2.5px solid #C19A6B;
+  outline: 2.5px solid var(--color-primary);
   outline-offset: 2px;
 }
 

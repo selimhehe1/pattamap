@@ -181,7 +181,7 @@
   left: 10px;
   z-index: 3;
   background: var(--bg-surface);
-  color: #FFD700;
+  color: var(--color-gold);
   padding: 6px 12px;
   border-radius: 12px;
   font-size: 12px;
@@ -387,7 +387,7 @@
 }
 
 .employee-card-rating-stars {
-  color: #FFD700;
+  color: var(--color-gold);
   font-size: 13px;
 }
 
@@ -586,7 +586,7 @@
   }
 
   .employee-card-tinder:hover {
-    border: 3px solid #C19A6B;
+    border: 3px solid var(--color-primary);
   }
 
   .employee-card-overlay {

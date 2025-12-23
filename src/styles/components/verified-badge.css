@@ -6,7 +6,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  background: linear-gradient(135deg, var(--color-gold) 0%, #FFA500 100%);
   color: #1a1a1a;
   font-weight: 700;
   border-radius: 50%;

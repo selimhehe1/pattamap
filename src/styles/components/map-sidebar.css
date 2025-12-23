@@ -148,7 +148,7 @@
   gap: var(--spacing-2);
 
   /* Background nightlife */
-  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
   border: 2px solid rgba(193, 154, 107, 0.6);
   border-radius: var(--radius-md);
 
@@ -169,7 +169,7 @@
 }
 
 .sidebar-view-toggle-btn-nightlife:hover {
-  background: linear-gradient(135deg, #C19A6B, #C19A6B);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
   border-color: rgba(193, 154, 107, 0.8);
   box-shadow:
     0 6px 25px rgba(193, 154, 107, 0.5),
@@ -186,7 +186,7 @@
 }
 
 .sidebar-view-toggle-btn-nightlife:focus-visible {
-  outline: 2px solid #FFD700;
+  outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
 

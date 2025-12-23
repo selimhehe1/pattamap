@@ -126,7 +126,7 @@
     0 2px 8px rgba(255, 215, 0, 0.3),
     0 1px 2px rgba(0, 0, 0, 0.3);
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: linear-gradient(135deg, var(--color-gold), #FFA500);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -348,7 +348,7 @@
 .sidebar-category-name-nightlife {
   font-size: 1.0625rem;
   font-weight: 800;
-  color: #FFD700;
+  color: var(--color-gold);
   flex: 1;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -415,7 +415,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1.5px solid rgba(44, 62, 80, 0.3);
   border-radius: 8px;
-  color: #2C3E50;
+  color: var(--color-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   text-align: center;
@@ -428,7 +428,7 @@
 }
 
 .sidebar-consumable-price-input-nightlife:focus {
-  outline: 2px solid #2C3E50;
+  outline: 2px solid var(--color-secondary);
   outline-offset: 2px;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -513,7 +513,7 @@
   text-shadow:
     0 2px 8px rgba(255, 215, 0, 0.4),
     0 1px 3px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: linear-gradient(135deg, var(--color-gold), #FFA500);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -560,7 +560,7 @@
 }
 
 .sidebar-price-label-barfine-nightlife {
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 /* Rooms specific */
@@ -583,7 +583,7 @@
 }
 
 .sidebar-price-label-rooms-nightlife {
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 /* Price Input Groups (Edit Mode) */
@@ -614,12 +614,12 @@
 
 .sidebar-price-input-barfine-nightlife {
   border-color: rgba(193, 154, 107, 0.4);
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 .sidebar-price-input-rooms-nightlife {
   border-color: rgba(193, 154, 107, 0.4);
-  color: #C19A6B;
+  color: var(--color-primary);
 }
 
 .sidebar-price-input-ladydrink-nightlife:hover,
@@ -641,11 +641,11 @@
 }
 
 .sidebar-price-input-barfine-nightlife:focus {
-  outline-color: #C19A6B;
+  outline-color: var(--color-primary);
 }
 
 .sidebar-price-input-rooms-nightlife:focus {
-  outline-color: #C19A6B;
+  outline-color: var(--color-primary);
 }
 
 /* ========================================
@@ -887,13 +887,13 @@
 /* 🎨 Subtle Price Enhancement - Respects nightlife theme */
 .sidebar-price-chip-nightlife {
   display: inline-block;
-  color: #FFD700;
+  color: var(--color-gold);
   font-weight: 800;
   font-size: 1.5rem;
   text-shadow:
     0 2px 8px rgba(255, 215, 0, 0.4),
     0 1px 3px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: linear-gradient(135deg, var(--color-gold), #FFA500);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -950,7 +950,7 @@
 .owner-badge-title-nightlife {
   font-size: 1rem;
   font-weight: 800;
-  color: #FFD700;
+  color: var(--color-gold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-shadow: 0 2px 4px rgba(255,215,0,0.3);

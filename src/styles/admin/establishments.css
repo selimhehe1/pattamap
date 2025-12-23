@@ -362,7 +362,7 @@
 
 /* Apply pulse to pending badges (contains yellow color) */
 .admin-establishment-status-badge-nightlife[style*="rgb(255, 215, 0)"],
-.admin-establishment-status-badge-nightlife[style*="#FFD700"] {
+.admin-establishment-status-badge-nightlife[style*="var(--color-gold)"] {
   animation: badgePulse 2s ease-in-out infinite;
 }
 

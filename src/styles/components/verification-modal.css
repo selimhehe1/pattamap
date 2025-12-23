@@ -54,7 +54,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -104,7 +104,7 @@
   margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #ff6b9d;
+  color: var(--color-accent);
 }
 
 .pose-emoji {
@@ -159,7 +159,7 @@
 .file-input-label {
   display: inline-block;
   padding: 14px 32px;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   color: #fff;
   border-radius: 8px;
   font-weight: 600;
@@ -265,7 +265,7 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c44569 100%);
   color: #fff;
   box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
 }

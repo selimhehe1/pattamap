@@ -49,7 +49,7 @@
 
 /* Header de Section avec text-shadow */
 .form-section-header {
-  color: var(--color-secondary); /* --nightlife-secondary, #2C3E50 */
+  color: var(--color-secondary); /* --nightlife-secondary, var(--color-secondary) */
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-4); /* --spacing-md */
@@ -68,7 +68,7 @@
 
 /* Photo Upload Area - Dashed border avec hover */
 .photo-upload-area {
-  border: var(--border-width-normal) dashed var(--color-secondary); /* 2px, #2C3E50 */
+  border: var(--border-width-normal) dashed var(--color-secondary); /* 2px, var(--color-secondary) */
   border-radius: var(--border-radius-md);
   padding: var(--spacing-8); /* --spacing-xl, 2rem */
   margin-bottom: var(--spacing-5); /* --spacing-lg */

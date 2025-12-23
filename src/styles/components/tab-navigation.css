@@ -126,7 +126,7 @@
 
 /* Active tab badge - brighter */
 .tab-active-nightlife .tab-badge-nightlife {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: linear-gradient(135deg, var(--color-gold), #FFA500);
   color: var(--text-primary);
   box-shadow: var(--shadow-glow-primary);
   animation: badgePulse 2s ease-in-out infinite;

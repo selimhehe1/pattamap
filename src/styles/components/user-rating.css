@@ -92,7 +92,7 @@
 .edit-rating-btn-nightlife:hover {
   background: rgba(193, 154, 107, 0.25);
   border-color: #D4AF37;
-  color: #FFD700;
+  color: var(--color-gold);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
 }

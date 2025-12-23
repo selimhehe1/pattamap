@@ -98,7 +98,7 @@
   margin: 0;
 
   /* Subtle gold gradient */
-  background: linear-gradient(135deg, #C19A6B, #FFD700);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-gold));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -215,7 +215,7 @@
 
 .header-xp-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #C19A6B, #FFD700);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-gold));
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -612,7 +612,7 @@
 .menu-item-login:hover {
   background: linear-gradient(135deg, rgba(193, 154, 107, 0.25), rgba(255, 215, 0, 0.15));
   border-color: rgba(193, 154, 107, 0.5);
-  color: #FFD700;
+  color: var(--color-gold);
   transform: translateX(0) scale(1.02);
   box-shadow: 0 4px 16px rgba(255, 215, 0, 0.25);
 }
