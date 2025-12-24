@@ -1,7 +1,9 @@
-# 🎨 Architecture CSS - PATTAMAP
+# Architecture CSS - PattaMap
 
-**Version**: 2.0.0
-**Date**: 2025-10-08
+**Version**: 3.0.0
+**Date**: 2025-12-24
+
+> **Documentation Complète**: [docs/architecture/CSS_ARCHITECTURE.md](../../docs/architecture/CSS_ARCHITECTURE.md)
 
 ---
 
@@ -154,8 +156,8 @@ z-index: var(--z-overlay);     /* 70 */
 
 ## 📚 DOCUMENTATION
 
-- [Guide de Migration](../../docs/CSS_MIGRATION_GUIDE.md) - Comment migrer l'ancien code
-- [Audit CSS](../../docs/AUDIT_CSS_ARCHITECTURE.md) - Analyse de l'ancien système
+- **[CSS_ARCHITECTURE.md](../../docs/architecture/CSS_ARCHITECTURE.md)** - Documentation complète (800+ lignes)
+- Includes: Design System Variables, Modern CSS (Container Queries, Scroll Animations), Accessibility (WCAG AAA), Component Patterns, Contribution Guide
 
 ---
 
@@ -223,48 +225,38 @@ z-index: var(--z-overlay);     /* 70 */
 
 ## 🔄 MIGRATION STATUS
 
-### ✅ **PHASE 1 & 2 COMPLÉTÉES** (5,200+ lignes)
+### ✅ **PHASES 1-4 COMPLÉTÉES**
 
-#### Design System & Base
-- ✅ **design-system.css** - Variables centralisées (410 lignes)
+#### Core System
+- ✅ **design-system.css** - Variables centralisées (657 lignes)
 - ✅ **base/reset.css** - Reset global (215 lignes)
+- ✅ **base/accessibility.css** - WCAG AAA compliance (617 lignes)
 - ✅ **utils/overlays.css** - Patterns overlay/menu réutilisables (386 lignes)
 
-#### Components (1,650 lignes)
-- ✅ **components/buttons.css** - Système de boutons complet (550 lignes)
+#### Modern CSS (2025)
+- ✅ **modern/container-queries.css** - Container queries (368 lignes)
+- ✅ **modern/scroll-animations.css** - Scroll-driven animations (410 lignes)
+
+#### Components
+- ✅ **components/buttons.css** - Système de boutons (550 lignes)
 - ✅ **components/forms.css** - Forms, inputs, validation (600 lignes)
 - ✅ **components/modals.css** - Modales et dialogues (500 lignes)
 
-#### Layout (1,050 lignes)
-- ✅ **layout/header.css** - Header fixe + navigation + mobile menu (650 lignes)
+#### Layout
+- ✅ **layout/header.css** - Header fixe + navigation (650 lignes)
 - ✅ **layout/page.css** - Containers, grids, responsive (400 lignes)
-
-#### Features
-- ⏳ **features/maps.css** - À créer
-- ⏳ **features/admin.css** - À créer
-- ⏳ **features/profiles.css** - À créer
-
-#### Migrations
-- ✅ **MobileMapMenu.tsx** - Migré vers nouveaux patterns
-- ⏳ Header mobile menu - À migrer
-- ⏳ Autres composants - À migrer
 
 ---
 
-**Progress**: **5,200+ lignes créées** / 9,145 anciennes lignes à migrer (**~57%**)
-
-**Lignes économisées** : ~300 lignes de duplication éliminée
+**Progress**: **4,353+ lignes créées** dans fichiers modernes
 
 ---
 
 ## 📞 SUPPORT
 
-Questions? Consulter:
-1. [Guide de Migration](../../docs/CSS_MIGRATION_GUIDE.md)
-2. [Audit CSS](../../docs/AUDIT_CSS_ARCHITECTURE.md)
-3. Commentaires inline dans les fichiers CSS
+Questions? Consulter **[CSS_ARCHITECTURE.md](../../docs/architecture/CSS_ARCHITECTURE.md)** pour la documentation complète.
 
 ---
 
 **Maintenu par**: Équipe Dev PattaMap
-**Dernière mise à jour**: 2025-10-08
+**Dernière mise à jour**: 2025-12-24
