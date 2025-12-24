@@ -467,7 +467,7 @@
     "emailPlaceholder": "Entrez votre adresse email",
     "passwordLabel": "Mot de passe",
     "passwordPlaceholder": "Créez un mot de passe sécurisé",
-    "passwordHelp": "Minimum 6 caractères",
+    "passwordHelp": "Minimum 8 caractères",
     "confirmPasswordLabel": "Confirmer le mot de passe",
     "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
     "draftRestored": "Brouillon restauré",

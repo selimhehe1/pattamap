@@ -480,7 +480,7 @@
     "emailPlaceholder": "Enter your email address",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Create a secure password",
-    "passwordHelp": "Minimum 6 characters",
+    "passwordHelp": "Minimum 8 characters",
     "confirmPasswordLabel": "Confirm Password",
     "confirmPasswordPlaceholder": "Confirm your password",
     "draftRestored": "Draft Restored",
