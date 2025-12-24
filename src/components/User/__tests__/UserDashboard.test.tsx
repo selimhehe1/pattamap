@@ -151,7 +151,7 @@ describe('UserDashboard Component', () => {
       mockUser = null;
       render(<UserDashboard />);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
+      expect(mockNavigate.mock.calls[0][0]).toBe('/login');
     });
 
     it('should show dashboard when user is authenticated', () => {
@@ -242,7 +242,7 @@ describe('UserDashboard Component', () => {
       const backButton = screen.getByText('← Back Home');
       await userEvent.click(backButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate.mock.calls[0][0]).toBe('/');
     });
 
     it('should navigate to search when browse button is clicked', async () => {
@@ -252,7 +252,7 @@ describe('UserDashboard Component', () => {
       const browseButton = screen.getByText(/Browse Employees/);
       await userEvent.click(browseButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/search');
+      expect(mockNavigate.mock.calls[0][0]).toBe('/search');
     });
   });
 
