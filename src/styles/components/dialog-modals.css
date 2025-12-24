@@ -3,55 +3,21 @@
  * Component: ConfirmModal.tsx, PromptModal.tsx
  * Hook: useDialog.ts
  *
+ * Uses unified .modal pattern with .modal--dialog modifier
+ * See modals.css for base styles
+ *
  * Features:
  * - Confirm modal with danger/warning/info/success variants
  * - Prompt modal with text input validation
  * - Nightlife theme with neon gradients
- * - Smooth animations with Framer Motion-compatible styles
  * - WCAG 2.1 Level AA compliant
  * - Responsive mobile/tablet/desktop
  */
 
-/* ==================== BASE OVERLAY ==================== */
-.dialog-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: var(--z-modal);
-  animation: overlayFadeIn 0.2s ease-out;
-}
-
+/* ==================== ANIMATIONS ==================== */
 @keyframes overlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* ==================== BASE MODAL ==================== */
-.dialog-modal {
-  background: var(--bg-modal);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes modalSlideIn {
@@ -65,65 +31,14 @@
   }
 }
 
-/* ==================== HEADER ==================== */
-.dialog-modal-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  padding: var(--spacing-5) var(--spacing-6);
-  background: var(--bg-surface-alt);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.dialog-modal-header h2 {
-  flex: 1;
-  margin: 0;
-  font-size: var(--font-xl);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
+/* ==================== DIALOG ICON ==================== */
 .dialog-icon {
   font-size: var(--font-2xl);
   flex-shrink: 0;
   line-height: 1;
 }
 
-.dialog-modal-header .close-button {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: var(--font-3xl);
-  line-height: 1;
-  padding: 0;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius-sm);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.dialog-modal-header .close-button:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.dialog-modal-header .close-button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-/* ==================== BODY ==================== */
-.dialog-modal-body {
-  padding: var(--spacing-6);
-  overflow-y: auto;
-  flex: 1;
-}
-
+/* ==================== DIALOG MESSAGE ==================== */
 .dialog-message {
   margin: 0 0 var(--spacing-4) 0;
   font-size: var(--font-base);
@@ -131,16 +46,6 @@
   color: var(--text-primary);
   white-space: pre-wrap;
   word-wrap: break-word;
-}
-
-/* ==================== FOOTER ==================== */
-.dialog-modal-footer {
-  display: flex;
-  gap: var(--spacing-3);
-  padding: var(--spacing-5) var(--spacing-6);
-  background: var(--bg-surface-alt);
-  border-top: 1px solid var(--border-color);
-  justify-content: flex-end;
 }
 
 /* ==================== BUTTONS ==================== */

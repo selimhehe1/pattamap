@@ -484,25 +484,13 @@ body.modal-open {
 }
 
 /* ============================================
-   LEGACY SUPPORT
+   LEGACY ALIASES (for backwards compatibility)
    ============================================ */
 
 /**
- * Mapping ancien système → nouveau système
- * TODO: Supprimer après migration complète
+ * Legacy class aliases - map old names to new system
+ * Can be removed when all components are migrated
  */
-.modal-overlay-nightlife {
-  /* Utilisez .modal-overlay */
-}
-
-.modal-content-nightlife {
-  /* Utilisez .modal */
-}
-
-.loading-spinner-nightlife {
-  /* Utilisez .modal-spinner */
-}
-
-.loading-spinner-small-nightlife {
-  /* Utilisez .modal-spinner .modal-spinner--sm */
-}
+.modal-overlay-nightlife { /* Use .modal-overlay instead */ }
+.modal-content-nightlife { /* Use .modal instead */ }
+.loading-spinner-nightlife { /* Use .modal-spinner instead */ }
