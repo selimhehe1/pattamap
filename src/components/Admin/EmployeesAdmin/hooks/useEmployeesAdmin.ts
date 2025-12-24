@@ -37,6 +37,15 @@ interface UseEmployeesAdminReturn extends EmployeesAdminState {
   handleVerifyEmployee: (employeeId: string, employeeName: string) => Promise<void>;
   handleRevokeVerification: (employeeId: string, employeeName: string) => Promise<void>;
 
+  // Bulk actions
+  selectedIds: Set<string>;
+  isBulkProcessing: boolean;
+  toggleSelection: (id: string) => void;
+  toggleSelectAll: () => void;
+  clearSelection: () => void;
+  handleBulkApprove: () => Promise<void>;
+  handleBulkReject: () => Promise<void>;
+
   // Computed
   isProcessing: (id: string) => boolean;
   hasAccess: boolean;
@@ -61,6 +70,10 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
   const [showEmployeeProfile, setShowEmployeeProfile] = useState(false);
   const [profileEmployee, setProfileEmployee] = useState<AdminEmployee | null>(null);
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
   // Access control
   const hasAccess = Boolean(user && ['admin', 'moderator'].includes(user.role));
 
@@ -81,6 +94,31 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     (id: string) => processingIds.has(id),
     [processingIds]
   );
+
+  // Bulk selection handlers
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    if (selectedIds.size === employees.length && employees.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(employees.map((e) => e.id)));
+    }
+  }, [employees, selectedIds.size]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
 
   // Load employees based on filter
   const loadEmployees = useCallback(async () => {
@@ -368,6 +406,105 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     [t, dialog, secureFetch, loadEmployees, addProcessingId, removeProcessingId]
   );
 
+  // Bulk approve selected employees
+  const handleBulkApprove = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+
+    setIsBulkProcessing(true);
+    const API_URL = getApiUrl();
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const promises = Array.from(selectedIds).map(async (id) => {
+        try {
+          const response = await secureFetch(
+            `${API_URL}/api/admin/employees/${id}/approve`,
+            { method: 'POST' }
+          );
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (successCount > 0) {
+        toast.success(t('admin.bulkApproveSuccess', `${successCount} employee(s) approved`));
+      }
+      if (failCount > 0) {
+        toast.error(t('admin.bulkApproveFailed', `${failCount} employee(s) failed to approve`));
+      }
+
+      clearSelection();
+      await loadEmployees();
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  }, [selectedIds, secureFetch, t, clearSelection, loadEmployees]);
+
+  // Bulk reject selected employees
+  const handleBulkReject = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+
+    const reason = await dialog.prompt(
+      t('admin.bulkRejectPrompt', `Reject ${selectedIds.size} employee(s)?\n\nPlease provide a reason:`),
+      {
+        required: true,
+        minLength: 10,
+        variant: 'danger',
+        placeholder: t('admin.enterRejectionReason', 'Enter rejection reason...'),
+      }
+    );
+
+    if (!reason) return;
+
+    setIsBulkProcessing(true);
+    const API_URL = getApiUrl();
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const promises = Array.from(selectedIds).map(async (id) => {
+        try {
+          const response = await secureFetch(
+            `${API_URL}/api/admin/employees/${id}/reject`,
+            {
+              method: 'POST',
+              body: JSON.stringify({ reason }),
+            }
+          );
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (successCount > 0) {
+        toast.success(t('admin.bulkRejectSuccess', `${successCount} employee(s) rejected`));
+      }
+      if (failCount > 0) {
+        toast.error(t('admin.bulkRejectFailed', `${failCount} employee(s) failed to reject`));
+      }
+
+      clearSelection();
+      await loadEmployees();
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  }, [selectedIds, dialog, t, secureFetch, clearSelection, loadEmployees]);
+
   // Load employees when filter changes
   useEffect(() => {
     loadEmployees();
@@ -417,6 +554,15 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     handleSaveEmployee,
     handleVerifyEmployee,
     handleRevokeVerification,
+
+    // Bulk actions
+    selectedIds,
+    isBulkProcessing,
+    toggleSelection,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkApprove,
+    handleBulkReject,
 
     // Computed
     isProcessing,

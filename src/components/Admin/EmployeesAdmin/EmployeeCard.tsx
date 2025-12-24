@@ -12,6 +12,8 @@ import type { AdminEmployee } from './types';
 interface EmployeeCardProps {
   employee: AdminEmployee;
   isProcessing: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (id: string) => void;
   onViewProfile: (employee: AdminEmployee) => void;
   onEdit: (employee: AdminEmployee) => void;
   onApprove: (employeeId: string) => void;
@@ -34,6 +36,8 @@ const getSocialMediaIcon = (platform: string): string => {
 export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
   isProcessing,
+  isSelected = false,
+  onToggleSelection,
   onViewProfile,
   onEdit,
   onApprove,
@@ -46,6 +50,11 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
   const handleCardClick = () => {
     onViewProfile(employee);
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleSelection?.(employee.id);
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,6 +91,36 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* Selection Checkbox */}
+      {onToggleSelection && (
+        <div
+          onClick={handleCheckboxClick}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            width: '24px',
+            height: '24px',
+            borderRadius: '6px',
+            border: isSelected ? '2px solid #C19A6B' : '2px solid rgba(255,255,255,0.3)',
+            background: isSelected ? '#C19A6B' : 'rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 15,
+            transition: 'all 0.2s ease',
+          }}
+          role="checkbox"
+          aria-checked={isSelected}
+          aria-label={t('admin.selectEmployee', 'Select employee')}
+        >
+          {isSelected && (
+            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+          )}
+        </div>
+      )}
+
       {/* Status Badge */}
       <div
         style={{

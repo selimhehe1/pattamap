@@ -5,6 +5,7 @@
 
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Check, X, Loader2 } from 'lucide-react';
 import { EmployeeForm, GirlProfile } from '../../../routes/lazyComponents';
 import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
 import LoadingFallback from '../../Common/LoadingFallback';
@@ -48,6 +49,13 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
     handleSaveEmployee,
     handleVerifyEmployee,
     handleRevokeVerification,
+    selectedIds,
+    isBulkProcessing,
+    toggleSelection,
+    toggleSelectAll,
+    clearSelection,
+    handleBulkApprove,
+    handleBulkReject,
     isProcessing,
     hasAccess,
   } = useEmployeesAdmin();
@@ -114,24 +122,147 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
           <p>{t('admin.noEmployeesMatch')}</p>
         </div>
       ) : (
-        <div className="grid-enhanced-nightlife">
-          {employees.map((employee) => (
-            <EmployeeCard
-              key={employee.id}
-              employee={employee}
-              isProcessing={isProcessing(employee.id)}
-              onViewProfile={(emp) => {
-                setProfileEmployee(emp);
-                setShowEmployeeProfile(true);
-              }}
-              onEdit={setEditingEmployee}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onVerify={handleVerifyEmployee}
-              onRevokeVerification={handleRevokeVerification}
-            />
-          ))}
-        </div>
+        <>
+          {/* Bulk Action Bar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              marginBottom: '16px',
+              background: 'rgba(193, 154, 107, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(193, 154, 107, 0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  color: '#C19A6B',
+                  fontWeight: 500,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === employees.length && employees.length > 0}
+                  onChange={toggleSelectAll}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    accentColor: '#C19A6B',
+                    cursor: 'pointer',
+                  }}
+                />
+                {t('admin.selectAll', 'Select All')}
+              </label>
+              {selectedIds.size > 0 && (
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                  ({selectedIds.size} {t('admin.selected', 'selected')})
+                </span>
+              )}
+            </div>
+
+            {selectedIds.size > 0 && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={handleBulkApprove}
+                  disabled={isBulkProcessing}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #10B981, #059669)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    opacity: isBulkProcessing ? 0.7 : 1,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Check size={16} />
+                  )}
+                  {t('admin.approveSelected', 'Approve')}
+                </button>
+                <button
+                  onClick={handleBulkReject}
+                  disabled={isBulkProcessing}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    opacity: isBulkProcessing ? 0.7 : 1,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <X size={16} />
+                  )}
+                  {t('admin.rejectSelected', 'Reject')}
+                </button>
+                <button
+                  onClick={clearSelection}
+                  disabled={isBulkProcessing}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {t('admin.clearSelection', 'Clear')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Employee Grid */}
+          <div className="grid-enhanced-nightlife">
+            {employees.map((employee) => (
+              <EmployeeCard
+                key={employee.id}
+                employee={employee}
+                isProcessing={isProcessing(employee.id)}
+                isSelected={selectedIds.has(employee.id)}
+                onToggleSelection={toggleSelection}
+                onViewProfile={(emp) => {
+                  setProfileEmployee(emp);
+                  setShowEmployeeProfile(true);
+                }}
+                onEdit={setEditingEmployee}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onVerify={handleVerifyEmployee}
+                onRevokeVerification={handleRevokeVerification}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {/* Employee Detail Modal */}
