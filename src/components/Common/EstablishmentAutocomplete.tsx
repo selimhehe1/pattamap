@@ -56,10 +56,21 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [flipUp, setFlipUp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search query by 300ms for better performance with large lists
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
+
+  // Viewport detection: flip dropdown up when not enough space below
+  useEffect(() => {
+    if (showSuggestions && inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const dropdownHeight = 320; // 300px max-height + 20px margin
+      setFlipUp(spaceBelow < dropdownHeight);
+    }
+  }, [showSuggestions]);
 
   // Zone names mapping - memoized to prevent dependency issues
   const zoneNames = useMemo<Record<string, string>>(() => ({
@@ -189,18 +200,20 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
         </button>
       )}
 
-      {/* Autocomplete Dropdown */}
+      {/* Autocomplete Dropdown - Viewport-aware positioning */}
       {showSuggestions && !disabled && (
         <div
           style={{
             position: 'absolute',
-            top: '100%',
+            top: flipUp ? 'auto' : '100%',
+            bottom: flipUp ? '100%' : 'auto',
             left: 0,
             right: 0,
             background: 'rgba(0, 0, 0, 0.95)',
             border: '2px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '12px',
-            marginTop: '4px',
+            marginTop: flipUp ? 0 : '4px',
+            marginBottom: flipUp ? '4px' : 0,
             maxHeight: '300px',
             overflowY: 'auto',
             zIndex: 1000,

@@ -114,7 +114,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
           <button
             onClick={onSwitchToLogin}
-            className="btn-nightlife-base btn-secondary-nightlife"
+            className="btn btn--secondary"
             style={{ marginTop: '24px', width: '100%' }}
           >
             {t('auth.backToLogin')}
@@ -173,7 +173,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className={`btn-nightlife-base btn-primary-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
           >
             {isLoading ? (
               <span className="loading-flex">

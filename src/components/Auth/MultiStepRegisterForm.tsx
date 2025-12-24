@@ -975,7 +975,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               <button
                 type="button"
                 onClick={handleNext}
-                className="btn-nightlife-base btn-success-nightlife"
+                className="btn btn--success"
                 style={{ marginTop: '20px' }}
               >
                 {t('register.nextButton')} →
@@ -1410,7 +1410,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="btn-nightlife-base btn-success-nightlife"
+                  className="btn btn--success"
                   style={{ flex: 2 }}
                 >
                   {t('register.nextButton')} →
@@ -1564,7 +1564,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="btn-nightlife-base btn-success-nightlife"
+                    className="btn btn--success"
                     style={{ flex: 2 }}
                   >
                     {t('register.nextButton')} →
@@ -1573,7 +1573,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className={`btn-nightlife-base btn-success-nightlife ${isLoading ? 'btn-loading' : ''}`}
+                    className={`btn btn--success ${isLoading ? 'btn--loading' : ''}`}
                     style={{ flex: 2 }}
                   >
                     {isLoading ? (
@@ -2088,7 +2088,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 <button
                   type="button"
                   onClick={handlePrevious}
-                  className="btn-nightlife-base btn-secondary-nightlife"
+                  className="btn btn--secondary"
                   style={{ flex: 1 }}
                 >
                   ← {t('register.backButton')}
@@ -2096,7 +2096,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading || uploadingPhotos}
-                  className={`btn-nightlife-base btn-success-nightlife ${isLoading ? 'btn-loading' : ''}`}
+                  className={`btn btn--success ${isLoading ? 'btn--loading' : ''}`}
                   style={{ flex: 2 }}
                 >
                   {uploadingPhotos ? (

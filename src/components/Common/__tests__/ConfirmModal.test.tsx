@@ -149,7 +149,7 @@ describe('ConfirmModal Component', () => {
     it('should call onCancel when clicking on overlay', async () => {
       render(<ConfirmModal {...defaultProps} />);
 
-      const overlay = document.querySelector('.dialog-modal-overlay');
+      const overlay = document.querySelector('.modal-overlay');
       expect(overlay).toBeInTheDocument();
 
       // Simulate click on overlay directly
@@ -162,7 +162,7 @@ describe('ConfirmModal Component', () => {
     it('should not close when clicking on modal content', async () => {
       render(<ConfirmModal {...defaultProps} />);
 
-      const modal = document.querySelector('.dialog-modal');
+      const modal = document.querySelector('.modal.modal--dialog');
       expect(modal).toBeInTheDocument();
 
       fireEvent.click(modal!);

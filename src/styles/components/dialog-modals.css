@@ -450,3 +450,146 @@
     border-width: 2px;
   }
 }
+
+/* ==================== UNIFIED MODAL ALIASES ==================== */
+/**
+ * Aliases mapping dialog-modal classes to standard modal system
+ * This allows gradual migration to unified .modal-* pattern
+ * Phase 2 Consolidation - Task 1
+ */
+
+/* Base overlay - extend dialog-modal-overlay */
+.modal-overlay.modal-overlay--dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: var(--z-modal);
+  animation: overlayFadeIn 0.2s ease-out;
+  /* Override modals.css visibility/opacity states - always visible when rendered */
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Base modal - extend dialog-modal */
+.modal.modal--dialog {
+  background: var(--bg-modal);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Override modals.css transform/opacity states */
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Header - extend dialog-modal-header */
+.modal--dialog .modal__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-6);
+  background: var(--bg-surface-alt);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal--dialog .modal__header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  /* Override modals.css gradient text */
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: var(--text-primary);
+}
+
+/* Body - extend dialog-modal-body */
+.modal--dialog .modal__body {
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Footer - extend dialog-modal-footer */
+.modal--dialog .modal__footer {
+  display: flex;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-6);
+  background: var(--bg-surface-alt);
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+/* Close button for dialog modals */
+.modal--dialog .modal__close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 28px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.modal--dialog .modal__close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  /* Override modals.css rotation */
+  transform: none;
+}
+
+.modal--dialog .modal__close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive for unified modals */
+@media (max-width: 640px) {
+  .modal.modal--dialog {
+    max-width: calc(100vw - 2rem);
+    border-radius: 10px;
+  }
+
+  .modal--dialog .modal__header {
+    padding: 16px 20px;
+  }
+
+  .modal--dialog .modal__header h2 {
+    font-size: 1.125rem;
+  }
+
+  .modal--dialog .modal__body {
+    padding: 20px;
+  }
+
+  .modal--dialog .modal__footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+    padding: 16px 20px;
+  }
+}

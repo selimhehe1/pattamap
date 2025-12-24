@@ -159,24 +159,21 @@
 
 /* ============================================
    GRID - Tinder Style (using EmployeeCard component)
+   Uses Container Queries via .cq-grid-auto class
    ============================================ */
 
 .employees-grid-view__grid {
   display: grid;
+  gap: var(--spacing-5);
+  /* Base fallback for browsers without container query support */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
 }
 
-/* Desktop: Optimal spacing for larger screens */
-@media (min-width: 1024px) {
-  .employees-grid-view__grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
-    gap: 25px;
-  }
-}
+/* Container Query aware grid columns handled by .cq-grid-auto class
+   from src/styles/modern/container-queries.css */
 
 /* ============================================
-   RESPONSIVE
+   RESPONSIVE (Layout/Spacing only - grid handled by CQ)
    ============================================ */
 
 @media (max-width: 768px) {
@@ -185,8 +182,7 @@
   }
 
   .employees-grid-view__grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
+    gap: var(--spacing-4);
   }
 
   .employees-grid-view__title {
@@ -196,7 +192,6 @@
 
 @media (max-width: 480px) {
   .employees-grid-view__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: var(--spacing-3);
   }
 }

@@ -284,7 +284,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           <button
             type="submit"
             disabled={isLoading}
-            className={`btn-nightlife-base btn-primary-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
             data-testid="login-button"
           >
             {isLoading ? (

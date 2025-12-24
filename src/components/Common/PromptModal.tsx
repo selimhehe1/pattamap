@@ -125,19 +125,19 @@ const PromptModal: React.FC<PromptModalProps> = ({
   };
 
   return (
-    <div className="dialog-modal-overlay" onClick={handleOverlayClick}>
-      <div className={`dialog-modal prompt-modal prompt-modal-${variant}`} onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay modal-overlay--dialog" onClick={handleOverlayClick}>
+      <div className={`modal modal--dialog prompt-modal prompt-modal-${variant}`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="dialog-modal-header">
+        <div className="modal__header">
           <span className="dialog-icon">{getIcon()}</span>
           <h2>{title || t('dialog.promptTitle', 'Input Required')}</h2>
-          <button className="close-button" onClick={handleCancel} aria-label="Close">
+          <button className="modal__close" onClick={handleCancel} aria-label="Close">
             ×
           </button>
         </div>
 
         {/* Body */}
-        <div className="dialog-modal-body">
+        <div className="modal__body">
           {message && <p className="dialog-message">{message}</p>}
 
           <div className="prompt-input-container">
@@ -179,7 +179,7 @@ const PromptModal: React.FC<PromptModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="dialog-modal-footer">
+        <div className="modal__footer">
           <button
             className="btn-dialog btn-cancel"
             onClick={handleCancel}
