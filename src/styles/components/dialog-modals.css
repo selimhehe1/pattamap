@@ -459,6 +459,10 @@
   border-radius: var(--border-radius-sm);
   transition: all var(--duration-fast) var(--ease-out);
   flex-shrink: 0;
+  /* FIX BUG-005: Ensure close button is always clickable */
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
 }
 
 .modal--dialog .modal__close:hover {

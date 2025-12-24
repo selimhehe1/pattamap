@@ -362,7 +362,9 @@
     "enterPassword": "Enter your password",
     "signingIn": "Signing in...",
     "signIn": "Sign In",
-    "registerHere": "Register here"
+    "registerHere": "Register here",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
 
   "register": {
@@ -1276,7 +1278,8 @@
     "altTextPhoto": "{{name}}, {{age}} years old from {{nationality}}",
     "verified": "Verified Profile",
     "verifiedSince": "Verified since",
-    "freelanceEmployee": "Freelance Employee"
+    "freelanceEmployee": "Freelance Employee",
+    "voteCount": "{{count}} vote(s) for existence confirmation"
   },
 
   "employeeDashboard": {

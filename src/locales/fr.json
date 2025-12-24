@@ -364,7 +364,9 @@
     "enterPassword": "Entrez votre mot de passe",
     "signingIn": "Connexion en cours...",
     "signIn": "Se connecter",
-    "registerHere": "S'inscrire ici"
+    "registerHere": "S'inscrire ici",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
 
   "register": {
@@ -959,7 +961,8 @@
     "altTextPhoto": "{{name}}, {{age}} ans de {{nationality}}",
     "verified": "Vérifié",
     "verifiedSince": "Vérifié depuis",
-    "freelanceEmployee": "Employée Freelance"
+    "freelanceEmployee": "Employée Freelance",
+    "voteCount": "{{count}} vote(s) de confirmation d'existence"
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} étoile",

@@ -357,7 +357,9 @@
     "enterPassword": "กรอกรหัสผ่านของคุณ",
     "signingIn": "กำลังเข้าสู่ระบบ...",
     "signIn": "เข้าสู่ระบบ",
-    "registerHere": "ลงทะเบียนที่นี่"
+    "registerHere": "ลงทะเบียนที่นี่",
+    "showPassword": "แสดงรหัสผ่าน",
+    "hidePassword": "ซ่อนรหัสผ่าน"
   },
   "register": {
     "title": "เข้าร่วมกับเรา",
@@ -946,7 +948,8 @@
     "altTextPhoto": "{{name}}, อายุ {{age}} ปี จาก {{nationality}}",
     "verified": "ยืนยันแล้ว",
     "verifiedSince": "ตรวจสอบแล้วเมื่อ",
-    "freelanceEmployee": "พนักงานฟรีแลนซ์"
+    "freelanceEmployee": "พนักงานฟรีแลนซ์",
+    "voteCount": "{{count}} โหวตยืนยันการมีอยู่"
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} ดาว",

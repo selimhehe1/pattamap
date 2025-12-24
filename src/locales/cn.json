@@ -357,7 +357,9 @@
     "enterPassword": "输入您的密码",
     "signingIn": "登录中...",
     "signIn": "登录",
-    "registerHere": "在此注册"
+    "registerHere": "在此注册",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码"
   },
   "register": {
     "title": "加入我们",
@@ -940,7 +942,8 @@
     "altTextPhoto": "{{name}}，{{age}}岁，来自{{nationality}}",
     "verified": "已认证",
     "verifiedSince": "已验证自",
-    "freelanceEmployee": "自由职业者"
+    "freelanceEmployee": "自由职业者",
+    "voteCount": "{{count}}票确认存在"
   },
   "starRating": {
     "ariaStarsSingular": "{{count}}星",

@@ -529,9 +529,16 @@
    ============================================ */
 
 .mobile-menu-footer {
+  /* FIX BUG-004: Make footer always visible at bottom */
+  position: sticky;
+  bottom: 0;
   padding: 1rem 1.25rem;
+  /* Safe area for mobile devices with notch/home indicator */
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--border-primary);
   background: var(--bg-surface-alt);
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .mobile-menu-settings-row {

@@ -547,6 +547,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     formData.accountType === 'employee' ? 3 : // Not yet selected path
     2; // regular or establishment_owner
 
+  // Calculate display step for progress indicator (FIX BUG-001: "Step 3 of 2")
+  // For non-employees, internal currentStep 3 should display as Step 2
+  const displayStep = formData.accountType === 'employee'
+    ? currentStep
+    : (currentStep === 1 ? 1 : 2);
+
   // Progress percentage
   const _progressPercentage = totalSteps === 4
     ? (currentStep / 4) * 100
@@ -688,7 +694,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#cccccc', textAlign: 'center' }}>
-            {t('register.stepProgress', { current: currentStep, total: totalSteps })}
+            {t('register.stepProgress', { current: displayStep, total: totalSteps })}
           </div>
         </div>
 

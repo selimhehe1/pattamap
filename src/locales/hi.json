@@ -357,7 +357,9 @@
     "enterPassword": "अपना पासवर्ड दर्ज करें",
     "signingIn": "साइन इन हो रहा है...",
     "signIn": "साइन इन करें",
-    "registerHere": "यहां पंजीकरण करें"
+    "registerHere": "यहां पंजीकरण करें",
+    "showPassword": "पासवर्ड दिखाएं",
+    "hidePassword": "पासवर्ड छुपाएं"
   },
   "register": {
     "title": "हमारे साथ जुड़ें",
@@ -940,7 +942,8 @@
     "altTextPhoto": "{{name}}, {{age}} वर्ष, {{nationality}} से",
     "verified": "सत्यापित",
     "verifiedSince": "सत्यापित किया गया",
-    "freelanceEmployee": "फ्रीलांस कर्मचारी"
+    "freelanceEmployee": "फ्रीलांस कर्मचारी",
+    "voteCount": "अस्तित्व पुष्टि के लिए {{count}} वोट"
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} तारा",

@@ -359,7 +359,9 @@
     "enterPassword": "Введите пароль",
     "signingIn": "Вход...",
     "signIn": "Войти",
-    "registerHere": "Зарегистрироваться"
+    "registerHere": "Зарегистрироваться",
+    "showPassword": "Показать пароль",
+    "hidePassword": "Скрыть пароль"
   },
   "register": {
     "title": "Присоединяйтесь к нам",
@@ -948,7 +950,8 @@
     "altTextPhoto": "{{name}}, {{age}} лет из {{nationality}}",
     "verified": "Проверено",
     "verifiedSince": "Проверено с",
-    "freelanceEmployee": "Фрилансер"
+    "freelanceEmployee": "Фрилансер",
+    "voteCount": "{{count}} голос(ов) за подтверждение существования"
   },
   "starRating": {
     "ariaStarsSingular": "{{count}} звезда",
