@@ -156,7 +156,7 @@ const GamifiedUserProfile: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="profile-stats-grid">
+      <div className="profile-stats-grid scroll-reveal-stagger">
         <div className="profile-stat-card">
           <div className="profile-stat-icon">⚡</div>
           <div className="profile-stat-content">

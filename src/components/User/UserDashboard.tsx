@@ -129,7 +129,7 @@ const UserDashboard: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid-enhanced-nightlife">
+        <div className="grid-enhanced-nightlife scroll-reveal-stagger">
           {favorites.map((favorite) => (
             <div
               key={favorite.id}

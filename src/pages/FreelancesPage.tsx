@@ -473,7 +473,7 @@ const FreelancesPage: React.FC = () => {
       ) : (
         <>
           {/* Results Grid */}
-          <div className="freelances-grid">
+          <div className="freelances-grid scroll-reveal-stagger">
             {freelances.map((freelance) => (
               <div key={freelance.id} className="freelance-card-wrapper">
                 {/* Freelance Badge */}

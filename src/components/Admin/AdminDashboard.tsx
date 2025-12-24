@@ -394,7 +394,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
       {activeTab === 'overview' && (
         <div>
           {/* Statistics Cards */}
-          <div className="admin-stats-grid">
+          <div className="admin-stats-grid scroll-reveal-stagger">
             {statCards.map((card) => (
               <div
                 key={card.title}
@@ -455,7 +455,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               📈 {t('admin.quickActions')}
             </h3>
 
-            <div className="admin-quick-actions-grid">
+            <div className="admin-quick-actions-grid scroll-reveal-stagger">
               {stats.pendingEstablishments > 0 && (
                 <button
                   onClick={() => onTabChange('establishments')}

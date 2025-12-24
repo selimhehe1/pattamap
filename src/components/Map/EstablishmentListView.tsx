@@ -141,7 +141,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
           return (
             <div
               key={establishment.id}
-              className={`establishment-card-tinder ${isSelected ? 'selected' : ''} ${isVIPActive ? 'establishment-card-vip' : ''}`}
+              className={`establishment-card-tinder establishment-card-scroll-reveal ${isSelected ? 'selected' : ''} ${isVIPActive ? 'establishment-card-vip' : ''}`}
               onClick={() => onEstablishmentClick?.(establishment)}
               role="button"
               tabIndex={0}

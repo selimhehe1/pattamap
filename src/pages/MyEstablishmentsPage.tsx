@@ -244,7 +244,7 @@ const MyEstablishmentsPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="establishments-grid">
+          <div className="establishments-grid scroll-reveal-stagger">
             {/* 🆕 v10.3 Phase 5 - VIP Priority Sorting */}
             {[...establishments].sort((a, b) => {
               const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
