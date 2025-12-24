@@ -666,17 +666,48 @@ input:invalid:not(:placeholder-shown):not(:focus) {
 
 ### ARIA Live Regions
 
-Use with `useLiveAnnouncer` hook for screen reader announcements:
+Two options available for screen reader announcements:
+
+**Option 1: React Hook (for components)**
 
 ```tsx
-const { announcePolite, announceAssertive } = useLiveAnnouncer();
+import { useLiveAnnouncer } from '../hooks/useLiveAnnouncer';
 
-// Polite (waits for user to finish)
-announcePolite('Item added to favorites');
+const MyComponent = () => {
+  const { announcePolite, announceAssertive } = useLiveAnnouncer();
 
-// Assertive (interrupts immediately)
-announceAssertive('Error: Failed to save');
+  // Polite (waits for user to finish)
+  announcePolite('Item added to favorites');
+
+  // Assertive (interrupts immediately)
+  announceAssertive('Error: Failed to save');
+};
 ```
+
+**Option 2: Standalone Utility (for non-React contexts)** *(v10.4+)*
+
+Use in mutation callbacks, event handlers, or anywhere outside React component lifecycle:
+
+```ts
+import { announcePolite, announceAssertive } from '../utils/announce';
+
+// In React Query onSuccess/onError callbacks
+onSuccess: () => {
+  announcePolite('Added to favorites');
+},
+onError: () => {
+  announceAssertive('Error: Failed to add to favorites');
+}
+
+// With options
+import { announce } from '../utils/announce';
+announce('Custom message', {
+  politeness: 'polite', // 'polite' | 'assertive' | 'off'
+  clearAfter: 2000      // Auto-clear after 2s (default: 1000ms)
+});
+```
+
+**WCAG 2.1 Level AAA** (4.1.3 Status Messages): Both utilities create live regions that screen readers announce automatically without moving focus
 
 ---
 
