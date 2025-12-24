@@ -41,6 +41,7 @@ interface MobileMenuProps {
  *
  * Full-screen sliding menu for mobile devices.
  * Includes view mode controls (List/Map/Employees).
+ * Updated: Fixed overlay click interception bug
  */
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -127,12 +128,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Backdrop overlay */}
-      <div
-        className={`mobile-menu-overlay ${isOpen ? 'active' : ''}`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      {/* Clickable backdrop - only rendered when menu is open */}
+      {/* Positioned to only cover the left side (non-panel area) to not interfere with panel clicks */}
+      {isOpen && (
+        <div
+          className="mobile-menu-backdrop"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Menu panel */}
       <div

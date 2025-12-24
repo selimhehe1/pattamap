@@ -17,28 +17,83 @@
    MOBILE MENU OVERLAY (Backdrop)
    ============================================ */
 
-.mobile-menu-overlay {
+/* Clickable backdrop - only covers left side (tap-to-close area) */
+.mobile-menu-backdrop {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  /* Only cover the area NOT occupied by the panel (15% on mobile) */
+  width: 15%;
   z-index: 80;
+  cursor: pointer;
 
-  /* Semi-transparent backdrop */
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-
-  /* Animation */
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  /* Transparent - visual effect via ::before */
+  background: transparent;
 
   /* Touch behavior */
   touch-action: none;
+
+  /* Animation */
+  animation: fadeIn 0.3s ease forwards;
 }
 
-.mobile-menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
+/* Visual backdrop covers full screen via pseudo-element */
+.mobile-menu-backdrop::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* For larger screens where panel max-width kicks in */
+@media (min-width: 377px) {
+  .mobile-menu-backdrop {
+    width: calc(100% - 320px);
+  }
+}
+
+/* Legacy overlay class - clip to left side only to prevent click interception */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 15%;
+  z-index: 80;
+  cursor: pointer;
+  background: transparent;
+  touch-action: none;
+}
+
+.mobile-menu-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mobile-menu-overlay.active::before {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@media (min-width: 377px) {
+  .mobile-menu-overlay {
+    width: calc(100% - 320px);
+  }
 }
 
 /* ============================================
@@ -70,10 +125,22 @@
 
   /* View Transitions */
   view-transition-name: mobile-menu;
+
+  /* Ensure panel receives pointer events above overlay */
+  pointer-events: none;
 }
 
 .mobile-menu-panel.active {
   transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Ensure all interactive elements in panel receive clicks */
+.mobile-menu-panel button,
+.mobile-menu-panel a,
+.mobile-menu-panel input,
+.mobile-menu-panel [role="button"] {
+  pointer-events: auto;
 }
 
 /* ============================================
