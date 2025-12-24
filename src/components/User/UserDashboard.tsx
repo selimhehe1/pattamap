@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Edit } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,7 +21,7 @@ import '../../styles/layout/page-layout.css';
 const UserDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { openModal, closeModal } = useModal();
   const { secureFetch } = useSecureFetch();
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
 import ReviewsList from '../Review/ReviewsList';
@@ -39,7 +39,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const { t } = useTranslation();
   const { openModal, closeModal, updateModalProps } = useModal();
   const { secureFetch } = useSecureFetch();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviews, setReviews] = useState<ThreadedComment[]>([]);

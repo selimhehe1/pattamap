@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import './AccessDenied.css';
 
@@ -44,7 +44,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
   showBackButton = true,
   className = '',
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { t } = useTranslation();
 
   // Default messages based on required role
@@ -86,7 +86,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
         <div className="access-denied-actions">
           {showBackButton && (
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate.back()}
               className="btn-nightlife-base btn-secondary-nightlife access-denied-btn-back"
               aria-label="Go back to previous page"
             >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
@@ -84,7 +84,7 @@ const MAX_POLL_INTERVAL_MS = 300000; // 5 minutes max
 const NotificationBell: React.FC = () => {
   const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { t } = useTranslation();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);

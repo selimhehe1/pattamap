@@ -1,5 +1,5 @@
 import React, { ErrorInfo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 
 /**
  * ErrorFallback - User-friendly error UI
@@ -35,7 +35,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
   boundaryName
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   const handleGoHome = () => {
@@ -45,7 +45,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
 
   const handleGoBack = () => {
     resetError();
-    navigate(-1);
+    navigate.back();
   };
 
   const handleReload = () => {

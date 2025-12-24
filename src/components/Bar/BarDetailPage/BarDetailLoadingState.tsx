@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../../hooks/useNavigateWithTransition';
 
 interface BarLoadingProps {
   type: 'loading' | 'empty';
@@ -12,7 +12,7 @@ interface BarLoadingProps {
 
 export const BarDetailLoadingState: React.FC<BarLoadingProps> = ({ type }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
 
   if (type === 'loading') {
     return (

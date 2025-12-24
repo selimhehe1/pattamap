@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import './EmptyState.css';
 
@@ -75,7 +75,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onSecondaryAction,
   className = '',
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { t } = useTranslation();
 
   // Default configurations based on type
