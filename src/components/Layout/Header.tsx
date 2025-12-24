@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { createPreloadHandler } from '../../utils/routePreloader';
 import {
   importSearchPage,
@@ -54,7 +55,7 @@ const Header: React.FC = () => {
   const { t } = useTranslation();
   const { user, logout, linkedEmployeeProfile } = useAuth();
   const { userProgress } = useGamification();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);

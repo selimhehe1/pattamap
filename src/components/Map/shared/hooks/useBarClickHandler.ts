@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../../../types';
 import { generateEstablishmentUrl } from '../../../../utils/slugify';
 import { BarType, DEFAULT_BAR_TYPE, getBarStyle } from '../../../../utils/mapConstants';
@@ -94,7 +94,7 @@ export const useBarClickHandler = (
   const { zone, establishments, isEditMode, onEstablishmentClick, onBarClick } =
     options;
 
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
 
   /**
    * Handle click on a bar

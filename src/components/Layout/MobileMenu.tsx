@@ -19,7 +19,8 @@ import {
   MapPin,
   X
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
 import { useMapControls } from '../../contexts/MapControlsContext';
@@ -45,7 +46,7 @@ interface MobileMenuProps {
  */
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const location = useLocation();
   const { user, logout, linkedEmployeeProfile } = useAuth();
   const { userProgress } = useGamification();
