@@ -68,7 +68,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-warning);
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-warning) 50%, transparent);
 }
 
 .xp-level-name {
@@ -103,10 +103,10 @@
 .xp-progress-fill {
   position: relative;
   height: 100%;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  background: linear-gradient(90deg, var(--color-warning) 0%, color-mix(in srgb, var(--color-warning) 85%, #000) 50%, color-mix(in srgb, var(--color-warning) 70%, #000) 100%);
   border-radius: 6px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-warning) 40%, transparent);
 }
 
 /* Shine effect */
@@ -155,7 +155,7 @@
 .xp-progress-text-max {
   color: var(--color-warning);
   font-weight: 700;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-warning) 50%, transparent);
 }
 
 .xp-progress-remaining {
@@ -174,13 +174,13 @@
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, var(--color-warning) 0%, color-mix(in srgb, var(--color-warning) 75%, #000) 100%);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-warning) 40%, transparent);
   cursor: help;
   transition: all 0.3s ease;
   animation: streakPulse 2s ease-in-out infinite;
@@ -188,15 +188,15 @@
 
 .xp-streak-badge:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-warning) 60%, transparent);
 }
 
 @keyframes streakPulse {
   0%, 100% {
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-warning) 40%, transparent);
   }
   50% {
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.6);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-warning) 60%, transparent);
   }
 }
 
