@@ -262,7 +262,35 @@ export async function clearQueue(): Promise<void> {
 }
 
 /**
- * Process the queue - replay all pending requests
+ * Calculate exponential backoff delay
+ * @param retryCount - Current retry attempt (0-based)
+ * @param baseDelay - Base delay in milliseconds (default: 1000ms)
+ * @param maxDelay - Maximum delay in milliseconds (default: 30000ms)
+ * @returns Delay in milliseconds with jitter
+ */
+function calculateBackoffDelay(
+  retryCount: number,
+  baseDelay: number = 1000,
+  maxDelay: number = 30000
+): number {
+  // Exponential backoff: baseDelay * 2^retryCount
+  const exponentialDelay = baseDelay * Math.pow(2, retryCount);
+  // Cap at maxDelay
+  const cappedDelay = Math.min(exponentialDelay, maxDelay);
+  // Add jitter (±25%) to prevent thundering herd
+  const jitter = cappedDelay * 0.25 * (Math.random() * 2 - 1);
+  return Math.round(cappedDelay + jitter);
+}
+
+/**
+ * Sleep for specified milliseconds
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Process the queue - replay all pending requests with exponential backoff
  */
 export async function processQueue(): Promise<{
   success: number;
@@ -282,7 +310,19 @@ export async function processQueue(): Promise<{
         console.warn('[OfflineQueue] Max retries exceeded for:', queuedRequest.id);
         await removeFromQueue(queuedRequest.id);
         failed++;
+
+        // Dispatch event for failed request (max retries)
+        window.dispatchEvent(new CustomEvent('offline-queue-request-failed', {
+          detail: { request: queuedRequest, reason: 'max_retries' }
+        }));
         continue;
+      }
+
+      // Apply exponential backoff delay if this is a retry
+      if (queuedRequest.retryCount > 0) {
+        const delay = calculateBackoffDelay(queuedRequest.retryCount);
+        if (IS_DEV) console.log(`[OfflineQueue] Retry ${queuedRequest.retryCount}/${queuedRequest.maxRetries} for ${queuedRequest.id}, waiting ${delay}ms`);
+        await sleep(delay);
       }
 
       // Make the actual request
@@ -300,12 +340,34 @@ export async function processQueue(): Promise<{
         await removeFromQueue(queuedRequest.id);
         success++;
         if (IS_DEV) console.log('[OfflineQueue] Request succeeded:', queuedRequest.id);
+
+        // Dispatch success event
+        window.dispatchEvent(new CustomEvent('offline-queue-request-success', {
+          detail: { request: queuedRequest }
+        }));
       } else {
-        await updateRetryCount(queuedRequest.id);
-        failed++;
-        if (IS_DEV) console.warn('[OfflineQueue] Request failed with status:', response.status);
+        // Check if it's a permanent error (4xx except 408, 429)
+        const isPermanentError = response.status >= 400 && response.status < 500
+          && response.status !== 408 && response.status !== 429;
+
+        if (isPermanentError) {
+          // Don't retry permanent errors
+          console.warn(`[OfflineQueue] Permanent error ${response.status} for:`, queuedRequest.id);
+          await removeFromQueue(queuedRequest.id);
+          failed++;
+
+          window.dispatchEvent(new CustomEvent('offline-queue-request-failed', {
+            detail: { request: queuedRequest, reason: 'permanent_error', status: response.status }
+          }));
+        } else {
+          // Retry transient errors (5xx, 408, 429)
+          await updateRetryCount(queuedRequest.id);
+          failed++;
+          if (IS_DEV) console.warn('[OfflineQueue] Request failed with status:', response.status, '- will retry');
+        }
       }
     } catch (error) {
+      // Network errors are always retryable
       await updateRetryCount(queuedRequest.id);
       failed++;
       console.error('[OfflineQueue] Request error:', error);

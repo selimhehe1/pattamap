@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCSRF } from '../contexts/CSRFContext';
 import { logger } from '../utils/logger';
+import { addToQueue, isOfflineQueueSupported, type QueuedRequest } from '../utils/offlineQueue';
 
 /**
  * Options for secure fetch requests
@@ -10,6 +11,19 @@ import { logger } from '../utils/logger';
 interface SecureFetchOptions extends RequestInit {
   /** Whether to require authentication (default: true). If false, request proceeds without auth headers */
   requireAuth?: boolean;
+  /** Whether to queue request for offline sync if network fails (default: false) */
+  offlineQueue?: boolean;
+  /** Human-readable description for offline queue UI */
+  offlineDescription?: string;
+}
+
+/**
+ * Result of a secure fetch that may have been queued
+ */
+interface SecureFetchResult {
+  response: Response | null;
+  queued: boolean;
+  queuedRequest?: QueuedRequest;
 }
 
 /**
@@ -21,11 +35,11 @@ interface SecureFetchOptions extends RequestInit {
  * - Handles authentication via httpOnly cookies (not localStorage)
  * - Auto-refreshes CSRF tokens before critical operations
  * - Handles 401 responses by logging out the user
- * - Provides loading state for CSRF token initialization
+ * - Optionally queues failed requests for offline sync
  *
  * @example
  * ```tsx
- * const { secureFetch, isReady } = useSecureFetch();
+ * const { secureFetch, isQueuedResponse } = useSecureFetch();
  *
  * // GET request (no CSRF needed)
  * const response = await secureFetch('/api/users');
@@ -35,18 +49,31 @@ interface SecureFetchOptions extends RequestInit {
  *   method: 'POST',
  *   body: JSON.stringify({ name: 'John' })
  * });
+ *
+ * // POST request with offline queue support
+ * const response = await secureFetch('/api/favorites', {
+ *   method: 'POST',
+ *   body: JSON.stringify({ employeeId: '123' }),
+ *   offlineQueue: true,
+ *   offlineDescription: 'Add to favorites'
+ * });
+ *
+ * // Check if response was queued
+ * if (isQueuedResponse(response)) {
+ *   showToast('Action saved. Will sync when online.');
+ * }
  * ```
  *
  * @returns {Object} Object containing:
  * - `secureFetch`: Function to make secure API requests
- * - `isReady`: Boolean indicating if CSRF token is ready
+ * - `isQueuedResponse`: Function to check if response was queued for offline sync
  */
 export const useSecureFetch = () => {
   const { logout } = useAuth();
   const { getCSRFHeaders, refreshToken, loading: csrfLoading } = useCSRF();
 
-  const secureFetch = useCallback(async (url: string, options: SecureFetchOptions = {}) => {
-    const { requireAuth = true, ...fetchOptions } = options;
+  const secureFetch = useCallback(async (url: string, options: SecureFetchOptions = {}): Promise<Response> => {
+    const { requireAuth = true, offlineQueue = false, offlineDescription, ...fetchOptions } = options;
 
     // Wait for CSRF token to be available if it's still loading
     const isModifyingRequest = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(fetchOptions.method?.toUpperCase() || 'GET');
@@ -182,12 +209,61 @@ export const useSecureFetch = () => {
 
       return response;
     } catch (error) {
+      // Check if this is a network error and offline queue is enabled
+      const isNetworkError = error instanceof TypeError &&
+        (error.message.includes('Failed to fetch') ||
+         error.message.includes('Network request failed') ||
+         error.message.includes('NetworkError'));
+
+      const isOffline = !navigator.onLine;
+
+      if ((isNetworkError || isOffline) && offlineQueue && isOfflineQueueSupported()) {
+        const method = (fetchOptions.method?.toUpperCase() || 'GET') as QueuedRequest['method'];
+
+        // Only queue modifying requests (POST, PUT, PATCH, DELETE)
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+          logger.info('[SecureFetch] Queueing request for offline sync:', url);
+
+          try {
+            await addToQueue(
+              url,
+              method,
+              fetchOptions.body ? JSON.parse(fetchOptions.body as string) : undefined,
+              {
+                headers: fetchOptions.headers as Record<string, string>,
+                description: offlineDescription || `${method} ${url.split('/').pop()}`,
+              }
+            );
+
+            // Return a fake "queued" response
+            return new Response(JSON.stringify({
+              queued: true,
+              message: 'Request queued for sync when online'
+            }), {
+              status: 202, // Accepted
+              statusText: 'Queued',
+              headers: { 'Content-Type': 'application/json', 'X-Offline-Queued': 'true' }
+            });
+          } catch (queueError) {
+            logger.error('[SecureFetch] Failed to queue request:', queueError);
+            // Fall through to original error
+          }
+        }
+      }
+
       logger.error('Secure fetch error:', error);
       throw error;
     }
   }, [logout, getCSRFHeaders, refreshToken, csrfLoading]);
 
-  return { secureFetch };
+  /**
+   * Check if a response was queued for offline sync
+   */
+  const isQueuedResponse = useCallback((response: Response): boolean => {
+    return response.headers.get('X-Offline-Queued') === 'true';
+  }, []);
+
+  return { secureFetch, isQueuedResponse };
 };
 
 // Helper for common API calls
