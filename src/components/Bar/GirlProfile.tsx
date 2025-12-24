@@ -293,6 +293,9 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
   return (
     <div className="profile-container-vertical-nightlife">
+        {/* Scroll Progress Bar */}
+        <div className="scroll-progress-bar-gradient" aria-hidden="true" />
+
         {/* Sticky Header avec boutons d'action */}
         <div className="profile-sticky-header">
           {/* Left: Info only (minimalist) */}

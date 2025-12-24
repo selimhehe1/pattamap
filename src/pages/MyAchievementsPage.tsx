@@ -84,7 +84,7 @@ const MyAchievementsPage: React.FC = () => {
             {activeTab === 'overview' && (
               <div className="achievements-overview">
                 {/* Stats Cards */}
-                <div className="stats-grid">
+                <div className="stats-grid scroll-reveal-stagger">
                   <div className="stat-card">
                     <div className="stat-icon">⚡</div>
                     <div className="stat-value">{userProgress?.total_xp.toLocaleString() || 0}</div>

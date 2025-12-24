@@ -175,6 +175,9 @@ const BarDetailPage: React.FC = () => {
       className="bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife"
       tabIndex={-1}
     >
+      {/* Scroll Progress Bar */}
+      <div className="scroll-progress-bar-gradient" aria-hidden="true" />
+
       {/* Inline animations */}
       <style>
         {`

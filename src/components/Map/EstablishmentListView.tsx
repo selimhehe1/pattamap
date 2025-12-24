@@ -128,7 +128,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
       </div>
 
       {/* Grid of establishment cards - Tinder Style */}
-      <div className="establishment-listview-grid-nightlife">
+      <div className="establishment-listview-grid-nightlife scroll-reveal-stagger">
         {sortedEstablishments.map((establishment) => {
           const isSelected = selectedEstablishment === establishment.id;
           const categoryName = establishment.category?.name || 'Establishment';
