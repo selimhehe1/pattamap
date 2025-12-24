@@ -40,7 +40,7 @@
   font-weight: 600;
   color: var(--color-warning);
   padding: 4px 12px;
-  background: rgba(251, 191, 36, 0.1);
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
   border-radius: 12px;
 }
 
@@ -175,17 +175,17 @@
 }
 
 .badge-rarity-legendary {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 15%, transparent);
   animation: legendaryGlow 2s ease-in-out infinite;
 }
 
 @keyframes legendaryGlow {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--color-warning) 40%, transparent);
   }
   50% {
-    box-shadow: 0 0 16px rgba(245, 158, 11, 0.8);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--color-warning) 80%, transparent);
   }
 }
 
@@ -226,21 +226,21 @@
    ======================================== */
 
 .badge-card-more {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
-  border-color: rgba(251, 191, 36, 0.3);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning) 10%, transparent) 0%, color-mix(in srgb, var(--color-warning) 5%, transparent) 100%);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
   cursor: pointer;
 }
 
 .badge-card-more:hover {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
-  border-color: rgba(251, 191, 36, 0.5);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-warning) 15%, transparent) 0%, color-mix(in srgb, var(--color-warning) 10%, transparent) 100%);
+  border-color: color-mix(in srgb, var(--color-warning) 50%, transparent);
 }
 
 .badge-more-icon {
   font-size: 32px;
   font-weight: 900;
   color: var(--color-warning);
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-warning) 50%, transparent);
 }
 
 .badge-more-text {
@@ -313,10 +313,10 @@
 
 .badge-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  background: linear-gradient(90deg, var(--color-warning) 0%, color-mix(in srgb, var(--color-warning) 85%, #000) 50%, color-mix(in srgb, var(--color-warning) 70%, #000) 100%);
   border-radius: 4px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-warning) 40%, transparent);
 }
 
 .badge-progress-text {
