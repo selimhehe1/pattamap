@@ -15,6 +15,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { logger } from '../utils/logger';
+import { useSyncQueryInvalidation } from '../hooks/useSyncQueryInvalidation';
 
 /**
  * Configuration globale du QueryClient
@@ -69,10 +70,21 @@ interface QueryProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * Inner component that uses hooks requiring QueryClient context
+ */
+const SyncQueryInvalidationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Automatically invalidates React Query cache when offline mutations sync
+  useSyncQueryInvalidation();
+  return <>{children}</>;
+};
+
 export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <SyncQueryInvalidationProvider>
+        {children}
+      </SyncQueryInvalidationProvider>
     </QueryClientProvider>
   );
 };

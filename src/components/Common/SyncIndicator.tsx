@@ -26,9 +26,23 @@ const SyncIndicator: React.FC<SyncIndicatorProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation();
-  const { queueCount, isSyncing, syncQueue, lastSyncResult, isSupported } = useOfflineQueue();
+  const { queueCount, isSyncing, syncQueue, lastSyncResult, lastSyncTime, isSupported } = useOfflineQueue();
   const { isOnline } = useOnline();
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Format relative time for last sync
+  const getRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+
+    if (diffSec < 60) return t('sync.justNow', 'just now');
+    if (diffMin < 60) return t('sync.minutesAgo', '{{count}}m ago', { count: diffMin });
+    if (diffHr < 24) return t('sync.hoursAgo', '{{count}}h ago', { count: diffHr });
+    return date.toLocaleDateString();
+  };
 
   // Don't render if not supported or nothing to show
   if (!isSupported || (!showWhenEmpty && queueCount === 0 && !isSyncing)) {
@@ -123,6 +137,11 @@ const SyncIndicator: React.FC<SyncIndicatorProps> = ({
         <div className="sync-indicator-tooltip" role="tooltip">
           <div className="sync-indicator-tooltip-content">
             {getStatusText()}
+            {lastSyncTime && (
+              <div className="sync-indicator-tooltip-time">
+                {t('sync.lastSync', 'Last sync: {{time}}', { time: getRelativeTime(lastSyncTime) })}
+              </div>
+            )}
             {isClickable && (
               <div className="sync-indicator-tooltip-action">
                 {t('sync.clickToSync', 'Click to sync now')}

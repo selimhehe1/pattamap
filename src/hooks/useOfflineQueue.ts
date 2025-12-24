@@ -48,12 +48,15 @@ export interface UseOfflineQueueResult {
     failed: number;
     remaining: number;
   } | null;
+  /** Timestamp of last successful sync */
+  lastSyncTime: Date | null;
 }
 
 export function useOfflineQueue(): UseOfflineQueueResult {
   const [queueCount, setQueueCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<UseOfflineQueueResult['lastSyncResult']>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const { isOnline } = useOnline();
   const isSupported = isOfflineQueueSupported();
 
@@ -94,6 +97,10 @@ export function useOfflineQueue(): UseOfflineQueueResult {
       }>;
       setLastSyncResult(customEvent.detail);
       setIsSyncing(false);
+      // Update last sync time if any requests were synced
+      if (customEvent.detail.success > 0) {
+        setLastSyncTime(new Date());
+      }
     };
 
     window.addEventListener('offline-queue-change', handleQueueChange);
@@ -177,5 +184,6 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     clearQueue,
     getQueue,
     lastSyncResult,
+    lastSyncTime,
   };
 }

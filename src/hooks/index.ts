@@ -47,6 +47,7 @@ export { useRedirectAfterLogin } from './useRedirectAfterLogin';
 // PWA / Offline
 export { useOnline } from './useOnline';
 export { useOfflineQueue } from './useOfflineQueue';
+export { useSyncQueryInvalidation } from './useSyncQueryInvalidation';
 
 // Performance
 export { useWebPSupport } from './useWebPSupport';
