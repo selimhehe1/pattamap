@@ -1403,6 +1403,233 @@ body[data-theme="light"] .badge-card {
   background: rgba(255, 255, 255, 0.7) !important;
 }
 
+/* --- Mobile Menu Glassmorphism --- */
+body[data-theme="light"] .mobile-menu-panel {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(245, 243, 250, 0.92) !important;
+  border-left: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: -8px 0 32px rgba(167, 139, 250, 0.15) !important;
+}
+
+body[data-theme="light"] .mobile-menu-backdrop::before {
+  background: rgba(232, 228, 243, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body[data-theme="light"] .mobile-menu-header {
+  background: rgba(245, 243, 250, 0.8) !important;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+body[data-theme="light"] .mobile-menu-user {
+  background: rgba(167, 139, 250, 0.08) !important;
+}
+
+body[data-theme="light"] .mobile-menu-footer {
+  background: rgba(245, 243, 250, 0.9) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body[data-theme="light"] .mobile-menu-settings-row {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* --- Employee Card Info Glassmorphism --- */
+body[data-theme="light"] .employee-card-info {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(245, 243, 250, 0.88) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+body[data-theme="light"] .employee-card-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(245, 243, 250, 0.95) 0%,
+    rgba(245, 243, 250, 0.7) 50%,
+    transparent 100%
+  ) !important;
+}
+
+/* --- Establishment Card Content Glassmorphism --- */
+body[data-theme="light"] .establishment-card-content {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(
+    to top,
+    rgba(245, 243, 250, 0.95) 0%,
+    rgba(245, 243, 250, 0.8) 40%,
+    rgba(245, 243, 250, 0.4) 70%,
+    transparent 100%
+  ) !important;
+}
+
+body[data-theme="light"] .establishment-card-category {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Tab Navigation Glassmorphism --- */
+body[data-theme="light"] .tab-navigation,
+body[data-theme="light"] .tabs-container {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(245, 243, 250, 0.85) !important;
+  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+}
+
+body[data-theme="light"] .tab-button.active,
+body[data-theme="light"] .tab-item.active {
+  background: rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Bottom Navigation Glassmorphism --- */
+body[data-theme="light"] .mobile-bottom-nav,
+body[data-theme="light"] .bottom-navigation {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(245, 243, 250, 0.92) !important;
+  border-top: 1px solid rgba(167, 139, 250, 0.2) !important;
+  box-shadow: 0 -4px 20px rgba(167, 139, 250, 0.1) !important;
+}
+
+/* --- Floating Action Buttons Glassmorphism --- */
+body[data-theme="light"] .fab,
+body[data-theme="light"] .floating-action-button {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Search Bar Glassmorphism --- */
+body[data-theme="light"] .search-container,
+body[data-theme="light"] .search-bar-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Filter Section Glassmorphism --- */
+body[data-theme="light"] .filter-section,
+body[data-theme="light"] .filters-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(245, 243, 250, 0.7) !important;
+  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Stat Cards Glassmorphism --- */
+body[data-theme="light"] .stat-card,
+body[data-theme="light"] [class*="stat-card"] {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.1) !important;
+}
+
+/* --- Admin Cards Glassmorphism --- */
+body[data-theme="light"] .admin-card,
+body[data-theme="light"] .dashboard-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Breadcrumb Glassmorphism --- */
+body[data-theme="light"] .breadcrumb-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(245, 243, 250, 0.7) !important;
+}
+
+/* --- Review Cards Glassmorphism --- */
+body[data-theme="light"] .review-card,
+body[data-theme="light"] .review-item {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Price Cards Glassmorphism --- */
+body[data-theme="light"] .price-card,
+body[data-theme="light"] .sidebar-price-card-nightlife {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* --- Map Sidebar Glassmorphism --- */
+body[data-theme="light"] .map-sidebar,
+body[data-theme="light"] .bar-info-sidebar {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(245, 243, 250, 0.92) !important;
+  border-left: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Zone Selector Glassmorphism --- */
+body[data-theme="light"] .zone-selector,
+body[data-theme="light"] .zone-selector-container {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(245, 243, 250, 0.85) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Language Selector Glassmorphism --- */
+body[data-theme="light"] .language-selector-dropdown,
+body[data-theme="light"] .language-dropdown {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Empty State Glassmorphism --- */
+body[data-theme="light"] .empty-state-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(245, 243, 250, 0.6) !important;
+}
+
+/* --- Access Denied Glassmorphism --- */
+body[data-theme="light"] .access-denied-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(245, 243, 250, 0.7) !important;
+}
+
+/* --- Gamification Components Glassmorphism --- */
+body[data-theme="light"] .achievement-card,
+body[data-theme="light"] .mission-card,
+body[data-theme="light"] .leaderboard-item {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+body[data-theme="light"] .xp-notification {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+}
+
 /* --- Reduced Motion: Disable blur for performance --- */
 @media (prefers-reduced-motion: reduce) {
   body[data-theme="light"] .header-modern,
@@ -1410,7 +1637,13 @@ body[data-theme="light"] .badge-card {
   body[data-theme="light"] .modal-overlay,
   body[data-theme="light"] .modal,
   body[data-theme="light"] .sidebar-modern,
-  body[data-theme="light"] .card-nightlife {
+  body[data-theme="light"] .card-nightlife,
+  body[data-theme="light"] .mobile-menu-panel,
+  body[data-theme="light"] .employee-card-info,
+  body[data-theme="light"] .establishment-card-content,
+  body[data-theme="light"] .tab-navigation,
+  body[data-theme="light"] .mobile-bottom-nav,
+  body[data-theme="light"] .map-sidebar {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
