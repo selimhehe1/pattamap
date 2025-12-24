@@ -3,7 +3,8 @@
  * Manages state and data fetching for BarDetailPage
  */
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../../../hooks/useNavigateWithTransition';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useSecureFetch } from '../../../../hooks/useSecureFetch';
@@ -35,7 +36,7 @@ export interface UseBarDetailPageReturn {
 
 export function useBarDetailPage(): UseBarDetailPageReturn {
   const { id: legacyId, slug } = useParams<{ id?: string; zone?: string; slug?: string }>();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
 

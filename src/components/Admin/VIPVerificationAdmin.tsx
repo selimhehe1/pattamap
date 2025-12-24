@@ -6,7 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
@@ -54,7 +55,7 @@ type FilterType = 'pending' | 'all' | 'completed';
 const VIPVerificationAdmin: React.FC = () => {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { secureFetch } = useSecureFetch();
   const dialog = useDialog();
   const [searchParams, setSearchParams] = useSearchParams();

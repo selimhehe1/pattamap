@@ -5,7 +5,7 @@
  * Zone-specific logic: L-shaped grid (4 rows), segment-based positioning, masked columns.
  */
 import React, { useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 import { getZoneConfig } from '../../utils/zoneConfig';
 import { MAP_CONFIG } from '../../utils/constants';
@@ -139,7 +139,7 @@ const CustomLKMetroMap: React.FC<CustomLKMetroMapProps> = ({
   onBarClick,
   onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // SHARED HOOKS

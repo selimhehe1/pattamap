@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 import { MAP_CONFIG } from '../../utils/constants';
 import { useContainerSize } from '../../hooks/useContainerSize';
@@ -151,7 +151,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
   selectedEstablishment,
   onBarClick,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Shared hooks

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import EmployeeCard from '../Common/EmployeeCard';
 import VIPPurchaseModal from './VIPPurchaseModal';
@@ -24,7 +24,7 @@ const MyEmployeesList: React.FC<Props> = ({
   canEditEmployees
 }) => {
   const { secureFetch } = useSecureFetch();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const { t } = useTranslation();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);

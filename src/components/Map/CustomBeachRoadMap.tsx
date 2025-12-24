@@ -5,7 +5,7 @@
  * Zone-specific: Freelance support, CSRF, GirlProfile modal.
  */
 import React, { useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar, Employee } from '../../types';
 import { IndependentPosition } from '../../hooks/useFreelances';
 import { useCSRF } from '../../contexts/CSRFContext';
@@ -139,7 +139,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
   onBarClick,
   onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const { getCSRFHeaders } = useCSRF();
   const { openModal, closeModal } = useModal();

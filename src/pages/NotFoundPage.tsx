@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useNavigateWithTransition } from '../hooks/useNavigateWithTransition';
 import { Helmet } from 'react-helmet-async';
 import { Home, ArrowLeft, Search, Map } from 'lucide-react';
 import '../styles/pages/not-found.css';
@@ -17,12 +18,12 @@ import '../styles/pages/not-found.css';
  * - Accessible with proper ARIA labels
  */
 const NotFoundPage: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
 
   const handleGoBack = () => {
     // Go back in history if possible, otherwise go home
     if (window.history.length > 2) {
-      navigate(-1);
+      navigate.back();
     } else {
       navigate('/');
     }

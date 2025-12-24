@@ -57,7 +57,7 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
 
   return (
     <motion.div
-      className="modal-overlay-unified"
+      className="modal-overlay-unified view-transition-modal-backdrop"
       variants={backdropVariants}
       initial="hidden"
       animate="visible"
@@ -80,7 +80,7 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
     >
       <motion.div
         ref={modalRef}
-        className="modal-content-unified"
+        className="modal-content-unified view-transition-modal"
         data-fullscreen={isFullscreen}
         variants={modalVariants}
         initial="hidden"

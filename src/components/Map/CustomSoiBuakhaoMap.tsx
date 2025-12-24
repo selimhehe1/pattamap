@@ -8,7 +8,7 @@
  * Refactored: ~500 lines (67% reduction)
  */
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 import { getZoneConfig } from '../../utils/zoneConfig';
 import { MAP_CONFIG } from '../../utils/constants';
@@ -123,7 +123,7 @@ const establishmentsToVisualBars = (establishments: Establishment[], isMobile: b
 const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
   establishments, onEstablishmentClick, selectedEstablishment, onBarClick
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const throttleTimeout = useRef<NodeJS.Timeout | null>(null);
   const barRefs = useRef<Map<string, HTMLDivElement>>(new Map());

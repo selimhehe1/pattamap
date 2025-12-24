@@ -5,7 +5,7 @@
  * Zone-specific logic: Street configurations, perpendicular streets positioning.
  */
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 // Auth context is used via useMapEditMode hook
 import WalkingStreetRoad from './WalkingStreetRoad';
@@ -233,7 +233,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({
   onBarClick,
   onEstablishmentUpdate: _onEstablishmentUpdate
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // SHARED HOOKS

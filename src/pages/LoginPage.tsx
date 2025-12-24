@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigateWithTransition } from '../hooks/useNavigateWithTransition';
 import { Helmet } from 'react-helmet-async';
 import LoginForm from '../components/Auth/LoginForm';
 import MultiStepRegisterForm from '../components/Auth/MultiStepRegisterForm';
@@ -24,7 +25,7 @@ import '../styles/pages/auth-pages.css';
  * navigate('/login', { state: { from: '/dashboard' } });
  */
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const location = useLocation();
   const { user } = useAuth();
   const [showRegister, setShowRegister] = useState(false);

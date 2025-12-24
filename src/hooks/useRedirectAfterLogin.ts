@@ -1,4 +1,5 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigateWithTransition } from './useNavigateWithTransition';
 import { useAuth } from '../contexts/AuthContext';
 import { useCallback, useEffect } from 'react';
 
@@ -37,7 +38,7 @@ interface UseRedirectAfterLoginReturn {
 }
 
 export const useRedirectAfterLogin = (): UseRedirectAfterLoginReturn => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const location = useLocation();
   const { user } = useAuth();
 

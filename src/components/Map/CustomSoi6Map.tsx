@@ -8,7 +8,7 @@
  * Refactored: ~800 lines (58% reduction)
  */
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 // Auth context is used via useMapEditMode hook
 import GenericRoadCanvas from './GenericRoadCanvas';
@@ -149,7 +149,7 @@ const CustomSoi6MapRefactored: React.FC<CustomSoi6MapProps> = ({
   selectedEstablishment,
   onBarClick,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigateWithTransition();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // ═══════════════════════════════════════════════════════════════════════════
