@@ -233,6 +233,16 @@ body[data-theme="light"] {
   --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);               /* Subtle text shadow for buttons */
   --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);                  /* Standard text shadow */
 
+  /* Rarity Colors - Gamification */
+  --rarity-common: #9ca3af;                                     /* Gray - common items */
+  --rarity-common-bg: rgba(156, 163, 175, 0.15);
+  --rarity-rare: #3b82f6;                                       /* Blue - rare items */
+  --rarity-rare-bg: rgba(59, 130, 246, 0.15);
+  --rarity-epic: #a855f7;                                       /* Purple - epic items */
+  --rarity-epic-bg: rgba(168, 85, 247, 0.15);
+  --rarity-legendary: var(--color-warning);                     /* Gold - legendary items */
+  --rarity-legendary-bg: color-mix(in srgb, var(--color-warning) 15%, transparent);
+
   /* Zone Colors - Dusk Mode optimized (couleurs pastel saturées) */
   --zone-soi6: rgba(196, 181, 253, 0.95);        /* Violet pastel */
   --zone-beachroad: rgba(147, 197, 253, 0.95);   /* Bleu ciel pastel */

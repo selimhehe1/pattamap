@@ -160,32 +160,32 @@
 }
 
 .badge-rarity-common {
-  color: #9ca3af;
-  background: rgba(156, 163, 175, 0.15);
+  color: var(--rarity-common);
+  background: var(--rarity-common-bg);
 }
 
 .badge-rarity-rare {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.15);
+  color: var(--rarity-rare);
+  background: var(--rarity-rare-bg);
 }
 
 .badge-rarity-epic {
-  color: #a855f7;
-  background: rgba(168, 85, 247, 0.15);
+  color: var(--rarity-epic);
+  background: var(--rarity-epic-bg);
 }
 
 .badge-rarity-legendary {
-  color: var(--color-warning);
-  background: color-mix(in srgb, var(--color-warning) 15%, transparent);
+  color: var(--rarity-legendary);
+  background: var(--rarity-legendary-bg);
   animation: legendaryGlow 2s ease-in-out infinite;
 }
 
 @keyframes legendaryGlow {
   0%, 100% {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--color-warning) 40%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--rarity-legendary) 40%, transparent);
   }
   50% {
-    box-shadow: 0 0 16px color-mix(in srgb, var(--color-warning) 80%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--rarity-legendary) 80%, transparent);
   }
 }
 
