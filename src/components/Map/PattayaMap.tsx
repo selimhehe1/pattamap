@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Component, ReactNode, ErrorInfo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from '../../contexts/ModalContext';
 import { useMapControls } from '../../contexts/MapControlsContext';
@@ -10,6 +10,81 @@ import MobileMapMenu from './MobileMapMenu';
 import MobileBottomNav from './MobileBottomNav';
 import EstablishmentListView from './EstablishmentListView';
 import EmployeesGridView from './EmployeesGridView';
+
+/**
+ * MapErrorBoundary - Auto-retry wrapper for ZoneMapRenderer
+ *
+ * Handles the HMR-related "useContext is null" error by automatically
+ * retrying with a new key to force a clean remount.
+ */
+interface MapErrorBoundaryProps {
+  children: ReactNode;
+  onRetry?: () => void;
+}
+
+interface MapErrorBoundaryState {
+  hasError: boolean;
+  retryCount: number;
+}
+
+class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorBoundaryState> {
+  constructor(props: MapErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, retryCount: 0 };
+  }
+
+  static getDerivedStateFromError(): Partial<MapErrorBoundaryState> {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, _errorInfo: ErrorInfo): void {
+    // Auto-retry on useContext errors (HMR-related)
+    if (error.message.includes('useContext') && this.state.retryCount < 3) {
+      setTimeout(() => {
+        this.setState(prev => ({
+          hasError: false,
+          retryCount: prev.retryCount + 1
+        }));
+        this.props.onRetry?.();
+      }, 100);
+    }
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError && this.state.retryCount >= 3) {
+      return (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          background: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
+          padding: '20px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+          <div style={{ fontSize: '18px', marginBottom: '12px' }}>Map failed to load</div>
+          <button
+            onClick={() => this.setState({ hasError: false, retryCount: 0 })}
+            style={{
+              padding: '10px 20px',
+              background: 'var(--color-primary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Retry
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Note: Leaflet replaced by custom zone maps
 
@@ -46,6 +121,7 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
   const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [mapKey, setMapKey] = useState(0); // Force re-render on sidebar toggle
+  const [mapRetryKey, setMapRetryKey] = useState(0); // Force re-render on error retry
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState(''); // Local search state (sidebar/menu only)
@@ -194,15 +270,17 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
 
         {/* Conditional rendering: Map View, List View, or Employees View */}
         {viewMode === 'map' ? (
-          <ZoneMapRenderer
-            key={mapKey}
-            currentZone={currentZone}
-            establishments={filteredEstablishments}
-            freelances={freelances}
-            onEstablishmentClick={onEstablishmentClick}
-            selectedEstablishment={selectedEstablishment}
-            onEstablishmentUpdate={onEstablishmentUpdate}
-          />
+          <MapErrorBoundary onRetry={() => setMapRetryKey(k => k + 1)}>
+            <ZoneMapRenderer
+              key={`map-${mapKey}-${mapRetryKey}-${currentZone}`}
+              currentZone={currentZone}
+              establishments={filteredEstablishments}
+              freelances={freelances}
+              onEstablishmentClick={onEstablishmentClick}
+              selectedEstablishment={selectedEstablishment}
+              onEstablishmentUpdate={onEstablishmentUpdate}
+            />
+          </MapErrorBoundary>
         ) : viewMode === 'list' ? (
           <EstablishmentListView
             establishments={filteredEstablishments.filter(e => e.zone === currentZone)}
