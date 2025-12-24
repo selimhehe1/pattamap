@@ -916,15 +916,15 @@ body[data-theme="light"] .menu-item:hover {
 }
 
 /* ============================================
-   LIGHT MODE - REMOVE ALL BLUR EFFECTS
-   Clean, simple backgrounds without glassmorphism
+   LIGHT MODE - SOLID BACKGROUNDS (Legacy)
+   Glassmorphism enabled at end of file
    ============================================ */
 
-/* Global rule to disable backdrop-filter in light mode */
-body[data-theme="light"] * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
+/*
+ * NOTE: Global backdrop-filter disable rule REMOVED.
+ * Light mode now uses subtle glassmorphism defined at end of file.
+ * See "Light Mode Glassmorphism Enhancement" section.
+ */
 
 /* --- SIDEBAR - Solid background --- */
 body[data-theme="light"] .sidebar-main-nightlife {
