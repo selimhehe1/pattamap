@@ -566,7 +566,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
           <button
             type="submit"
             disabled={isLoading}
-            className={`btn-nightlife-base btn-success-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            className={`btn btn--success ${isLoading ? 'btn--loading' : ''}`}
             data-testid="register-button"
           >
             {isLoading ? (

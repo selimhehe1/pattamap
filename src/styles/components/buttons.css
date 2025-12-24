@@ -444,16 +444,16 @@
 }
 
 /* ============================================
-   LEGACY SUPPORT
+   LEGACY ALIASES
    ============================================ */
 
 /**
- * Mapping ancien système → nouveau système
- * Pour compatibilité pendant la migration
- * TODO: Supprimer après migration complète des composants
+ * Legacy class aliases for backwards compatibility
+ * Maps old .btn-*-nightlife → new .btn / .btn--* pattern
+ * Can be removed once all components are migrated
  */
 
-/* Base button - Styles complets pour compatibilité */
+/* Base button alias */
 .btn-nightlife-base {
   /* Layout */
   display: inline-flex;
