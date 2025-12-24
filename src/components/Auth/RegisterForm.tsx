@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -27,6 +28,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Validation rules with debounce
   const validationRules: ValidationRules<typeof formData> = {
@@ -470,35 +473,89 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             {renderAvailabilityFeedback(emailAvailability.status, emailAvailability.message)}
           </div>
 
-          <FormField
-            label={`🔒 ${t('register.passwordLabel')}`}
-            name="password"
-            type="password"
-            value={formData.password}
-            error={errors.password}
-            status={fieldStatus.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            onBlur={(e) => handleInputBlur('password', e.target.value)}
-            placeholder={t('register.passwordPlaceholder')}
-            required
-            minLength={8}
-            helpText={t('register.passwordHelp')}
-            testId="register-password-input"
-          />
+          <div style={{ position: 'relative' }}>
+            <FormField
+              label={`🔒 ${t('register.passwordLabel')}`}
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              error={errors.password}
+              status={fieldStatus.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              onBlur={(e) => handleInputBlur('password', e.target.value)}
+              placeholder={t('register.passwordPlaceholder')}
+              required
+              minLength={8}
+              helpText={t('register.passwordHelp')}
+              testId="register-password-input"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '38px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+              aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+              data-testid="toggle-password-visibility"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
-          <FormField
-            label={`🔐 ${t('register.confirmPasswordLabel')}`}
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            error={errors.confirmPassword}
-            status={fieldStatus.confirmPassword}
-            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-            onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
-            placeholder={t('register.confirmPasswordPlaceholder')}
-            required
-            testId="confirm-password-input"
-          />
+          <div style={{ position: 'relative' }}>
+            <FormField
+              label={`🔐 ${t('register.confirmPasswordLabel')}`}
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={formData.confirmPassword}
+              error={errors.confirmPassword}
+              status={fieldStatus.confirmPassword}
+              onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+              onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
+              placeholder={t('register.confirmPasswordPlaceholder')}
+              required
+              testId="confirm-password-input"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '38px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+              aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+              data-testid="toggle-confirm-password-visibility"
+            >
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           {submitError && (
             <div className="error-message-nightlife error-shake" data-testid="register-error">
