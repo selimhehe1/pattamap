@@ -41,8 +41,15 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
   const [claimToReject, setClaimToReject] = useState<string | null>(null);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
+  // Phase 3: Bulk actions state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
   // Helper function to trigger refresh
-  const refreshClaims = () => setRefreshCounter(c => c + 1);
+  const refreshClaims = () => {
+    setRefreshCounter(c => c + 1);
+    setSelectedIds(new Set()); // Clear selection on refresh
+  };
 
   useEffect(() => {
     const loadClaims = async () => {
@@ -139,6 +146,51 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
         newSet.delete(claimToReject);
         return newSet;
       });
+    }
+  };
+
+  // Phase 3: Bulk action handlers
+  const toggleSelect = (claimId: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(claimId)) {
+        newSet.delete(claimId);
+      } else {
+        newSet.add(claimId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const pendingClaims = claims.filter(c => c.status === 'pending');
+    if (selectedIds.size === pendingClaims.length && pendingClaims.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pendingClaims.map(c => c.id)));
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkProcessing(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const promises = Array.from(selectedIds).map(id =>
+        secureFetch(`${API_URL}/api/employees/claims/${id}/approve`, {
+          method: 'POST',
+          body: JSON.stringify({ moderator_notes: 'Bulk approved by admin' })
+        })
+      );
+      await Promise.all(promises);
+      toast.success(t('admin.claims.bulkApproveSuccess', { count: selectedIds.size }));
+      refreshClaims();
+    } catch (error) {
+      logger.error('Bulk approve failed:', error);
+      toast.error(t('admin.claims.bulkApproveFailed'));
+    } finally {
+      setIsBulkProcessing(false);
     }
   };
 
@@ -278,6 +330,94 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
         ))}
       </div>
 
+      {/* Bulk Action Bar - Phase 3 */}
+      {selectedIds.size > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px',
+          padding: '16px 20px',
+          background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(255, 215, 0, 0.1))',
+          border: '2px solid rgba(0, 229, 255, 0.5)',
+          borderRadius: '12px',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ color: '#00E5FF', fontWeight: 'bold', marginRight: 'auto' }}>
+            {selectedIds.size} {t('admin.claims.itemsSelected', 'claim(s) selected')}
+          </span>
+          <button
+            onClick={handleBulkApprove}
+            disabled={isBulkProcessing}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #10B981, #059669)',
+              color: 'white',
+              cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              opacity: isBulkProcessing ? 0.6 : 1,
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isBulkProcessing ? '...' : `✅ ${t('admin.claims.approveAll', 'Approve All')}`}
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'transparent',
+              color: '#cccccc',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {t('admin.claims.clearSelection', 'Clear')}
+          </button>
+        </div>
+      )}
+
+      {/* Select All Header - Phase 3 */}
+      {!isLoading && claims.filter(c => c.status === 'pending').length > 0 && filter === 'pending' && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '16px',
+          padding: '12px 16px',
+          background: 'rgba(0, 229, 255, 0.05)',
+          borderRadius: '8px'
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            color: '#cccccc',
+            fontSize: '14px'
+          }}>
+            <input
+              type="checkbox"
+              checked={selectedIds.size === claims.filter(c => c.status === 'pending').length && claims.filter(c => c.status === 'pending').length > 0}
+              onChange={toggleSelectAll}
+              style={{
+                width: '18px',
+                height: '18px',
+                accentColor: '#00E5FF',
+                cursor: 'pointer'
+              }}
+            />
+            {t('admin.claims.selectAll', 'Select All Pending')} ({claims.filter(c => c.status === 'pending').length})
+          </label>
+        </div>
+      )}
+
       {/* Claims List */}
       {isLoading ? (
         <LoadingFallback message={t('admin.claims.loadingClaims')} variant="inline" />
@@ -315,9 +455,43 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
-                cursor: claim.status === 'pending' ? 'default' : 'pointer'
+                cursor: claim.status === 'pending' ? 'default' : 'pointer',
+                border: selectedIds.has(claim.id) ? '2px solid #00E5FF' : undefined,
+                background: selectedIds.has(claim.id)
+                  ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(0, 0, 0, 0.3))'
+                  : undefined
               }}
             >
+              {/* Selection Checkbox - Phase 3 Bulk Actions */}
+              {claim.status === 'pending' && (
+                <label
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    left: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 15
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(claim.id)}
+                    onChange={() => toggleSelect(claim.id)}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      accentColor: '#00E5FF',
+                      cursor: 'pointer'
+                    }}
+                    aria-label={`Select claim by ${claim.submitted_by_user?.pseudonym || 'unknown'}`}
+                  />
+                </label>
+              )}
+
               {/* Status Badge - Absolute Position Top Right */}
               <div style={{
                 position: 'absolute',

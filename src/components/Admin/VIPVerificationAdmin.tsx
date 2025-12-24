@@ -64,6 +64,10 @@ const VIPVerificationAdmin: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState<string | null>(null);
 
+  // Phase 3: Bulk actions state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
   // Get filter from URL params, default to 'pending'
   const getFilterFromParams = (): FilterType => {
     const status = searchParams.get('status');
@@ -207,6 +211,67 @@ const VIPVerificationAdmin: React.FC = () => {
     }
   };
 
+  // Phase 3: Bulk action handlers
+  const toggleSelect = (transactionId: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(transactionId)) {
+        newSet.delete(transactionId);
+      } else {
+        newSet.add(transactionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const pendingTransactions = transactions.filter(t => t.payment_status === 'pending');
+    if (selectedIds.size === pendingTransactions.length && pendingTransactions.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pendingTransactions.map(t => t.id)));
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    if (selectedIds.size === 0) return;
+
+    const confirmed = await dialog.confirm(
+      t('vipVerification.bulkConfirm', `Are you sure you want to verify ${selectedIds.size} payment(s)?`),
+      {
+        variant: 'info',
+        confirmText: t('common.confirm', 'Confirm'),
+        cancelText: t('common.cancel', 'Cancel')
+      }
+    );
+
+    if (!confirmed) return;
+
+    setIsBulkProcessing(true);
+
+    try {
+      const promises = Array.from(selectedIds).map(id =>
+        secureFetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/vip/verify-payment/${id}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ admin_notes: 'Bulk verified by admin' }),
+          }
+        )
+      );
+      await Promise.all(promises);
+      toast.success(t('vipVerification.bulkVerifySuccess', `${selectedIds.size} payment(s) verified successfully!`));
+      setSelectedIds(new Set());
+      await fetchTransactions();
+    } catch (error) {
+      logger.error('Bulk verify failed:', error);
+      toast.error(t('vipVerification.bulkVerifyError', 'Failed to verify some payments'));
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -328,6 +393,43 @@ const VIPVerificationAdmin: React.FC = () => {
         </button>
       </div>
 
+      {/* Bulk Action Bar - Phase 3 */}
+      {selectedIds.size > 0 && (
+        <div className="bulk-action-bar">
+          <span className="bulk-count">
+            {selectedIds.size} {t('vipVerification.itemsSelected', 'payment(s) selected')}
+          </span>
+          <button
+            onClick={handleBulkVerify}
+            disabled={isBulkProcessing}
+            className="bulk-verify-button"
+          >
+            {isBulkProcessing ? '...' : `✅ ${t('vipVerification.verifyAll', 'Verify All')}`}
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="bulk-clear-button"
+          >
+            {t('vipVerification.clearSelection', 'Clear')}
+          </button>
+        </div>
+      )}
+
+      {/* Select All Header - Phase 3 */}
+      {!loading && transactions.filter(t => t.payment_status === 'pending').length > 0 && filter === 'pending' && (
+        <div className="select-all-header">
+          <label className="select-all-label">
+            <input
+              type="checkbox"
+              checked={selectedIds.size === transactions.filter(t => t.payment_status === 'pending').length && transactions.filter(t => t.payment_status === 'pending').length > 0}
+              onChange={toggleSelectAll}
+              className="select-all-checkbox"
+            />
+            {t('vipVerification.selectAll', 'Select All Pending')} ({transactions.filter(t => t.payment_status === 'pending').length})
+          </label>
+        </div>
+      )}
+
       {/* Error Message */}
       {error && (
         <div className="error-message">
@@ -351,7 +453,23 @@ const VIPVerificationAdmin: React.FC = () => {
       ) : (
         <div className="transactions-grid">
           {transactions.map((transaction) => (
-            <div key={transaction.id} className={`transaction-card ${transaction.payment_status}`}>
+            <div
+              key={transaction.id}
+              className={`transaction-card ${transaction.payment_status} ${selectedIds.has(transaction.id) ? 'selected' : ''}`}
+            >
+              {/* Selection Checkbox - Phase 3 Bulk Actions */}
+              {transaction.payment_status === 'pending' && (
+                <label className="transaction-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(transaction.id)}
+                    onChange={() => toggleSelect(transaction.id)}
+                    className="transaction-checkbox"
+                    aria-label={`Select transaction for ${transaction.employee?.name || transaction.establishment?.name || 'unknown'}`}
+                  />
+                </label>
+              )}
+
               {/* Transaction Header */}
               <div className="transaction-header">
                 <div className="transaction-type">
