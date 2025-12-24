@@ -148,13 +148,13 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
               <div className="edit-profile-buttons-row">
                 <button
                   onClick={retryFetch}
-                  className="btn-nightlife-base btn-primary-nightlife"
+                  className="btn btn--primary"
                 >
                   🔄 {t('editMyProfileModal.buttonRetry')}
                 </button>
                 <button
                   onClick={onClose}
-                  className="btn-nightlife-base btn-secondary-nightlife"
+                  className="btn btn--secondary"
                 >
                   {t('editMyProfileModal.buttonClose')}
                 </button>
@@ -180,7 +180,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
               <p className="empty-state-text">{t('editMyProfileModal.noLinkedProfile')}</p>
               <button
                 onClick={onClose}
-                className="btn-nightlife-base btn-secondary-nightlife"
+                className="btn btn--secondary"
               >
                 {t('editMyProfileModal.buttonClose')}
               </button>

@@ -79,7 +79,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
         <div className="error-actions">
           <button
             onClick={resetError}
-            className="btn-primary-nightlife"
+            className="btn btn--primary"
             aria-label="Try again"
           >
             🔄 Try Again
@@ -87,7 +87,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
 
           <button
             onClick={handleGoHome}
-            className="btn-secondary-nightlife"
+            className="btn btn--secondary"
             aria-label="Go to home page"
           >
             🏠 Go Home
@@ -95,7 +95,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
 
           <button
             onClick={handleGoBack}
-            className="btn-outline-nightlife"
+            className="btn btn--ghost"
             aria-label="Go back to previous page"
           >
             ← Go Back
@@ -142,7 +142,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
               {/* Reload button */}
               <button
                 onClick={handleReload}
-                className="btn-outline-nightlife"
+                className="btn btn--ghost"
                 style={{ marginTop: '15px' }}
               >
                 🔃 Full Page Reload
@@ -247,37 +247,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           font-weight: 600;
         }
 
-        .btn-primary-nightlife {
-          background: linear-gradient(135deg, #C19A6B, #FF6B9D);
-          color: white;
-        }
-
-        .btn-primary-nightlife:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(193, 154, 107, 0.4);
-        }
-
-        .btn-secondary-nightlife {
-          background: rgba(0, 255, 255, 0.2);
-          color: #00FFFF;
-          border: 1px solid #00FFFF;
-        }
-
-        .btn-secondary-nightlife:hover {
-          background: rgba(0, 255, 255, 0.3);
-          transform: translateY(-2px);
-        }
-
-        .btn-outline-nightlife {
-          background: transparent;
-          color: rgba(255, 255, 255, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-outline-nightlife:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
+        /* Button styles now come from buttons.css via .btn and .btn--* classes */
 
         /* Support message */
         .error-support {

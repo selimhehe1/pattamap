@@ -516,7 +516,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
           <button
             type="button"
             onClick={onCancel}
-            className="btn-nightlife-base btn-secondary-nightlife"
+            className="btn btn--secondary"
           >
             ❌ {t('establishment.buttonCancel')}
           </button>
@@ -524,7 +524,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-nightlife-base btn-primary-nightlife"
+            className="btn btn--primary"
           >
             {isLoading ? (
               <span className="loading-flex">

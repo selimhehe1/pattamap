@@ -87,7 +87,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           {showBackButton && (
             <button
               onClick={() => navigate.back()}
-              className="btn-nightlife-base btn-secondary-nightlife access-denied-btn-back"
+              className="btn btn--secondary access-denied-btn-back"
               aria-label="Go back to previous page"
             >
               ← {t('accessDenied.goBack', 'Go Back')}
@@ -97,7 +97,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           {showLoginButton && (
             <button
               onClick={() => navigate('/login')}
-              className="btn-nightlife-base btn-primary-nightlife access-denied-btn-login"
+              className="btn btn--primary access-denied-btn-login"
               aria-label={`Login as ${requiredRole || 'user'}`}
             >
               🔑 {t('accessDenied.login', 'Login')}

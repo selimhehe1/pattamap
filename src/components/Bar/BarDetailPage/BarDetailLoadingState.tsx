@@ -37,7 +37,7 @@ export const BarDetailLoadingState: React.FC<BarLoadingProps> = ({ type }) => {
         </h2>
         <button
           onClick={() => navigate('/')}
-          className="btn-primary-nightlife"
+          className="btn btn--primary"
           aria-label={t('barDetailPage.ariaBackToMap')}
         >
           {t('barDetailPage.buttonBackToMap')}

@@ -444,7 +444,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               e.stopPropagation();
               onViewProfile(employee);
             }}
-            className="btn-nightlife-base btn-primary-nightlife"
+            className="btn btn--primary"
             style={{
               flex: 1,
               fontSize: '12px',
@@ -461,7 +461,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               e.stopPropagation();
               onEdit(employee);
             }}
-            className="btn-nightlife-base"
+            className="btn"
             style={{
               flex: 1,
               background: 'linear-gradient(45deg, #FFD700, #FFA500)',
@@ -485,7 +485,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 onVerify(employee.id, employee.name);
               }}
               disabled={isProcessing}
-              className="btn-nightlife-base"
+              className="btn"
               style={{
                 width: '100%',
                 background: isProcessing
@@ -516,7 +516,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 onRevokeVerification(employee.id, employee.name);
               }}
               disabled={isProcessing}
-              className="btn-nightlife-base"
+              className="btn"
               style={{
                 width: '100%',
                 background: isProcessing
@@ -547,7 +547,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 onApprove(employee.id);
               }}
               disabled={isProcessing}
-              className="btn-nightlife-base"
+              className="btn"
               style={{
                 flex: 1,
                 background: isProcessing
@@ -571,7 +571,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 onReject(employee.id);
               }}
               disabled={isProcessing}
-              className="btn-nightlife-base"
+              className="btn"
               style={{
                 flex: 1,
                 background: isProcessing

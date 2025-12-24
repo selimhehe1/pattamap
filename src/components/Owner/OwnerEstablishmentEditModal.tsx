@@ -385,7 +385,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
             </p>
           </div>
           <div className="button-group-center" style={{ marginTop: '2rem' }}>
-            <button onClick={onClose} className="btn-nightlife-base btn-primary-nightlife">
+            <button onClick={onClose} className="btn btn--primary">
               {t('ownerEstablishmentModal.buttonClose')}
             </button>
           </div>
@@ -525,7 +525,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
             <button
               type="button"
               onClick={onClose}
-              className="btn-nightlife-base btn-secondary-nightlife"
+              className="btn btn--secondary"
             >
               ❌ {t('ownerEstablishmentModal.buttonCancel')}
             </button>
@@ -533,7 +533,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
             <button
               type="submit"
               disabled={isLoading || uploadingLogo}
-              className="btn-nightlife-base btn-primary-nightlife"
+              className="btn btn--primary"
             >
               {isLoading ? (
                 <span className="loading-flex">

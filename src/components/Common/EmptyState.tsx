@@ -190,7 +190,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             {showPrimaryAction && finalPrimaryActionText && finalPrimaryAction && (
               <button
                 onClick={finalPrimaryAction}
-                className="btn-nightlife-base btn-primary-nightlife empty-state-btn-primary"
+                className="btn btn--primary empty-state-btn-primary"
                 aria-label={finalPrimaryActionText}
               >
                 {finalPrimaryActionText}
@@ -200,7 +200,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             {showSecondaryAction && finalSecondaryActionText && finalSecondaryAction && (
               <button
                 onClick={finalSecondaryAction}
-                className="btn-nightlife-base btn-secondary-nightlife empty-state-btn-secondary"
+                className="btn btn--secondary empty-state-btn-secondary"
                 aria-label={finalSecondaryActionText}
               >
                 {finalSecondaryActionText}

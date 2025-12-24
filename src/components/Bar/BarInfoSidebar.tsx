@@ -620,7 +620,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 toast.warning(t('barInfoSidebar.errors.noAddress'));
               }
             }}
-            className="btn-secondary-nightlife sidebar-map-button-nightlife"
+            className="btn btn--secondary sidebar-map-button-nightlife"
             aria-label={t('barInfoSidebar.aria.viewOnMap', { name: currentBar.name })}
           >
             🗺️ {t('barInfoSidebar.buttons.viewOnMap')}

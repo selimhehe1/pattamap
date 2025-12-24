@@ -592,12 +592,13 @@ const NotificationBell: React.FC = () => {
         setFocusedIndex(0);
         notificationItemsRef.current[0]?.focus();
         break;
-      case 'End':
+      case 'End': {
         event.preventDefault();
         const lastIndex = visibleNotificationItems.length - 1;
         setFocusedIndex(lastIndex);
         notificationItemsRef.current[lastIndex]?.focus();
         break;
+      }
     }
   }, [showDropdown, visibleNotificationItems.length]);
 

@@ -145,7 +145,7 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
           <AnimatedButton
             onClick={onClose}
             ariaLabel="Close modal"
-            className="btn-nightlife-base btn-secondary-nightlife btn-pill-nightlife"
+            className="btn btn--secondary btn--pill"
             style={{ width: '100%' }}
           >
             Close

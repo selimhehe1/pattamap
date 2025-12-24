@@ -452,7 +452,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
           <button
             type="submit"
             disabled={isLoading || !selectedEmployee || message.trim().length < 10}
-            className={`btn-nightlife-base btn-success-nightlife ${isLoading ? 'btn-loading' : ''}`}
+            className={`btn btn--success ${isLoading ? 'btn-loading' : ''}`}
             style={{
               width: '100%',
               opacity: !selectedEmployee || message.trim().length < 10 ? 0.5 : 1,

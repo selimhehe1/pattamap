@@ -105,7 +105,7 @@ const UserDashboard: React.FC = () => {
           {user?.linked_employee_id && (
             <button
               onClick={() => setIsEditProfileModalOpen(true)}
-              className="btn-nightlife-base btn-primary-nightlife mt-4 flex items-center gap-2 mx-auto"
+              className="btn btn--primary mt-4 flex items-center gap-2 mx-auto"
             >
               <Edit size={18} />
               {t('userDashboard.buttonEditProfile')}
@@ -123,7 +123,7 @@ const UserDashboard: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/search')}
-            className="btn-nightlife-base btn-primary-nightlife"
+            className="btn btn--primary"
           >
             🔍 {t('userDashboard.buttonBrowseEmployees')}
           </button>

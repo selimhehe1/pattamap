@@ -43,7 +43,7 @@ export function EmployeeFormButtons({
         <button
           type="button"
           onClick={onCancel}
-          className="btn-nightlife-base btn-secondary-nightlife"
+          className="btn btn--secondary"
           style={{
             padding: '14px 30px'
           }}
@@ -54,7 +54,7 @@ export function EmployeeFormButtons({
         <button
           type="submit"
           disabled={isLoading || uploadingPhotos}
-          className="btn-nightlife-base btn-primary-nightlife"
+          className="btn btn--primary"
           style={{
             padding: '14px 30px'
           }}
