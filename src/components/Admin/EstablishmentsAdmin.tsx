@@ -1,5 +1,6 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Check, X, Loader2 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -95,8 +96,136 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
   // Helper function to trigger refresh
   const refreshEstablishments = () => setRefreshCounter(c => c + 1);
+
+  // Bulk selection handlers
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    if (selectedIds.size === establishments.length && establishments.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(establishments.map((e) => e.id)));
+    }
+  }, [establishments, selectedIds.size]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // Bulk approve selected establishments
+  const handleBulkApprove = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+
+    setIsBulkProcessing(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const promises = Array.from(selectedIds).map(async (id) => {
+        try {
+          const response = await secureFetch(
+            `${API_URL}/api/admin/establishments/${id}/approve`,
+            { method: 'POST' }
+          );
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (successCount > 0) {
+        toast.success(t('admin.bulkApproveSuccess', `${successCount} establishment(s) approved`));
+      }
+      if (failCount > 0) {
+        toast.error(t('admin.bulkApproveFailed', `${failCount} establishment(s) failed to approve`));
+      }
+
+      clearSelection();
+      refreshEstablishments();
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  }, [selectedIds, secureFetch, t, clearSelection]);
+
+  // Bulk reject selected establishments
+  const handleBulkReject = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+
+    const reason = await dialog.prompt(
+      t('admin.bulkRejectPrompt', `Reject ${selectedIds.size} establishment(s)?\n\nPlease provide a reason:`),
+      {
+        required: true,
+        minLength: 10,
+        variant: 'danger',
+        placeholder: t('admin.enterRejectionReason', 'Enter rejection reason...'),
+      }
+    );
+
+    if (!reason) return;
+
+    setIsBulkProcessing(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const promises = Array.from(selectedIds).map(async (id) => {
+        try {
+          const response = await secureFetch(
+            `${API_URL}/api/admin/establishments/${id}/reject`,
+            {
+              method: 'POST',
+              body: JSON.stringify({ reason }),
+            }
+          );
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch {
+          failCount++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (successCount > 0) {
+        toast.success(t('admin.bulkRejectSuccess', `${successCount} establishment(s) rejected`));
+      }
+      if (failCount > 0) {
+        toast.error(t('admin.bulkRejectFailed', `${failCount} establishment(s) failed to reject`));
+      }
+
+      clearSelection();
+      refreshEstablishments();
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  }, [selectedIds, dialog, t, secureFetch, clearSelection]);
 
   useEffect(() => {
     const loadEstablishments = async () => {
@@ -734,12 +863,162 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
           </p>
         </div>
       ) : (
-        <div className="admin-establishments-grid-nightlife">
-          {establishments.map((establishment) => (
-            <div
-              key={establishment.id}
-              className="admin-establishment-card-nightlife"
-            >
+        <>
+          {/* Bulk Action Bar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              marginBottom: '16px',
+              background: 'rgba(193, 154, 107, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(193, 154, 107, 0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  color: '#C19A6B',
+                  fontWeight: 500,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === establishments.length && establishments.length > 0}
+                  onChange={toggleSelectAll}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    accentColor: '#C19A6B',
+                    cursor: 'pointer',
+                  }}
+                />
+                {t('admin.selectAll', 'Select All')}
+              </label>
+              {selectedIds.size > 0 && (
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                  ({selectedIds.size} {t('admin.selected', 'selected')})
+                </span>
+              )}
+            </div>
+
+            {selectedIds.size > 0 && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={handleBulkApprove}
+                  disabled={isBulkProcessing}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #10B981, #059669)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    opacity: isBulkProcessing ? 0.7 : 1,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Check size={16} />
+                  )}
+                  {t('admin.approveSelected', 'Approve')}
+                </button>
+                <button
+                  onClick={handleBulkReject}
+                  disabled={isBulkProcessing}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    opacity: isBulkProcessing ? 0.7 : 1,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <X size={16} />
+                  )}
+                  {t('admin.rejectSelected', 'Reject')}
+                </button>
+                <button
+                  onClick={clearSelection}
+                  disabled={isBulkProcessing}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '14px',
+                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {t('admin.clearSelection', 'Clear')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Establishments Grid */}
+          <div className="admin-establishments-grid-nightlife">
+            {establishments.map((establishment) => (
+              <div
+                key={establishment.id}
+                className="admin-establishment-card-nightlife"
+              >
+                {/* Selection Checkbox */}
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSelection(establishment.id);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    left: '12px',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    border: selectedIds.has(establishment.id) ? '2px solid #C19A6B' : '2px solid rgba(255,255,255,0.3)',
+                    background: selectedIds.has(establishment.id) ? '#C19A6B' : 'rgba(0,0,0,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 15,
+                    transition: 'all 0.2s ease',
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedIds.has(establishment.id)}
+                  aria-label={t('admin.selectEstablishment', 'Select establishment')}
+                >
+                  {selectedIds.has(establishment.id) && (
+                    <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                  )}
+                </div>
               {/* Status Badge - Small Circular Icon Only */}
               <div
                 className="admin-establishment-status-badge-nightlife"
@@ -870,6 +1149,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
             </div>
           ))}
         </div>
+        </>
       )}
 
       {/* Establishment Modal (Add/Edit) */}
