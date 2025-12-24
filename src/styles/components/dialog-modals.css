@@ -56,8 +56,8 @@
   font-size: var(--font-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 100px;
+  transition: all var(--duration-fast) var(--ease-out);
+  min-width: 6.25rem; /* 100px - button min touch target */
   text-align: center;
 }
 
@@ -91,7 +91,7 @@
 .btn-confirm {
   color: var(--text-inverse);
   font-weight: var(--font-weight-semibold);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: var(--text-shadow-sm);
 }
 
 .btn-confirm-danger {
@@ -142,7 +142,7 @@
 .btn-submit {
   color: var(--text-inverse);
   font-weight: var(--font-weight-semibold);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: var(--text-shadow-sm);
 }
 
 .btn-submit-danger {
@@ -193,10 +193,10 @@
   color: var(--text-primary);
   font-size: var(--font-base);
   font-family: inherit;
-  line-height: 1.5;
+  line-height: var(--line-height-relaxed);
   resize: vertical;
-  min-height: 100px;
-  transition: all 0.2s ease;
+  min-height: 6.25rem; /* 100px */
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .prompt-textarea::placeholder {
@@ -371,14 +371,14 @@
   right: 0;
   bottom: 0;
   background: var(--bg-overlay);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: var(--backdrop-blur-md);
+  -webkit-backdrop-filter: var(--backdrop-blur-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--spacing-4);
   z-index: var(--z-modal);
-  animation: overlayFadeIn 0.2s ease-out;
+  animation: overlayFadeIn var(--duration-fast) var(--ease-out);
   /* Override modals.css visibility/opacity states - always visible when rendered */
   opacity: 1;
   visibility: visible;
@@ -390,13 +390,13 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-xl);
-  max-width: 500px;
+  max-width: 31.25rem; /* 500px - optimal reading width */
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalSlideIn var(--duration-normal) var(--ease-out);
   /* Override modals.css transform/opacity states */
   transform: scale(1);
   opacity: 1;
@@ -451,13 +451,13 @@
   line-height: 1;
   padding: 0;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--border-radius-sm);
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-out);
   flex-shrink: 0;
 }
 

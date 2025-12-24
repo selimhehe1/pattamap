@@ -229,6 +229,10 @@ body[data-theme="light"] {
   --shadow-glow-success: 0 0 20px rgba(134, 239, 172, 0.22);    /* Vert menthe glow */
   --shadow-glow-error: 0 0 20px rgba(252, 165, 165, 0.22);      /* Rose pastel glow */
 
+  /* Text shadows */
+  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);               /* Subtle text shadow for buttons */
+  --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);                  /* Standard text shadow */
+
   /* Zone Colors - Dusk Mode optimized (couleurs pastel saturées) */
   --zone-soi6: rgba(196, 181, 253, 0.95);        /* Violet pastel */
   --zone-beachroad: rgba(147, 197, 253, 0.95);   /* Bleu ciel pastel */
