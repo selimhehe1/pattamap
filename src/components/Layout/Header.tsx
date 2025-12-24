@@ -16,7 +16,10 @@ import {
   FileEdit,
   ClipboardList,
   Building,
-  MapPin // 🆕 v10.3 - Visit History icon
+  MapPin, // 🆕 v10.3 - Visit History icon
+  List,
+  Map,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -169,38 +172,63 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation moderne et épurée */}
+        {/* Navigation moderne et épurée - Phase 3 Redesign */}
         <nav role="navigation" aria-label="Main actions" className="header-nav">
-          {/* Notification Bell - visible seulement pour utilisateurs connectés */}
-          {user && <NotificationBell />}
+          {/* Quick Actions Group - Desktop only */}
+          <div className="header-quick-actions">
+            {/* Search Quick Access */}
+            <AnimatedButton
+              onClick={() => navigate('/search')}
+              onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
+              ariaLabel={t('header.search')}
+              tabIndex={0}
+              enableHaptic
+              hapticLevel="light"
+              className="header-quick-btn"
+              data-testid="quick-search"
+            >
+              <Search size={18} />
+            </AnimatedButton>
 
-          {/* Sync Indicator - shows pending offline actions */}
-          <SyncIndicator compact />
+            {/* Favorites Quick Access */}
+            {user && (
+              <AnimatedButton
+                onClick={() => navigate('/dashboard')}
+                onMouseEnter={createPreloadHandler(importUserDashboard, 'UserDashboard')}
+                ariaLabel={t('header.favorites')}
+                tabIndex={0}
+                enableHaptic
+                hapticLevel="light"
+                className="header-quick-btn"
+                data-testid="quick-favorites"
+              >
+                <Star size={18} />
+              </AnimatedButton>
+            )}
+          </div>
 
-          {/* Map Controls - visible seulement sur homepage + desktop */}
+          {/* Map Controls - Icon-only on desktop, hidden on mobile */}
           {isHomePage && (
             <div className="header-map-controls">
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`header-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                  aria-label={t('map.viewList')}
-                  title={t('map.viewList')}
-                  aria-current={viewMode === 'list' ? 'page' : undefined}
-                >
-                  <span className="header-view-icon" role="img" aria-hidden="true">📋</span>
-                  <span className="header-view-label">{t('map.viewList')}</span>
-                </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`header-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                aria-label={t('map.viewList')}
+                title={t('map.viewList')}
+                aria-current={viewMode === 'list' ? 'page' : undefined}
+              >
+                <List size={16} />
+              </button>
 
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={`header-view-btn header-view-btn--primary ${viewMode === 'map' ? 'active' : ''}`}
-                  aria-label={t('map.viewMap')}
-                  title={t('map.viewMap')}
-                  aria-current={viewMode === 'map' ? 'page' : undefined}
-                >
-                  <span className="header-view-icon header-view-icon--large" role="img" aria-hidden="true">🗺️</span>
-                  <span className="header-view-label">{t('map.viewMap')}</span>
-                </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`header-view-btn header-view-btn--primary ${viewMode === 'map' ? 'active' : ''}`}
+                aria-label={t('map.viewMap')}
+                title={t('map.viewMap')}
+                aria-current={viewMode === 'map' ? 'page' : undefined}
+              >
+                <Map size={18} />
+              </button>
 
               <button
                 onClick={() => setViewMode('employees')}
@@ -209,35 +237,28 @@ const Header: React.FC = () => {
                 title={t('map.lineup')}
                 aria-current={viewMode === 'employees' ? 'page' : undefined}
               >
-                <span className="header-view-icon" role="img" aria-hidden="true">👥</span>
-                <span className="header-view-label">{t('map.lineup')}</span>
+                <Users size={16} />
               </button>
             </div>
           )}
 
-          {/* XP Indicator - visible seulement sur desktop */}
+          {/* Notification Bell - visible seulement pour utilisateurs connectés */}
+          {user && <NotificationBell />}
+
+          {/* Sync Indicator - shows pending offline actions */}
+          <SyncIndicator compact />
+
+          {/* XP Badge - Compact level indicator */}
           {user && userProgress && (
             <button
-              className="header-xp-pill"
-              title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP`}
+              className="header-xp-badge"
+              title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP\nClick to view achievements`}
               onClick={() => navigate('/achievements')}
-              aria-label={`Experience Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP total`}
+              aria-label={`Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP`}
               data-testid="xp"
             >
-              <span className="header-xp-level">Lvl {userProgress.current_level}</span>
-              <span className="header-xp-value">{userProgress.total_xp.toLocaleString()} XP</span>
-              <div className="header-xp-progress">
-                <div
-                  className="header-xp-progress-fill"
-                  style={{
-                    width: `${Math.min(
-                      ((userProgress.total_xp - (userProgress.current_level - 1) * 100) /
-                        (userProgress.current_level * 100)) * 100,
-                      100
-                    )}%`
-                  }}
-                />
-              </div>
+              <Trophy size={14} className="header-xp-icon" />
+              <span className="header-xp-level">{userProgress.current_level}</span>
             </button>
           )}
 
