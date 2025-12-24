@@ -87,3 +87,5 @@ playwright/.cache/
 tests/e2e/.auth/
 *.report.html
 *.report.json
+
+.vercel
