@@ -606,6 +606,13 @@ html.theme-transitioning * {
   --nightlife-warning: var(--color-warning);
   --nightlife-error: var(--color-error);
 
+  /* Nightlife background colors */
+  --nightlife-bg-dark: rgb(25, 0, 45);           /* Section background */
+  --nightlife-bg-darker: rgb(10, 0, 30);         /* Input/deep background */
+  --nightlife-bg-medium: rgb(30, 0, 50);         /* Section content */
+  --nightlife-bg-purple: rgb(36, 0, 70);         /* Gradient end */
+  --nightlife-purple: #9B5DE5;                   /* Purple accent for gradients */
+
   /* Legacy bg-dark-* variables */
   --bg-dark-primary: var(--bg-surface);
   --bg-dark-secondary: var(--bg-surface-alt);
