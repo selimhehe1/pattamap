@@ -237,7 +237,7 @@ main[id="main-content"]:focus {
 }
 
 /**
- * High contrast mode support
+ * High contrast mode support (prefers-contrast)
  * WCAG 2.1: Contrast (Minimum) (1.4.3 Level AA)
  */
 @media (prefers-contrast: high) {
@@ -261,6 +261,147 @@ main[id="main-content"]:focus {
   /* Remove transparent backgrounds */
   .skeleton-shimmer {
     background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/**
+ * Windows High Contrast Mode (forced-colors)
+ * WCAG 2.1 Level AAA: Support for system colors
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
+ */
+@media (forced-colors: active) {
+  /* Use system colors for focus indicators */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+    forced-color-adjust: none;
+  }
+
+  /* Ensure buttons are visible */
+  button,
+  .btn,
+  [role="button"] {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  button:hover,
+  .btn:hover,
+  [role="button"]:hover {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  button:disabled,
+  .btn:disabled,
+  [role="button"]:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  /* Form inputs */
+  input,
+  select,
+  textarea {
+    border: 2px solid ButtonText;
+    background: Field;
+    color: FieldText;
+    forced-color-adjust: none;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: Highlight;
+  }
+
+  /* Links */
+  a {
+    color: LinkText;
+    forced-color-adjust: none;
+  }
+
+  a:visited {
+    color: VisitedText;
+  }
+
+  a:hover,
+  a:focus {
+    color: Highlight;
+  }
+
+  /* Cards and modals - ensure borders are visible */
+  .modal-container-nightlife,
+  .card,
+  .employee-card-nightlife,
+  .establishment-card-nightlife,
+  .marker-card-nightlife {
+    border: 2px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  /* Badges and status indicators */
+  .badge,
+  .status-badge,
+  .vip-badge {
+    border: 2px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  /* Icons - ensure visibility */
+  svg {
+    forced-color-adjust: auto;
+  }
+
+  /* Skip link */
+  .skip-to-content-link {
+    background: Highlight;
+    color: HighlightText;
+    border: 2px solid HighlightText;
+    forced-color-adjust: none;
+  }
+
+  /* Remove decorative backgrounds that may interfere */
+  .bg-nightlife-gradient-main,
+  .bg-nightlife-gradient-card {
+    background: Canvas !important;
+  }
+
+  /* Ensure text remains readable */
+  h1, h2, h3, h4, h5, h6,
+  p, span, label {
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  /* Progress bars */
+  progress {
+    forced-color-adjust: none;
+  }
+
+  progress::-webkit-progress-bar {
+    background: Field;
+  }
+
+  progress::-webkit-progress-value {
+    background: Highlight;
+  }
+
+  progress::-moz-progress-bar {
+    background: Highlight;
   }
 }
 
@@ -307,4 +448,169 @@ main[id="main-content"]:focus {
   overflow: visible;
   clip: auto;
   white-space: normal;
+}
+
+/* ============================================
+   FORM VALIDATION STATES (:valid/:invalid)
+   ============================================ */
+
+/**
+ * Form validation visual feedback
+ * WCAG 2.1 Level AAA: Error identification (3.3.1)
+ *
+ * These styles provide clear visual feedback for form validation states.
+ * Works with HTML5 validation and custom validation.
+ */
+
+/* Base input validation styles */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  transition: border-color var(--duration-fast, 0.15s) ease,
+              box-shadow var(--duration-fast, 0.15s) ease;
+}
+
+/* Valid state - only show after user interaction */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):valid:not(:placeholder-shown),
+select:valid:not(:placeholder-shown),
+textarea:valid:not(:placeholder-shown) {
+  border-color: var(--color-success, #10B981);
+}
+
+/* Show checkmark icon for valid inputs */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):valid:not(:placeholder-shown):not(:focus),
+textarea:valid:not(:placeholder-shown):not(:focus) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2310B981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Invalid state - only show after user interaction and blur */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):invalid:not(:placeholder-shown):not(:focus),
+select:invalid:not(:placeholder-shown):not(:focus),
+textarea:invalid:not(:placeholder-shown):not(:focus) {
+  border-color: var(--color-error, #EF4444);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Show X icon for invalid inputs */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):invalid:not(:placeholder-shown):not(:focus),
+textarea:invalid:not(:placeholder-shown):not(:focus) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23EF4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Required field indicator */
+input:required,
+select:required,
+textarea:required {
+  /* Visual indicator handled by label::after in most cases */
+}
+
+/* Validation message styling (for custom validation UI) */
+.validation-message {
+  font-size: var(--font-sm, 0.875rem);
+  margin-top: var(--spacing-1, 0.25rem);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1, 0.25rem);
+}
+
+.validation-message--success {
+  color: var(--color-success, #10B981);
+}
+
+.validation-message--error {
+  color: var(--color-error, #EF4444);
+}
+
+.validation-message--warning {
+  color: var(--color-warning, #F59E0B);
+}
+
+/* Checkbox and radio validation */
+input[type="checkbox"]:invalid,
+input[type="radio"]:invalid {
+  outline: 2px solid var(--color-error, #EF4444);
+  outline-offset: 2px;
+}
+
+input[type="checkbox"]:valid,
+input[type="radio"]:valid {
+  outline: none;
+}
+
+/* User-invalid pseudo-class (modern browsers)
+ * Only shows invalid state after user interaction */
+@supports selector(:user-invalid) {
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: var(--color-error, #EF4444);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  }
+}
+
+/* ============================================
+   ARIA-LIVE ANNOUNCEMENT CONTAINER
+   ============================================ */
+
+/**
+ * Global live region container for async announcements
+ * Used by useLiveAnnouncer hook
+ */
+#aria-live-container {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Polite announcements (default) */
+#aria-live-polite {
+  /* Inherits sr-only styles */
+}
+
+/* Assertive announcements (interrupts) */
+#aria-live-assertive {
+  /* Inherits sr-only styles */
+}
+
+/* ============================================
+   ENHANCED FOCUS TRAP FOR MODALS
+   ============================================ */
+
+/**
+ * Focus trap indicator for modal dialogs
+ * WCAG 2.1: Focus Order (2.4.3 Level A)
+ */
+[role="dialog"]:focus {
+  outline: none;
+}
+
+[role="dialog"][aria-modal="true"] {
+  /* Trap focus within modal */
+}
+
+/* First/last focusable element markers for focus trap */
+.focus-trap-start,
+.focus-trap-end {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }

@@ -80,3 +80,7 @@ export type {
   UseOptimisticToggleOptions,
   UseOptimisticToggleReturn
 } from './useOptimisticRating';
+
+// Accessibility (Phase 4 - WCAG AAA)
+export { useLiveAnnouncer } from './useLiveAnnouncer';
+export type { AriaPoliteness } from './useLiveAnnouncer';
