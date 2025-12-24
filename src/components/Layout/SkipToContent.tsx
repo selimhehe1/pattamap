@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * SkipToContent - Accessibility component
@@ -9,6 +10,8 @@ import React from 'react';
  * WCAG 2.1 Level A requirement (2.4.1 Bypass Blocks)
  */
 const SkipToContent: React.FC = () => {
+  const { t } = useTranslation();
+
   const handleSkip = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const mainContent = document.getElementById('main-content');
@@ -24,7 +27,7 @@ const SkipToContent: React.FC = () => {
       className="skip-to-content-link"
       onClick={handleSkip}
     >
-      Skip to main content
+      {t('accessibility.skipToContent', 'Skip to main content')}
     </a>
   );
 };

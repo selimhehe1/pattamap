@@ -18,6 +18,7 @@ import {
   type QueuedRequest,
 } from '../utils/offlineQueue';
 import { useOnline } from './useOnline';
+import { announcePolite, announceAssertive } from '../utils/announce';
 
 export interface UseOfflineQueueResult {
   /** Number of requests waiting in the queue */
@@ -95,11 +96,21 @@ export function useOfflineQueue(): UseOfflineQueueResult {
         failed: number;
         remaining: number;
       }>;
+      const { success, failed, remaining } = customEvent.detail;
       setLastSyncResult(customEvent.detail);
       setIsSyncing(false);
       // Update last sync time if any requests were synced
-      if (customEvent.detail.success > 0) {
+      if (success > 0) {
         setLastSyncTime(new Date());
+      }
+      // Screen reader announcements (WCAG AAA)
+      if (success > 0 && failed === 0) {
+        announcePolite(`Sync complete. ${success} ${success === 1 ? 'item' : 'items'} synced successfully.`);
+      } else if (failed > 0) {
+        announceAssertive(`Sync completed with errors. ${success} synced, ${failed} failed.`);
+      }
+      if (remaining > 0) {
+        announcePolite(`${remaining} ${remaining === 1 ? 'item' : 'items'} still pending.`);
       }
     };
 
