@@ -38,7 +38,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({
   useNativeTransitions = true
 }) => {
   const location = useLocation();
-  const navigationType = useNavigationType();
+  const _navigationType = useNavigationType();
   const { isSupported: viewTransitionsSupported, prefersReducedMotion } = useViewTransition();
   const previousPathRef = useRef(location.pathname);
 

@@ -33,7 +33,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   // Photo management
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
-  const [photosToRemove, setPhotosToRemove] = useState<string[]>([]);
+  const [_photosToRemove, setPhotosToRemove] = useState<string[]>([]);
 
   // UI state
   const [errors, setErrors] = useState<FormErrors>(INITIAL_ERRORS);

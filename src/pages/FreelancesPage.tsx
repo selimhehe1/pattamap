@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useModal } from '../contexts/ModalContext';
 import EmployeeCard from '../components/Common/EmployeeCard';
 import { GirlProfile } from '../routes/lazyComponents';
-import { Employee, Establishment } from '../types';
+import { Employee } from '../types';
 import { logger } from '../utils/logger';
 
 /** Freelance employee with additional nightclub associations from API */

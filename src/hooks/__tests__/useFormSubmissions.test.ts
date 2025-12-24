@@ -10,8 +10,7 @@
  * - Submitting state (2 tests)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import React from 'react';
+import { renderHook, act } from '@testing-library/react';
 import { useFormSubmissions } from '../useFormSubmissions';
 
 // Mock AuthContext

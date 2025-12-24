@@ -183,18 +183,19 @@ const PageTracker: React.FC = () => {
  * Modals are now rendered via ModalRenderer automatically
  */
 const AppContent: React.FC = () => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
 
   // 🎯 All modal logic centralized in useAppModals
+  // These are extracted for potential direct use, but primarily used via ModalRenderer
   const {
-    openEmployeeForm,
-    openEstablishmentForm,
-    openLoginForm,
-    handleEditMyProfile,
-    openUserInfoModal,
-    handleSubmitEmployee,
-    handleSubmitEstablishment,
-    isSubmitting
+    openEmployeeForm: _openEmployeeForm,
+    openEstablishmentForm: _openEstablishmentForm,
+    openLoginForm: _openLoginForm,
+    handleEditMyProfile: _handleEditMyProfile,
+    openUserInfoModal: _openUserInfoModal,
+    handleSubmitEmployee: _handleSubmitEmployee,
+    handleSubmitEstablishment: _handleSubmitEstablishment,
+    isSubmitting: _isSubmitting
   } = useAppModals();
 
   return (

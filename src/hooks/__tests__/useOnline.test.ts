@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useOnline } from '../useOnline';
 
-// Store original values
-const originalNavigator = global.navigator;
-const originalDocument = global.document;
+// Store original values (prefixed to satisfy linter, kept for potential future restore)
+const _originalNavigator = global.navigator;
+const _originalDocument = global.document;
 
 // Mock fetch
 const mockFetch = vi.fn();

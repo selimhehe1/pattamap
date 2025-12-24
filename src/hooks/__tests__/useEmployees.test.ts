@@ -386,7 +386,7 @@ describe('useEmployees Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ name: '' });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -459,7 +459,7 @@ describe('useEmployees Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ id: 'emp-123', data: {} });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -530,7 +530,7 @@ describe('useEmployees Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-123');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });

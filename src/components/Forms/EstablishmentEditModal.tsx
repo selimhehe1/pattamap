@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { EstablishmentCategory, ConsumableTemplate, Establishment, EstablishmentFormData } from '../../types';
+import { EstablishmentCategory, ConsumableTemplate, Establishment } from '../../types';
 import BasicInfoForm from './EstablishmentFormSections/BasicInfoForm';
 import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
 import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';

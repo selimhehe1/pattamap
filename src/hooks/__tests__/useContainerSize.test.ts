@@ -12,7 +12,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useContainerSize } from '../useContainerSize';
-import { useRef, MutableRefObject } from 'react';
+import { useRef } from 'react';
 
 // Store callback for triggering resize
 let resizeCallback: ResizeObserverCallback | null = null;

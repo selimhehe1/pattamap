@@ -4,7 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import { Establishment, EstablishmentCategory, EstablishmentFormData } from '../../types';
+import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';

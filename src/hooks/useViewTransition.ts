@@ -39,7 +39,8 @@ interface ViewTransitionLike {
 }
 
 // Check if native ViewTransition type exists
-type ViewTransitionResult = typeof document extends { startViewTransition: infer T }
+// @internal Reserved for future type-safe startViewTransition usage
+type _ViewTransitionResult = typeof document extends { startViewTransition: infer T }
   ? T extends (cb: () => void) => infer R ? R : ViewTransitionLike
   : ViewTransitionLike;
 

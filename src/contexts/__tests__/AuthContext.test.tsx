@@ -7,7 +7,6 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import React from 'react';
 import { AuthProvider, useAuth } from '../AuthContext';
-import { CSRFProvider } from '../CSRFContext';
 
 // Mock CSRFContext
 vi.mock('../CSRFContext', () => ({
@@ -176,7 +175,7 @@ describe('AuthContext', () => {
     });
 
     it('should throw error on invalid credentials', async () => {
-      mockFetch.mockImplementation((url: string, options?: RequestInit) => {
+      mockFetch.mockImplementation((url: string, _options?: RequestInit) => {
         if (url.includes('/auth/profile')) {
           return Promise.resolve({ ok: false, status: 401 });
         }
@@ -208,7 +207,7 @@ describe('AuthContext', () => {
     });
 
     it('should send login request with correct body', async () => {
-      mockFetch.mockImplementation((url: string, options?: RequestInit) => {
+      mockFetch.mockImplementation((url: string, _options?: RequestInit) => {
         if (url.includes('/auth/profile')) {
           return Promise.resolve({ ok: false, status: 401 });
         }
@@ -289,7 +288,7 @@ describe('AuthContext', () => {
     });
 
     it('should register with account type', async () => {
-      mockFetch.mockImplementation((url: string, options?: RequestInit) => {
+      mockFetch.mockImplementation((url: string, _options?: RequestInit) => {
         if (url.includes('/auth/profile')) {
           return Promise.resolve({ ok: false, status: 401 });
         }
@@ -371,7 +370,7 @@ describe('AuthContext', () => {
         role: 'user',
       };
 
-      mockFetch.mockImplementation((url: string, options?: RequestInit) => {
+      mockFetch.mockImplementation((url: string, _options?: RequestInit) => {
         if (url.includes('/auth/profile')) {
           return Promise.resolve({
             ok: true,

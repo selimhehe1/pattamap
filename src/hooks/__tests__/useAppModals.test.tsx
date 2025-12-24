@@ -12,7 +12,7 @@
  */
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useAppModals, MODAL_IDS } from '../useAppModals';
 import { ModalProvider } from '../../contexts/ModalContext';
 

@@ -19,8 +19,9 @@ interface SecureFetchOptions extends RequestInit {
 
 /**
  * Result of a secure fetch that may have been queued
+ * @internal Reserved for future use with offline queue returns
  */
-interface SecureFetchResult {
+interface _SecureFetchResult {
   response: Response | null;
   queued: boolean;
   queuedRequest?: QueuedRequest;

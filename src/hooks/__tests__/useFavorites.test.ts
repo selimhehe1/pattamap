@@ -28,7 +28,6 @@ import {
   Favorite
 } from '../useFavorites';
 import toast from '../../utils/toast';
-import { addToQueue } from '../../utils/offlineQueue';
 
 // Mock useSecureFetch
 vi.mock('../useSecureFetch', () => ({
@@ -198,7 +197,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-456');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -283,7 +282,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-456');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -314,7 +313,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-new');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -355,7 +354,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-456');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -439,7 +438,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-456');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -473,7 +472,7 @@ describe('useFavorites Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('emp-456');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });

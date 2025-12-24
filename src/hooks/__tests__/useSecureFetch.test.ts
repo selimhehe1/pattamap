@@ -286,7 +286,7 @@ describe('useSecureFetch Hook', () => {
       await act(async () => {
         try {
           await result.current.secureFetch('/api/protected');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });

@@ -18,7 +18,7 @@
  * Total: 43 tests
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, expect, beforeEach, afterEach } from 'vitest';
 import {
   registerServiceWorker,
   getServiceWorkerRegistration,

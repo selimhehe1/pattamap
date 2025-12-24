@@ -213,7 +213,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ name: '' });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -268,7 +268,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ name: 'Duplicate' });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -307,7 +307,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ id: 'est-123', data: {} });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -361,7 +361,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ id: 'est-123', data: { name: 'Test' } });
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -399,7 +399,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('est-123');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });
@@ -453,7 +453,7 @@ describe('useEstablishments Hook', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync('est-123');
-        } catch (e) {
+        } catch {
           // Expected
         }
       });

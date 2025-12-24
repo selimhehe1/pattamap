@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, test, expect, beforeEach } from 'vitest';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { renderWithProviders } from '../../../test-utils/test-helpers';
 
 // react-router-dom is automatically mocked via src/__mocks__/react-router-dom.tsx
