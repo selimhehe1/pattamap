@@ -54,6 +54,12 @@ export { useWebPSupport } from './useWebPSupport';
 // Animations
 export { useScrollAnimation, useScrollAnimations } from './useScrollAnimation';
 
+// View Transitions (Phase 3 Modernisation)
+export { useViewTransition, withViewTransitionName, VIEW_TRANSITION_NAMES } from './useViewTransition';
+export type { UseViewTransitionReturn } from './useViewTransition';
+export { useNavigateWithTransition } from './useNavigateWithTransition';
+export type { UseNavigateWithTransitionReturn } from './useNavigateWithTransition';
+
 // IntersectionObserver (Phase 5.1)
 export { useIntersectionObserver } from './useIntersectionObserver';
 export type { UseIntersectionObserverOptions, UseIntersectionObserverReturn } from './useIntersectionObserver';

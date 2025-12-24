@@ -43,6 +43,7 @@ import './styles/components/buttons.css';
 import './styles/components/autocomplete.css';
 import './styles/components/auth.css';
 import './styles/components/EmptyState.css';
+import './styles/components/mobile-menu.css'; // Phase 3 - Mobile hamburger menu
 import './App.css';
 import './styles/nightlife-theme.css';
 import './styles/responsive/large-desktop.css';

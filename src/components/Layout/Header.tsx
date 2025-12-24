@@ -38,8 +38,10 @@ import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
+import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
 import { useMapControls } from '../../contexts/MapControlsContext';
 import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
+import { useMediaQuery } from '../../hooks/useMediaQuery'; // Phase 3 - Responsive detection
 import '../../styles/layout/header.css';
 
 /**
@@ -69,6 +71,9 @@ const Header: React.FC = () => {
 
   // Detect if we're on the home page
   const isHomePage = location.pathname === '/';
+
+  // Phase 3: Detect mobile for hamburger menu
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Map controls from context (only used on homepage)
   const { viewMode, setViewMode } = useMapControls();
@@ -131,7 +136,7 @@ const Header: React.FC = () => {
       <header
         role="banner"
         aria-label="Main navigation"
-        className="header-modern"
+        className="header-modern view-transition-header"
         data-testid="header">
         {/* Section gauche avec bouton retour et titre */}
         <div className="header-logo-section">
@@ -249,9 +254,9 @@ const Header: React.FC = () => {
             <span className="header-menu-icon">{showUserMenu ? '✕' : '☰'}</span>
           </AnimatedButton>
 
-          {/* Shared Dropdown - Accessible from hamburger button */}
+          {/* Desktop Dropdown - Hidden on mobile (MobileMenu used instead) */}
           <div style={{ position: 'relative' }} ref={userMenuRef}>
-            {showUserMenu && user && (
+            {showUserMenu && user && !isMobile && (
                     <div className="user-menu-dropdown-modern" data-testid="user-menu" role="menu">
                       {/* User Info - Compact */}
                       <div className="user-menu-header">
@@ -490,8 +495,8 @@ const Header: React.FC = () => {
                     </div>
                   )}
 
-            {/* Non-logged users dropdown */}
-            {showUserMenu && !user && (
+            {/* Non-logged users dropdown - Desktop only */}
+            {showUserMenu && !user && !isMobile && (
               <div className="user-menu-dropdown-modern" data-testid="guest-menu" role="menu">
                 {/* Navigation Section */}
                 <div className="menu-section">
@@ -551,6 +556,14 @@ const Header: React.FC = () => {
           </div>
         </nav>
       </header>
+
+      {/* Phase 3: Mobile Menu - Full screen sliding panel */}
+      {isMobile && (
+        <MobileMenu
+          isOpen={showUserMenu}
+          onClose={() => setShowUserMenu(false)}
+        />
+      )}
     </>
   );
 };

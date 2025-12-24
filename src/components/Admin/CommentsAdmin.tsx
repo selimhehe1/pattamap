@@ -51,8 +51,15 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const [selectedComment, setSelectedComment] = useState<AdminComment | null>(null);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
+  // Phase 3: Bulk actions state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
   // Helper function to trigger refresh
-  const refreshComments = () => setRefreshCounter(c => c + 1);
+  const refreshComments = () => {
+    setRefreshCounter(c => c + 1);
+    setSelectedIds(new Set()); // Clear selection on refresh
+  };
 
   useEffect(() => {
     const loadComments = async () => {
@@ -138,6 +145,84 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         newSet.delete(commentId);
         return newSet;
       });
+    }
+  };
+
+  // Phase 3: Bulk action handlers
+  const toggleSelect = (commentId: number) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === comments.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(comments.map(c => c.id)));
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkProcessing(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const promises = Array.from(selectedIds).map(id =>
+        secureFetch(`${API_URL}/api/admin/comments/${id}/approve`, { method: 'POST' })
+      );
+      await Promise.all(promises);
+      refreshComments();
+    } catch (error) {
+      logger.error('Bulk approve failed:', error);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkProcessing(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const promises = Array.from(selectedIds).map(id =>
+        secureFetch(`${API_URL}/api/admin/comments/${id}/reject`, {
+          method: 'POST',
+          body: JSON.stringify({ reason: 'Bulk rejected by admin' })
+        })
+      );
+      await Promise.all(promises);
+      refreshComments();
+    } catch (error) {
+      logger.error('Bulk reject failed:', error);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkDismissReports = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkProcessing(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const promises = Array.from(selectedIds).map(id =>
+        secureFetch(`${API_URL}/api/admin/comments/${id}/dismiss-reports`, { method: 'POST' })
+      );
+      await Promise.all(promises);
+      refreshComments();
+    } catch (error) {
+      logger.error('Bulk dismiss reports failed:', error);
+    } finally {
+      setIsBulkProcessing(false);
     }
   };
 
@@ -274,6 +359,132 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         ))}
       </div>
 
+      {/* Bulk Action Bar - Phase 3 */}
+      {selectedIds.size > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px',
+          padding: '16px 20px',
+          background: 'linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(255, 215, 0, 0.1))',
+          border: '2px solid rgba(193, 154, 107, 0.5)',
+          borderRadius: '12px',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ color: '#C19A6B', fontWeight: 'bold', marginRight: 'auto' }}>
+            {selectedIds.size} {t('admin.itemsSelected', 'item(s) selected')}
+          </span>
+          <button
+            onClick={handleBulkApprove}
+            disabled={isBulkProcessing}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #10B981, #059669)',
+              color: 'white',
+              cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              opacity: isBulkProcessing ? 0.6 : 1,
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isBulkProcessing ? '...' : `✅ ${t('admin.approveAll', 'Approve All')}`}
+          </button>
+          <button
+            onClick={handleBulkReject}
+            disabled={isBulkProcessing}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+              color: 'white',
+              cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              opacity: isBulkProcessing ? 0.6 : 1,
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isBulkProcessing ? '...' : `❌ ${t('admin.rejectAll', 'Reject All')}`}
+          </button>
+          {filter === 'reported' && (
+            <button
+              onClick={handleBulkDismissReports}
+              disabled={isBulkProcessing}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold',
+                fontSize: '13px',
+                opacity: isBulkProcessing ? 0.6 : 1,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isBulkProcessing ? '...' : `🔕 ${t('admin.dismissAllReports', 'Dismiss Reports')}`}
+            </button>
+          )}
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'transparent',
+              color: '#cccccc',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {t('admin.clearSelection', 'Clear')}
+          </button>
+        </div>
+      )}
+
+      {/* Select All Header - Phase 3 */}
+      {!isLoading && comments.length > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '16px',
+          padding: '12px 16px',
+          background: 'rgba(193, 154, 107, 0.05)',
+          borderRadius: '8px'
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            color: '#cccccc',
+            fontSize: '14px'
+          }}>
+            <input
+              type="checkbox"
+              checked={selectedIds.size === comments.length && comments.length > 0}
+              onChange={toggleSelectAll}
+              style={{
+                width: '18px',
+                height: '18px',
+                accentColor: '#C19A6B',
+                cursor: 'pointer'
+              }}
+            />
+            {t('admin.selectAll', 'Select All')} ({comments.length})
+          </label>
+        </div>
+      )}
+
       {/* Comments List */}
       {isLoading ? (
         <LoadingFallback message={t('admin.loadingComments')} variant="inline" />
@@ -310,15 +521,47 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             <div
               key={comment.id}
               style={{
-                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
+                background: selectedIds.has(comment.id)
+                  ? 'linear-gradient(135deg, rgba(193, 154, 107,0.2), rgba(255, 215, 0, 0.1))'
+                  : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
                 borderRadius: '20px',
-                border: comment.reports && comment.reports.length > 0 
-                  ? '2px solid #FF4757' 
-                  : '2px solid rgba(193, 154, 107,0.3)',
+                border: selectedIds.has(comment.id)
+                  ? '2px solid #C19A6B'
+                  : comment.reports && comment.reports.length > 0
+                    ? '2px solid #FF4757'
+                    : '2px solid rgba(193, 154, 107,0.3)',
                 padding: '25px',
-                position: 'relative'
+                position: 'relative',
+                transition: 'all 0.2s ease'
               }}
             >
+              {/* Selection Checkbox - Phase 3 Bulk Actions */}
+              <label
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 5
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(comment.id)}
+                  onChange={() => toggleSelect(comment.id)}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    accentColor: '#C19A6B',
+                    cursor: 'pointer'
+                  }}
+                  aria-label={`Select comment by ${comment.user?.pseudonym || 'anonymous'}`}
+                />
+              </label>
+
               {/* Status Badge */}
               <div style={{
                 position: 'absolute',
@@ -360,7 +603,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
               )}
 
               {/* Comment Header */}
-              <div style={{ marginBottom: '20px', paddingRight: '150px' }}>
+              <div style={{ marginBottom: '20px', paddingRight: '150px', paddingLeft: '40px' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',

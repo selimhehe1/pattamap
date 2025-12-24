@@ -23,3 +23,6 @@
 
 /* Scroll-Driven Animations - Scroll-linked effects */
 @import './scroll-animations.css';
+
+/* View Transitions API - Native page/modal transitions (Phase 3) */
+@import './view-transitions.css';

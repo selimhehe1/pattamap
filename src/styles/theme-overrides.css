@@ -1253,3 +1253,165 @@ body[data-theme="light"] .sidebar-empty-consumables-cta-nightlife {
   color: #00E5FF;
   font-style: italic;
 }
+
+/* ============================================
+   LIGHT MODE GLASSMORPHISM - Phase 3 Modernisation
+   Adds subtle blur effects for modern aesthetic
+   ============================================ */
+
+/* --- Header Glassmorphism --- */
+body[data-theme="light"] .header-modern,
+body[data-theme="light"] .header-main-nightlife {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(245, 243, 250, 0.85) !important;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Dropdown Menus Glassmorphism --- */
+body[data-theme="light"] .user-menu-dropdown-modern,
+body[data-theme="light"] .header-dropdown {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(245, 243, 250, 0.92) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15),
+              0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* --- Cards Glassmorphism --- */
+body[data-theme="light"] .card-nightlife,
+body[data-theme="light"] .card-employee-nightlife,
+body[data-theme="light"] .card-establishment-nightlife {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.1) !important;
+}
+
+body[data-theme="light"] .card-nightlife:hover,
+body[data-theme="light"] .card-employee-nightlife:hover {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 8px 24px rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Modal Glassmorphism --- */
+body[data-theme="light"] .modal-overlay,
+body[data-theme="light"] .modal-nightlife-overlay,
+body[data-theme="light"] .dialog-modal-overlay {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(232, 228, 243, 0.6) !important;
+}
+
+body[data-theme="light"] .modal,
+body[data-theme="light"] .modal-nightlife-content,
+body[data-theme="light"] .dialog-modal,
+body[data-theme="light"] .modal-form-container {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  box-shadow: 0 20px 60px rgba(167, 139, 250, 0.2),
+              0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Sidebar Glassmorphism --- */
+body[data-theme="light"] .sidebar-modern,
+body[data-theme="light"] .map-sidebar {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(245, 243, 250, 0.9) !important;
+  border-right: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Input Fields Glassmorphism --- */
+body[data-theme="light"] .input-nightlife,
+body[data-theme="light"] .textarea-nightlife,
+body[data-theme="light"] .select-nightlife {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+}
+
+body[data-theme="light"] .input-nightlife:focus,
+body[data-theme="light"] .textarea-nightlife:focus,
+body[data-theme="light"] .select-nightlife:focus {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #A78BFA !important;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Badges & Pills Glassmorphism --- */
+body[data-theme="light"] .badge-nightlife,
+body[data-theme="light"] .header-xp-pill {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --- Notification Bell Dropdown --- */
+body[data-theme="light"] .notifications-dropdown {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(245, 243, 250, 0.95) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Autocomplete Dropdown --- */
+body[data-theme="light"] .autocomplete-dropdown,
+body[data-theme="light"] .autocomplete-dropdown-nightlife {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+}
+
+/* --- Toast Notifications --- */
+body[data-theme="light"] .toast-notification {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- XP Progress Bar --- */
+body[data-theme="light"] .xp-progress-bar {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+/* --- Badge Showcase --- */
+body[data-theme="light"] .badge-showcase {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+body[data-theme="light"] .badge-card {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* --- Reduced Motion: Disable blur for performance --- */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="light"] .header-modern,
+  body[data-theme="light"] .user-menu-dropdown-modern,
+  body[data-theme="light"] .modal-overlay,
+  body[data-theme="light"] .modal,
+  body[data-theme="light"] .sidebar-modern,
+  body[data-theme="light"] .card-nightlife {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

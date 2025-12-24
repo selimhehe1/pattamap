@@ -1,0 +1,373 @@
+/**
+ * View Transitions API Styles
+ * Phase 3 Modernisation - Native Browser Transitions
+ *
+ * Defines animations and transition groups for the View Transitions API.
+ * These styles control how elements animate between states during navigation.
+ *
+ * Browser Support:
+ * - Chrome 111+
+ * - Safari 18+
+ * - Edge 111+
+ * - Firefox (behind flag)
+ *
+ * Note: Browsers without support ignore these rules gracefully.
+ */
+
+/* ============================================
+   VIEW TRANSITION ROOT
+   ============================================ */
+
+/* Default page transition - smooth crossfade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Old page fades out and slides left */
+::view-transition-old(root) {
+  animation-name: fade-and-slide-out;
+}
+
+/* New page fades in and slides from right */
+::view-transition-new(root) {
+  animation-name: fade-and-slide-in;
+}
+
+@keyframes fade-and-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes fade-and-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   PAGE CONTENT TRANSITIONS
+   ============================================ */
+
+/* Named transition for main page content */
+.view-transition-page {
+  view-transition-name: page-content;
+}
+
+::view-transition-old(page-content),
+::view-transition-new(page-content) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(page-content) {
+  animation-name: page-exit;
+}
+
+::view-transition-new(page-content) {
+  animation-name: page-enter;
+}
+
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.98);
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   HEADER TRANSITIONS
+   ============================================ */
+
+/* Header stays stable during page transitions */
+.view-transition-header {
+  view-transition-name: main-header;
+}
+
+::view-transition-old(main-header),
+::view-transition-new(main-header) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* ============================================
+   SIDEBAR TRANSITIONS
+   ============================================ */
+
+.view-transition-sidebar {
+  view-transition-name: main-sidebar;
+}
+
+::view-transition-old(main-sidebar),
+::view-transition-new(main-sidebar) {
+  animation-duration: 0.25s;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+::view-transition-old(main-sidebar) {
+  animation-name: slide-out-left;
+}
+
+::view-transition-new(main-sidebar) {
+  animation-name: slide-in-left;
+}
+
+@keyframes slide-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   MODAL TRANSITIONS
+   ============================================ */
+
+/* Modal content */
+.view-transition-modal {
+  view-transition-name: modal-content;
+}
+
+::view-transition-old(modal-content),
+::view-transition-new(modal-content) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring-like */
+}
+
+::view-transition-old(modal-content) {
+  animation-name: modal-exit;
+}
+
+::view-transition-new(modal-content) {
+  animation-name: modal-enter;
+}
+
+@keyframes modal-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal backdrop */
+.view-transition-modal-backdrop {
+  view-transition-name: modal-backdrop;
+}
+
+::view-transition-old(modal-backdrop),
+::view-transition-new(modal-backdrop) {
+  animation-duration: 0.25s;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(modal-backdrop) {
+  animation-name: backdrop-fade-out;
+}
+
+::view-transition-new(modal-backdrop) {
+  animation-name: backdrop-fade-in;
+}
+
+@keyframes backdrop-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   CARD TRANSITIONS
+   ============================================ */
+
+/* For shared element transitions (e.g., card -> detail page) */
+.view-transition-card {
+  view-transition-name: card;
+}
+
+::view-transition-old(card),
+::view-transition-new(card) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(card) {
+  animation-name: card-morph-out;
+}
+
+::view-transition-new(card) {
+  animation-name: card-morph-in;
+}
+
+@keyframes card-morph-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    border-radius: var(--border-radius-xl);
+  }
+  to {
+    opacity: 0.5;
+    transform: scale(1.02);
+    border-radius: var(--border-radius-lg);
+  }
+}
+
+@keyframes card-morph-in {
+  from {
+    opacity: 0.5;
+    transform: scale(1.02);
+    border-radius: var(--border-radius-lg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    border-radius: var(--border-radius-xl);
+  }
+}
+
+/* ============================================
+   AVATAR TRANSITIONS
+   ============================================ */
+
+/* For profile pictures that transition between views */
+.view-transition-avatar {
+  view-transition-name: avatar;
+}
+
+::view-transition-old(avatar),
+::view-transition-new(avatar) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Maintain aspect ratio during animation */
+  object-fit: cover;
+}
+
+/* ============================================
+   TITLE TRANSITIONS
+   ============================================ */
+
+.view-transition-title {
+  view-transition-name: page-title;
+}
+
+::view-transition-old(page-title),
+::view-transition-new(page-title) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+::view-transition-old(page-title) {
+  animation-name: title-exit;
+}
+
+::view-transition-new(page-title) {
+  animation-name: title-enter;
+}
+
+@keyframes title-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes title-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    animation-duration: 0s !important;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Opt out of view transitions for specific elements */
+.no-view-transition {
+  view-transition-name: none !important;
+}
+
+/* Ensure element participates in view transition layer */
+.view-transition-contain {
+  contain: layout;
+}

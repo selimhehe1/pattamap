@@ -74,8 +74,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay modal-overlay--dialog" onClick={handleOverlayClick}>
-      <div className={`modal modal--dialog confirm-modal confirm-modal-${variant}`} onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay modal-overlay--dialog view-transition-modal-backdrop" onClick={handleOverlayClick}>
+      <div className={`modal modal--dialog confirm-modal confirm-modal-${variant} view-transition-modal`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="modal__header">
           <span className="dialog-icon">{getIcon()}</span>
