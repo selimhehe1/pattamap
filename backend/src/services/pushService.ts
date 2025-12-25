@@ -13,13 +13,21 @@ const VAPID_PUBLIC_KEY = (process.env.VAPID_PUBLIC_KEY || '').trim();
 const VAPID_PRIVATE_KEY = (process.env.VAPID_PRIVATE_KEY || '').trim();
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:contact@pattamap.com';
 
-// Configure web-push
+// Configure web-push with error handling for invalid keys
+let vapidConfigured = false;
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    VAPID_SUBJECT,
-    VAPID_PUBLIC_KEY,
-    VAPID_PRIVATE_KEY
-  );
+  try {
+    webpush.setVapidDetails(
+      VAPID_SUBJECT,
+      VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY
+    );
+    vapidConfigured = true;
+  } catch (error: any) {
+    logger.error('❌ VAPID configuration failed:', error.message);
+    logger.error('Push notifications will be disabled. Please check your VAPID keys.');
+    logger.error('Keys must be URL-safe Base64 without "=" padding.');
+  }
 } else {
   logger.warn('⚠️ VAPID keys not configured. Push notifications will not work.');
   logger.warn('Generate keys with: npx web-push generate-vapid-keys');
@@ -285,8 +293,8 @@ export const getVapidPublicKey = (): string => {
 
 /**
  * Check if push notifications are configured
- * @returns Boolean indicating if VAPID keys are set
+ * @returns Boolean indicating if VAPID keys are set and valid
  */
 export const isPushConfigured = (): boolean => {
-  return !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
+  return vapidConfigured;
 };
