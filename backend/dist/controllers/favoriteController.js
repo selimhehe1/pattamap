@@ -1,0 +1,241 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkFavorite = exports.removeFavorite = exports.addFavorite = exports.getFavorites = void 0;
+const supabase_1 = require("../config/supabase");
+const logger_1 = require("../utils/logger");
+const notificationHelper_1 = require("../utils/notificationHelper");
+const getFavorites = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const { data: favorites, error } = await supabase_1.supabase
+            .from('user_favorites')
+            .select(`
+        id,
+        employee_id,
+        created_at,
+        employee:employees(
+          id,
+          name,
+          nickname,
+          age,
+          nationality,
+          photos,
+          description,
+          social_media
+        )
+      `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+        if (error) {
+            logger_1.logger.error('Error fetching favorites:', error);
+            return res.status(500).json({ error: 'Failed to fetch favorites' });
+        }
+        const employeeIds = (favorites || []).map((fav) => fav.employee_id);
+        // Batch fetch employment history for all employees
+        const { data: allEmployment } = await supabase_1.supabase
+            .from('employment_history')
+            .select(`
+        employee_id,
+        establishment_id,
+        establishments:establishment_id (
+          id,
+          name,
+          zone,
+          address
+        )
+      `)
+            .in('employee_id', employeeIds)
+            .eq('is_current', true);
+        // Batch fetch all comments for ratings
+        const { data: allComments } = await supabase_1.supabase
+            .from('comments')
+            .select('employee_id, rating')
+            .in('employee_id', employeeIds);
+        const employmentMap = new Map();
+        (allEmployment || []).forEach((emp) => {
+            if (emp.establishments) {
+                employmentMap.set(emp.employee_id, emp.establishments);
+            }
+        });
+        // Calculate ratings per employee
+        const ratingsMap = new Map();
+        (allComments || []).forEach((comment) => {
+            const existing = ratingsMap.get(comment.employee_id) || { total: 0, count: 0 };
+            existing.total += comment.rating || 0;
+            existing.count += 1;
+            ratingsMap.set(comment.employee_id, existing);
+        });
+        const favoritesWithEstablishment = (favorites || []).map((fav) => {
+            const ratingData = ratingsMap.get(fav.employee_id);
+            const avgRating = ratingData && ratingData.count > 0
+                ? ratingData.total / ratingData.count
+                : 0;
+            const establishment = employmentMap.get(fav.employee_id);
+            // Supabase returns nested relations as arrays
+            const emp = fav.employee[0];
+            return {
+                id: fav.id,
+                employee_id: fav.employee_id,
+                employee_name: emp?.name || '',
+                employee_nickname: emp?.nickname,
+                employee_photos: emp?.photos || [],
+                employee_age: emp?.age,
+                employee_nationality: emp?.nationality,
+                employee_description: emp?.description,
+                employee_social_media: emp?.social_media,
+                employee_rating: avgRating,
+                employee_comment_count: ratingData?.count || 0,
+                current_establishment: establishment ? {
+                    id: establishment.id,
+                    name: establishment.name,
+                    zone: establishment.zone,
+                    address: establishment.address
+                } : null,
+                created_at: fav.created_at
+            };
+        });
+        res.json({
+            favorites: favoritesWithEstablishment,
+            count: favoritesWithEstablishment.length
+        });
+    }
+    catch (error) {
+        logger_1.logger.error('Error in getFavorites:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.getFavorites = getFavorites;
+const addFavorite = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { employee_id } = req.body;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        if (!employee_id) {
+            return res.status(400).json({ error: 'Employee ID is required' });
+        }
+        const { data: existingFavorite } = await supabase_1.supabase
+            .from('user_favorites')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('employee_id', employee_id)
+            .single();
+        if (existingFavorite) {
+            return res.status(409).json({
+                error: 'Employee already in favorites',
+                is_favorite: true
+            });
+        }
+        const { data, error } = await supabase_1.supabase
+            .from('user_favorites')
+            .insert([{
+                user_id: userId,
+                employee_id: employee_id
+            }])
+            .select()
+            .single();
+        if (error) {
+            logger_1.logger.error('Error adding favorite:', error);
+            return res.status(500).json({ error: 'Failed to add favorite' });
+        }
+        // Notify employee if they have a linked account
+        try {
+            // Get employee data
+            const { data: employee } = await supabase_1.supabase
+                .from('employees')
+                .select('name, id')
+                .eq('id', employee_id)
+                .single();
+            // Find user linked to this employee
+            const { data: linkedUser } = await supabase_1.supabase
+                .from('users')
+                .select('id, account_type, linked_employee_id')
+                .eq('account_type', 'employee')
+                .eq('linked_employee_id', employee_id)
+                .single();
+            // Get current user pseudonym
+            const { data: currentUser } = await supabase_1.supabase
+                .from('users')
+                .select('pseudonym')
+                .eq('id', userId)
+                .single();
+            // Only notify if employee has linked account
+            if (employee && linkedUser && currentUser) {
+                await (0, notificationHelper_1.notifyNewFavorite)(linkedUser.id, currentUser.pseudonym, employee.name);
+            }
+        }
+        catch (notifyError) {
+            // Log error but don't fail the request if notification fails
+            logger_1.logger.error('New favorite notification error:', notifyError);
+        }
+        res.status(201).json({
+            message: 'Employee added to favorites',
+            favorite: data,
+            is_favorite: true
+        });
+    }
+    catch (error) {
+        logger_1.logger.error('Error in addFavorite:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.addFavorite = addFavorite;
+const removeFavorite = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { employee_id } = req.params;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const { error } = await supabase_1.supabase
+            .from('user_favorites')
+            .delete()
+            .eq('user_id', userId)
+            .eq('employee_id', employee_id);
+        if (error) {
+            logger_1.logger.error('Error removing favorite:', error);
+            return res.status(500).json({ error: 'Failed to remove favorite' });
+        }
+        res.json({
+            message: 'Employee removed from favorites',
+            is_favorite: false
+        });
+    }
+    catch (error) {
+        logger_1.logger.error('Error in removeFavorite:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.removeFavorite = removeFavorite;
+const checkFavorite = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { employee_id } = req.params;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const { data, error } = await supabase_1.supabase
+            .from('user_favorites')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('employee_id', employee_id)
+            .single();
+        if (error && error.code !== 'PGRST116') {
+            logger_1.logger.error('Error checking favorite:', error);
+            return res.status(500).json({ error: 'Failed to check favorite status' });
+        }
+        res.json({
+            is_favorite: !!data
+        });
+    }
+    catch (error) {
+        logger_1.logger.error('Error in checkFavorite:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.checkFavorite = checkFavorite;
+//# sourceMappingURL=favoriteController.js.map
