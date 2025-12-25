@@ -9,8 +9,8 @@ import { NotificationType } from '../types';
 
 // VAPID keys for Web Push API authentication
 // Generate with: npx web-push generate-vapid-keys
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_PUBLIC_KEY = (process.env.VAPID_PUBLIC_KEY || '').trim();
+const VAPID_PRIVATE_KEY = (process.env.VAPID_PRIVATE_KEY || '').trim();
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:contact@pattamap.com';
 
 // Configure web-push
