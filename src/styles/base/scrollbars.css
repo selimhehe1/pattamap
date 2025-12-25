@@ -1,57 +1,56 @@
 /**
  * ============================================
- * SCROLLBARS - Custom Scrollbar Styles
+ * SCROLLBARS - Native Scrollbar Styles
  * ============================================
  *
- * Styles personnalisés pour les scrollbars dans toute l'application.
- * Support Webkit (Chrome, Safari, Edge) et Firefox.
+ * Utilisation des scrollbars natives du navigateur pour une
+ * expérience utilisateur discrète et familière.
  *
- * USAGE:
- * Importé globalement dans App.tsx (après design-system.css)
+ * @version 2.0.0
+ * @updated 2025-01-25 - Retour aux scrollbars natives (audit UI)
  *
- * CONTENU:
- * - Webkit scrollbars (Chrome, Safari, Edge)
- * - Firefox scrollbars (scrollbar-width, scrollbar-color)
- *
- * @dependencies design-system.css (variables)
- * @version 1.0.0
- * @created 2025-01-09
- * @migrated Phase 3A - Extraction depuis nightlife-theme.css (lignes 527-554)
+ * DÉSACTIVÉ: Les styles personnalisés ci-dessous sont commentés
+ * pour utiliser les scrollbars natives du système.
  */
 
 /* ============================================
-   WEBKIT SCROLLBARS (Chrome, Safari, Edge)
-   ============================================ */
+   SCROLLBARS NATIVES (par défaut)
+   ============================================
 
-/* Scrollbar width */
+   Les scrollbars natives sont utilisées pour:
+   - Meilleure intégration avec le système
+   - Expérience utilisateur familière
+   - Pas de distraction visuelle
+*/
+
+/*
+ * ANCIEN CODE PERSONNALISÉ (DÉSACTIVÉ)
+ * Décommenter si vous souhaitez restaurer les scrollbars custom
+ *
+
 *::-webkit-scrollbar {
-  width: 0.75rem;  /* 12px */
+  width: 0.75rem;
 }
 
-/* Scrollbar track (background) */
 *::-webkit-scrollbar-track {
   background: var(--bg-surface);
   border-radius: 10px;
 }
 
-/* Scrollbar thumb (draggable part) */
 *::-webkit-scrollbar-thumb {
   background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
   border-radius: 10px;
   border: 2px solid var(--bg-surface);
 }
 
-/* Scrollbar thumb hover state */
 *::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
   box-shadow: 0 0 15px rgba(193, 154, 107, 0.5);
 }
 
-/* ============================================
-   FIREFOX SCROLLBARS
-   ============================================ */
-
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary) var(--bg-surface);
 }
+
+*/

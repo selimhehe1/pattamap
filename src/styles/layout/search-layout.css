@@ -121,6 +121,64 @@
   }
 }
 
+/* ===== FILTER FORM FIELDS - Consistent Spacing ===== */
+
+/* Filter group spacing - replaces inline marginBottom */
+.filter-group {
+  margin-bottom: var(--spacing-5); /* 20px */
+}
+
+/* Age Range Container - Responsive flex */
+.age-range-inputs {
+  display: flex;
+  gap: var(--spacing-3); /* 10px */
+}
+
+.age-range-inputs .input-nightlife {
+  flex: 1;
+  min-width: 0; /* Allow shrinking below content size */
+}
+
+/* Stack age inputs on very small screens */
+@media (max-width: 22rem) {
+  .age-range-inputs {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .age-range-inputs .input-nightlife {
+    width: 100%;
+  }
+}
+
+/* ===== FILTER SECTIONS - Uniform Spacing ===== */
+
+/* Standard filter section (20px margin-bottom) */
+.filter-section {
+  margin-bottom: var(--spacing-5); /* 20px */
+}
+
+/* Large filter section - header/verified (24px margin-bottom) */
+.filter-section--large {
+  margin-bottom: var(--spacing-6); /* 24px */
+}
+
+/* Label with icon - consistent alignment */
+.filter-label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2); /* 6px */
+  margin-bottom: var(--spacing-2); /* 8px */
+}
+
+/* Header section with flex layout */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-6); /* 24px */
+}
+
 /* ===== ACCESSIBILITY ===== */
 
 /* WCAG 2.1 Level AA - Focus visible states */

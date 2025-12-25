@@ -49,7 +49,7 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   overflow-y: auto;
-  overflow-x: visible; /* Allow toggle button to extend beyond sidebar */
+  overflow-x: hidden; /* Empêche scrollbar horizontale */
   box-shadow: var(--shadow-lg);
 }
 

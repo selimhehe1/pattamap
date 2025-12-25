@@ -1,5 +1,4 @@
 import React, { ErrorInfo } from 'react';
-import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 
 /**
  * ErrorFallback - User-friendly error UI
@@ -13,6 +12,10 @@ import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition
  * - Navigation options (home, back)
  * - Error details in development mode
  * - Consistent with nightlife theme
+ *
+ * NOTE: This component uses window.location for navigation instead of
+ * useNavigate() because it may be rendered outside of Router context
+ * (e.g., by Sentry's ErrorBoundary).
  */
 
 interface ErrorFallbackProps {
@@ -35,17 +38,14 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
   boundaryName
 }) => {
-  const navigate = useNavigateWithTransition();
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = import.meta.env.DEV;
 
   const handleGoHome = () => {
-    resetError();
-    navigate('/');
+    window.location.href = '/';
   };
 
   const handleGoBack = () => {
-    resetError();
-    navigate.back();
+    window.history.back();
   };
 
   const handleReload = () => {

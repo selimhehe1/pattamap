@@ -130,6 +130,7 @@
 /* Input Field */
 .input-nightlife {
   width: 100%;
+  box-sizing: border-box; /* Ensures padding doesn't add to width */
   padding: var(--spacing-md) var(--spacing-4);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius-md);
@@ -140,6 +141,7 @@
   outline: none;
   transition: all var(--transition-duration-normal) ease;
   backdrop-filter: var(--backdrop-blur-md);
+  min-height: 44px; /* WCAG touch target */
 }
 
 .input-nightlife:focus {
@@ -165,6 +167,7 @@
 /* Select Field */
 .select-nightlife {
   width: 100%;
+  box-sizing: border-box; /* Ensures padding doesn't add to width */
   padding: var(--spacing-md) var(--spacing-4);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius-md);
@@ -181,6 +184,7 @@
   background-position: right 12px center;
   background-repeat: no-repeat;
   background-size: 16px;
+  min-height: 44px; /* WCAG touch target */
 }
 
 .select-nightlife:focus {

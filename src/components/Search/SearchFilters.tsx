@@ -532,13 +532,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Filters Content - Collapsible on mobile */}
       <div className={`filters-content ${isMobile && !isFiltersOpen ? 'filters-content--closed' : ''}`}>
         {/* Header */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '25px'
-        }}>
-          <h3 className="header-title-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="filter-header">
+          <h3 className="header-title-nightlife filter-label-with-icon">
             <Search size={18} /> {t('search.filters')}
           </h3>
 
@@ -556,7 +551,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Verified Filter - PRIORITAIRE - v10.3 Enhanced */}
-      <div style={{ marginBottom: '25px' }}>
+      <div className="filter-section--large">
         <button
           type="button"
           onClick={() => onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true')}
@@ -574,9 +569,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Employee Type Filter - 🆕 v10.3 - Freelance vs Regular */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <User size={16} /> {t('search.employeeType')}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <User size={20} /> {t('search.employeeType')}
         </label>
         <select
           value={filters.type}
@@ -598,10 +593,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Search Query with Autocomplete */}
-      <div style={{ marginBottom: '20px', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Search size={16} /> {t('search.searchName')}
+      <div className="filter-section" style={{ position: 'relative' }}>
+        <div className="filter-label-with-icon">
+          <label className="label-nightlife filter-label-with-icon">
+            <Search size={20} /> {t('search.searchName')}
           </label>
           {isTyping && (
             <span style={{
@@ -674,11 +669,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Age Range */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Cake size={16} /> {t('search.ageRange')}
+      <div className="filter-group">
+        <label className="label-nightlife filter-label-with-icon">
+          <Cake size={20} /> {t('search.ageRange')}
         </label>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="age-range-inputs">
           <input
             ref={ageMinRef}
             type="number"
@@ -744,9 +739,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Nationality */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Globe size={16} /> {t('search.nationality')}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <Globe size={20} /> {t('search.nationality')}
         </label>
         <select
           value={filters.nationality}
@@ -765,9 +760,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Zone */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <MapPin size={16} /> {t('search.zone')}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <MapPin size={20} /> {t('search.zone')}
         </label>
         <select
           value={filters.zone}
@@ -786,9 +781,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Establishment Type */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Tag size={16} /> {t('search.establishmentType')}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <Tag size={20} /> {t('search.establishmentType')}
         </label>
         <select
           value={filters.category_id}
@@ -807,9 +802,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Establishment */}
-      <div style={{ marginBottom: '20px', position: 'relative' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Building2 size={16} /> {t('search.establishment')}
+      <div className="filter-section" style={{ position: 'relative' }}>
+        <label className="label-nightlife filter-label-with-icon">
+          <Building2 size={20} /> {t('search.establishment')}
         </label>
         <div style={{ position: 'relative' }}>
           <input
@@ -952,9 +947,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* Sort Options */}
-      <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowUpDown size={16} /> {t('search.sortBy')}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <ArrowUpDown size={20} /> {t('search.sortBy')}
         </label>
         <select
           value={filters.sort_by}
