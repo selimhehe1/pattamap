@@ -177,8 +177,9 @@ if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
 const corsOptions = {
   origin: process.env.CORS_ORIGIN?.split(',') || [
     'http://localhost:3000',
-    'http://localhost:3001', // Vite dev server (fallback port)
-    'http://localhost:5173' // Vite dev server (primary port)
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:5173'
   ],
   credentials: true,
   optionsSuccessStatus: 200,
