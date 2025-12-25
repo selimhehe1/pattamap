@@ -86,9 +86,11 @@ export const useEmployees = () => {
       }
 
       const data = await response.json();
-      logger.debug(`✅ Fetched ${data.length} employees`);
+      // API returns {employees: [...], pagination: {...}}
+      const employees = data.employees || data;
+      logger.debug(`✅ Fetched ${employees.length} employees`);
 
-      return data;
+      return employees;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
