@@ -6,6 +6,7 @@
 
 .employees-grid-view {
   padding: var(--spacing-5);
+  padding-top: calc(var(--height-header-desktop) + var(--spacing-5)); /* Compense header fixe */
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden; /* Empêche scrollbar horizontale */
@@ -180,6 +181,7 @@
 @media (max-width: 768px) {
   .employees-grid-view {
     padding: var(--spacing-4);
+    padding-top: calc(var(--height-header-mobile) + var(--spacing-4)); /* Compense header mobile */
   }
 
   .employees-grid-view__grid {
