@@ -1,5 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  Search, ChevronDown, Trash2, Check, User, Gem, Building2,
+  Cake, Globe, MapPin, Tag, ArrowUpDown, Target, Crown, Star,
+  Clock, CalendarDays, FileText, Loader2, Pencil, Lightbulb, AlertTriangle
+} from 'lucide-react';
 import { getZoneLabel } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import '../../styles/layout/search-layout.css';
@@ -137,14 +142,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     return { groupedByZone, sortedZones, zoneNames };
   }, [filters.zone, availableFilters.establishments]);
 
-  // Sort options - Using translations
+  // Sort options - Using translations (labels only, icons rendered separately)
   const sortOptions = React.useMemo(() => [
-    { value: 'relevance', label: `🎯 ${t('search.sortOptions.relevance')}` },
-    { value: 'vip', label: `👑 ${t('search.sortOptions.vip')}` },
-    { value: 'popularity', label: `⭐ ${t('search.sortOptions.popular')}` },
-    { value: 'newest', label: `🆕 ${t('search.sortOptions.newest')}` },
-    { value: 'oldest', label: `📅 ${t('search.sortOptions.oldest')}` },
-    { value: 'name', label: `📝 ${t('search.sortOptions.name')}` }
+    { value: 'relevance', label: t('search.sortOptions.relevance'), icon: 'target' },
+    { value: 'vip', label: t('search.sortOptions.vip'), icon: 'crown' },
+    { value: 'popularity', label: t('search.sortOptions.popular'), icon: 'star' },
+    { value: 'newest', label: t('search.sortOptions.newest'), icon: 'clock' },
+    { value: 'oldest', label: t('search.sortOptions.oldest'), icon: 'calendar' },
+    { value: 'name', label: t('search.sortOptions.name'), icon: 'file' }
   ], [t]);
 
   // 🚀 Styles supprimés - remplacés par CSS pur .input-nightlife et .select-nightlife
@@ -510,16 +515,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           aria-expanded={isFiltersOpen}
           data-testid="mobile-filters-toggle"
         >
-          <span>
-            🔍 {t('search.filters')}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Search size={16} /> {t('search.filters')}
             {activeFiltersCount > 0 && ` (${activeFiltersCount})`}
           </span>
           <span style={{
-            fontSize: '20px',
             transform: isFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease'
+            transition: 'transform 0.3s ease',
+            display: 'flex'
           }}>
-            ▼
+            <ChevronDown size={20} />
           </span>
         </button>
       )}
@@ -533,8 +538,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           alignItems: 'center',
           marginBottom: '25px'
         }}>
-          <h3 className="header-title-nightlife">
-            🔍 {t('search.filters')}
+          <h3 className="header-title-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Search size={18} /> {t('search.filters')}
           </h3>
 
           {activeFiltersCount > 0 && (
@@ -543,8 +548,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               disabled={loading}
               className="btn-clear-filters-nightlife"
               data-testid="clear-filters"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              🗑️ {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
+              <Trash2 size={14} /> {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
             </button>
           )}
       </div>
@@ -559,7 +565,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           data-testid="verified-filter"
         >
           <span className={`verified-badge-icon-nightlife ${filters.is_verified === 'true' ? 'verified-badge-icon-active' : 'verified-badge-icon-inactive'}`}>
-            ✓
+            <Check size={16} />
           </span>
           <span className={`verified-filter-text-nightlife ${filters.is_verified === 'true' ? 'verified-filter-text-active' : ''}`}>
             {t('search.verifiedOnly', 'Verified Profiles Only')}
@@ -569,8 +575,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* Employee Type Filter - 🆕 v10.3 - Freelance vs Regular */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          👤 {t('search.employeeType')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <User size={16} /> {t('search.employeeType')}
         </label>
         <select
           value={filters.type}
@@ -583,10 +589,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             {t('search.allEmployeeTypes')}
           </option>
           <option value="freelance" style={{ background: '#1a1a2e', color: '#ffffff' }}>
-            💎 {t('search.freelances')}
+            {t('search.freelances')}
           </option>
           <option value="regular" style={{ background: '#1a1a2e', color: '#ffffff' }}>
-            🏢 {t('search.regularEmployees')}
+            {t('search.regularEmployees')}
           </option>
         </select>
       </div>
@@ -594,8 +600,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Search Query with Autocomplete */}
       <div style={{ marginBottom: '20px', position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <label className="label-nightlife">
-            🔎 {t('search.searchName')}
+          <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Search size={16} /> {t('search.searchName')}
           </label>
           {isTyping && (
             <span style={{
@@ -607,7 +613,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               border: '1px solid rgba(0,255,255,0.3)',
               animation: 'pulse 1.5s ease-in-out infinite'
             }}>
-              ✏️ {t('search.typing')}
+              <Pencil size={12} /> {t('search.typing')}
             </span>
           )}
         </div>
@@ -659,18 +665,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           </div>
         )}
 
-        {/* 🔄 Loading indicator optimisé */}
+        {/* Loading indicator optimisé */}
         {autocompleteState.loading && (
           <div className="autocomplete-loading-nightlife">
-            <span className="loading-spinner">🔄</span>
+            <span className="loading-spinner"><Loader2 size={16} className="spin" /></span>
           </div>
         )}
       </div>
 
       {/* Age Range */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          🎂 {t('search.ageRange')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Cake size={16} /> {t('search.ageRange')}
         </label>
         <div style={{ display: 'flex', gap: '10px' }}>
           <input
@@ -714,7 +720,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             alignItems: 'center',
             gap: '8px'
           }}>
-            <span style={{ fontSize: '16px' }}>⚠️</span>
+            <AlertTriangle size={16} />
             <span>{ageError}</span>
           </div>
         )}
@@ -732,15 +738,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span style={{ fontSize: '14px' }}>💡</span>
+          <Lightbulb size={14} />
           <span>{t('search.ageValidation.minimum')} - {t('search.ageValidation.maximum')}</span>
         </div>
       </div>
 
       {/* Nationality */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          🌍 {t('search.nationality')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Globe size={16} /> {t('search.nationality')}
         </label>
         <select
           value={filters.nationality}
@@ -760,8 +766,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* Zone */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          📍 {t('search.zone')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <MapPin size={16} /> {t('search.zone')}
         </label>
         <select
           value={filters.zone}
@@ -781,8 +787,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* Establishment Type */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          🏷️ {t('search.establishmentType')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Tag size={16} /> {t('search.establishmentType')}
         </label>
         <select
           value={filters.category_id}
@@ -802,8 +808,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* Establishment */}
       <div style={{ marginBottom: '20px', position: 'relative' }}>
-        <label className="label-nightlife">
-          🏢 {t('search.establishment')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Building2 size={16} /> {t('search.establishment')}
         </label>
         <div style={{ position: 'relative' }}>
           <input
@@ -906,7 +912,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                         borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
                       }}
                     >
-                      📍 {zoneNames[zone] || zone}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> {zoneNames[zone] || zone}</span>
                     </div>
 
                     {/* Establishments in Zone */}
@@ -947,8 +953,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* Sort Options */}
       <div style={{ marginBottom: '20px' }}>
-        <label className="label-nightlife">
-          📊 {t('search.sortBy')}
+        <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowUpDown size={16} /> {t('search.sortBy')}
         </label>
         <select
           value={filters.sort_by}
@@ -967,8 +973,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
         {/* Loading Indicator */}
         {loading && (
-          <div className="loading-indicator-nightlife">
-            🔄 {t('search.searching')}
+          <div className="loading-indicator-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Loader2 size={16} className="spin" /> {t('search.searching')}
           </div>
         )}
       </div>

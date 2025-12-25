@@ -388,6 +388,16 @@
   50% { opacity: 0.7; }
 }
 
+/* Spin animation for Loader2 icons */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 /* Clear Filters Button - Compact Style */
 .btn-clear-filters-nightlife {
   padding: var(--spacing-2) var(--spacing-3);
@@ -417,4 +427,100 @@
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* ===== LIGHT MODE OVERRIDES ===== */
+
+/* Light Mode - Search Filters Sidebar */
+body[data-theme="light"] .search-filters-fixed-nightlife {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(248, 245, 255, 0.95)
+  );
+  border-color: rgba(167, 139, 250, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .search-filters-fixed-nightlife::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .search-filters-fixed-nightlife::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.4);
+}
+
+body[data-theme="light"] .search-filters-fixed-nightlife::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.6);
+}
+
+/* Light Mode - Toggle Button */
+body[data-theme="light"] .search-filters-toggle-btn {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.15), rgba(167, 139, 250, 0.08));
+  border-color: rgba(167, 139, 250, 0.4);
+  color: var(--color-primary);
+}
+
+body[data-theme="light"] .search-filters-toggle-btn:hover {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.25), rgba(167, 139, 250, 0.15));
+  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.2);
+}
+
+body[data-theme="light"] .search-filters-toggle-btn--expanded {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.25), rgba(167, 139, 250, 0.15));
+}
+
+/* Light Mode - Verified Filter */
+body[data-theme="light"] .verified-filter-nightlife {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.05));
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+body[data-theme="light"] .verified-filter-nightlife:not(.verified-filter-active):hover {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.2), rgba(167, 139, 250, 0.12));
+  border-color: rgba(167, 139, 250, 0.5);
+}
+
+/* Light Mode - Loading Indicator */
+body[data-theme="light"] .loading-indicator-nightlife {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+/* Light Mode - Clear Filters Button */
+body[data-theme="light"] .btn-clear-filters-nightlife {
+  background: rgba(255, 71, 87, 0.08);
+  border-color: rgba(255, 71, 87, 0.4);
+}
+
+body[data-theme="light"] .btn-clear-filters-nightlife:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.15);
+}
+
+/* Light Mode - Labels */
+body[data-theme="light"] .search-filters-fixed-nightlife .label-nightlife {
+  color: #374151;
+  text-shadow: none;
+}
+
+/* Light Mode - Header Title */
+body[data-theme="light"] .search-filters-fixed-nightlife .header-title-nightlife {
+  background: linear-gradient(45deg, #6B21A8, #9333EA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Light Mode - Autocomplete Dropdown */
+body[data-theme="light"] .autocomplete-dropdown-nightlife {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+body[data-theme="light"] .autocomplete-item-nightlife {
+  color: #374151;
+}
+
+body[data-theme="light"] .autocomplete-item-nightlife:hover {
+  background: rgba(167, 139, 250, 0.1);
 }

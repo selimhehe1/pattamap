@@ -89,3 +89,4 @@ tests/e2e/.auth/
 *.report.json
 
 .vercel
+.env*.local

@@ -17,8 +17,12 @@
  * ```
  */
 
-import { useCallback } from 'react';
-import { useNavigate, NavigateOptions, To } from 'react-router-dom';
+import { useCallback, useContext, useMemo } from 'react';
+import {
+  NavigateOptions,
+  To,
+  UNSAFE_NavigationContext,
+} from 'react-router-dom';
 import { useViewTransition } from './useViewTransition';
 
 export interface UseNavigateWithTransitionReturn {
@@ -36,45 +40,67 @@ export interface UseNavigateWithTransitionReturn {
  * Fallback navigation using window.location
  * Used when Router context is not available
  */
-const fallbackNavigate = (to: To | number, options?: NavigateOptions): void => {
-  if (typeof window === 'undefined') return;
+const createFallbackNavigate = () => {
+  const navigate = (to: To | number, options?: NavigateOptions): void => {
+    if (typeof window === 'undefined') return;
 
-  if (typeof to === 'number') {
-    window.history.go(to);
-    return;
-  }
+    if (typeof to === 'number') {
+      window.history.go(to);
+      return;
+    }
 
-  const path = typeof to === 'string' ? to : to.pathname || '/';
+    const path = typeof to === 'string' ? to : to.pathname || '/';
 
-  if (options?.replace) {
-    window.location.replace(path);
-  } else {
-    window.location.href = path;
-  }
-};
+    if (options?.replace) {
+      window.location.replace(path);
+    } else {
+      window.location.href = path;
+    }
+  };
 
-/**
- * Safe wrapper for useNavigate that handles context errors
- * Returns fallback navigation if router context is unavailable
- */
-const useSafeNavigate = () => {
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useNavigate();
-  } catch {
-    // Return fallback if useNavigate fails (e.g., during HMR or outside router)
-    console.warn('[useNavigateWithTransition] Router context unavailable, using fallback navigation');
-    return fallbackNavigate as ReturnType<typeof useNavigate>;
-  }
+  return navigate;
 };
 
 /**
  * Enhanced navigation hook with View Transitions API support
  * Includes fallback for when Router context is unavailable (Vite HMR edge cases)
+ *
+ * This implementation directly accesses the NavigationContext to avoid
+ * the useNavigate hook which throws when context is unavailable.
  */
 export const useNavigateWithTransition = (): UseNavigateWithTransitionReturn => {
-  const navigate = useSafeNavigate();
+  // Safely access the navigation context - useContext never throws
+  const navigationContext = useContext(UNSAFE_NavigationContext);
   const { startViewTransition, isSupported, prefersReducedMotion } = useViewTransition();
+
+  // Check if we have a valid router context
+  const hasRouterContext = navigationContext != null && navigationContext.navigator != null;
+
+  // Get the navigator from context (may be null)
+  const navigator = navigationContext?.navigator;
+
+  // Create the navigate function based on context availability
+  const navigate = useMemo(() => {
+    if (!hasRouterContext || !navigator) {
+      // Fallback to window.location when outside router
+      console.warn('[useNavigateWithTransition] Router context unavailable, using fallback navigation');
+      return createFallbackNavigate();
+    }
+
+    // Use the navigator from context directly
+    return (to: To | number, options?: NavigateOptions) => {
+      if (typeof to === 'number') {
+        navigator.go(to);
+      } else {
+        const path = typeof to === 'string' ? to : to.pathname || '/';
+        if (options?.replace) {
+          navigator.replace(path, options?.state);
+        } else {
+          navigator.push(path, options?.state);
+        }
+      }
+    };
+  }, [hasRouterContext, navigator]);
 
   // Should use View Transitions?
   const shouldTransition = isSupported && !prefersReducedMotion;
