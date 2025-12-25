@@ -110,7 +110,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src'
-    }
+    },
+    // Force single React instance to prevent "Invalid hook call" errors
+    dedupe: ['react', 'react-dom', 'react-router-dom']
   },
   optimizeDeps: {
     include: [

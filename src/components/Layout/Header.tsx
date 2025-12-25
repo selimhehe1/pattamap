@@ -163,7 +163,7 @@ const Header: React.FC = () => {
             <h1 className="header-title">
               {t('header.title')}
               {process.env.NODE_ENV === 'development' && (
-                <span style={{ marginLeft: '8px', fontSize: '12px', background: '#ff6b35', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>DEV</span>
+                <span className="header-dev-badge">DEV</span>
               )}
             </h1>
             <p className="header-subtitle">

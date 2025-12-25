@@ -53,27 +53,27 @@ body {
 /* --- HEADER LIGHT MODE - Force dark/visible text --- */
 /* Header subtitle "Navigate Pattaya Nightlife" */
 body[data-theme="light"] .header-subtitle {
-  color: #4B5563 !important;
+  color: #475569 !important; /* Slate-600 */
 }
 
 body[data-theme="light"] .header-subtitle-nightlife {
-  color: #4B5563 !important;
+  color: #475569 !important; /* Slate-600 */
 }
 
 /* XP/Level pill - make level visible */
 body[data-theme="light"] .header-xp-level {
-  color: #7C3AED !important; /* Purple instead of yellow for visibility */
+  color: #B45309 !important; /* Amber-700 - Gold adapté */
 }
 
 /* XP value - dark text */
 body[data-theme="light"] .header-xp-value {
-  color: #1F2937 !important;
+  color: #0F172A !important; /* Slate-900 */
 }
 
 /* XP pill container - ensure good contrast */
 body[data-theme="light"] .header-xp-pill {
-  background: rgba(245, 243, 250, 0.95) !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important; /* Slate border */
 }
 
 /* ============================================
@@ -545,11 +545,11 @@ body[data-theme="light"] .establishment-listview-container-nightlife {
 body[data-theme="light"] .establishment-card-tinder {
   background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%);
   border: 2px solid var(--border-color-strong);
-  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
 body[data-theme="light"] .establishment-card-tinder:hover {
-  box-shadow: 0 20px 40px rgba(167, 139, 250, 0.25);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
   border-color: var(--color-primary);
 }
 
@@ -578,31 +578,31 @@ body[data-theme="light"] .establishment-card-description {
 }
 
 body[data-theme="light"] .establishment-card-employees {
-  background: rgba(167, 139, 250, 0.1);
-  border-color: rgba(167, 139, 250, 0.2);
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.08);
   color: var(--text-primary);
 }
 
 body[data-theme="light"] .establishment-card-zone-inline {
-  background: rgba(147, 197, 253, 0.3);
-  border-color: rgba(147, 197, 253, 0.5);
+  background: rgba(71, 85, 105, 0.12);
+  border-color: rgba(71, 85, 105, 0.18);
   color: var(--text-primary);
 }
 
 body[data-theme="light"] .establishment-card-logo-placeholder-center {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(147, 197, 253, 0.2));
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(71, 85, 105, 0.08));
   border-color: var(--border-color-strong);
 }
 
 /* --- EMPLOYEE CARD (TINDER STYLE) --- */
 body[data-theme="light"] .employee-card-tinder {
   background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%) !important;
-  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
   border: 2px solid var(--border-color-strong) !important;
 }
 
 body[data-theme="light"] .employee-card-tinder:hover {
-  box-shadow: 0 20px 40px rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1) !important;
   border-color: var(--color-primary) !important;
 }
 
@@ -612,7 +612,7 @@ body[data-theme="light"] .employee-card-info {
   background: rgba(245, 243, 250, 0.95) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
   color: var(--text-primary) !important;
 }
 
@@ -640,14 +640,14 @@ body[data-theme="light"] .employee-card-establishment {
 }
 
 body[data-theme="light"] .employee-card-type-freelance {
-  background: rgba(167, 139, 250, 0.15) !important;
-  border-color: rgba(167, 139, 250, 0.4) !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
   color: var(--color-primary-button) !important;
 }
 
 body[data-theme="light"] .employee-card-type-regular {
-  background: rgba(147, 197, 253, 0.2) !important;
-  border-color: rgba(147, 197, 253, 0.5) !important;
+  background: rgba(71, 85, 105, 0.08) !important;
+  border-color: rgba(71, 85, 105, 0.18) !important;
   color: var(--color-secondary-button) !important;
 }
 
@@ -674,8 +674,8 @@ body[data-theme="light"] .employee-card-bottom {
 /* --- MAP CONTAINERS & ALL ZONE BACKGROUNDS --- */
 body[data-theme="light"] .map-container-nightlife {
   border-color: var(--border-color-strong);
-  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.2),
-              inset 0 1px 0 rgba(167, 139, 250, 0.1);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08),
+              inset 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 /* Light mode backgrounds for all zone maps - LIGHT colors */
@@ -691,12 +691,12 @@ body[data-theme="light"] .map-bg-soi78,
 body[data-theme="light"] [class*="map-bg-"] {
   background: radial-gradient(
       ellipse at 20% 30%,
-      rgba(167, 139, 250, 0.15) 0%,
+      rgba(15, 23, 42, 0.06) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse at 80% 70%,
-      rgba(147, 197, 253, 0.15) 0%,
+      rgba(71, 85, 105, 0.06) 0%,
       transparent 50%
     ),
     radial-gradient(
@@ -706,16 +706,16 @@ body[data-theme="light"] [class*="map-bg-"] {
     ),
     linear-gradient(
       135deg,
-      #E8E4F3 0%,
-      #DED8EE 30%,
-      #D4CCE8 60%,
-      #DED8EE 100%
+      #FFFFFF 0%,
+      #F8FAFC 30%,
+      #F1F5F9 60%,
+      #F8FAFC 100%
     ) !important;
 }
 
 /* Force the map container itself to have light background */
 body[data-theme="light"] .map-container-nightlife {
-  background: linear-gradient(135deg, #E8E4F3 0%, #D4CCE8 100%) !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%) !important;
 }
 
 /* Light mode - Invert the road canvas for visibility */
@@ -727,12 +727,12 @@ body[data-theme="light"] .map-container-nightlife canvas {
 /* Map street lines - adjusted for light mode visibility */
 body[data-theme="light"] .soi6-street-line,
 body[data-theme="light"] [class*="street-line"] {
-  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.5));
+  filter: drop-shadow(0 0 8px rgba(15, 23, 42, 0.18));
 }
 
 /* Map title compact - light mode */
 body[data-theme="light"] .map-title-compact-nightlife {
-  background: rgba(245, 243, 250, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
 }
 
@@ -767,7 +767,7 @@ body[data-theme="light"] .sidebar-legend-nightlife {
 
 /* Sidebar count text - keep gold/primary color but ensure visibility */
 body[data-theme="light"] .sidebar-count-nightlife {
-  color: #7C3AED !important;
+  color: #B45309 !important; /* Amber-700 */
 }
 
 /* Sidebar zone buttons - dark text on light background */
@@ -784,18 +784,18 @@ body[data-theme="light"] .zone-list-item-nightlife {
 }
 
 body[data-theme="light"] .zone-list-item-nightlife:hover {
-  color: #7C3AED !important;
-  background: rgba(167, 139, 250, 0.15) !important;
+  color: #B45309 !important; /* Amber-700 */
+  background: rgba(180, 83, 9, 0.08) !important;
 }
 
 body[data-theme="light"] .zone-list-item-nightlife.active {
-  color: #5B21B6 !important;
-  background: rgba(167, 139, 250, 0.25) !important;
+  color: #92400E !important; /* Amber-800 */
+  background: rgba(180, 83, 9, 0.12) !important;
 }
 
 body[data-theme="light"] .sidebar-main-nightlife button:hover,
 body[data-theme="light"] .zone-list button:hover {
-  color: #7C3AED !important;
+  color: #B45309 !important; /* Amber-700 */
 }
 
 /* Section titles in sidebar */
@@ -821,7 +821,7 @@ body[data-theme="light"] input[type="text"],
 body[data-theme="light"] input[type="search"],
 body[data-theme="light"] input {
   background: #FFFFFF !important;
-  border: 2px solid rgba(167, 139, 250, 0.4) !important;
+  border: 2px solid rgba(15, 23, 42, 0.15) !important;
   color: #1F2937 !important;
 }
 
@@ -881,12 +881,12 @@ body[data-theme="light"] .employees-grid-container {
 
 /* --- SCROLLBARS for List View --- */
 body[data-theme="light"] .establishment-listview-container-nightlife::-webkit-scrollbar-track {
-  background: rgba(167, 139, 250, 0.1);
+  background: rgba(15, 23, 42, 0.04);
 }
 
 body[data-theme="light"] .establishment-listview-container-nightlife::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.3);
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.12);
 }
 
 /* --- CATEGORY BADGE --- */
@@ -894,7 +894,7 @@ body[data-theme="light"] .establishment-card-category {
   background: var(--bg-surface);
   color: var(--text-primary);
   border-color: var(--border-color-strong);
-  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.2);
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08);
 }
 
 /* --- USER MENU in Light Mode --- */
@@ -929,7 +929,7 @@ body[data-theme="light"] .menu-item:hover {
 /* --- SIDEBAR - Solid background --- */
 body[data-theme="light"] .sidebar-main-nightlife {
   background: #FFFFFF !important;
-  border-right: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05) !important;
 }
 
@@ -941,7 +941,7 @@ body[data-theme="light"] .map-sidebar-nightlife {
 /* --- HEADER - Solid background --- */
 body[data-theme="light"] .header-main-nightlife {
   background: #FFFFFF !important;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
 }
 
@@ -951,7 +951,7 @@ body[data-theme="light"] .notification-dropdown,
 body[data-theme="light"] .dropdown-menu,
 body[data-theme="light"] [class*="dropdown"] {
   background: #FFFFFF !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -960,7 +960,7 @@ body[data-theme="light"] .modal-content,
 body[data-theme="light"] .dialog-content,
 body[data-theme="light"] [class*="modal-content"] {
   background: #FFFFFF !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .modal-overlay,
@@ -999,12 +999,12 @@ body[data-theme="light"] [class*="btn-"] {
 }
 
 body[data-theme="light"] .btn-primary-nightlife {
-  background: #7C3AED !important;
+  background: #B45309 !important; /* Amber-700 */
   color: #FFFFFF !important;
 }
 
 body[data-theme="light"] .btn-secondary-nightlife {
-  background: #A78BFA !important;
+  background: #475569 !important; /* Slate-600 */
   color: #FFFFFF !important;
 }
 
@@ -1019,7 +1019,7 @@ body[data-theme="light"] .search-input,
 body[data-theme="light"] input[type="text"],
 body[data-theme="light"] input[type="search"] {
   background: #FFFFFF !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
 }
 
 /* --- AUTOCOMPLETE - Solid background --- */
@@ -1046,7 +1046,7 @@ body[data-theme="light"] .admin-card {
 body[data-theme="light"] .stat-card,
 body[data-theme="light"] [class*="stat-card"] {
   background: #FFFFFF !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- FILTERS SECTION - Solid background --- */
@@ -1067,9 +1067,9 @@ body[data-theme="light"] .header-xp-pill {
 
 /* Category header container (🍺 Beers) - centered */
 body[data-theme="light"] .sidebar-category-header-nightlife {
-  background: linear-gradient(90deg, rgba(167, 139, 250, 0.15), rgba(147, 197, 253, 0.1)) !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
-  border-left: 3px solid #7C3AED !important;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.06), rgba(71, 85, 105, 0.04)) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-left: 3px solid #B45309 !important; /* Amber-700 */
   color: #1F2937 !important;
   justify-content: center !important;
 }
@@ -1081,7 +1081,7 @@ body[data-theme="light"] .sidebar-category-icon-nightlife {
 
 /* Category name (Beers, Cocktails, etc.) */
 body[data-theme="light"] .sidebar-category-name-nightlife {
-  color: #5B21B6 !important; /* Dark purple for good contrast */
+  color: #92400E !important; /* Amber-800 for good contrast */
 }
 
 /* Category count ((2), (1), etc.) */
@@ -1100,7 +1100,7 @@ body[data-theme="light"] .sidebar-category-group-nightlife {
 /* Consumable item row */
 body[data-theme="light"] .sidebar-consumable-item-nightlife {
   color: #374151 !important;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.15) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
 /* Consumable name */
@@ -1110,19 +1110,19 @@ body[data-theme="light"] .sidebar-consumable-name-nightlife {
 
 /* Price chip for consumables - Must override -webkit-text-fill-color: transparent */
 body[data-theme="light"] .sidebar-price-chip-nightlife {
-  background: rgba(167, 139, 250, 0.15) !important;
-  color: #5B21B6 !important;
-  -webkit-text-fill-color: #5B21B6 !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #92400E !important;
+  -webkit-text-fill-color: #92400E !important;
   text-shadow: none !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
   -webkit-background-clip: unset !important;
   background-clip: unset !important;
 }
 
 /* Small price chip variant for consumable items */
 body[data-theme="light"] .sidebar-price-chip-small-nightlife {
-  color: #5B21B6 !important;
-  -webkit-text-fill-color: #5B21B6 !important;
+  color: #92400E !important;
+  -webkit-text-fill-color: #92400E !important;
   text-shadow: none !important;
 }
 
@@ -1135,12 +1135,12 @@ body[data-theme="light"] .sidebar-pricing-container-nightlife {
 /* Price cards */
 body[data-theme="light"] .sidebar-price-card-nightlife {
   background: rgba(245, 243, 250, 0.5) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .sidebar-price-card-ladydrink-nightlife {
-  background: rgba(167, 139, 250, 0.1) !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
 }
 
 body[data-theme="light"] .sidebar-price-card-barfine-nightlife {
@@ -1159,7 +1159,7 @@ body[data-theme="light"] .sidebar-price-label-nightlife {
 }
 
 body[data-theme="light"] .sidebar-price-label-ladydrink-nightlife {
-  color: #7C3AED !important;
+  color: #B45309 !important;
 }
 
 body[data-theme="light"] .sidebar-price-label-barfine-nightlife {
@@ -1183,7 +1183,7 @@ body[data-theme="light"] .sidebar-empty-consumables-nightlife {
 /* Consumables header title (🍺 CONSUMABLES) */
 body[data-theme="light"] .sidebar-consumables-header-nightlife,
 body[data-theme="light"] .price-value-nightlife.sidebar-consumables-header-nightlife {
-  color: #5B21B6 !important; /* Dark purple for visibility */
+  color: #92400E !important; /* Dark purple for visibility */
 }
 
 /* Sidebar section titles (💰 PRICING, 📍 CONTACT, etc.) */
@@ -1195,7 +1195,7 @@ body[data-theme="light"] [class*="sidebar"] h5 {
 
 /* Currency symbol in consumables (฿) */
 body[data-theme="light"] .sidebar-currency-symbol-nightlife {
-  color: #5B21B6 !important;
+  color: #92400E !important;
   font-weight: bold !important;
   font-size: 11px !important;
 }
@@ -1219,7 +1219,7 @@ body[data-theme="light"] .sidebar-empty-consumables-title-nightlife {
 /* Empty consumables CTA */
 body[data-theme="light"] .sidebar-empty-consumables-cta-nightlife {
   font-size: 11px !important;
-  color: #7C3AED !important;
+  color: #B45309 !important;
   font-style: italic !important;
 }
 
@@ -1264,8 +1264,14 @@ body[data-theme="light"] .header-modern,
 body[data-theme="light"] .header-main-nightlife {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
-  background: rgba(245, 243, 250, 0.85) !important;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.2) !important;
+  /* Updated: White/Slate instead of Lavender */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 100%
+  ) !important;
+  border-bottom: 2px solid rgba(180, 83, 9, 0.3) !important; /* Amber border */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(180, 83, 9, 0.15) inset !important;
 }
 
 /* --- Dropdown Menus Glassmorphism --- */
@@ -1273,10 +1279,11 @@ body[data-theme="light"] .user-menu-dropdown-modern,
 body[data-theme="light"] .header-dropdown {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(245, 243, 250, 0.92) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15),
-              0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  /* Updated: White instead of Lavender */
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(180, 83, 9, 0.2) !important; /* Amber border */
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.1),
+              0 2px 8px rgba(180, 83, 9, 0.08) !important;
 }
 
 /* --- Cards Glassmorphism --- */
@@ -1286,8 +1293,8 @@ body[data-theme="light"] .card-establishment-nightlife {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
-  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.1) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
 }
 
 body[data-theme="light"] .card-nightlife:hover,
@@ -1295,7 +1302,7 @@ body[data-theme="light"] .card-employee-nightlife:hover {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.85) !important;
-  box-shadow: 0 8px 24px rgba(167, 139, 250, 0.2) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Modal Glassmorphism --- */
@@ -1314,8 +1321,8 @@ body[data-theme="light"] .modal-form-container {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(167, 139, 250, 0.3) !important;
-  box-shadow: 0 20px 60px rgba(167, 139, 250, 0.2),
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08),
               0 8px 24px rgba(0, 0, 0, 0.08) !important;
 }
 
@@ -1325,7 +1332,7 @@ body[data-theme="light"] .map-sidebar {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(245, 243, 250, 0.9) !important;
-  border-right: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Input Fields Glassmorphism --- */
@@ -1335,15 +1342,15 @@ body[data-theme="light"] .select-nightlife {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
 }
 
 body[data-theme="light"] .input-nightlife:focus,
 body[data-theme="light"] .textarea-nightlife:focus,
 body[data-theme="light"] .select-nightlife:focus {
   background: rgba(255, 255, 255, 0.95) !important;
-  border-color: #A78BFA !important;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15) !important;
+  border-color: #B45309 !important;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Badges & Pills Glassmorphism --- */
@@ -1359,8 +1366,8 @@ body[data-theme="light"] .notifications-dropdown {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(245, 243, 250, 0.95) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Autocomplete Dropdown --- */
@@ -1369,8 +1376,8 @@ body[data-theme="light"] .autocomplete-dropdown-nightlife {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Toast Notifications --- */
@@ -1378,7 +1385,7 @@ body[data-theme="light"] .toast-notification {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- XP Progress Bar --- */
@@ -1386,7 +1393,7 @@ body[data-theme="light"] .xp-progress-bar {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Badge Showcase --- */
@@ -1394,7 +1401,7 @@ body[data-theme="light"] .badge-showcase {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .badge-card {
@@ -1408,8 +1415,8 @@ body[data-theme="light"] .mobile-menu-panel {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   background: rgba(245, 243, 250, 0.92) !important;
-  border-left: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: -8px 0 32px rgba(167, 139, 250, 0.15) !important;
+  border-left: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.06) !important;
 }
 
 body[data-theme="light"] .mobile-menu-backdrop::before {
@@ -1420,11 +1427,11 @@ body[data-theme="light"] .mobile-menu-backdrop::before {
 
 body[data-theme="light"] .mobile-menu-header {
   background: rgba(245, 243, 250, 0.8) !important;
-  border-bottom: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .mobile-menu-user {
-  background: rgba(167, 139, 250, 0.08) !important;
+  background: rgba(15, 23, 42, 0.03) !important;
 }
 
 body[data-theme="light"] .mobile-menu-footer {
@@ -1444,7 +1451,7 @@ body[data-theme="light"] .employee-card-info {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background: rgba(245, 243, 250, 0.88) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .employee-card-overlay {
@@ -1473,7 +1480,7 @@ body[data-theme="light"] .establishment-card-category {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.85) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Tab Navigation Glassmorphism --- */
@@ -1482,12 +1489,12 @@ body[data-theme="light"] .tabs-container {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background: rgba(245, 243, 250, 0.85) !important;
-  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
 body[data-theme="light"] .tab-button.active,
 body[data-theme="light"] .tab-item.active {
-  background: rgba(167, 139, 250, 0.15) !important;
+  background: rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Bottom Navigation Glassmorphism --- */
@@ -1496,8 +1503,8 @@ body[data-theme="light"] .bottom-navigation {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(245, 243, 250, 0.92) !important;
-  border-top: 1px solid rgba(167, 139, 250, 0.2) !important;
-  box-shadow: 0 -4px 20px rgba(167, 139, 250, 0.1) !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* --- Floating Action Buttons Glassmorphism --- */
@@ -1506,8 +1513,8 @@ body[data-theme="light"] .floating-action-button {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Search Bar Glassmorphism --- */
@@ -1516,7 +1523,7 @@ body[data-theme="light"] .search-bar-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Filter Section Glassmorphism --- */
@@ -1525,7 +1532,7 @@ body[data-theme="light"] .filters-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(245, 243, 250, 0.7) !important;
-  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Stat Cards Glassmorphism --- */
@@ -1534,8 +1541,8 @@ body[data-theme="light"] [class*="stat-card"] {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
-  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.1) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* --- Admin Cards Glassmorphism --- */
@@ -1544,7 +1551,7 @@ body[data-theme="light"] .dashboard-card {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Breadcrumb Glassmorphism --- */
@@ -1560,7 +1567,7 @@ body[data-theme="light"] .review-item {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Price Cards Glassmorphism --- */
@@ -1577,7 +1584,7 @@ body[data-theme="light"] .bar-info-sidebar {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(245, 243, 250, 0.92) !important;
-  border-left: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border-left: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Zone Selector Glassmorphism --- */
@@ -1586,7 +1593,7 @@ body[data-theme="light"] .zone-selector-container {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   background: rgba(245, 243, 250, 0.85) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Language Selector Glassmorphism --- */
@@ -1595,8 +1602,8 @@ body[data-theme="light"] .language-dropdown {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
-  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Empty State Glassmorphism --- */
@@ -1620,14 +1627,14 @@ body[data-theme="light"] .leaderboard-item {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .xp-notification {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
 }
 
 /* --- Unified Modal Glassmorphism (Phase 3) --- */
@@ -1641,9 +1648,9 @@ body[data-theme="light"] .modal-content-unified {
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
   box-shadow:
-    0 25px 80px rgba(167, 139, 250, 0.2),
+    0 25px 80px rgba(15, 23, 42, 0.08),
     0 10px 30px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
@@ -1665,7 +1672,7 @@ body[data-theme="light"] .profile-modal-content {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 /* --- Tooltip Enhanced Glassmorphism --- */
@@ -1674,8 +1681,8 @@ body[data-theme="light"] [role="tooltip"] {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(167, 139, 250, 0.2) !important;
-  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.15) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* --- Popover Glassmorphism --- */
@@ -1684,7 +1691,7 @@ body[data-theme="light"] [data-popover] {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(167, 139, 250, 0.25) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
 }
 
 /* --- Reduced Motion: Disable blur for performance --- */

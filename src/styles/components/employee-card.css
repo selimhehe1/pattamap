@@ -606,14 +606,14 @@
 
 /* Light mode - Card container */
 body[data-theme="light"] .employee-card-tinder {
-  background: linear-gradient(135deg, #F5F3FA 0%, #EDE9F5 100%);
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 2px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 body[data-theme="light"] .employee-card-tinder:hover {
-  border-color: #A78BFA;
-  box-shadow: 0 20px 40px rgba(167, 139, 250, 0.25);
+  border-color: #B45309;
+  box-shadow: 0 20px 40px rgba(180, 83, 9, 0.15);
 }
 
 /* Light mode - Info box (completely opaque light background) */
@@ -621,9 +621,9 @@ body[data-theme="light"] .employee-card-info {
   background: #FFFFFF !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 1px solid rgba(167, 139, 250, 0.35) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
   color: #1F2937 !important;
-  box-shadow: 0 -4px 20px rgba(167, 139, 250, 0.2) !important;
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08) !important;
 }
 
 /* Light mode - Text colors */
@@ -641,7 +641,7 @@ body[data-theme="light"] .employee-card-detail {
 }
 
 body[data-theme="light"] .employee-card-icon {
-  color: #A78BFA;
+  color: #B45309;
 }
 
 body[data-theme="light"] .employee-card-establishment {
@@ -654,15 +654,15 @@ body[data-theme="light"] .employee-card-establishment-name {
 
 /* Light mode - Type badges */
 body[data-theme="light"] .employee-card-type-freelance {
-  background: rgba(167, 139, 250, 0.15);
-  border-color: rgba(167, 139, 250, 0.4);
-  color: #7C3AED;
+  background: rgba(180, 83, 9, 0.1);
+  border-color: rgba(180, 83, 9, 0.3);
+  color: #B45309;
 }
 
 body[data-theme="light"] .employee-card-type-regular {
-  background: rgba(147, 197, 253, 0.2);
-  border-color: rgba(147, 197, 253, 0.5);
-  color: #2563EB;
+  background: rgba(71, 85, 105, 0.1);
+  border-color: rgba(71, 85, 105, 0.3);
+  color: #475569;
 }
 
 /* Light mode - Verified badge */

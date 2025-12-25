@@ -33,10 +33,47 @@ export interface UseNavigateWithTransitionReturn {
 }
 
 /**
+ * Fallback navigation using window.location
+ * Used when Router context is not available
+ */
+const fallbackNavigate = (to: To | number, options?: NavigateOptions): void => {
+  if (typeof window === 'undefined') return;
+
+  if (typeof to === 'number') {
+    window.history.go(to);
+    return;
+  }
+
+  const path = typeof to === 'string' ? to : to.pathname || '/';
+
+  if (options?.replace) {
+    window.location.replace(path);
+  } else {
+    window.location.href = path;
+  }
+};
+
+/**
+ * Safe wrapper for useNavigate that handles context errors
+ * Returns fallback navigation if router context is unavailable
+ */
+const useSafeNavigate = () => {
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useNavigate();
+  } catch {
+    // Return fallback if useNavigate fails (e.g., during HMR or outside router)
+    console.warn('[useNavigateWithTransition] Router context unavailable, using fallback navigation');
+    return fallbackNavigate as ReturnType<typeof useNavigate>;
+  }
+};
+
+/**
  * Enhanced navigation hook with View Transitions API support
+ * Includes fallback for when Router context is unavailable (Vite HMR edge cases)
  */
 export const useNavigateWithTransition = (): UseNavigateWithTransitionReturn => {
-  const navigate = useNavigate();
+  const navigate = useSafeNavigate();
   const { startViewTransition, isSupported, prefersReducedMotion } = useViewTransition();
 
   // Should use View Transitions?
