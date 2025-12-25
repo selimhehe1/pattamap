@@ -102,6 +102,8 @@ interface PattayaMapProps {
   currentZone?: string;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  isError?: boolean; // API error state
+  onRetry?: () => void; // Retry callback for error state
   onEstablishmentUpdate?: () => Promise<void>;
 }
 
@@ -113,6 +115,8 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
   currentZone: propCurrentZone,
   sidebarOpen,
   onToggleSidebar,
+  isError,
+  onRetry,
   onEstablishmentUpdate
 }) => {
   const { t: _t } = useTranslation();
@@ -233,6 +237,8 @@ const PattayaMap: React.FC<PattayaMapProps> = ({
         onSearchChange={setSearchTerm}
         onClearFilters={handleClearFilters}
         establishmentCount={filteredEstablishments.filter(e => e.zone === currentZone).length}
+        isError={isError}
+        onRetry={onRetry}
         viewMode={viewMode}
         onViewModeToggle={(mode) => {
           setViewMode(mode);

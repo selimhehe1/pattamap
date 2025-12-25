@@ -252,6 +252,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <span className="mobile-menu-item-arrow">›</span>
             </button>
 
+            <button className="mobile-menu-item" onClick={() => handleNavigate('/freelances')}>
+              <span className="mobile-menu-item-icon"><Users size={20} /></span>
+              <span className="mobile-menu-item-text">{t('header.freelances', 'Freelances')}</span>
+              <span className="mobile-menu-item-arrow">›</span>
+            </button>
+
             {user && (
               <>
                 <button className="mobile-menu-item" onClick={() => handleNavigate('/dashboard')}>

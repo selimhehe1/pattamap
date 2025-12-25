@@ -34,7 +34,8 @@ import {
   importMyOwnershipRequests, // 🆕 v10.2 - Ownership Requests preload
   importEmployeeDashboard, // 🆕 v10.2 - Employee Dashboard preload
   importMyAchievementsPage, // 🆕 v10.3 - Gamification preload
-  importVisitHistoryPage // 🆕 v10.3 - Visit History preload
+  importVisitHistoryPage, // 🆕 v10.3 - Visit History preload
+  importFreelancesPage // 🆕 Freelances page preload
 } from '../../routes/lazyComponents';
 import ThemeToggle from '../Common/ThemeToggle';
 import AnimatedButton from '../Common/AnimatedButton';
@@ -333,6 +334,19 @@ const Header: React.FC = () => {
                         </AnimatedButton>
 
                         <AnimatedButton
+                          ariaLabel="Browse freelances"
+                          tabIndex={0}
+                          enableHaptic
+                          hapticLevel="light"
+                          className="menu-item-modern"
+                          onMouseEnter={createPreloadHandler(importFreelancesPage, 'FreelancesPage')}
+                          onClick={() => handleNavigate('/freelances')}
+                        >
+                          <span className="menu-item-icon"><Users size={18} /></span>
+                          <span className="menu-item-text">{t('header.freelances', 'Freelances')}</span>
+                        </AnimatedButton>
+
+                        <AnimatedButton
                           ariaLabel="My favorites"
                           tabIndex={0}
                           enableHaptic
@@ -537,6 +551,22 @@ const Header: React.FC = () => {
                   >
                     <span className="menu-item-icon"><Search size={18} /></span>
                     <span className="menu-item-text">{t('header.search')}</span>
+                  </AnimatedButton>
+
+                  <AnimatedButton
+                    ariaLabel="Browse freelances"
+                    tabIndex={0}
+                    enableHaptic
+                    hapticLevel="light"
+                    className="menu-item-modern"
+                    onMouseEnter={createPreloadHandler(importFreelancesPage, 'FreelancesPage')}
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      navigate('/freelances');
+                    }}
+                  >
+                    <span className="menu-item-icon"><Users size={18} /></span>
+                    <span className="menu-item-text">{t('header.freelances', 'Freelances')}</span>
                   </AnimatedButton>
                 </div>
 

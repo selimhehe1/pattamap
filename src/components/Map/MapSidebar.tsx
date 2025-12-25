@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Map, Check, Search, RefreshCw, MapPin, Lightbulb } from 'lucide-react';
+import { Map, Check, Search, RefreshCw, MapPin, Lightbulb, AlertTriangle } from 'lucide-react';
 import { Zone } from './ZoneSelector';
 import '../../styles/components/map-sidebar.css';
 
@@ -30,6 +30,8 @@ interface MapSidebarProps {
   onSearchChange?: (search: string) => void;
   onClearFilters?: () => void;
   establishmentCount?: number;
+  isError?: boolean; // API error state
+  onRetry?: () => void; // Retry callback
   viewMode?: ViewMode;
   onViewModeToggle?: (mode: ViewMode) => void;
 }
@@ -48,6 +50,8 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   onSearchChange,
   onClearFilters,
   establishmentCount,
+  isError,
+  onRetry,
   viewMode: _viewMode = 'map',
   onViewModeToggle: _onViewModeToggle
 }) => {
@@ -193,7 +197,51 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
 
         {/* Footer Legend */}
         <div className="sidebar-footer-nightlife">
-          {establishmentCount !== undefined && (
+          {isError ? (
+            <div className="sidebar-error-nightlife" role="alert" aria-live="assertive" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(239, 68, 68, 0.3)'
+            }}>
+              <p style={{
+                color: '#EF4444',
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                margin: 0
+              }}>
+                <AlertTriangle size={16} /> {t('errors.failedToFetch', 'Failed to load data')}
+              </p>
+              {onRetry && (
+                <button
+                  onClick={onRetry}
+                  className="retry-btn-nightlife"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    background: 'var(--color-primary, #C19A6B)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  <RefreshCw size={14} /> {t('common.retry', 'Retry')}
+                </button>
+              )}
+            </div>
+          ) : establishmentCount !== undefined && (
             <p className="sidebar-count-nightlife" style={{
               color: '#FFD700',
               fontWeight: 'bold',
@@ -204,9 +252,11 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
               <MapPin size={14} /> {t('map.establishmentCount', { count: establishmentCount, zone: t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`) })}
             </p>
           )}
-          <p className="sidebar-legend-nightlife">
-            <Lightbulb size={14} /> {t('map.clickToView')}
-          </p>
+          {!isError && (
+            <p className="sidebar-legend-nightlife">
+              <Lightbulb size={14} /> {t('map.clickToView')}
+            </p>
+          )}
         </div>
 
       </div>

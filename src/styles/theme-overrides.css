@@ -53,27 +53,27 @@ body {
 /* --- HEADER LIGHT MODE - Force dark/visible text --- */
 /* Header subtitle "Navigate Pattaya Nightlife" */
 body[data-theme="light"] .header-subtitle {
-  color: #475569 !important; /* Slate-600 */
+  color: #475569; /* Slate-600 */
 }
 
 body[data-theme="light"] .header-subtitle-nightlife {
-  color: #475569 !important; /* Slate-600 */
+  color: #475569; /* Slate-600 */
 }
 
 /* XP/Level pill - make level visible */
 body[data-theme="light"] .header-xp-level {
-  color: #B45309 !important; /* Amber-700 - Gold adapté */
+  color: #B45309; /* Amber-700 - Gold adapté */
 }
 
 /* XP value - dark text */
 body[data-theme="light"] .header-xp-value {
-  color: #0F172A !important; /* Slate-900 */
+  color: #0F172A; /* Slate-900 */
 }
 
 /* XP pill container - ensure good contrast */
 body[data-theme="light"] .header-xp-pill {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(15, 23, 42, 0.1) !important; /* Slate border */
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.1); /* Slate border */
 }
 
 /* ============================================
@@ -326,28 +326,28 @@ body[data-theme="light"] .header-xp-pill {
    ============================================ */
 
 .zone-soi6 {
-  background: var(--zone-soi6) !important;
-  color: var(--text-inverse) !important;
+  background: var(--zone-soi6);
+  color: var(--text-inverse);
 }
 
 .zone-beachroad {
-  background: var(--zone-beachroad) !important;
-  color: var(--text-inverse) !important;
+  background: var(--zone-beachroad);
+  color: var(--text-inverse);
 }
 
 .zone-walkingstreet {
-  background: var(--zone-walkingstreet) !important;
-  color: var(--text-inverse) !important;
+  background: var(--zone-walkingstreet);
+  color: var(--text-inverse);
 }
 
 .zone-boyztown {
-  background: var(--zone-boyztown) !important;
-  color: var(--text-inverse) !important;
+  background: var(--zone-boyztown);
+  color: var(--text-inverse);
 }
 
 .zone-lkmetro {
-  background: var(--zone-lkmetro) !important;
-  color: var(--text-inverse) !important;
+  background: var(--zone-lkmetro);
+  color: var(--text-inverse);
 }
 
 /* ============================================
@@ -477,7 +477,7 @@ a:focus {
    ============================================ */
 
 .user-menu-dropdown-nightlife {
-  background: #000000 !important; /* Noir pur 100% opaque - override tout */
+  background: #000000; /* Noir pur 100% opaque */
   border: 2px solid var(--border-primary);
   box-shadow: var(--shadow-xl);
 }
@@ -596,59 +596,59 @@ body[data-theme="light"] .establishment-card-logo-placeholder-center {
 
 /* --- EMPLOYEE CARD (TINDER STYLE) --- */
 body[data-theme="light"] .employee-card-tinder {
-  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%) !important;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
-  border: 2px solid var(--border-color-strong) !important;
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 2px solid var(--border-color-strong);
 }
 
 body[data-theme="light"] .employee-card-tinder:hover {
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1) !important;
-  border-color: var(--color-primary) !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  border-color: var(--color-primary);
 }
 
 /* Employee card info box - lighter background - use high specificity */
 body[data-theme="light"] .employee-card-tinder .employee-card-overlay .employee-card-info,
 body[data-theme="light"] .employee-card-info {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  color: var(--text-primary) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: var(--text-primary);
 }
 
 /* Override the gradient overlay in light mode */
 body[data-theme="light"] .employee-card-tinder::before,
 body[data-theme="light"] .employee-card-tinder::after {
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent) !important;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
 }
 
 body[data-theme="light"] .employee-card-name {
-  color: var(--text-primary) !important;
-  text-shadow: none !important;
+  color: var(--text-primary);
+  text-shadow: none;
 }
 
 body[data-theme="light"] .employee-card-nickname {
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
 }
 
 body[data-theme="light"] .employee-card-detail {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 body[data-theme="light"] .employee-card-establishment {
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
 }
 
 body[data-theme="light"] .employee-card-type-freelance {
-  background: rgba(15, 23, 42, 0.06) !important;
-  border-color: rgba(15, 23, 42, 0.15) !important;
-  color: var(--color-primary-button) !important;
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--color-primary-button);
 }
 
 body[data-theme="light"] .employee-card-type-regular {
-  background: rgba(71, 85, 105, 0.08) !important;
-  border-color: rgba(71, 85, 105, 0.18) !important;
-  color: var(--color-secondary-button) !important;
+  background: rgba(71, 85, 105, 0.08);
+  border-color: rgba(71, 85, 105, 0.18);
+  color: var(--color-secondary-button);
 }
 
 /* Remove dark text shadows in light mode */
@@ -656,7 +656,7 @@ body[data-theme="light"] .employee-card-name,
 body[data-theme="light"] .employee-card-details,
 body[data-theme="light"] .employee-card-establishment,
 body[data-theme="light"] .employee-card-type {
-  text-shadow: none !important;
+  text-shadow: none;
 }
 
 /* --- EMPLOYEE CARD CONTENT SECTION (the bottom info box with gradient) --- */
@@ -668,7 +668,7 @@ body[data-theme="light"] .employee-card-bottom {
     rgba(255, 255, 255, 0.95) 40%,
     rgba(255, 255, 255, 0.7) 70%,
     transparent 100%
-  ) !important;
+  );
 }
 
 /* --- MAP CONTAINERS & ALL ZONE BACKGROUNDS --- */
@@ -710,12 +710,12 @@ body[data-theme="light"] [class*="map-bg-"] {
       #F8FAFC 30%,
       #F1F5F9 60%,
       #F8FAFC 100%
-    ) !important;
+    );
 }
 
 /* Force the map container itself to have light background */
 body[data-theme="light"] .map-container-nightlife {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%) !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%);
 }
 
 /* Light mode - Invert the road canvas for visibility */
@@ -739,35 +739,35 @@ body[data-theme="light"] .map-title-compact-nightlife {
 /* --- SIDEBAR CONTENT - Force dark text for readability --- */
 /* Main zone title (e.g., "Soi 6") */
 body[data-theme="light"] .sidebar-zone-name-nightlife {
-  color: #1F2937 !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: #1F2937 !important;
+  color: #1F2937;
+  text-shadow: none;
+  -webkit-text-fill-color: #1F2937;
 }
 
 /* Zone subtitle (e.g., "Select a zone to explore") */
 body[data-theme="light"] .sidebar-zone-subtitle-nightlife {
-  color: #4B5563 !important;
+  color: #4B5563;
 }
 
 body[data-theme="light"] .sidebar-zone-title,
 body[data-theme="light"] .sidebar-subtitle,
 body[data-theme="light"] .zone-select-subtitle {
-  color: #4B5563 !important;
+  color: #4B5563;
 }
 
 body[data-theme="light"] .sidebar-description,
 body[data-theme="light"] .zone-description {
-  color: #6B7280 !important;
+  color: #6B7280;
 }
 
 /* Sidebar legend text (e.g., "Click on establishments...") */
 body[data-theme="light"] .sidebar-legend-nightlife {
-  color: #4B5563 !important;
+  color: #4B5563;
 }
 
 /* Sidebar count text - keep gold/primary color but ensure visibility */
 body[data-theme="light"] .sidebar-count-nightlife {
-  color: #B45309 !important; /* Amber-700 */
+  color: #B45309; /* Amber-700 */
 }
 
 /* Sidebar zone buttons - dark text on light background */
@@ -775,27 +775,27 @@ body[data-theme="light"] .sidebar-main-nightlife button,
 body[data-theme="light"] .sidebar-main-nightlife a,
 body[data-theme="light"] .zone-list button,
 body[data-theme="light"] .zone-selector button {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 /* Zone list items - specific class for zone buttons */
 body[data-theme="light"] .zone-list-item-nightlife {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 body[data-theme="light"] .zone-list-item-nightlife:hover {
-  color: #B45309 !important; /* Amber-700 */
-  background: rgba(180, 83, 9, 0.08) !important;
+  color: #B45309; /* Amber-700 */
+  background: rgba(180, 83, 9, 0.08);
 }
 
 body[data-theme="light"] .zone-list-item-nightlife.active {
-  color: #92400E !important; /* Amber-800 */
-  background: rgba(180, 83, 9, 0.12) !important;
+  color: #92400E; /* Amber-800 */
+  background: rgba(180, 83, 9, 0.12);
 }
 
 body[data-theme="light"] .sidebar-main-nightlife button:hover,
 body[data-theme="light"] .zone-list button:hover {
-  color: #B45309 !important; /* Amber-700 */
+  color: #B45309; /* Amber-700 */
 }
 
 /* Section titles in sidebar */
@@ -804,14 +804,14 @@ body[data-theme="light"] h4,
 body[data-theme="light"] .sidebar-main-nightlife h3,
 body[data-theme="light"] .filter-section h3,
 body[data-theme="light"] .filter-section h4 {
-  color: #374151 !important;
+  color: #374151;
 }
 
 /* Filter labels */
 body[data-theme="light"] label,
 body[data-theme="light"] .filter-label,
 body[data-theme="light"] .checkbox-label {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 /* --- SEARCH INPUT - Visible placeholder and dark text --- */
@@ -820,16 +820,16 @@ body[data-theme="light"] .filter-search-input,
 body[data-theme="light"] input[type="text"],
 body[data-theme="light"] input[type="search"],
 body[data-theme="light"] input {
-  background: #FFFFFF !important;
-  border: 2px solid rgba(15, 23, 42, 0.15) !important;
-  color: #1F2937 !important;
+  background: #FFFFFF;
+  border: 2px solid rgba(15, 23, 42, 0.15);
+  color: #1F2937;
 }
 
 body[data-theme="light"] .search-input-nightlife::placeholder,
 body[data-theme="light"] .filter-search-input::placeholder,
 body[data-theme="light"] input::placeholder {
-  color: #9CA3AF !important;
-  opacity: 1 !important;
+  color: #9CA3AF;
+  opacity: 1;
 }
 
 /* --- ZONE BUTTONS --- */
@@ -928,21 +928,21 @@ body[data-theme="light"] .menu-item:hover {
 
 /* --- SIDEBAR - Solid background --- */
 body[data-theme="light"] .sidebar-main-nightlife {
-  background: #FFFFFF !important;
-  border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05) !important;
+  background: #FFFFFF;
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
 }
 
 /* --- MAP SIDEBAR - Solid background --- */
 body[data-theme="light"] .map-sidebar-nightlife {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- HEADER - Solid background --- */
 body[data-theme="light"] .header-main-nightlife {
-  background: #FFFFFF !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* --- DROPDOWNS & MENUS - Solid backgrounds --- */
@@ -950,114 +950,114 @@ body[data-theme="light"] .user-menu-dropdown-nightlife,
 body[data-theme="light"] .notification-dropdown,
 body[data-theme="light"] .dropdown-menu,
 body[data-theme="light"] [class*="dropdown"] {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* --- MODALS - Solid backgrounds --- */
 body[data-theme="light"] .modal-content,
 body[data-theme="light"] .dialog-content,
 body[data-theme="light"] [class*="modal-content"] {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 body[data-theme="light"] .modal-overlay,
 body[data-theme="light"] .dialog-overlay,
 body[data-theme="light"] [class*="modal-overlay"] {
-  background: rgba(0, 0, 0, 0.4) !important;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* --- CARDS - Solid backgrounds --- */
 body[data-theme="light"] .employee-card-info,
 body[data-theme="light"] .establishment-card-content {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 body[data-theme="light"] .employee-card-type-badge,
 body[data-theme="light"] .employee-card-type-freelance,
 body[data-theme="light"] .employee-card-type-regular {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 /* --- CATEGORY BADGES - Solid backgrounds --- */
 body[data-theme="light"] .establishment-card-category {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- LOGO CONTAINERS - Solid backgrounds --- */
 body[data-theme="light"] .establishment-card-logo-center,
 body[data-theme="light"] .establishment-card-logo-placeholder-center {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- BUTTONS - Clean solid look --- */
 body[data-theme="light"] .btn-nightlife-base,
 body[data-theme="light"] [class*="btn-"] {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 body[data-theme="light"] .btn-primary-nightlife {
-  background: #B45309 !important; /* Amber-700 */
-  color: #FFFFFF !important;
+  background: #B45309; /* Amber-700 */
+  color: #FFFFFF;
 }
 
 body[data-theme="light"] .btn-secondary-nightlife {
-  background: #475569 !important; /* Slate-600 */
-  color: #FFFFFF !important;
+  background: #475569; /* Slate-600 */
+  color: #FFFFFF;
 }
 
 /* --- LANGUAGE SELECTOR - Solid background --- */
 body[data-theme="light"] .language-selector-dropdown,
 body[data-theme="light"] .language-dropdown {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- SEARCH INPUT - Solid background --- */
 body[data-theme="light"] .search-input,
 body[data-theme="light"] input[type="text"],
 body[data-theme="light"] input[type="search"] {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.12);
 }
 
 /* --- AUTOCOMPLETE - Solid background --- */
 body[data-theme="light"] .autocomplete-dropdown,
 body[data-theme="light"] .autocomplete-suggestions {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- TOOLTIPS - Solid background --- */
 body[data-theme="light"] .tooltip,
 body[data-theme="light"] [class*="tooltip"] {
-  background: #1F2937 !important;
-  color: #FFFFFF !important;
+  background: #1F2937;
+  color: #FFFFFF;
 }
 
 /* --- ADMIN PANEL - Solid backgrounds --- */
 body[data-theme="light"] .admin-sidebar,
 body[data-theme="light"] .admin-content,
 body[data-theme="light"] .admin-card {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* --- STAT CARDS - Solid backgrounds --- */
 body[data-theme="light"] .stat-card,
 body[data-theme="light"] [class*="stat-card"] {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 /* --- FILTERS SECTION - Solid background --- */
 body[data-theme="light"] .filter-section,
 body[data-theme="light"] .filters-container {
-  background: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* --- XP PILL - Solid background --- */
 body[data-theme="light"] .header-xp-pill {
-  background: #FFFFFF !important;
+  background: #FFFFFF;
 }
 
 /* ============================================
@@ -1067,160 +1067,160 @@ body[data-theme="light"] .header-xp-pill {
 
 /* Category header container (🍺 Beers) - centered */
 body[data-theme="light"] .sidebar-category-header-nightlife {
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.06), rgba(71, 85, 105, 0.04)) !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  border-left: 3px solid #B45309 !important; /* Amber-700 */
-  color: #1F2937 !important;
-  justify-content: center !important;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.06), rgba(71, 85, 105, 0.04));
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-left: 3px solid #B45309; /* Amber-700 */
+  color: #1F2937;
+  justify-content: center;
 }
 
 /* Category icon (🍺, 🍸, etc.) - keep emoji visible */
 body[data-theme="light"] .sidebar-category-icon-nightlife {
-  color: inherit !important;
+  color: inherit;
 }
 
 /* Category name (Beers, Cocktails, etc.) */
 body[data-theme="light"] .sidebar-category-name-nightlife {
-  color: #92400E !important; /* Amber-800 for good contrast */
+  color: #92400E; /* Amber-800 for good contrast */
 }
 
 /* Category count ((2), (1), etc.) */
 body[data-theme="light"] .sidebar-category-count-nightlife {
-  color: #6B7280 !important; /* Gray for secondary info */
+  color: #6B7280; /* Gray for secondary info */
 }
 
 /* Category group container */
 body[data-theme="light"] .sidebar-category-group-nightlife {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 8px !important;
-  margin-bottom: 12px !important;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
 }
 
 /* Consumable item row */
 body[data-theme="light"] .sidebar-consumable-item-nightlife {
-  color: #374151 !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+  color: #374151;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 /* Consumable name */
 body[data-theme="light"] .sidebar-consumable-name-nightlife {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 /* Price chip for consumables - Must override -webkit-text-fill-color: transparent */
 body[data-theme="light"] .sidebar-price-chip-nightlife {
-  background: rgba(15, 23, 42, 0.06) !important;
-  color: #92400E !important;
-  -webkit-text-fill-color: #92400E !important;
-  text-shadow: none !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
+  background: rgba(15, 23, 42, 0.06);
+  color: #92400E;
+  -webkit-text-fill-color: #92400E;
+  text-shadow: none;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  -webkit-background-clip: unset;
+  background-clip: unset;
 }
 
 /* Small price chip variant for consumable items */
 body[data-theme="light"] .sidebar-price-chip-small-nightlife {
-  color: #92400E !important;
-  -webkit-text-fill-color: #92400E !important;
-  text-shadow: none !important;
+  color: #92400E;
+  -webkit-text-fill-color: #92400E;
+  text-shadow: none;
 }
 
 /* Pricing container */
 body[data-theme="light"] .sidebar-pricing-container-nightlife {
-  background: #FFFFFF !important;
-  border-radius: 12px !important;
+  background: #FFFFFF;
+  border-radius: 12px;
 }
 
 /* Price cards */
 body[data-theme="light"] .sidebar-price-card-nightlife {
-  background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 body[data-theme="light"] .sidebar-price-card-ladydrink-nightlife {
-  background: rgba(15, 23, 42, 0.04) !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.12);
 }
 
 body[data-theme="light"] .sidebar-price-card-barfine-nightlife {
-  background: rgba(236, 72, 153, 0.1) !important;
-  border: 1px solid rgba(236, 72, 153, 0.3) !important;
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
 body[data-theme="light"] .sidebar-price-card-rooms-nightlife {
-  background: rgba(168, 85, 247, 0.1) !important;
-  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 /* Price labels */
 body[data-theme="light"] .sidebar-price-label-nightlife {
-  color: #374151 !important;
+  color: #374151;
 }
 
 body[data-theme="light"] .sidebar-price-label-ladydrink-nightlife {
-  color: #B45309 !important;
+  color: #B45309;
 }
 
 body[data-theme="light"] .sidebar-price-label-barfine-nightlife {
-  color: #DB2777 !important;
+  color: #DB2777;
 }
 
 body[data-theme="light"] .sidebar-price-label-rooms-nightlife {
-  color: #9333EA !important;
+  color: #9333EA;
 }
 
 /* Price values */
 body[data-theme="light"] .sidebar-price-value-nightlife {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 /* Empty consumables message */
 body[data-theme="light"] .sidebar-empty-consumables-nightlife {
-  color: #6B7280 !important;
+  color: #6B7280;
 }
 
 /* Consumables header title (🍺 CONSUMABLES) */
 body[data-theme="light"] .sidebar-consumables-header-nightlife,
 body[data-theme="light"] .price-value-nightlife.sidebar-consumables-header-nightlife {
-  color: #92400E !important; /* Dark purple for visibility */
+  color: #92400E; /* Dark purple for visibility */
 }
 
 /* Sidebar section titles (💰 PRICING, 📍 CONTACT, etc.) */
 body[data-theme="light"] .sidebar-section-title-nightlife,
 body[data-theme="light"] [class*="sidebar"] h4,
 body[data-theme="light"] [class*="sidebar"] h5 {
-  color: #1F2937 !important;
+  color: #1F2937;
 }
 
 /* Currency symbol in consumables (฿) */
 body[data-theme="light"] .sidebar-currency-symbol-nightlife {
-  color: #92400E !important;
-  font-weight: bold !important;
-  font-size: 11px !important;
+  color: #92400E;
+  font-weight: bold;
+  font-size: 11px;
 }
 
 /* Empty consumables container */
 body[data-theme="light"] .sidebar-empty-consumables-nightlife {
-  text-align: center !important;
-  padding: 20px 12px !important;
-  color: #6B7280 !important;
-  font-size: 13px !important;
-  line-height: 1.6 !important;
+  text-align: center;
+  padding: 20px 12px;
+  color: #6B7280;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 /* Empty consumables title */
 body[data-theme="light"] .sidebar-empty-consumables-title-nightlife {
-  margin-bottom: 8px !important;
-  font-size: 14px !important;
-  color: #374151 !important;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #374151;
 }
 
 /* Empty consumables CTA */
 body[data-theme="light"] .sidebar-empty-consumables-cta-nightlife {
-  font-size: 11px !important;
-  color: #B45309 !important;
-  font-style: italic !important;
+  font-size: 11px;
+  color: #B45309;
+  font-style: italic;
 }
 
 /* ============================================

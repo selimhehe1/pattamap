@@ -36,34 +36,34 @@
   opacity: 1 !important;
 
   /* Size - Make it BIG */
-  min-width: 3.5rem !important; /* 56px */
-  min-height: 2.75rem !important; /* 44px WCAG AAA */
-  padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem) !important;
+  min-width: 3.5rem; /* 56px */
+  min-height: 2.75rem; /* 44px WCAG AAA */
+  padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem);
 
   /* Ultra contrast background */
   background: linear-gradient(
     135deg,
     rgba(193, 154, 107, 0.3),
     rgba(255, 215, 0, 0.2)
-  ) !important;
+  );
 
   /* Gold border - VERY visible */
-  border: 2px solid var(--color-gold, #C19A6B) !important;
-  border-radius: var(--border-radius-lg, 12px) !important;
+  border: 2px solid var(--color-gold, #C19A6B);
+  border-radius: var(--border-radius-lg, 12px);
 
   /* Shadow - depth */
   box-shadow:
     0 4px 12px rgba(193, 154, 107, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 
   /* Text */
-  color: var(--color-gold, #C19A6B) !important;
-  font-size: var(--font-base, 1rem) !important;
-  font-weight: var(--font-weight-semibold, 600) !important;
+  color: var(--color-gold, #C19A6B);
+  font-size: var(--font-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 
   /* Animation */
-  transition: all 0.3s ease !important;
+  transition: all 0.3s ease;
 
   /* Z-index */
   position: relative;
@@ -76,31 +76,31 @@
     135deg,
     rgba(193, 154, 107, 0.5),
     rgba(255, 215, 0, 0.3)
-  ) !important;
+  );
 
-  border-color: #D4A574 !important;
+  border-color: #D4A574;
 
   box-shadow:
     0 6px 16px rgba(193, 154, 107, 0.6),
-    0 0 0 2px rgba(255, 255, 255, 0.15) inset !important;
+    0 0 0 2px rgba(255, 255, 255, 0.15) inset;
 
-  transform: translateY(-2px) scale(1.05) !important;
+  transform: translateY(-2px) scale(1.05);
 }
 
 .btn-hamburger-nightlife:active {
-  transform: translateY(0) scale(0.98) !important;
+  transform: translateY(0) scale(0.98);
 }
 
 /* Icon inside hamburger button */
 .btn-hamburger-nightlife .btn-icon {
-  font-size: 1.25rem !important; /* 20px */
-  color: var(--color-gold, #C19A6B) !important;
+  font-size: 1.25rem; /* 20px */
+  color: var(--color-gold, #C19A6B);
 }
 
 /* Text inside hamburger button */
 .btn-hamburger-nightlife .btn-text {
-  font-size: var(--font-sm, 0.875rem) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: var(--font-sm, 0.875rem);
+  color: rgba(255, 255, 255, 0.9);
   margin-left: var(--spacing-2, 0.5rem);
 }
 
@@ -119,27 +119,27 @@
 
   /* Size */
   min-height: 2.75rem; /* 44px WCAG AAA */
-  padding: var(--spacing-2, 0.75rem) var(--spacing-3, 1rem) !important;
+  padding: var(--spacing-2, 0.75rem) var(--spacing-3, 1rem);
 
   /* Gold gradient background */
   background: linear-gradient(
     135deg,
     rgba(193, 154, 107, 0.25),
     rgba(255, 215, 0, 0.15)
-  ) !important;
+  );
 
   /* Gold border */
-  border: 2px solid rgba(193, 154, 107, 0.5) !important;
-  border-radius: var(--border-radius-md, 8px) !important;
+  border: 2px solid rgba(193, 154, 107, 0.5);
+  border-radius: var(--border-radius-md, 8px);
 
   /* Shadow */
-  box-shadow: 0 4px 12px rgba(193, 154, 107, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(193, 154, 107, 0.3);
 
   /* Cursor */
-  cursor: pointer !important;
+  cursor: pointer;
 
   /* Animation */
-  transition: all 0.3s ease !important;
+  transition: all 0.3s ease;
 }
 
 .header-xp-indicator:hover {
@@ -147,32 +147,32 @@
     135deg,
     rgba(193, 154, 107, 0.35),
     rgba(255, 215, 0, 0.25)
-  ) !important;
+  );
 
-  border-color: var(--color-gold, #C19A6B) !important;
+  border-color: var(--color-gold, #C19A6B);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(193, 154, 107, 0.5) !important;
+  box-shadow: 0 6px 16px rgba(193, 154, 107, 0.5);
 }
 
 /* XP text - HIGH CONTRAST */
 .header-xp-indicator .user-xp-level,
 .header-xp-indicator .user-xp-value {
-  color: rgba(255, 255, 255, 0.95) !important;
-  font-weight: var(--font-weight-bold, 700) !important;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: var(--font-weight-bold, 700);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 /* XP progress bar - GOLD */
 .header-xp-indicator .user-xp-bar-mini {
-  background: rgba(0, 0, 0, 0.3) !important;
-  height: 4px !important;
+  background: rgba(0, 0, 0, 0.3);
+  height: 4px;
   border-radius: 2px;
   overflow: hidden;
 }
 
 .header-xp-indicator .user-xp-bar-fill-mini {
-  background: linear-gradient(90deg, var(--color-gold, #C19A6B), #D4A574) !important;
-  height: 100% !important;
+  background: linear-gradient(90deg, var(--color-gold, #C19A6B), #D4A574);
+  height: 100%;
   box-shadow: 0 0 8px rgba(193, 154, 107, 0.8);
 }
 
@@ -180,8 +180,8 @@
 @media (max-width: 320px) {
   .header-xp-indicator {
     display: flex !important; /* Override header.css line 137 */
-    font-size: var(--font-xs, 0.75rem) !important;
-    padding: var(--spacing-1, 0.25rem) var(--spacing-2, 0.5rem) !important;
+    font-size: var(--font-xs, 0.75rem);
+    padding: var(--spacing-1, 0.25rem) var(--spacing-2, 0.5rem);
   }
 }
 
@@ -209,9 +209,9 @@
  */
 .user-menu-dropdown-nightlife {
   /* Position */
-  position: absolute !important;
-  top: calc(100% + 0.5rem) !important; /* 8px gap below button */
-  right: 0 !important;
+  position: absolute;
+  top: calc(100% + 0.5rem); /* 8px gap below button */
+  right: 0;
 
   /* Size */
   min-width: 18rem; /* 288px */
@@ -224,22 +224,22 @@
     135deg,
     rgba(0, 0, 0, 0.98),
     rgba(20, 20, 40, 0.98)
-  ) !important;
+  );
 
   /* Gold border */
-  border: 2px solid var(--color-gold, #C19A6B) !important;
-  border-radius: var(--border-radius-lg, 12px) !important;
+  border: 2px solid var(--color-gold, #C19A6B);
+  border-radius: var(--border-radius-lg, 12px);
 
   /* Shadow - VERY pronounced */
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(193, 154, 107, 0.3) inset !important;
+    0 0 0 1px rgba(193, 154, 107, 0.3) inset;
 
   /* Backdrop blur */
-  backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(20px);
 
   /* Z-index - ABOVE EVERYTHING */
-  z-index: var(--z-modal, 1000) !important;
+  z-index: var(--z-modal, 1000);
 
   /* Animation */
   animation: dropdownSlideIn 0.3s ease-out;
@@ -273,27 +273,27 @@
 
   /* Size - WCAG AAA */
   min-height: 2.75rem; /* 44px */
-  padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem) !important;
+  padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem);
 
   /* Text */
-  font-size: var(--font-base, 1rem) !important;
-  font-weight: var(--font-weight-medium, 500) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: var(--font-base, 1rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: rgba(255, 255, 255, 0.9);
   text-align: left;
 
   /* Background */
-  background: transparent !important;
-  border: 1px solid rgba(193, 154, 107, 0.2) !important;
-  border-radius: var(--border-radius-md, 8px) !important;
+  background: transparent;
+  border: 1px solid rgba(193, 154, 107, 0.2);
+  border-radius: var(--border-radius-md, 8px);
 
   /* Transition */
-  transition: all 0.3s ease !important;
+  transition: all 0.3s ease;
 }
 
 .btn-admin-menu-nightlife:hover {
-  background: rgba(193, 154, 107, 0.15) !important;
-  border-color: rgba(193, 154, 107, 0.4) !important;
-  color: white !important;
+  background: rgba(193, 154, 107, 0.15);
+  border-color: rgba(193, 154, 107, 0.4);
+  color: white;
   transform: translateX(4px);
 }
 
@@ -308,9 +308,9 @@
     135deg,
     rgba(193, 154, 107, 0.2),
     rgba(255, 215, 0, 0.1)
-  ) !important;
-  border: 2px solid rgba(193, 154, 107, 0.4) !important;
-  font-weight: var(--font-weight-semibold, 600) !important;
+  );
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  font-weight: var(--font-weight-semibold, 600);
 }
 
 .btn-admin-menu-nightlife:first-of-type:hover {
@@ -318,8 +318,8 @@
     135deg,
     rgba(193, 154, 107, 0.3),
     rgba(255, 215, 0, 0.2)
-  ) !important;
-  border-color: var(--color-gold, #C19A6B) !important;
+  );
+  border-color: var(--color-gold, #C19A6B);
 }
 
 /* ============================================
@@ -336,7 +336,7 @@
   opacity: 1 !important;
 
   align-items: center;
-  gap: var(--spacing-3, 1rem) !important;
+  gap: var(--spacing-3, 1rem);
 }
 
 /* ============================================
@@ -347,14 +347,14 @@
 @media (max-width: 48rem) {
   .btn-hamburger-nightlife {
     /* Slightly smaller on mobile but STILL VISIBLE */
-    min-width: 3rem !important; /* 48px */
-    padding: var(--spacing-2, 0.75rem) var(--spacing-3, 1rem) !important;
+    min-width: 3rem; /* 48px */
+    padding: var(--spacing-2, 0.75rem) var(--spacing-3, 1rem);
   }
 
   .header-xp-indicator {
     /* Compact on mobile */
-    padding: var(--spacing-1-5, 0.375rem) var(--spacing-2, 0.5rem) !important;
-    font-size: var(--font-xs, 0.75rem) !important;
+    padding: var(--spacing-1-5, 0.375rem) var(--spacing-2, 0.5rem);
+    font-size: var(--font-xs, 0.75rem);
   }
 
   .user-menu-dropdown-nightlife {
@@ -367,13 +367,13 @@
 /* Landscape mobile (max-height: 480px) */
 @media (max-height: 30rem) and (orientation: landscape) {
   .btn-hamburger-nightlife {
-    min-height: 2.5rem !important; /* 40px - slightly smaller for landscape */
-    font-size: var(--font-sm, 0.875rem) !important;
+    min-height: 2.5rem; /* 40px - slightly smaller for landscape */
+    font-size: var(--font-sm, 0.875rem);
   }
 
   .header-xp-indicator {
-    min-height: 2.5rem !important;
-    font-size: var(--font-xs, 0.75rem) !important;
+    min-height: 2.5rem;
+    font-size: var(--font-xs, 0.75rem);
   }
 }
 
@@ -385,14 +385,14 @@
 @media (prefers-contrast: high) {
   .btn-hamburger-nightlife,
   .header-xp-indicator {
-    border-width: 3px !important;
-    border-color: var(--color-gold, #C19A6B) !important;
-    background: rgba(0, 0, 0, 0.9) !important;
+    border-width: 3px;
+    border-color: var(--color-gold, #C19A6B);
+    background: rgba(0, 0, 0, 0.9);
   }
 
   .user-menu-dropdown-nightlife {
-    border-width: 3px !important;
-    background: black !important;
+    border-width: 3px;
+    background: black;
   }
 }
 

@@ -45,7 +45,7 @@ import './styles/components/auth.css';
 import './styles/components/EmptyState.css';
 import './styles/components/mobile-menu.css'; // Phase 3 - Mobile hamburger menu
 import './App.css';
-import './styles/nightlife-theme.css';
+// REMOVED: import './styles/nightlife-theme.css'; - Legacy 9,145 line file deprecated
 import './styles/responsive/large-desktop.css';
 import './styles/responsive/landscape.css';
 import './styles/theme-overrides.css';
@@ -80,7 +80,7 @@ const HomePage: React.FC = () => {
   const { sidebarOpen, toggleSidebar } = useSidebar();
 
   // React Query hooks
-  const { data: establishments = [], isLoading: establishmentsLoading, refetch: refetchEstablishments } = useEstablishments();
+  const { data: establishments = [], isLoading: establishmentsLoading, isError: establishmentsError, refetch: refetchEstablishments } = useEstablishments();
   const { data: freelances = [], isLoading: freelancesLoading } = useFreelances();
 
   // Local states for filtering and selection
@@ -152,6 +152,8 @@ const HomePage: React.FC = () => {
           selectedEstablishment={selectedEstablishment || undefined}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={toggleSidebar}
+          isError={establishmentsError}
+          onRetry={() => refetchEstablishments()}
           onEstablishmentUpdate={async () => {
             logger.debug('✅ Establishment updated - refetching data');
             await refetchEstablishments();
