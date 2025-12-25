@@ -100,7 +100,7 @@
 
 .header-title {
   font-size: 1.25rem; /* 20px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
   margin: 0;
   display: flex;
@@ -120,7 +120,7 @@
   align-items: center;
   padding: 0.125rem 0.5rem;
   font-size: 0.625rem; /* 10px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.05em;
 
   /* Fuchsia accent - 2025 style */
@@ -142,7 +142,7 @@
 
 .header-subtitle {
   font-size: 0.75rem; /* 12px */
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: rgba(226, 232, 240, 0.8); /* Slate-200 - visible on dark */
   letter-spacing: 0.05em;
   margin: 0;
@@ -249,7 +249,7 @@
 
 .header-xp-badge .header-xp-level {
   color: rgba(255, 215, 0, 0.95);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: 0.8125rem;
   line-height: 1;
 }
@@ -456,7 +456,7 @@
 
 .user-menu-name {
   font-size: 1rem; /* 16px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: white;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -474,7 +474,7 @@
   border-radius: 12px;
   color: rgba(255, 215, 0, 0.95);
   font-size: 0.625rem; /* 10px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.05em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: badgeGlow 3s ease-in-out infinite;
@@ -510,7 +510,7 @@
 
 .menu-section-label {
   font-size: 0.625rem; /* 10px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: rgba(193, 154, 107, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -532,7 +532,7 @@
 
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.9375rem; /* 15px */
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   text-align: left;
 
   cursor: pointer;

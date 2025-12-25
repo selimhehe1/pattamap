@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Star } from 'lucide-react';
 
 interface StarRatingProps {
   rating?: number;
@@ -127,7 +128,11 @@ const StarRating: React.FC<StarRatingProps> = ({
             }
           }}
         >
-          ⭐
+          <Star
+            size={parseInt(sizeConfig.fontSize)}
+            fill={starValue <= (hoverRating || currentRating) ? '#FFD700' : 'transparent'}
+            stroke={starValue <= (hoverRating || currentRating) ? '#FFD700' : '#555555'}
+          />
         </span>
       ))}
       

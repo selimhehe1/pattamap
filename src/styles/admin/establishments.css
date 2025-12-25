@@ -88,14 +88,14 @@
 
 .admin-establishments-title-nightlife {
   font-size: 2rem;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
   margin: 0 0 var(--spacing-3) 0;
   background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 0 0 20px rgba(193, 154, 107, 0.5);
-  font-family: "Orbitron", monospace;
+  font-family: var(--font-family-display);
 }
 
 .admin-establishments-subtitle-nightlife {
@@ -458,7 +458,7 @@
 
 .admin-establishment-logo-placeholder-nightlife {
   font-size: 3.5rem;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
   color: var(--color-text-primary);
   text-shadow: 0 0 20px rgba(193, 154, 107, 0.7);
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));

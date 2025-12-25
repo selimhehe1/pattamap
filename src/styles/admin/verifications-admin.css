@@ -63,13 +63,13 @@
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .verifications-stats .stat-value {
   margin: 0;
   font-size: var(--font-3xl); /* 30px - closest to 32px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -99,7 +99,7 @@
 .empty-state h3 {
   margin: 0 0 12px 0;
   font-size: var(--font-2xl);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #fff;
 }
 
@@ -129,7 +129,7 @@
 .verifications-list h2 {
   margin: 0 0 20px 0;
   font-size: var(--font-lg);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #fff;
 }
 
@@ -176,7 +176,7 @@
 .verification-item-info h3 {
   margin: 0 0 4px 0;
   font-size: var(--font-base);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #fff;
 }
 
@@ -188,7 +188,7 @@
 
 .verification-match-score strong {
   color: #00d4ff;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .verification-submitted {
@@ -203,7 +203,7 @@
   padding: 4px 12px;
   border-radius: 6px;
   font-size: var(--font-xs);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -251,7 +251,7 @@
 .verification-details h2 {
   margin: 0 0 24px 0;
   font-size: var(--font-xl); /* 20px - closest to 22px */
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #fff;
 }
 
@@ -262,7 +262,7 @@
 .verification-detail-section h3 {
   margin: 0 0 16px 0;
   font-size: var(--font-base);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #ff6b9d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -295,7 +295,7 @@
   margin: 0;
   font-size: var(--font-base);
   color: #fff;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .match-score-large {
@@ -331,7 +331,7 @@
   font-size: var(--font-xs); /* 12px - closest to 13px */
   color: rgba(255, 255, 255, 0.7);
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .comparison-photo {
@@ -379,7 +379,7 @@
   padding: 16px;
   border: none;
   border-radius: 8px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: var(--font-base);
   cursor: pointer;
   transition: all 0.3s ease;

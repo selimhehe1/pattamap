@@ -159,54 +159,54 @@
 .notification-bell-badge,
 .notification-count {
   font-size: var(--font-xs);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 /* Employee Card Labels */
 .employee-card-type,
 .employee-card-type-label {
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 .employee-card-type-icon {
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 .employee-card-establishment {
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 /* Map Labels */
 .map-marker-label,
 .map-zone-label,
 .map-establishment-label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Notification Timestamp */
 .notification-timestamp,
 .notification-time {
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 /* Verified Badge */
 .verified-badge,
 .verified-badge-text {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Header Small Text */
 .header-xp-amount,
 .header-level-badge {
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 /* Establishment List Meta */
 .establishment-meta-text,
 .establishment-category-badge {
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 /* Line-height WCAG: 1.5 minimum for paragraphs */
@@ -536,7 +536,7 @@ input:disabled {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   margin: 0;
   font-size: 1.75rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
 
@@ -789,13 +789,13 @@ input:disabled {
   font-size: var(--font-sm);
   color: var(--text-primary);
   line-height: 1.5;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .sidebar-section-title-nightlife {
   font-size: var(--font-sm);
   color: var(--text-primary);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1.5;
   letter-spacing: 0.05em;
 }
@@ -803,7 +803,7 @@ input:disabled {
 .sidebar-subsection-title-nightlife {
   font-size: var(--font-sm);
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Sidebar Buttons */
@@ -904,12 +904,12 @@ input:disabled {
 /* Nickname */
 .employee-card-nickname {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 /* Detail Text */
 .employee-card-detail {
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 /* Establishment Name */
@@ -939,7 +939,7 @@ input:disabled {
 /* XP Toast Icons */
 .xp-toast-levelup-icon,
 .level-icon {
-  font-size: 24px;
+  font-size: var(--font-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -948,18 +948,18 @@ input:disabled {
 /* Profile Stats Icons */
 .profile-stat-icon,
 .profile-level-icon {
-  font-size: 20px;
+  font-size: var(--font-xl);
   min-width: 32px;
 }
 
 /* Achievement Stats */
 .stat-icon {
-  font-size: 24px;
+  font-size: var(--font-2xl);
 }
 
 /* VIP Status Icon */
 .vip-status-icon {
-  font-size: 20px;
+  font-size: var(--font-xl);
   display: inline-flex;
   align-items: center;
   margin-right: 4px;
@@ -968,24 +968,24 @@ input:disabled {
 /* Leaderboard Empty Icon */
 .leaderboard .empty-icon,
 .badge-showcase .empty-icon {
-  font-size: 48px;
+  font-size: var(--font-5xl);
   opacity: 0.6;
 }
 
 /* Badge More Icon */
 .badge-more-icon {
-  font-size: 14px;
+  font-size: var(--font-sm);
   color: rgba(255, 255, 255, 0.7);
 }
 
 /* Follow Button Icons */
 .follow-icon {
-  font-size: 14px;
+  font-size: var(--font-sm);
   font-weight: bold;
 }
 
 .follow-error-icon {
-  font-size: 16px;
+  font-size: var(--font-base);
   margin-right: 4px;
 }
 
@@ -1013,7 +1013,7 @@ input[type="checkbox"] {
 .field-icon-validating,
 .field-icon-valid,
 .field-icon-invalid {
-  font-size: 16px;
+  font-size: var(--font-base);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1062,7 +1062,7 @@ input[type="checkbox"] {
 .checkin-error-icon,
 .pdf-icon,
 .info-icon {
-  font-size: 16px;
+  font-size: var(--font-base);
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -1071,32 +1071,32 @@ input[type="checkbox"] {
 
 /* Vote Icon */
 .vote-icon {
-  font-size: 14px;
+  font-size: var(--font-sm);
   display: inline-flex;
   align-items: center;
 }
 
 /* Verified Icon */
 .verified-icon {
-  font-size: 14px;
+  font-size: var(--font-sm);
   font-weight: bold;
 }
 
 /* Notification Bell Icon */
 .notification-bell-icon {
-  font-size: 20px;
+  font-size: var(--font-xl);
   line-height: 1;
 }
 
 /* Empty Notification */
 .notification-empty-icon {
-  font-size: 32px;
+  font-size: var(--font-4xl);
   opacity: 0.7;
 }
 
 /* Result Icons in Modals */
 .result-icon {
-  font-size: 32px;
+  font-size: var(--font-4xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1111,13 +1111,13 @@ input[type="checkbox"] {
 /* Error/Success Icons */
 .error-icon,
 .success-icon {
-  font-size: 48px;
+  font-size: var(--font-5xl);
   line-height: 1;
 }
 
 /* Payment Icons */
 .payment-icon {
-  font-size: 24px;
+  font-size: var(--font-2xl);
   display: inline-flex;
   align-items: center;
 }
@@ -1131,7 +1131,7 @@ input[type="checkbox"] {
 
 /* Dialog Icons */
 .dialog-icon {
-  font-size: 48px;
+  font-size: var(--font-5xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1140,7 +1140,7 @@ input[type="checkbox"] {
 
 /* Breadcrumb Icon */
 .admin-breadcrumb-icon-nightlife {
-  font-size: 16px;
+  font-size: var(--font-base);
   display: inline-flex;
   align-items: center;
   margin-right: 4px;
@@ -1148,13 +1148,13 @@ input[type="checkbox"] {
 
 /* Upload Icon */
 .upload-icon {
-  font-size: 32px;
+  font-size: var(--font-4xl);
   color: rgba(255, 255, 255, 0.6);
 }
 
 /* User Info Stat Icons */
 .user-info-stat-icon {
-  font-size: 20px;
+  font-size: var(--font-xl);
   min-width: 28px;
 }
 
@@ -1166,7 +1166,7 @@ input[type="checkbox"] {
 
 /* Profile Error Icon */
 .profile-error-icon {
-  font-size: 32px;
+  font-size: var(--font-4xl);
   margin-right: 8px;
 }
 
@@ -1346,12 +1346,12 @@ input[class*="nightlife"]:focus-visible,
   .employee-card-type-label,
   .employee-card-detail,
   .employee-card-establishment {
-    font-size: 11px;
+    font-size: var(--font-xs);
   }
 
   .employee-card-icon,
   .employee-card-type-icon {
-    font-size: 12px;
+    font-size: var(--font-xs);
   }
 
   .employee-card-vote-badge,
@@ -1375,7 +1375,7 @@ input[class*="nightlife"]:focus-visible,
 /* Tablet */
 @media (min-width: 481px) and (max-width: 768px) {
   .employee-card-type-label {
-    font-size: 11px;
+    font-size: var(--font-xs);
   }
 }
 

@@ -258,7 +258,7 @@
 .auth-message-title {
   color: var(--color-primary);
   font-size: 24px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   margin: 0 0 15px 0;
   text-shadow: 0 0 10px rgba(193, 154, 107, 0.5);
 }
@@ -272,7 +272,7 @@
 /* Page Title & Subtitle */
 .page-title-gradient {
   font-size: 42px;
-  font-weight: 900;
+  font-weight: var(--font-weight-black);
   background: linear-gradient(45deg, var(--color-primary), var(--color-gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -322,7 +322,7 @@
 
 .stat-value {
   font-size: 28px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   font-family: "Orbitron", monospace;
 }
 
@@ -376,7 +376,7 @@
 
 .empty-state-title {
   font-size: 22px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   margin-bottom: 10px;
 }
@@ -415,7 +415,7 @@
   padding: 6px 12px;
   border-radius: 12px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 15px rgba(255, 165, 0, 0.4);
   display: flex;
@@ -431,7 +431,7 @@
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -456,7 +456,7 @@
 
 .establishment-name {
   font-size: 20px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin-bottom: 8px;
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
@@ -492,7 +492,7 @@
   font-size: 11px;
   color: rgba(255, 255, 255, 0.5);
   margin-bottom: 8px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -531,7 +531,7 @@
   border-radius: 12px;
   color: var(--bg-primary);
   font-size: 14px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(193, 154, 107, 0.4);
@@ -551,7 +551,7 @@
   border-radius: 12px;
   color: var(--text-primary);
   font-size: 14px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
@@ -574,7 +574,7 @@
   border-radius: 12px;
   color: var(--bg-primary);
   font-size: 14px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);

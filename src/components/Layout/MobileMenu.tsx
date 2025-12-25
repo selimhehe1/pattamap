@@ -17,7 +17,10 @@ import {
   ClipboardList,
   Building,
   MapPin,
-  X
+  X,
+  List,
+  Map,
+  Users
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
@@ -216,7 +219,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                   onClick={() => handleViewModeChange('list')}
                   aria-pressed={viewMode === 'list'}
                 >
-                  <span className="mobile-menu-view-icon">📋</span>
+                  <span className="mobile-menu-view-icon"><List size={20} /></span>
                   <span className="mobile-menu-view-text">{t('map.viewList', 'List')}</span>
                 </button>
                 <button
@@ -224,7 +227,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                   onClick={() => handleViewModeChange('map')}
                   aria-pressed={viewMode === 'map'}
                 >
-                  <span className="mobile-menu-view-icon">🗺️</span>
+                  <span className="mobile-menu-view-icon"><Map size={20} /></span>
                   <span className="mobile-menu-view-text">{t('map.viewMap', 'Map')}</span>
                 </button>
                 <button
@@ -232,7 +235,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                   onClick={() => handleViewModeChange('employees')}
                   aria-pressed={viewMode === 'employees'}
                 >
-                  <span className="mobile-menu-view-icon">👥</span>
+                  <span className="mobile-menu-view-icon"><Users size={20} /></span>
                   <span className="mobile-menu-view-text">{t('map.lineup', 'Lineup')}</span>
                 </button>
               </div>

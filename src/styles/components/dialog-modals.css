@@ -416,7 +416,7 @@
   flex: 1;
   margin: 0;
   font-size: var(--font-xl);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   /* Override modals.css gradient text */
   background: none;

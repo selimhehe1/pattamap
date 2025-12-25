@@ -101,12 +101,12 @@ html body.modal-open {
  *
  * Ratio de contraste: 7:1+ sur fond sombre (Level AAA)
  */
-.btn-nightlife-base:focus-visible,
+.btn:focus-visible,
 .input-nightlife:focus-visible,
 .select-nightlife:focus-visible,
 .textarea-nightlife:focus-visible,
 .admin-tab-button:focus-visible {
-  outline: 2px solid var(--nightlife-secondary, #00D9FF);
+  outline: 2px solid var(--border-focus, #00D9FF);
   outline-offset: 2px;
   transition: outline-offset 0.2s ease;
 }
@@ -120,7 +120,7 @@ html body.modal-open {
  * WCAG 2.1 Success Criterion 2.3.3 (Level AAA): Animation from Interactions
  */
 @media (prefers-reduced-motion: reduce) {
-  .btn-nightlife-base:focus-visible,
+  .btn:focus-visible,
   .input-nightlife:focus-visible,
   .select-nightlife:focus-visible,
   .textarea-nightlife:focus-visible,
@@ -143,7 +143,7 @@ html body.modal-open {
  * Améliore la visibilité pour utilisateurs avec vision réduite
  */
 @media (prefers-contrast: high) {
-  .btn-nightlife-base:focus-visible,
+  .btn:focus-visible,
   .input-nightlife:focus-visible,
   .select-nightlife:focus-visible,
   .textarea-nightlife:focus-visible,
@@ -227,7 +227,7 @@ html body.modal-open {
  * <div className="modal-overlay-base" onClick={handleClose}>
  *   <div className="modal-content" onClick={(e) => e.stopPropagation()}>
  *     <h2>Modal Title</h2>
- *     <button className="btn-nightlife-base">Action</button>
+ *     <button className="btn btn--primary">Action</button>
  *   </div>
  * </div>
  *
@@ -235,7 +235,7 @@ html body.modal-open {
  * <div className="modal-form-container">
  *   <form className="form-layout">
  *     <input className="input-nightlife" />
- *     <button className="btn-nightlife-base">Submit</button>
+ *     <button className="btn btn--primary">Submit</button>
  *   </form>
  * </div>
  *

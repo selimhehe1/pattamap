@@ -3,6 +3,7 @@
  * Main content area with mobile tabs vs desktop layout
  */
 import React from 'react';
+import { Check } from 'lucide-react';
 import { Employee, Establishment } from '../../../types';
 import GirlsGallery from '../GirlsGallery';
 import BarInfoSidebar from '../BarInfoSidebar';
@@ -64,8 +65,8 @@ export const BarDetailContent: React.FC<BarDetailContentProps> = ({
     <>
       {/* Success message */}
       {showSuccessMessage && (
-        <div className="btn-secondary-nightlife establishment-success-message-nightlife">
-          ✅ Success!
+        <div className="establishment-success-message-nightlife">
+          <Check size={16} className="text-success" /> Success!
         </div>
       )}
 

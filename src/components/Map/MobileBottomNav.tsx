@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { List, Map, Users } from 'lucide-react';
 import './mobile-bottom-nav.css';
 
 type ViewMode = 'map' | 'list' | 'employees';
@@ -42,8 +43,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         title={t('map.viewList')}
         aria-current={viewMode === 'list' ? 'page' : undefined}
       >
-        <span className="mobile-bottom-nav__icon" role="img" aria-hidden="true">
-          📋
+        <span className="mobile-bottom-nav__icon" aria-hidden="true">
+          <List size={24} />
         </span>
         <span className="mobile-bottom-nav__label">
           {t('map.viewList')}
@@ -58,8 +59,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         title={t('map.viewMap')}
         aria-current={viewMode === 'map' ? 'page' : undefined}
       >
-        <span className="mobile-bottom-nav__icon mobile-bottom-nav__icon--large" role="img" aria-hidden="true">
-          🗺️
+        <span className="mobile-bottom-nav__icon mobile-bottom-nav__icon--large" aria-hidden="true">
+          <Map size={28} />
         </span>
         <span className="mobile-bottom-nav__label">
           {t('map.viewMap')}
@@ -74,8 +75,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         title={t('map.lineup')}
         aria-current={viewMode === 'employees' ? 'page' : undefined}
       >
-        <span className="mobile-bottom-nav__icon" role="img" aria-hidden="true">
-          👥
+        <span className="mobile-bottom-nav__icon" aria-hidden="true">
+          <Users size={24} />
         </span>
         <span className="mobile-bottom-nav__label">
           {t('map.lineup')}

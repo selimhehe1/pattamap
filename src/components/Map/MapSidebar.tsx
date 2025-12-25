@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Map, Check, Search, RefreshCw, MapPin, Lightbulb } from 'lucide-react';
 import { Zone } from './ZoneSelector';
 import '../../styles/components/map-sidebar.css';
 
@@ -110,7 +111,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
 
         {/* Zone Selector List */}
         <div className="sidebar-section-nightlife">
-          <h3 className="sidebar-section-title-nightlife">🗺️ {t('map.zones').toUpperCase()}</h3>
+          <h3 className="sidebar-section-title-nightlife"><Map size={16} /> {t('map.zones').toUpperCase()}</h3>
           <div className="zone-list-nightlife">
             {zones.map((zone) => (
               <button
@@ -124,7 +125,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
                 <span className="zone-item-icon-nightlife">{zone.icon}</span>
                 <span className="zone-item-name-nightlife">{t(`map.zoneNames.${getZoneTranslationKey(zone.id)}`)}</span>
                 {currentZone.id === zone.id && (
-                  <span className="zone-item-badge-nightlife">✓</span>
+                  <span className="zone-item-badge-nightlife"><Check size={14} /></span>
                 )}
               </button>
             ))}
@@ -137,13 +138,13 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
             <div className="sidebar-divider-nightlife"></div>
             <div className="sidebar-section-nightlife">
               <div className="filters-header-nightlife">
-                <h3 className="sidebar-section-title-nightlife">🔍 {t('search.filters').toUpperCase()}</h3>
+                <h3 className="sidebar-section-title-nightlife"><Search size={16} /> {t('search.filters').toUpperCase()}</h3>
                 <button
                   onClick={onClearFilters}
                   className="clear-filters-btn-nightlife"
                   title={t('search.clearFilters')}
                 >
-                  🔄 {t('search.clearFilters')}
+                  <RefreshCw size={14} /> {t('search.clearFilters')}
                 </button>
               </div>
 
@@ -200,11 +201,11 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
               marginBottom: '0.5rem',
               textAlign: 'center'
             }}>
-              📍 {t('map.establishmentCount', { count: establishmentCount, zone: t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`) })}
+              <MapPin size={14} /> {t('map.establishmentCount', { count: establishmentCount, zone: t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`) })}
             </p>
           )}
           <p className="sidebar-legend-nightlife">
-            💡 {t('map.clickToView')}
+            <Lightbulb size={14} /> {t('map.clickToView')}
           </p>
         </div>
 

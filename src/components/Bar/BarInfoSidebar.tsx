@@ -2,6 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaInstagram, FaTiktok } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import {
+  Coins,
+  Beer,
+  Music,
+  Sparkles,
+  Wine,
+  GlassWater,
+  Martini,
+  Ticket,
+  Home,
+  MapPin,
+  Phone,
+  Map,
+  Trophy,
+  Check,
+  Star,
+  ThumbsUp,
+  AlertTriangle,
+  Info
+} from 'lucide-react';
 import { Establishment, ConsumableTemplate, Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
@@ -210,13 +230,13 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
       {/* Section pricing - Header supprimé, commence directement ici */}
       <div className="sidebar-pricing-container-nightlife">
         <h4 className="establishment-section-title-nightlife">
-          💰 {t('barInfoSidebar.sections.pricing')}
+          <Coins size={20} className="text-gold" /> {t('barInfoSidebar.sections.pricing')}
         </h4>
 
         {/* Consommations dynamiques - toujours visible */}
         <div className="sidebar-consumables-container-nightlife">
             <h5 className="price-value-nightlife sidebar-consumables-header-nightlife">
-              <span>🍺 {t('barInfoSidebar.sections.consumables')}</span>
+              <span><Beer size={16} /> {t('barInfoSidebar.sections.consumables')}</span>
               {isEditMode && (
                 <div className="sidebar-consumables-controls-nightlife">
                   {templatesError ? (
@@ -295,16 +315,17 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                 }, {} as Record<string, typeof itemsWithTemplates>);
 
                 // Fonction pour obtenir le nom et l'icône de la catégorie
-                const getCategoryInfo = (category: string) => {
+                const getCategoryInfo = (category: string): { name: string; icon: React.ReactNode } => {
+                  const iconSize = 16;
                   switch (category) {
-                    case 'beer': return { name: t('barInfoSidebar.categories.beers'), icon: '🍺' };
-                    case 'cocktail': return { name: t('barInfoSidebar.categories.cocktails'), icon: '🍸' };
-                    case 'shot': return { name: t('barInfoSidebar.categories.shots'), icon: '🥃' };
-                    case 'spirit': return { name: t('barInfoSidebar.categories.spirits'), icon: '🥂' };
-                    case 'soft': return { name: t('barInfoSidebar.categories.soft'), icon: '🥤' };
-                    case 'wine': return { name: t('barInfoSidebar.categories.wines'), icon: '🍷' };
-                    case 'service': return { name: t('barInfoSidebar.categories.services'), icon: '💫' };
-                    default: return { name: t('barInfoSidebar.categories.others'), icon: '🍹' };
+                    case 'beer': return { name: t('barInfoSidebar.categories.beers'), icon: <Beer size={iconSize} /> };
+                    case 'cocktail': return { name: t('barInfoSidebar.categories.cocktails'), icon: <Martini size={iconSize} /> };
+                    case 'shot': return { name: t('barInfoSidebar.categories.shots'), icon: <GlassWater size={iconSize} /> };
+                    case 'spirit': return { name: t('barInfoSidebar.categories.spirits'), icon: <Wine size={iconSize} /> };
+                    case 'soft': return { name: t('barInfoSidebar.categories.soft'), icon: <GlassWater size={iconSize} /> };
+                    case 'wine': return { name: t('barInfoSidebar.categories.wines'), icon: <Wine size={iconSize} /> };
+                    case 'service': return { name: t('barInfoSidebar.categories.services'), icon: <Sparkles size={iconSize} /> };
+                    default: return { name: t('barInfoSidebar.categories.others'), icon: <Martini size={iconSize} /> };
                   }
                 };
 
@@ -380,10 +401,10 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                   ) : (
                     <>
                       <div className="sidebar-empty-consumables-title-nightlife">
-                        🍺 {t('barInfoSidebar.emptyStates.noItems')}
+                        <Beer size={16} /> {t('barInfoSidebar.emptyStates.noItems')}
                       </div>
                       <div className="sidebar-empty-consumables-cta-nightlife">
-                        💡 {t('barInfoSidebar.emptyStates.contributeCTA')}
+                        <Info size={14} /> {t('barInfoSidebar.emptyStates.contributeCTA')}
                       </div>
                     </>
                   )}
@@ -395,7 +416,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
         {/* Autres prix */}
         <div className="sidebar-pricing-grid-nightlife">
           <div className="sidebar-price-card-nightlife sidebar-price-card-ladydrink-nightlife">
-            <div className="sidebar-price-icon-nightlife">💃</div>
+            <div className="sidebar-price-icon-nightlife"><Music size={20} /></div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-ladydrink-nightlife">
               {t('barInfoSidebar.services.ladydrink')}
             </div>
@@ -419,7 +440,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           </div>
 
           <div className="sidebar-price-card-nightlife sidebar-price-card-barfine-nightlife">
-            <div className="sidebar-price-icon-nightlife">🎫</div>
+            <div className="sidebar-price-icon-nightlife"><Ticket size={20} /></div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-barfine-nightlife">
               {t('barInfoSidebar.services.barfine')}
             </div>
@@ -446,7 +467,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
         {/* Rooms si applicable */}
         {(pricing.rooms && pricing.rooms !== 'N/A') && (
           <div className="sidebar-price-card-nightlife sidebar-price-card-rooms-nightlife">
-            <div className="sidebar-price-icon-nightlife">🏠</div>
+            <div className="sidebar-price-icon-nightlife"><Home size={20} /></div>
             <div className="sidebar-price-label-nightlife sidebar-price-label-rooms-nightlife">
               {t('barInfoSidebar.services.rooms')}
             </div>
@@ -497,7 +518,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
               }}
               aria-label={t('barInfoSidebar.aria.addRooms')}
             >
-              🏠 {t('barInfoSidebar.buttons.addRooms')}
+              <Home size={14} /> {t('barInfoSidebar.buttons.addRooms')}
             </button>
           </div>
         )}
@@ -506,12 +527,12 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
       {/* Contact & Location */}
       <div className="sidebar-contact-container-nightlife">
         <h4 className="establishment-section-title-nightlife">
-          📍 {t('barInfoSidebar.sections.contact')}
+          <MapPin size={20} /> {t('barInfoSidebar.sections.contact')}
         </h4>
 
         <div className="sidebar-contact-list-nightlife">
           <div className="sidebar-contact-item-nightlife">
-            <span>📍</span>
+            <span><MapPin size={16} /></span>
             {isEditMode ? (
               <input
                 type="text"
@@ -526,7 +547,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           </div>
 
           <div className="sidebar-contact-item-nightlife">
-            <span>📞</span>
+            <span><Phone size={16} /></span>
             {isEditMode ? (
               <input
                 type="tel"
@@ -623,7 +644,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
             className="btn btn--secondary sidebar-map-button-nightlife"
             aria-label={t('barInfoSidebar.aria.viewOnMap', { name: currentBar.name })}
           >
-            🗺️ {t('barInfoSidebar.buttons.viewOnMap')}
+            <Map size={16} /> {t('barInfoSidebar.buttons.viewOnMap')}
           </button>
         </div>
       </div>
@@ -635,7 +656,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           {bar?.has_owner && (
             <>
               <div className="sidebar-owner-badge-nightlife">
-                <div className="owner-badge-icon-nightlife">🏆</div>
+                <div className="owner-badge-icon-nightlife"><Trophy size={24} className="text-gold" /></div>
                 <div className="owner-badge-content-nightlife">
                   <div className="owner-badge-title-nightlife">
                     {t('barInfoSidebar.verification.verifiedOwner', 'Verified Establishment Owner')}
@@ -652,7 +673,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
           )}
 
           <h4 className="establishment-section-title-nightlife">
-            ✓ {t('barInfoSidebar.sections.staffVerification', 'Staff Verification')}
+            <Check size={20} className="text-success" /> {t('barInfoSidebar.sections.staffVerification', 'Staff Verification')}
           </h4>
 
           {(() => {
@@ -721,7 +742,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       '--trust-shadow': 'rgba(0,255,127,0.25)'
                     } as React.CSSProperties}
                   >
-                    <span>⭐</span>
+                    <span><Star size={16} className="text-gold" /></span>
                     <span>{t('barInfoSidebar.verification.excellentTrust', 'Excellent trust level')}</span>
                   </div>
                 )}
@@ -737,7 +758,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       '--trust-shadow': 'rgba(255,215,0,0.25)'
                     } as React.CSSProperties}
                   >
-                    <span>👍</span>
+                    <span><ThumbsUp size={16} /></span>
                     <span>{t('barInfoSidebar.verification.goodTrust', 'Good trust level')}</span>
                   </div>
                 )}
@@ -753,7 +774,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       '--trust-shadow': 'rgba(255,165,0,0.25)'
                     } as React.CSSProperties}
                   >
-                    <span>⚠️</span>
+                    <span><AlertTriangle size={16} className="text-warning" /></span>
                     <span>{t('barInfoSidebar.verification.fairTrust', 'Fair trust level')}</span>
                   </div>
                 )}
@@ -769,7 +790,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                       '--trust-shadow': 'rgba(255,107,107,0.25)'
                     } as React.CSSProperties}
                   >
-                    <span>ℹ️</span>
+                    <span><Info size={16} /></span>
                     <span>{t('barInfoSidebar.verification.lowTrust', 'Limited verification')}</span>
                   </div>
                 )}

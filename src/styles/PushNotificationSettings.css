@@ -53,7 +53,7 @@
 .push-permission-denied h3 {
   color: var(--text-primary);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-bottom: 12px;
 }
 
@@ -85,7 +85,7 @@
 .help-steps h4 {
   color: var(--text-primary);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-bottom: 12px;
 }
 
@@ -117,7 +117,7 @@
 .push-title h3 {
   color: var(--text-primary);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-bottom: 8px;
 }
 
@@ -152,13 +152,13 @@
 .status-label {
   color: var(--text-secondary);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .status-value {
   color: var(--text-primary);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Status Badge */
@@ -166,7 +166,7 @@
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -186,7 +186,7 @@
 /* Permission Badge */
 .permission-badge {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .permission-badge.granted {
@@ -214,7 +214,7 @@
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -281,7 +281,7 @@
 .push-info h4 {
   color: var(--text-primary);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   margin-bottom: 12px;
 }
 

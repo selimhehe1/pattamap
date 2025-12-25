@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Beer, Building2, Building, TreePine, Landmark, Waves } from 'lucide-react';
 
 interface Zone {
   id: string;
@@ -8,7 +9,7 @@ interface Zone {
   zoom: number;
   bounds: [[number, number], [number, number]];
   color: string;
-  icon: string;
+  icon: React.ReactNode;
 }
 
 interface ZoneSelectorProps {
@@ -24,7 +25,7 @@ const ZONES: Zone[] = [
     zoom: 25, // ZOOM GOOGLE MAPS STYLE - ultra détaillé
     bounds: [[12.9410, 100.8850], [12.9430, 100.8885]],
     color: '#C19A6B',
-    icon: '🍺'
+    icon: <Beer size={16} />
   },
   {
     id: 'walkingstreet',
@@ -33,7 +34,7 @@ const ZONES: Zone[] = [
     zoom: 18,
     bounds: [[12.9220, 100.8760], [12.9250, 100.8795]],
     color: '#9B5DE5',
-    icon: '🌃'
+    icon: <Building2 size={16} />
   },
   {
     id: 'lkmetro',
@@ -42,7 +43,7 @@ const ZONES: Zone[] = [
     zoom: 17,
     bounds: [[12.9280, 100.8780], [12.9320, 100.8820]],
     color: '#00F5FF',
-    icon: '🏢'
+    icon: <Building size={16} />
   },
   {
     id: 'treetown',
@@ -51,7 +52,7 @@ const ZONES: Zone[] = [
     zoom: 14,
     bounds: [[12.9000, 100.8500], [12.9500, 100.9000]],
     color: '#32CD32',
-    icon: '🌳'
+    icon: <TreePine size={16} />
   },
   {
     id: 'soibuakhao',
@@ -60,7 +61,7 @@ const ZONES: Zone[] = [
     zoom: 17,
     bounds: [[12.9330, 100.8810], [12.9370, 100.8850]],
     color: '#FFD700',
-    icon: '🏙️'
+    icon: <Landmark size={16} />
   },
   {
     id: 'beachroad',
@@ -69,7 +70,7 @@ const ZONES: Zone[] = [
     zoom: 16,
     bounds: [[12.9200, 100.8750], [12.9300, 100.8790]],
     color: '#00BFFF',
-    icon: '🌊'
+    icon: <Waves size={16} />
   }
 ];
 

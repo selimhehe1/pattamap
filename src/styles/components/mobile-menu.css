@@ -159,7 +159,7 @@
 
 .mobile-menu-title {
   font-size: 1.125rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   margin: 0;
   letter-spacing: 0.02em;
@@ -251,7 +251,7 @@
 
 .mobile-menu-user-name {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -269,7 +269,7 @@
   border-radius: 12px;
   color: var(--color-gold);
   font-size: 0.625rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.05em;
 }
 
@@ -285,7 +285,7 @@
   /* Style */
   color: var(--color-gold);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   transition: all 0.2s ease;
@@ -347,7 +347,7 @@
 
 .mobile-menu-view-label {
   font-size: 0.625rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -377,7 +377,7 @@
   /* Style */
   color: var(--text-secondary);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   transition: all 0.2s ease;
@@ -429,7 +429,7 @@
 
 .mobile-menu-section-label {
   font-size: 0.625rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { Map, X, MapPin, ChevronDown, Check, Search, RefreshCw, BarChart3, Lightbulb } from 'lucide-react';
 import { Zone } from './ZoneSelector';
 import '../../styles/utils/overlays.css';
 import './mobile-map-menu.css';
@@ -75,7 +76,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
         {/* Header */}
         <div className="menu__header">
           <div className="menu__header-content">
-            <span className="mobile-map-menu-header-icon">🗺️</span>
+            <span className="mobile-map-menu-header-icon"><Map size={24} /></span>
             <div>
               <h2 className="menu__title">{t('map.mapControls')}</h2>
               <p className="menu__subtitle">{t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`)}</p>
@@ -86,7 +87,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
             className="menu__close"
             aria-label={t('common.close')}
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 
@@ -99,11 +100,11 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
               onClick={() => toggleSection('zones')}
             >
               <div className="mobile-map-menu-section-header-content">
-                <span className="mobile-map-menu-section-icon">📍</span>
+                <span className="mobile-map-menu-section-icon"><MapPin size={18} /></span>
                 <h3 className="mobile-map-menu-section-title">{t('map.zones').toUpperCase()}</h3>
               </div>
               <span className={`mobile-map-menu-section-arrow ${expandedSection === 'zones' ? 'open' : ''}`}>
-                ▼
+                <ChevronDown size={16} />
               </span>
             </button>
 
@@ -120,7 +121,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
                       <span className="mobile-map-menu-zone-name">{t(`map.zoneNames.${getZoneTranslationKey(zone.id)}`)}</span>
                     </div>
                     {zone.id === currentZone.id && (
-                      <span className="mobile-map-menu-zone-check">✓</span>
+                      <span className="mobile-map-menu-zone-check"><Check size={16} /></span>
                     )}
                   </button>
                 ))}
@@ -135,11 +136,11 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
               onClick={() => toggleSection('filters')}
             >
               <div className="mobile-map-menu-section-header-content">
-                <span className="mobile-map-menu-section-icon">🔍</span>
+                <span className="mobile-map-menu-section-icon"><Search size={18} /></span>
                 <h3 className="mobile-map-menu-section-title">{t('search.filters').toUpperCase()}</h3>
               </div>
               <span className={`mobile-map-menu-section-arrow ${expandedSection === 'filters' ? 'open' : ''}`}>
-                ▼
+                <ChevronDown size={16} />
               </span>
             </button>
 
@@ -151,7 +152,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
                     onClick={onClearFilters}
                     className="mobile-map-menu-clear-btn"
                   >
-                    🔄 {t('search.clearAllFilters')}
+                    <RefreshCw size={14} /> {t('search.clearAllFilters')}
                   </button>
                 </div>
 
@@ -164,7 +165,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="mobile-map-menu-search-input"
                   />
-                  <span className="mobile-map-menu-search-icon">🔍</span>
+                  <span className="mobile-map-menu-search-icon"><Search size={18} /></span>
                 </div>
 
                 {/* Category Filters */}
@@ -201,7 +202,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
 
           {/* Results Info */}
           <div className="mobile-map-menu-results">
-            <span className="mobile-map-menu-results-icon">📊</span>
+            <span className="mobile-map-menu-results-icon"><BarChart3 size={18} /></span>
             <span className="mobile-map-menu-results-text">
               {t('map.establishmentCount', { count: establishmentCount, zone: t(`map.zoneNames.${getZoneTranslationKey(currentZone.id)}`) })}
             </span>
@@ -211,7 +212,7 @@ const MobileMapMenu: React.FC<MobileMapMenuProps> = ({
         {/* Footer */}
         <div className="menu__footer">
           <p className="mobile-map-menu-legend">
-            💡 {t('map.clickToView')}
+            <Lightbulb size={14} /> {t('map.clickToView')}
           </p>
         </div>
       </div>

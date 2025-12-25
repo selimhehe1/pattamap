@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, Zap, Pencil, X } from 'lucide-react';
 import '../../styles/components/dialog-modals.css';
 
 export interface PromptModalProps {
@@ -112,15 +113,16 @@ const PromptModal: React.FC<PromptModalProps> = ({
   };
 
   // Icon based on variant
-  const getIcon = () => {
+  const getIcon = (): React.ReactNode => {
+    const iconSize = 24;
     switch (variant) {
       case 'danger':
-        return '⚠️';
+        return <AlertTriangle size={iconSize} className="text-error" />;
       case 'warning':
-        return '⚡';
+        return <Zap size={iconSize} className="text-warning" />;
       case 'info':
       default:
-        return '✏️';
+        return <Pencil size={iconSize} className="text-primary" />;
     }
   };
 
@@ -132,7 +134,7 @@ const PromptModal: React.FC<PromptModalProps> = ({
           <span className="dialog-icon">{getIcon()}</span>
           <h2>{title || t('dialog.promptTitle', 'Input Required')}</h2>
           <button className="modal__close" onClick={handleCancel} aria-label="Close">
-            ×
+            <X size={20} />
           </button>
         </div>
 

@@ -557,9 +557,9 @@ body[data-theme="light"] .establishment-card-tinder:hover {
 body[data-theme="light"] .establishment-card-content {
   background: linear-gradient(
     to top,
-    rgba(245, 243, 250, 0.98) 0%,
-    rgba(245, 243, 250, 0.9) 30%,
-    rgba(245, 243, 250, 0.6) 60%,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.9) 30%,
+    rgba(255, 255, 255, 0.6) 60%,
     transparent 100%
   );
 }
@@ -609,7 +609,7 @@ body[data-theme="light"] .employee-card-tinder:hover {
 /* Employee card info box - lighter background - use high specificity */
 body[data-theme="light"] .employee-card-tinder .employee-card-overlay .employee-card-info,
 body[data-theme="light"] .employee-card-info {
-  background: rgba(245, 243, 250, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
@@ -619,7 +619,7 @@ body[data-theme="light"] .employee-card-info {
 /* Override the gradient overlay in light mode */
 body[data-theme="light"] .employee-card-tinder::before,
 body[data-theme="light"] .employee-card-tinder::after {
-  background: linear-gradient(to top, rgba(245, 243, 250, 0.8), transparent) !important;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent) !important;
 }
 
 body[data-theme="light"] .employee-card-name {
@@ -664,9 +664,9 @@ body[data-theme="light"] .employee-card-content,
 body[data-theme="light"] .employee-card-bottom {
   background: linear-gradient(
     to top,
-    rgba(245, 243, 250, 0.98) 0%,
-    rgba(245, 243, 250, 0.95) 40%,
-    rgba(245, 243, 250, 0.7) 70%,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.95) 40%,
+    rgba(255, 255, 255, 0.7) 70%,
     transparent 100%
   ) !important;
 }
@@ -978,7 +978,7 @@ body[data-theme="light"] .establishment-card-content {
 body[data-theme="light"] .employee-card-type-badge,
 body[data-theme="light"] .employee-card-type-freelance,
 body[data-theme="light"] .employee-card-type-regular {
-  background: rgba(245, 243, 250, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* --- CATEGORY BADGES - Solid backgrounds --- */
@@ -1052,7 +1052,7 @@ body[data-theme="light"] [class*="stat-card"] {
 /* --- FILTERS SECTION - Solid background --- */
 body[data-theme="light"] .filter-section,
 body[data-theme="light"] .filters-container {
-  background: rgba(245, 243, 250, 0.5) !important;
+  background: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* --- XP PILL - Solid background --- */
@@ -1091,7 +1091,7 @@ body[data-theme="light"] .sidebar-category-count-nightlife {
 
 /* Category group container */
 body[data-theme="light"] .sidebar-category-group-nightlife {
-  background: rgba(245, 243, 250, 0.3) !important;
+  background: rgba(255, 255, 255, 0.3) !important;
   border-radius: 8px !important;
   padding: 8px !important;
   margin-bottom: 12px !important;
@@ -1134,7 +1134,7 @@ body[data-theme="light"] .sidebar-pricing-container-nightlife {
 
 /* Price cards */
 body[data-theme="light"] .sidebar-price-card-nightlife {
-  background: rgba(245, 243, 250, 0.5) !important;
+  background: rgba(255, 255, 255, 0.5) !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
@@ -1311,7 +1311,7 @@ body[data-theme="light"] .modal-nightlife-overlay,
 body[data-theme="light"] .dialog-modal-overlay {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(232, 228, 243, 0.6) !important;
+  background: rgba(241, 245, 249, 0.6) !important;
 }
 
 body[data-theme="light"] .modal,
@@ -1331,7 +1331,7 @@ body[data-theme="light"] .sidebar-modern,
 body[data-theme="light"] .map-sidebar {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(245, 243, 250, 0.9) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
@@ -1365,7 +1365,7 @@ body[data-theme="light"] .header-xp-pill {
 body[data-theme="light"] .notifications-dropdown {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(245, 243, 250, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   border: 1px solid rgba(15, 23, 42, 0.1) !important;
   box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06) !important;
 }
@@ -1414,19 +1414,19 @@ body[data-theme="light"] .badge-card {
 body[data-theme="light"] .mobile-menu-panel {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(245, 243, 250, 0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   border-left: 1px solid rgba(15, 23, 42, 0.1) !important;
   box-shadow: -8px 0 32px rgba(15, 23, 42, 0.06) !important;
 }
 
 body[data-theme="light"] .mobile-menu-backdrop::before {
-  background: rgba(232, 228, 243, 0.6) !important;
+  background: rgba(241, 245, 249, 0.6) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 body[data-theme="light"] .mobile-menu-header {
-  background: rgba(245, 243, 250, 0.8) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
@@ -1435,7 +1435,7 @@ body[data-theme="light"] .mobile-menu-user {
 }
 
 body[data-theme="light"] .mobile-menu-footer {
-  background: rgba(245, 243, 250, 0.9) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -1450,15 +1450,15 @@ body[data-theme="light"] .mobile-menu-settings-row {
 body[data-theme="light"] .employee-card-info {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
-  background: rgba(245, 243, 250, 0.88) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 body[data-theme="light"] .employee-card-overlay {
   background: linear-gradient(
     to top,
-    rgba(245, 243, 250, 0.95) 0%,
-    rgba(245, 243, 250, 0.7) 50%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
     transparent 100%
   ) !important;
 }
@@ -1469,9 +1469,9 @@ body[data-theme="light"] .establishment-card-content {
   -webkit-backdrop-filter: blur(12px);
   background: linear-gradient(
     to top,
-    rgba(245, 243, 250, 0.95) 0%,
-    rgba(245, 243, 250, 0.8) 40%,
-    rgba(245, 243, 250, 0.4) 70%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.8) 40%,
+    rgba(255, 255, 255, 0.4) 70%,
     transparent 100%
   ) !important;
 }
@@ -1488,7 +1488,7 @@ body[data-theme="light"] .tab-navigation,
 body[data-theme="light"] .tabs-container {
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
-  background: rgba(245, 243, 250, 0.85) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
   border: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
@@ -1502,7 +1502,7 @@ body[data-theme="light"] .mobile-bottom-nav,
 body[data-theme="light"] .bottom-navigation {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(245, 243, 250, 0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.04) !important;
 }
@@ -1531,7 +1531,7 @@ body[data-theme="light"] .filter-section,
 body[data-theme="light"] .filters-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(245, 243, 250, 0.7) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
   border: 1px solid rgba(15, 23, 42, 0.06) !important;
 }
 
@@ -1558,7 +1558,7 @@ body[data-theme="light"] .dashboard-card {
 body[data-theme="light"] .breadcrumb-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(245, 243, 250, 0.7) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* --- Review Cards Glassmorphism --- */
@@ -1583,7 +1583,7 @@ body[data-theme="light"] .map-sidebar,
 body[data-theme="light"] .bar-info-sidebar {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(245, 243, 250, 0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   border-left: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
@@ -1592,7 +1592,7 @@ body[data-theme="light"] .zone-selector,
 body[data-theme="light"] .zone-selector-container {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background: rgba(245, 243, 250, 0.85) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
@@ -1610,14 +1610,14 @@ body[data-theme="light"] .language-dropdown {
 body[data-theme="light"] .empty-state-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(245, 243, 250, 0.6) !important;
+  background: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* --- Access Denied Glassmorphism --- */
 body[data-theme="light"] .access-denied-container {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(245, 243, 250, 0.7) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* --- Gamification Components Glassmorphism --- */
@@ -1641,7 +1641,7 @@ body[data-theme="light"] .xp-notification {
 body[data-theme="light"] .modal-overlay-unified {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(232, 228, 243, 0.65) !important;
+  background: rgba(241, 245, 249, 0.65) !important;
 }
 
 body[data-theme="light"] .modal-content-unified {
@@ -1660,7 +1660,7 @@ body[data-theme="light"] .page-container,
 body[data-theme="light"] .main-content {
   background: linear-gradient(
     135deg,
-    rgba(232, 228, 243, 0.4) 0%,
+    rgba(241, 245, 249, 0.4) 0%,
     rgba(214, 209, 232, 0.3) 50%,
     rgba(199, 191, 222, 0.2) 100%
   );

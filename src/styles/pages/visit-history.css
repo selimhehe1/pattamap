@@ -63,7 +63,7 @@
 
 .visit-stat-value {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: #00e5ff;
   line-height: 1;
 }
@@ -191,7 +191,7 @@
   margin: 0 0 12px 0;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .visit-group-cards {
@@ -224,7 +224,7 @@
 
 .visit-card-name {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: white;
 }
 
@@ -232,7 +232,7 @@
   background: linear-gradient(90deg, #00c853, #00e676);
   color: white;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   padding: 4px 10px;
   border-radius: 20px;
 }

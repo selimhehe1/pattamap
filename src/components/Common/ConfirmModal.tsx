@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, Zap, Check, Info, X } from 'lucide-react';
 import '../../styles/components/dialog-modals.css';
 
 export type ConfirmVariant = 'danger' | 'warning' | 'info' | 'success';
@@ -44,17 +45,18 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   // Icon based on variant
-  const getIcon = () => {
+  const getIcon = (): React.ReactNode => {
+    const iconSize = 24;
     switch (variant) {
       case 'danger':
-        return '⚠️';
+        return <AlertTriangle size={iconSize} className="text-error" />;
       case 'warning':
-        return '⚡';
+        return <Zap size={iconSize} className="text-warning" />;
       case 'success':
-        return '✅';
+        return <Check size={iconSize} className="text-success" />;
       case 'info':
       default:
-        return 'ℹ️';
+        return <Info size={iconSize} className="text-info" />;
     }
   };
 
@@ -81,7 +83,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <span className="dialog-icon">{getIcon()}</span>
           <h2>{title || getDefaultTitle()}</h2>
           <button className="modal__close" onClick={handleCancel} aria-label="Close">
-            ×
+            <X size={20} />
           </button>
         </div>
 

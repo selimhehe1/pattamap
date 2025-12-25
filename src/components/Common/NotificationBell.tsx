@@ -4,6 +4,46 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
+import {
+  Bell,
+  ClipboardList,
+  Check,
+  X,
+  Trophy,
+  Award,
+  AlertTriangle,
+  Gem,
+  Crown,
+  Ban,
+  BellOff,
+  FileEdit,
+  Pencil,
+  CircleSlash,
+  Unlock,
+  Wrench,
+  UserCheck,
+  UserX,
+  Building2,
+  MessageCircle,
+  Trash2,
+  Megaphone,
+  Star,
+  Clock,
+  Zap,
+  Settings,
+  Mail,
+  MailOpen,
+  Folder,
+  Calendar,
+  CalendarDays,
+  Key,
+  CircleDot,
+  Circle,
+  ChevronRight,
+  ChevronDown,
+  MapPin,
+  Camera
+} from 'lucide-react';
 import '../../styles/components/notification-bell.css';
 
 // Updated NotificationType to match backend (v10.3 - 36 types: 21 existing + 15 new business notifications)
@@ -401,81 +441,83 @@ const NotificationBell: React.FC = () => {
   };
 
   // Get notification icon (enhanced for 36 types - v10.3)
-  const getNotificationIcon = (type: NotificationType): string => {
+  const getNotificationIcon = (type: NotificationType): React.ReactNode => {
+    const iconSize = 18;
     switch (type) {
       // Ownership Requests
-      case 'ownership_request_submitted': return '📋';
-      case 'ownership_request_approved': return '✅';
-      case 'ownership_request_rejected': return '❌';
-      case 'new_ownership_request': return '🏆';
+      case 'ownership_request_submitted': return <ClipboardList size={iconSize} />;
+      case 'ownership_request_approved': return <Check size={iconSize} className="text-success" />;
+      case 'ownership_request_rejected': return <X size={iconSize} className="text-error" />;
+      case 'new_ownership_request': return <Trophy size={iconSize} className="text-gold" />;
 
       // Verification System (NEW v10.3)
-      case 'verification_submitted': return '✅';
-      case 'verification_approved': return '🎖️';
-      case 'verification_rejected': return '❌';
-      case 'verification_revoked': return '⚠️';
+      case 'verification_submitted': return <Check size={iconSize} />;
+      case 'verification_approved': return <Award size={iconSize} className="text-success" />;
+      case 'verification_rejected': return <X size={iconSize} className="text-error" />;
+      case 'verification_revoked': return <AlertTriangle size={iconSize} className="text-warning" />;
 
       // VIP System (NEW v10.3)
-      case 'vip_purchase_confirmed': return '💎';
-      case 'vip_payment_verified': return '👑';
-      case 'vip_payment_rejected': return '⛔';
-      case 'vip_subscription_cancelled': return '🔕';
+      case 'vip_purchase_confirmed': return <Gem size={iconSize} className="text-vip" />;
+      case 'vip_payment_verified': return <Crown size={iconSize} className="text-gold" />;
+      case 'vip_payment_rejected': return <Ban size={iconSize} className="text-error" />;
+      case 'vip_subscription_cancelled': return <BellOff size={iconSize} />;
 
       // Edit Proposals (NEW v10.3)
-      case 'edit_proposal_submitted': return '📝';
-      case 'edit_proposal_approved': return '✏️';
-      case 'edit_proposal_rejected': return '🚫';
+      case 'edit_proposal_submitted': return <FileEdit size={iconSize} />;
+      case 'edit_proposal_approved': return <Pencil size={iconSize} className="text-success" />;
+      case 'edit_proposal_rejected': return <CircleSlash size={iconSize} className="text-error" />;
 
       // Establishment Owners (NEW v10.3)
-      case 'establishment_owner_assigned': return '🏆';
-      case 'establishment_owner_removed': return '🔓';
-      case 'establishment_owner_permissions_updated': return '🔧';
+      case 'establishment_owner_assigned': return <Trophy size={iconSize} className="text-gold" />;
+      case 'establishment_owner_removed': return <Unlock size={iconSize} />;
+      case 'establishment_owner_permissions_updated': return <Wrench size={iconSize} />;
 
       // Moderation
-      case 'employee_approved': return '👤✅';
-      case 'employee_rejected': return '👤❌';
-      case 'establishment_approved': return '🏢✅';
-      case 'establishment_rejected': return '🏢❌';
-      case 'comment_approved': return '💬✅';
-      case 'comment_rejected': return '💬❌';
-      case 'comment_removed': return '🗑️'; // NEW v10.3
+      case 'employee_approved': return <UserCheck size={iconSize} className="text-success" />;
+      case 'employee_rejected': return <UserX size={iconSize} className="text-error" />;
+      case 'establishment_approved': return <Building2 size={iconSize} className="text-success" />;
+      case 'establishment_rejected': return <Building2 size={iconSize} className="text-error" />;
+      case 'comment_approved': return <MessageCircle size={iconSize} className="text-success" />;
+      case 'comment_rejected': return <MessageCircle size={iconSize} className="text-error" />;
+      case 'comment_removed': return <Trash2 size={iconSize} />; // NEW v10.3
 
       // Social
-      case 'comment_reply': return '💬';
-      case 'comment_mention': return '📢';
-      case 'new_favorite': return '⭐';
-      case 'favorite_available': return '🔔';
+      case 'comment_reply': return <MessageCircle size={iconSize} />;
+      case 'comment_mention': return <Megaphone size={iconSize} />;
+      case 'new_favorite': return <Star size={iconSize} className="text-gold" />;
+      case 'favorite_available': return <Bell size={iconSize} className="text-primary" />;
 
       // Employee Updates
-      case 'employee_profile_updated': return '📝';
-      case 'employee_photos_updated': return '📸';
-      case 'employee_position_changed': return '📍';
+      case 'employee_profile_updated': return <FileEdit size={iconSize} />;
+      case 'employee_photos_updated': return <Camera size={iconSize} />;
+      case 'employee_position_changed': return <MapPin size={iconSize} />;
 
       // Admin/Moderator
-      case 'new_content_pending': return '🕐';
-      case 'new_report': return '⚠️';
-      case 'moderation_action_required': return '⚡';
+      case 'new_content_pending': return <Clock size={iconSize} />;
+      case 'new_report': return <AlertTriangle size={iconSize} className="text-warning" />;
+      case 'moderation_action_required': return <Zap size={iconSize} className="text-warning" />;
 
       // System
-      case 'system': return '⚙️';
-      default: return '📬';
+      case 'system': return <Settings size={iconSize} />;
+      default: return <Mail size={iconSize} />;
     }
   };
 
   // Get category icon (updated for 10 categories - v10.3)
-  const getCategoryIcon = (category: NotificationCategory): string => {
+  const getCategoryIcon = (category: NotificationCategory): React.ReactNode => {
+    const iconSize = 16;
     switch (category) {
-      case 'ownership': return '🏆';
-      case 'verification': return '🎖️'; // NEW v10.3
-      case 'vip': return '💎'; // NEW v10.3
-      case 'proposals': return '📝'; // NEW v10.3
-      case 'owners': return '🔑'; // NEW v10.3
-      case 'moderation': return '✅';
-      case 'social': return '💬';
-      case 'updates': return '📝';
-      case 'admin': return '⚡';
-      case 'system': return '⚙️';
-      default: return '📬';
+      case 'ownership': return <Trophy size={iconSize} className="text-gold" />;
+      case 'verification': return <Award size={iconSize} />; // NEW v10.3
+      case 'vip': return <Gem size={iconSize} className="text-vip" />; // NEW v10.3
+      case 'proposals': return <FileEdit size={iconSize} />; // NEW v10.3
+      case 'owners': return <Key size={iconSize} />; // NEW v10.3
+      case 'moderation': return <Check size={iconSize} className="text-success" />;
+      case 'social': return <MessageCircle size={iconSize} />;
+      case 'updates': return <FileEdit size={iconSize} />;
+      case 'admin': return <Zap size={iconSize} className="text-warning" />;
+      case 'system': return <Settings size={iconSize} />;
+      default: return <Mail size={iconSize} />;
     }
   };
 
@@ -656,7 +698,7 @@ const NotificationBell: React.FC = () => {
         onClick={handleToggleDropdown}
         aria-label={`Notifications. ${unreadCount} unread`}
       >
-        <span className="notification-bell-icon">🔔</span>
+        <span className="notification-bell-icon"><Bell size={20} /></span>
         {unreadCount > 0 && (
           <span className="notification-bell-badge" aria-label={`${unreadCount} unread notifications`}>
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -689,7 +731,7 @@ const NotificationBell: React.FC = () => {
               onClick={() => setShowOnlyUnread(!showOnlyUnread)}
               aria-label={t('notifications.filters.unreadOnly')}
             >
-              {showOnlyUnread ? '🔵' : '⚪'} {t('notifications.filters.unread')}
+              {showOnlyUnread ? <CircleDot size={14} className="text-primary" /> : <Circle size={14} />} {t('notifications.filters.unread')}
             </button>
 
             {/* Grouping Mode Toggle */}
@@ -699,7 +741,7 @@ const NotificationBell: React.FC = () => {
               aria-label={t('notifications.groupBy', { mode: groupingMode === 'type' ? t('notifications.date') : t('notifications.type') })}
               title={t('notifications.toggleGrouping')}
             >
-              {groupingMode === 'type' ? '📁' : '📅'}
+              {groupingMode === 'type' ? <Folder size={14} /> : <Calendar size={14} />}
             </button>
           </div>
 
@@ -715,56 +757,56 @@ const NotificationBell: React.FC = () => {
               className={`notification-category-btn ${filterCategory === 'ownership' ? 'active' : ''}`}
               onClick={() => setFilterCategory('ownership')}
             >
-              🏆 {t('notifications.categories.ownership')}
+              <Trophy size={14} className="text-gold" /> {t('notifications.categories.ownership')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'verification' ? 'active' : ''}`}
               onClick={() => setFilterCategory('verification')}
             >
-              🎖️ {t('notifications.categories.verification')}
+              <Award size={14} /> {t('notifications.categories.verification')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'vip' ? 'active' : ''}`}
               onClick={() => setFilterCategory('vip')}
             >
-              💎 {t('notifications.categories.vip')}
+              <Gem size={14} className="text-vip" /> {t('notifications.categories.vip')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'proposals' ? 'active' : ''}`}
               onClick={() => setFilterCategory('proposals')}
             >
-              📝 {t('notifications.categories.proposals')}
+              <FileEdit size={14} /> {t('notifications.categories.proposals')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'owners' ? 'active' : ''}`}
               onClick={() => setFilterCategory('owners')}
             >
-              🔑 {t('notifications.categories.owners')}
+              <Key size={14} /> {t('notifications.categories.owners')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'moderation' ? 'active' : ''}`}
               onClick={() => setFilterCategory('moderation')}
             >
-              ✅ {t('notifications.categories.moderation')}
+              <Check size={14} className="text-success" /> {t('notifications.categories.moderation')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'social' ? 'active' : ''}`}
               onClick={() => setFilterCategory('social')}
             >
-              💬 {t('notifications.categories.social')}
+              <MessageCircle size={14} /> {t('notifications.categories.social')}
             </button>
             <button
               className={`notification-category-btn ${filterCategory === 'updates' ? 'active' : ''}`}
               onClick={() => setFilterCategory('updates')}
             >
-              📝 {t('notifications.categories.updates')}
+              <FileEdit size={14} /> {t('notifications.categories.updates')}
             </button>
             {user?.role === 'admin' || user?.role === 'moderator' ? (
               <button
                 className={`notification-category-btn ${filterCategory === 'admin' ? 'active' : ''}`}
                 onClick={() => setFilterCategory('admin')}
               >
-                ⚡ {t('notifications.categories.admin')}
+                <Zap size={14} className="text-warning" /> {t('notifications.categories.admin')}
               </button>
             ) : null}
           </div>
@@ -780,7 +822,7 @@ const NotificationBell: React.FC = () => {
           {/* Empty State */}
           {!isLoading && filteredNotifications.length === 0 && (
             <div className="notification-empty">
-              <span className="notification-empty-icon">📭</span>
+              <span className="notification-empty-icon"><MailOpen size={32} /></span>
               <p className="notification-empty-text">
                 {showOnlyUnread || filterCategory !== 'all'
                   ? t('notifications.noFiltered')
@@ -801,13 +843,14 @@ const NotificationBell: React.FC = () => {
 
                 // Get group title
                 let groupTitle = '';
-                let groupIcon = '';
+                let groupIcon: React.ReactNode = null;
                 if (groupingMode === 'type') {
                   groupTitle = t(`notifications.categories.${groupKey}`);
                   groupIcon = getCategoryIcon(groupKey as NotificationCategory);
                 } else {
                   groupTitle = t(`notifications.dateGroups.${groupKey}`);
-                  groupIcon = groupKey === 'today' ? '📅' : groupKey === 'yesterday' ? '📆' : groupKey === 'this_week' ? '📋' : '📁';
+                  const iconSize = 16;
+                  groupIcon = groupKey === 'today' ? <Calendar size={iconSize} /> : groupKey === 'yesterday' ? <CalendarDays size={iconSize} /> : groupKey === 'this_week' ? <ClipboardList size={iconSize} /> : <Folder size={iconSize} />;
                 }
 
                 return (
@@ -819,7 +862,7 @@ const NotificationBell: React.FC = () => {
                         onClick={() => toggleGroup(groupKey)}
                         aria-label={`${isCollapsed ? t('notifications.expand') : t('notifications.collapse')} ${groupTitle}`}
                       >
-                        <span className="notification-group-icon">{isCollapsed ? '▶' : '▼'}</span>
+                        <span className="notification-group-icon">{isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}</span>
                         <span className="notification-group-emoji">{groupIcon}</span>
                         <span className="notification-group-title">{groupTitle}</span>
                         <span className="notification-group-count">
@@ -836,7 +879,7 @@ const NotificationBell: React.FC = () => {
                           aria-label={t('notifications.markGroupRead')}
                           title={t('notifications.markGroupRead')}
                         >
-                          ✓
+                          <Check size={14} />
                         </button>
                       )}
                     </div>
@@ -886,7 +929,7 @@ const NotificationBell: React.FC = () => {
                               onClick={(e) => handleDeleteNotification(notification.id, e)}
                               aria-label={t('notifications.delete')}
                             >
-                              ✕
+                              <X size={14} />
                             </button>
                           </div>
                         );

@@ -444,152 +444,17 @@
 }
 
 /* ============================================
-   LEGACY ALIASES
+   LEGACY ALIASES - REMOVED
    ============================================ */
 
 /**
- * Legacy class aliases for backwards compatibility
- * Maps old .btn-*-nightlife → new .btn / .btn--* pattern
- * Can be removed once all components are migrated
+ * Legacy .btn-*-nightlife classes have been migrated to:
+ * - .btn-nightlife-base → .btn
+ * - .btn-primary-nightlife → .btn .btn--primary
+ * - .btn-secondary-nightlife → .btn .btn--secondary
+ * - .btn-success-nightlife → .btn .btn--success
+ * - .btn-danger-nightlife → .btn .btn--danger
+ * - .btn-pill-nightlife → .btn .btn--pill
+ *
+ * All components now use the modern .btn / .btn--* pattern.
  */
-
-/* Base button alias */
-.btn-nightlife-base {
-  /* Layout */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2);
-
-  /* Sizing */
-  min-height: var(--height-button); /* 44px - WCAG touch target */
-  padding: var(--spacing-3) var(--spacing-6);
-
-  /* Typography */
-  font-family: var(--font-family-base);
-  font-size: var(--font-base);
-  font-weight: var(--font-weight-semibold);
-  text-align: center;
-  text-decoration: none;
-  line-height: var(--line-height-tight);
-
-  /* Visual */
-  border-radius: var(--border-radius-lg);
-  border: 2px solid transparent;
-
-  /* Interaction */
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-
-  /* Animation */
-  transition: all var(--duration-normal) var(--ease-in-out);
-
-  /* Prevent text selection */
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Remove default button styles */
-.btn-nightlife-base::-moz-focus-inner {
-  border: 0;
-  padding: 0;
-}
-
-/* Focus state (accessibility) */
-.btn-nightlife-base:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: var(--focus-ring-offset);
-  box-shadow: var(--focus-ring);
-}
-
-/* Disabled state */
-.btn-nightlife-base:disabled,
-.btn-nightlife-base[aria-disabled="true"] {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Primary variant */
-.btn-primary-nightlife {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  border-color: var(--color-primary);
-  color: var(--text-inverse);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
-}
-
-.btn-primary-nightlife:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  box-shadow: var(--shadow-glow-primary);
-  transform: translateY(-2px);
-}
-
-.btn-primary-nightlife:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
-}
-
-/* Secondary variant */
-.btn-secondary-nightlife {
-  border: 2px solid var(--color-secondary);
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.2));
-  color: var(--color-secondary);
-  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
-  text-shadow: 0 0 10px rgba(44, 62, 80, 0.5);
-  backdrop-filter: var(--backdrop-blur-sm);
-}
-
-.btn-secondary-nightlife:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(44, 62, 80, 0.3));
-  box-shadow: var(--shadow-glow-secondary);
-  transform: translateY(-2px);
-}
-
-.btn-secondary-nightlife:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
-}
-
-/* Success variant */
-.btn-success-nightlife {
-  background: linear-gradient(135deg, var(--color-success), #00D851);
-  border-color: var(--color-success);
-  color: var(--text-inverse);
-  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
-}
-
-.btn-success-nightlife:hover:not(:disabled) {
-  background: linear-gradient(135deg, #00D851, var(--color-success));
-  box-shadow: var(--shadow-glow-success);
-  transform: translateY(-2px);
-}
-
-.btn-success-nightlife:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(0, 204, 85, 0.2);
-}
-
-/* Danger variant */
-.btn-danger-nightlife {
-  background: linear-gradient(135deg, var(--color-error), #DC3545);
-  border-color: var(--color-error);
-  color: var(--text-inverse);
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
-}
-
-.btn-danger-nightlife:hover:not(:disabled) {
-  background: linear-gradient(135deg, #DC3545, var(--color-error));
-  box-shadow: var(--shadow-glow-error);
-  transform: translateY(-2px);
-}
-
-.btn-danger-nightlife:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
-}
-
-/* Pill shape */
-.btn-pill-nightlife {
-  border-radius: var(--border-radius-full);
-}

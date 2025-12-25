@@ -14,7 +14,7 @@ import { haptic } from '../../utils/haptics';
  * <AnimatedButton
  *   onClick={handleClick}
  *   enableHaptic
- *   className="btn-primary-nightlife"
+ *   className="btn btn--primary"
  * >
  *   Click me
  * </AnimatedButton>
