@@ -33,16 +33,16 @@
    * Gain: 24px de hauteur viewport (6.4% sur 375px)
    */
   .header-main-nightlife {
-    min-height: 3.5rem !important; /* 56px au lieu de 80px */
-    padding: var(--spacing-2) var(--spacing-4) !important;
+    min-height: 3.5rem; /* 56px au lieu de 80px */
+    padding: var(--spacing-2) var(--spacing-4);
   }
 
   .header-logo-section-nightlife {
-    gap: var(--spacing-2) !important; /* Réduire gap logo-subtitle */
+    gap: var(--spacing-2); /* Réduire gap logo-subtitle */
   }
 
   .header-title-nightlife {
-    font-size: 1.5rem !important; /* 24px au lieu de 28px */
+    font-size: 1.5rem; /* 24px au lieu de 28px */
   }
 
   .header-subtitle-nightlife {
@@ -59,18 +59,18 @@
    * Alternative: Mobile menu toggle pour filtres si besoin
    */
   .map-sidebar-nightlife {
-    display: none !important;
+    display: none;
   }
 
   /* Sidebar toggle button aussi masqué */
   .sidebar-toggle-btn-nightlife {
-    display: none !important;
+    display: none;
   }
 
   /* Map content utilise pleine largeur */
   .map-content-area-nightlife {
-    margin-left: 0 !important;
-    width: 100% !important;
+    margin-left: 0;
+    width: 100%;
   }
 
   /* ============================================
@@ -82,13 +82,13 @@
    * Calcul: 100vh - header compact (56px)
    */
   .map-container-nightlife {
-    height: calc(100vh - 3.5rem) !important;
-    min-height: calc(100vh - 3.5rem) !important;
+    height: calc(100vh - 3.5rem);
+    min-height: calc(100vh - 3.5rem);
   }
 
   /* Canvas map aussi */
   .map-canvas-container {
-    height: calc(100vh - 3.5rem) !important;
+    height: calc(100vh - 3.5rem);
   }
 
   /* ============================================
@@ -102,20 +102,20 @@
 
   /* Sidebar titles (si réaffichée via toggle) */
   .sidebar-title-nightlife {
-    font-size: var(--font-md) !important; /* 16px au lieu de 14px */
+    font-size: var(--font-md); /* 16px au lieu de 14px */
     line-height: 1.4;
   }
 
   /* Zone buttons */
   .zone-button-nightlife {
-    font-size: var(--font-base) !important; /* 14px au lieu de 12px */
-    padding: var(--spacing-2) var(--spacing-3) !important; /* Touch target 44px */
+    font-size: var(--font-base); /* 14px au lieu de 12px */
+    padding: var(--spacing-2) var(--spacing-3); /* Touch target 44px */
     min-height: 2.75rem; /* WCAG AAA 44px */
   }
 
   /* Establishment markers sur map */
   .establishment-marker-text {
-    font-size: var(--font-sm) !important; /* 14px minimum lisible */
+    font-size: var(--font-sm); /* 14px minimum lisible */
   }
 
   /* ============================================
@@ -127,20 +127,20 @@
    * Chaque pixel vertical compte!
    */
   .mobile-bottom-nav {
-    padding: var(--spacing-1) 0 !important;
-    min-height: 3rem !important; /* 48px au lieu de 60px */
+    padding: var(--spacing-1) 0;
+    min-height: 3rem; /* 48px au lieu de 60px */
   }
 
   .mobile-bottom-nav-item {
-    padding: var(--spacing-1) var(--spacing-2) !important;
+    padding: var(--spacing-1) var(--spacing-2);
   }
 
   .mobile-bottom-nav-icon {
-    font-size: 1.25rem !important; /* 20px au lieu de 24px */
+    font-size: 1.25rem; /* 20px au lieu de 24px */
   }
 
   .mobile-bottom-nav-label {
-    font-size: var(--font-xs) !important; /* 12px */
+    font-size: var(--font-xs); /* 12px */
   }
 
   /* ============================================
@@ -154,7 +154,7 @@
   .modal-app-overlay,
   .profile-overlay-nightlife,
   .photo-gallery-modal-overlay {
-    padding: var(--spacing-2) !important; /* Réduire padding */
+    padding: var(--spacing-2); /* Réduire padding */
   }
 
   .modal-app-login-container,
@@ -163,13 +163,13 @@
   .modal-app-establishment-container,
   .profile-modal-nightlife,
   .photo-gallery-modal {
-    max-height: 95vh !important; /* Au lieu de 90vh */
+    max-height: 95vh; /* Au lieu de 90vh */
     overflow-y: auto;
   }
 
   /* Modal headers compacts */
   .modal-header {
-    padding: var(--spacing-2) var(--spacing-3) !important;
+    padding: var(--spacing-2) var(--spacing-3);
   }
 
   /* ============================================
@@ -184,7 +184,7 @@
   .btn,
   .clickable,
   .interactive {
-    min-height: 2.75rem !important; /* 44px WCAG AAA */
+    min-height: 2.75rem; /* 44px WCAG AAA */
   }
 
   /* Icon-only buttons */
@@ -193,8 +193,8 @@
   .header-nav-icon,
   .theme-toggle-button,
   .language-toggle-button {
-    min-width: 2.75rem !important;
-    min-height: 2.75rem !important;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
   }
 
   /* ============================================
@@ -208,15 +208,15 @@
   .establishments-grid,
   .employees-grid,
   .favorite-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-    gap: var(--spacing-4) !important;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-4);
   }
 
   /* Cards plus compactes */
   .establishment-card,
   .employee-card,
   .favorite-card-nightlife {
-    padding: var(--spacing-3) !important;
+    padding: var(--spacing-3);
   }
 
   /* ============================================
@@ -228,24 +228,24 @@
    * Bouton toggle pour afficher si besoin
    */
   .search-filters-sidebar {
-    transform: translateX(-100%) !important; /* Masquée par défaut */
-    width: 280px !important; /* Plus étroite */
+    transform: translateX(-100%); /* Masquée par défaut */
+    width: 280px; /* Plus étroite */
   }
 
   .search-filters-sidebar.open {
-    transform: translateX(0) !important;
+    transform: translateX(0);
   }
 
   /* Toggle button visible */
   .search-filters-toggle-mobile {
-    display: flex !important;
-    top: 70px !important; /* Sous header compact */
+    display: flex;
+    top: 70px; /* Sous header compact */
   }
 
   /* Résultats utilisent pleine largeur */
   .search-results-container-nightlife {
-    width: 100% !important;
-    margin-left: 0 !important;
+    width: 100%;
+    margin-left: 0;
   }
 
   /* ============================================
@@ -257,12 +257,12 @@
    * Au lieu de 1 colonne mobile standard
    */
   .admin-stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: var(--spacing-3) !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-3);
   }
 
   .admin-stat-card {
-    padding: var(--spacing-3) !important;
+    padding: var(--spacing-3);
   }
 
   /* ============================================
@@ -279,7 +279,7 @@
 
   /* Padding bottom pour éviter contenu caché par nav */
   .page-content {
-    padding-bottom: 3.5rem !important; /* Hauteur bottom nav + marge */
+    padding-bottom: 3.5rem; /* Hauteur bottom nav + marge */
   }
 
   /* ============================================
@@ -292,10 +292,10 @@
    */
   .back-button-absolute-nightlife,
   .header-back-btn {
-    top: var(--spacing-2) !important;
-    font-size: var(--font-sm) !important;
-    padding: var(--spacing-1) var(--spacing-3) !important;
-    min-height: 2.75rem !important; /* WCAG AAA */
+    top: var(--spacing-2);
+    font-size: var(--font-sm);
+    padding: var(--spacing-1) var(--spacing-3);
+    min-height: 2.75rem; /* WCAG AAA */
   }
 
   /* ============================================
@@ -309,9 +309,9 @@
   button:focus-visible,
   a:focus-visible,
   input:focus-visible {
-    outline: 3px solid var(--color-gold) !important;
-    outline-offset: 3px !important;
-    box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.3) !important; /* Glow plus prononcé */
+    outline: 3px solid var(--color-gold);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.3); /* Glow plus prononcé */
   }
 
   /* ============================================
@@ -320,18 +320,18 @@
 
   /* Hide on landscape */
   .landscape-hide {
-    display: none !important;
+    display: none;
   }
 
   /* Show only on landscape */
   .landscape-only {
-    display: block !important;
+    display: block;
   }
 
   /* Compact mode utility */
   .landscape-compact {
-    padding: var(--spacing-2) !important;
-    margin: var(--spacing-2) 0 !important;
+    padding: var(--spacing-2);
+    margin: var(--spacing-2) 0;
   }
 }
 

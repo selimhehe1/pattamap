@@ -202,9 +202,9 @@
  */
 @media (max-width: 48rem) {
   .map-container-nightlife {
-    min-height: calc(100vh - 5.625rem) !important;
-    height: calc(100vh - 5.625rem) !important;
-    max-height: calc(100vh - 5.625rem) !important;
+    min-height: calc(100vh - 5.625rem);
+    height: calc(100vh - 5.625rem);
+    max-height: calc(100vh - 5.625rem);
     border-radius: 0; /* Pas de coins arrondis en plein écran */
   }
 
@@ -213,7 +213,7 @@
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 5.625rem) !important;
+    height: calc(100vh - 5.625rem);
   }
 
   .map-zone-placeholder {
@@ -227,55 +227,55 @@
 
   /* Masquer texte "Edit Mode" sur mobile - afficher uniquement icône */
   .edit-mode-text {
-    display: none !important;
+    display: none;
   }
 }
 
 /* Large phones - Header plus compact */
 @media (max-width: 40rem) {
   .map-container-nightlife {
-    min-height: calc(100vh - 4.6875rem) !important;
-    height: calc(100vh - 4.6875rem) !important;
-    max-height: calc(100vh - 4.6875rem) !important;
+    min-height: calc(100vh - 4.6875rem);
+    height: calc(100vh - 4.6875rem);
+    max-height: calc(100vh - 4.6875rem);
   }
 
   .map-bg-soi6,
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 4.6875rem) !important;
+    height: calc(100vh - 4.6875rem);
   }
 }
 
 /* Small phones - Header encore plus compact */
 @media (max-width: 30rem) {
   .map-container-nightlife {
-    min-height: calc(100vh - 4.375rem) !important;
-    height: calc(100vh - 4.375rem) !important;
-    max-height: calc(100vh - 4.375rem) !important;
+    min-height: calc(100vh - 4.375rem);
+    height: calc(100vh - 4.375rem);
+    max-height: calc(100vh - 4.375rem);
   }
 
   .map-bg-soi6,
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 4.375rem) !important;
+    height: calc(100vh - 4.375rem);
   }
 }
 
 /* Very small phones */
 @media (max-width: 23.4375rem) {
   .map-container-nightlife {
-    min-height: calc(100vh - 4.25rem) !important;
-    height: calc(100vh - 4.25rem) !important;
-    max-height: calc(100vh - 4.25rem) !important;
+    min-height: calc(100vh - 4.25rem);
+    height: calc(100vh - 4.25rem);
+    max-height: calc(100vh - 4.25rem);
   }
 
   .map-bg-soi6,
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 4.25rem) !important;
+    height: calc(100vh - 4.25rem);
   }
 }
 
@@ -298,9 +298,9 @@
 /* Large Landscape - Height < 600px */
 @media (max-height: 37.5rem) and (orientation: landscape) {
   .map-container-nightlife {
-    min-height: calc(100vh - 3.5rem) !important;
-    height: calc(100vh - 3.5rem) !important;
-    max-height: calc(100vh - 3.5rem) !important;
+    min-height: calc(100vh - 3.5rem);
+    height: calc(100vh - 3.5rem);
+    max-height: calc(100vh - 3.5rem);
     border-radius: 0;
   }
 
@@ -308,7 +308,7 @@
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 3.5rem) !important;
+    height: calc(100vh - 3.5rem);
   }
 
   /* Titre carte plus compact */
@@ -322,16 +322,16 @@
 /* Medium Landscape - Height < 480px */
 @media (max-height: 30rem) and (orientation: landscape) {
   .map-container-nightlife {
-    min-height: calc(100vh - 3.25rem) !important;
-    height: calc(100vh - 3.25rem) !important;
-    max-height: calc(100vh - 3.25rem) !important;
+    min-height: calc(100vh - 3.25rem);
+    height: calc(100vh - 3.25rem);
+    max-height: calc(100vh - 3.25rem);
   }
 
   .map-bg-soi6,
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 3.25rem) !important;
+    height: calc(100vh - 3.25rem);
   }
 
   .map-title-compact-nightlife {
@@ -343,21 +343,21 @@
 /* Small Landscape - Height < 375px (Ultra Compact) */
 @media (max-height: 23.4375rem) and (orientation: landscape) {
   .map-container-nightlife {
-    min-height: calc(100vh - 3rem) !important;
-    height: calc(100vh - 3rem) !important;
-    max-height: calc(100vh - 3rem) !important;
+    min-height: calc(100vh - 3rem);
+    height: calc(100vh - 3rem);
+    max-height: calc(100vh - 3rem);
   }
 
   .map-bg-soi6,
   .map-bg-walkingstreet,
   .map-bg-lkmetro,
   .map-bg-treetown {
-    height: calc(100vh - 3rem) !important;
+    height: calc(100vh - 3rem);
   }
 
   /* Masquer titre carte pour maximiser espace map */
   .map-title-compact-nightlife {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -398,7 +398,7 @@
  * Grande couronne VIP (x3 taille actuelle)
  */
 .vip-crown {
-  font-size: 48px !important;
+  font-size: 48px;
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9));
   animation: vipCrownFloat 3s ease-in-out infinite;
 }
@@ -447,7 +447,7 @@
  */
 @media (max-width: 48rem) {
   .vip-crown {
-    font-size: 36px !important;
+    font-size: 36px;
   }
 
   .vip-badge {
@@ -462,7 +462,7 @@
  */
 @media (max-width: 30rem) {
   .vip-crown {
-    font-size: 28px !important;
+    font-size: 28px;
   }
 
   .vip-badge {
