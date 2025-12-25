@@ -191,28 +191,36 @@ describe('ConfirmModal Component', () => {
       render(<ConfirmModal {...defaultProps} variant="danger" />);
 
       const icon = document.querySelector('.dialog-icon');
-      expect(icon?.textContent).toContain('⚠️');
+      expect(icon).toBeInTheDocument();
+      // Lucide TriangleAlert (formerly AlertTriangle) icon is rendered as SVG
+      expect(icon?.querySelector('.lucide-triangle-alert')).toBeInTheDocument();
     });
 
     it('should show warning icon for warning variant', () => {
       render(<ConfirmModal {...defaultProps} variant="warning" />);
 
       const icon = document.querySelector('.dialog-icon');
-      expect(icon?.textContent).toContain('⚡');
+      expect(icon).toBeInTheDocument();
+      // Lucide Zap icon is rendered as SVG
+      expect(icon?.querySelector('.lucide-zap')).toBeInTheDocument();
     });
 
     it('should show success icon for success variant', () => {
       render(<ConfirmModal {...defaultProps} variant="success" />);
 
       const icon = document.querySelector('.dialog-icon');
-      expect(icon?.textContent).toContain('✅');
+      expect(icon).toBeInTheDocument();
+      // Lucide Check icon is rendered as SVG
+      expect(icon?.querySelector('.lucide-check')).toBeInTheDocument();
     });
 
     it('should show info icon by default', () => {
       render(<ConfirmModal {...defaultProps} />);
 
       const icon = document.querySelector('.dialog-icon');
-      expect(icon?.textContent).toContain('ℹ️');
+      expect(icon).toBeInTheDocument();
+      // Lucide Info icon is rendered as SVG
+      expect(icon?.querySelector('.lucide-info')).toBeInTheDocument();
     });
   });
 });

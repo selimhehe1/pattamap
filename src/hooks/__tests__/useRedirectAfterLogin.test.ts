@@ -14,15 +14,31 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useRedirectAfterLogin, useAutoRedirectIfAuthenticated } from '../useRedirectAfterLogin';
 
-// Mock navigate function
-const mockNavigate = vi.fn();
-const mockLocation = { state: null as { from?: string } | null };
+// Mock navigate function with the same interface as useNavigateWithTransition
+const mockNavigate = vi.fn() as ReturnType<typeof vi.fn> & {
+  back: ReturnType<typeof vi.fn>;
+  forward: ReturnType<typeof vi.fn>;
+  go: ReturnType<typeof vi.fn>;
+};
+mockNavigate.back = vi.fn();
+mockNavigate.forward = vi.fn();
+mockNavigate.go = vi.fn();
 
-// Mock react-router-dom
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation,
+const mockLocation = { state: null as { from?: string } | null, pathname: '/', search: '', hash: '', key: 'default' };
+
+// Mock useNavigateWithTransition
+vi.mock('../useNavigateWithTransition', () => ({
+  useNavigateWithTransition: () => mockNavigate,
 }));
+
+// Mock react-router-dom's useLocation
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useLocation: () => mockLocation,
+  };
+});
 
 // Variable to hold mock user
 let mockUser: { role?: string; account_type?: string } | null = null;

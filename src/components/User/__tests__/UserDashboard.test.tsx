@@ -19,10 +19,19 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import UserDashboard from '../UserDashboard';
 
-// Mock react-router-dom
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
+// Mock navigate function
+const mockNavigate = vi.fn() as ReturnType<typeof vi.fn> & {
+  back: ReturnType<typeof vi.fn>;
+  forward: ReturnType<typeof vi.fn>;
+  go: ReturnType<typeof vi.fn>;
+};
+mockNavigate.back = vi.fn();
+mockNavigate.forward = vi.fn();
+mockNavigate.go = vi.fn();
+
+// Mock useNavigateWithTransition hook
+vi.mock('../../../hooks/useNavigateWithTransition', () => ({
+  useNavigateWithTransition: () => mockNavigate,
 }));
 
 // Mock i18n

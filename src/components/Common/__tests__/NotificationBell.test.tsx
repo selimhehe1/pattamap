@@ -142,8 +142,9 @@ describe('NotificationBell', () => {
       fireEvent.click(bellButton);
 
       await waitFor(() => {
-        // Look for the dropdown empty icon
-        expect(screen.getByText('📭')).toBeInTheDocument();
+        // Look for the dropdown by its class or empty state container
+        const dropdown = document.querySelector('.notification-dropdown');
+        expect(dropdown).toBeInTheDocument();
       });
     });
 
@@ -158,14 +159,17 @@ describe('NotificationBell', () => {
       fireEvent.click(bellButton);
 
       await waitFor(() => {
-        expect(screen.getByText('📭')).toBeInTheDocument();
+        const dropdown = document.querySelector('.notification-dropdown');
+        expect(dropdown).toBeInTheDocument();
       });
 
       // Click outside
       fireEvent.mouseDown(document.body);
 
       await waitFor(() => {
-        expect(screen.queryByText('📭')).not.toBeInTheDocument();
+        // After clicking outside, dropdown should be hidden (removed from DOM or have display:none)
+        const dropdown = document.querySelector('.notification-dropdown');
+        expect(dropdown).not.toBeInTheDocument();
       });
     });
 
@@ -180,8 +184,11 @@ describe('NotificationBell', () => {
       fireEvent.click(bellButton);
 
       await waitFor(() => {
-        // Check for empty state icon
-        expect(screen.getByText('📭')).toBeInTheDocument();
+        // Check for empty state container with MailOpen icon
+        const emptyState = document.querySelector('.notification-empty');
+        expect(emptyState).toBeInTheDocument();
+        // Verify the MailOpen Lucide icon is present
+        expect(emptyState?.querySelector('.lucide-mail-open')).toBeInTheDocument();
       });
     });
   });
