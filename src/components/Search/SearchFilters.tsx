@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Search, ChevronDown, Trash2, Check, User, Gem, Building2,
-  Cake, Globe, MapPin, Tag, ArrowUpDown, Target, Crown, Star,
-  Clock, CalendarDays, FileText, Loader2, Pencil, Lightbulb, AlertTriangle
+  Search, ChevronDown, Trash2, Check, User, Building2,
+  Cake, Globe, MapPin, Tag, ArrowUpDown,
+  Loader2, Pencil, Lightbulb, AlertTriangle
 } from 'lucide-react';
 import { getZoneLabel } from '../../utils/constants';
 import { logger } from '../../utils/logger';
