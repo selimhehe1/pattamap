@@ -196,13 +196,13 @@
 /* Desktop - Always visible */
 @media (min-width: 48.0625rem) {
   .filters-content {
-    max-height: none !important;
-    opacity: 1 !important;
+    max-height: none;
+    opacity: 1;
   }
 
   .filters-content--closed {
-    max-height: none !important;
-    opacity: 1 !important;
+    max-height: none;
+    opacity: 1;
   }
 }
 
@@ -215,7 +215,7 @@
   }
 
   .filters-content--closed {
-    max-height: 0 !important;
+    max-height: 0;
     opacity: 0;
     overflow: hidden; /* Hide content when collapsed */
     pointer-events: none; /* Disable interactions when closed */
@@ -233,7 +233,7 @@
 /* High contrast mode - Toggle button */
 @media (prefers-contrast: high) {
   .search-filters-toggle-btn {
-    border-width: 3px !important;
+    border-width: 3px;
   }
 }
 
@@ -320,7 +320,7 @@
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
-  transform: none !important;
+  transform: none;
 }
 
 /* Verified Badge Icon */

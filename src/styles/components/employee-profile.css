@@ -893,8 +893,8 @@
 .profile-photo-main-vertical {
   width: 100%;
   height: 100%;
-  background-size: cover !important;
-  background-position: center top !important; /* Focus on top to show face */
+  background-size: cover;
+  background-position: center top; /* Focus on top to show face */
   position: relative;
 }
 
@@ -1298,9 +1298,9 @@
 @media (max-width: 768px) and (orientation: portrait) {
   /* Overlay sans padding pour prendre toute la largeur */
   .profile-overlay-nightlife {
-    padding: 0 !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .profile-container-vertical-nightlife {
@@ -1412,12 +1412,12 @@
 /* Cacher le bouton de fermeture du modal UNIQUEMENT pour le profil */
 /* Triple selector for maximum specificity */
 .modal-overlay-unified .modal-content-unified:has(.profile-overlay-nightlife) > .modal-close-btn.modal-close-btn.modal-close-btn {
-  display: none !important;
+  display: none;
 }
 
 /* Fallback si :has() non supporté - cache tous les boutons dans un modal contenant le profil */
 .modal-overlay-unified:has(.profile-overlay-nightlife) .modal-close-btn {
-  display: none !important;
+  display: none;
 }
 
 /* ========================================

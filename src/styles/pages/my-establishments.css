@@ -73,7 +73,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .my-establishments-header h1 {
-    font-size: 32px !important;
+    font-size: 32px;
   }
 
   .my-establishments-stats-row {
@@ -103,7 +103,7 @@
   }
 
   .my-establishments-header h1 {
-    font-size: 28px !important;
+    font-size: 28px;
   }
 
   .my-establishments-content {
@@ -590,7 +590,7 @@
 /* Responsive adjustments for new classes */
 @media (max-width: 768px) {
   .page-title-gradient {
-    font-size: 32px !important;
+    font-size: 32px;
   }
 
   .stat-card-gold,
@@ -603,6 +603,6 @@
 
 @media (max-width: 480px) {
   .page-title-gradient {
-    font-size: 28px !important;
+    font-size: 28px;
   }
 }
