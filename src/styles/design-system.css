@@ -65,6 +65,8 @@
   --color-secondary: #2C3E50;         /* Bleu marine élégant */
   --color-secondary-button: #1A252F;  /* Marine profond pour boutons (WCAG AA) */
   --color-accent: #FF6B9D;            /* Rose vif (modern touch) */
+  --color-accent-subtle: #FF6B9D;     /* Rose vif (même en dark mode) */
+  --color-accent-button: #E91E63;     /* Rose medium pour boutons (WCAG AA) */
 
   /* Nouveaux Accents Chaleur 2025 */
   --color-terracotta: #E2725B;        /* Terracotta trend 2025 */
@@ -145,7 +147,9 @@ body[data-theme="light"] {
   --color-primary-button: #8B5CF6;    /* Violet moyen pour boutons (WCAG AA) */
   --color-secondary: #93C5FD;         /* Bleu ciel pastel */
   --color-secondary-button: #60A5FA;  /* Bleu moyen pour boutons (WCAG AA) */
-  --color-accent: #FDA4AF;            /* Rose pastel */
+  --color-accent: #BE185D;            /* Rose foncé (WCAG AA ~5:1 contrast) */
+  --color-accent-subtle: #FDA4AF;     /* Rose pastel pour décorations */
+  --color-accent-button: #DB2777;     /* Rose moyen pour boutons (WCAG AA) */
 
   /* Semantic Colors - Pastel harmonieux */
   --color-success: #86EFAC;           /* Vert menthe pastel */
@@ -174,8 +178,8 @@ body[data-theme="light"] {
   /* Text Colors - Indigo foncé pour contraste */
   --text-primary: #1E1B4B;            /* Indigo très foncé (excellent contraste) */
   --text-secondary: #4C1D95;          /* Violet foncé */
-  --text-muted: rgba(30, 27, 75, 0.6);   /* Indigo semi-transparent */
-  --text-disabled: rgba(30, 27, 75, 0.35); /* Indigo très transparent */
+  --text-muted: rgba(30, 27, 75, 0.75);   /* Indigo semi-transparent (WCAG AA) */
+  --text-disabled: rgba(30, 27, 75, 0.45); /* Indigo transparent (UI state) */
   --text-inverse: #ffffff;            /* Texte sur fonds foncés */
 
   /* Borders - Violet/Bleu pastel subtil */
