@@ -15,6 +15,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--spacing-6);
+  padding-top: calc(var(--height-header-desktop) + var(--spacing-6)); /* Compense header fixe */
   background: linear-gradient(135deg, #0a0a2e 0%, #16213e 100%);
 }
 
@@ -92,6 +93,7 @@
 
   .establishment-listview-container-nightlife {
     padding: var(--spacing-4);
+    padding-top: calc(var(--height-header-mobile) + var(--spacing-4)); /* Compense header mobile */
   }
 }
 
@@ -104,6 +106,7 @@
 
   .establishment-listview-container-nightlife {
     padding: var(--spacing-3);
+    padding-top: calc(var(--height-header-mobile) + var(--spacing-3)); /* Compense header mobile */
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 }

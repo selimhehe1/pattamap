@@ -4,7 +4,9 @@
 
 .visit-history-page {
   min-height: 100vh;
-  padding: 80px 20px 40px;
+  padding: 20px;
+  padding-top: calc(var(--height-header-desktop) + 20px); /* Compense header fixe */
+  padding-bottom: 40px;
   background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a2a 100%);
 }
 
@@ -257,7 +259,9 @@
 /* Mobile Responsive */
 @media (max-width: 600px) {
   .visit-history-page {
-    padding: 70px 15px 30px;
+    padding: 15px;
+    padding-top: calc(var(--height-header-mobile) + 15px); /* Compense header mobile */
+    padding-bottom: 30px;
   }
 
   .visit-history-header h1 {

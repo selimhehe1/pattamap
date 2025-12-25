@@ -4,6 +4,7 @@
 
 .verifications-admin-container {
   padding: var(--padding-page-desktop, 2rem); /* Responsive padding */
+  padding-top: calc(var(--height-header-desktop) + var(--padding-page-desktop, 2rem)); /* Compense header fixe */
   width: 100%; /* Full-width responsive */
   /* max-width supprimé pour full-width */
   margin: 0 auto;
@@ -14,12 +15,14 @@
 @media (max-width: 48rem) {
   .verifications-admin-container {
     padding: var(--padding-page-tablet, 1.5rem);
+    padding-top: calc(var(--height-header-mobile) + var(--padding-page-tablet, 1.5rem)); /* Compense header mobile */
   }
 }
 
 @media (max-width: 30rem) {
   .verifications-admin-container {
     padding: var(--padding-page-mobile, 0.75rem);
+    padding-top: calc(var(--height-header-mobile) + var(--padding-page-mobile, 0.75rem)); /* Compense header mobile */
   }
 }
 

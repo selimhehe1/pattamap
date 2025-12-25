@@ -98,6 +98,7 @@
 
 .freelances-page {
   padding: 20px;
+  padding-top: calc(var(--height-header-desktop) + 20px); /* Compense header fixe */
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -198,6 +199,7 @@
 @media (max-width: 768px) {
   .freelances-page {
     padding: 16px;
+    padding-top: calc(var(--height-header-mobile) + 16px); /* Compense header mobile */
   }
 
   /* Stack filters vertically on mobile */
@@ -251,6 +253,7 @@
 @media (max-width: 480px) {
   .freelances-page {
     padding: 12px;
+    padding-top: calc(var(--height-header-mobile) + 12px); /* Compense header mobile */
   }
 
   /* Even smaller skeleton on very small screens */

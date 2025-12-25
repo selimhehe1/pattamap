@@ -31,14 +31,14 @@
 
 .admin-dashboard-container {
   padding: var(--spacing-lg);
-  margin-top: 6.25rem; /* Header height */
+  padding-top: calc(var(--height-header-desktop) + var(--spacing-lg)); /* Compense header fixe */
   background: linear-gradient(
     135deg,
     var(--bg-dark-secondary) 0%,
     var(--bg-dark-primary) 100%
   );
   color: var(--color-text-primary);
-  min-height: calc(100vh - 6.25rem);
+  min-height: calc(100vh - var(--height-header-desktop));
 }
 
 /* ================================================================
@@ -750,8 +750,8 @@
 /* Tablet and below (max-width: 48rem / 768px) */
 @media (max-width: 48rem) {
   .admin-dashboard-container {
-    padding: var(--spacing-1) var(--spacing-md); /* Padding vertical minimal pour coller au header */
-    margin-top: 4rem; /* 64px - Badge collé au header mobile pour layout ultra-compact */
+    padding: var(--spacing-1) var(--spacing-md);
+    padding-top: calc(var(--height-header-mobile) + var(--spacing-1)); /* Compense header mobile */
   }
 
   .admin-stats-grid {

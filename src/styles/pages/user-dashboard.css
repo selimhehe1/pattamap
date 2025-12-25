@@ -219,7 +219,7 @@
 /* Header Centered */
 .header-centered-nightlife {
   text-align: center;
-  margin-top: var(--spacing-9);
+  margin-top: calc(var(--height-header-desktop) + var(--spacing-4)); /* Compense header fixe */
   margin-bottom: var(--spacing-6);
 }
 
@@ -296,7 +296,7 @@
   }
 
   .header-centered-nightlife {
-    margin-top: var(--spacing-7);
+    margin-top: calc(var(--height-header-mobile) + var(--spacing-3)); /* Compense header mobile */
     margin-bottom: var(--spacing-5);
   }
 
@@ -328,7 +328,7 @@
   }
 
   .header-centered-nightlife {
-    margin-top: var(--spacing-6);
+    margin-top: calc(var(--height-header-mobile) + var(--spacing-2)); /* Compense header mobile */
     margin-bottom: var(--spacing-4);
   }
 

@@ -5,8 +5,15 @@
 
 .my-establishments-container {
   min-height: 100vh;
+  padding-top: var(--height-header-desktop); /* Compense header fixe */
   background: var(--gradient-main);
   color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .my-establishments-container {
+    padding-top: var(--height-header-mobile); /* Compense header mobile */
+  }
 }
 
 .my-establishments-header {
