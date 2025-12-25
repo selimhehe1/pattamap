@@ -9,9 +9,32 @@ import EmployeeClaimsAdmin from './EmployeeClaimsAdmin';
 import CommentsAdmin from './CommentsAdmin';
 import UsersAdmin from './UsersAdmin';
 import ConsumablesAdmin from './ConsumablesAdmin';
-import VerificationsAdmin from './VerificationsAdmin'; // 🆕 v10.2
+import VerificationsAdmin from './VerificationsAdmin';
 import { logger } from '../../utils/logger';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  Link2,
+  Crown,
+  BadgeCheck,
+  Gem,
+  MessageSquare,
+  User,
+  Beer,
+  Shield,
+  Trophy,
+  TrendingUp,
+  Wallet,
+  Mail,
+  Lock,
+  Unlock,
+  CheckCircle,
+  XCircle,
+  BarChart3,
+  ShieldOff
+} from 'lucide-react';
 import '../../styles/admin/dashboard.css';
 import '../../styles/components/admin-profile-modal.css';
 
@@ -54,19 +77,20 @@ interface AdminUser {
 interface TabItem {
   id: string;
   label: string;
+  icon: React.ReactNode;
   description: string;
   badge: number | null;
-  href?: string; // Optional - for tabs that link to external routes
-  testId?: string; // Optional - for testing
+  href?: string;
+  testId?: string;
 }
 
 interface StatCard {
   title: string;
   value: number;
   pending: number;
-  icon: string;
+  icon: React.ReactNode;
   color: string;
-  subtitle?: string; // Optional - for additional context
+  subtitle?: string;
 }
 
 interface AdminDashboardProps {
@@ -178,13 +202,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
         }}>
         <div>
           <h2 style={{
-            color: '#C19A6B',
+            color: 'var(--color-primary)',
             fontSize: '24px',
             fontWeight: 'bold',
             margin: '0 0 15px 0',
-            textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
+            textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px'
           }}>
-            🚫 {t('admin.accessDenied')}
+            <ShieldOff size={24} /> {t('admin.accessDenied')}
           </h2>
           <p style={{
             color: '#cccccc',
@@ -202,44 +230,50 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
   const tabItems: TabItem[] = [
     {
       id: 'overview',
-      label: `📊 ${t('admin.overviewTab')}`,
+      label: t('admin.overviewTab'),
+      icon: <LayoutDashboard size={18} />,
       description: t('admin.overviewDesc'),
       badge: null
     },
     {
       id: 'establishments',
-      label: `🏢 ${t('admin.establishmentsTab')}`,
+      label: t('admin.establishmentsTab'),
+      icon: <Building2 size={18} />,
       description: t('admin.establishmentsDesc'),
       badge: stats.pendingEstablishments > 0 ? stats.pendingEstablishments : null
     },
     {
       id: 'employees',
-      label: `👥 ${t('admin.employeesTab')}`,
+      label: t('admin.employeesTab'),
+      icon: <Users size={18} />,
       description: t('admin.employeesDesc'),
       badge: stats.pendingEmployees > 0 ? stats.pendingEmployees : null
     },
     {
       id: 'employee-claims',
-      label: `🔗 ${t('admin.profileClaimsTab')}`,
+      label: t('admin.profileClaimsTab'),
+      icon: <Link2 size={18} />,
       description: t('admin.profileClaimsDesc'),
       badge: stats.pendingClaims > 0 ? stats.pendingClaims : null
     },
     {
-      id: 'establishment-owners', // 🆕 v10.1
-      label: `🏆 ${t('admin.establishmentOwnersTab')}`,
+      id: 'establishment-owners',
+      label: t('admin.establishmentOwnersTab'),
+      icon: <Crown size={18} />,
       description: t('admin.establishmentOwnersDesc'),
       badge: null
     },
     {
-      id: 'verifications', // 🆕 v10.2
-      label: `✅ Verifications`,
+      id: 'verifications',
+      label: 'Verifications',
+      icon: <BadgeCheck size={18} />,
       description: 'Manage employee verification requests',
       badge: stats.pendingVerifications && stats.pendingVerifications > 0 ? stats.pendingVerifications : null
     },
-    // 🆕 v10.3 Phase 2 - VIP Payment Verification (conditionally shown)
     ...(VIP_ENABLED ? [{
       id: 'vip-verifications',
-      label: `💎 VIP Verification`,
+      label: 'VIP Verification',
+      icon: <Gem size={18} />,
       description: 'Verify VIP cash payments',
       badge: null,
       href: '/admin/vip-verification',
@@ -247,60 +281,70 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
     }] : []),
     {
       id: 'comments',
-      label: `💬 ${t('admin.reviewsTab')}`,
+      label: t('admin.reviewsTab'),
+      icon: <MessageSquare size={18} />,
       description: t('admin.reviewsDesc'),
       badge: (stats.pendingComments + stats.reportedComments) > 0 ? (stats.pendingComments + stats.reportedComments) : null
     },
     {
       id: 'users',
-      label: `👤 ${t('admin.usersTab')}`,
+      label: t('admin.usersTab'),
+      icon: <User size={18} />,
       description: t('admin.usersDesc'),
       badge: null
     },
     {
       id: 'consumables',
-      label: `🍺 ${t('admin.consumablesTab')}`,
+      label: t('admin.consumablesTab'),
+      icon: <Beer size={18} />,
       description: t('admin.consumablesDesc'),
       badge: null
     },
   ];
+
+  // Unified colors from design system
+  const STAT_COLORS = {
+    primary: 'var(--color-primary)',      // #C19A6B - Gold/Primary
+    accent: 'var(--color-accent)',        // #E879F9 - Fuchsia
+    success: 'var(--color-success)',      // #10B981 - Emerald
+  };
 
   const statCards: StatCard[] = [
     {
       title: t('admin.totalEstablishments'),
       value: stats.totalEstablishments,
       pending: stats.pendingEstablishments,
-      icon: '🏢',
-      color: '#C19A6B'
+      icon: <Building2 size={28} />,
+      color: STAT_COLORS.primary
     },
     {
       title: t('admin.totalEmployees'),
       value: stats.totalEmployees,
       pending: stats.pendingEmployees,
-      icon: '👥',
-      color: '#00E5FF'
+      icon: <Users size={28} />,
+      color: STAT_COLORS.accent
     },
     {
       title: t('admin.totalReviews'),
       value: stats.totalComments,
       pending: stats.pendingComments,
-      icon: '💬',
-      color: '#FFD700'
+      icon: <MessageSquare size={28} />,
+      color: STAT_COLORS.primary
     },
-    { // 🆕 v10.1 - Establishment Owners Stats
+    {
       title: t('admin.totalOwners'),
       value: stats.totalOwners || 0,
       pending: 0,
-      icon: '🏆',
-      color: '#9C27B0',
+      icon: <Crown size={28} />,
+      color: STAT_COLORS.accent,
       subtitle: t('admin.establishmentsOwned', { count: stats.establishmentsWithOwners || 0 })
     },
-    { // 🆕 v10.3 - Verified Profiles Stats
+    {
       title: 'Verified Profiles',
       value: stats.totalVerified || 0,
       pending: stats.pendingVerifications || 0,
-      icon: '✅',
-      color: '#4CAF50',
+      icon: <BadgeCheck size={28} />,
+      color: STAT_COLORS.success,
       subtitle: stats.totalVerified && stats.totalEmployees
         ? `${Math.round((stats.totalVerified / stats.totalEmployees) * 100)}% verification rate`
         : '0% verification rate'
@@ -314,7 +358,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
         <div className="admin-header-top-row">
           <div className="admin-header-left">
             <div className="admin-control-center">
-              <span className="admin-shield-icon">🛡️</span>
+              <span className="admin-shield-icon"><Shield size={24} /></span>
               <h1 className="admin-control-title">{t('admin.controlCenter')}</h1>
             </div>
           </div>
@@ -333,7 +377,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               </div>
               <div className="admin-user-info">
                 <span className="admin-user-name">{user.pseudonym}</span>
-                <span className="admin-user-role-badge">🏆 {user.role}</span>
+                <span className="admin-user-role-badge"><Trophy size={14} /> {user.role}</span>
               </div>
             </button>
 
@@ -348,6 +392,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
           const tabContent = (
             <>
               <div className="admin-tab-label">
+                <span className="admin-tab-icon">{tab.icon}</span>
                 {tab.label}
               </div>
               <div className="admin-tab-description">
@@ -452,7 +497,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
           {/* Quick Actions */}
           <div className="admin-quick-actions">
             <h3 className="admin-quick-actions-title">
-              📈 {t('admin.quickActions')}
+              <TrendingUp size={18} style={{ marginRight: '8px' }} />
+              {t('admin.quickActions')}
             </h3>
 
             <div className="admin-quick-actions-grid scroll-reveal-stagger">
@@ -468,7 +514,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  🏢 {t('admin.reviewEstablishment', { count: stats.pendingEstablishments })}
+                  <Building2 size={16} style={{ marginRight: '6px' }} />
+                  {t('admin.reviewEstablishment', { count: stats.pendingEstablishments })}
                 </button>
               )}
 
@@ -476,7 +523,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                 <button
                   onClick={() => onTabChange('employees')}
                   className="admin-action-button"
-                  style={{ background: 'linear-gradient(45deg, #00E5FF, #0080FF)', textAlign: 'left' }}
+                  style={{ background: 'linear-gradient(45deg, var(--color-accent), var(--color-accent-button))', textAlign: 'left' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)';
                   }}
@@ -484,7 +531,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  👥 {t('admin.reviewEmployee', { count: stats.pendingEmployees })}
+                  <Users size={16} style={{ marginRight: '6px' }} />
+                  {t('admin.reviewEmployee', { count: stats.pendingEmployees })}
                 </button>
               )}
 
@@ -500,7 +548,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  💬 {t('admin.reviewComment', { count: stats.pendingComments + stats.reportedComments })}
+                  <MessageSquare size={16} style={{ marginRight: '6px' }} />
+                  {t('admin.reviewComment', { count: stats.pendingComments + stats.reportedComments })}
                 </button>
               )}
 
@@ -508,7 +557,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                 <button
                   onClick={() => onTabChange('verifications')}
                   className="admin-action-button"
-                  style={{ background: 'linear-gradient(45deg, #4CAF50, #45A049)', textAlign: 'left' }}
+                  style={{ background: 'linear-gradient(45deg, var(--color-success), var(--color-success-button))', textAlign: 'left' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)';
                   }}
@@ -516,7 +565,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  ✅ Review {stats.pendingVerifications} verification{stats.pendingVerifications > 1 ? 's' : ''}
+                  <BadgeCheck size={16} style={{ marginRight: '6px' }} />
+                  Review {stats.pendingVerifications} verification{stats.pendingVerifications > 1 ? 's' : ''}
                 </button>
               )}
 
@@ -525,7 +575,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                 <button
                   onClick={() => onTabChange('vip-verifications')}
                   className="admin-action-button"
-                  style={{ background: 'linear-gradient(45deg, #FFD700, #FFA500)', textAlign: 'left' }}
+                  style={{ background: 'linear-gradient(45deg, var(--color-primary), var(--color-primary-button))', textAlign: 'left' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)';
                   }}
@@ -533,14 +583,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  💰 Review {stats.pendingVIPVerifications} VIP payment{stats.pendingVIPVerifications > 1 ? 's' : ''}
+                  <Wallet size={16} style={{ marginRight: '6px' }} />
+                  Review {stats.pendingVIPVerifications} VIP payment{stats.pendingVIPVerifications > 1 ? 's' : ''}
                 </button>
               )}
 
               <button
                 onClick={() => onTabChange('users')}
                 className="admin-action-button"
-                style={{ background: 'linear-gradient(45deg, #FF6B6B, #FF4757)', textAlign: 'left' }}
+                style={{ background: 'linear-gradient(45deg, var(--color-error), var(--color-error-button))', textAlign: 'left' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
@@ -548,7 +599,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                👤 {t('admin.manageUsers', { count: stats.totalUsers })}
+                <User size={16} style={{ marginRight: '6px' }} />
+                {t('admin.manageUsers', { count: stats.totalUsers })}
               </button>
             </div>
           </div>
@@ -599,7 +651,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               </button>
 
               <div className="admin-profile-avatar">
-                🛡️
+                <Shield size={32} />
               </div>
 
               <h1 className="admin-profile-name">
@@ -620,7 +672,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               {/* Personal Information */}
               <div className="admin-profile-section">
                 <h3 className="admin-profile-section-title">
-                  📧 {t('admin.personalInformation')}
+                  <Mail size={16} style={{ marginRight: '8px' }} /> {t('admin.personalInformation')}
                 </h3>
                 <div className="admin-profile-info-grid">
                   <div className="admin-profile-info-item">
@@ -643,8 +695,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
                     <div className="admin-profile-info-label">{t('admin.accountStatus')}</div>
                     <div className={`admin-profile-info-value ${
                       selectedUser.is_active ? 'admin-profile-status-active' : 'admin-profile-status-inactive'
-                    }`}>
-                      {selectedUser.is_active ? `✅ ${t('admin.active')}` : `❌ ${t('admin.inactive')}`}
+                    }`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {selectedUser.is_active ? (
+                        <><CheckCircle size={14} style={{ color: 'var(--color-success)' }} /> {t('admin.active')}</>
+                      ) : (
+                        <><XCircle size={14} style={{ color: 'var(--color-error)' }} /> {t('admin.inactive')}</>
+                      )}
                     </div>
                   </div>
                   {selectedUser.last_login && (
@@ -667,15 +723,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               {/* Role & Permissions */}
               <div className="admin-profile-section">
                 <h3 className="admin-profile-section-title">
-                  🔐 {t('admin.rolePermissions')}
+                  <Lock size={16} style={{ marginRight: '8px' }} /> {t('admin.rolePermissions')}
                 </h3>
                 <div className="admin-profile-info-grid">
                   <div className="admin-profile-info-item">
                     <div className="admin-profile-info-label">{t('admin.accessLevel')}</div>
-                    <div className="admin-profile-info-value">
-                      {selectedUser.role === 'admin' ? `🔓 ${t('admin.fullAccess')}` :
-                       selectedUser.role === 'moderator' ? `🔒 ${t('admin.moderationAccess')}` :
-                       `👤 ${t('admin.userAccess')}`}
+                    <div className="admin-profile-info-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {selectedUser.role === 'admin' ? (
+                        <><Unlock size={14} style={{ color: 'var(--color-success)' }} /> {t('admin.fullAccess')}</>
+                      ) : selectedUser.role === 'moderator' ? (
+                        <><Lock size={14} style={{ color: 'var(--color-primary)' }} /> {t('admin.moderationAccess')}</>
+                      ) : (
+                        <><User size={14} style={{ color: 'var(--color-accent)' }} /> {t('admin.userAccess')}</>
+                      )}
                     </div>
                   </div>
                   <div className="admin-profile-info-item">
@@ -693,7 +753,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
               {selectedUser.stats && (
                 <div className="admin-profile-section">
                   <h3 className="admin-profile-section-title">
-                    📊 {t('admin.activityStatistics')}
+                    <BarChart3 size={16} style={{ marginRight: '8px' }} /> {t('admin.activityStatistics')}
                   </h3>
                   <div className="admin-profile-stats-grid">
                     <div className="admin-profile-stat-card">

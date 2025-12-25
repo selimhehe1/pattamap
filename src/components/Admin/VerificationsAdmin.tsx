@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  ShieldOff,
+  List,
+  BarChart3,
+  Inbox,
+  Bot,
+  User,
+  Loader2,
+  BadgeCheck
+} from 'lucide-react';
 import useSecureFetch from '../../hooks/useSecureFetch';
 import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
@@ -310,14 +324,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
     }
   };
 
-  const getStatusIcon = (status: string, autoApproved?: boolean) => {
+  const getStatusIcon = (status: string, autoApproved?: boolean): React.ReactNode => {
     switch (status) {
-      case 'approved': return autoApproved ? '🤖' : '✅';
-      case 'rejected': return '❌';
-      case 'pending': return '⏳';
-      case 'manual_review': return '👁️';
-      case 'revoked': return '🚫';
-      default: return '❓';
+      case 'approved': return autoApproved ? <Bot size={14} style={{ color: 'var(--color-success)' }} /> : <CheckCircle size={14} style={{ color: 'var(--color-success)' }} />;
+      case 'rejected': return <XCircle size={14} style={{ color: 'var(--color-error)' }} />;
+      case 'pending': return <Clock size={14} style={{ color: 'var(--color-warning)' }} />;
+      case 'manual_review': return <Eye size={14} style={{ color: 'var(--color-warning)' }} />;
+      case 'revoked': return <ShieldOff size={14} style={{ color: '#999999' }} />;
+      default: return <Clock size={14} />;
     }
   };
 
@@ -347,7 +361,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       <AdminBreadcrumb
         currentSection="Profile Verifications"
         onBackToDashboard={() => onTabChange('overview')}
-        icon="✅"
+        icon={<BadgeCheck size={18} />}
       />
 
       {/* Header */}
@@ -360,9 +374,12 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           textShadow: '0 0 20px rgba(0,255,136,0.5)',
-          fontFamily: '"Orbitron", monospace'
+          fontFamily: '"Orbitron", monospace',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          ✅ Profile Verifications
+          <BadgeCheck size={32} style={{ color: 'var(--color-success)' }} /> Profile Verifications
         </h1>
         <p style={{
           fontSize: '16px',
@@ -381,10 +398,10 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
         overflowX: 'auto'
       }}>
         {[
-          { key: 'all', label: 'All', icon: '📋', count: stats.total },
-          { key: 'manual_review', label: 'Manual Review', icon: '👁️', count: stats.manualReview },
-          { key: 'approved', label: 'Approved', icon: '✅', count: stats.approved },
-          { key: 'rejected', label: 'Rejected', icon: '❌', count: stats.rejected }
+          { key: 'all', label: 'All', icon: <List size={14} />, count: stats.total },
+          { key: 'manual_review', label: 'Manual Review', icon: <Eye size={14} />, count: stats.manualReview },
+          { key: 'approved', label: 'Approved', icon: <CheckCircle size={14} />, count: stats.approved },
+          { key: 'rejected', label: 'Rejected', icon: <XCircle size={14} />, count: stats.rejected }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -417,10 +434,10 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
         marginBottom: '30px'
       }}>
         {[
-          { label: 'Total Employees', value: stats.total, icon: '📊', gradient: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.05))', border: 'rgba(0,229,255,0.3)' },
-          { label: 'Manual Review', value: stats.manualReview, icon: '👁️', gradient: 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05))', border: 'rgba(255,215,0,0.3)' },
-          { label: 'Approved', value: stats.approved, icon: '✅', gradient: 'linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05))', border: 'rgba(0,255,136,0.3)' },
-          { label: 'Rejected', value: stats.rejected, icon: '❌', gradient: 'linear-gradient(135deg, rgba(255,71,87,0.1), rgba(255,71,87,0.05))', border: 'rgba(255,71,87,0.3)' }
+          { label: 'Total Employees', value: stats.total, icon: <BarChart3 size={28} />, gradient: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.05))', border: 'rgba(0,229,255,0.3)' },
+          { label: 'Manual Review', value: stats.manualReview, icon: <Eye size={28} />, gradient: 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05))', border: 'rgba(255,215,0,0.3)' },
+          { label: 'Approved', value: stats.approved, icon: <CheckCircle size={28} />, gradient: 'linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05))', border: 'rgba(0,255,136,0.3)' },
+          { label: 'Rejected', value: stats.rejected, icon: <XCircle size={28} />, gradient: 'linear-gradient(135deg, rgba(255,71,87,0.1), rgba(255,71,87,0.05))', border: 'rgba(255,71,87,0.3)' }
         ].map((stat) => (
           <div
             key={stat.label}
@@ -434,7 +451,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
               gap: '12px'
             }}
           >
-            <span style={{ fontSize: '28px' }}>{stat.icon}</span>
+            <span style={{ color: stat.border.replace('0.3', '1') }}>{stat.icon}</span>
             <div>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
                 {stat.label}
@@ -456,7 +473,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
           padding: '60px 40px',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '64px', marginBottom: '20px' }}>📭</div>
+          <div style={{ marginBottom: '20px' }}><Inbox size={64} style={{ color: 'rgba(0,229,255,0.5)' }} /></div>
           <h3 style={{
             color: '#00E5FF',
             fontSize: '22px',

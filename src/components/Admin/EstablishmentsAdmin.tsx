@@ -1,6 +1,30 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Loader2 } from 'lucide-react';
+import {
+  Check,
+  X,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Pencil,
+  Trash2,
+  Tag,
+  User,
+  Image as ImageIcon,
+  Wallet,
+  BarChart3,
+  ShieldOff,
+  FileEdit,
+  Building2,
+  Plus,
+  List,
+  Sparkles,
+  Inbox,
+  MapPin,
+  Globe,
+  Calendar
+} from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -459,12 +483,12 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
-      case 'pending': return '⏳';
-      case 'approved': return '✅';
-      case 'rejected': return '❌';
-      default: return '❓';
+      case 'pending': return <Clock size={14} style={{ color: 'var(--color-warning)' }} />;
+      case 'approved': return <CheckCircle size={14} style={{ color: 'var(--color-success)' }} />;
+      case 'rejected': return <XCircle size={14} style={{ color: 'var(--color-error)' }} />;
+      default: return <Clock size={14} />;
     }
   };
 
@@ -613,8 +637,8 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     return (
       <div className="admin-access-denied-container-nightlife">
         <div className="admin-access-denied-card-nightlife">
-          <h2 className="admin-access-denied-title-nightlife">
-            🚫 {t('admin.accessDenied')}
+          <h2 className="admin-access-denied-title-nightlife" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <ShieldOff size={24} /> {t('admin.accessDenied')}
           </h2>
           <p className="admin-access-denied-text-nightlife">
             {t('admin.accessDeniedArea')}
@@ -630,13 +654,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       <AdminBreadcrumb
         currentSection={t('admin.establishmentsManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="🏢"
+        icon={<Building2 size={18} />}
       />
 
       {/* Header */}
       <div className="admin-establishments-header-nightlife">
-        <h1 className="admin-establishments-title-nightlife">
-          🏢 {t('admin.establishmentsManagement')}
+        <h1 className="admin-establishments-title-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Building2 size={28} /> {t('admin.establishmentsManagement')}
         </h1>
         <p className="admin-establishments-subtitle-nightlife">
           {t('admin.reviewApproveSubmissions')}
@@ -646,16 +670,17 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       {/* Filter Tabs */}
       <div className="admin-establishments-tabs-nightlife">
         {[
-          { key: 'pending', label: t('admin.filterNewPending'), icon: '🆕' },
-          { key: 'pending-edits', label: t('admin.filterPendingEdits'), icon: '✏️' },
-          { key: 'approved', label: t('admin.filterApproved'), icon: '✅' },
-          { key: 'rejected', label: t('admin.filterRejected'), icon: '❌' },
-          { key: 'all', label: t('admin.filterAll'), icon: '📋' }
+          { key: 'pending', label: t('admin.filterNewPending'), icon: <Sparkles size={16} /> },
+          { key: 'pending-edits', label: t('admin.filterPendingEdits'), icon: <Pencil size={16} /> },
+          { key: 'approved', label: t('admin.filterApproved'), icon: <CheckCircle size={16} /> },
+          { key: 'rejected', label: t('admin.filterRejected'), icon: <XCircle size={16} /> },
+          { key: 'all', label: t('admin.filterAll'), icon: <List size={16} /> }
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key as any)}
             className={`admin-establishments-tab-nightlife ${filter === tab.key ? 'active' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             {tab.icon} {tab.label}
           </button>
@@ -667,8 +692,9 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         <button
           onClick={() => setShowAddModal(true)}
           className="admin-add-establishment-button-nightlife"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          🏢 {t('admin.addNewEstablishment')}
+          <Plus size={18} /> <Building2 size={18} /> {t('admin.addNewEstablishment')}
         </button>
       </div>
 
@@ -684,12 +710,16 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
           textAlign: 'center'
         }}>
           <h3 style={{
-            color: '#C19A6B',
+            color: 'var(--color-primary)',
             fontSize: '20px',
             fontWeight: 'bold',
-            margin: '0 0 10px 0'
+            margin: '0 0 10px 0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
           }}>
-            ✅ {t('admin.noPendingEdits')}
+            <CheckCircle size={20} style={{ color: 'var(--color-success)' }} /> {t('admin.noPendingEdits')}
           </h3>
           <p style={{
             color: '#cccccc',
@@ -725,9 +755,12 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                 border: '2px solid #FFD700',
                 color: '#FFD700',
                 fontSize: '12px',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                ✏️ {t('admin.editProposal')}
+                <Pencil size={14} /> {t('admin.editProposal')}
               </div>
 
               <div style={{ marginBottom: '15px' }}>
@@ -759,8 +792,8 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
               {selectedProposal?.id === proposal.id && (
                 <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(0,0,0,0.4)', borderRadius: '15px' }}>
-                  <h5 style={{ color: '#FFD700', fontSize: '16px', margin: '0 0 15px 0' }}>
-                    📊 {t('admin.proposedChanges')}
+                  <h5 style={{ color: '#FFD700', fontSize: '16px', margin: '0 0 15px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <BarChart3 size={16} /> {t('admin.proposedChanges')}
                   </h5>
                   {Object.keys(proposal.proposed_changes).map(key => {
                     const currentValue = proposal.current_values?.[key];
@@ -782,8 +815,8 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                             borderRadius: '8px',
                             border: '1px solid rgba(255,71,87,0.3)'
                           }}>
-                            <div style={{ color: '#FF4757', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                              ❌ {t('admin.before')}
+                            <div style={{ color: '#FF4757', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <XCircle size={12} /> {t('admin.before')}
                             </div>
                             <div
                               style={{ color: '#ffffff', fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.6' }}
@@ -798,8 +831,8 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                             borderRadius: '8px',
                             border: '1px solid rgba(0,255,127,0.3)'
                           }}>
-                            <div style={{ color: '#00FF7F', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-                              ✅ {t('admin.after')}
+                            <div style={{ color: '#00FF7F', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <CheckCircle size={12} /> {t('admin.after')}
                             </div>
                             <div
                               style={{ color: '#ffffff', fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.6' }}
@@ -824,10 +857,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                         borderRadius: '12px',
                         cursor: processingIds.has(proposal.id) ? 'not-allowed' : 'pointer',
                         fontSize: '16px',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
                       }}
                     >
-                      {processingIds.has(proposal.id) ? `⏳ ${t('admin.processing')}` : `✅ ${t('admin.approveAndApply')}`}
+                      {processingIds.has(proposal.id) ? <><Loader2 size={16} className="animate-spin" /> {t('admin.processing')}</> : <><CheckCircle size={16} /> {t('admin.approveAndApply')}</>}
                     </button>
 
                     <button
@@ -842,10 +879,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                         borderRadius: '12px',
                         cursor: processingIds.has(proposal.id) ? 'not-allowed' : 'pointer',
                         fontSize: '16px',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
                       }}
                     >
-                      {processingIds.has(proposal.id) ? `⏳ ${t('admin.processing')}` : `❌ ${t('admin.reject')}`}
+                      {processingIds.has(proposal.id) ? <><Loader2 size={16} className="animate-spin" /> {t('admin.processing')}</> : <><XCircle size={16} /> {t('admin.reject')}</>}
                     </button>
                   </div>
                 </div>
@@ -855,8 +896,8 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         </div>
       ) : establishments.length === 0 ? (
         <div className="admin-establishments-empty-nightlife">
-          <h3 className="admin-establishments-empty-title-nightlife">
-            📭 {t('admin.noEstablishmentsFound')}
+          <h3 className="admin-establishments-empty-title-nightlife" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <Inbox size={24} /> {t('admin.noEstablishmentsFound')}
           </h3>
           <p className="admin-establishments-empty-text-nightlife">
             {t('admin.noEstablishmentsMatch')}
@@ -1061,22 +1102,22 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
                       <div className="admin-establishment-details-nightlife">
                         <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife">📍</span>
+                          <span className="admin-establishment-detail-icon-nightlife"><MapPin size={12} /></span>
                           <span className="admin-establishment-detail-text-nightlife">{establishment.address}</span>
                         </div>
 
                         <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife">🌍</span>
+                          <span className="admin-establishment-detail-icon-nightlife"><Globe size={12} /></span>
                           <span className="admin-establishment-detail-text-nightlife">{establishment.zone}</span>
                         </div>
 
                         <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife">🏷️</span>
+                          <span className="admin-establishment-detail-icon-nightlife"><Tag size={12} /></span>
                           <span className="admin-establishment-detail-text-nightlife">{establishment.category?.name || t('admin.unknown')}</span>
                         </div>
 
                         <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife">👤</span>
+                          <span className="admin-establishment-detail-icon-nightlife"><User size={12} /></span>
                           <span className="admin-establishment-detail-text-nightlife">{establishment.user?.pseudonym || t('admin.unknown')}</span>
                         </div>
                       </div>
@@ -1087,10 +1128,11 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                         justifyContent: 'space-between',
                         fontSize: '11px',
                         color: '#888888',
-                        marginTop: '8px'
+                        marginTop: '8px',
+                        alignItems: 'center'
                       }}>
-                        <span>📅 {formatDate(establishment.created_at)}</span>
-                        <span style={{ color: '#FFD700' }}>🏷️ {establishment.category?.name || t('admin.unknown')}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={11} /> {formatDate(establishment.created_at)}</span>
+                        <span style={{ color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><Tag size={11} /> {establishment.category?.name || t('admin.unknown')}</span>
                       </div>
                     </div>
                   </div>
@@ -1111,8 +1153,9 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                   <button
                     onClick={() => setEditingEstablishment(establishment)}
                     className="admin-establishment-edit-button-nightlife"
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
-                    ✏️<span className="edit-text-desktop"> {t('common.edit')}</span>
+                    <Pencil size={14} /><span className="edit-text-desktop"> {t('common.edit')}</span>
                   </button>
 
                   <button
@@ -1120,8 +1163,9 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                     disabled={processingIds.has(establishment.id)}
                     className="admin-establishment-delete-button-nightlife"
                     title={t('admin.deleteEstablishment') || 'Delete'}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
-                    {processingIds.has(establishment.id) ? '⏳' : '🗑️'}<span className="delete-text-desktop"> {t('admin.deleteEstablishment') || 'Delete'}</span>
+                    {processingIds.has(establishment.id) ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}<span className="delete-text-desktop"> {t('admin.deleteEstablishment') || 'Delete'}</span>
                   </button>
                 </div>
 
@@ -1133,7 +1177,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                       disabled={processingIds.has(establishment.id)}
                       className="admin-establishment-approve-button-nightlife"
                     >
-                      {processingIds.has(establishment.id) ? '⏳' : '✅'}
+                      {processingIds.has(establishment.id) ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                     </button>
 
                     <button
@@ -1141,7 +1185,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                       disabled={processingIds.has(establishment.id)}
                       className="admin-establishment-reject-button-nightlife"
                     >
-                      {processingIds.has(establishment.id) ? '⏳' : '❌'}
+                      {processingIds.has(establishment.id) ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
                     </button>
                   </div>
                 )}
