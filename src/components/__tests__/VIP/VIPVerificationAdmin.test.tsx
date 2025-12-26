@@ -142,9 +142,15 @@ describe('VIPVerificationAdmin Component', () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        expect(screen.getByText('Pending')).toBeInTheDocument();
-        expect(screen.getByText('Completed')).toBeInTheDocument();
-        expect(screen.getByText('All')).toBeInTheDocument();
+        // Use querySelectorAll to find filter-tab buttons specifically
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        expect(filterTabs.length).toBe(3);
+
+        // Verify tab text content
+        const tabTexts = Array.from(filterTabs).map(tab => tab.textContent);
+        expect(tabTexts.some(t => t?.includes('Pending'))).toBe(true);
+        expect(tabTexts.some(t => t?.includes('Completed'))).toBe(true);
+        expect(tabTexts.some(t => t?.includes('All'))).toBe(true);
       });
     });
   });
@@ -233,7 +239,9 @@ describe('VIPVerificationAdmin Component', () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        const pendingTab = screen.getByText('Pending').closest('button');
+        // Find the filter-tab button that contains "Pending" and is active
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const pendingTab = Array.from(filterTabs).find(tab => tab.textContent?.includes('Pending'));
         expect(pendingTab).toHaveClass('active');
       });
     });
@@ -297,19 +305,22 @@ describe('VIPVerificationAdmin Component', () => {
 
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
+      // Wait for filter tabs to render
       await waitFor(() => {
-        expect(screen.getByText('Completed')).toBeInTheDocument();
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        expect(filterTabs.length).toBe(3);
       });
 
-      const completedTab = screen.getByText('Completed');
-      fireEvent.click(completedTab);
+      // Find and click the Completed tab button
+      const filterTabs = document.querySelectorAll('.filter-tab');
+      const completedTab = Array.from(filterTabs).find(tab => tab.textContent?.includes('Completed'));
+      expect(completedTab).toBeInTheDocument();
+      fireEvent.click(completedTab!);
 
       // The component uses setSearchParams to update URL on tab click
       // In tests, we verify the tab is clickable and renders correctly
       // The URL param change triggers a re-fetch via useEffect
       await waitFor(() => {
-        // Verify the Completed tab button exists and was clicked
-        expect(completedTab).toBeInTheDocument();
         // Verify initial fetch was made
         expect(mockSecureFetch).toHaveBeenCalled();
       });
