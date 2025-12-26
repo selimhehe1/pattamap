@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Building2, Loader2, X, Search, CheckCircle, AlertTriangle, BarChart3, XCircle } from 'lucide-react';
+import { Building2, Loader2, X, CheckCircle, AlertTriangle, BarChart3, XCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Establishment } from '../../types';
 import EstablishmentLogo from './EstablishmentLogo';

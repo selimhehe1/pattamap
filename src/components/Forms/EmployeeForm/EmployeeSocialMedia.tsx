@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageCircle, Send } from 'lucide-react';
 import type { FormSocialMedia } from './types';
 
 interface EmployeeSocialMediaProps {

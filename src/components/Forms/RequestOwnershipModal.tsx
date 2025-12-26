@@ -6,7 +6,7 @@ import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
-import { Trophy, X, Search, Building2, Plus, FolderOpen, FileText, Paperclip, Lock, CheckCircle, Key, MessageCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
+import { Trophy, X, Search, Building2, Plus, FolderOpen, CheckCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';

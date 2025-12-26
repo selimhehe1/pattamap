@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, X, Save, Sparkles, Loader2 } from 'lucide-react';
+import { AlertTriangle, X, Save, Sparkles } from 'lucide-react';
 import type { FormErrors } from './types';
 
 interface EmployeeFormButtonsProps {

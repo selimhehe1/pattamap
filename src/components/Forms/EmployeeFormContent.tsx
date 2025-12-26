@@ -5,7 +5,7 @@ import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from './NationalityTagsInput';
-import { Pencil, Sparkles, Users, FileText, User, AlertTriangle, UserCog, Cake, Globe, Camera, FolderOpen, Music, Building2, MapPin, Check, Lightbulb, Store, Smartphone, MessageCircle, Send, Phone, X, Upload, Loader2, Save } from 'lucide-react';
+import { Pencil, Sparkles, Users, FileText, User, AlertTriangle, UserCog, Cake, Globe, Camera, FolderOpen, Music, Building2, MapPin, Check, Lightbulb, Store, Smartphone, X, Upload, Loader2, Save } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/employee-form.css';
 
