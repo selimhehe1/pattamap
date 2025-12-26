@@ -175,7 +175,7 @@ export const useAddFavorite = () => {
         queryClient.setQueryData(favoriteKeys.lists(), context.previousFavorites);
       }
 
-      toast.error(`❌ Failed to add to favorites: ${error.message}`);
+      toast.error(`Failed to add to favorites: ${error.message}`);
       // Screen reader announcement (WCAG AAA)
       announceAssertive('Error: Failed to add to favorites');
     },
@@ -186,10 +186,10 @@ export const useAddFavorite = () => {
     onSuccess: (_data, _employeeId, context) => {
       // Show different message if queued offline
       if (!context?.previousFavorites && !navigator.onLine) {
-        toast.success('📴 Queued for sync when online');
+        toast.success('Queued for sync when online');
         announcePolite('Favorite queued for sync when online');
       } else {
-        toast.success('⭐ Added to favorites!');
+        toast.success('Added to favorites!');
         announcePolite('Added to favorites');
       }
     },
@@ -258,7 +258,7 @@ export const useRemoveFavorite = () => {
         queryClient.setQueryData(favoriteKeys.lists(), context.previousFavorites);
       }
 
-      toast.error(`❌ Failed to remove from favorites: ${error.message}`);
+      toast.error(`Failed to remove from favorites: ${error.message}`);
       // Screen reader announcement (WCAG AAA)
       announceAssertive('Error: Failed to remove from favorites');
     },
@@ -269,10 +269,10 @@ export const useRemoveFavorite = () => {
     onSuccess: (_data, _employeeId, context) => {
       // Show different message if queued offline
       if (!context?.previousFavorites && !navigator.onLine) {
-        toast.success('📴 Queued for sync when online');
+        toast.success('Queued for sync when online');
         announcePolite('Favorite removal queued for sync when online');
       } else {
-        toast.success('❌ Removed from favorites');
+        toast.success('Removed from favorites');
         announcePolite('Removed from favorites');
       }
     },

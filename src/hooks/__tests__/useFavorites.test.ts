@@ -267,7 +267,7 @@ describe('useFavorites Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('⭐ Added to favorites!');
+        expect(toast.success).toHaveBeenCalledWith('Added to favorites!');
       });
     });
 
@@ -288,7 +288,7 @@ describe('useFavorites Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('❌ Failed to add to favorites: Already exists');
+        expect(toast.error).toHaveBeenCalledWith('Failed to add to favorites: Already exists');
       });
     });
 
@@ -423,7 +423,7 @@ describe('useFavorites Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('❌ Removed from favorites');
+        expect(toast.success).toHaveBeenCalledWith('Removed from favorites');
       });
     });
 
@@ -444,7 +444,7 @@ describe('useFavorites Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('❌ Failed to remove from favorites: Not found');
+        expect(toast.error).toHaveBeenCalledWith('Failed to remove from favorites: Not found');
       });
     });
 

@@ -426,7 +426,7 @@ describe('useEmployees Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Employee profile created successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Employee profile created successfully!');
       });
     });
   });
@@ -498,7 +498,7 @@ describe('useEmployees Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Employee profile updated successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Employee profile updated successfully!');
       });
     });
   });
@@ -569,7 +569,7 @@ describe('useEmployees Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Employee profile deleted successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Employee profile deleted successfully!');
       });
     });
   });

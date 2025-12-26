@@ -764,7 +764,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               fontWeight: 'bold'
             }}
           >
-            ❌ {t('establishmentEditModal.buttonCancel')}
+            <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentEditModal.buttonCancel')}
           </button>
 
           <button

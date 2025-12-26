@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Users, Star, Cake } from 'lucide-react';
+import { Sparkles, Users, Star, Cake, Frown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Employee } from '../../types';
 import { useModal } from '../../contexts/ModalContext';
@@ -192,12 +192,6 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
   // Grid styles moved to CSS (see <style> tag below for responsive breakpoints)
   const galleryStyle = useMemo(() => ({}), []);
 
-  // 🚀 Mémoisation de la fonction getRatingStars
-  const _getRatingStars = useCallback((rating: number | undefined) => {
-    if (!rating) return '⭐⭐⭐⭐⭐';
-    const stars = Math.round(rating);
-    return '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
-  }, []);
 
   // 🚀 Mémoisation des styles de boutons pour éviter les recréations
   const getFilterButtonStyle = useCallback((filterType: string, isActive: boolean) => ({
@@ -523,7 +517,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
           backgroundColor: 'rgba(0,0,0,0.3)',
           borderRadius: '20px'
         }}>
-          😔 {t('girlsGallery.emptyState')}
+          <Frown size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('girlsGallery.emptyState')}
         </div>
       )}
     </div>

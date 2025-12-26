@@ -76,14 +76,15 @@ export const getStatusColor = (status: EmployeeStatus | string): string => {
 
 /**
  * Get the icon for a status
+ * Uses simple Unicode symbols for consistency
  */
 export const getStatusIcon = (status: EmployeeStatus | string): string => {
   const icons: Record<string, string> = {
     pending: '⏳',
-    approved: '✅',
-    rejected: '❌',
+    approved: '✓',
+    rejected: '✗',
   };
-  return icons[status] || '❓';
+  return icons[status] || '?';
 };
 
 /**

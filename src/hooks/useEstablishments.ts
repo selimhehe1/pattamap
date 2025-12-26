@@ -134,11 +134,11 @@ export const useCreateEstablishment = () => {
     onSuccess: () => {
       // Invalide le cache pour forcer un refetch
       queryClient.invalidateQueries({ queryKey: establishmentKeys.lists() });
-      toast.success('✅ Establishment created successfully!');
+      toast.success('Establishment created successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to create establishment:', error);
-      toast.error(`❌ Failed to create establishment: ${error.message}`);
+      toast.error(`Failed to create establishment: ${error.message}`);
     },
   });
 };
@@ -176,11 +176,11 @@ export const useUpdateEstablishment = () => {
       // Invalide les listes ET le détail de cet établissement
       queryClient.invalidateQueries({ queryKey: establishmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: establishmentKeys.detail(variables.id) });
-      toast.success('✅ Establishment updated successfully!');
+      toast.success('Establishment updated successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to update establishment:', error);
-      toast.error(`❌ Failed to update establishment: ${error.message}`);
+      toast.error(`Failed to update establishment: ${error.message}`);
     },
   });
 };
@@ -212,11 +212,11 @@ export const useDeleteEstablishment = () => {
       queryClient.invalidateQueries({ queryKey: establishmentKeys.lists() });
       // Supprime du cache le détail de cet établissement
       queryClient.removeQueries({ queryKey: establishmentKeys.detail(deletedId) });
-      toast.success('✅ Establishment deleted successfully!');
+      toast.success('Establishment deleted successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to delete establishment:', error);
-      toast.error(`❌ Failed to delete establishment: ${error.message}`);
+      toast.error(`Failed to delete establishment: ${error.message}`);
     },
   });
 };

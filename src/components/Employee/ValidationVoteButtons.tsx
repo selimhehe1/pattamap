@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, createElement } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Lock, CheckCircle, Check, X, Loader2 } from 'lucide-react';
+import { Lock, CheckCircle, Check, X, Loader2, PartyPopper, Star, AlertTriangle, XCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import toast from '../../utils/toast';
@@ -84,13 +84,13 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
 
       // Show success toast
       toast.success(t('validation.thanksForVote'), {
-        icon: '🎉'
+        icon: createElement(PartyPopper, { size: 20, color: '#ffffff' })
       });
 
       // Optional: Show XP award notification
       if (data.xpAwarded) {
         toast.success(`+${data.xpAwarded} XP`, {
-          icon: '⭐',
+          icon: createElement(Star, { size: 20, color: '#FFD700' }),
           duration: 2000
         });
       }
@@ -101,11 +101,11 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
         queryClient.invalidateQueries({ queryKey: ['validation-stats', employeeId] });
 
         toast.error(t('validation.alreadyVoted'), {
-          icon: '⚠️'
+          icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' })
         });
       } else {
         toast.error(t('validation.voteFailed'), {
-          icon: '❌'
+          icon: createElement(XCircle, { size: 20, color: '#ffffff' })
         });
       }
     }
@@ -143,7 +143,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
     // Guard: Block IMMEDIATELY if already voted (prevents API call)
     if (hasVoted) {
       toast.info(t('validation.alreadyVoted'), {
-        icon: '⚠️'
+        icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' })
       });
       return;
     }

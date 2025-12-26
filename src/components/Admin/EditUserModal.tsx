@@ -13,7 +13,8 @@ import {
   CheckCircle,
   FileText,
   Loader2,
-  Save
+  Save,
+  HelpCircle
 } from 'lucide-react';
 
 interface AdminUser extends User {
@@ -94,7 +95,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       case 'admin': return <Crown size={12} style={{ verticalAlign: 'middle' }} />;
       case 'moderator': return <Shield size={12} style={{ verticalAlign: 'middle' }} />;
       case 'user': return <UserIcon size={12} style={{ verticalAlign: 'middle' }} />;
-      default: return '❓';
+      default: return <HelpCircle size={12} style={{ verticalAlign: 'middle' }} />;
     }
   };
 

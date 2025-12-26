@@ -1,4 +1,6 @@
 import toast, { Toaster, ToastOptions } from 'react-hot-toast';
+import { createElement } from 'react';
+import { CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
 
 /**
  * Accessible Toast System
@@ -44,7 +46,7 @@ export const showSuccess = (message: string, options?: ToastOptions): string => 
       background: 'linear-gradient(135deg, #4CAF50, #81C784)',
       ...options?.style,
     },
-    icon: '✅',
+    icon: createElement(CheckCircle, { size: 20, color: '#ffffff' }),
   });
 };
 
@@ -59,7 +61,7 @@ export const showError = (message: string, options?: ToastOptions): string => {
       background: 'linear-gradient(135deg, #f44336, #e57373)',
       ...options?.style,
     },
-    icon: '❌',
+    icon: createElement(XCircle, { size: 20, color: '#ffffff' }),
     ariaProps: {
       role: 'alert',
       'aria-live': 'assertive', // Errors are assertive
@@ -78,7 +80,7 @@ export const showInfo = (message: string, options?: ToastOptions): string => {
       background: 'linear-gradient(135deg, #2196F3, #64B5F6)',
       ...options?.style,
     },
-    icon: 'ℹ️',
+    icon: createElement(Info, { size: 20, color: '#ffffff' }),
   });
 };
 
@@ -93,7 +95,7 @@ export const showWarning = (message: string, options?: ToastOptions): string => 
       background: 'linear-gradient(135deg, #FF9800, #FFB74D)',
       ...options?.style,
     },
-    icon: '⚠️',
+    icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' }),
   });
 };
 
@@ -135,7 +137,7 @@ export const showPromise = <T,>(
           ...defaultOptions.style,
           background: 'linear-gradient(135deg, #4CAF50, #81C784)',
         },
-        icon: '✅',
+        icon: createElement(CheckCircle, { size: 20, color: '#ffffff' }),
         duration: 4000,
       },
       error: {
@@ -143,7 +145,7 @@ export const showPromise = <T,>(
           ...defaultOptions.style,
           background: 'linear-gradient(135deg, #f44336, #e57373)',
         },
-        icon: '❌',
+        icon: createElement(XCircle, { size: 20, color: '#ffffff' }),
         duration: 6000,
       },
       loading: {

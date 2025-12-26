@@ -269,11 +269,11 @@ export const useCreateEmployee = () => {
       // Invalide le cache pour forcer un refetch
       queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
       queryClient.invalidateQueries({ queryKey: employeeKeys.all }); // Invalide toutes les recherches
-      toast.success('✅ Employee profile created successfully!');
+      toast.success('Employee profile created successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to create employee:', error);
-      toast.error(`❌ Failed to create employee: ${error.message}`);
+      toast.error(`Failed to create employee: ${error.message}`);
     },
   });
 };
@@ -312,11 +312,11 @@ export const useUpdateEmployee = () => {
       queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
       queryClient.invalidateQueries({ queryKey: employeeKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: employeeKeys.all }); // Invalide recherches
-      toast.success('✅ Employee profile updated successfully!');
+      toast.success('Employee profile updated successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to update employee:', error);
-      toast.error(`❌ Failed to update employee: ${error.message}`);
+      toast.error(`Failed to update employee: ${error.message}`);
     },
   });
 };
@@ -349,11 +349,11 @@ export const useDeleteEmployee = () => {
       // Supprime du cache le détail de cet employee
       queryClient.removeQueries({ queryKey: employeeKeys.detail(deletedId) });
       queryClient.invalidateQueries({ queryKey: employeeKeys.all });
-      toast.success('✅ Employee profile deleted successfully!');
+      toast.success('Employee profile deleted successfully!');
     },
     onError: (error: Error) => {
       logger.error('❌ Failed to delete employee:', error);
-      toast.error(`❌ Failed to delete employee: ${error.message}`);
+      toast.error(`Failed to delete employee: ${error.message}`);
     },
   });
 };

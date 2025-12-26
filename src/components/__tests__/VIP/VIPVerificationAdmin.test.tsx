@@ -209,20 +209,20 @@ describe('VIPVerificationAdmin Component', () => {
   });
 
   describe('Status Badges', () => {
-    it('should display pending status badge with ⏳ emoji', async () => {
+    it('should display pending status badge', async () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        const pendingBadges = screen.getAllByText(/⏳.*Pending/i);
+        const pendingBadges = screen.getAllByText(/Pending/i);
         expect(pendingBadges.length).toBeGreaterThan(0);
       });
     });
 
-    it('should display completed status badge with ✅ emoji', async () => {
+    it('should display completed status badge', async () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        const completedBadges = screen.getAllByText(/✅.*Completed/i);
+        const completedBadges = screen.getAllByText(/Completed/i);
         expect(completedBadges.length).toBeGreaterThan(0);
       });
     });
@@ -331,7 +331,7 @@ describe('VIPVerificationAdmin Component', () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        expect(screen.getByText(/✅.*Verify Payment/i)).toBeInTheDocument();
+        expect(screen.getByText(/Verify Payment/i)).toBeInTheDocument();
       });
     });
 
@@ -413,7 +413,7 @@ describe('VIPVerificationAdmin Component', () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        expect(screen.getByText(/❌.*Reject/i)).toBeInTheDocument();
+        expect(screen.getByText(/Reject/i)).toBeInTheDocument();
       });
     });
 
@@ -437,7 +437,7 @@ describe('VIPVerificationAdmin Component', () => {
         expect(screen.getByText(/Reject/i)).toBeInTheDocument();
       });
 
-      const rejectButton = screen.getByText(/❌.*Reject/i);
+      const rejectButton = screen.getByText(/Reject/i);
       fireEvent.click(rejectButton);
 
       // Since prompt returns null, API should NOT be called
@@ -466,7 +466,7 @@ describe('VIPVerificationAdmin Component', () => {
         expect(screen.getByText(/Reject/i)).toBeInTheDocument();
       });
 
-      const rejectButton = screen.getByText(/❌.*Reject/i);
+      const rejectButton = screen.getByText(/Reject/i);
       fireEvent.click(rejectButton);
 
       await waitFor(() => {
@@ -511,8 +511,7 @@ describe('VIPVerificationAdmin Component', () => {
       await waitFor(() => {
         // Check for either message depending on filter state
         const emptyMessage = screen.queryByText(/No pending verifications/i) ||
-                            screen.queryByText(/No transactions found/i) ||
-                            screen.queryByText('📭');
+                            screen.queryByText(/No transactions found/i);
         expect(emptyMessage).toBeInTheDocument();
       }, { timeout: 3000 });
     });
@@ -555,7 +554,7 @@ describe('VIPVerificationAdmin Component', () => {
       renderWithProviders(<VIPVerificationAdmin />, { initialAuth: adminAuth });
 
       await waitFor(() => {
-        expect(screen.getByText(/🔄.*Refresh/i)).toBeInTheDocument();
+        expect(screen.getByText(/Refresh/i)).toBeInTheDocument();
       });
     });
 
@@ -568,7 +567,7 @@ describe('VIPVerificationAdmin Component', () => {
 
       const initialCallCount = mockSecureFetch.mock.calls.length;
 
-      const refreshButton = screen.getByText(/🔄.*Refresh/i);
+      const refreshButton = screen.getByText(/Refresh/i);
       fireEvent.click(refreshButton);
 
       await waitFor(() => {

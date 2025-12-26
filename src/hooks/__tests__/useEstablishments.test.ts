@@ -253,7 +253,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Establishment created successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Establishment created successfully!');
       });
     });
 
@@ -274,7 +274,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('❌ Failed to create establishment: Name already exists');
+        expect(toast.error).toHaveBeenCalledWith('Failed to create establishment: Name already exists');
       });
     });
   });
@@ -346,7 +346,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Establishment updated successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Establishment updated successfully!');
       });
     });
 
@@ -367,7 +367,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('❌ Failed to update establishment: Update failed');
+        expect(toast.error).toHaveBeenCalledWith('Failed to update establishment: Update failed');
       });
     });
   });
@@ -438,7 +438,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith('✅ Establishment deleted successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Establishment deleted successfully!');
       });
     });
 
@@ -459,7 +459,7 @@ describe('useEstablishments Hook', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('❌ Failed to delete establishment: Cannot delete active establishment');
+        expect(toast.error).toHaveBeenCalledWith('Failed to delete establishment: Cannot delete active establishment');
       });
     });
   });
