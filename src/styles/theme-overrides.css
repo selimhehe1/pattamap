@@ -862,6 +862,31 @@ body[data-theme="light"] .filter-section-title {
   color: var(--text-secondary);
 }
 
+/* --- CATEGORY FILTERS (Bar, GoGo Bar, etc.) - Light Mode Contrast Fix --- */
+body[data-theme="light"] .category-item-nightlife {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+body[data-theme="light"] .category-item-nightlife:hover {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+body[data-theme="light"] .category-name-nightlife {
+  color: #1F2937 !important; /* Gray-800 - High contrast */
+}
+
+body[data-theme="light"] .category-checkbox-nightlife {
+  border-color: rgba(15, 23, 42, 0.3);
+  background: #FFFFFF;
+}
+
+body[data-theme="light"] .category-checkbox-nightlife:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 /* --- EMPTY STATE --- */
 body[data-theme="light"] .establishment-listview-empty-nightlife,
 body[data-theme="light"] .empty-state {

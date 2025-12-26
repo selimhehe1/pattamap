@@ -100,11 +100,11 @@
   --bg-hover: rgba(255, 255, 255, 0.08); /* Hover plus visible */
   --bg-active: rgba(255, 255, 255, 0.15); /* Active plus visible */
 
-  /* Text Colors - Lisibilité Optimale 2025 */
-  --text-primary: #F8FAFC;            /* Slate-50 - Blanc moderne */
-  --text-secondary: #E2E8F0;          /* Slate-200 - Meilleure lisibilité */
-  --text-muted: rgba(255, 255, 255, 0.8); /* 80% opacité - Plus lisible */
-  --text-disabled: rgba(255, 255, 255, 0.5); /* Plus visible */
+  /* Text Colors - Contraste Maximum 2025 */
+  --text-primary: #FFFFFF;            /* Blanc pur - Contraste maximum */
+  --text-secondary: #F1F5F9;          /* Slate-100 - Plus lumineux */
+  --text-muted: rgba(255, 255, 255, 0.85); /* 85% opacité - Meilleure lisibilité */
+  --text-disabled: rgba(255, 255, 255, 0.6); /* 60% - Plus visible */
   --text-inverse: #0F172A;            /* Slate-900 pour fonds clairs */
 
   /* Borders - Adoucies pour Dual Tone */
@@ -331,11 +331,11 @@ body[data-theme="light"] {
    ============================================ */
 
 :root {
-  /* Font families */
-  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  --font-family-heading: var(--font-family-base);
+  /* Font families - Space Grotesk Modern 2025 */
+  --font-family-base: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-heading: 'Space Grotesk', var(--font-family-base);
   --font-family-mono: 'Monaco', 'Consolas', 'Courier New', monospace;
-  --font-family-display: 'Orbitron', var(--font-family-mono);  /* Display/decorative font */
+  --font-family-display: 'Space Grotesk', var(--font-family-base);  /* Display/decorative font */
 
   /* Font sizes */
   --font-xs: 0.75rem;           /* 12px */
@@ -361,6 +361,32 @@ body[data-theme="light"] {
   --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
+}
+
+/* ============================================
+   4.1 TYPOGRAPHY RENDERING - CRISP TEXT
+   ============================================ */
+
+/* Global anti-aliasing for crisp text rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings - Space Grotesk optimized */
+h1, h2, h3, h4, h5, h6,
+.heading-1, .heading-2, .heading-3 {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-rendering: optimizeLegibility;
+}
+
+/* Body text - Optimal rendering */
+body, p, span, div, li, a, button, label, input, select, textarea {
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1;
 }
 
 /* ============================================

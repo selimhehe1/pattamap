@@ -379,23 +379,23 @@ button[aria-label*="retour" i] {
    SECTION 4: CONTRAST & DARK THEME
    ============================================ */
 
-/* Muted Text Contrast: 0.4-0.5 -> 0.7 */
+/* Muted Text Contrast: IMPROVED 0.7 -> 0.85 */
 .text-muted,
 [class*="-muted"],
 [class*="--muted"] {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
 }
 
-/* Secondary Text Contrast: 0.6 -> 0.8 */
+/* Secondary Text Contrast: IMPROVED 0.8 -> 0.9 */
 .text-secondary,
 [class*="-secondary"],
 [class*="--secondary"] {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* Placeholder Text */
+/* Placeholder Text - More visible */
 ::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
   opacity: 1;
 }
 
