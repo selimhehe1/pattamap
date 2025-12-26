@@ -14,7 +14,7 @@
  * Total: 14 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ReviewForm from '../ReviewForm';
 
@@ -183,7 +183,8 @@ describe('ReviewForm Component', () => {
 
       const textarea = screen.getByRole('textbox');
       const longText = 'a'.repeat(1001);
-      await userEvent.type(textarea, longText);
+      // Use fireEvent.change instead of userEvent.type for long text (much faster)
+      fireEvent.change(textarea, { target: { value: longText } });
 
       const submitButton = screen.getByText('Submit Review');
       await userEvent.click(submitButton);
