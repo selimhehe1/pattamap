@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Crown } from 'lucide-react';
 import { useGamification } from '../../contexts/GamificationContext';
 import './XPProgressBar.css';
 
@@ -72,7 +73,7 @@ const XPProgressBar: React.FC<XPProgressBarProps> = ({
           <div className="xp-progress-details">
             {isMaxLevel ? (
               <span className="xp-progress-text-max">
-                👑 {t('gamification.level.maxReached', { xp: currentXP.toLocaleString() })}
+                <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.level.maxReached', { xp: currentXP.toLocaleString() })}
               </span>
             ) : (
               <span className="xp-progress-text">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, X } from 'lucide-react';
 import './ValidationBadge.css';
 
 interface ValidationBadgeProps {
@@ -66,11 +66,11 @@ const ValidationBadge: React.FC<ValidationBadgeProps> = ({ employeeId }) => {
     <div className="validation-badge validation-simple">
       <div className="validation-counts">
         <span className="count-positive" title={t('validation.voteExists')}>
-          ✓ {stats.existsVotes}
+          <Check size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} /> {stats.existsVotes}
         </span>
         <span className="count-separator">|</span>
         <span className="count-negative" title={t('validation.voteNotExists')}>
-          ✗ {stats.notExistsVotes}
+          <X size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} /> {stats.notExistsVotes}
         </span>
       </div>
     </div>

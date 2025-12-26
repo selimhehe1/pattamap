@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
+import { Check, X, Eye } from 'lucide-react';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import '../../styles/components/verification-modal.css';
@@ -254,7 +255,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
               <div className={`verification-result verification-result-${verificationResult.status}`}>
                 {verificationResult.status === 'approved' && (
                   <>
-                    <div className="result-icon success">✓</div>
+                    <div className="result-icon success"><Check size={32} /></div>
                     <h3>{t('verificationModal.approved', 'Verification Approved!')}</h3>
                     <p>{t('verificationModal.approvedMessage', 'Your profile now has a verified badge.')}</p>
                     <p className="match-score">
@@ -265,7 +266,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
 
                 {verificationResult.status === 'manual_review' && (
                   <>
-                    <div className="result-icon review">👀</div>
+                    <div className="result-icon review"><Eye size={32} /></div>
                     <h3>{t('verificationModal.underReview', 'Under Manual Review')}</h3>
                     <p>{t('verificationModal.reviewMessage', 'An admin will review your submission within 24 hours.')}</p>
                     <p className="match-score">
@@ -276,7 +277,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
 
                 {verificationResult.status === 'rejected' && (
                   <>
-                    <div className="result-icon rejected">✗</div>
+                    <div className="result-icon rejected"><X size={32} /></div>
                     <h3>{t('verificationModal.rejected', 'Verification Failed')}</h3>
                     <p>{t('verificationModal.rejectedMessage', 'The photo did not match your profile photos. Please try again with a clearer selfie.')}</p>
                     <p className="match-score">

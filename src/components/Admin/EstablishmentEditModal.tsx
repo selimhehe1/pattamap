@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Pencil, X, XCircle, Tag, Loader2, RefreshCw, Camera } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Establishment, EstablishmentCategory } from '../../types';
@@ -250,7 +251,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
             margin: 0,
             textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
           }}>
-            ✏️ {t('establishmentEditModal.title', { name: establishment.name })}
+            <Pencil size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishmentEditModal.title', { name: establishment.name })}
           </h2>
 
           <button
@@ -270,7 +271,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               justifyContent: 'center'
             }}
            aria-label="Close">
-            ✖️
+            <X size={24} />
           </button>
         </div>
 
@@ -285,7 +286,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
             borderRadius: '8px',
             border: '1px solid rgba(255,71,87,0.3)'
           }}>
-            ❌ {error}
+            <XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {error}
           </div>
         )}
 
@@ -306,7 +307,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🏷️ {t('establishmentEditModal.logoLabel')}
+                <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentEditModal.logoLabel')}
               </label>
 
               <div style={{
@@ -351,7 +352,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                     fontWeight: 'bold'
                   }}
                 >
-                  {isLoading ? `⏳ ${t('establishmentEditModal.buttonUploading')}` : currentLogoUrl ? `🔄 ${t('establishmentEditModal.buttonChange')}` : `📷 ${t('establishmentEditModal.buttonAddLogo')}`}
+                  {isLoading ? <><Loader2 size={14} style={{ marginRight: '4px', animation: 'spin 1s linear infinite' }} /> {t('establishmentEditModal.buttonUploading')}</> : currentLogoUrl ? <><RefreshCw size={14} style={{ marginRight: '4px' }} /> {t('establishmentEditModal.buttonChange')}</> : <><Camera size={14} style={{ marginRight: '4px' }} /> {t('establishmentEditModal.buttonAddLogo')}</>}
                 </button>
               </div>
 
@@ -477,7 +478,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 marginBottom: '8px',
                 display: 'block'
               }}>
-                🏷️ {t('establishmentEditModal.categoryLabel')}
+                <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentEditModal.categoryLabel')}
               </label>
               <select
                 value={formData.category_id}

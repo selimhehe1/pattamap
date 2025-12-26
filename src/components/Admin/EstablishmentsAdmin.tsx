@@ -1057,7 +1057,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
                   aria-label={t('admin.selectEstablishment', 'Select establishment')}
                 >
                   {selectedIds.has(establishment.id) && (
-                    <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                    <Check size={14} color="#fff" strokeWidth={3} />
                   )}
                 </div>
               {/* Status Badge - Small Circular Icon Only */}
