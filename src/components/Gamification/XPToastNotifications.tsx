@@ -12,7 +12,7 @@ import './XPToastNotifications.css';
  */
 const XPToastNotifications: React.FC = () => {
   const { t } = useTranslation();
-  const { xpNotifications } = useGamification();
+  const { xpNotifications, getLevelIcon } = useGamification();
 
   // Friendly reason labels (using translation keys)
   const getReasonLabel = (reason: string): string => {
@@ -38,9 +38,9 @@ const XPToastNotifications: React.FC = () => {
           // Check if this is a level-up notification
           const isLevelUp = notification.reason.startsWith('level_up:');
           const levelUpData = isLevelUp ? notification.reason.split(':') : null;
-          const newLevel = levelUpData ? levelUpData[1] : null;
+          const newLevel = levelUpData ? parseInt(levelUpData[1], 10) : null;
           const levelName = levelUpData ? levelUpData[2] : null;
-          const levelIcon = levelUpData ? levelUpData[3] : null;
+          const levelIcon = newLevel ? getLevelIcon(newLevel) : null;
 
           return isLevelUp ? (
             // LEVEL UP NOTIFICATION (Special)

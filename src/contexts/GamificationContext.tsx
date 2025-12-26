@@ -1,6 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { Sprout, Map, Beer, Star, Gem, Trophy, Crown, HelpCircle } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { logger } from '../utils/logger';
+
+// Icon mapping for level icons
+const LEVEL_ICONS: Record<string, ReactNode> = {
+  sprout: <Sprout size={20} />,
+  map: <Map size={20} />,
+  beer: <Beer size={20} />,
+  star: <Star size={20} />,
+  gem: <Gem size={20} />,
+  trophy: <Trophy size={20} />,
+  crown: <Crown size={20} />,
+  unknown: <HelpCircle size={20} />
+};
 
 // ========================================
 // TYPES
@@ -90,7 +103,7 @@ interface GamificationContextType {
 
   // Helper functions
   getLevelName: (level: number) => string;
-  getLevelIcon: (level: number) => string;
+  getLevelIcon: (level: number) => ReactNode;
   getXPForNextLevel: (currentLevel: number) => number;
   getProgressToNextLevel: (currentXP: number, currentLevel: number) => number;
 }
@@ -100,13 +113,13 @@ export const GamificationContext = createContext<GamificationContextType | undef
 
 // Level configuration - defined outside component to prevent dependency issues
 const LEVEL_CONFIG = [
-  { level: 1, name: 'Newbie', icon: '🌱', minXP: 0 },
-  { level: 2, name: 'Explorer', icon: '🗺️', minXP: 100 },
-  { level: 3, name: 'Regular', icon: '🍻', minXP: 300 },
-  { level: 4, name: 'Insider', icon: '🌟', minXP: 700 },
-  { level: 5, name: 'VIP', icon: '💎', minXP: 1500 },
-  { level: 6, name: 'Legend', icon: '🏆', minXP: 3000 },
-  { level: 7, name: 'Ambassador', icon: '👑', minXP: 6000 }
+  { level: 1, name: 'Newbie', iconKey: 'sprout', minXP: 0 },
+  { level: 2, name: 'Explorer', iconKey: 'map', minXP: 100 },
+  { level: 3, name: 'Regular', iconKey: 'beer', minXP: 300 },
+  { level: 4, name: 'Insider', iconKey: 'star', minXP: 700 },
+  { level: 5, name: 'VIP', iconKey: 'gem', minXP: 1500 },
+  { level: 6, name: 'Legend', iconKey: 'trophy', minXP: 3000 },
+  { level: 7, name: 'Ambassador', iconKey: 'crown', minXP: 6000 }
 ];
 
 interface GamificationProviderProps {
@@ -152,8 +165,9 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
     return LEVEL_CONFIG.find((l) => l.level === level)?.name || 'Unknown';
   }, []);
 
-  const getLevelIcon = useCallback((level: number): string => {
-    return LEVEL_CONFIG.find((l) => l.level === level)?.icon || '❓';
+  const getLevelIcon = useCallback((level: number): ReactNode => {
+    const iconKey = LEVEL_CONFIG.find((l) => l.level === level)?.iconKey || 'unknown';
+    return LEVEL_ICONS[iconKey] || LEVEL_ICONS.unknown;
   }, []);
 
   const getXPForNextLevel = useCallback((currentLevel: number): number => {
@@ -324,10 +338,9 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
           if (newProgress && newProgress.userProgress && newProgress.userProgress.current_level > previousLevel) {
             const newLevel = newProgress.userProgress.current_level;
             const levelName = getLevelName(newLevel);
-            const levelIcon = getLevelIcon(newLevel);
 
-            // Show special level-up notification
-            addXPNotification(0, `level_up:${newLevel}:${levelName}:${levelIcon}`);
+            // Show special level-up notification (pass level number, icon will be rendered in component)
+            addXPNotification(0, `level_up:${newLevel}:${levelName}`);
             logger.info(`🎉 Level Up! ${previousLevel} → ${newLevel} (${levelName})`);
           }
         } catch (levelCheckError) {
@@ -362,7 +375,7 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
         });
       }
     }
-  }, [user, userProgress, addXPNotification, refreshUserProgress, refreshUserBadges, getLevelName, getLevelIcon]);
+  }, [user, userProgress, addXPNotification, refreshUserProgress, refreshUserBadges, getLevelName]);
 
   // ========================================
   // INITIAL DATA FETCH

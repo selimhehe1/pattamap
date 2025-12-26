@@ -6,7 +6,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
+import { Sprout, Map, Beer, Star, Gem, Trophy, Crown, HelpCircle } from 'lucide-react';
 import { GamificationContext, useGamification } from '../GamificationContext';
 import type { UserProgress, UserBadge, UserMissionProgress, XPNotification } from '../GamificationContext';
 
@@ -46,23 +47,36 @@ const createTestProvider = (initialState: Partial<{
       setXPNotifications((prev) => prev.filter((n) => n.timestamp !== timestamp));
     };
 
+    // Icon mapping for level icons
+    const LEVEL_ICONS: Record<string, ReactNode> = {
+      sprout: <Sprout size={20} />,
+      map: <Map size={20} />,
+      beer: <Beer size={20} />,
+      star: <Star size={20} />,
+      gem: <Gem size={20} />,
+      trophy: <Trophy size={20} />,
+      crown: <Crown size={20} />,
+      unknown: <HelpCircle size={20} />
+    };
+
     // Level configuration
     const LEVEL_CONFIG = [
-      { level: 1, name: 'Newbie', icon: '🌱', minXP: 0 },
-      { level: 2, name: 'Explorer', icon: '🗺️', minXP: 100 },
-      { level: 3, name: 'Regular', icon: '🍻', minXP: 300 },
-      { level: 4, name: 'Insider', icon: '🌟', minXP: 700 },
-      { level: 5, name: 'VIP', icon: '💎', minXP: 1500 },
-      { level: 6, name: 'Legend', icon: '🏆', minXP: 3000 },
-      { level: 7, name: 'Ambassador', icon: '👑', minXP: 6000 },
+      { level: 1, name: 'Newbie', iconKey: 'sprout', minXP: 0 },
+      { level: 2, name: 'Explorer', iconKey: 'map', minXP: 100 },
+      { level: 3, name: 'Regular', iconKey: 'beer', minXP: 300 },
+      { level: 4, name: 'Insider', iconKey: 'star', minXP: 700 },
+      { level: 5, name: 'VIP', iconKey: 'gem', minXP: 1500 },
+      { level: 6, name: 'Legend', iconKey: 'trophy', minXP: 3000 },
+      { level: 7, name: 'Ambassador', iconKey: 'crown', minXP: 6000 },
     ];
 
     const getLevelName = (level: number): string => {
       return LEVEL_CONFIG.find((l) => l.level === level)?.name || 'Unknown';
     };
 
-    const getLevelIcon = (level: number): string => {
-      return LEVEL_CONFIG.find((l) => l.level === level)?.icon || '❓';
+    const getLevelIcon = (level: number): ReactNode => {
+      const iconKey = LEVEL_CONFIG.find((l) => l.level === level)?.iconKey || 'unknown';
+      return LEVEL_ICONS[iconKey] || LEVEL_ICONS.unknown;
     };
 
     const getXPForNextLevel = (currentLevel: number): number => {
@@ -249,24 +263,36 @@ describe('GamificationContext', () => {
       expect(result.current.getLevelName(99)).toBe('Unknown');
     });
 
-    it('should return correct level icons', () => {
+    it('should return valid React elements for level icons', () => {
       const TestProvider = createTestProvider();
       const { result } = renderHook(() => useGamification(), {
         wrapper: TestProvider,
       });
 
-      expect(result.current.getLevelIcon(1)).toBe('🌱');
-      expect(result.current.getLevelIcon(5)).toBe('💎');
-      expect(result.current.getLevelIcon(7)).toBe('👑');
+      // Check that icons are valid React elements
+      expect(React.isValidElement(result.current.getLevelIcon(1))).toBe(true);
+      expect(React.isValidElement(result.current.getLevelIcon(5))).toBe(true);
+      expect(React.isValidElement(result.current.getLevelIcon(7))).toBe(true);
+
+      // Check that correct icon types are returned
+      const level1Icon = result.current.getLevelIcon(1) as React.ReactElement;
+      const level5Icon = result.current.getLevelIcon(5) as React.ReactElement;
+      const level7Icon = result.current.getLevelIcon(7) as React.ReactElement;
+
+      expect(level1Icon.type).toBe(Sprout);
+      expect(level5Icon.type).toBe(Gem);
+      expect(level7Icon.type).toBe(Crown);
     });
 
-    it('should return ? for invalid level icon', () => {
+    it('should return HelpCircle icon for invalid level', () => {
       const TestProvider = createTestProvider();
       const { result } = renderHook(() => useGamification(), {
         wrapper: TestProvider,
       });
 
-      expect(result.current.getLevelIcon(99)).toBe('❓');
+      const invalidIcon = result.current.getLevelIcon(99) as React.ReactElement;
+      expect(React.isValidElement(invalidIcon)).toBe(true);
+      expect(invalidIcon.type).toBe(HelpCircle);
     });
 
     it('should return correct XP for next level', () => {
