@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Pencil, Loader2, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
 import { EditProposalDiff } from './EditProposalDiff';
 import type { EditProposal } from './types';
 
@@ -114,9 +114,12 @@ export const EditProposalCard: React.FC<EditProposalCardProps> = ({
               margin: '0 0 20px 0',
               borderBottom: '2px solid rgba(255,215,0,0.3)',
               paddingBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            📊 {t('admin.proposedChanges')}
+            <BarChart3 size={18} /> {t('admin.proposedChanges')}
           </h5>
 
           {/* Diff Views */}

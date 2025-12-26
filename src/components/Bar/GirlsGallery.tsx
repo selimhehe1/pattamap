@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Sparkles, Users, Star, Cake } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Employee } from '../../types';
 import { useModal } from '../../contexts/ModalContext';
@@ -249,7 +250,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
       {/* Header avec titre et filtres */}
       <div style={{ marginBottom: '30px' }}>
         <h2 style={headerStyle}>
-          ✨ {t('girlsGallery.title')} ✨
+          <Sparkles size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('girlsGallery.title')} <Sparkles size={20} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
         </h2>
 
         {/* Filtres */}
@@ -262,7 +263,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
                 onClick={() => handleFilterClick(filterType)}
                 style={getFilterButtonStyle(filterType, filter === filterType)}
               >
-                {filterType === 'all' ? `👥 ${t('girlsGallery.filters.allGirls')}` : `⭐ ${t('girlsGallery.filters.topRated')}`}
+                {filterType === 'all' ? <><Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('girlsGallery.filters.allGirls')}</> : <><Star size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> {t('girlsGallery.filters.topRated')}</>}
               </button>
             ))}
           </div>
@@ -275,7 +276,7 @@ const GirlsGallery: React.FC<GirlsGalleryProps> = ({ girls, onGirlClick, selecte
                 onClick={() => handleAgeFilterClick(age)}
                 style={getFilterButtonStyle(age, ageFilter === age)}
               >
-                {age === 'all' ? `🎂 ${t('girlsGallery.filters.allAges')}` : `${age} ${t('girlsGallery.filters.ageUnit')}`}
+                {age === 'all' ? <><Cake size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('girlsGallery.filters.allAges')}</> : <>{age} {t('girlsGallery.filters.ageUnit')}</>}
               </button>
             ))}
           </div>

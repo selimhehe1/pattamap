@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { ZoomIn } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LazyImage from '../Common/LazyImage';
 import './ReviewPhotoGallery.css';
@@ -133,7 +134,7 @@ const ReviewPhotoGallery: React.FC<ReviewPhotoGalleryProps> = ({
               objectFit="cover"
             />
             <div className="review-photo-overlay">
-              <span className="review-photo-zoom-icon">🔍</span>
+              <span className="review-photo-zoom-icon"><ZoomIn size={20} /></span>
             </div>
           </div>
         ))}

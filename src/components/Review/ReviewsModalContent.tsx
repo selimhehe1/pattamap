@@ -1,4 +1,5 @@
 import React from 'react';
+import { MessageSquare, Lightbulb, BarChart3 } from 'lucide-react';
 import ReviewsList from './ReviewsList';
 
 interface Review {
@@ -72,7 +73,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
           textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
           textAlign: 'center'
         }}>
-          💬 All Reviews for {employeeName}
+          <MessageSquare size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> All Reviews for {employeeName}
         </h2>
       </div>
 
@@ -94,7 +95,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
               fontSize: '48px',
               marginBottom: '20px'
             }}>
-              💬
+              <MessageSquare size={48} />
             </div>
             <h3 style={{
               color: '#C19A6B',
@@ -121,7 +122,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
                 fontSize: '18px',
                 fontWeight: 'bold'
               }}>
-                📊 {reviews.length} Review{reviews.length > 1 ? 's' : ''} Total
+                <BarChart3 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {reviews.length} Review{reviews.length > 1 ? 's' : ''} Total
               </span>
             </div>
 
@@ -151,7 +152,7 @@ const ReviewsModalContent: React.FC<ReviewsModalContentProps> = ({
           fontSize: '12px',
           margin: '0'
         }}>
-          💡 Tip: Use Ctrl+F to search specific reviews
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Tip: Use Ctrl+F to search specific reviews
         </p>
       </div>
     </div>

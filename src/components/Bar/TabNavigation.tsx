@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Users, Info } from 'lucide-react';
 import '../../styles/components/tab-navigation.css';
 
 interface TabNavigationProps {
@@ -23,7 +24,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
         aria-label={t('barDetailPage.tabNavigation.ariaViewLineup', { count: employeeCount })}
         aria-current={activeTab === 'employees' ? 'page' : undefined}
       >
-        <span className="tab-icon-nightlife">👥</span>
+        <span className="tab-icon-nightlife"><Users size={16} /></span>
         <span className="tab-label-nightlife">{t('barDetailPage.tabNavigation.lineup')}</span>
         {employeeCount > 0 && (
           <span className="tab-badge-nightlife">{employeeCount}</span>
@@ -36,7 +37,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
         aria-label={t('barDetailPage.tabNavigation.ariaViewDetails')}
         aria-current={activeTab === 'info' ? 'page' : undefined}
       >
-        <span className="tab-icon-nightlife">ℹ️</span>
+        <span className="tab-icon-nightlife"><Info size={16} /></span>
         <span className="tab-label-nightlife">{t('barDetailPage.tabNavigation.details')}</span>
       </button>
     </div>

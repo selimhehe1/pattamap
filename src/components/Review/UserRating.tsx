@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Star, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StarRating from '../Common/StarRating';
 import { useAuth } from '../../contexts/AuthContext';
@@ -155,7 +156,7 @@ const UserRating: React.FC<UserRatingProps> = ({
   return (
     <div className={`user-rating-container-nightlife ${className}`}>
       <h4 className="user-rating-title-nightlife">
-        ⭐ {t('userRating.title')}
+        <Star size={16} style={{ marginRight: '6px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> {t('userRating.title')}
       </h4>
 
       {/* Display existing rating - uses optimistic value for instant feedback */}
@@ -173,7 +174,7 @@ const UserRating: React.FC<UserRatingProps> = ({
             className="edit-rating-btn-nightlife"
             disabled={isPending}
           >
-            ✏️ {t('userRating.buttonUpdateRating')}
+            <Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('userRating.buttonUpdateRating')}
           </button>
         </div>
       )}

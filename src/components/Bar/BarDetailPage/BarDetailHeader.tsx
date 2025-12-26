@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Pencil } from 'lucide-react';
 import { Establishment } from '../../../types';
 import LazyImage from '../../Common/LazyImage';
 
@@ -36,7 +37,7 @@ export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
           }
           title={isAdmin ? t('barDetailPage.titleEdit') : t('barDetailPage.titleSuggestEdit')}
         >
-          ✏️
+          <Pencil size={16} />
         </button>
       )}
 

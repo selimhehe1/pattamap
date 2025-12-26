@@ -1,4 +1,5 @@
 import React from 'react';
+import { MessageSquare, Lightbulb, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ReviewsList from './ReviewsList';
 
@@ -85,7 +86,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
             textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
             textAlign: 'center'
           }}>
-            💬 {t('reviewsModal.title', { employeeName })}
+            <MessageSquare size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('reviewsModal.title', { employeeName })}
           </h2>
 
           <button
@@ -140,7 +141,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
                 fontSize: '48px',
                 marginBottom: '20px'
               }}>
-                💬
+                <MessageSquare size={48} />
               </div>
               <h3 style={{
                 color: '#C19A6B',
@@ -167,7 +168,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
                   fontSize: '18px',
                   fontWeight: 'bold'
                 }}>
-                  📊 {t(reviews.length === 1 ? 'reviewsModal.reviewsCountSingular' : 'reviewsModal.reviewsCountPlural', { count: reviews.length })}
+                  <BarChart3 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t(reviews.length === 1 ? 'reviewsModal.reviewsCountSingular' : 'reviewsModal.reviewsCountPlural', { count: reviews.length })}
                 </span>
               </div>
 
@@ -197,7 +198,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
             fontSize: '12px',
             margin: '0'
           }}>
-            💡 {t('reviewsModal.footerTip')}
+            <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('reviewsModal.footerTip')}
           </p>
         </div>
       </div>

@@ -907,7 +907,9 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       </p>
                       {request.establishment.zone && (
                         <span style={{
-                          display: 'inline-block',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
                           padding: '4px 10px',
                           borderRadius: '10px',
                           background: 'rgba(0,229,255,0.2)',
@@ -916,7 +918,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                           fontSize: '12px',
                           fontWeight: 'bold'
                         }}>
-                          📍 {request.establishment.zone}
+                          <MapPin size={12} /> {request.establishment.zone}
                         </span>
                       )}
                     </div>
@@ -951,7 +953,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px'
                     }}>
-                      👤 Requester Information
+                      <User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Requester Information
                     </h4>
                     <div style={{
                       display: 'grid',
@@ -1344,9 +1346,12 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
               color: '#C19A6B',
               fontSize: '24px',
               fontWeight: 'bold',
-              margin: '0 0 10px 0'
+              margin: '0 0 10px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              🏢 {selectedEstablishment.name}
+              <Building2 size={24} /> {selectedEstablishment.name}
             </h2>
             <p style={{
               color: '#cccccc',
@@ -1672,7 +1677,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                           }}
                           title={permissionDescriptions[key]}
                         >
-                          ℹ️
+                          <Info size={12} />
                         </span>
                       </label>
                     ))}
@@ -1846,7 +1851,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                           }}
                           title={permissionDescriptions[key]}
                         >
-                          ℹ️
+                          <Info size={12} />
                         </span>
                       </label>
                     ))}

@@ -508,26 +508,26 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       // Special formatting for logo_url - show as link
       if (fieldKey === 'logo_url' || fieldKey === 'logo url') {
-        return `<a href="${value}" target="_blank" style="color: #00E5FF; text-decoration: underline;">View Image 🖼️</a>`;
+        return `<a href="${value}" target="_blank" style="color: #00E5FF; text-decoration: underline;">[View Image]</a>`;
       }
       // Special formatting for website
       if (fieldKey === 'website') {
-        return `<a href="${value}" target="_blank" style="color: #00E5FF; text-decoration: underline;">${value} 🔗</a>`;
+        return `<a href="${value}" target="_blank" style="color: #00E5FF; text-decoration: underline;">${value}</a>`;
       }
       // Special formatting for phone
       if (fieldKey === 'phone') {
-        return `📞 ${value}`;
+        return `Tel: ${value}`;
       }
       // Special formatting for grid positions
       if (fieldKey === 'grid_col' || fieldKey === 'grid col') {
-        return `📍 Column: ${value}`;
+        return `Column: ${value}`;
       }
       if (fieldKey === 'grid_row' || fieldKey === 'grid row') {
-        return `📍 Row: ${value}`;
+        return `Row: ${value}`;
       }
       // Special formatting for category_id
       if (fieldKey === 'category_id' || fieldKey === 'category id') {
-        return `🏷️ Category ID: ${value}`;
+        return `Category ID: ${value}`;
       }
       return String(value);
     }
@@ -552,9 +552,9 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       // Special formatting for OPENING_HOURS object
       if (fieldKey === 'opening_hours' || fieldKey === 'opening hours') {
         const parts: string[] = [];
-        if (value.open) parts.push(`🕐 <strong>Opens:</strong> ${value.open}`);
-        if (value.close) parts.push(`🕐 <strong>Closes:</strong> ${value.close}`);
-        if (value.days) parts.push(`📅 <strong>Days:</strong> ${value.days}`);
+        if (value.open) parts.push(`<strong>Opens:</strong> ${value.open}`);
+        if (value.close) parts.push(`<strong>Closes:</strong> ${value.close}`);
+        if (value.days) parts.push(`<strong>Days:</strong> ${value.days}`);
         return parts.length > 0 ? parts.join('<br>') : '<span style="color: #888; font-style: italic;">No hours specified</span>';
       }
 
@@ -582,23 +582,23 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
         // Handle rooms field
         if (value.rooms !== null && value.rooms !== undefined) {
-          parts.push(`💰 <strong>Rooms:</strong> ${extractPrice(value.rooms)}฿`);
+          parts.push(`<strong>Rooms:</strong> ${extractPrice(value.rooms)}฿`);
         }
 
         // Handle barfine field
         if (value.barfine !== null && value.barfine !== undefined) {
-          parts.push(`🍷 <strong>Barfine:</strong> ${extractPrice(value.barfine)}฿`);
+          parts.push(`<strong>Barfine:</strong> ${extractPrice(value.barfine)}฿`);
         }
 
         // Handle ladydrink field
         if (value.ladydrink !== null && value.ladydrink !== undefined) {
-          parts.push(`🍸 <strong>Lady Drink:</strong> ${extractPrice(value.ladydrink)}฿`);
+          parts.push(`<strong>Lady Drink:</strong> ${extractPrice(value.ladydrink)}฿`);
         }
 
         // Handle consumables array in pricing
         if (value.consumables && Array.isArray(value.consumables)) {
           if (value.consumables.length > 0) {
-            parts.push(`<br><strong>🍺 Consumables:</strong>`);
+            parts.push(`<br><strong>Consumables:</strong>`);
             value.consumables.forEach((item: { name?: string; consumable_id?: string; price?: number | string }) => {
               // Try to get name, fallback to shortened ID
               const itemName = item.name || item.consumable_id || 'Unknown';
