@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -155,7 +156,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
       {/* Error Tooltip */}
       {error && (
         <div className="follow-error-tooltip">
-          <span className="follow-error-icon">⚠️</span>
+          <span className="follow-error-icon"><AlertTriangle size={14} /></span>
           <span>{error}</span>
         </div>
       )}
@@ -163,7 +164,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
       {/* Login Hint */}
       {!user && (
         <div className="follow-hint">
-          <span>🔒</span>
+          <span><Lock size={14} /></span>
           <span>{t('gamification.follow.loginRequired')}</span>
         </div>
       )}

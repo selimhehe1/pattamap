@@ -1,4 +1,5 @@
 import React from 'react';
+import { Search, Star, MessageSquare, Users, Building2, Bell, Trophy, Inbox } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import './EmptyState.css';
@@ -37,8 +38,8 @@ export interface EmptyStateProps {
   /** Custom message */
   message?: string;
 
-  /** Custom icon (emoji or text) */
-  icon?: string;
+  /** Custom icon (React element) */
+  icon?: React.ReactNode;
 
   /** Show primary action button */
   showPrimaryAction?: boolean;
@@ -83,7 +84,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     switch (type) {
       case 'search':
         return {
-          icon: '🔍',
+          icon: <Search size={48} />,
           title: t('emptyState.search.title', 'No results found'),
           message: t('emptyState.search.message', 'Try adjusting your search or filters to find what you\'re looking for.'),
           primaryActionText: t('emptyState.search.action', 'Clear Filters'),
@@ -92,7 +93,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'favorites':
         return {
-          icon: '⭐',
+          icon: <Star size={48} />,
           title: t('emptyState.favorites.title', 'No favorites yet'),
           message: t('emptyState.favorites.message', 'Start adding your favorite employees and establishments to see them here.'),
           primaryActionText: t('emptyState.favorites.action', 'Explore Maps'),
@@ -101,7 +102,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'reviews':
         return {
-          icon: '💬',
+          icon: <MessageSquare size={48} />,
           title: t('emptyState.reviews.title', 'No reviews yet'),
           message: t('emptyState.reviews.message', 'Be the first to leave a review and help the community!'),
           primaryActionText: t('emptyState.reviews.action', 'Write Review'),
@@ -110,7 +111,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'employees':
         return {
-          icon: '👥',
+          icon: <Users size={48} />,
           title: t('emptyState.employees.title', 'No employees found'),
           message: t('emptyState.employees.message', 'There are currently no employees in this zone or matching your criteria.'),
           primaryActionText: t('emptyState.employees.action', 'View All Zones'),
@@ -119,7 +120,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'establishments':
         return {
-          icon: '🏢',
+          icon: <Building2 size={48} />,
           title: t('emptyState.establishments.title', 'No establishments found'),
           message: t('emptyState.establishments.message', 'There are currently no establishments matching your criteria.'),
           primaryActionText: t('emptyState.establishments.action', 'View All'),
@@ -128,7 +129,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'notifications':
         return {
-          icon: '🔔',
+          icon: <Bell size={48} />,
           title: t('emptyState.notifications.title', 'No notifications'),
           message: t('emptyState.notifications.message', 'You\'re all caught up! Check back later for new updates.'),
           primaryActionText: undefined,
@@ -137,7 +138,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       case 'ownership':
         return {
-          icon: '🏆',
+          icon: <Trophy size={48} />,
           title: t('emptyState.ownership.title', 'No establishments yet'),
           message: t('emptyState.ownership.message', 'You haven\'t been assigned any establishments yet. Contact an admin to request ownership.'),
           primaryActionText: t('emptyState.ownership.action', 'Contact Admin'),
@@ -146,7 +147,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 
       default:
         return {
-          icon: '📭',
+          icon: <Inbox size={48} />,
           title: t('emptyState.generic.title', 'Nothing here yet'),
           message: t('emptyState.generic.message', 'This section is currently empty.'),
           primaryActionText: undefined,

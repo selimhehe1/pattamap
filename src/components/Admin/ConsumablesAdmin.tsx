@@ -5,6 +5,15 @@ import { ConsumableTemplate } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import { logger } from '../../utils/logger';
 import { getCategoryIcon } from '../../utils/iconMapper';
+import {
+  Beer,
+  X,
+  Plus,
+  Pencil,
+  Ban,
+  CheckCircle,
+  Trash2
+} from 'lucide-react';
 
 interface ConsumablesAdminProps {
   activeTab: string;
@@ -189,7 +198,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       <AdminBreadcrumb
         currentSection={t('admin.consumablesManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="🍺"
+        icon={<Beer size={16} />}
       />
 
       {/* Header */}
@@ -204,7 +213,8 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             WebkitTextFillColor: 'transparent',
             fontFamily: '"Orbitron", monospace'
           }}>
-            🍺 {t('admin.consumablesManagement')}
+            <Beer size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.consumablesManagement')}
           </h1>
           <p style={{ fontSize: '14px', color: '#cccccc', margin: 0 }}>
             {t('admin.manageConsumablesList')}
@@ -225,7 +235,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             transition: 'all 0.3s ease'
           }}
         >
-          {showAddForm ? `❌ ${t('common.cancel')}` : `➕ ${t('admin.addConsumable')}`}
+          {showAddForm ? <><X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.cancel')}</> : <><Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.addConsumable')}</>}
         </button>
       </div>
 
@@ -244,7 +254,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             fontWeight: 'bold',
             margin: '0 0 20px 0'
           }}>
-            {editingConsumable ? `✏️ ${t('admin.editConsumableTitle')}` : `➕ ${t('admin.newConsumableTitle')}`}
+            {editingConsumable ? <><Pencil size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('admin.editConsumableTitle')}</> : <><Plus size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('admin.newConsumableTitle')}</>}
           </h3>
 
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '15px', alignItems: 'end' }}>
@@ -358,7 +368,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                 opacity: formData.name.trim() ? 1 : 0.5
               }}
             >
-              {editingConsumable ? `✏️ ${t('admin.editConsumableButton')}` : `➕ ${t('admin.addButton')}`}
+              {editingConsumable ? <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.editConsumableButton')}</> : <><Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.addButton')}</>}
             </button>
           </form>
         </div>
@@ -455,7 +465,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                           background: consumable.status === 'active' ? '#4CAF5020' : '#FF475720',
                           color: consumable.status === 'active' ? '#4CAF50' : '#FF4757'
                         }}>
-                          {consumable.status === 'active' ? `✅ ${t('admin.active')}` : `❌ ${t('admin.inactive')}`}
+                          {consumable.status === 'active' ? <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.active')}</> : <><X size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.inactive')}</>}
                         </div>
                         
                         <button
@@ -471,7 +481,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                             fontWeight: 'bold'
                           }}
                         >
-                          ✏️
+                          <Pencil size={14} />
                         </button>
                         
                         <button
@@ -489,7 +499,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                             fontWeight: 'bold'
                           }}
                         >
-                          {consumable.status === 'active' ? '🚫' : '✅'}
+                          {consumable.status === 'active' ? <Ban size={14} /> : <CheckCircle size={14} />}
                         </button>
                         
                         <button
@@ -506,7 +516,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                           }}
                           title="Supprimer définitivement"
                         >
-                          🗑️
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>

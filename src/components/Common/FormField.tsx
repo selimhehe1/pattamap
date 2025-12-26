@@ -1,10 +1,11 @@
 import React from 'react';
+import { Loader2, Check, X, AlertTriangle } from 'lucide-react';
 
 /**
  * FormField - Enhanced form input with real-time validation feedback
  *
  * Features:
- * - Visual indicators (✓ valid, ✗ invalid, ⏳ validating)
+ * - Visual indicators (check valid, X invalid, spinner validating)
  * - Contextual error messages
  * - Character counter
  * - WCAG AA compliant (min-height 44px on mobile)
@@ -96,9 +97,9 @@ const FormField: React.FC<FormFieldProps> = ({
   const showCharCounter = showCounter && maxLength;
 
   const getStatusIcon = () => {
-    if (isValidating) return <span className="field-icon-validating">⏳</span>;
-    if (isValid) return <span className="field-icon-valid">✓</span>;
-    if (hasError && isTouched) return <span className="field-icon-invalid">✗</span>;
+    if (isValidating) return <span className="field-icon-validating"><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /></span>;
+    if (isValid) return <span className="field-icon-valid"><Check size={18} /></span>;
+    if (hasError && isTouched) return <span className="field-icon-invalid"><X size={18} /></span>;
     return null;
   };
 
@@ -190,6 +191,7 @@ const FormField: React.FC<FormFieldProps> = ({
           role="alert"
           aria-live="assertive"
         >
+          <AlertTriangle size={14} style={{ flexShrink: 0 }} />
           {error}
         </p>
       )}
@@ -308,11 +310,7 @@ const FormField: React.FC<FormFieldProps> = ({
           animation: slideDown 0.3s ease-out;
         }
 
-        .form-field-error::before {
-          content: "⚠";
-          font-size: 14px;
-          flex-shrink: 0;
-        }
+        /* Icon now rendered via JSX AlertTriangle component */
 
         /* Animations */
         @keyframes fadeIn {

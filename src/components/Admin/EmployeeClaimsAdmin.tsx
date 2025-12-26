@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Ban, Link, Loader2, CheckCircle, XCircle, ClipboardList, MailX, User, PersonStanding, MessageSquare, Calendar, Eye, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { EmployeeClaimRequest } from '../../types';
@@ -213,12 +214,12 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
-      case 'pending': return '⏳';
-      case 'approved': return '✅';
-      case 'rejected': return '❌';
-      default: return '❓';
+      case 'pending': return <Loader2 size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'approved': return <CheckCircle size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'rejected': return <XCircle size={12} style={{ verticalAlign: 'middle' }} />;
+      default: return <HelpCircle size={12} style={{ verticalAlign: 'middle' }} />;
     }
   };
 
@@ -248,7 +249,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 {t('admin.claims.accessDenied')}
+            <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
             {t('admin.claims.accessDeniedMessage')}
@@ -268,7 +269,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       <AdminBreadcrumb
         currentSection={t('admin.claims.title')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="🔗"
+        icon={<Link size={20} style={{ verticalAlign: 'middle' }} />}
       />
 
       {/* Header */}
@@ -283,7 +284,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
           textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          🔗 {t('admin.claims.title')}
+          <Link size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.title')}
         </h1>
         <p style={{
           fontSize: '16px',
@@ -302,10 +303,10 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
         overflowX: 'auto'
       }}>
         {[
-          { key: 'pending', label: t('admin.claims.filterPending'), icon: '⏳' },
-          { key: 'approved', label: t('admin.claims.filterApproved'), icon: '✅' },
-          { key: 'rejected', label: t('admin.claims.filterRejected'), icon: '❌' },
-          { key: 'all', label: t('admin.claims.filterAll'), icon: '📋' }
+          { key: 'pending', label: t('admin.claims.filterPending'), icon: <Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
+          { key: 'approved', label: t('admin.claims.filterApproved'), icon: <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
+          { key: 'rejected', label: t('admin.claims.filterRejected'), icon: <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
+          { key: 'all', label: t('admin.claims.filterAll'), icon: <ClipboardList size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -325,7 +326,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
               whiteSpace: 'nowrap'
             }}
           >
-            {tab.icon} {tab.label}
+            {tab.icon}{tab.label}
           </button>
         ))}
       </div>
@@ -362,7 +363,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
               transition: 'all 0.2s ease'
             }}
           >
-            {isBulkProcessing ? '...' : `✅ ${t('admin.claims.approveAll', 'Approve All')}`}
+            {isBulkProcessing ? '...' : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.approveAll', 'Approve All')}</>}
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
@@ -435,7 +436,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 {t('admin.claims.noClaimsFound')}
+            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.noClaimsFound')}
           </h3>
           <p style={{
             color: '#cccccc',
@@ -578,14 +579,14 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                     fontWeight: 'bold',
                     marginBottom: '2px'
                   }}>
-                    👤 {claim.submitted_by_user?.pseudonym || t('admin.claims.unknownUser')}
+                    <User size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{claim.submitted_by_user?.pseudonym || t('admin.claims.unknownUser')}
                   </div>
                   <div style={{
                     color: '#ffffff',
                     fontSize: '14px',
                     fontWeight: 'bold'
                   }}>
-                    💃 {claim.employee?.name || t('admin.claims.unknownEmployee')}
+                    <PersonStanding size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{claim.employee?.name || t('admin.claims.unknownEmployee')}
                     {claim.employee?.nickname && (
                       <span style={{ color: '#FFD700', fontSize: '12px', marginLeft: '5px' }}>
                         "{claim.employee.nickname}"
@@ -605,7 +606,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden'
                 }}>
-                  💬 {claim.request_metadata?.message || t('admin.claims.noMessage')}
+                  <MessageSquare size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{claim.request_metadata?.message || t('admin.claims.noMessage')}
                 </div>
 
                 {/* Verification Proofs - Thumbnails (max 3 visible) */}
@@ -659,7 +660,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                               textDecoration: 'none'
                             }}
                           >
-                            🔗
+                            <Link size={20} />
                           </a>
                         )}
                       </div>
@@ -690,7 +691,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                   fontSize: '11px',
                   marginBottom: '12px'
                 }}>
-                  📅 {formatDate(claim.created_at)}
+                  <Calendar size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{formatDate(claim.created_at)}
                 </div>
 
                 {/* Moderator Review Info (if reviewed) - Compact */}
@@ -704,7 +705,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                     color: '#cccccc',
                     marginBottom: '12px'
                   }}>
-                    ✅ {claim.moderator_user?.pseudonym || 'Admin'}
+                    <CheckCircle size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{claim.moderator_user?.pseudonym || 'Admin'}
                   </div>
                 )}
               </div>
@@ -740,7 +741,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                           opacity: processingIds.has(claim.id) ? 0.7 : 1
                         }}
                       >
-                        {processingIds.has(claim.id) ? '⏳' : `✅ ${t('admin.claims.buttonApprove')}`}
+                        {processingIds.has(claim.id) ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.buttonApprove')}</>}
                       </button>
 
                       <button
@@ -765,7 +766,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                           opacity: processingIds.has(claim.id) ? 0.7 : 1
                         }}
                       >
-                        {processingIds.has(claim.id) ? '⏳' : `❌ ${t('admin.claims.buttonReject')}`}
+                        {processingIds.has(claim.id) ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <><XCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.buttonReject')}</>}
                       </button>
                     </div>
 
@@ -788,7 +789,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      👁️ {t('admin.claims.buttonDetails')}
+                      <Eye size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.buttonDetails')}
                     </button>
                   </>
                 ) : (
@@ -811,7 +812,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    👁️ {t('admin.claims.buttonViewDetails')}
+                    <Eye size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.buttonViewDetails')}
                   </button>
                 )}
               </div>
@@ -877,7 +878,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
               fontWeight: 'bold',
               margin: '0 0 20px 0'
             }}>
-              ❌ {t('admin.claims.rejectModalTitle')}
+              <XCircle size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.rejectModalTitle')}
             </h2>
 
             <p style={{
@@ -1083,7 +1084,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                           wordBreak: 'break-all'
                         }}
                       >
-                        🔗 {t('admin.claims.detailProofLabel', { index: index + 1 })} {url}
+                        <Link size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.detailProofLabel', { index: index + 1 })} {url}
                       </a>
                     ))}
                   </div>

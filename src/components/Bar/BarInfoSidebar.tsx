@@ -708,7 +708,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                     } as React.CSSProperties}
                   >
                     <div className="sidebar-progress-value-nightlife">{verificationRate}%</div>
-                    <div className="sidebar-progress-check-nightlife">✓</div>
+                    <div className="sidebar-progress-check-nightlife"><Check size={16} /></div>
                   </div>
                 </div>
 

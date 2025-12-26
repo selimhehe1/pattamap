@@ -6,6 +6,20 @@ import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
+import {
+  Ban,
+  MessageSquare,
+  AlertTriangle,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  ClipboardList,
+  BellOff,
+  MailX,
+  FileEdit,
+  Eye,
+  HelpCircle
+} from 'lucide-react';
 
 interface AdminComment {
   id: number;
@@ -247,10 +261,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return '⏳';
-      case 'approved': return '✅';
-      case 'rejected': return '❌';
-      default: return '❓';
+      case 'pending': return <Loader2 size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'approved': return <CheckCircle size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'rejected': return <XCircle size={12} style={{ verticalAlign: 'middle' }} />;
+      default: return <HelpCircle size={12} style={{ verticalAlign: 'middle' }} />;
     }
   };
 
@@ -274,7 +288,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 {t('admin.accessDenied')}
+            <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
             {t('admin.accessDeniedArea')}
@@ -295,7 +310,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
       <AdminBreadcrumb
         currentSection={t('admin.commentsManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="💬"
+        icon={<MessageSquare size={16} />}
       />
 
       {/* Header */}
@@ -311,7 +326,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
           textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          💬 {t('admin.commentsManagement')}
+          <MessageSquare size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          {t('admin.commentsManagement')}
         </h1>
         <p style={{
           fontSize: '16px',
@@ -330,11 +346,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         overflowX: 'auto'
       }}>
         {[
-          { key: 'reported', label: t('admin.filterReported'), icon: '⚠️' },
-          { key: 'pending', label: t('admin.filterPending'), icon: '⏳' },
-          { key: 'approved', label: t('admin.filterApproved'), icon: '✅' },
-          { key: 'rejected', label: t('admin.filterRejected'), icon: '❌' },
-          { key: 'all', label: t('admin.filterAll'), icon: '📋' }
+          { key: 'reported', label: t('admin.filterReported'), icon: <AlertTriangle size={12} /> },
+          { key: 'pending', label: t('admin.filterPending'), icon: <Loader2 size={12} /> },
+          { key: 'approved', label: t('admin.filterApproved'), icon: <CheckCircle size={12} /> },
+          { key: 'rejected', label: t('admin.filterRejected'), icon: <XCircle size={12} /> },
+          { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={12} /> }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -391,7 +407,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
               transition: 'all 0.2s ease'
             }}
           >
-            {isBulkProcessing ? '...' : `✅ ${t('admin.approveAll', 'Approve All')}`}
+            {isBulkProcessing ? '...' : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approveAll', 'Approve All')}</>}
           </button>
           <button
             onClick={handleBulkReject}
@@ -409,7 +425,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
               transition: 'all 0.2s ease'
             }}
           >
-            {isBulkProcessing ? '...' : `❌ ${t('admin.rejectAll', 'Reject All')}`}
+            {isBulkProcessing ? '...' : <><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.rejectAll', 'Reject All')}</>}
           </button>
           {filter === 'reported' && (
             <button
@@ -428,7 +444,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                 transition: 'all 0.2s ease'
               }}
             >
-              {isBulkProcessing ? '...' : `🔕 ${t('admin.dismissAllReports', 'Dismiss Reports')}`}
+              {isBulkProcessing ? '...' : <><BellOff size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.dismissAllReports', 'Dismiss Reports')}</>}
             </button>
           )}
           <button
@@ -502,7 +518,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 {t('admin.noCommentsFound')}
+            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.noCommentsFound')}
           </h3>
           <p style={{
             color: '#cccccc',
@@ -598,7 +615,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  ⚠️ {comment.reports.length} {t('admin.report', { count: comment.reports.length })}
+                  <AlertTriangle size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                  {comment.reports.length} {t('admin.report', { count: comment.reports.length })}
                 </div>
               )}
 
@@ -701,7 +719,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       fontWeight: 'bold',
                       margin: '0 0 10px 0'
                     }}>
-                      ⚠️ {t('admin.reports')} ({comment.reports.length})
+                      <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                      {t('admin.reports')} ({comment.reports.length})
                     </h4>
                     <div style={{
                       display: 'flex',
@@ -780,7 +799,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                         opacity: processingIds.has(comment.id) ? 0.7 : 1
                       }}
                     >
-                      {processingIds.has(comment.id) ? `⏳ ${t('admin.approving')}` : `✅ ${t('admin.approve')}`}
+                      {processingIds.has(comment.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approving')}</> : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approve')}</>}
                     </button>
 
                     <button
@@ -803,7 +822,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                         opacity: processingIds.has(comment.id) ? 0.7 : 1
                       }}
                     >
-                      {processingIds.has(comment.id) ? `⏳ ${t('admin.rejecting')}` : `❌ ${t('admin.reject')}`}
+                      {processingIds.has(comment.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.rejecting')}</> : <><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}</>}
                     </button>
                   </>
                 )}
@@ -829,7 +848,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                       opacity: processingIds.has(comment.id) ? 0.7 : 1
                     }}
                   >
-                    {processingIds.has(comment.id) ? `⏳ ${t('admin.dismissing')}` : `📝 ${t('admin.dismissReports')}`}
+                    {processingIds.has(comment.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.dismissing')}</> : <><FileEdit size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.dismissReports')}</>}
                   </button>
                 )}
 
@@ -855,7 +874,8 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  👁️ {t('admin.viewDetails')}
+                  <Eye size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {t('admin.viewDetails')}
                 </button>
               </div>
             </div>

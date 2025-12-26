@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, User, Lock, AlertTriangle, LogIn } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle, LogIn, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
@@ -159,7 +159,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>📝</span>
+              <FileText size={20} />
               <div>
                 <div style={{ color: '#00E5FF', fontSize: '14px', fontWeight: 'bold' }}>
                   {t('auth.usernameRestored')}

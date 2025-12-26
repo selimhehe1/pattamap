@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User } from '../../types';
 import { logger } from '../../utils/logger';
+import {
+  User as UserIcon,
+  Shield,
+  Crown,
+  ClipboardList,
+  Pencil,
+  Mail,
+  Lock,
+  CheckCircle,
+  FileText,
+  Loader2,
+  Save
+} from 'lucide-react';
 
 interface AdminUser extends User {
   is_active: boolean;
@@ -78,9 +91,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return '👑';
-      case 'moderator': return '🛡️';
-      case 'user': return '👤';
+      case 'admin': return <Crown size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'moderator': return <Shield size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'user': return <UserIcon size={12} style={{ verticalAlign: 'middle' }} />;
       default: return '❓';
     }
   };
@@ -157,7 +170,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             margin: '0 0 10px 0',
             fontFamily: '"Orbitron", monospace'
           }}>
-            👤 {t('admin.editUserProfile')}
+            <UserIcon size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.editUserProfile')}
           </h2>
           <p style={{
             color: '#cccccc',
@@ -298,7 +312,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  📋 {t('admin.accountInformation')}
+                  <ClipboardList size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {t('admin.accountInformation')}
                 </h3>
 
                 <div style={{ marginBottom: '15px' }}>
@@ -375,7 +390,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  ✏️ {t('admin.editableFields')}
+                  <Pencil size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {t('admin.editableFields')}
                 </h3>
 
                 {/* Pseudonym */}
@@ -387,7 +403,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    👤 {t('admin.pseudonym')}
+                    <UserIcon size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {t('admin.pseudonym')}
                   </label>
                   <input
                     type="text"
@@ -421,7 +438,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    ✉️ {t('admin.email')}
+                    <Mail size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {t('admin.email')}
                   </label>
                   <input
                     type="email"
@@ -455,7 +473,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    🔐 {t('admin.role')}
+                    <Lock size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {t('admin.role')}
                   </label>
                   <select
                     value={formData.role}
@@ -471,9 +490,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="user" style={{ background: '#1a0033' }}>👤 {t('admin.filterUsers')}</option>
-                    <option value="moderator" style={{ background: '#1a0033' }}>🛡️ {t('admin.filterModerators')}</option>
-                    <option value="admin" style={{ background: '#1a0033' }}>👑 {t('admin.filterAdmins')}</option>
+                    <option value="user" style={{ background: '#1a0033' }}>{t('admin.filterUsers')}</option>
+                    <option value="moderator" style={{ background: '#1a0033' }}>{t('admin.filterModerators')}</option>
+                    <option value="admin" style={{ background: '#1a0033' }}>{t('admin.filterAdmins')}</option>
                   </select>
                 </div>
 
@@ -500,7 +519,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       fontSize: '12px',
                       fontWeight: 'bold'
                     }}>
-                      ✅ {t('admin.accountActive')}
+                      <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                      {t('admin.accountActive')}
                     </span>
                   </label>
                 </div>
@@ -514,7 +534,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '5px'
                   }}>
-                    📝 {t('admin.adminNotesOptional')}
+                    <FileText size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {t('admin.adminNotesOptional')}
                   </label>
                   <textarea
                     value={formData.notes}
@@ -600,7 +621,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 }
               }}
             >
-              {isSaving ? `⏳ ${t('admin.saving')}` : `💾 ${t('admin.saveChanges')}`}
+              {isSaving ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.saving')}</> : <><Save size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.saveChanges')}</>}
             </button>
           </div>
         </div>

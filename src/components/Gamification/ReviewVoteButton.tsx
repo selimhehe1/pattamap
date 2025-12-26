@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -142,7 +143,7 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
       {/* Error Tooltip */}
       {error && (
         <div className="review-vote-error">
-          <span>⚠️</span>
+          <span><AlertTriangle size={14} /></span>
           <span>{error}</span>
         </div>
       )}

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Briefcase, Calendar, FileText, CheckCircle, XCircle, Building2 } from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
 import SanitizedText from '../../Common/SanitizedText';
 import type { AdminEmployee } from './types';
@@ -16,15 +17,16 @@ interface EmployeeDetailModalProps {
   onReject: (employeeId: string) => void;
 }
 
-const getSocialMediaIcon = (platform: string): string => {
-  const icons: Record<string, string> = {
-    instagram: '📷',
-    line: '💬',
-    telegram: '✈️',
-    whatsapp: '📱',
-    facebook: '👥',
-  };
-  return icons[platform] || '🔗';
+const getSocialMediaIcon = (platform: string): React.ReactNode => {
+  const iconStyle = { verticalAlign: 'middle' as const };
+  switch (platform) {
+    case 'instagram': return <Instagram size={14} style={iconStyle} />;
+    case 'line': return <MessageSquare size={14} style={iconStyle} />;
+    case 'telegram': return <Send size={14} style={iconStyle} />;
+    case 'whatsapp': return <Smartphone size={14} style={iconStyle} />;
+    case 'facebook': return <Users size={14} style={iconStyle} />;
+    default: return <Link size={14} style={iconStyle} />;
+  }
 };
 
 export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
@@ -169,15 +171,15 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                         marginBottom: '8px',
                       }}
                     >
-                      🏢 {currentJob.establishment_name}
+                      <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{currentJob.establishment_name}
                     </div>
                     {currentJob.position && (
                       <div style={{ color: '#FFD700', marginBottom: '5px' }}>
-                        💼 Position: {currentJob.position}
+                        <Briefcase size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Position: {currentJob.position}
                       </div>
                     )}
                     <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                      📅 {t('admin.started')}{' '}
+                      <Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.started')}{' '}
                       {new Date(currentJob.start_date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -193,7 +195,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                           fontStyle: 'italic',
                         }}
                       >
-                        📝 {t('admin.notes')} {currentJob.notes}
+                        <FileText size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.notes')} {currentJob.notes}
                       </div>
                     )}
                   </div>
@@ -249,7 +251,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    ✅ {t('admin.approve')}
+                    <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approve')}
                   </button>
                   <button
                     onClick={() => {
@@ -268,7 +270,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    ❌ {t('admin.reject')}
+                    <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}
                   </button>
                 </div>
               )}

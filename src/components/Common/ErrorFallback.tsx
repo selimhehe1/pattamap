@@ -1,4 +1,5 @@
 import React, { ErrorInfo } from 'react';
+import { AlertTriangle, RefreshCw, Home, Wrench, RotateCw } from 'lucide-react';
 
 /**
  * ErrorFallback - User-friendly error UI
@@ -57,7 +58,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
       <div className="error-fallback-content">
         {/* Icon */}
         <div className="error-icon" role="img" aria-label="Error icon">
-          ⚠️
+          <AlertTriangle size={80} />
         </div>
 
         {/* Title */}
@@ -82,7 +83,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             className="btn btn--primary"
             aria-label="Try again"
           >
-            🔄 Try Again
+            <RefreshCw size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Try Again
           </button>
 
           <button
@@ -90,7 +91,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             className="btn btn--secondary"
             aria-label="Go to home page"
           >
-            🏠 Go Home
+            <Home size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Go Home
           </button>
 
           <button
@@ -106,7 +107,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
         {isDevelopment && (
           <details className="error-details" open>
             <summary className="error-details-summary">
-              🛠️ Developer Details (dev mode only)
+              <Wrench size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Developer Details (dev mode only)
             </summary>
 
             <div className="error-details-content">
@@ -145,7 +146,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                 className="btn btn--ghost"
                 style={{ marginTop: '15px' }}
               >
-                🔃 Full Page Reload
+                <RotateCw size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Full Page Reload
               </button>
             </div>
           </details>

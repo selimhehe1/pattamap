@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -322,7 +323,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
-              {isTogglingFavorite ? '⏳' : isFavorite ? '♥' : '♡'}
+              {isTogglingFavorite ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />}
             </button>
 
             {/* Bouton Edit - Icon only */}
@@ -367,7 +368,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                   closeOnOverlayClick: false
                 })}
               >
-                ✏️
+                <Pencil size={18} />
               </button>
             )}
 
@@ -382,7 +383,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                 aria-label="Claim This Profile"
                 onClick={() => setShowClaimModal(true)}
               >
-                🔗
+                <Link2 size={18} />
               </button>
             )}
 
@@ -393,7 +394,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               title="Close profile"
               aria-label="Close profile"
             >
-              ✕
+              <X size={18} />
             </button>
           </div>
         </div>
@@ -423,7 +424,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                     }}
                     className="profile-photo-nav profile-photo-nav-left"
                   >
-                    ←
+                    <ChevronLeft size={24} />
                   </button>
 
                   <button
@@ -435,7 +436,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                     }}
                     className="profile-photo-nav profile-photo-nav-right"
                   >
-                    →
+                    <ChevronRight size={24} />
                   </button>
 
                   {/* Indicateurs photos */}
@@ -472,7 +473,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {VIP_ENABLED && girl.is_vip && girl.vip_expires_at && (
             <div className={`profile-vip-status ${new Date(girl.vip_expires_at) > new Date() ? 'active' : 'expired'}`}>
               <div className="vip-status-header">
-                <span className="vip-status-icon">👑</span>
+                <span className="vip-status-icon"><Crown size={20} /></span>
                 <h3 className="vip-status-title">
                   {new Date(girl.vip_expires_at) > new Date()
                     ? t('vipStatus.activeTitle', 'VIP Member')
@@ -497,10 +498,10 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
                 {new Date(girl.vip_expires_at) > new Date() && (
                   <ul className="vip-features-list-profile">
-                    <li>✨ {t('vipStatus.feature1', 'Priority in search results')}</li>
-                    <li>🌟 {t('vipStatus.feature2', 'Featured profile with gold border')}</li>
-                    <li>👑 {t('vipStatus.feature3', 'VIP badge on profile')}</li>
-                    <li>📊 {t('vipStatus.feature4', 'Enhanced visibility')}</li>
+                    <li><Sparkles size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature1', 'Priority in search results')}</li>
+                    <li><Star size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature2', 'Featured profile with gold border')}</li>
+                    <li><Crown size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature3', 'VIP badge on profile')}</li>
+                    <li><BarChart3 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature4', 'Enhanced visibility')}</li>
                   </ul>
                 )}
               </div>
@@ -520,7 +521,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {!girl.user_id && !girl.is_self_profile && !girl.is_verified && (
             <div className="profile-community-validation">
               <h3 className="profile-section-title">
-                🔍 Community Validation
+                <Search size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Community Validation
               </h3>
 
               <ValidationBadge employeeId={girl.id} />
@@ -531,7 +532,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {/* Message if profile is CLAIMED or VERIFIED */}
           {(girl.user_id || girl.is_self_profile || girl.is_verified) && (
             <div className="verified-owner-badge">
-              ✅ {girl.is_verified ? 'Verified Profile' : 'Verified by Owner'}
+              <CheckCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{girl.is_verified ? 'Verified Profile' : 'Verified by Owner'}
             </div>
           )}
 
@@ -539,7 +540,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {girl.current_employment && girl.current_employment.length > 0 && (
             <div className="profile-workplace-section">
               <h3 className="profile-section-title">
-                🏢 Currently Working At
+                <Building2 size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Currently Working At
               </h3>
 
               <div className="workplace-info-container">
@@ -553,26 +554,26 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                       <div className="workplace-details">
                         {employment.establishment?.category?.name && (
                           <span className="workplace-category">
-                            📍 {employment.establishment.category.name}
+                            <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employment.establishment.category.name}
                           </span>
                         )}
 
                         {employment.establishment?.zone && (
                           <span className="workplace-zone">
-                            🌍 {employment.establishment.zone}
+                            <Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employment.establishment.zone}
                           </span>
                         )}
                       </div>
 
                       {employment.position && (
                         <div className="workplace-position">
-                          💼 Position: {employment.position}
+                          <Briefcase size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Position: {employment.position}
                         </div>
                       )}
 
                       {employment.start_date && (
                         <div className="workplace-start-date">
-                          📅 Since: {new Date(employment.start_date).toLocaleDateString('en-US', {
+                          <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Since: {new Date(employment.start_date).toLocaleDateString('en-US', {
                             month: 'short',
                             year: 'numeric'
                           })}
@@ -589,7 +590,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                           navigate(`/bar/${employment.establishment?.id}`);
                         }}
                       >
-                        🔗 Visit Bar Page
+                        <ExternalLink size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Visit Bar Page
                       </button>
                     )}
                   </div>
@@ -602,7 +603,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {girl.social_media && Object.keys(girl.social_media).some(key => girl.social_media?.[key as keyof typeof girl.social_media]) && (
             <div className="profile-social-section">
               <h3 className="profile-section-title">
-                💬 Contact {girl.nickname || girl.name}
+                <MessageSquare size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Contact {girl.nickname || girl.name}
               </h3>
 
               <div className="social-badges-container">
@@ -644,7 +645,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               onClick={() => setShowReviewForm(!showReviewForm)}
               className={`profile-action-button profile-action-review ${showReviewForm ? 'active' : ''}`}
             >
-              {showReviewForm ? '❌ Cancel Comment' : '💬 Add Comment'}
+              {showReviewForm ? <><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Cancel Comment</> : <><MessageSquare size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Add Comment</>}
             </button>
           </div>
 

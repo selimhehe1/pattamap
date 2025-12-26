@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Calendar, User, MapPin, Briefcase, AlertTriangle, ClipboardList, Eye, Pencil, Loader2, CheckCircle, XCircle, ShieldCheck, ShieldX, HelpCircle } from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
-import { getStatusColor, getStatusIcon, formatDate, getSocialMediaUrl } from './utils';
+import { getStatusColor, formatDate, getSocialMediaUrl } from './utils';
 import type { AdminEmployee } from './types';
 
 interface EmployeeCardProps {
@@ -22,15 +23,26 @@ interface EmployeeCardProps {
   onRevokeVerification: (employeeId: string, employeeName: string) => void;
 }
 
-const getSocialMediaIcon = (platform: string): string => {
-  const icons: Record<string, string> = {
-    instagram: '📷',
-    line: '💬',
-    telegram: '✈️',
-    whatsapp: '📱',
-    facebook: '👥',
-  };
-  return icons[platform] || '🔗';
+const getSocialMediaIcon = (platform: string): React.ReactNode => {
+  const iconStyle = { verticalAlign: 'middle' as const };
+  switch (platform) {
+    case 'instagram': return <Instagram size={14} style={iconStyle} />;
+    case 'line': return <MessageSquare size={14} style={iconStyle} />;
+    case 'telegram': return <Send size={14} style={iconStyle} />;
+    case 'whatsapp': return <Smartphone size={14} style={iconStyle} />;
+    case 'facebook': return <Users size={14} style={iconStyle} />;
+    default: return <Link size={14} style={iconStyle} />;
+  }
+};
+
+const getStatusIcon = (status: string): React.ReactNode => {
+  const iconStyle = { verticalAlign: 'middle' as const };
+  switch (status) {
+    case 'pending': return <Loader2 size={12} style={iconStyle} />;
+    case 'approved': return <CheckCircle size={12} style={iconStyle} />;
+    case 'rejected': return <XCircle size={12} style={iconStyle} />;
+    default: return <HelpCircle size={12} style={iconStyle} />;
+  }
 };
 
 export const EmployeeCard: React.FC<EmployeeCardProps> = ({
@@ -270,9 +282,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 marginBottom: '8px',
               }}
             >
-              <span>📅 {formatDate(employee.created_at)}</span>
+              <span><Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{formatDate(employee.created_at)}</span>
               <span style={{ color: '#FFD700' }}>
-                👤 {employee.user?.pseudonym || t('admin.unknown')}
+                <User size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employee.user?.pseudonym || t('admin.unknown')}
               </span>
             </div>
           </div>
@@ -295,7 +307,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                     marginBottom: '5px',
                   }}
                 >
-                  📍 {t('admin.currentlyWorkingAt')}
+                  <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.currentlyWorkingAt')}
                 </div>
                 <div
                   style={{
@@ -309,7 +321,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 </div>
                 {currentJob.position && (
                   <div style={{ color: '#FFD700', fontSize: '12px', marginBottom: '2px' }}>
-                    💼 {currentJob.position}
+                    <Briefcase size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{currentJob.position}
                   </div>
                 )}
                 <div style={{ color: '#cccccc', fontSize: '11px' }}>
@@ -325,7 +337,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 className="status-card-nightlife status-unemployed-nightlife"
                 style={{ marginBottom: pastJobs && pastJobs.length > 0 ? '10px' : '0px' }}
               >
-                ⚠️ {t('admin.notCurrentlyEmployed')}
+                <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.notCurrentlyEmployed')}
               </div>
             )}
 
@@ -350,7 +362,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                     gap: '4px',
                   }}
                 >
-                  📋 {t('admin.employmentHistory')} ({pastJobs.length}{' '}
+                  <ClipboardList size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.employmentHistory')} ({pastJobs.length}{' '}
                   {t('admin.previousJob', { count: pastJobs.length })}):
                 </div>
                 {pastJobs.map((job, index) => (
@@ -389,7 +401,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
             className="status-card-nightlife status-unemployed-nightlife"
             style={{ marginBottom: '15px' }}
           >
-            ⚠️ {t('admin.noEmploymentHistory')}
+            <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.noEmploymentHistory')}
           </div>
         )}
 
@@ -453,7 +465,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               borderRadius: '10px',
             }}
           >
-            👁️ {t('admin.viewProfile')}
+            <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.viewProfile')}
           </button>
 
           <button
@@ -472,7 +484,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               borderRadius: '10px',
             }}
           >
-            ✏️ {t('common.edit')}
+            <Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.edit')}
           </button>
         </div>
 
@@ -501,8 +513,8 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               }}
             >
               {isProcessing
-                ? `⏳ ${t('admin.processing')}`
-                : `✓ ${t('admin.verifyProfile', 'Verify Profile')}`}
+                ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
+                : <><ShieldCheck size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.verifyProfile', 'Verify Profile')}</>}
             </button>
           </div>
         )}
@@ -532,8 +544,8 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               }}
             >
               {isProcessing
-                ? `⏳ ${t('admin.processing')}`
-                : `⛔ ${t('admin.revokeVerification', 'Revoke Verification')}`}
+                ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
+                : <><ShieldX size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.revokeVerification', 'Revoke Verification')}</>}
             </button>
           </div>
         )}
@@ -562,7 +574,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 cursor: isProcessing ? 'not-allowed' : 'pointer',
               }}
             >
-              {isProcessing ? `⏳ ${t('admin.processing')}` : `✅ ${t('admin.approve')}`}
+              {isProcessing ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</> : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approve')}</>}
             </button>
 
             <button
@@ -586,7 +598,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 cursor: isProcessing ? 'not-allowed' : 'pointer',
               }}
             >
-              {isProcessing ? `⏳ ${t('admin.processing')}` : `❌ ${t('admin.reject')}`}
+              {isProcessing ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</> : <><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}</>}
             </button>
           </div>
         )}

@@ -99,7 +99,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
             cloudinaryPreset="cardPreview"
             objectFit="cover"
             className="employee-card-img"
-            placeholderSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='267'%3E%3Crect width='200' height='267' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='60'%3E👤%3C/text%3E%3C/svg%3E"
+            placeholderSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='267' viewBox='0 0 200 267'%3E%3Crect width='200' height='267' fill='%23333'/%3E%3Ccircle cx='100' cy='90' r='40' fill='%23666'/%3E%3Cellipse cx='100' cy='200' rx='60' ry='50' fill='%23666'/%3E%3C/svg%3E"
             enableResponsive={true}
             responsiveType="employee"
           />

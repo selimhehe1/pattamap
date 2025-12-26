@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Pencil, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { EditProposalDiff } from './EditProposalDiff';
 import type { EditProposal } from './types';
 
@@ -61,7 +62,7 @@ export const EditProposalCard: React.FC<EditProposalCardProps> = ({
           fontWeight: 'bold',
         }}
       >
-        ✏️ {t('admin.editProposal')}
+        <Pencil size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.editProposal')}
       </div>
 
       {/* Header */}
@@ -151,8 +152,8 @@ export const EditProposalCard: React.FC<EditProposalCardProps> = ({
               }}
             >
               {isProcessing
-                ? `⏳ ${t('admin.processing')}`
-                : `✅ ${t('admin.approveAndApply')}`}
+                ? <><Loader2 size={16} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
+                : <><CheckCircle size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approveAndApply')}</>}
             </button>
 
             <button
@@ -172,7 +173,7 @@ export const EditProposalCard: React.FC<EditProposalCardProps> = ({
                 fontWeight: 'bold',
               }}
             >
-              {isProcessing ? `⏳ ${t('admin.processing')}` : `❌ ${t('admin.reject')}`}
+              {isProcessing ? <><Loader2 size={16} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</> : <><XCircle size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}</>}
             </button>
           </div>
         </div>

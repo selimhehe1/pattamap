@@ -5,7 +5,7 @@
 
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, Ban, CheckCircle, MailX, Users } from 'lucide-react';
 import { EmployeeForm, GirlProfile } from '../../../routes/lazyComponents';
 import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
 import LoadingFallback from '../../Common/LoadingFallback';
@@ -65,7 +65,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
     return (
       <div className="access-denied-container">
         <div className="access-denied-card">
-          <h2>🚫 {t('admin.accessDenied')}</h2>
+          <h2><Ban size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.accessDenied')}</h2>
           <p>{t('admin.accessDeniedArea')}</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       <AdminBreadcrumb
         currentSection={t('admin.employeesManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="👥"
+        icon={<Users size={20} style={{ verticalAlign: 'middle' }} />}
       />
 
       {/* Header */}
@@ -95,7 +95,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       ) : filter === 'pending-edits' ? (
         editProposals.length === 0 ? (
           <div className="empty-state-card">
-            <h3>✅ {t('admin.noPendingEdits')}</h3>
+            <h3><CheckCircle size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.noPendingEdits')}</h3>
             <p>{t('admin.allEditsReviewed')}</p>
           </div>
         ) : (
@@ -118,7 +118,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         )
       ) : employees.length === 0 ? (
         <div className="empty-state-card">
-          <h3>📭 {t('admin.noEmployeesFound')}</h3>
+          <h3><MailX size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.noEmployeesFound')}</h3>
           <p>{t('admin.noEmployeesMatch')}</p>
         </div>
       ) : (

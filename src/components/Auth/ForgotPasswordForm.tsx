@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Mail } from 'lucide-react';
 import { useCSRF } from '../../contexts/CSRFContext';
 import toast from '../../utils/toast';
 import '../../styles/components/modal-forms.css';
@@ -91,7 +92,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           </button>
 
           <div className="modal-header">
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
+            <div style={{ marginBottom: '16px' }}><Mail size={48} /></div>
             <h2 className="header-title-nightlife">
               {t('auth.checkYourEmail')}
             </h2>
@@ -147,7 +148,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <form onSubmit={handleSubmit} className="form-layout" noValidate>
           <div className="form-group-nightlife">
             <label className="form-label-nightlife">
-              📧 {t('auth.email')}
+              <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.email')}
             </label>
             <input
               type="email"
@@ -181,7 +182,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 {t('common.sending')}
               </span>
             ) : (
-              `📧 ${t('auth.sendResetLink')}`
+              <><Mail size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.sendResetLink')}</>
             )}
           </button>
 

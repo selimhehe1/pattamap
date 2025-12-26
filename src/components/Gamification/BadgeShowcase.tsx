@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Map, FileText, Users, Star, Clock, Drama, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Badge, UserBadge } from '../../contexts/GamificationContext';
@@ -76,16 +77,17 @@ const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({
   };
 
   // Get category icon
-  const getCategoryIcon = (category: string): string => {
-    const icons: Record<string, string> = {
-      exploration: '🗺️',
-      contribution: '📝',
-      social: '👥',
-      quality: '⭐',
-      temporal: '⏰',
-      secret: '🎭'
-    };
-    return icons[category] || '🏆';
+  const getCategoryIcon = (category: string): React.ReactNode => {
+    const iconStyle = { verticalAlign: 'middle' as const };
+    switch (category) {
+      case 'exploration': return <Map size={16} style={iconStyle} />;
+      case 'contribution': return <FileText size={16} style={iconStyle} />;
+      case 'social': return <Users size={16} style={iconStyle} />;
+      case 'quality': return <Star size={16} style={iconStyle} />;
+      case 'temporal': return <Clock size={16} style={iconStyle} />;
+      case 'secret': return <Drama size={16} style={iconStyle} />;
+      default: return <Trophy size={16} style={iconStyle} />;
+    }
   };
 
   return (
@@ -104,7 +106,7 @@ const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({
       {/* Badge Grid */}
       {earnedBadges.length === 0 ? (
         <div className="badge-showcase-empty">
-          <div className="empty-icon">🏆</div>
+          <div className="empty-icon"><Trophy size={48} /></div>
           <p>{t('gamification.badges.empty')}</p>
           <span className="empty-subtitle">{t('gamification.badges.emptySubtitle')}</span>
         </div>

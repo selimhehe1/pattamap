@@ -5,19 +5,28 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { FilterType, FilterTab } from './types';
+import { PlusSquare, Pencil, CheckCircle, XCircle, ClipboardList } from 'lucide-react';
+import type { FilterType } from './types';
 
 interface EmployeesFilterTabsProps {
   activeFilter: FilterType;
   onFilterChange: (filter: FilterType) => void;
 }
 
-const FILTER_TABS: FilterTab[] = [
-  { key: 'pending', label: 'admin.filterNewPending', icon: '🆕' },
-  { key: 'pending-edits', label: 'admin.filterPendingEdits', icon: '✏️' },
-  { key: 'approved', label: 'admin.filterApproved', icon: '✅' },
-  { key: 'rejected', label: 'admin.filterRejected', icon: '❌' },
-  { key: 'all', label: 'admin.filterAll', icon: '📋' },
+interface FilterTabWithIcon {
+  key: FilterType;
+  label: string;
+  icon: React.ReactNode;
+}
+
+const iconStyle = { marginRight: '4px', verticalAlign: 'middle' as const };
+
+const FILTER_TABS: FilterTabWithIcon[] = [
+  { key: 'pending', label: 'admin.filterNewPending', icon: <PlusSquare size={14} style={iconStyle} /> },
+  { key: 'pending-edits', label: 'admin.filterPendingEdits', icon: <Pencil size={14} style={iconStyle} /> },
+  { key: 'approved', label: 'admin.filterApproved', icon: <CheckCircle size={14} style={iconStyle} /> },
+  { key: 'rejected', label: 'admin.filterRejected', icon: <XCircle size={14} style={iconStyle} /> },
+  { key: 'all', label: 'admin.filterAll', icon: <ClipboardList size={14} style={iconStyle} /> },
 ];
 
 export const EmployeesFilterTabs: React.FC<EmployeesFilterTabsProps> = ({
@@ -59,7 +68,7 @@ export const EmployeesFilterTabs: React.FC<EmployeesFilterTabsProps> = ({
               whiteSpace: 'nowrap',
             }}
           >
-            {tab.icon} {t(tab.label)}
+            {tab.icon}{t(tab.label)}
           </button>
         );
       })}

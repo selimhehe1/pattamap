@@ -96,7 +96,7 @@ const UserDashboard: React.FC = () => {
       <div className="page-container-nightlife">
         <div className="header-centered-nightlife">
           <h1 className="header-title-nightlife">
-            ⭐ {t('userDashboard.pageTitle')}
+            <Star size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('userDashboard.pageTitle')}
           </h1>
           <p className="header-subtitle-nightlife">
             {t('userDashboard.pageSubtitle')}

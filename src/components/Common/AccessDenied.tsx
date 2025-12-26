@@ -1,4 +1,5 @@
 import React from 'react';
+import { Lock } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import './AccessDenied.css';
@@ -69,7 +70,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
       <div className="access-denied-content">
         {/* Icon */}
         <div className="access-denied-icon" role="img" aria-label="Access Denied">
-          🔒
+          <Lock size={48} />
         </div>
 
         {/* Title */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MapPin, Check, AlertTriangle, XCircle, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -177,7 +178,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
           </>
         ) : (
           <>
-            <span className="checkin-icon">📍</span>
+            <span className="checkin-icon"><MapPin size={16} /></span>
             <span>{compact ? t('gamification.checkIn.button') : t('gamification.checkIn.buttonFull')}</span>
           </>
         )}
@@ -188,7 +189,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
         <div className={`checkin-result ${result.verified ? 'checkin-success' : 'checkin-warning'}`}>
           {result.verified ? (
             <>
-              <span className="checkin-result-icon">✓</span>
+              <span className="checkin-result-icon"><Check size={16} /></span>
               <div className="checkin-result-content">
                 <div className="checkin-result-title">{t('gamification.checkIn.verified')}</div>
                 <div className="checkin-result-message">
@@ -198,7 +199,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
             </>
           ) : (
             <>
-              <span className="checkin-result-icon">⚠️</span>
+              <span className="checkin-result-icon"><AlertTriangle size={16} /></span>
               <div className="checkin-result-content">
                 <div className="checkin-result-title">{t('gamification.checkIn.tooFar')}</div>
                 <div className="checkin-result-message">
@@ -213,7 +214,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
       {/* Error Message */}
       {error && (
         <div className="checkin-error">
-          <span className="checkin-error-icon">❌</span>
+          <span className="checkin-error-icon"><XCircle size={16} /></span>
           <div className="checkin-error-message">{error}</div>
         </div>
       )}
@@ -221,7 +222,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
       {/* Info Hint */}
       {!user && (
         <div className="checkin-hint">
-          <span>🔒</span>
+          <span><Lock size={14} /></span>
           <span>{t('gamification.checkIn.loginRequired')}</span>
         </div>
       )}

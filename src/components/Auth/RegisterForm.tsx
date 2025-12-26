@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, User, Lock, AlertTriangle } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle, FileText, PersonStanding, Sparkles, Mail, KeyRound, Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -150,17 +150,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
       error: { color: '#FF9800', fontSize: '12px', marginTop: '4px' },
     };
 
-    const icons: Record<string, string> = {
-      checking: '⏳',
-      available: '✓',
-      taken: '✗',
-      invalid: '⚠️',
-      error: '⚠️',
+    const icons: Record<string, React.ReactNode> = {
+      checking: <Loader2 size={12} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />,
+      available: <Check size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />,
+      taken: <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />,
+      invalid: <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />,
+      error: <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />,
     };
 
     return (
       <div style={styles[status]}>
-        {icons[status]} {message}
+        {icons[status]}{message}
       </div>
     );
   };
@@ -256,7 +256,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
             justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>📝</span>
+              <FileText size={20} />
               <div>
                 <div style={{ color: '#00E5FF', fontSize: '14px', fontWeight: 'bold' }}>
                   {t('register.draftRestored')}
@@ -403,7 +403,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 />
                 <div>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    💃 {t('register.employeeUser')}
+                    <PersonStanding size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.employeeUser')}
                   </div>
                   <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                     {t('register.employeeUserDesc')}
@@ -425,7 +425,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 lineHeight: '1.5'
               }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#C19A6B' }}>
-                  ✨ {t('register.employeeBenefitsTitle')}
+                  <Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.employeeBenefitsTitle')}
                 </div>
                 <ul style={{ margin: '0', paddingLeft: '20px' }}>
                   <li>{t('register.employeeBenefit1')}</li>
@@ -458,7 +458,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
           <div>
             <FormField
-              label={`📧 ${t('register.emailLabel')}`}
+              label={<><Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.emailLabel')}</>}
               name="email"
               type="email"
               value={formData.email}
@@ -518,7 +518,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
           <div style={{ position: 'relative' }}>
             <FormField
-              label={`🔐 ${t('register.confirmPasswordLabel')}`}
+              label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
               name="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
               value={formData.confirmPassword}
@@ -575,7 +575,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 {t('register.creatingAccount')}
               </span>
             ) : (
-              `✨ ${t('register.createAccount')}`
+              <><Sparkles size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createAccount')}</>
             )}
           </button>
 

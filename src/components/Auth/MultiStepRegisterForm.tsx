@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone } from 'lucide-react';
+import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -711,7 +711,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>📝</span>
+              <FileText size={20} />
               <div>
                 <div style={{ color: '#00E5FF', fontSize: '14px', fontWeight: 'bold' }}>
                   {t('register.draftRestored')}
@@ -887,7 +887,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   />
                   <div>
                     <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                      💃 {t('register.employeeUser')}
+                      <PersonStanding size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.employeeUser')}
                     </div>
                     <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                       {t('register.employeeUserDesc')}
@@ -1030,7 +1030,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    🔗 {t('register.claimExistingProfile')}
+                    <Link size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.claimExistingProfile')}
                   </div>
                   <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                     {t('register.claimExistingProfileDesc')}
@@ -1121,7 +1121,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 fontWeight: 'bold',
                                 borderBottom: '1px solid rgba(255,255,255,0.1)'
                               }}>
-                                📍 {zoneNames[zone] || zone}
+                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{zoneNames[zone] || zone}
                               </div>
                               {/* Establishments in Zone */}
                               {groupedByZone[zone].map(est => (
@@ -1158,7 +1158,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       fontWeight: 'bold',
                       marginBottom: '8px'
                     }}>
-                      🔍 {t('register.searchByName')}
+                      <Search size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.searchByName')}
                     </label>
                     <input
                       ref={searchInputRef}
@@ -1260,7 +1260,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 justifyContent: 'center',
                                 fontSize: '24px'
                               }}>
-                                👤
+                                <User size={24} />
                               </div>
                             )}
                             <div style={{
@@ -1325,7 +1325,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       marginTop: '12px',
                     }}>
                       <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#00E5FF', fontSize: '13px' }}>
-                        ✅ {t('register.selectedProfile')}
+                        <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.selectedProfile')}
                       </div>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         {formData.selectedEmployee.photos && formData.selectedEmployee.photos[0] && (
@@ -1380,7 +1380,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    ✨ {t('register.createNewProfile')}
+                    <Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createNewProfile')}
                   </div>
                   <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                     {t('register.createNewProfileDesc')}
@@ -1432,7 +1432,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           {currentStep === 3 && (
             <>
               <FormField
-                label={`👤 ${t('register.pseudonymLabel')}`}
+                label={<><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.pseudonymLabel')}</>}
                 name="pseudonym"
                 value={formData.pseudonym}
                 error={errors.pseudonym}
@@ -1447,7 +1447,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               />
 
               <FormField
-                label={`📧 ${t('register.emailLabel')}`}
+                label={<><Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.emailLabel')}</>}
                 name="email"
                 type="email"
                 value={formData.email}
@@ -1461,7 +1461,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
               <div style={{ position: 'relative' }}>
                 <FormField
-                  label={`🔒 ${t('register.passwordLabel')}`}
+                  label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
@@ -1502,7 +1502,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
               <div style={{ position: 'relative' }}>
                 <FormField
-                  label={`🔐 ${t('register.confirmPasswordLabel')}`}
+                  label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
@@ -1549,7 +1549,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     fontWeight: 'bold',
                     marginBottom: '8px',
                   }}>
-                    💬 {t('register.claimMessage')} *
+                    <MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.claimMessage')} *
                   </label>
                   <textarea
                     value={formData.claimMessage}
@@ -1643,7 +1643,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                         {t('register.creatingAccount')}
                       </span>
                     ) : (
-                      `✨ ${t('register.createAccount')}`
+                      <><Sparkles size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createAccount')}</>
                     )}
                   </button>
                 )}
@@ -1781,7 +1781,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 </h3>
 
                 <div className="form-input-group">
-                  <label className="label-nightlife">👤 {t('register.nameLabel')} *</label>
+                  <label className="label-nightlife"><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.nameLabel')} *</label>
                   <input
                     type="text"
                     value={formData.employeeName}
@@ -1805,7 +1805,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
                 <div className="form-row-2-cols">
                   <div>
-                    <label className="label-nightlife">🎂 {t('register.ageLabel')}</label>
+                    <label className="label-nightlife"><Cake size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.ageLabel')}</label>
                     <input
                       type="number"
                       value={formData.employeeAge}
@@ -1817,7 +1817,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="label-nightlife">🌍 {t('register.nationalityLabel')}</label>
+                    <label className="label-nightlife"><Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.nationalityLabel')}</label>
                     <NationalityTagsInput
                       value={formData.employeeNationality}
                       onChange={(nationalities) => handleInputChange('employeeNationality', nationalities)}
@@ -1827,7 +1827,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 </div>
 
                 <div className="form-input-group">
-                  <label className="label-nightlife">📝 {t('register.descriptionLabel')}</label>
+                  <label className="label-nightlife"><FileText size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.descriptionLabel')}</label>
                   <textarea
                     value={formData.employeeDescription}
                     onChange={(e) => handleInputChange('employeeDescription', e.target.value)}
@@ -1897,7 +1897,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                         cursor: 'pointer'
                       }}
                     />
-                    <span>💃 {t('register.freelanceMode')}</span>
+                    <span><PersonStanding size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.freelanceMode')}</span>
                   </label>
                   {formData.isFreelance && (
                     <span style={{
@@ -1916,7 +1916,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 {/* Freelance Zone Selector */}
                 {formData.isFreelance && (
                   <div style={{ marginBottom: '20px' }}>
-                    <label className="label-nightlife">📍 {t('register.selectZone')} *</label>
+                    <label className="label-nightlife"><MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.selectZone')} *</label>
                     <select
                       value={formData.freelanceZone}
                       onChange={(e) => handleInputChange('freelanceZone', e.target.value)}
@@ -2017,7 +2017,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 fontWeight: 'bold',
                                 borderBottom: '1px solid rgba(255,255,255,0.1)'
                               }}>
-                                📍 {zoneNames[zone] || zone}
+                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{zoneNames[zone] || zone}
                               </div>
                               {/* Establishments in Zone */}
                               {groupedByZone[zone].map(est => (
@@ -2107,7 +2107,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   </div>
 
                   <div>
-                    <label className="label-nightlife">💬 {t('register.lineLabel')}</label>
+                    <label className="label-nightlife"><MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.lineLabel')}</label>
                     <input
                       type="text"
                       value={formData.socialMedia.line}
@@ -2171,10 +2171,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   ) : isLoading ? (
                     <span className="loading-flex">
                       <span className="loading-spinner-small-nightlife"></span>
-                      ⏳ {t('register.creatingProfile')}
+                      <Loader2 size={16} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('register.creatingProfile')}
                     </span>
                   ) : (
-                    `✨ ${t('register.createAccount')}`
+                    <><Sparkles size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createAccount')}</>
                   )}
                 </button>
               </div>
