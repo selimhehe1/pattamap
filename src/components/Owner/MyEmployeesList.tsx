@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, Crown, Eye, Heart, Star } from 'lucide-react';
 import EmployeeCard from '../Common/EmployeeCard';
 import VIPPurchaseModal from './VIPPurchaseModal';
 import { Employee } from '../../types';
@@ -112,7 +113,7 @@ const MyEmployeesList: React.FC<Props> = ({
 
       {!canEditEmployees && (
         <div className="permission-warning">
-          ⚠️ {t('myEmployees.readOnly', 'You have read-only access to employees')}
+          <AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('myEmployees.readOnly', 'You have read-only access to employees')}
           <br />
           {t('myEmployees.contactAdmin', 'Contact admin to request can_edit_employees permission')}
         </div>
@@ -132,7 +133,7 @@ const MyEmployeesList: React.FC<Props> = ({
               <div className="employee-actions">
                 {employee.is_vip ? (
                   <div className="vip-status-badge">
-                    👑 {t('myEmployees.vipActive', 'VIP Active')}
+                    <Crown size={16} style={{ marginRight: '6px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> {t('myEmployees.vipActive', 'VIP Active')}
                     {employee.vip_expires_at && (
                       <span className="expiry">
                         {t('myEmployees.expires', 'Expires')}: {new Date(employee.vip_expires_at).toLocaleDateString()}
@@ -148,7 +149,7 @@ const MyEmployeesList: React.FC<Props> = ({
                         handleBuyVIP(employee.id);
                       }}
                     >
-                      👑 {t('myEmployees.buyVIP', 'Buy VIP')}
+                      <Crown size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('myEmployees.buyVIP', 'Buy VIP')}
                     </button>
                   ) : (
                     <div className="no-permission-hint">
@@ -162,13 +163,13 @@ const MyEmployeesList: React.FC<Props> = ({
             {/* Stats Summary */}
             <div className="employee-stats-summary">
               <span title={t('myEmployees.profileViews', 'Profile Views')}>
-                👁️ {(employee as any).total_views || 0}
+                <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {(employee as any).total_views || 0}
               </span>
               <span title={t('myEmployees.favorites', 'Favorites')}>
-                ⭐ {(employee as any).total_favorites || 0}
+                <Heart size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FF6B6B', color: '#FF6B6B' }} /> {(employee as any).total_favorites || 0}
               </span>
               <span title={t('myEmployees.rating', 'Rating')}>
-                🌟 {employee.average_rating?.toFixed(1) || 'N/A'}
+                <Star size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> {employee.average_rating?.toFixed(1) || 'N/A'}
               </span>
             </div>
           </div>

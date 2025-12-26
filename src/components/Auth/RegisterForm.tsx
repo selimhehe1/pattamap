@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, User, Lock, AlertTriangle, FileText, PersonStanding, Sparkles, Mail, KeyRound, Check, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle, FileText, PersonStanding, Sparkles, Mail, KeyRound, Check, Loader2, Users, UserCog } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -336,7 +336,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
               fontWeight: 'bold',
               marginBottom: '10px'
             }}>
-              🎭 {t('register.accountType')}
+              <UserCog size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.accountType')}
             </label>
             <div style={{
               display: 'flex',
@@ -369,7 +369,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 />
                 <div>
                   <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    👥 {t('register.regularUser')}
+                    <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.regularUser')}
                   </div>
                   <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                     {t('register.regularUserDesc')}

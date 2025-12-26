@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { ClipboardList } from 'lucide-react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
@@ -196,7 +197,7 @@ const MyOwnershipRequests: React.FC = () => {
       {/* Empty state */}
       {!isLoading && requests.length === 0 && (
         <div className="empty-state">
-          <div className="empty-icon">📋</div>
+          <div className="empty-icon"><ClipboardList size={48} /></div>
           <h2>No Ownership Requests Yet</h2>
           <p>
             You haven't submitted any ownership requests yet.

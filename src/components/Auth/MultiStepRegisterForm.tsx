@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail } from 'lucide-react';
+import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail, Users, UserCog, Rocket, Lightbulb, Store } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -822,7 +822,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 fontWeight: 'bold',
                 marginBottom: '10px'
               }}>
-                🎭 {t('register.accountType')}
+                <UserCog size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.accountType')}
               </label>
               <div style={{
                 display: 'flex',
@@ -854,7 +854,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   />
                   <div>
                     <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                      👥 {t('register.regularUser')}
+                      <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.regularUser')}
                     </div>
                     <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                       {t('register.regularUserDesc')}
@@ -1002,7 +1002,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 fontWeight: 'bold',
                 marginBottom: '10px'
               }}>
-                🚀 {t('register.choosePath')}
+                <Rocket size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.choosePath')}
               </label>
 
               {/* Option: Claim Existing Profile */}
@@ -1793,7 +1793,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 </div>
 
                 <div className="form-input-group-lg">
-                  <label className="label-nightlife">🎭 {t('register.nicknameLabel')}</label>
+                  <label className="label-nightlife"><UserCog size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.nicknameLabel')}</label>
                   <input
                     type="text"
                     value={formData.employeeNickname}
@@ -1939,7 +1939,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       color: 'rgba(255,255,255,0.8)',
                       fontSize: '13px'
                     }}>
-                      💡 {t('register.freelanceNote')}
+                      <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.freelanceNote')}
                     </div>
                   </div>
                 )}
@@ -1947,7 +1947,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 {/* Establishment Selector with Autocomplete */}
                 {!formData.isFreelance && (
                   <div style={{ marginBottom: '20px', position: 'relative' }}>
-                    <label className="label-nightlife">🏪 {t('register.currentEstablishment')}</label>
+                    <label className="label-nightlife"><Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.currentEstablishment')}</label>
                     <input
                       ref={establishmentInputRefStep4}
                       type="text"
@@ -2076,7 +2076,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   fontSize: '13px',
                   color: 'rgba(255,255,255,0.8)'
                 }}>
-                  💡 {t('register.socialMediaNote')}
+                  <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.socialMediaNote')}
                 </div>
 
                 <div className="social-media-grid" style={{

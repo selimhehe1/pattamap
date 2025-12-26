@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Lock, CheckCircle, Check, X, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import toast from '../../utils/toast';
@@ -125,7 +126,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
     return (
       <div className="validation-vote-buttons validation-login-required">
         <p className="login-prompt">
-          🔒 {t('validation.loginToVote')}
+          <Lock size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('validation.loginToVote')}
         </p>
       </div>
     );
@@ -162,7 +163,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
         // Show "already voted" message instead of buttons
         <div className="already-voted-message">
           <p className="voted-info">
-            ✅ {t('validation.alreadyVoted')}
+            <CheckCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#00FF7F' }} /> {t('validation.alreadyVoted')}
           </p>
           <p className="your-vote">
             {t('validation.yourVote')}:
@@ -188,7 +189,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
               title={isFetching ? 'Loading...' : ''}
               aria-label={t('validation.voteExists')}
             >
-              <span className="vote-icon">{isFetching ? '⏳' : '✓'}</span>
+              <span className="vote-icon">{isFetching ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Check size={16} />}</span>
               <span className="vote-text">{t('validation.voteExists')}</span>
             </button>
 
@@ -199,7 +200,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
               title={isFetching ? 'Loading...' : ''}
               aria-label={t('validation.voteNotExists')}
             >
-              <span className="vote-icon">{isFetching ? '⏳' : '✗'}</span>
+              <span className="vote-icon">{isFetching ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <X size={16} />}</span>
               <span className="vote-text">{t('validation.voteNotExists')}</span>
             </button>
           </div>
