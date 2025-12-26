@@ -10,6 +10,15 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee, Establishment, VIPDuration, PaymentMethod, VIPTierConfig, PurchaseVIPRequest, VIPSubscriptionType } from '../../types';
 import { logger } from '../../utils/logger';
+import {
+  Clock,
+  X,
+  XCircle,
+  Smartphone,
+  CheckCircle,
+  Crown,
+  Banknote
+} from 'lucide-react';
 import './VIPPurchaseModal.css';
 
 interface Props {
@@ -146,7 +155,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       <div className="vip-purchase-modal-overlay" onClick={onClose}>
         <div className="vip-purchase-modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="vip-purchase-loading">
-            <div className="loading-spinner">⏳</div>
+            <div className="loading-spinner"><Clock size={32} /></div>
             <p>{t('vipPurchase.loadingPricing', 'Loading pricing...')}</p>
           </div>
         </div>
@@ -160,10 +169,10 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       <div className="vip-purchase-modal-overlay" onClick={onClose}>
         <div className="vip-purchase-modal-content" onClick={(e) => e.stopPropagation()}>
           <button className="close-modal" onClick={onClose}>
-            ✕
+            <X size={20} />
           </button>
           <div className="vip-purchase-error">
-            <p className="error-icon">❌</p>
+            <p className="error-icon"><XCircle size={32} /></p>
             <p className="error-message">{error}</p>
             <button className="retry-button" onClick={() => setRetryCount(c => c + 1)}>
               {t('vipPurchase.retry', 'Retry')}
@@ -184,10 +193,10 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
         <div className="vip-purchase-modal-overlay">
           <div className="vip-purchase-modal-content">
             <button className="close-modal" onClick={() => { onSuccess(); onClose(); }}>
-              ✕
+              <X size={20} />
             </button>
             <div className="vip-promptpay-success">
-              <h3>📱 {t('vipPurchase.scanQR', 'Scan QR Code to Pay')}</h3>
+              <h3><Smartphone size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('vipPurchase.scanQR', 'Scan QR Code to Pay')}</h3>
               <div className="promptpay-qr-container">
                 <img
                   src={promptPayQR.qrCode}
@@ -226,7 +235,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       <div className="vip-purchase-modal-overlay">
         <div className="vip-purchase-modal-content">
           <div className="vip-purchase-success">
-            <p className="success-icon">✅</p>
+            <p className="success-icon"><CheckCircle size={32} /></p>
             <h3>{t('vipPurchase.successTitle', 'VIP Purchase Successful!')}</h3>
             <p className="success-message">
               {selectedPaymentMethod === 'cash'
@@ -243,7 +252,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
     <div className="vip-purchase-modal-overlay" onClick={onClose}>
       <div className="vip-purchase-modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-modal" onClick={onClose}>
-          ✕
+          <X size={20} />
         </button>
 
         {/* Header */}
@@ -262,7 +271,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
         {/* VIP Features */}
         <div className="vip-features-section">
           <div className="vip-header">
-            <span className="tier-badge">👑 VIP</span>
+            <span className="tier-badge"><Crown size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> VIP</span>
             <h3>{pricingData.name}</h3>
           </div>
           <p className="vip-description">{pricingData.description}</p>
@@ -311,7 +320,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
               className={`payment-method ${selectedPaymentMethod === 'cash' ? 'selected' : ''}`}
               onClick={() => setSelectedPaymentMethod('cash')}
             >
-              <span className="payment-icon">💵</span>
+              <span className="payment-icon"><Banknote size={24} /></span>
               <span className="payment-label">{t('vipPurchase.paymentCash', 'Cash Payment')}</span>
               <span className="payment-description">
                 {t('vipPurchase.paymentCashDesc', 'Pay in cash and admin will verify')}
@@ -321,7 +330,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
               className={`payment-method ${selectedPaymentMethod === 'promptpay' ? 'selected' : ''}`}
               onClick={() => setSelectedPaymentMethod('promptpay')}
             >
-              <span className="payment-icon">📱</span>
+              <span className="payment-icon"><Smartphone size={24} /></span>
               <span className="payment-label">{t('vipPurchase.paymentPromptPay', 'PromptPay QR')}</span>
               <span className="payment-description">
                 {t('vipPurchase.paymentPromptPayDesc', 'Scan QR code to pay (Thai banks)')}
@@ -358,7 +367,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
         {/* Error Message */}
         {error && (
           <div className="vip-purchase-error-inline">
-            <p>❌ {error}</p>
+            <p><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{error}</p>
           </div>
         )}
 
@@ -374,12 +383,12 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
           >
             {purchasing ? (
               <>
-                <span className="loading-spinner-small">⏳</span>
+                <span className="loading-spinner-small"><Clock size={16} /></span>
                 {t('vipPurchase.processing', 'Processing...')}
               </>
             ) : (
               <>
-                👑 {t('vipPurchase.confirmPurchase', 'Confirm Purchase')} - ฿{selectedPrice?.price.toLocaleString()}
+                <Crown size={16} style={{ marginRight: '6px' }} /> {t('vipPurchase.confirmPurchase', 'Confirm Purchase')} - ฿{selectedPrice?.price.toLocaleString()}
               </>
             )}
           </button>

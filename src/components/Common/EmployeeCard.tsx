@@ -4,6 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import LazyImage from './LazyImage';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
+import {
+  User,
+  Star,
+  Check,
+  ThumbsUp,
+  Cake,
+  Globe,
+  Building2,
+  Gem
+} from 'lucide-react';
 import '../../styles/components/employee-card.css';
 
 // Feature flag check
@@ -95,7 +105,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
           />
         ) : (
           <div className="employee-card-placeholder">
-            <span className="employee-card-placeholder-icon">👤</span>
+            <span className="employee-card-placeholder-icon"><User size={48} /></span>
           </div>
         )}
       </div>
@@ -103,7 +113,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
       {/* Rating Badge - Top Right */}
       {showRatingBadge && hasRating && (
         <div className="employee-card-rating-badge">
-          ⭐ {(employee.average_rating ?? 0).toFixed(1)}
+          <Star size={14} fill="#FFD700" color="#FFD700" style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {(employee.average_rating ?? 0).toFixed(1)}
         </div>
       )}
 
@@ -115,7 +125,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
           role="img"
           aria-label={t('employeeCard.verifiedProfile', 'Verified profile')}
         >
-          <span className="verified-icon" aria-hidden="true">✓</span>
+          <span className="verified-icon" aria-hidden="true"><Check size={12} /></span>
           <span>VERIFIED</span>
         </div>
       )}
@@ -128,7 +138,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
           role="img"
           aria-label={t('employeeCard.voteCount', { count: employee.vote_count })}
         >
-          <span aria-hidden="true">👍</span> {employee.vote_count}
+          <span aria-hidden="true"><ThumbsUp size={14} /></span> {employee.vote_count}
         </div>
       )}
 
@@ -151,19 +161,19 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
             <div className="employee-card-info-right">
               {employee.age && (
                 <span className="employee-card-detail">
-                  <span className="employee-card-icon">🎂</span>
+                  <span className="employee-card-icon"><Cake size={14} /></span>
                   <span>{employee.age}</span>
                 </span>
               )}
               {employee.nationality && Array.isArray(employee.nationality) && employee.nationality.length > 0 && (
                 <span className="employee-card-detail">
-                  <span className="employee-card-icon">🌍</span>
+                  <span className="employee-card-icon"><Globe size={14} /></span>
                   <span>{employee.nationality.join(' / ')}</span>
                 </span>
               )}
               {showEstablishment && currentEstablishment && (
                 <div className="employee-card-establishment">
-                  <span className="employee-card-icon">🏢</span>
+                  <span className="employee-card-icon"><Building2 size={14} /></span>
                   <span className="employee-card-establishment-name">
                     {currentEstablishment.name}
                   </span>
@@ -184,14 +194,14 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
             if (isFreelance) {
               return (
                 <div className="employee-card-type employee-card-type-freelance">
-                  <span className="employee-card-type-icon">💎</span>
+                  <span className="employee-card-type-icon"><Gem size={14} /></span>
                   <span className="employee-card-type-label">{t('search.freelances')}</span>
                 </div>
               );
             } else if (isRegular) {
               return (
                 <div className="employee-card-type employee-card-type-regular">
-                  <span className="employee-card-type-icon">🏢</span>
+                  <span className="employee-card-type-icon"><Building2 size={14} /></span>
                   <span className="employee-card-type-label">{t('search.regularEmployees')}</span>
                 </div>
               );

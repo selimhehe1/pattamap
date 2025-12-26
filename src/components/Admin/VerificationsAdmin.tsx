@@ -12,7 +12,8 @@ import {
   Bot,
   User,
   Loader2,
-  BadgeCheck
+  BadgeCheck,
+  History
 } from 'lucide-react';
 import useSecureFetch from '../../hooks/useSecureFetch';
 import { useModal } from '../../contexts/ModalContext';
@@ -569,8 +570,8 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                         fontSize: '12px'
                       }}>
                         {group.totalAttempts} attempt{group.totalAttempts !== 1 ? 's' : ''}
-                        {group.approvedCount > 0 && <span style={{ color: '#00FF88' }}> • {group.approvedCount} ✅</span>}
-                        {group.rejectedCount > 0 && <span style={{ color: '#FF4757' }}> • {group.rejectedCount} ❌</span>}
+                        {group.approvedCount > 0 && <span style={{ color: '#00FF88', display: 'inline-flex', alignItems: 'center', gap: '2px' }}> • {group.approvedCount} <CheckCircle size={12} /></span>}
+                        {group.rejectedCount > 0 && <span style={{ color: '#FF4757', display: 'inline-flex', alignItems: 'center', gap: '2px' }}> • {group.rejectedCount} <XCircle size={12} /></span>}
                       </div>
                     </div>
                   </div>
@@ -660,7 +661,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                           opacity: isProcessing ? 0.7 : 1
                         }}
                       >
-                        {isProcessing ? '⏳' : '✅ Approve'}
+                        {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <><CheckCircle size={14} /> Approve</>}
                       </button>
                       <button
                         onClick={() => handleReview(latestVerification.id, 'reject')}
@@ -678,10 +679,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                           fontSize: '12px',
                           fontWeight: 'bold',
                           transition: 'all 0.3s ease',
-                          opacity: isProcessing ? 0.7 : 1
+                          opacity: isProcessing ? 0.7 : 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px'
                         }}
                       >
-                        {isProcessing ? '⏳' : '❌ Reject'}
+                        {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <><XCircle size={14} /> Reject</>}
                       </button>
                     </div>
                   )}
@@ -704,10 +709,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                         fontSize: '12px',
                         fontWeight: 'bold',
                         transition: 'all 0.3s ease',
-                        opacity: isProcessing ? 0.7 : 1
+                        opacity: isProcessing ? 0.7 : 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
                       }}
                     >
-                      {isProcessing ? '⏳' : '❌ Reject Verification'}
+                      {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <><XCircle size={14} /> Reject Verification</>}
                     </button>
                   )}
 
@@ -725,10 +734,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                         cursor: 'pointer',
                         fontSize: '12px',
                         fontWeight: 'bold',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
                       }}
                     >
-                      📜 Timeline ({group.totalAttempts})
+                      <History size={14} /> Timeline ({group.totalAttempts})
                     </button>
                     <button
                       onClick={() => handleViewProfile(group)}
@@ -742,10 +755,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                         cursor: 'pointer',
                         fontSize: '12px',
                         fontWeight: 'bold',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
                       }}
                     >
-                      👁️ Profile
+                      <Eye size={14} /> Profile
                     </button>
                   </div>
                 </div>
@@ -906,8 +923,8 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                       </div>
                       <div>
                         <span style={{ color: 'rgba(255,255,255,0.6)' }}>Method: </span>
-                        <span style={{ color: verification.auto_approved ? '#00FF88' : '#FFD700', fontWeight: 'bold' }}>
-                          {verification.auto_approved ? '🤖 Auto' : '👤 Manual'}
+                        <span style={{ color: verification.auto_approved ? '#00FF88' : '#FFD700', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          {verification.auto_approved ? <><Bot size={12} /> Auto</> : <><User size={12} /> Manual</>}
                         </span>
                       </div>
                     </div>
@@ -1028,9 +1045,12 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
               color: '#FF4757',
               fontSize: '24px',
               fontWeight: 'bold',
-              margin: '0 0 20px 0'
+              margin: '0 0 20px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
             }}>
-              ❌ Reject Verification
+              <XCircle size={24} /> Reject Verification
             </h2>
 
             <p style={{
@@ -1123,10 +1143,14 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
                   fontSize: '14px',
                   fontWeight: 'bold',
                   transition: 'all 0.3s ease',
-                  opacity: revokeReason.trim().length < 10 ? 0.5 : 1
+                  opacity: revokeReason.trim().length < 10 ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
                 }}
               >
-                {processingIds.has(revokeTarget.employeeId) ? '⏳ Rejecting...' : 'Reject Verification'}
+                {processingIds.has(revokeTarget.employeeId) ? <><Loader2 size={14} className="animate-spin" /> Rejecting...</> : 'Reject Verification'}
               </button>
             </div>
           </div>

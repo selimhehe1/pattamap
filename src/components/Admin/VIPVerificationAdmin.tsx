@@ -13,6 +13,16 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  MailOpen,
+  User,
+  Building2,
+  Banknote
+} from 'lucide-react';
 import './VIPVerificationAdmin.css';
 
 interface VIPTransaction {
@@ -276,13 +286,13 @@ const VIPVerificationAdmin: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <span className="status-badge pending">⏳ {t('vipVerification.statusPending', 'Pending')}</span>;
+        return <span className="status-badge pending"><Clock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.statusPending', 'Pending')}</span>;
       case 'completed':
-        return <span className="status-badge completed">✅ {t('vipVerification.statusCompleted', 'Completed')}</span>;
+        return <span className="status-badge completed"><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.statusCompleted', 'Completed')}</span>;
       case 'failed':
-        return <span className="status-badge failed">❌ {t('vipVerification.statusFailed', 'Failed')}</span>;
+        return <span className="status-badge failed"><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.statusFailed', 'Failed')}</span>;
       case 'refunded':
-        return <span className="status-badge refunded">🔄 {t('vipVerification.statusRefunded', 'Refunded')}</span>;
+        return <span className="status-badge refunded"><RefreshCw size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.statusRefunded', 'Refunded')}</span>;
       default:
         return <span className="status-badge">{status}</span>;
     }
@@ -336,7 +346,7 @@ const VIPVerificationAdmin: React.FC = () => {
       <div className="vip-verification-admin">
         <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
         <div className="loading-state">
-          <div className="spinner">⏳</div>
+          <div className="spinner"><Clock size={32} /></div>
           <p>{t('common.loading', 'Loading...')}</p>
         </div>
       </div>
@@ -353,7 +363,7 @@ const VIPVerificationAdmin: React.FC = () => {
       <div className="vip-verification-admin">
         <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
         <div className="loading-state">
-          <div className="spinner">⏳</div>
+          <div className="spinner"><Clock size={32} /></div>
           <p>{t('vipVerification.loading', 'Loading transactions...')}</p>
         </div>
       </div>
@@ -405,7 +415,7 @@ const VIPVerificationAdmin: React.FC = () => {
             disabled={isBulkProcessing}
             className="bulk-verify-button"
           >
-            {isBulkProcessing ? '...' : `✅ ${t('vipVerification.verifyAll', 'Verify All')}`}
+            {isBulkProcessing ? '...' : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.verifyAll', 'Verify All')}</>}
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
@@ -434,7 +444,7 @@ const VIPVerificationAdmin: React.FC = () => {
       {/* Error Message */}
       {error && (
         <div className="error-message">
-          <p>❌ {error}</p>
+          <p><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{error}</p>
           <button onClick={fetchTransactions} className="retry-button">
             {t('vipVerification.retry', 'Retry')}
           </button>
@@ -444,7 +454,7 @@ const VIPVerificationAdmin: React.FC = () => {
       {/* Transactions List */}
       {transactions.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-icon">📭</p>
+          <p className="empty-icon"><MailOpen size={48} /></p>
           <p className="empty-message">
             {filter === 'pending'
               ? t('vipVerification.noPending', 'No pending verifications')
@@ -474,7 +484,7 @@ const VIPVerificationAdmin: React.FC = () => {
               {/* Transaction Header */}
               <div className="transaction-header">
                 <div className="transaction-type">
-                  {transaction.subscription_type === 'employee' ? '👤' : '🏢'}{' '}
+                  {transaction.subscription_type === 'employee' ? <User size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> : <Building2 size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />}
                   {transaction.subscription_type === 'employee'
                     ? t('vipVerification.typeEmployee', 'Employee VIP')
                     : t('vipVerification.typeEstablishment', 'Establishment VIP')}
@@ -526,7 +536,7 @@ const VIPVerificationAdmin: React.FC = () => {
                   ฿{transaction.amount.toLocaleString()} {transaction.currency}
                 </div>
                 <div className="payment-method">
-                  💵 {t('vipPurchase.paymentCash', 'Cash Payment')}
+                  <Banknote size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('vipPurchase.paymentCash', 'Cash Payment')}
                 </div>
                 <div className="created-date">
                   {t('vipVerification.created', 'Created')}: {new Date(transaction.created_at).toLocaleString()}
@@ -550,9 +560,9 @@ const VIPVerificationAdmin: React.FC = () => {
                     disabled={verifying === transaction.id}
                   >
                     {verifying === transaction.id ? (
-                      <>⏳ {t('vipVerification.verifying', 'Verifying...')}</>
+                      <><Clock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.verifying', 'Verifying...')}</>
                     ) : (
-                      <>✅ {t('vipVerification.verify', 'Verify Payment')}</>
+                      <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.verify', 'Verify Payment')}</>
                     )}
                   </button>
                   <button
@@ -560,7 +570,7 @@ const VIPVerificationAdmin: React.FC = () => {
                     onClick={() => handleReject(transaction.id)}
                     disabled={verifying === transaction.id}
                   >
-                    ❌ {t('vipVerification.reject', 'Reject')}
+                    <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.reject', 'Reject')}
                   </button>
                 </div>
               )}
@@ -572,7 +582,7 @@ const VIPVerificationAdmin: React.FC = () => {
       {/* Refresh Button */}
       <div className="refresh-section">
         <button onClick={fetchTransactions} className="refresh-button" disabled={loading}>
-          {loading ? '⏳' : '🔄'} {t('vipVerification.refresh', 'Refresh')}
+          {loading ? <Clock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> : <RefreshCw size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />} {t('vipVerification.refresh', 'Refresh')}
         </button>
       </div>
     </div>

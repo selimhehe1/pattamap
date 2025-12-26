@@ -5,6 +5,18 @@ import { useGamification } from '../contexts/GamificationContext';
 import XPProgressBar from '../components/Gamification/XPProgressBar';
 import BadgeShowcase from '../components/Gamification/BadgeShowcase';
 import FollowButton from '../components/Gamification/FollowButton';
+import {
+  XCircle,
+  User,
+  Zap,
+  Calendar,
+  Flame,
+  Star,
+  Medal,
+  Users,
+  Handshake,
+  Trophy
+} from 'lucide-react';
 import './GamifiedUserProfile.css';
 
 interface UserProfile {
@@ -102,7 +114,7 @@ const GamifiedUserProfile: React.FC = () => {
     return (
       <div className="gamified-profile">
         <div className="profile-error">
-          <span className="profile-error-icon">❌</span>
+          <span className="profile-error-icon"><XCircle size={24} /></span>
           <p>{error || 'User not found'}</p>
         </div>
       </div>
@@ -131,7 +143,7 @@ const GamifiedUserProfile: React.FC = () => {
               <span className="profile-level-text">Lv.{stats.current_level} {levelName}</span>
             </div>
             <div className="profile-member-since">
-              <span>👤</span>
+              <span><User size={14} /></span>
               <span>Member since {memberSince}</span>
             </div>
           </div>
@@ -158,7 +170,7 @@ const GamifiedUserProfile: React.FC = () => {
       {/* Stats Grid */}
       <div className="profile-stats-grid scroll-reveal-stagger">
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">⚡</div>
+          <div className="profile-stat-icon"><Zap size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.total_xp.toLocaleString()}</div>
             <div className="profile-stat-label">Total XP</div>
@@ -166,7 +178,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">📅</div>
+          <div className="profile-stat-icon"><Calendar size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.monthly_xp.toLocaleString()}</div>
             <div className="profile-stat-label">Monthly XP</div>
@@ -174,7 +186,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">🔥</div>
+          <div className="profile-stat-icon"><Flame size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.current_streak_days}</div>
             <div className="profile-stat-label">Current Streak</div>
@@ -182,7 +194,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">⭐</div>
+          <div className="profile-stat-icon"><Star size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.longest_streak_days}</div>
             <div className="profile-stat-label">Longest Streak</div>
@@ -190,7 +202,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">🏅</div>
+          <div className="profile-stat-icon"><Medal size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.badges_count}</div>
             <div className="profile-stat-label">Badges Earned</div>
@@ -198,7 +210,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">👥</div>
+          <div className="profile-stat-icon"><Users size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.followers_count}</div>
             <div className="profile-stat-label">Followers</div>
@@ -206,7 +218,7 @@ const GamifiedUserProfile: React.FC = () => {
         </div>
 
         <div className="profile-stat-card">
-          <div className="profile-stat-icon">🤝</div>
+          <div className="profile-stat-icon"><Handshake size={24} /></div>
           <div className="profile-stat-content">
             <div className="profile-stat-value">{stats.following_count}</div>
             <div className="profile-stat-label">Following</div>
@@ -215,7 +227,7 @@ const GamifiedUserProfile: React.FC = () => {
 
         {stats.leaderboard_rank_global && (
           <div className="profile-stat-card profile-stat-rank">
-            <div className="profile-stat-icon">🏆</div>
+            <div className="profile-stat-icon"><Trophy size={24} /></div>
             <div className="profile-stat-content">
               <div className="profile-stat-value">#{stats.leaderboard_rank_global}</div>
               <div className="profile-stat-label">Global Rank</div>
@@ -227,7 +239,7 @@ const GamifiedUserProfile: React.FC = () => {
       {/* Badges Section */}
       <div className="profile-section">
         <div className="profile-section-header">
-          <h2>🏅 Badges ({stats.badges_count})</h2>
+          <h2><Medal size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Badges ({stats.badges_count})</h2>
         </div>
         <BadgeShowcase compact={false} showProgress={false} />
       </div>

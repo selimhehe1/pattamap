@@ -3,6 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureFetch } from '../hooks/useSecureFetch';
 import SEOHead from '../components/Common/SEOHead';
+import {
+  Lock,
+  MapPin,
+  Map,
+  Check,
+  XCircle,
+  Building2,
+  Calendar,
+  Ruler
+} from 'lucide-react';
 import '../styles/pages/visit-history.css';
 
 interface CheckIn {
@@ -178,7 +188,7 @@ const VisitHistoryPage: React.FC = () => {
       <div className="visit-history-page">
         <div className="visit-history-container">
           <div className="visit-history-error">
-            <h2>🔒 {t('visitHistory.loginRequired', 'Login Required')}</h2>
+            <h2><Lock size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('visitHistory.loginRequired', 'Login Required')}</h2>
             <p>{t('visitHistory.loginMessage', 'Please log in to view your visit history.')}</p>
           </div>
         </div>
@@ -198,7 +208,7 @@ const VisitHistoryPage: React.FC = () => {
         <div className="visit-history-container">
           {/* Header */}
           <div className="visit-history-header">
-            <h1>📍 {t('visitHistory.title', 'My Visit History')}</h1>
+            <h1><MapPin size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('visitHistory.title', 'My Visit History')}</h1>
             <p className="visit-history-subtitle">
               {t('visitHistory.subtitle', 'Track your check-ins and verified visits')}
             </p>
@@ -207,17 +217,17 @@ const VisitHistoryPage: React.FC = () => {
           {/* Stats Row */}
           <div className="visit-stats-row">
             <div className="visit-stat-card">
-              <div className="visit-stat-icon">📍</div>
+              <div className="visit-stat-icon"><MapPin size={24} /></div>
               <div className="visit-stat-value">{stats.totalVisits}</div>
               <div className="visit-stat-label">{t('visitHistory.totalVisits', 'Total Visits')}</div>
             </div>
             <div className="visit-stat-card">
-              <div className="visit-stat-icon">🗺️</div>
+              <div className="visit-stat-icon"><Map size={24} /></div>
               <div className="visit-stat-value">{stats.uniqueZonesCount}</div>
               <div className="visit-stat-label">{t('visitHistory.zonesVisited', 'Zones Visited')}</div>
             </div>
             <div className="visit-stat-card">
-              <div className="visit-stat-icon">✓</div>
+              <div className="visit-stat-icon"><Check size={24} /></div>
               <div className="visit-stat-value">{stats.verifiedCount}</div>
               <div className="visit-stat-label">{t('visitHistory.verified', 'Verified')}</div>
             </div>
@@ -256,11 +266,11 @@ const VisitHistoryPage: React.FC = () => {
               </div>
             ) : error ? (
               <div className="visit-history-error">
-                <p>❌ {error}</p>
+                <p><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{error}</p>
               </div>
             ) : filteredCheckIns.length === 0 ? (
               <div className="visit-history-empty">
-                <div className="visit-empty-icon">📍</div>
+                <div className="visit-empty-icon"><MapPin size={48} /></div>
                 <h3>{t('visitHistory.noVisits', 'No visits yet')}</h3>
                 <p>{t('visitHistory.noVisitsMessage', 'Start exploring and check in at establishments to track your visits!')}</p>
               </div>
@@ -274,22 +284,22 @@ const VisitHistoryPage: React.FC = () => {
                         <div key={checkIn.id} className="visit-card">
                           <div className="visit-card-header">
                             <div className="visit-card-name">
-                              🏢 {checkIn.establishment?.name || 'Unknown'}
+                              <Building2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{checkIn.establishment?.name || 'Unknown'}
                             </div>
                             {checkIn.verified && (
                               <div className="visit-verified-badge">
-                                ✓ {t('visitHistory.verified', 'Verified')}
+                                <Check size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('visitHistory.verified', 'Verified')}
                               </div>
                             )}
                           </div>
                           <div className="visit-card-zone">
-                            📍 {checkIn.establishment?.zone || 'Unknown Zone'}
+                            <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{checkIn.establishment?.zone || 'Unknown Zone'}
                           </div>
                           <div className="visit-card-date">
-                            📅 {formatDate(checkIn.created_at)}
+                            <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{formatDate(checkIn.created_at)}
                           </div>
                           <div className="visit-card-distance">
-                            📏 {Math.round(checkIn.distance_meters || 0)}m {t('visitHistory.away', 'away')}
+                            <Ruler size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{Math.round(checkIn.distance_meters || 0)}m {t('visitHistory.away', 'away')}
                           </div>
                         </div>
                       ))}

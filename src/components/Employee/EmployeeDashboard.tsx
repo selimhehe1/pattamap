@@ -9,6 +9,20 @@ import RequestVerificationModal from './RequestVerificationModal';
 import EditMyProfileModal from './EditMyProfileModal';
 import VIPPurchaseModal from '../Owner/VIPPurchaseModal';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
+import {
+  PartyPopper,
+  Lightbulb,
+  AlertTriangle,
+  Pencil,
+  Check,
+  Shield,
+  Eye,
+  MessageCircle,
+  Star,
+  Heart,
+  Crown,
+  CheckCircle
+} from 'lucide-react';
 import '../../styles/components/employee-dashboard.css';
 
 // Feature flag for VIP system (disabled for now)
@@ -212,7 +226,7 @@ const EmployeeDashboard: React.FC = () => {
 
           <section className="verification-section">
             <div className="verification-status pending-approval">
-              <div className="status-icon">🎉</div>
+              <div className="status-icon"><PartyPopper size={32} /></div>
               <div className="status-content">
                 <h2>{t('employeeDashboard.pendingApprovalTitle', 'Your Profile is On Its Way!')}</h2>
                 <p className="pending-description">
@@ -222,14 +236,14 @@ const EmployeeDashboard: React.FC = () => {
                 <div className="pending-steps">
                   <h3>{t('employeeDashboard.whatHappensNextTitle', 'What happens next:')}</h3>
                   <ul>
-                    <li>✓ {t('employeeDashboard.pendingStep1', 'Our team reviews your profile and photos')}</li>
-                    <li>✓ {t('employeeDashboard.pendingStep2', 'You\'ll get notified when approved')}</li>
-                    <li>✓ {t('employeeDashboard.pendingStep3', 'Once live, you can verify your identity and unlock all features')}</li>
+                    <li><Check size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#06FFA5' }} />{t('employeeDashboard.pendingStep1', 'Our team reviews your profile and photos')}</li>
+                    <li><Check size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#06FFA5' }} />{t('employeeDashboard.pendingStep2', 'You\'ll get notified when approved')}</li>
+                    <li><Check size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#06FFA5' }} />{t('employeeDashboard.pendingStep3', 'Once live, you can verify your identity and unlock all features')}</li>
                   </ul>
                 </div>
 
                 <div className="pro-tip">
-                  <h4>{t('employeeDashboard.proTipTitle', '💡 Pro Tip:')}</h4>
+                  <h4><Lightbulb size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('employeeDashboard.proTipTitle', 'Pro Tip:')}</h4>
                   <p>{t('employeeDashboard.proTipMessage', 'Make sure your notifications are enabled so you don\'t miss the approval!')}</p>
                 </div>
 
@@ -267,7 +281,7 @@ const EmployeeDashboard: React.FC = () => {
 
           <section className="verification-section">
             <div className="verification-status not-verified">
-              <div className="status-icon">⚠️</div>
+              <div className="status-icon"><AlertTriangle size={32} /></div>
               <div className="status-content">
                 <h3>{t('employeeDashboard.noProfileLinked', 'No Profile Linked')}</h3>
                 <p className="not-verified-description">
@@ -318,7 +332,7 @@ const EmployeeDashboard: React.FC = () => {
               }}
               onClick={() => setShowEditModal(true)}
             >
-              ✏️ {t('employeeDashboard.editProfile', 'Edit My Profile')}
+              <Pencil size={16} style={{ marginRight: '6px' }} /> {t('employeeDashboard.editProfile', 'Edit My Profile')}
             </button>
           </div>
 
@@ -365,7 +379,7 @@ const EmployeeDashboard: React.FC = () => {
 
           {isVerified ? (
             <div className="verification-status verified">
-              <div className="status-icon">✓</div>
+              <div className="status-icon"><Check size={32} /></div>
               <div className="status-content">
                 <h3>{t('employeeDashboard.verified', 'Your profile is verified!')}</h3>
                 {verifiedAt && (
@@ -380,7 +394,7 @@ const EmployeeDashboard: React.FC = () => {
             </div>
           ) : (
             <div className="verification-status not-verified">
-              <div className="status-icon">⚠️</div>
+              <div className="status-icon"><AlertTriangle size={32} /></div>
               <div className="status-content">
                 <h3>{t('employeeDashboard.notVerified', 'Your profile is not verified yet')}</h3>
 
@@ -418,7 +432,7 @@ const EmployeeDashboard: React.FC = () => {
                       className="btn-verify"
                       onClick={() => setShowVerificationModal(true)}
                     >
-                      🛡️ {t('employeeDashboard.verifyProfile', 'Verify My Profile')}
+                      <Shield size={16} style={{ marginRight: '6px' }} /> {t('employeeDashboard.verifyProfile', 'Verify My Profile')}
                     </button>
                   </>
                 )}
@@ -432,7 +446,7 @@ const EmployeeDashboard: React.FC = () => {
           <h2>{t('employeeDashboard.statistics', 'Statistics')}</h2>
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-icon">👁️</div>
+              <div className="stat-icon"><Eye size={24} /></div>
               <div className="stat-content">
                 <p className="stat-label">{t('employeeDashboard.profileViews', 'Profile Views')}</p>
                 <p className="stat-value">
@@ -444,7 +458,7 @@ const EmployeeDashboard: React.FC = () => {
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon">💬</div>
+              <div className="stat-icon"><MessageCircle size={24} /></div>
               <div className="stat-content">
                 <p className="stat-label">{t('employeeDashboard.reviews', 'Reviews')}</p>
                 <p className="stat-value">
@@ -456,7 +470,7 @@ const EmployeeDashboard: React.FC = () => {
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon">⭐</div>
+              <div className="stat-icon"><Star size={24} /></div>
               <div className="stat-content">
                 <p className="stat-label">{t('employeeDashboard.rating', 'Average Rating')}</p>
                 <p className="stat-value">
@@ -476,7 +490,7 @@ const EmployeeDashboard: React.FC = () => {
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon">❤️</div>
+              <div className="stat-icon"><Heart size={24} /></div>
               <div className="stat-content">
                 <p className="stat-label">{t('employeeDashboard.favorites', 'Favorites')}</p>
                 <p className="stat-value">
@@ -498,16 +512,16 @@ const EmployeeDashboard: React.FC = () => {
             {linkedEmployeeProfile.is_vip && linkedEmployeeProfile.vip_expires_at ? (
               <div className="vip-active-card">
                 <div className="vip-active-content">
-                  <div className="vip-icon">👑</div>
+                  <div className="vip-icon"><Crown size={32} /></div>
                   <div className="vip-details">
                     <h3>{t('employeeDashboard.vipActive', 'VIP Active')}</h3>
                     <p className="vip-expiry">
                       {t('employeeDashboard.vipExpires', 'Expires')}: {new Date(linkedEmployeeProfile.vip_expires_at).toLocaleDateString()}
                     </p>
                     <div className="vip-benefits">
-                      <span>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</span>
-                      <span>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</span>
-                      <span>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</span>
+                      <span><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit1', 'Top position in search')}</span>
+                      <span><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</span>
+                      <span><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit3', 'Priority visibility')}</span>
                     </div>
                   </div>
                 </div>
@@ -515,23 +529,23 @@ const EmployeeDashboard: React.FC = () => {
             ) : (
               <div className="vip-upgrade-card">
                 <div className="vip-upgrade-content">
-                  <div className="vip-icon">👑</div>
+                  <div className="vip-icon"><Crown size={32} /></div>
                   <div className="vip-pitch">
                     <h3>{t('employeeDashboard.upgradeToVIP', 'Upgrade to VIP')}</h3>
                     <p className="vip-subtitle">
                       {t('employeeDashboard.vipSubtitle', 'Boost Your Visibility')}
                     </p>
                     <ul className="vip-benefits-list">
-                      <li>✅ {t('employeeDashboard.vipBenefit1', 'Top position in search')}</li>
-                      <li>✅ {t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</li>
-                      <li>✅ {t('employeeDashboard.vipBenefit3', 'Priority visibility')}</li>
-                      <li>✅ {t('employeeDashboard.vipBenefit4', 'Detailed analytics')}</li>
+                      <li><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit1', 'Top position in search')}</li>
+                      <li><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit2', 'Gold border + badge')}</li>
+                      <li><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit3', 'Priority visibility')}</li>
+                      <li><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('employeeDashboard.vipBenefit4', 'Detailed analytics')}</li>
                     </ul>
                     <button
                       className="btn-upgrade-vip"
                       onClick={() => setShowVIPModal(true)}
                     >
-                      👑 {t('employeeDashboard.upgradeNow', 'Upgrade Now')}
+                      <Crown size={16} style={{ marginRight: '6px' }} /> {t('employeeDashboard.upgradeNow', 'Upgrade Now')}
                     </button>
                   </div>
                 </div>
@@ -581,9 +595,7 @@ const EmployeeDashboard: React.FC = () => {
                       </div>
                       <div style={{ display: 'flex', gap: '4px' }}>
                         {[...Array(5)].map((_, i) => (
-                          <span key={i} style={{ color: i < review.rating ? '#FFD700' : 'rgba(255,255,255,0.2)' }}>
-                            ⭐
-                          </span>
+                          <Star key={i} size={16} fill={i < review.rating ? '#FFD700' : 'transparent'} color={i < review.rating ? '#FFD700' : 'rgba(255,255,255,0.2)'} />
                         ))}
                       </div>
                     </div>

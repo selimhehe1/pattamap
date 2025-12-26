@@ -3,6 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
+import {
+  CheckCircle,
+  XCircle,
+  Ban,
+  Clock,
+  Shield,
+  AlertTriangle
+} from 'lucide-react';
 
 interface VerificationStatus {
   id: string;
@@ -97,7 +105,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
           fontSize: '16px',
           marginBottom: '8px'
         }}>
-          <span style={{ fontSize: '24px' }}>✅</span>
+          <span style={{ fontSize: '24px' }}><CheckCircle size={24} /></span>
           <span>Your profile is verified!</span>
         </div>
         <p style={{
@@ -133,7 +141,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
           fontSize: '16px',
           marginBottom: '12px'
         }}>
-          <span style={{ fontSize: '24px' }}>{isRevoked ? '🚫' : '❌'}</span>
+          <span style={{ fontSize: '24px' }}>{isRevoked ? <Ban size={24} /> : <XCircle size={24} />}</span>
           <span>
             {isRevoked
               ? 'Your verification was revoked'
@@ -204,7 +212,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          {isSubmitting ? '⏳ Processing...' : '🛡️ Retry Verification'}
+          {isSubmitting ? <><Clock size={14} style={{ marginRight: '6px' }} /> Processing...</> : <><Shield size={14} style={{ marginRight: '6px' }} /> Retry Verification</>}
         </button>
       </div>
     );
@@ -229,7 +237,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
           fontSize: '16px',
           marginBottom: '8px'
         }}>
-          <span style={{ fontSize: '24px' }}>⏳</span>
+          <span style={{ fontSize: '24px' }}><Clock size={24} /></span>
           <span>Verification pending review</span>
         </div>
         <p style={{
@@ -263,7 +271,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
           fontSize: '16px',
           marginBottom: '8px'
         }}>
-          <span style={{ fontSize: '24px' }}>⚠️</span>
+          <span style={{ fontSize: '24px' }}><AlertTriangle size={24} /></span>
           <span>Your profile is not verified yet</span>
         </div>
         <p style={{
@@ -302,7 +310,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          {isSubmitting ? '⏳ Processing...' : '🛡️ Verify My Profile'}
+          {isSubmitting ? <><Clock size={14} style={{ marginRight: '6px' }} /> Processing...</> : <><Shield size={14} style={{ marginRight: '6px' }} /> Verify My Profile</>}
         </button>
       </div>
     );

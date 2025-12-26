@@ -1,6 +1,16 @@
 import React from 'react';
 import { User } from '../../types';
 import AnimatedButton from '../Common/AnimatedButton';
+import {
+  Crown,
+  Zap,
+  User as UserIcon,
+  ClipboardList,
+  BarChart3,
+  Star,
+  MessageCircle,
+  FileEdit
+} from 'lucide-react';
 
 interface UserInfoModalProps {
   user: User;
@@ -33,9 +43,9 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
   // Get role icon
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return '👑';
-      case 'moderator': return '⚡';
-      default: return '👤';
+      case 'admin': return <Crown size={24} />;
+      case 'moderator': return <Zap size={24} />;
+      default: return <UserIcon size={24} />;
     }
   };
 
@@ -71,7 +81,7 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
         {/* Header */}
         <div className="modal-header">
           <h2 className="header-title-nightlife">
-            👤 User Profile
+            <UserIcon size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />User Profile
           </h2>
         </div>
 
@@ -101,7 +111,7 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
 
           {/* Account Info */}
           <div className="user-info-section">
-            <h4 className="user-info-section-title">📋 Account Information</h4>
+            <h4 className="user-info-section-title"><ClipboardList size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Account Information</h4>
             <div className="user-info-grid">
               <div className="user-info-item">
                 <span className="user-info-label">Member Since:</span>
@@ -119,20 +129,20 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
 
           {/* Statistics Section */}
           <div className="user-info-section">
-            <h4 className="user-info-section-title">📊 Activity</h4>
+            <h4 className="user-info-section-title"><BarChart3 size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Activity</h4>
             <div className="user-info-stats-grid">
               <div className="user-info-stat-card">
-                <div className="user-info-stat-icon">⭐</div>
+                <div className="user-info-stat-icon"><Star size={24} /></div>
                 <div className="user-info-stat-value">0</div>
                 <div className="user-info-stat-label">Favorites</div>
               </div>
               <div className="user-info-stat-card">
-                <div className="user-info-stat-icon">💬</div>
+                <div className="user-info-stat-icon"><MessageCircle size={24} /></div>
                 <div className="user-info-stat-value">0</div>
                 <div className="user-info-stat-label">Comments</div>
               </div>
               <div className="user-info-stat-card">
-                <div className="user-info-stat-icon">📝</div>
+                <div className="user-info-stat-icon"><FileEdit size={24} /></div>
                 <div className="user-info-stat-value">0</div>
                 <div className="user-info-stat-label">Contributions</div>
               </div>

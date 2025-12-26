@@ -11,6 +11,17 @@ import {
 import { useTranslation } from 'react-i18next';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
+import {
+  AlertTriangle,
+  Settings,
+  Ban,
+  Bell,
+  BellOff,
+  CheckCircle,
+  Clock,
+  FlaskConical,
+  Lock
+} from 'lucide-react';
 import '../../styles/PushNotificationSettings.css';
 
 interface PushStatus {
@@ -161,7 +172,7 @@ const PushNotificationSettings: React.FC = () => {
     return (
       <div className="push-notification-settings">
         <div className="push-not-supported">
-          <div className="warning-icon">⚠️</div>
+          <div className="warning-icon"><AlertTriangle size={48} /></div>
           <h3>{t('notifications.push.notSupportedTitle')}</h3>
           <p>{t('notifications.push.notSupportedMessage')}</p>
           <p className="help-text">
@@ -177,7 +188,7 @@ const PushNotificationSettings: React.FC = () => {
     return (
       <div className="push-notification-settings">
         <div className="push-not-configured">
-          <div className="warning-icon">⚙️</div>
+          <div className="warning-icon"><Settings size={48} /></div>
           <h3>{t('notifications.push.notConfiguredTitle')}</h3>
           <p>{t('notifications.push.notConfiguredMessage')}</p>
         </div>
@@ -190,7 +201,7 @@ const PushNotificationSettings: React.FC = () => {
     return (
       <div className="push-notification-settings">
         <div className="push-permission-denied">
-          <div className="error-icon">🚫</div>
+          <div className="error-icon"><Ban size={48} /></div>
           <h3>{t('notifications.push.permissionDeniedTitle')}</h3>
           <p>{t('notifications.push.permissionDeniedMessage')}</p>
           <div className="help-steps">
@@ -210,7 +221,7 @@ const PushNotificationSettings: React.FC = () => {
   return (
     <div className="push-notification-settings">
       <div className="push-header">
-        <div className="push-icon">🔔</div>
+        <div className="push-icon"><Bell size={32} /></div>
         <div className="push-title">
           <h3>{t('notifications.push.title')}</h3>
           <p className="push-description">
@@ -237,8 +248,8 @@ const PushNotificationSettings: React.FC = () => {
         <div className="status-row">
           <span className="status-label">{t('notifications.push.permission')}:</span>
           <span className={`permission-badge ${permission}`}>
-            {permission === 'granted' && '✅ ' + t('notifications.push.permissionGranted')}
-            {permission === 'default' && '⏳ ' + t('notifications.push.permissionDefault')}
+            {permission === 'granted' && <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('notifications.push.permissionGranted')}</>}
+            {permission === 'default' && <><Clock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('notifications.push.permissionDefault')}</>}
           </span>
         </div>
       </div>
@@ -257,7 +268,7 @@ const PushNotificationSettings: React.FC = () => {
               </>
             ) : (
               <>
-                🔔 {t('notifications.push.enable')}
+                <Bell size={16} style={{ marginRight: '6px' }} /> {t('notifications.push.enable')}
               </>
             )}
           </button>
@@ -267,7 +278,7 @@ const PushNotificationSettings: React.FC = () => {
               className="push-button test"
               onClick={handleTestNotification}
             >
-              🧪 {t('notifications.push.sendTest')}
+              <FlaskConical size={16} style={{ marginRight: '6px' }} /> {t('notifications.push.sendTest')}
             </button>
 
             <button
@@ -282,7 +293,7 @@ const PushNotificationSettings: React.FC = () => {
                 </>
               ) : (
                 <>
-                  🔕 {t('notifications.push.disable')}
+                  <BellOff size={16} style={{ marginRight: '6px' }} /> {t('notifications.push.disable')}
                 </>
               )}
             </button>
@@ -302,7 +313,7 @@ const PushNotificationSettings: React.FC = () => {
 
       <div className="push-privacy">
         <p className="privacy-text">
-          🔒 {t('notifications.push.privacy')}
+          <Lock size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('notifications.push.privacy')}
         </p>
       </div>
     </div>
