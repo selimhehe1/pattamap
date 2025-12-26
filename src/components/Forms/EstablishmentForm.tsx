@@ -9,6 +9,7 @@ import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
 import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
+import { Pencil, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -441,7 +442,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
 
         <div className="modal-header">
           <h2 className="header-title-nightlife">
-            {initialData ? `✏️ ${t('establishment.editTitle')}` : `🏮 ${t('establishment.addTitle')}`}
+            {initialData ? <><Pencil size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.editTitle')}</> : <><Landmark size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.addTitle')}</>}
           </h2>
           <p className="modal-subtitle">
             {initialData ? t('establishment.editSubtitle') : t('establishment.createSubtitle')}
@@ -458,13 +459,13 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
               gap: '0.375rem'
             }}>
               {isSaving ? (
-                <>⏳ {t('establishment.savingDraft')}</>
+                <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('establishment.savingDraft')}</>
               ) : isDraft && lastSaved ? (
                 <>
-                  ✓ {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}
+                  <Check size={14} /> {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}
                 </>
               ) : (
-                <>💾 {t('establishment.autoSaveEnabled')}</>
+                <><Save size={14} /> {t('establishment.autoSaveEnabled')}</>
               )}
             </div>
           )}
@@ -518,7 +519,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
             onClick={onCancel}
             className="btn btn--secondary"
           >
-            ❌ {t('establishment.buttonCancel')}
+            <X size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonCancel')}
           </button>
 
           <button
@@ -529,10 +530,10 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
             {isLoading ? (
               <span className="loading-flex">
                 <span className="loading-spinner-small-nightlife"></span>
-                ⏳ {t('establishment.buttonSubmitting')}
+                <Loader2 size={14} style={{ animation: 'spin 1s linear infinite', marginRight: '6px' }} /> {t('establishment.buttonSubmitting')}
               </span>
             ) : (
-              initialData ? `💾 ${t('establishment.buttonSaveChanges')}` : `✨ ${t('establishment.buttonAddEstablishment')}`
+              initialData ? <><Save size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonSaveChanges')}</> : <><Sparkles size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonAddEstablishment')}</>
             )}
           </button>
         </div>

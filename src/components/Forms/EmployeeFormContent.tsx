@@ -5,6 +5,7 @@ import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from './NationalityTagsInput';
+import { Pencil, Sparkles, Users, FileText, User, AlertTriangle, UserCog, Cake, Globe, Camera, FolderOpen, Music, Building2, MapPin, Check, Lightbulb, Store, Smartphone, MessageCircle, Send, Phone, X, Upload, Loader2, Save } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/employee-form.css';
 
@@ -59,6 +60,9 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 }) => {
   const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
+  // Icon style helper
+  const iconStyle = { marginRight: '6px', verticalAlign: 'middle' as const };
+
   const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
@@ -305,10 +309,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       <div className="employee-form-header">
         <h2 className="employee-form-title">
           {initialData
-            ? '✏️ Edit Employee'
+            ? <><Pencil size={18} style={iconStyle} /> Edit Employee</>
             : isSelfProfile
-              ? '✨ Create Your Profile'
-              : '👥 Add New Employee'}
+              ? <><Sparkles size={18} style={iconStyle} /> Create Your Profile</>
+              : <><Users size={18} style={iconStyle} /> Add New Employee</>}
         </h2>
         <p className="employee-form-subtitle">
           {initialData
@@ -323,12 +327,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {/* Basic Information */}
         <div className="employee-form-section">
           <h3 className="employee-form-section-title">
-            📝 Basic Information
+            <FileText size={16} style={iconStyle} /> Basic Information
           </h3>
 
           <div className="employee-form-field">
             <label className="employee-form-label">
-              👤 Name *
+              <User size={14} style={iconStyle} /> Name *
             </label>
             <input
               type="text"
@@ -340,14 +344,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             />
             {errors.name && (
               <div className="employee-form-error">
-                ⚠️ {errors.name}
+                <AlertTriangle size={14} style={iconStyle} /> {errors.name}
               </div>
             )}
           </div>
 
           <div className="employee-form-field">
             <label className="employee-form-label">
-              🎭 Nickname
+              <UserCog size={14} style={iconStyle} /> Nickname
             </label>
             <input
               type="text"
@@ -362,7 +366,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           <div className="employee-form-grid-2">
             <div className="employee-form-field">
               <label className="employee-form-label">
-                🎂 Age
+                <Cake size={14} style={iconStyle} /> Age
               </label>
               <input
                 type="number"
@@ -376,14 +380,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               />
               {errors.age && (
                 <div className="employee-form-error">
-                  ⚠️ {errors.age}
+                  <AlertTriangle size={14} style={iconStyle} /> {errors.age}
                 </div>
               )}
             </div>
 
             <div className="employee-form-field">
               <label className="employee-form-label">
-                🌍 Nationality
+                <Globe size={14} style={iconStyle} /> Nationality
               </label>
               <NationalityTagsInput
                 value={formData.nationality}
@@ -397,7 +401,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
           <div className="employee-form-field">
             <label className="employee-form-label">
-              📝 Description
+              <FileText size={14} style={iconStyle} /> Description
             </label>
             <textarea
               name="description"
@@ -412,7 +416,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {/* Photos */}
         <div className="photo-management-container">
           <h3 className="photo-management-header">
-            📸 Photos Management
+            <Camera size={16} style={iconStyle} /> Photos Management
             <span className="photo-counter-badge">
               {existingPhotos.length - photosToRemove.length + photos.length}/5
             </span>
@@ -422,7 +426,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           {existingPhotos.length > 0 && (
             <div className="photo-section">
               <h4 className="photo-section-title">
-                📷 Current Photos ({existingPhotos.length - photosToRemove.length} kept)
+                <Camera size={14} style={iconStyle} /> Current Photos ({existingPhotos.length - photosToRemove.length} kept)
               </h4>
 
               <div className="photo-grid">
@@ -471,7 +475,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           {/* Add New Photos Section */}
           <div className="photo-section">
             <h4 className="photo-section-title">
-              📁 Add New Photos
+              <FolderOpen size={14} style={iconStyle} /> Add New Photos
             </h4>
 
             <div className="photo-upload-zone">
@@ -483,7 +487,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                 className="photo-upload-input"
               />
               <div className="photo-upload-text">
-                📁 Click or drag photos here
+                <FolderOpen size={16} style={iconStyle} /> Click or drag photos here
               </div>
               <div className="photo-upload-subtext">
                 JPG, PNG, GIF up to 10MB each
@@ -492,14 +496,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
             {errors.photos && (
               <div style={{ color: '#FF4757', fontSize: '14px', marginBottom: '15px' }}>
-                ⚠️ {errors.photos}
+                <AlertTriangle size={14} style={iconStyle} /> {errors.photos}
               </div>
             )}
 
             {photos.length > 0 && (
               <div>
                 <h5 className="photo-section-subtitle">
-                  🆕 New Photos to Upload ({photos.length})
+                  <Sparkles size={14} style={iconStyle} /> New Photos to Upload ({photos.length})
                 </h5>
                 <div className="photo-grid">
                   {photos.map((photo, index) => (
@@ -530,7 +534,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {/* Freelance Mode Toggle */}
         <div className="freelance-mode-container">
           <h3 className="freelance-mode-section-title">
-            💃 Employment Mode
+            <Users size={16} style={iconStyle} /> Employment Mode
           </h3>
 
           <div className="freelance-toggle-box">
@@ -547,7 +551,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                   }
                 }}
               />
-              <span>💃 Freelance Mode</span>
+              <span><Users size={14} style={iconStyle} /> Freelance Mode</span>
             </label>
             {isFreelanceMode && (
               <span className="freelance-active-badge">
@@ -561,12 +565,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {isFreelanceMode && (
           <div className="nightclubs-selector">
             <h3 className="freelance-mode-section-title">
-              🎵 Nightclubs (Optional)
+              <Music size={16} style={iconStyle} /> Nightclubs (Optional)
             </h3>
 
             <div className="employee-form-field">
               <label className="nightclubs-selector-label">
-                🏢 Select Nightclubs (you can work at multiple)
+                <Building2 size={14} style={iconStyle} /> Select Nightclubs (you can work at multiple)
               </label>
 
               {/* Filter nightclubs only */}
@@ -595,7 +599,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                         </span>
                         {nightclub.zone && (
                           <span className="nightclub-zone">
-                            📍 {nightclub.zone}
+                            <MapPin size={12} style={iconStyle} /> {nightclub.zone}
                           </span>
                         )}
                       </label>
@@ -603,19 +607,19 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                 </div>
               ) : (
                 <div className="nightclubs-empty-state">
-                  ⚠️ No nightclubs available yet. You can still register as a free freelance!
+                  <AlertTriangle size={14} style={iconStyle} /> No nightclubs available yet. You can still register as a free freelance!
                 </div>
               )}
 
               {selectedNightclubs.length > 0 && (
                 <div className="nightclubs-selected-count">
-                  ✓ {selectedNightclubs.length} nightclub(s) selected
+                  <Check size={14} style={iconStyle} /> {selectedNightclubs.length} nightclub(s) selected
                 </div>
               )}
             </div>
 
             <div className="freelance-info-note">
-              💡 <strong>Note:</strong> As a freelance, you can work at multiple nightclubs or be completely independent. Select the nightclubs where you regularly work, or leave it empty to be listed as a free freelance.
+              <Lightbulb size={14} style={iconStyle} /> <strong>Note:</strong> As a freelance, you can work at multiple nightclubs or be completely independent. Select the nightclubs where you regularly work, or leave it empty to be listed as a free freelance.
             </div>
           </div>
         )}
@@ -624,12 +628,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {!isFreelanceMode && (
           <div className="employee-form-section">
           <h3 className="employee-form-section-title">
-            🏢 Current Employment (Optional)
+            <Building2 size={16} style={iconStyle} /> Current Employment (Optional)
           </h3>
 
           <div className="employee-form-field">
             <label className="employee-form-label">
-              🏪 Current Establishment
+              <Store size={14} style={iconStyle} /> Current Establishment
             </label>
             <select
               name="current_establishment_id"
@@ -694,17 +698,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         {/* Social Media */}
         <div className="employee-form-section">
           <h3 className="employee-form-section-title">
-            📱 Social Media (Optional)
+            <Smartphone size={16} style={iconStyle} /> Social Media (Optional)
           </h3>
 
           <div className="employee-form-grid-social">
             {Object.keys(formData.social_media).map(platform => {
               const labels = {
-                ig: '📷 Instagram',
-                fb: '📘 Facebook',
-                line: '💬 Line',
-                tg: '✈️ Telegram',
-                wa: '📞 WhatsApp'
+                ig: 'Instagram',
+                fb: 'Facebook',
+                line: 'Line',
+                tg: 'Telegram',
+                wa: 'WhatsApp'
               };
 
               return (
@@ -728,7 +732,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
         {errors.submit && (
           <div className="employee-form-error-box">
-            ⚠️ {errors.submit}
+            <AlertTriangle size={14} style={iconStyle} /> {errors.submit}
           </div>
         )}
 
@@ -739,7 +743,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             onClick={onClose}
             className="employee-form-btn employee-form-btn-cancel"
           >
-            ❌ Cancel
+            <X size={14} style={iconStyle} /> Cancel
           </button>
 
           <button
@@ -748,11 +752,11 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             className="employee-form-btn employee-form-btn-submit"
           >
             {uploadingPhotos ? (
-              '📤 Uploading Photos...'
+              <><Upload size={14} style={iconStyle} /> Uploading Photos...</>
             ) : isLoading ? (
-              '⏳ Submitting...'
+              <><Loader2 size={14} style={{ ...iconStyle, animation: 'spin 1s linear infinite' }} /> Submitting...</>
             ) : (
-              initialData ? '💾 Save Changes' : '✨ Add Employee'
+              initialData ? <><Save size={14} style={iconStyle} /> Save Changes</> : <><Sparkles size={14} style={iconStyle} /> Add Employee</>
             )}
           </button>
         </div>

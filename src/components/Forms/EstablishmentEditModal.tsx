@@ -9,6 +9,7 @@ import OpeningHoursForm from './EstablishmentFormSections/OpeningHoursForm';
 import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
+import { FileText, DollarSign, Phone, Clock, Pencil, Pen, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -482,12 +483,22 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
     }
   };
 
-  // Tab configuration
+  // Icon style helper
+  const iconStyle = { marginRight: '6px', verticalAlign: 'middle' as const };
+
+  // Tab configuration with Lucide icons
+  const tabIcons = {
+    basic: <FileText size={16} />,
+    pricing: <DollarSign size={16} />,
+    contact: <Phone size={16} />,
+    hours: <Clock size={16} />
+  };
+
   const tabs = [
-    { id: 'basic', label: t('establishment.editModal.tabs.basicInfo'), icon: '📝' },
-    { id: 'pricing', label: t('establishment.editModal.tabs.pricing'), icon: '💰' },
-    { id: 'contact', label: t('establishment.editModal.tabs.contact'), icon: '📞' },
-    { id: 'hours', label: t('establishment.editModal.tabs.hours'), icon: '🕐' }
+    { id: 'basic', label: t('establishment.editModal.tabs.basicInfo'), icon: tabIcons.basic },
+    { id: 'pricing', label: t('establishment.editModal.tabs.pricing'), icon: tabIcons.pricing },
+    { id: 'contact', label: t('establishment.editModal.tabs.contact'), icon: tabIcons.contact },
+    { id: 'hours', label: t('establishment.editModal.tabs.hours'), icon: tabIcons.hours }
   ] as const;
 
   return (
@@ -538,7 +549,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
           )}
 
           <h2 className="header-title-nightlife" style={{ fontSize: '28px', marginBottom: '12px' }}>
-            {isSuggestion ? `✍️ ${t('establishment.editModal.suggestEditTitle')}` : initialData ? `✏️ ${t('establishment.editTitle')}` : `🏮 ${t('establishment.addTitle')}`}
+            {isSuggestion ? <><Pen size={24} style={iconStyle} /> {t('establishment.editModal.suggestEditTitle')}</> : initialData ? <><Pencil size={24} style={iconStyle} /> {t('establishment.editTitle')}</> : <><Landmark size={24} style={iconStyle} /> {t('establishment.addTitle')}</>}
           </h2>
           <p className="modal-subtitle" style={{ fontSize: '15px' }}>
             {isSuggestion
@@ -561,11 +572,11 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
               gap: '6px'
             }}>
               {isSaving ? (
-                <>⏳ {t('establishment.savingDraft')}</>
+                <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('establishment.savingDraft')}</>
               ) : isDraft && lastSaved ? (
-                <>✓ {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}</>
+                <><Check size={14} /> {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}</>
               ) : (
-                <>💾 {t('establishment.autoSaveEnabled')}</>
+                <><Save size={14} /> {t('establishment.autoSaveEnabled')}</>
               )}
             </div>
           )}
@@ -617,7 +628,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 }
               }}
             >
-              <span>{tab.icon}</span>
+              {tab.icon}
               <span>{tab.label}</span>
             </button>
           ))}
@@ -685,7 +696,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <span>📞</span>
+                  <Phone size={18} />
                   <span>{t('establishment.editModal.contact.sectionTitle')}</span>
                 </h3>
 
@@ -819,7 +830,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
                 e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
               }}
             >
-              ❌ {t('establishment.buttonCancel')}
+              <X size={16} style={iconStyle} /> {t('establishment.buttonCancel')}
             </button>
 
             <button
@@ -861,12 +872,12 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
             >
               {isLoading || uploadingLogo ? (
                 <>
-                  <div className="loading-spinner-small-nightlife" />
+                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                   <span>{uploadingLogo ? t('establishment.editModal.uploading') : t('establishment.buttonSubmitting')}</span>
                 </>
               ) : (
                 <>
-                  {isSuggestion ? `✍️ ${t('establishment.editModal.submitSuggestionButton')}` : initialData ? `💾 ${t('establishment.buttonSaveChanges')}` : `✨ ${t('establishment.buttonAddEstablishment')}`}
+                  {isSuggestion ? <><Pen size={16} /> {t('establishment.editModal.submitSuggestionButton')}</> : initialData ? <><Save size={16} /> {t('establishment.buttonSaveChanges')}</> : <><Sparkles size={16} /> {t('establishment.buttonAddEstablishment')}</>}
                 </>
               )}
             </button>

@@ -6,6 +6,7 @@ import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
+import { Trophy, X, Search, Building2, Plus, FolderOpen, FileText, Paperclip, Lock, CheckCircle, Key, MessageCircle, AlertTriangle, Rocket, Loader2 } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -402,9 +403,12 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
             fontSize: '28px',
             fontWeight: 'bold',
             margin: 0,
-            textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
+            textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
           }}>
-            🏆 {t('ownership.title', 'Request Establishment Ownership')}
+            <Trophy size={28} style={{ color: '#FFD700' }} /> {t('ownership.title', 'Request Establishment Ownership')}
           </h2>
 
           <button
@@ -433,7 +437,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
               e.currentTarget.style.transform = 'scale(1)';
             }}
             aria-label="Close">
-            ✖️
+            <X size={20} />
           </button>
         </div>
 
@@ -577,9 +581,12 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
               fontSize: '20px',
               fontWeight: 'bold',
               marginBottom: '10px',
-              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)'
+              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              🔍 {t('ownership.step1Title', 'Search for Your Establishment')}
+              <Search size={20} /> {t('ownership.step1Title', 'Search for Your Establishment')}
             </h3>
             <p style={{
               color: 'rgba(255, 255, 255, 0.7)',
@@ -598,9 +605,11 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
                     fontSize: '14px',
                     fontWeight: 'bold',
                     marginBottom: '8px',
-                    display: 'block'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
                   }}>
-                    🏢 {t('ownership.establishment', 'Establishment')}
+                    <Building2 size={16} /> {t('ownership.establishment', 'Establishment')}
                   </label>
                   <div style={{
                     background: 'rgba(0,0,0,0.3)',
@@ -654,7 +663,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    ➕ {t('ownership.cantFind', "Can't find your establishment? Create it here")}
+                    <Plus size={16} style={{ marginRight: '6px' }} /> {t('ownership.cantFind', "Can't find your establishment? Create it here")}
                   </button>
                 </div>
               </>
@@ -895,9 +904,12 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
               fontSize: '20px',
               fontWeight: 'bold',
               marginBottom: '10px',
-              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)'
+              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              📁 {t('ownership.step2Title', 'Upload Proof of Ownership')}
+              <FolderOpen size={20} /> {t('ownership.step2Title', 'Upload Proof of Ownership')}
             </h3>
 
             <p style={{
@@ -1156,9 +1168,12 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
               fontSize: '20px',
               fontWeight: 'bold',
               marginBottom: '10px',
-              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)'
+              textShadow: '0 0 5px rgba(255, 215, 0, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ✅ {t('ownership.step3Title', 'Final Details')}
+              <CheckCircle size={20} /> {t('ownership.step3Title', 'Final Details')}
             </h3>
 
             <p style={{
@@ -1484,12 +1499,12 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
           >
             {isSubmitting ? (
               <>
-                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span>
+                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
                 {t('common.submitting', 'Submitting...')}
               </>
             ) : (
               <>
-                🚀 {t('ownership.submitRequest', 'Submit Request')}
+                <Rocket size={18} /> {t('ownership.submitRequest', 'Submit Request')}
               </>
             )}
           </button>
