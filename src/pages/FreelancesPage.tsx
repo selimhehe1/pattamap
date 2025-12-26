@@ -13,6 +13,17 @@ import EmployeeCard from '../components/Common/EmployeeCard';
 import { GirlProfile } from '../routes/lazyComponents';
 import { Employee } from '../types';
 import { logger } from '../utils/logger';
+import {
+  Sparkles,
+  Search,
+  Globe,
+  BarChart3,
+  Music,
+  RefreshCw,
+  Trash2,
+  AlertTriangle,
+  Frown
+} from 'lucide-react';
 
 /** Freelance employee with additional nightclub associations from API */
 interface FreelanceEmployee extends Employee {
@@ -158,7 +169,8 @@ const FreelancesPage: React.FC = () => {
           WebkitTextFillColor: 'transparent',
           marginBottom: '10px'
         }}>
-          💃 {t('freelances.title', 'Freelances')}
+          <Sparkles size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          {t('freelances.title', 'Freelances')}
         </h1>
         <p style={{
           color: 'rgba(255,255,255,0.7)',
@@ -213,7 +225,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              🔍 {t('search.query', 'Search')}
+              <Search size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('search.query', 'Search')}
             </label>
             <input
               type="text"
@@ -241,7 +254,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              🌍 {t('filters.nationality', 'Nationality')}
+              <Globe size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('filters.nationality', 'Nationality')}
             </label>
             <select
               value={filters.nationality}
@@ -276,7 +290,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              📊 {t('filters.age_min', 'Min Age')}
+              <BarChart3 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('filters.age_min', 'Min Age')}
             </label>
             <input
               type="number"
@@ -306,7 +321,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              📊 {t('filters.age_max', 'Max Age')}
+              <BarChart3 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('filters.age_max', 'Max Age')}
             </label>
             <input
               type="number"
@@ -336,7 +352,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              🎵 {t('freelances.availability', 'Availability')}
+              <Music size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('freelances.availability', 'Availability')}
             </label>
             <select
               value={filters.has_nightclub}
@@ -372,7 +389,8 @@ const FreelancesPage: React.FC = () => {
               fontWeight: 'bold',
               marginBottom: '8px'
             }}>
-              🔄 {t('filters.sort_by', 'Sort By')}
+              <RefreshCw size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('filters.sort_by', 'Sort By')}
             </label>
             <select
               value={filters.sort_by}
@@ -423,7 +441,8 @@ const FreelancesPage: React.FC = () => {
             e.currentTarget.style.background = 'rgba(193, 154, 107, 0.08)';
           }}
         >
-          🗑️ {t('filters.clear', 'Clear Filters')}
+          <Trash2 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          {t('filters.clear', 'Clear Filters')}
         </button>
       </div>
 
@@ -441,7 +460,7 @@ const FreelancesPage: React.FC = () => {
           padding: '60px 20px',
           color: '#FF4757'
         }}>
-          <p>⚠️ {error}</p>
+          <p><AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{error}</p>
           <button
             onClick={refreshFreelances}
             style={{
@@ -455,7 +474,8 @@ const FreelancesPage: React.FC = () => {
               cursor: 'pointer'
             }}
           >
-            🔄 {t('retry', 'Retry')}
+            <RefreshCw size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('retry', 'Retry')}
           </button>
         </div>
       ) : freelances.length === 0 ? (
@@ -464,7 +484,7 @@ const FreelancesPage: React.FC = () => {
           padding: '60px 20px',
           color: 'rgba(255,255,255,0.7)'
         }}>
-          <p style={{ fontSize: '48px', marginBottom: '20px' }}>😔</p>
+          <p style={{ fontSize: '48px', marginBottom: '20px' }}><Frown size={48} /></p>
           <h3 style={{ fontSize: '24px', marginBottom: '10px' }}>
             {t('freelances.no_results', 'No freelances found')}
           </h3>
@@ -490,7 +510,8 @@ const FreelancesPage: React.FC = () => {
                   color: 'white',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                 }}>
-                  💃 FREELANCE
+                  <Sparkles size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                  FREELANCE
                 </div>
 
                 <EmployeeCard
@@ -509,7 +530,8 @@ const FreelancesPage: React.FC = () => {
                     fontSize: '12px',
                     color: 'rgba(255,255,255,0.9)'
                   }}>
-                    🎵 {freelance.nightclubs.map((nc) => nc.name).join(', ')}
+                    <Music size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                    {freelance.nightclubs.map((nc) => nc.name).join(', ')}
                   </div>
                 )}
               </div>

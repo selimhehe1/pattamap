@@ -5,6 +5,22 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
+import {
+  Crown,
+  Shield,
+  User,
+  HelpCircle,
+  Ban,
+  ClipboardList,
+  MailX,
+  Loader2,
+  CheckCircle,
+  Pencil,
+  Eye,
+  Building2,
+  Users,
+  MessageSquare
+} from 'lucide-react';
 
 // Lazy load EditUserModal for better performance
 const EditUserModal = lazy(() => import('./EditUserModal'));
@@ -163,10 +179,10 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return '👑';
-      case 'moderator': return '🛡️';
-      case 'user': return '👤';
-      default: return '❓';
+      case 'admin': return <Crown size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'moderator': return <Shield size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'user': return <User size={12} style={{ verticalAlign: 'middle' }} />;
+      default: return <HelpCircle size={12} style={{ verticalAlign: 'middle' }} />;
     }
   };
 
@@ -197,7 +213,8 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 {t('admin.accessDenied')}
+            <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
             {t('admin.accessDeniedArea')}
@@ -218,7 +235,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       <AdminBreadcrumb
         currentSection={t('admin.usersManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon="👤"
+        icon={<User size={16} />}
       />
 
       {/* Header */}
@@ -234,7 +251,8 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
           textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          👤 {t('admin.usersManagement')}
+          <User size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          {t('admin.usersManagement')}
         </h1>
         <p style={{
           fontSize: '16px',
@@ -281,11 +299,11 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
         {/* Filter Tabs */}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           {[
-            { key: 'all', label: t('admin.filterAll'), icon: '📋' },
-            { key: 'admin', label: t('admin.filterAdmins'), icon: '👑' },
-            { key: 'moderator', label: t('admin.filterModerators'), icon: '🛡️' },
-            { key: 'user', label: t('admin.filterUsers'), icon: '👤' },
-            { key: 'inactive', label: t('admin.filterInactive'), icon: '🚫' }
+            { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={12} /> },
+            { key: 'admin', label: t('admin.filterAdmins'), icon: <Crown size={12} /> },
+            { key: 'moderator', label: t('admin.filterModerators'), icon: <Shield size={12} /> },
+            { key: 'user', label: t('admin.filterUsers'), icon: <User size={12} /> },
+            { key: 'inactive', label: t('admin.filterInactive'), icon: <Ban size={12} /> }
           ].map((tab) => (
             <button
               key={tab.key}
@@ -328,7 +346,8 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 {t('admin.noUsersFound')}
+            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.noUsersFound')}
           </h3>
           <p style={{
             color: '#cccccc',
@@ -589,10 +608,10 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                     }}
                   >
                     {processingIds.has(userData.id)
-                      ? `⏳ ${t('admin.processing')}`
+                      ? <><Loader2 size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.processing')}</>
                       : userData.is_active
-                      ? `🚫 ${t('admin.deactivate')}`
-                      : `✅ ${t('admin.activate')}`
+                      ? <><Ban size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.deactivate')}</>
+                      : <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.activate')}</>
                     }
                   </button>
 
@@ -613,7 +632,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      ✏️ {t('common.edit')}
+                      <Pencil size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.edit')}
                     </button>
                     <button
                       onClick={() => setSelectedUser(userData)}
@@ -630,7 +649,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      👁️ {t('admin.view')}
+                      <Eye size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.view')}
                     </button>
                   </div>
                 </div>
@@ -652,7 +671,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                     borderRadius: '15px',
                     border: '1px solid #FFD700'
                   }}>
-                    👤 {t('admin.thisIsYou')}
+                    <User size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.thisIsYou')}
                   </span>
                 </div>
               )}
@@ -733,7 +752,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                 <strong style={{ color: '#C19A6B' }}>{t('admin.role')}</strong> {getRoleIcon(selectedUser.role)} {selectedUser.role}
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.status')}</strong> {selectedUser.is_active ? `✅ ${t('admin.active')}` : `🚫 ${t('admin.inactive')}`}
+                <strong style={{ color: '#C19A6B' }}>{t('admin.status')}</strong> {selectedUser.is_active ? <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle', color: '#00FF7F' }} />{t('admin.active')}</> : <><Ban size={14} style={{ marginRight: '4px', verticalAlign: 'middle', color: '#FF4757' }} />{t('admin.inactive')}</>}
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <strong style={{ color: '#C19A6B' }}>{t('admin.memberSince')}</strong> {formatDate(selectedUser.created_at)}
@@ -753,9 +772,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                     padding: '15px',
                     marginTop: '10px'
                   }}>
-                    <div>🏢 {t('admin.establishmentsSubmitted')}: {selectedUser.stats.establishments_submitted}</div>
-                    <div>👥 {t('admin.employeeProfilesSubmitted')} {selectedUser.stats.employees_submitted}</div>
-                    <div>💬 {t('admin.reviews')}: {selectedUser.stats.comments_made}</div>
+                    <div><Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.establishmentsSubmitted')}: {selectedUser.stats.establishments_submitted}</div>
+                    <div><Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.employeeProfilesSubmitted')} {selectedUser.stats.employees_submitted}</div>
+                    <div><MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reviews')}: {selectedUser.stats.comments_made}</div>
                   </div>
                 </div>
               )}

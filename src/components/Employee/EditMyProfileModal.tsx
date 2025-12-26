@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, XCircle, RefreshCw } from 'lucide-react';
 import toastService from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
@@ -141,7 +141,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
             <div className="edit-profile-error-state">
               <div className="form-error-zone">
                 <p className="error-title">
-                  <strong>❌ {t('editMyProfileModal.errorLoadingTitle')}</strong>
+                  <strong><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('editMyProfileModal.errorLoadingTitle')}</strong>
                 </p>
                 <p className="error-message">{fetchError}</p>
               </div>
@@ -150,7 +150,8 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
                   onClick={retryFetch}
                   className="btn btn--primary"
                 >
-                  🔄 {t('editMyProfileModal.buttonRetry')}
+                  <RefreshCw size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {t('editMyProfileModal.buttonRetry')}
                 </button>
                 <button
                   onClick={onClose}

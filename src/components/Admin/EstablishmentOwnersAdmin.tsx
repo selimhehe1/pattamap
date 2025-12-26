@@ -7,6 +7,35 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
+import {
+  Crown,
+  Key,
+  CheckCircle,
+  XCircle,
+  Ban,
+  ClipboardList,
+  Users,
+  MailX,
+  Building2,
+  MapPin,
+  Eye,
+  Plus,
+  User,
+  Check,
+  X,
+  Loader2,
+  Pencil,
+  Trash2,
+  MessageSquare,
+  Paperclip,
+  FileText,
+  AlertTriangle,
+  Info,
+  FileEdit,
+  DollarSign,
+  Camera,
+  BarChart3
+} from 'lucide-react';
 
 // Import extracted types and utilities
 import {
@@ -441,11 +470,11 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   };
 
   const getRoleIcon = (role: string) => {
-    return role === 'owner' ? '👑' : '🔑';
+    return role === 'owner' ? <Crown size={12} style={{ verticalAlign: 'middle' }} /> : <Key size={12} style={{ verticalAlign: 'middle' }} />;
   };
 
   const getPermissionIcon = (perm: boolean) => {
-    return perm ? '✅' : '❌';
+    return perm ? <CheckCircle size={12} style={{ verticalAlign: 'middle' }} /> : <XCircle size={12} style={{ verticalAlign: 'middle' }} />;
   };
 
   // 🆕 Permission descriptions for tooltips
@@ -457,13 +486,13 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
     can_view_analytics: 'View performance metrics and statistics (read-only access)'
   };
 
-  const getPermissionLabel = (key: string) => {
-    const labels: Record<string, string> = {
-      can_edit_info: '📝 Can Edit Info',
-      can_edit_pricing: '💰 Can Edit Pricing',
-      can_edit_photos: '📸 Can Edit Photos',
-      can_edit_employees: '👥 Can Edit Employees',
-      can_view_analytics: '📊 Can View Analytics'
+  const getPermissionLabel = (key: string): React.ReactNode => {
+    const labels: Record<string, React.ReactNode> = {
+      can_edit_info: <><FileEdit size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Can Edit Info</>,
+      can_edit_pricing: <><DollarSign size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Can Edit Pricing</>,
+      can_edit_photos: <><Camera size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Can Edit Photos</>,
+      can_edit_employees: <><Users size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Can Edit Employees</>,
+      can_view_analytics: <><BarChart3 size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Can View Analytics</>
     };
     return labels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   };
@@ -491,7 +520,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
             fontWeight: 'bold',
             margin: '0 0 15px 0'
           }}>
-            🚫 {t('admin.accessDenied')}
+            <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('admin.accessDenied')}
           </h2>
           <p style={{ color: '#cccccc', fontSize: '16px' }}>
             {t('admin.accessDeniedArea')}
@@ -512,7 +542,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       <AdminBreadcrumb
         currentSection="Establishment Owners"
         onBackToDashboard={() => onTabChange('overview')}
-        icon="🏢"
+        icon={<Building2 size={16} />}
       />
 
       {/* Header */}
@@ -527,7 +557,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
           textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
           fontFamily: '"Orbitron", monospace'
         }}>
-          🏢 Establishment Owners Management
+          <Building2 size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          Establishment Owners Management
         </h1>
         <p style={{
           fontSize: '16px',
@@ -567,7 +598,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
             fontWeight: 'bold'
           }}
         >
-          👥 Manage Owners
+          <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          Manage Owners
         </button>
         <button
           onClick={() => setViewMode('requests')}
@@ -587,7 +619,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
             position: 'relative'
           }}
         >
-          📋 Pending Requests
+          <ClipboardList size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          Pending Requests
           {ownershipRequests.length > 0 && viewMode !== 'requests' && (
             <span style={{
               position: 'absolute',
@@ -620,9 +653,9 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
           flexWrap: 'wrap'
         }}>
           {[
-            { key: 'all', label: 'All Establishments', icon: '📋' },
-            { key: 'with_owners', label: 'With Owners', icon: '👥' },
-            { key: 'without_owners', label: 'Without Owners', icon: '📭' }
+            { key: 'all', label: 'All Establishments', icon: <ClipboardList size={12} /> },
+            { key: 'with_owners', label: 'With Owners', icon: <Users size={12} /> },
+            { key: 'without_owners', label: 'Without Owners', icon: <MailX size={12} /> }
           ].map((tab) => (
             <button
               key={tab.key}
@@ -667,7 +700,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
             fontWeight: 'bold',
             margin: '0 0 10px 0'
           }}>
-            📭 No establishments found
+            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            No establishments found
           </h3>
           <p style={{
             color: '#cccccc',
@@ -722,7 +756,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                👥 {establishment.ownersCount || 0} Owner{(establishment.ownersCount || 0) !== 1 ? 's' : ''}
+                <Users size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {establishment.ownersCount || 0} Owner{(establishment.ownersCount || 0) !== 1 ? 's' : ''}
               </div>
 
               {/* Establishment Icon */}
@@ -739,7 +774,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                 fontSize: '24px',
                 marginBottom: '15px'
               }}>
-                🏢
+                <Building2 size={24} />
               </div>
 
               {/* Establishment Info */}
@@ -772,7 +807,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                     fontSize: '12px',
                     fontWeight: 'bold'
                   }}>
-                    📍 {establishment.zone}
+                    <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                    {establishment.zone}
                   </div>
                 )}
               </div>
@@ -788,7 +824,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   fontSize: '12px',
                   fontWeight: 'bold'
                 }}>
-                  👁️ Click to manage owners
+                  <Eye size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                  Click to manage owners
                 </span>
               </div>
             </div>
@@ -817,7 +854,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                 fontWeight: 'bold',
                 margin: '0 0 10px 0'
               }}>
-                ✅ No Pending Ownership Requests
+                <CheckCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                No Pending Ownership Requests
               </h3>
               <p style={{
                 color: '#cccccc',
@@ -858,7 +896,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         fontWeight: 'bold',
                         margin: '0 0 10px 0'
                       }}>
-                        🏢 {request.establishment.name}
+                        <Building2 size={24} /> {request.establishment.name}
                       </h3>
                       <p style={{
                         color: '#cccccc',
@@ -982,7 +1020,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>
-                        💬 Request Message
+                        <MessageSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                        Request Message
                       </h4>
                       <p style={{
                         color: 'rgba(255,255,255,0.8)',
@@ -1012,7 +1051,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>
-                        🔑 Verification Code
+                        <Key size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                        Verification Code
                       </h4>
                       <div style={{
                         color: '#FFD700',
@@ -1041,7 +1081,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>
-                        📎 Submitted Documents ({request.documents_urls.length})
+                        <Paperclip size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                        Submitted Documents ({request.documents_urls.length})
                       </h4>
                       <div style={{
                         display: 'grid',
@@ -1088,7 +1129,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                               overflow: 'hidden'
                             }}>
                               {url.toLowerCase().endsWith('.pdf') ? (
-                                <span style={{ fontSize: '32px' }}>📄</span>
+                                <FileText size={32} />
                               ) : (
                                 <img src={url} alt={`Document ${index + 1}`} style={{
                                   width: '100%',
@@ -1124,7 +1165,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       fontWeight: 'bold',
                       margin: '0 0 15px 0'
                     }}>
-                      ✍️ Admin Review
+                      <Pencil size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                      Admin Review
                     </h4>
 
                     <textarea
@@ -1183,7 +1225,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                           e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        {processingIds.has(request.id) ? '⏳ Approving...' : '✅ Approve & Assign Ownership'}
+                        {processingIds.has(request.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Approving...</> : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Approve & Assign Ownership</>}
                       </button>
 
                       <button
@@ -1215,7 +1257,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                           e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        {processingIds.has(request.id) ? '⏳ Rejecting...' : '❌ Reject Request'}
+                        {processingIds.has(request.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Rejecting...</> : <><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Reject Request</>}
                       </button>
                     </div>
 
@@ -1226,7 +1268,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       marginBottom: 0,
                       textAlign: 'center'
                     }}>
-                      ⚠️ Admin notes are required before approving or rejecting
+                      <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      Admin notes are required before approving or rejecting
                     </p>
                   </div>
                 </div>
@@ -1339,7 +1382,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                ➕ Assign New Owner
+                <Plus size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              Assign New Owner
               </button>
             )}
 
@@ -1358,7 +1402,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  👤 Assign New Owner
+                  <User size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  Assign New Owner
                 </h3>
 
                 {/* Search User */}
@@ -1423,7 +1468,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       borderRadius: '10px',
                       border: '1px solid rgba(255,71,87,0.3)'
                     }}>
-                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>📭</div>
+                      <div style={{ fontSize: '24px', marginBottom: '8px' }}><MailX size={24} /></div>
                       <div style={{ fontSize: '12px', color: '#888888' }}>
                         No establishment owners found matching "<span style={{ color: '#C19A6B' }}>{searchUserTerm}</span>"
                       </div>
@@ -1442,7 +1487,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       fontSize: '11px',
                       color: '#FFD700'
                     }}>
-                      ℹ️ Type at least 2 characters to search
+                      <Info size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      Type at least 2 characters to search
                     </div>
                   )}
 
@@ -1492,7 +1538,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       background: 'rgba(255,215,0,0.1)',
                       border: '2px solid #FFD700'
                     }}>
-                      <div style={{ color: '#FFD700', fontWeight: 'bold' }}>✓ Selected: {selectedUser.pseudonym}</div>
+                      <div style={{ color: '#FFD700', fontWeight: 'bold' }}><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Selected: {selectedUser.pseudonym}</div>
                       <div style={{ color: '#cccccc', fontSize: '12px' }}>{selectedUser.email}</div>
                     </div>
                   )}
@@ -1524,7 +1570,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         fontWeight: 'bold'
                       }}
                     >
-                      👑 Owner (Full Control)
+                      <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Owner (Full Control)
                     </button>
                     <button
                       onClick={() => handleRoleChange('manager')}
@@ -1540,7 +1586,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         fontWeight: 'bold'
                       }}
                     >
-                      🔑 Manager (Limited)
+                      <Key size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Manager (Limited)
                     </button>
                   </div>
 
@@ -1555,14 +1601,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                     color: '#cccccc'
                   }}>
                     <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#00E5FF', fontSize: '12px' }}>
-                      ℹ️ Role Differences:
+                      <Info size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Role Differences:
                     </div>
                     <div style={{ marginBottom: '6px', paddingLeft: '4px' }}>
-                      <span style={{ color: '#FFD700', fontWeight: 'bold' }}>👑 Owner:</span>
+                      <span style={{ color: '#FFD700', fontWeight: 'bold' }}><Crown size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} />Owner:</span>
                       <span style={{ color: '#aaaaaa' }}> Full control - Info, Pricing, Photos, Analytics</span>
                     </div>
                     <div style={{ paddingLeft: '4px' }}>
-                      <span style={{ color: '#00E5FF', fontWeight: 'bold' }}>🔑 Manager:</span>
+                      <span style={{ color: '#00E5FF', fontWeight: 'bold' }}><Key size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} />Manager:</span>
                       <span style={{ color: '#aaaaaa' }}> Limited - Info, Photos, Analytics only (no pricing)</span>
                     </div>
                     <div style={{
@@ -1572,7 +1618,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       fontSize: '10px',
                       color: '#888888'
                     }}>
-                      💡 Tip: Permissions below are auto-adjusted based on role. You can customize them after.
+                      Tip: Permissions below are auto-adjusted based on role. You can customize them after.
                     </div>
                   </div>
                 </div>
@@ -1654,7 +1700,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       fontWeight: 'bold'
                     }}
                   >
-                    ✖ Cancel
+                    <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Cancel
                   </button>
                   <button
                     onClick={handleAssignOwner}
@@ -1674,7 +1720,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       opacity: (!selectedUser || processingIds.has(selectedEstablishment.id)) ? 0.5 : 1
                     }}
                   >
-                    {processingIds.has(selectedEstablishment.id) ? '⏳ Assigning...' : '✓ Assign Owner'}
+                    {processingIds.has(selectedEstablishment.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Assigning...</> : <><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Assign Owner</>}
                   </button>
                 </div>
               </div>
@@ -1695,7 +1741,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   fontWeight: 'bold',
                   margin: '0 0 15px 0'
                 }}>
-                  ✏️ Edit Permissions: {editingOwner.user?.pseudonym}
+                  <Pencil size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  Edit Permissions: {editingOwner.user?.pseudonym}
                 </h3>
 
                 {/* Role Selection */}
@@ -1724,7 +1771,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         fontWeight: 'bold'
                       }}
                     >
-                      👑 Owner
+                      <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Owner
                     </button>
                     <button
                       onClick={() => setEditingOwner(prev => prev ? { ...prev, owner_role: 'manager' } : null)}
@@ -1740,7 +1787,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                         fontWeight: 'bold'
                       }}
                     >
-                      🔑 Manager
+                      <Key size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Manager
                     </button>
                   </div>
                 </div>
@@ -1822,7 +1869,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       fontWeight: 'bold'
                     }}
                   >
-                    ✖ Cancel
+                    <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Cancel
                   </button>
                   <button
                     onClick={handleUpdateOwnerPermissions}
@@ -1842,7 +1889,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                       opacity: processingIds.has(selectedEstablishment.id) ? 0.5 : 1
                     }}
                   >
-                    {processingIds.has(selectedEstablishment.id) ? '⏳ Updating...' : '✓ Save Changes'}
+                    {processingIds.has(selectedEstablishment.id) ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Updating...</> : <><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Save Changes</>}
                   </button>
                 </div>
               </div>
@@ -1856,7 +1903,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                 fontWeight: 'bold',
                 margin: '0 0 15px 0'
               }}>
-                👥 Current Owners ({establishmentOwners.length})
+                <Users size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                Current Owners ({establishmentOwners.length})
               </h3>
 
               {establishmentOwners.length === 0 ? (
@@ -1867,7 +1915,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   borderRadius: '15px',
                   border: '2px dashed rgba(193, 154, 107,0.3)'
                 }}>
-                  <div style={{ fontSize: '40px', marginBottom: '10px' }}>📭</div>
+                  <div style={{ fontSize: '40px', marginBottom: '10px' }}><MailX size={40} /></div>
                   <div style={{ color: '#cccccc', fontSize: '14px' }}>
                     No owners assigned yet. Click "Assign New Owner" to add one.
                   </div>
@@ -1985,7 +2033,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                             opacity: (showAssignModal || editingOwner !== null) ? 0.5 : 1
                           }}
                         >
-                          ✏️ Edit Permissions
+                          <Pencil size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Edit Permissions
                         </button>
                         <button
                           onClick={() => handleRemoveOwner(owner.establishment_id, owner.user_id)}
@@ -2005,7 +2053,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                             opacity: (processingIds.has(owner.establishment_id) || showAssignModal || editingOwner !== null) ? 0.5 : 1
                           }}
                         >
-                          {processingIds.has(owner.establishment_id) ? '⏳ Removing...' : '🗑️ Remove'}
+                          {processingIds.has(owner.establishment_id) ? <><Loader2 size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Removing...</> : <><Trash2 size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Remove</>}
                         </button>
                       </div>
                     </div>

@@ -9,6 +9,16 @@ import SocialMediaForm from '../Forms/EstablishmentFormSections/SocialMediaForm'
 import PricingForm from '../Forms/EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
 import toastService from '../../utils/toast';
+import {
+  Lock,
+  Pencil,
+  FileEdit,
+  DollarSign,
+  Camera,
+  X,
+  Loader2,
+  Save
+} from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -379,7 +389,7 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
         <div className="modal-form-container" style={{ maxWidth: '500px', textAlign: 'center' }}>
           <button onClick={onClose} className="modal-close-button">✕</button>
           <div className="modal-header">
-            <h2 className="header-title-nightlife">🔒 {t('ownerEstablishmentModal.noPermissionsTitle')}</h2>
+            <h2 className="header-title-nightlife"><Lock size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('ownerEstablishmentModal.noPermissionsTitle')}</h2>
             <p className="modal-subtitle">
               {t('ownerEstablishmentModal.noPermissionsMessage')}
             </p>
@@ -414,7 +424,8 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
 
         <div className="modal-header">
           <h2 className="header-title-nightlife">
-            ✏️ {t('ownerEstablishmentModal.title')}
+            <Pencil size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('ownerEstablishmentModal.title')}
           </h2>
           <p className="modal-subtitle">
             {establishment.name}
@@ -437,7 +448,8 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
                 fontSize: '0.75rem',
                 border: '1px solid rgba(16, 185, 129, 0.3)'
               }}>
-                📝 {t('ownerEstablishmentModal.permissionEditInfo')}
+                <FileEdit size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {t('ownerEstablishmentModal.permissionEditInfo')}
               </span>
             )}
             {permissions.can_edit_pricing && (
@@ -449,7 +461,8 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
                 fontSize: '0.75rem',
                 border: '1px solid rgba(16, 185, 129, 0.3)'
               }}>
-                💰 {t('ownerEstablishmentModal.permissionEditPricing')}
+                <DollarSign size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {t('ownerEstablishmentModal.permissionEditPricing')}
               </span>
             )}
             {permissions.can_edit_photos && (
@@ -461,7 +474,8 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
                 fontSize: '0.75rem',
                 border: '1px solid rgba(16, 185, 129, 0.3)'
               }}>
-                📸 {t('ownerEstablishmentModal.permissionEditPhotos')}
+                <Camera size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                {t('ownerEstablishmentModal.permissionEditPhotos')}
               </span>
             )}
           </div>
@@ -527,7 +541,8 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
               onClick={onClose}
               className="btn btn--secondary"
             >
-              ❌ {t('ownerEstablishmentModal.buttonCancel')}
+              <X size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('ownerEstablishmentModal.buttonCancel')}
             </button>
 
             <button
@@ -538,10 +553,12 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
               {isLoading ? (
                 <span className="loading-flex">
                   <span className="loading-spinner-small-nightlife"></span>
-                  ⏳ {t('ownerEstablishmentModal.buttonSaving')}
+                  <Loader2 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {t('ownerEstablishmentModal.buttonSaving')}
                 </span>
               ) : (
-                `💾 ${t('ownerEstablishmentModal.buttonSaveChanges')}`
+                <><Save size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('ownerEstablishmentModal.buttonSaveChanges')}</>
+
               )}
             </button>
           </div>

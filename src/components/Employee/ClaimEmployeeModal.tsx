@@ -5,6 +5,15 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
+import {
+  Link,
+  Search,
+  CheckCircle,
+  MessageSquare,
+  Camera,
+  Rocket,
+  Info
+} from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 
 interface ClaimEmployeeModalProps {
@@ -182,7 +191,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
         </button>
 
         <div className="modal-header">
-          <h2 className="header-title-nightlife">🔗 {t('claimEmployeeModal.title')}</h2>
+          <h2 className="header-title-nightlife"><Link size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.title')}</h2>
           <p className="modal-subtitle">
             {t('claimEmployeeModal.subtitle')}
           </p>
@@ -201,7 +210,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
                 marginBottom: '8px',
               }}
             >
-              🔍 {t('claimEmployeeModal.searchLabel')}
+              <Search size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('claimEmployeeModal.searchLabel')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -297,7 +307,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
               }}
             >
               <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#00E5FF' }}>
-                ✅ {t('claimEmployeeModal.selectedProfileLabel')}
+                <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                {t('claimEmployeeModal.selectedProfileLabel')}
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 {selectedEmployee.photos && selectedEmployee.photos[0] && (
@@ -342,7 +353,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
                 marginBottom: '8px',
               }}
             >
-              💬 {t('claimEmployeeModal.messageLabelRequired')} *
+              <MessageSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('claimEmployeeModal.messageLabelRequired')} *
             </label>
             <textarea
               value={message}
@@ -384,7 +396,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
                 marginBottom: '8px',
               }}
             >
-              📸 {t('claimEmployeeModal.verificationProofLabel')}
+              <Camera size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('claimEmployeeModal.verificationProofLabel')}
             </label>
             <div style={{ fontSize: '12px', color: '#cccccc', marginBottom: '12px' }}>
               {t('claimEmployeeModal.verificationProofHint')}
@@ -464,7 +477,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
                 {t('claimEmployeeModal.buttonSubmitting')}
               </span>
             ) : (
-              `🚀 ${t('claimEmployeeModal.buttonSubmitClaim')}`
+              <><Rocket size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.buttonSubmitClaim')}</>
+
             )}
           </button>
 
@@ -479,7 +493,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
               color: '#cccccc',
             }}
           >
-            <strong style={{ color: '#00E5FF' }}>ℹ️ {t('claimEmployeeModal.whatHappensNextTitle')}</strong>
+            <strong style={{ color: '#00E5FF' }}><Info size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.whatHappensNextTitle')}</strong>
             <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
               <li>{t('claimEmployeeModal.whatHappensNextStep1')}</li>
               <li>{t('claimEmployeeModal.whatHappensNextStep2')}</li>

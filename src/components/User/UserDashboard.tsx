@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
-import { Edit } from 'lucide-react';
+import { Edit, Star, MailX, Search, Cake, Globe, MapPin, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
@@ -69,7 +69,8 @@ const UserDashboard: React.FC = () => {
         <div className="page-container-nightlife">
           <div className="header-centered-nightlife">
             <h1 className="header-title-nightlife">
-              ⭐ {t('userDashboard.pageTitle')}
+              <Star size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              {t('userDashboard.pageTitle')}
             </h1>
             <p className="header-subtitle-nightlife">
               {t('userDashboard.pageSubtitle')}
@@ -116,7 +117,8 @@ const UserDashboard: React.FC = () => {
       {favorites.length === 0 ? (
         <div className="empty-state-container-nightlife">
           <h3 className="text-primary-nightlife" style={{ fontSize: '24px', marginBottom: '15px' }}>
-            📭 {t('userDashboard.emptyStateTitle')}
+            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('userDashboard.emptyStateTitle')}
           </h3>
           <p className="text-muted-nightlife" style={{ marginBottom: '30px' }}>
             {t('userDashboard.emptyStateMessage')}
@@ -125,7 +127,8 @@ const UserDashboard: React.FC = () => {
             onClick={() => navigate('/search')}
             className="btn btn--primary"
           >
-            🔍 {t('userDashboard.buttonBrowseEmployees')}
+            <Search size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('userDashboard.buttonBrowseEmployees')}
           </button>
         </div>
       ) : (
@@ -160,7 +163,8 @@ const UserDashboard: React.FC = () => {
                     />
                     {favorite.employee_photos.length > 1 && (
                       <div className="favorite-photo-count-badge-nightlife">
-                        🔍 {t('userDashboard.photoCountBadge', { count: favorite.employee_photos.length - 1 })}
+                        <Search size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                        {t('userDashboard.photoCountBadge', { count: favorite.employee_photos.length - 1 })}
                       </div>
                     )}
                   </>
@@ -179,7 +183,7 @@ const UserDashboard: React.FC = () => {
                   aria-label={t('userDashboard.ariaRemoveFavorite', { name: favorite.employee_name })}
                   title={t('userDashboard.titleRemoveFavorite')}
                 >
-                  ⭐
+                  <Star size={16} />
                 </button>
                 <div className="favorite-card-photo-overlay-nightlife"></div>
               </div>
@@ -197,8 +201,8 @@ const UserDashboard: React.FC = () => {
 
                 {(favorite.employee_age || favorite.employee_nationality) && (
                   <div className="favorite-card-meta-nightlife">
-                    {favorite.employee_age && <span>🎂 {t('userDashboard.ageLabel', { age: favorite.employee_age })}</span>}
-                    {favorite.employee_nationality && <span>🌏 {favorite.employee_nationality}</span>}
+                    {favorite.employee_age && <span><Cake size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('userDashboard.ageLabel', { age: favorite.employee_age })}</span>}
+                    {favorite.employee_nationality && <span><Globe size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{favorite.employee_nationality}</span>}
                   </div>
                 )}
 
@@ -228,7 +232,8 @@ const UserDashboard: React.FC = () => {
                     }}
                   >
                     <div className="favorite-establishment-label-nightlife">
-                      📍 {t('userDashboard.establishmentLabel')}
+                      <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      {t('userDashboard.establishmentLabel')}
                     </div>
                     <div className="favorite-establishment-name-nightlife">
                       {favorite.current_establishment.name}
@@ -239,7 +244,8 @@ const UserDashboard: React.FC = () => {
                   </div>
                 ) : (
                   <div className="favorite-unemployed-card-nightlife">
-                    ⚠️ {t('userDashboard.notEmployed')}
+                    <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                    {t('userDashboard.notEmployed')}
                   </div>
                 )}
               </div>

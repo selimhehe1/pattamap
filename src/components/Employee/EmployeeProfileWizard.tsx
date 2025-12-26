@@ -6,6 +6,16 @@ import ClaimEmployeeModal from './ClaimEmployeeModal';
 import LazyImage from '../Common/LazyImage';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
+import {
+  Search,
+  User,
+  Link,
+  Frown,
+  PartyPopper,
+  Sparkles,
+  Check,
+  Lightbulb
+} from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 
 interface EmployeeProfileWizardProps {
@@ -137,7 +147,8 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
 
           <div className="modal-header" style={{ marginBottom: '30px' }}>
             <h2 className="header-title-nightlife" style={{ fontSize: '28px', marginBottom: '12px' }}>
-              🔍 {t('employeeProfileWizard.titleFindProfile')}
+              <Search size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('employeeProfileWizard.titleFindProfile')}
             </h2>
             <p className="modal-subtitle" style={{ fontSize: '15px' }}>
               {t('employeeProfileWizard.subtitleFindProfile')}
@@ -244,7 +255,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                         fontSize: '48px',
                         color: 'rgba(255,255,255,0.3)'
                       }}>
-                        👤
+                        <User size={48} />
                       </div>
                     )}
                   </div>
@@ -302,7 +313,8 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
-                    🔗 {t('employeeProfileWizard.buttonClaimProfile')}
+                    <Link size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {t('employeeProfileWizard.buttonClaimProfile')}
                   </button>
                 </div>
               ))}
@@ -317,7 +329,8 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
               color: 'rgba(255,255,255,0.6)',
               fontSize: '16px'
             }}>
-              😔 {t('employeeProfileWizard.emptyStateNoMatch')}
+              <Frown size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('employeeProfileWizard.emptyStateNoMatch')}
             </div>
           )}
 
@@ -365,7 +378,8 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
 
         <div className="modal-header" style={{ marginBottom: '40px' }}>
           <h2 className="header-title-nightlife" style={{ fontSize: '32px', marginBottom: '12px' }}>
-            🎉 {t('employeeProfileWizard.titleWelcome')}
+            <PartyPopper size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('employeeProfileWizard.titleWelcome')}
           </h2>
           <p className="modal-subtitle" style={{ fontSize: '16px', lineHeight: '1.6' }}>
             {t('employeeProfileWizard.subtitleWelcome')}
@@ -437,7 +451,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                 lineHeight: 1,
               }}
             >
-              🔗
+              <Link size={64} />
             </div>
 
             {/* Title */}
@@ -482,7 +496,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionABenefit1')}
               </li>
               <li
@@ -494,7 +508,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionABenefit2')}
               </li>
               <li
@@ -505,7 +519,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionABenefit3')}
               </li>
             </ul>
@@ -584,7 +598,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                 lineHeight: 1,
               }}
             >
-              ✨
+              <Sparkles size={64} />
             </div>
 
             {/* Title */}
@@ -629,7 +643,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionBBenefit1')}
               </li>
               <li
@@ -641,7 +655,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionBBenefit2')}
               </li>
               <li
@@ -652,7 +666,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
                   position: 'relative',
                 }}
               >
-                <span style={{ position: 'absolute', left: 0 }}>✓</span>
+                <Check size={12} style={{ position: 'absolute', left: 0 }} />
                 {t('employeeProfileWizard.optionBBenefit3')}
               </li>
             </ul>
@@ -688,7 +702,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <span style={{ fontSize: '20px' }}>💡</span>
+            <Lightbulb size={20} color="#FFD700" />
             <div>
               <strong style={{ color: '#FFD700', display: 'block', marginBottom: '8px' }}>
                 {t('employeeProfileWizard.infoBoxQuestion')}
