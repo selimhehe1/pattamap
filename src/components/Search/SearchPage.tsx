@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Search, BarChart3, XCircle } from 'lucide-react';
 import SearchFilters from './SearchFilters';
 import SearchResults from './SearchResults';
 import { Employee } from '../../types';
@@ -219,8 +220,8 @@ const SearchPage: React.FC = () => {
         marginBottom: '20px',
         textAlign: 'center'
       }}>
-        <h1 className="header-title-nightlife">
-          🔍 {t('search.title')}
+        <h1 className="header-title-nightlife" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+          <Search size={28} color="var(--color-primary)" /> {t('search.title')}
         </h1>
         <p className="header-subtitle-nightlife">
           {t('search.subtitle')}
@@ -234,12 +235,14 @@ const SearchPage: React.FC = () => {
             background: 'rgba(193, 154, 107,0.1)',
             border: '1px solid rgba(193, 154, 107,0.3)',
             borderRadius: '25px',
-            display: 'inline-block',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
             fontSize: '14px',
             fontWeight: 'bold',
             color: '#C19A6B'
           }}>
-            📊 {filters.q
+            <BarChart3 size={16} /> {filters.q
               ? t('search.foundResultsFor', { count: totalResults, query: filters.q })
               : t('search.foundResults', { count: totalResults })}
           </div>
@@ -272,7 +275,7 @@ const SearchPage: React.FC = () => {
               marginBottom: '20px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '24px', marginBottom: '10px' }}>❌</div>
+              <div style={{ fontSize: '24px', marginBottom: '10px' }}><XCircle size={32} color="#FF4757" /></div>
               <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#FF4757' }}>
                 {t('search.error')}
               </div>

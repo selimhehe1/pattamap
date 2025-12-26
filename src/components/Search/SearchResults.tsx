@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Search } from 'lucide-react';
 import { Employee } from '../../types';
 import EmployeeCard from '../Common/EmployeeCard';
 import { SkeletonGallery } from '../Common/Skeleton';
@@ -46,7 +47,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         borderRadius: '20px',
         border: '2px solid rgba(193, 154, 107,0.3)'
       }} data-testid="empty-state">
-        <div style={{ fontSize: '64px', marginBottom: '20px' }}>🔍</div>
+        <div style={{ marginBottom: '20px' }}><Search size={64} color="var(--color-primary)" /></div>
         <h3 style={{
           fontSize: '24px',
           fontWeight: 'bold',

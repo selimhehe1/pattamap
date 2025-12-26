@@ -1,4 +1,15 @@
 import React, { useState } from 'react';
+import {
+  Trophy,
+  BarChart3,
+  Medal,
+  Target,
+  Zap,
+  Flame,
+  Calendar,
+  Dumbbell,
+  Lock
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useGamification } from '../contexts/GamificationContext';
 import XPProgressBar from '../components/Gamification/XPProgressBar';
@@ -18,7 +29,7 @@ const MyAchievementsPage: React.FC = () => {
       <div className="achievements-page">
         <div className="achievements-container">
           <div className="achievements-error">
-            <h2>🔒 Login Required</h2>
+            <h2><Lock size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Login Required</h2>
             <p>Please log in to view your achievements and progress.</p>
           </div>
         </div>
@@ -39,7 +50,7 @@ const MyAchievementsPage: React.FC = () => {
           {/* Header */}
           <div className="achievements-header">
             <div className="achievements-title-section">
-              <h1>🏆 My Achievements</h1>
+              <h1><Trophy size={28} style={{ marginRight: '8px', verticalAlign: 'middle', color: 'var(--color-primary)' }} /> My Achievements</h1>
               <p className="achievements-subtitle">
                 Track your progress and unlock badges
               </p>
@@ -57,25 +68,25 @@ const MyAchievementsPage: React.FC = () => {
               className={`achievements-tab ${activeTab === 'overview' ? 'achievements-tab-active' : ''}`}
               onClick={() => setActiveTab('overview')}
             >
-              📊 Overview
+              <BarChart3 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Overview
             </button>
             <button
               className={`achievements-tab ${activeTab === 'badges' ? 'achievements-tab-active' : ''}`}
               onClick={() => setActiveTab('badges')}
             >
-              🏅 Badges
+              <Medal size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Badges
             </button>
             <button
               className={`achievements-tab ${activeTab === 'missions' ? 'achievements-tab-active' : ''}`}
               onClick={() => setActiveTab('missions')}
             >
-              🎯 Missions
+              <Target size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Missions
             </button>
             <button
               className={`achievements-tab ${activeTab === 'leaderboard' ? 'achievements-tab-active' : ''}`}
               onClick={() => setActiveTab('leaderboard')}
             >
-              🏆 Leaderboard
+              <Trophy size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Leaderboard
             </button>
           </div>
 
@@ -86,22 +97,22 @@ const MyAchievementsPage: React.FC = () => {
                 {/* Stats Cards */}
                 <div className="stats-grid scroll-reveal-stagger">
                   <div className="stat-card">
-                    <div className="stat-icon">⚡</div>
+                    <div className="stat-icon"><Zap size={24} color="var(--color-warning)" /></div>
                     <div className="stat-value">{userProgress?.total_xp.toLocaleString() || 0}</div>
                     <div className="stat-label">Total XP</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-icon">🔥</div>
+                    <div className="stat-icon"><Flame size={24} color="var(--color-error)" /></div>
                     <div className="stat-value">{userProgress?.current_streak_days || 0}</div>
                     <div className="stat-label">Day Streak</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-icon">📅</div>
+                    <div className="stat-icon"><Calendar size={24} color="var(--color-primary)" /></div>
                     <div className="stat-value">{userProgress?.monthly_xp.toLocaleString() || 0}</div>
                     <div className="stat-label">Monthly XP</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-icon">💪</div>
+                    <div className="stat-icon"><Dumbbell size={24} color="var(--color-accent)" /></div>
                     <div className="stat-value">{userProgress?.longest_streak_days || 0}</div>
                     <div className="stat-label">Longest Streak</div>
                   </div>
