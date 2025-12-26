@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Camera, AlertTriangle } from 'lucide-react';
 import type { FormErrors } from './types';
 
 interface EmployeePhotoUploadProps {
@@ -67,7 +68,7 @@ export function EmployeePhotoUpload({
         alignItems: 'center',
         gap: '8px'
       }}>
-        📸 {t('employee.photos')} <span className="text-required">*</span>
+        <Camera size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('employee.photos')} <span className="text-required">*</span>
         <span style={{
           fontSize: '12px',
           fontWeight: 'normal',
@@ -132,7 +133,7 @@ export function EmployeePhotoUpload({
 
       {errors.photos && (
         <span className="error-text-nightlife" style={{ display: 'block', marginBottom: '10px' }}>
-          ⚠️ {errors.photos}
+          <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.photos}
         </span>
       )}
 

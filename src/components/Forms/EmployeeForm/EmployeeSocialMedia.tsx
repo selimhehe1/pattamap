@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { MessageCircle, Send } from 'lucide-react';
 import type { FormSocialMedia } from './types';
 
 interface EmployeeSocialMediaProps {
@@ -23,8 +24,8 @@ export function EmployeeSocialMedia({
   const labelMap: Record<string, string> = {
     ig: `📷 ${t('employee.instagramLabel')}`,
     fb: `📘 ${t('employee.facebookLabel')}`,
-    line: `💬 ${t('employee.lineLabel')}`,
-    tg: `✈️ ${t('employee.telegramLabel')}`,
+    line: t('employee.lineLabel'),
+    tg: t('employee.telegramLabel'),
     wa: `📞 ${t('employee.whatsappLabel')}`
   };
 

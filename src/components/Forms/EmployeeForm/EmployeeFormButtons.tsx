@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, X, Save, Sparkles, Loader2 } from 'lucide-react';
 import type { FormErrors } from './types';
 
 interface EmployeeFormButtonsProps {
@@ -35,7 +36,7 @@ export function EmployeeFormButtons({
           fontSize: '14px',
           backdropFilter: 'blur(10px)'
         }}>
-          ⚠️ {errors.submit}
+          <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.submit}
         </div>
       )}
 
@@ -48,7 +49,7 @@ export function EmployeeFormButtons({
             padding: '14px 30px'
           }}
         >
-          ❌ {t('employee.buttonCancel')}
+          <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.buttonCancel')}
         </button>
 
         <button
@@ -70,7 +71,7 @@ export function EmployeeFormButtons({
               ⏳ {t('employee.buttonSubmitting')}
             </span>
           ) : (
-            isEditMode ? `💾 ${t('employee.buttonSaveChanges')}` : `✨ ${t('employee.buttonAddEmployee')}`
+            isEditMode ? <><Save size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.buttonSaveChanges')}</> : <><Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.buttonAddEmployee')}</>
           )}
         </button>
       </div>

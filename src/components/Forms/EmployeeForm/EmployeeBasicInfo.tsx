@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle } from 'lucide-react';
 import NationalityTagsInput from '../NationalityTagsInput';
 import type { InternalFormData, FormErrors } from './types';
 
@@ -33,14 +34,14 @@ export function EmployeeBasicInfo({
         alignItems: 'center',
         gap: '8px'
       }}>
-        👤 {t('employee.basicInfo')}
+        <User size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('employee.basicInfo')}
       </h3>
 
       <div className="form-grid-2col">
         {/* Name */}
         <div className="form-input-group-lg">
           <label htmlFor="employee-name" className="label-nightlife">
-            ✨ {t('employee.nameLabel')} <span className="text-required">*</span>
+            <Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.nameLabel')} <span className="text-required">*</span>
           </label>
           <input
             id="employee-name"
@@ -53,14 +54,14 @@ export function EmployeeBasicInfo({
             placeholder={t('employee.namePlaceholder')}
           />
           {errors.name && (
-            <span className="error-text-nightlife">⚠️ {errors.name}</span>
+            <span className="error-text-nightlife"><AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.name}</span>
           )}
         </div>
 
         {/* Nickname */}
         <div className="form-input-group-lg">
           <label htmlFor="employee-nickname" className="label-nightlife">
-            🎭 {t('employee.nicknameLabel')}
+            <UserCog size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.nicknameLabel')}
           </label>
           <input
             id="employee-nickname"
@@ -78,7 +79,7 @@ export function EmployeeBasicInfo({
         {/* Age */}
         <div className="form-input-group-lg">
           <label htmlFor="employee-age" className="label-nightlife">
-            🎂 {t('employee.ageLabel')}
+            <Cake size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.ageLabel')}
           </label>
           <input
             id="employee-age"
@@ -108,7 +109,7 @@ export function EmployeeBasicInfo({
       {/* Description */}
       <div className="form-input-group-lg">
         <label htmlFor="employee-description" className="label-nightlife">
-          📝 {t('employee.descriptionLabel')}
+          <FileText size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.descriptionLabel')}
         </label>
         <textarea
           id="employee-description"

@@ -5,6 +5,7 @@
 
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Store, MapPin } from 'lucide-react';
 import { useEstablishments } from '../../../hooks';
 import type { Establishment } from '../../../types';
 
@@ -119,7 +120,7 @@ export function EmployeeEstablishment({
 
       <div className="form-input-group-lg">
         <label className="label-nightlife">
-          🏪 {t('employee.currentEstablishment')}
+          <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.currentEstablishment')}
         </label>
         <div style={{ position: 'relative' }}>
           <input
@@ -211,7 +212,7 @@ export function EmployeeEstablishment({
                         borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
                       }}
                     >
-                      📍 {results.zoneNames[zone] || zone}
+                      <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {results.zoneNames[zone] || zone}
                     </div>
 
                     {/* Establishments in Zone */}
