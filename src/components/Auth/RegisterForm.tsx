@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -439,7 +439,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
           <div>
             <FormField
-              label={`👤 ${t('register.pseudonymLabel')}`}
+              label={<><User size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('register.pseudonymLabel')}</>}
               name="pseudonym"
               value={formData.pseudonym}
               error={errors.pseudonym}
@@ -475,7 +475,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
           <div style={{ position: 'relative' }}>
             <FormField
-              label={`🔒 ${t('register.passwordLabel')}`}
+              label={<><Lock size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
@@ -559,7 +559,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
           {submitError && (
             <div className="error-message-nightlife error-shake" data-testid="register-error">
-              ⚠️ {submitError}
+              <AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {submitError}
             </div>
           )}
 

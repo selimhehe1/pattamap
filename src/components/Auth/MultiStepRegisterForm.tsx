@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -919,8 +919,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     style={{ accentColor: '#FFD700' }}
                   />
                   <div>
-                    <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                      🏆 {t('register.establishmentOwner')}
+                    <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Crown size={16} color="#FFD700" /> {t('register.establishmentOwner')}
                     </div>
                     <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
                       {t('register.establishmentOwnerDesc')}
@@ -941,8 +941,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   color: '#ffffff',
                   lineHeight: '1.5'
                 }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#C19A6B' }}>
-                    ✨ {t('register.employeeBenefitsTitle')}
+                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#C19A6B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Sparkles size={16} /> {t('register.employeeBenefitsTitle')}
                   </div>
                   <ul style={{ margin: '0', paddingLeft: '20px' }}>
                     <li>{t('register.employeeBenefit1')}</li>
@@ -965,8 +965,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   color: '#ffffff',
                   lineHeight: '1.5'
                 }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#FFD700' }}>
-                    🏆 {t('register.ownerBenefitsTitle')}
+                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#FFD700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Crown size={16} /> {t('register.ownerBenefitsTitle')}
                   </div>
                   <ul style={{ margin: '0', paddingLeft: '20px' }}>
                     <li>{t('register.ownerBenefit1')}</li>
@@ -974,8 +974,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     <li>{t('register.ownerBenefit3')}</li>
                     <li>{t('register.ownerBenefit4')}</li>
                   </ul>
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#cccccc', fontStyle: 'italic' }}>
-                    ⚠️ {t('register.ownerApprovalNote')}
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#cccccc', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <AlertTriangle size={14} /> {t('register.ownerApprovalNote')}
                   </div>
                 </div>
               )}
@@ -1578,16 +1578,16 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     {t('register.claimMessageMinChars', { count: formData.claimMessage.length })}
                   </div>
                   {errors.claimMessage && (
-                    <div style={{ color: '#C19A6B', fontSize: '13px', marginTop: '4px' }}>
-                      ⚠️ {errors.claimMessage}
+                    <div style={{ color: '#C19A6B', fontSize: '13px', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <AlertTriangle size={14} /> {errors.claimMessage}
                     </div>
                   )}
                 </div>
               )}
 
               {submitError && (
-                <div className="error-message-nightlife error-shake">
-                  ⚠️ {submitError}
+                <div className="error-message-nightlife error-shake" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <AlertTriangle size={16} /> {submitError}
                 </div>
               )}
 
@@ -1710,9 +1710,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   <div style={{
                     color: '#C19A6B',
                     fontSize: '14px',
-                    marginTop: '10px'
+                    marginTop: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
                   }}>
-                    ⚠️ {photoErrors}
+                    <AlertTriangle size={16} /> {photoErrors}
                   </div>
                 )}
 
@@ -2115,7 +2118,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   </div>
 
                   <div>
-                    <label className="label-nightlife">✈️ {t('register.telegramLabel')}</label>
+                    <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Send size={14} /> {t('register.telegramLabel')}</label>
                     <input
                       type="text"
                       value={formData.socialMedia.tg}
@@ -2126,7 +2129,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   </div>
 
                   <div>
-                    <label className="label-nightlife">📞 {t('register.whatsappLabel')}</label>
+                    <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={14} /> {t('register.whatsappLabel')}</label>
                     <input
                       type="text"
                       value={formData.socialMedia.wa}
@@ -2139,8 +2142,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               </div>
 
               {submitError && (
-                <div className="error-message-nightlife error-shake" style={{ marginTop: '15px' }}>
-                  ⚠️ {submitError}
+                <div className="error-message-nightlife error-shake" style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <AlertTriangle size={16} /> {submitError}
                 </div>
               )}
 

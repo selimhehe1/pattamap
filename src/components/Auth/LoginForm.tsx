@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle, LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
@@ -203,7 +203,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
         <form onSubmit={handleSubmit} className="form-layout" noValidate data-testid="login-form">
           <FormField
-            label={`👤 ${t('auth.pseudonymOrEmail')}`}
+            label={<><User size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('auth.pseudonymOrEmail')}</>}
             name="login"
             type="text"
             value={formData.login}
@@ -219,7 +219,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
           <div style={{ position: 'relative' }}>
             <FormField
-              label={`🔒 ${t('auth.passwordLabel')}`}
+              label={<><Lock size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('auth.passwordLabel')}</>}
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
@@ -277,7 +277,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
           {error && (
             <div className="error-message-nightlife error-shake" data-testid="login-error">
-              ⚠️ {error}
+              <AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {error}
             </div>
           )}
 
@@ -293,7 +293,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
                 {t('auth.signingIn')}
               </span>
             ) : (
-              `🚀 ${t('auth.signIn')}`
+              <><LogIn size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('auth.signIn')}</>
             )}
           </button>
 

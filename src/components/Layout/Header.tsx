@@ -300,7 +300,7 @@ const Header: React.FC = () => {
                               objectFit="cover"
                             />
                           ) : (
-                            <div className="user-menu-avatar-icon">👤</div>
+                            <div className="user-menu-avatar-icon"><User size={20} /></div>
                           )}
                         </button>
                         <div className="user-menu-info">

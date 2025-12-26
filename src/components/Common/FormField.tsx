@@ -27,7 +27,7 @@ type FieldStatus = 'valid' | 'invalid' | 'validating' | 'untouched';
 
 interface FormFieldProps {
   /** Field label */
-  label: string;
+  label: React.ReactNode;
   /** Field name */
   name: string;
   /** Field type */
