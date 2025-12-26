@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, User, Lock, AlertTriangle, LogIn, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import FormField from '../Common/FormField';
@@ -20,6 +21,9 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess, onSwitchToForgotPassword }) => {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const { theme } = useTheme();
+  // Check both context and DOM for theme - fallback to DOM check for HMR reliability
+  const isLightMode = theme === 'light' || (typeof document !== 'undefined' && document.body.getAttribute('data-theme') === 'light');
   const [formData, setFormData] = useState({
     login: '', // Can be pseudonym or email
     password: ''
@@ -125,23 +129,70 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     }
   };
 
+  // Light mode inline styles to override CSS gradient text effect
+  const lightModeStyles = {
+    overlay: isLightMode ? {
+      background: 'rgba(15, 23, 42, 0.6)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)'
+    } : {},
+    container: isLightMode ? {
+      background: '#FFFFFF',
+      borderColor: 'rgba(15, 23, 42, 0.15)',
+      boxShadow: '0 25px 50px rgba(15, 23, 42, 0.15)'
+    } : {},
+    title: isLightMode ? {
+      color: '#B45309',
+      WebkitTextFillColor: '#B45309',
+      background: 'none',
+      backgroundImage: 'none',
+      WebkitBackgroundClip: 'unset',
+      backgroundClip: 'unset',
+      textShadow: 'none'
+    } : {},
+    subtitle: isLightMode ? {
+      color: '#64748B'
+    } : {},
+    closeButton: isLightMode ? {
+      color: '#334155',
+      background: 'rgba(15, 23, 42, 0.05)',
+      borderColor: 'rgba(15, 23, 42, 0.1)'
+    } : {},
+    primaryButton: isLightMode ? {
+      background: 'linear-gradient(135deg, #B45309, #92400E)',
+      color: '#FFFFFF',
+      borderColor: '#B45309'
+    } : {},
+    authSwitchLabel: isLightMode ? {
+      color: '#64748B'
+    } : {},
+    authSwitchButton: isLightMode ? {
+      color: '#B45309'
+    } : {}
+  };
+
   return (
-    <div className="modal-overlay-nightlife" data-testid="login-modal">
-      <div className="modal-form-container">
+    <div
+      className="modal-overlay-nightlife"
+      data-testid="login-modal"
+      style={lightModeStyles.overlay}
+    >
+      <div className="modal-form-container" style={lightModeStyles.container}>
         <button
           onClick={handleClose}
           className="modal-close-button"
           aria-label={t('common.close')}
           data-testid="close-login-modal"
+          style={lightModeStyles.closeButton}
         >
           ×
         </button>
 
         <div className="modal-header">
-          <h2 className="header-title-nightlife">
+          <h2 className="header-title-nightlife" style={lightModeStyles.title}>
             {t('auth.welcomeBack')}
           </h2>
-          <p className="modal-subtitle">
+          <p className="modal-subtitle" style={lightModeStyles.subtitle}>
             {t('auth.signInSubtitle')}
           </p>
         </div>
@@ -286,6 +337,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             disabled={isLoading}
             className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
             data-testid="login-button"
+            style={lightModeStyles.primaryButton}
           >
             {isLoading ? (
               <span className="loading-flex">
@@ -298,7 +350,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           </button>
 
           <div className="auth-switch-text">
-            <span className="auth-switch-label">
+            <span className="auth-switch-label" style={lightModeStyles.authSwitchLabel}>
               {t('auth.dontHaveAccount')}{' '}
             </span>
             <button
@@ -306,6 +358,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
               onClick={onSwitchToRegister}
               className="auth-switch-button"
               data-testid="register-link"
+              style={lightModeStyles.authSwitchButton}
             >
               {t('auth.registerHere')}
             </button>

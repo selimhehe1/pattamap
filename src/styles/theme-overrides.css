@@ -1033,6 +1033,17 @@ body[data-theme="light"] .btn-secondary-nightlife {
   color: #FFFFFF;
 }
 
+/* BEM-style button classes - need explicit overrides for the gradient */
+body[data-theme="light"] .btn--primary {
+  background: linear-gradient(135deg, #B45309, #92400E) !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="light"] .btn--secondary {
+  background: #475569 !important;
+  color: #FFFFFF !important;
+}
+
 /* --- LANGUAGE SELECTOR - Solid background --- */
 body[data-theme="light"] .language-selector-dropdown,
 body[data-theme="light"] .language-dropdown {
@@ -1740,4 +1751,274 @@ body[data-theme="light"] [data-popover] {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
+}
+
+/* ============================================
+   LIGHT MODE FIXES - Phase 5
+   Fix visibility issues found during audit
+   ============================================ */
+
+/* --- 404 PAGE LIGHT MODE --- */
+body[data-theme="light"] .not-found-page {
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%);
+}
+
+body[data-theme="light"] .not-found-background {
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%) !important;
+}
+
+body[data-theme="light"] .not-found-overlay {
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(255, 255, 255, 0.3) 100%);
+}
+
+body[data-theme="light"] .not-found-code {
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+body[data-theme="light"] .not-found-title {
+  color: #1F2937 !important;
+}
+
+body[data-theme="light"] .not-found-description {
+  color: #4B5563 !important;
+}
+
+body[data-theme="light"] .not-found-quick-links {
+  border-top-color: rgba(15, 23, 42, 0.15);
+}
+
+body[data-theme="light"] .not-found-quick-links-title {
+  color: #6B7280 !important;
+}
+
+body[data-theme="light"] .not-found-link {
+  color: #374151 !important;
+}
+
+body[data-theme="light"] .not-found-link:hover {
+  color: #7C3AED !important;
+}
+
+body[data-theme="light"] .not-found-btn-secondary {
+  background: rgba(15, 23, 42, 0.08) !important;
+  color: #1F2937 !important;
+  border: 1px solid rgba(15, 23, 42, 0.2) !important;
+}
+
+body[data-theme="light"] .not-found-btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.12) !important;
+  border-color: rgba(15, 23, 42, 0.3) !important;
+}
+
+/* --- LOGIN/REGISTER MODAL LIGHT MODE --- */
+/* Main modal content container - using actual class names from DOM */
+/* CRITICAL: Must use solid backgrounds, not transparent */
+body[data-theme="light"] .modal-content-unified {
+  background: #FFFFFF !important;
+}
+
+body[data-theme="light"] .modal-form-container {
+  background: #FFFFFF !important;
+  border: 2px solid rgba(15, 23, 42, 0.15) !important;
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Modal overlays - CRITICAL: Must be dark enough to provide contrast */
+body[data-theme="light"] .modal-overlay-unified {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+body[data-theme="light"] .modal-overlay-nightlife {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Login/Register form title - CRITICAL: Must override webkit-text-fill-color: transparent */
+/* Target the specific header-title-nightlife class used in modal headers */
+/* Using high specificity to override gradient text effect */
+body[data-theme="light"] .modal-content-unified h2,
+body[data-theme="light"] .modal-form-container h2,
+body[data-theme="light"] .form-layout h2,
+body[data-theme="light"] .modal-header h2,
+body[data-theme="light"] .modal-header .header-title-nightlife,
+body[data-theme="light"] .modal-form-container .header-title-nightlife,
+body[data-theme="light"] .modal-content-unified .header-title-nightlife,
+body[data-theme="light"] h2.header-title-nightlife {
+  color: #B45309 !important;
+  -webkit-text-fill-color: #B45309 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* Login form subtitle/description - CRITICAL: Override webkit-text-fill-color */
+body[data-theme="light"] .modal-content-unified p,
+body[data-theme="light"] .modal-form-container p,
+body[data-theme="light"] .form-layout p {
+  color: #4B5563 !important;
+  -webkit-text-fill-color: #4B5563 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+}
+
+/* Form labels - CRITICAL: Override webkit-text-fill-color */
+body[data-theme="light"] .modal-content-unified label,
+body[data-theme="light"] .modal-form-container label,
+body[data-theme="light"] .form-layout label {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+}
+
+/* Form inputs */
+body[data-theme="light"] .modal-content-unified input,
+body[data-theme="light"] .modal-form-container input,
+body[data-theme="light"] .form-layout input,
+body[data-theme="light"] .modal-content-unified select,
+body[data-theme="light"] .modal-form-container select {
+  background: #F9FAFB !important;
+  border: 2px solid rgba(15, 23, 42, 0.15) !important;
+  color: #1F2937 !important;
+}
+
+body[data-theme="light"] .modal-content-unified input::placeholder,
+body[data-theme="light"] .modal-form-container input::placeholder,
+body[data-theme="light"] .form-layout input::placeholder {
+  color: #9CA3AF !important;
+}
+
+body[data-theme="light"] .modal-content-unified input:focus,
+body[data-theme="light"] .modal-form-container input:focus,
+body[data-theme="light"] .form-layout input:focus {
+  border-color: #B45309 !important;
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1) !important;
+}
+
+/* Auth switch text (Don't have an account? / Already have an account?) */
+body[data-theme="light"] .auth-switch-text {
+  color: #4B5563 !important;
+}
+
+body[data-theme="light"] .auth-switch-label {
+  color: #6B7280 !important;
+}
+
+body[data-theme="light"] .auth-switch-button {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .auth-switch-button:hover {
+  color: #92400E !important;
+}
+
+/* Close button in modal */
+body[data-theme="light"] .modal-content-unified button[aria-label="Close"],
+body[data-theme="light"] .modal-close-btn {
+  color: #6B7280 !important;
+}
+
+body[data-theme="light"] .modal-close-btn:hover {
+  color: #1F2937 !important;
+}
+
+/* --- FREELANCES PAGE LIGHT MODE --- */
+body[data-theme="light"] .freelances-page {
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+}
+
+body[data-theme="light"] .freelances-filter-label {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .freelances-filter-input,
+body[data-theme="light"] .freelances-filter-select {
+  background: #FFFFFF !important;
+  border: 2px solid rgba(15, 23, 42, 0.15) !important;
+  color: #1F2937 !important;
+}
+
+body[data-theme="light"] .freelances-filter-input::placeholder {
+  color: #9CA3AF !important;
+}
+
+body[data-theme="light"] .freelances-filter-input:focus,
+body[data-theme="light"] .freelances-filter-select:focus {
+  border-color: #B45309 !important;
+  background: #FFFFFF !important;
+}
+
+body[data-theme="light"] .freelances-clear-btn {
+  background: rgba(180, 83, 9, 0.08) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .freelances-clear-btn:hover {
+  background: rgba(180, 83, 9, 0.15) !important;
+}
+
+/* Freelances header */
+body[data-theme="light"] .freelances-header h1 {
+  color: #1F2937 !important;
+}
+
+body[data-theme="light"] .freelances-header p {
+  color: #4B5563 !important;
+}
+
+/* Empty state message */
+body[data-theme="light"] .freelances-empty-state,
+body[data-theme="light"] .no-results-message {
+  color: #4B5563 !important;
+}
+
+body[data-theme="light"] .freelances-empty-state h3,
+body[data-theme="light"] .no-results-title {
+  color: #1F2937 !important;
+}
+
+/* Skeleton loading in light mode */
+body[data-theme="light"] .freelance-card-skeleton {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+body[data-theme="light"] .skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.05) 0%,
+    rgba(15, 23, 42, 0.1) 50%,
+    rgba(15, 23, 42, 0.05) 100%
+  ) !important;
+}
+
+/* --- GENERAL FILTER BAR LIGHT MODE FIX --- */
+body[data-theme="light"] .filters-bar,
+body[data-theme="light"] .filter-bar,
+body[data-theme="light"] .search-filters {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+body[data-theme="light"] .filter-label,
+body[data-theme="light"] .filter-title {
+  color: #374151 !important;
+}
+
+/* --- EMPTY STATE TEXT VISIBILITY --- */
+body[data-theme="light"] .empty-state-title,
+body[data-theme="light"] .empty-state-message,
+body[data-theme="light"] .no-data-message {
+  color: #4B5563 !important;
+}
+
+body[data-theme="light"] .empty-state-subtitle {
+  color: #6B7280 !important;
 }

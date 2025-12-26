@@ -37,6 +37,13 @@
   box-sizing: border-box;
 }
 
+/* Light Mode - Modal Form Container */
+body[data-theme="light"] .modal-form-container {
+  background: #FFFFFF;
+  border-color: rgba(15, 23, 42, 0.15);
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
+}
+
 /* ===== 2. MODAL CLOSE BUTTON ===== */
 
 /* Bouton Fermeture Modal */
@@ -96,6 +103,84 @@
   margin: var(--spacing-xs, 0.3125rem) 0 0 0;
   color: var(--text-secondary);
   font-size: var(--font-size-sm, 0.8125rem);
+}
+
+/* Light Mode - Modal Subtitle */
+body[data-theme="light"] .modal-subtitle {
+  color: #64748B;
+}
+
+/* Light Mode - Modal Header Title - CRITICAL FIX */
+/* Override the gradient text effect which makes title invisible in light mode */
+body[data-theme="light"] .modal-form-container .header-title-nightlife,
+body[data-theme="light"] .modal-header .header-title-nightlife {
+  color: #B45309 !important;
+  -webkit-text-fill-color: #B45309 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  text-shadow: none !important;
+}
+
+/* Light Mode - Primary Button in Modal - CRITICAL FIX */
+/* Override white background that makes button invisible */
+body[data-theme="light"] .modal-form-container .btn--primary,
+body[data-theme="light"] .modal-form-container .btn.btn--primary {
+  background: linear-gradient(135deg, #B45309, #92400E) !important;
+  color: #FFFFFF !important;
+  border-color: #B45309 !important;
+}
+
+body[data-theme="light"] .modal-form-container .btn--primary:hover,
+body[data-theme="light"] .modal-form-container .btn.btn--primary:hover {
+  background: linear-gradient(135deg, #92400E, #78350F) !important;
+}
+
+/* Light Mode - Secondary Button in Modal */
+body[data-theme="light"] .modal-form-container .btn--secondary {
+  background: #475569 !important;
+  color: #FFFFFF !important;
+}
+
+/* Light Mode - Form inputs in Modal */
+body[data-theme="light"] .modal-form-container input,
+body[data-theme="light"] .modal-form-container textarea,
+body[data-theme="light"] .modal-form-container select {
+  background-color: #FFFFFF !important;
+  color: #1E293B !important;
+  border-color: #CBD5E1 !important;
+}
+
+body[data-theme="light"] .modal-form-container input::placeholder,
+body[data-theme="light"] .modal-form-container textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Light Mode - Form labels in Modal */
+body[data-theme="light"] .modal-form-container label {
+  color: #334155 !important;
+}
+
+/* Light Mode - Auth switch text */
+body[data-theme="light"] .modal-form-container .auth-switch-label {
+  color: #64748B !important;
+}
+
+body[data-theme="light"] .modal-form-container .auth-switch-button {
+  color: #B45309 !important;
+}
+
+/* Light Mode - Modal close button */
+body[data-theme="light"] .modal-form-container .modal-close-button {
+  color: #334155 !important;
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+body[data-theme="light"] .modal-form-container .modal-close-button:hover {
+  background: rgba(15, 23, 42, 0.1) !important;
+  color: #B45309 !important;
 }
 
 /* ===== 4. EDIT ICON BUTTON ===== */

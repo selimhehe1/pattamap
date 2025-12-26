@@ -540,6 +540,17 @@ input:disabled {
   letter-spacing: 0.02em;
 }
 
+/* Header Title - Light Mode: Override gradient with solid color */
+body[data-theme="light"] .header-title-nightlife {
+  color: #B45309 !important;
+  -webkit-text-fill-color: #B45309 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  text-shadow: none !important;
+}
+
 /* Header Subtitle */
 .header-subtitle-nightlife,
 .header-tagline-nightlife,
@@ -553,6 +564,13 @@ input:disabled {
   line-height: 1.5;
   opacity: 0.9;
   margin: var(--spacing-1) 0 0 0;
+}
+
+/* Header Subtitle - Light Mode */
+body[data-theme="light"] .header-subtitle-nightlife,
+body[data-theme="light"] .header-tagline-nightlife {
+  color: #64748B;
+  text-shadow: none;
 }
 
 /* Header Buttons Uniformity */

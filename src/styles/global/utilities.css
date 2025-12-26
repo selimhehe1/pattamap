@@ -315,6 +315,19 @@
   box-shadow: var(--shadow-2xl);
 }
 
+/* Light Mode - Modal Overlays and Content */
+body[data-theme="light"] .modal-overlay-nightlife {
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body[data-theme="light"] .modal-content-nightlife {
+  background-color: #FFFFFF;
+  border-color: rgba(15, 23, 42, 0.2);
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
+}
+
 /* Modal responsive - Tablet et mobile */
 @media (max-width: 48rem) {
   .modal-content-nightlife {
