@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { XCircle, Loader2, RefreshCw, Camera, Trash2, Lightbulb } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
@@ -204,7 +205,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
           borderRadius: '6px',
           border: '1px solid rgba(255,71,87,0.3)'
         }}>
-          ❌ {error}
+          <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {error}
         </div>
       )}
 
@@ -230,7 +231,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
             transition: 'all 0.3s ease'
           }}
         >
-          {isUploading ? `⏳ ${t('establishmentLogo.buttonUploading')}` : currentLogoUrl ? `🔄 ${t('establishmentLogo.buttonChangeLogo')}` : `📷 ${t('establishmentLogo.buttonAddLogo')}`}
+          {isUploading ? <><Loader2 size={14} style={{ marginRight: '4px', animation: 'spin 1s linear infinite' }} /> {t('establishmentLogo.buttonUploading')}</> : currentLogoUrl ? <><RefreshCw size={14} style={{ marginRight: '4px' }} /> {t('establishmentLogo.buttonChangeLogo')}</> : <><Camera size={14} style={{ marginRight: '4px' }} /> {t('establishmentLogo.buttonAddLogo')}</>}
         </button>
 
         {/* Remove Button */}
@@ -250,7 +251,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            🗑️ {t('establishmentLogo.buttonRemove')}
+            <Trash2 size={14} style={{ marginRight: '4px' }} /> {t('establishmentLogo.buttonRemove')}
           </button>
         )}
       </div>
@@ -271,7 +272,7 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
         marginTop: '10px',
         lineHeight: '1.4'
       }}>
-        💡 {t('establishmentLogo.recommendationText')}
+        <Lightbulb size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentLogo.recommendationText')}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Building2, Loader2, X, Search, CheckCircle, AlertTriangle, BarChart3, XCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Establishment } from '../../types';
 import EstablishmentLogo from './EstablishmentLogo';
@@ -88,7 +89,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
           fontSize: '18px',
           textAlign: 'center'
         }}>
-          ⏳ {t('establishmentLogosManager.loadingEstablishments')}
+          <Loader2 size={18} style={{ marginRight: '8px', animation: 'spin 1s linear infinite' }} /> {t('establishmentLogosManager.loadingEstablishments')}
         </div>
       </div>
     );
@@ -133,7 +134,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             margin: 0,
             textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
           }}>
-            🏢 {t('establishmentLogosManager.title')}
+            <Building2 size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.title')}
           </h2>
 
           <button
@@ -153,7 +154,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
               justifyContent: 'center'
             }}
            aria-label="Close">
-            ✖️
+            <X size={20} />
           </button>
         </div>
 
@@ -166,7 +167,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
         }}>
           <input
             type="text"
-            placeholder={`🔍 ${t('establishmentLogosManager.searchPlaceholder')}`}
+            placeholder={t('establishmentLogosManager.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -217,7 +218,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            ✅ {t('establishmentLogosManager.withLogos', { count: withLogos.length })}
+            <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.withLogos', { count: withLogos.length })}
           </div>
 
           <div style={{
@@ -229,7 +230,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            ⚠️ {t('establishmentLogosManager.missingLogos', { count: withoutLogos.length })}
+            <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.missingLogos', { count: withoutLogos.length })}
           </div>
 
           <div style={{
@@ -241,7 +242,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             fontSize: '14px',
             fontWeight: 'bold'
           }}>
-            📊 {t('establishmentLogosManager.total', { count: filteredEstablishments.length })}
+            <BarChart3 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.total', { count: filteredEstablishments.length })}
           </div>
         </div>
 
@@ -256,7 +257,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
             borderRadius: '8px',
             border: '1px solid rgba(255,71,87,0.3)'
           }}>
-            ❌ {error}
+            <XCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {error}
           </div>
         )}
 
@@ -276,7 +277,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
                 marginBottom: '15px',
                 marginTop: 0
               }}>
-                ⚠️ {t('establishmentLogosManager.missingLogosSection', { count: withoutLogos.length })}
+                <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.missingLogosSection', { count: withoutLogos.length })}
               </h3>
 
               {withoutLogos.map(establishment => (
@@ -299,7 +300,7 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
                 marginBottom: '15px',
                 marginTop: withoutLogos.length > 0 ? '25px' : 0
               }}>
-                ✅ {t('establishmentLogosManager.withLogosSection', { count: withLogos.length })}
+                <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentLogosManager.withLogosSection', { count: withLogos.length })}
               </h3>
 
               {withLogos.map(establishment => (

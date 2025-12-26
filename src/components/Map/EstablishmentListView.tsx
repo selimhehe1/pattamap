@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sparkles, MapPin, Lightbulb } from 'lucide-react';
+import { Search, Sparkles, MapPin, Lightbulb, Crown, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Establishment } from '../../types';
 import { getCategoryIcon } from '../../utils/iconMapper';
@@ -185,7 +185,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
                   }}
                   title={`VIP until ${new Date(establishment.vip_expires_at!).toLocaleDateString()}`}
                 >
-                  👑 VIP
+                  <Crown size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> VIP
                 </div>
               )}
 
@@ -216,7 +216,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
                 <div className="establishment-card-meta">
                   {/* Employee Count */}
                   <span className="establishment-card-employees">
-                    👥 {t('establishmentList.employeeCount', { count: establishment.employee_count || 0 })}
+                    <Users size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentList.employeeCount', { count: establishment.employee_count || 0 })}
                   </span>
 
                   {/* Zone Badge - Inline (v10.3 Phase 5 - Repositionné) */}

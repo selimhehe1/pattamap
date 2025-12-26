@@ -1,4 +1,5 @@
 import React, { forwardRef, useMemo, memo } from 'react';
+import { Crown, Building2 } from 'lucide-react';
 import { Establishment } from '../../../../types';
 import { getBarStyle, BarType, DEFAULT_BAR_TYPE } from '../../../../utils/mapConstants';
 import LazyImage from '../../../Common/LazyImage';
@@ -85,11 +86,11 @@ function getEstablishmentIcon(
   barId: string,
   establishment?: Establishment,
   fallbackIcon?: string
-): string {
+): string | null {
   if (establishment?.logo_url) {
     return establishment.logo_url;
   }
-  return fallbackIcon || '🏢';
+  return fallbackIcon || null;
 }
 
 /**
@@ -252,7 +253,7 @@ export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
         data-grid-col={bar.grid_col}
       >
         {/* Icon/Logo */}
-        {hasLogoUrl ? (
+        {hasLogoUrl && icon ? (
           <LazyImage
             src={icon}
             alt={bar.name}
@@ -264,7 +265,7 @@ export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
               borderRadius: '4px',
             }}
           />
-        ) : (
+        ) : icon ? (
           <span
             className="map-bar__icon"
             style={{ fontSize: barWidth * 0.5 }}
@@ -272,6 +273,12 @@ export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
           >
             {icon}
           </span>
+        ) : (
+          <Building2
+            className="map-bar__icon"
+            size={barWidth * 0.5}
+            aria-hidden="true"
+          />
         )}
 
         {/* VIP Crown */}
@@ -282,7 +289,6 @@ export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
               position: 'absolute',
               top: -6,
               right: -6,
-              fontSize: 12,
               backgroundColor: '#fbbf24',
               borderRadius: '50%',
               width: 18,
@@ -293,7 +299,7 @@ export const Bar = memo(forwardRef<HTMLDivElement, BarProps>(
             }}
             aria-label="VIP"
           >
-            👑
+            <Crown size={12} color="#1a1a2e" />
           </span>
         )}
 

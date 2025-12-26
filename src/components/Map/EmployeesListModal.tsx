@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Search, Users, Star } from 'lucide-react';
+import { Search, Users, Star, BarChart3, Cake, Globe, Building2, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
@@ -155,7 +155,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
           {/* Results Count */}
           {!loading && (
             <div className="employees-modal__count">
-              <span className="employees-modal__count-icon">📊</span>
+              <span className="employees-modal__count-icon"><BarChart3 size={14} /></span>
               <span className="employees-modal__count-text">
                 {filteredEmployees.length} {filteredEmployees.length === 1 ? t('map.employee') : t('map.employees')}
                 {searchTerm && ` (${t('search.filtered')})`}
@@ -241,12 +241,12 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
                       <div className="employees-modal__card-details">
                         {employee.age && (
                           <span className="employees-modal__card-detail">
-                            🎂 {employee.age}
+                            <Cake size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {employee.age}
                           </span>
                         )}
                         {employee.nationality && (
                           <span className="employees-modal__card-detail">
-                            🌍 {employee.nationality}
+                            <Globe size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {employee.nationality}
                           </span>
                         )}
                       </div>
@@ -254,7 +254,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
                       {/* Current Establishment */}
                       {currentEstablishment && (
                         <div className="employees-modal__card-establishment">
-                          <span className="employees-modal__card-establishment-icon">🏢</span>
+                          <span className="employees-modal__card-establishment-icon"><Building2 size={12} /></span>
                           <span className="employees-modal__card-establishment-name">
                             {currentEstablishment.name}
                           </span>
@@ -293,7 +293,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
         {/* Footer */}
         <div className="menu__footer">
           <p className="employees-modal__footer-text">
-            💡 {t('map.clickToViewProfile', { defaultValue: 'Click on any employee to view their profile' })}
+            <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('map.clickToViewProfile', { defaultValue: 'Click on any employee to view their profile' })}
           </p>
         </div>
       </div>

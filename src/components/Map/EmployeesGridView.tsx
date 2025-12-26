@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Search, BarChart3, Users } from 'lucide-react';
+import { Search, BarChart3, Users, UsersRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
@@ -127,7 +127,7 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
       {/* Header with search */}
       <div className="employees-grid-view__header">
         <h2 className="employees-grid-view__title">
-          👥 {t('map.zoneLineup')}
+          <UsersRound size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('map.zoneLineup')}
         </h2>
         <div className="employees-grid-view__search">
           <input

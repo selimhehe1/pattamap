@@ -455,7 +455,7 @@ const GenericRoadCanvas: React.FC<GenericRoadCanvasProps> = ({
         if (isEditMode) {
           ctx.fillStyle = 'rgba(0,255,0,0.6)';
           ctx.font = '14px monospace';
-          ctx.fillText(`🗺️ ${config.shape.toUpperCase()} Road (Edit Mode)`, width * 0.05, 20);
+          ctx.fillText(`[MAP] ${config.shape.toUpperCase()} Road (Edit Mode)`, width * 0.05, 20);
         }
       }); // End requestAnimationFrame
     };

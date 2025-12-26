@@ -1,4 +1,5 @@
 import React, { useState, useEffect, CSSProperties, useMemo } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import { getOptimizedImageUrl, getAutoSrcSet, CloudinaryTransformOptions, isCloudinaryUrl } from '../../utils/cloudinary';
 import { validateAltText, logAltTextValidation } from '../../utils/imageValidation';
@@ -276,7 +277,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }}
           aria-hidden="true"
         >
-          ⚠️ Failed
+          <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Failed
         </div>
       )}
     </div>

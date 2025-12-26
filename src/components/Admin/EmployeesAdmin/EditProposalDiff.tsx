@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { CircleMinus, ArrowRight, CirclePlus } from 'lucide-react';
 
 interface EditProposalDiffProps {
   fieldKey: string;
@@ -119,14 +120,12 @@ export const EditProposalDiff: React.FC<EditProposalDiffProps> = ({
               marginBottom: '10px',
             }}
           >
-            <span
+            <CircleMinus
+              size={18}
               style={{
-                fontSize: '18px',
-                filter: 'grayscale(30%)',
+                color: '#FF6B6B',
               }}
-            >
-              🔴
-            </span>
+            />
             <span
               style={{
                 color: '#FF6B6B',
@@ -163,12 +162,10 @@ export const EditProposalDiff: React.FC<EditProposalDiffProps> = ({
             display: 'flex',
             alignItems: 'center',
             color: '#FFD700',
-            fontSize: '24px',
-            fontWeight: 'bold',
             padding: '0 5px',
           }}
         >
-          →
+          <ArrowRight size={24} />
         </div>
 
         {/* After (Proposed) */}
@@ -181,7 +178,7 @@ export const EditProposalDiff: React.FC<EditProposalDiffProps> = ({
               marginBottom: '10px',
             }}
           >
-            <span style={{ fontSize: '18px' }}>🟢</span>
+            <CirclePlus size={18} style={{ color: '#51CF66' }} />
             <span
               style={{
                 color: '#51CF66',

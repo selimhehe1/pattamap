@@ -5,7 +5,7 @@
 
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Loader2, Ban, CheckCircle, MailX, Users } from 'lucide-react';
+import { Check, X, Loader2, Ban, CheckCircle, MailX, Users, UsersRound } from 'lucide-react';
 import { EmployeeForm, GirlProfile } from '../../../routes/lazyComponents';
 import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
 import LoadingFallback from '../../Common/LoadingFallback';
@@ -82,7 +82,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
 
       {/* Header */}
       <div className="admin-page-header">
-        <h1 className="admin-page-title">👥 {t('admin.employeesManagement')}</h1>
+        <h1 className="admin-page-title"><UsersRound size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('admin.employeesManagement')}</h1>
         <p className="admin-page-subtitle">{t('admin.reviewApproveEmployees')}</p>
       </div>
 

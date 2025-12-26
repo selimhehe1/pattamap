@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Camera, AlertTriangle } from 'lucide-react';
 import LazyImage from './LazyImage';
 
 /**
@@ -191,7 +192,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
             htmlFor="image-upload-input"
             className="upload-zone-label"
           >
-            <div className="upload-icon">📷</div>
+            <div className="upload-icon"><Camera size={48} /></div>
             <div className="upload-text">
               <strong>Click to upload</strong> or drag and drop
             </div>
@@ -211,7 +212,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
         <div className="upload-errors">
           {errors.map((error, i) => (
             <div key={i} className="upload-error" role="alert">
-              ⚠ {error}
+              <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {error}
             </div>
           ))}
         </div>
