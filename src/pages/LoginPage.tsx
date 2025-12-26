@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigateWithTransition } from '../hooks/useNavigateWithTransition';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '@dr.pogodin/react-helmet';
 import LoginForm from '../components/Auth/LoginForm';
 import MultiStepRegisterForm from '../components/Auth/MultiStepRegisterForm';
 import { useAuth } from '../contexts/AuthContext';
