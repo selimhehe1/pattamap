@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Crown, Settings, FileEdit, DollarSign, Camera, Users, BarChart3, Lock, Ban, Trophy, Building2, Eye, MessageCircle, Loader2, MapPin, Calendar, Pencil } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureFetch } from '../hooks/useSecureFetch';
 import { logger } from '../utils/logger';
@@ -133,16 +134,16 @@ const MyEstablishmentsPage: React.FC = () => {
   };
 
   const getRoleBadgeIcon = (role: 'owner' | 'manager') => {
-    return role === 'owner' ? '👑' : '⚙️';
+    return role === 'owner' ? <Crown size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> : <Settings size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />;
   };
 
   const getPermissionBadges = (permissions: Permission) => {
-    const badges = [];
-    if (permissions.can_edit_info) badges.push({ label: 'Info', icon: '📝' });
-    if (permissions.can_edit_pricing) badges.push({ label: 'Pricing', icon: '💰' });
-    if (permissions.can_edit_photos) badges.push({ label: 'Photos', icon: '📸' });
-    if (permissions.can_edit_employees) badges.push({ label: 'Employees', icon: '👥' });
-    if (permissions.can_view_analytics) badges.push({ label: 'Analytics', icon: '📊' });
+    const badges: { label: string; icon: React.ReactNode }[] = [];
+    if (permissions.can_edit_info) badges.push({ label: 'Info', icon: <FileEdit size={12} /> });
+    if (permissions.can_edit_pricing) badges.push({ label: 'Pricing', icon: <DollarSign size={12} /> });
+    if (permissions.can_edit_photos) badges.push({ label: 'Photos', icon: <Camera size={12} /> });
+    if (permissions.can_edit_employees) badges.push({ label: 'Employees', icon: <Users size={12} /> });
+    if (permissions.can_view_analytics) badges.push({ label: 'Analytics', icon: <BarChart3 size={12} /> });
     return badges;
   };
 
@@ -152,7 +153,7 @@ const MyEstablishmentsPage: React.FC = () => {
       <div className="page-content-with-header-nightlife auth-message-container">
         <div>
           <h2 className="auth-message-title">
-            🔒 Authentication Required
+            <Lock size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Authentication Required
           </h2>
           <p className="auth-message-text">
             Please log in to access your establishments dashboard.
@@ -168,7 +169,7 @@ const MyEstablishmentsPage: React.FC = () => {
       <div className="page-content-with-header-nightlife auth-message-container">
         <div>
           <h2 className="auth-message-title">
-            🚫 Access Denied
+            <Ban size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Access Denied
           </h2>
           <p className="auth-message-text">
             This section is only available for establishment owners.<br />
@@ -188,7 +189,7 @@ const MyEstablishmentsPage: React.FC = () => {
       {/* Header Section */}
       <div className="my-establishments-header">
         <h1 className="page-title-gradient">
-          🏆 My Establishments
+          <Trophy size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> My Establishments
         </h1>
         <p className="page-subtitle-cyan">
           Manage your venues • Update information • Track performance
@@ -201,7 +202,7 @@ const MyEstablishmentsPage: React.FC = () => {
               {isLoading ? '...' : stats.totalEstablishments}
             </div>
             <div className="stat-label">
-              🏢 Establishments
+              <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Establishments
             </div>
           </div>
 
@@ -210,7 +211,7 @@ const MyEstablishmentsPage: React.FC = () => {
               {isLoading ? '...' : stats.totalViews.toLocaleString()}
             </div>
             <div className="stat-label">
-              👁️ Total Views
+              <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Total Views
             </div>
           </div>
 
@@ -219,7 +220,7 @@ const MyEstablishmentsPage: React.FC = () => {
               {isLoading ? '...' : stats.totalReviews}
             </div>
             <div className="stat-label">
-              💬 Reviews
+              <MessageCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Reviews
             </div>
           </div>
         </div>
@@ -229,12 +230,12 @@ const MyEstablishmentsPage: React.FC = () => {
       <div className="my-establishments-content">
         {isLoading ? (
           <div className="loading-container">
-            <div className="loading-spinner">⏳</div>
+            <div className="loading-spinner"><Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>
             <div className="loading-text">Loading your establishments...</div>
           </div>
         ) : establishments.length === 0 ? (
           <div className="empty-state-container">
-            <div className="empty-state-icon">🏢</div>
+            <div className="empty-state-icon"><Building2 size={48} /></div>
             <div className="empty-state-title">
               No Establishments Yet
             </div>
@@ -266,7 +267,7 @@ const MyEstablishmentsPage: React.FC = () => {
                   className={`establishment-logo ${!establishment.logo_url ? 'establishment-logo-gradient' : ''}`}
                   style={establishment.logo_url ? { backgroundImage: `url(${establishment.logo_url})` } : {}}
                 >
-                  {!establishment.logo_url && (establishment.category?.icon || '🏢')}
+                  {!establishment.logo_url && (establishment.category?.icon || <Building2 size={32} />)}
                 </div>
 
                 {/* VIP Badge - v10.3 Phase 5 (only if VIP feature enabled) */}
@@ -275,7 +276,7 @@ const MyEstablishmentsPage: React.FC = () => {
                     className="vip-badge"
                     title={`VIP until ${new Date(establishment.vip_expires_at).toLocaleDateString()}`}
                   >
-                    👑 VIP
+                    <Crown size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> VIP
                   </div>
                 )}
 
@@ -294,7 +295,7 @@ const MyEstablishmentsPage: React.FC = () => {
                 {/* Zone & Category */}
                 <div className="badges-container">
                   <span className="zone-badge">
-                    📍 {establishment.zone}
+                    <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {establishment.zone}
                   </span>
                   {establishment.category && (
                     <span className="category-badge">
@@ -319,7 +320,7 @@ const MyEstablishmentsPage: React.FC = () => {
 
                 {/* Owner Since */}
                 <div className="owner-since">
-                  📅 Owner since {new Date(establishment.owned_since).toLocaleDateString('en-US', {
+                  <Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Owner since {new Date(establishment.owned_since).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric'
@@ -334,7 +335,7 @@ const MyEstablishmentsPage: React.FC = () => {
                   }}
                   className="btn-primary-gradient"
                 >
-                  ✏️ Edit Establishment
+                  <Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit Establishment
                 </button>
 
                 {/* 🆕 v10.3 Phase 0 - View Employees Button */}
@@ -342,7 +343,7 @@ const MyEstablishmentsPage: React.FC = () => {
                   onClick={() => setSelectedEstablishmentForEmployees(establishment)}
                   className="btn-secondary-blue"
                 >
-                  👥 {t('myEmployees.viewEmployees', 'View Employees')}
+                  <Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('myEmployees.viewEmployees', 'View Employees')}
                 </button>
 
                 {/* 🆕 v10.3 Phase 5 - Purchase VIP Button (only if VIP feature enabled) */}
@@ -354,7 +355,7 @@ const MyEstablishmentsPage: React.FC = () => {
                     }}
                     className="btn-vip-gold"
                   >
-                    👑 {t('vipPurchase.purchaseVIP', 'Purchase VIP')}
+                    <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('vipPurchase.purchaseVIP', 'Purchase VIP')}
                   </button>
                 )}
               </div>

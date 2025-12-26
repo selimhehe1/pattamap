@@ -6,7 +6,7 @@ import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
-import { Trophy, X, Search, Building2, Plus, FolderOpen, FileText, Paperclip, Lock, CheckCircle, Key, MessageCircle, AlertTriangle, Rocket, Loader2 } from 'lucide-react';
+import { Trophy, X, Search, Building2, Plus, FolderOpen, FileText, Paperclip, Lock, CheckCircle, Key, MessageCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -480,7 +480,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
             boxShadow: currentStep >= 1 ? '0 0 20px rgba(193, 154, 107, 0.5)' : 'none',
             transition: 'all 0.3s ease'
           }}>
-            {currentStep > 1 ? '✓' : '1'}
+            {currentStep > 1 ? <Check size={18} /> : '1'}
           </div>
           <div style={{
             fontSize: '13px',
@@ -517,7 +517,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
             boxShadow: currentStep >= 2 ? '0 0 20px rgba(193, 154, 107, 0.5)' : 'none',
             transition: 'all 0.3s ease'
           }}>
-            {currentStep > 2 ? '✓' : '2'}
+            {currentStep > 2 ? <Check size={18} /> : '2'}
           </div>
           <div style={{
             fontSize: '13px',
@@ -846,7 +846,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                   <div>
                     <label className="label-nightlife" htmlFor="est-instagram">
-                      📷 Instagram
+                      <Camera size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Instagram
                     </label>
                     <input
                       id="est-instagram"
@@ -860,7 +860,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
 
                   <div>
                     <label className="label-nightlife" htmlFor="est-twitter">
-                      🐦 Twitter
+                      <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> X (Twitter)
                     </label>
                     <input
                       id="est-twitter"
@@ -929,19 +929,19 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
               fontSize: '13px'
             }}>
               <li style={{ marginBottom: '8px', paddingLeft: '20px', position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 0 }}>✅</span>
+                <span style={{ position: 'absolute', left: 0 }}><CheckCircle size={14} color="#00FF7F" /></span>
                 {t('ownership.docExample1', 'Business license or registration')}
               </li>
               <li style={{ marginBottom: '8px', paddingLeft: '20px', position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 0 }}>✅</span>
+                <span style={{ position: 'absolute', left: 0 }}><CheckCircle size={14} color="#00FF7F" /></span>
                 {t('ownership.docExample2', 'Rental agreement or lease contract')}
               </li>
               <li style={{ marginBottom: '8px', paddingLeft: '20px', position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 0 }}>✅</span>
+                <span style={{ position: 'absolute', left: 0 }}><CheckCircle size={14} color="#00FF7F" /></span>
                 {t('ownership.docExample3', 'Utility bills in establishment name')}
               </li>
               <li style={{ marginBottom: '8px', paddingLeft: '20px', position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 0 }}>✅</span>
+                <span style={{ position: 'absolute', left: 0 }}><CheckCircle size={14} color="#00FF7F" /></span>
                 {t('ownership.docExample4', 'Official correspondence')}
               </li>
             </ul>

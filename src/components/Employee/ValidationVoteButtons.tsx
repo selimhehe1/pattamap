@@ -168,9 +168,9 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
           <p className="your-vote">
             {t('validation.yourVote')}:
             {userVote === 'exists' ? (
-              <span className="vote-exists-label">✓ {t('validation.voteExists')}</span>
+              <span className="vote-exists-label"><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('validation.voteExists')}</span>
             ) : (
-              <span className="vote-not-exists-label">✗ {t('validation.voteNotExists')}</span>
+              <span className="vote-not-exists-label"><X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('validation.voteNotExists')}</span>
             )}
           </p>
         </div>
