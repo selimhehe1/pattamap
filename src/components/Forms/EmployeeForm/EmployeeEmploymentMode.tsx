@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Users, PersonStanding, Moon, Building2 } from 'lucide-react';
 
 interface EmployeeEmploymentModeProps {
   isFreelanceMode: boolean;
@@ -27,7 +28,7 @@ export function EmployeeEmploymentMode({
         alignItems: 'center',
         gap: '8px'
       }}>
-        👯 {t('employee.employmentMode')}
+        <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('employee.employmentMode')}
       </h3>
 
       <div style={{
@@ -63,7 +64,7 @@ export function EmployeeEmploymentMode({
                 cursor: 'pointer'
               }}
             />
-            <span>💃 {t('employee.freelanceMode')}</span>
+            <span><PersonStanding size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.freelanceMode')}</span>
           </label>
           {isFreelanceMode && (
             <span style={{
@@ -90,7 +91,7 @@ export function EmployeeEmploymentMode({
         }}>
           {isFreelanceMode ? (
             <>
-              <strong style={{ color: '#C77DFF' }}>🌙 Nightclub Freelance:</strong>
+              <strong style={{ color: '#C77DFF' }}><Moon size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Nightclub Freelance:</strong>
               <br />
               • Can work in multiple nightclubs simultaneously
               <br />
@@ -100,7 +101,7 @@ export function EmployeeEmploymentMode({
             </>
           ) : (
             <>
-              <strong style={{ color: '#00E5FF' }}>🏢 Regular Employee:</strong>
+              <strong style={{ color: '#00E5FF' }}><Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Regular Employee:</strong>
               <br />
               • Works at one establishment (any type)
               <br />

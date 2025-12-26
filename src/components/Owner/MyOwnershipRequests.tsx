@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Check, X, Loader2, FileText } from 'lucide-react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
@@ -150,12 +150,12 @@ const MyOwnershipRequests: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
-        return '✓';
+        return <Check size={14} />;
       case 'rejected':
-        return '✗';
+        return <X size={14} />;
       case 'pending':
       default:
-        return '⏳';
+        return <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />;
     }
   };
 
@@ -311,7 +311,7 @@ const MyOwnershipRequests: React.FC = () => {
                             >
                               <div className="document-thumbnail">
                                 {url.toLowerCase().endsWith('.pdf') ? (
-                                  <span className="pdf-icon">📄</span>
+                                  <span className="pdf-icon"><FileText size={24} /></span>
                                 ) : (
                                   <img src={url} alt={`Document ${index + 1}`} />
                                 )}
@@ -364,17 +364,17 @@ const MyOwnershipRequests: React.FC = () => {
           <h3>About Ownership Requests</h3>
           <div className="info-grid">
             <div className="info-card">
-              <div className="info-icon">⏳</div>
+              <div className="info-icon"><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>
               <h4>Pending</h4>
               <p>Your request is being reviewed by administrators. This typically takes 48-72 hours.</p>
             </div>
             <div className="info-card">
-              <div className="info-icon">✓</div>
+              <div className="info-icon"><Check size={24} /></div>
               <h4>Approved</h4>
               <p>Congratulations! You can now manage your establishment from the "My Establishments" page.</p>
             </div>
             <div className="info-card">
-              <div className="info-icon">✗</div>
+              <div className="info-icon"><X size={24} /></div>
               <h4>Rejected</h4>
               <p>Your request was declined. Review the admin notes and submit a new request with better documentation.</p>
             </div>

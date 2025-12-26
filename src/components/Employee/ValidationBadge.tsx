@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 import './ValidationBadge.css';
 
 interface ValidationBadgeProps {
@@ -50,7 +51,7 @@ const ValidationBadge: React.FC<ValidationBadgeProps> = ({ employeeId }) => {
   if (isPending) {
     return (
       <div className="validation-badge validation-loading">
-        <span className="loading-spinner">⏳</span>
+        <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
         <span>{t('common.loading')}</span>
       </div>
     );

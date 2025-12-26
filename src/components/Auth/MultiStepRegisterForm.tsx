@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail, Users, UserCog, Rocket, Lightbulb, Store } from 'lucide-react';
+import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail, Users, UserCog, Rocket, Lightbulb, Store, Building2, FolderOpen, Camera, BookOpen, Upload } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -1050,7 +1050,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       fontWeight: 'bold',
                       marginBottom: '8px'
                     }}>
-                      🏢 {t('register.filterByEstablishment')}
+                      <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.filterByEstablishment')}
                     </label>
                     <input
                       ref={establishmentInputRefStep2}
@@ -1698,8 +1698,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       top: 0
                     }}
                   />
-                  <div style={{ color: '#00E5FF', fontSize: '18px', marginBottom: '10px' }}>
-                    📁 {t('register.photosUploadArea')}
+                  <div style={{ color: '#00E5FF', fontSize: '18px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <FolderOpen size={18} /> {t('register.photosUploadArea')}
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
                     {t('register.photosUploadFormats')}
@@ -2085,7 +2085,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   gap: '15px'
                 }}>
                   <div>
-                    <label className="label-nightlife">📷 {t('register.instagramLabel')}</label>
+                    <label className="label-nightlife"><Camera size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.instagramLabel')}</label>
                     <input
                       type="text"
                       value={formData.socialMedia.ig}
@@ -2096,7 +2096,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   </div>
 
                   <div>
-                    <label className="label-nightlife">📘 {t('register.facebookLabel')}</label>
+                    <label className="label-nightlife"><BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.facebookLabel')}</label>
                     <input
                       type="text"
                       value={formData.socialMedia.fb}
@@ -2166,7 +2166,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   {uploadingPhotos ? (
                     <span className="loading-flex">
                       <span className="loading-spinner-small-nightlife"></span>
-                      📤 {t('register.uploadingPhotos')}
+                      <Upload size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.uploadingPhotos')}
                     </span>
                   ) : isLoading ? (
                     <span className="loading-flex">

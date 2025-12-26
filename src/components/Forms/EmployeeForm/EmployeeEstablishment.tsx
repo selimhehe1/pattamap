@@ -5,7 +5,7 @@
 
 import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Store, MapPin } from 'lucide-react';
+import { Store, MapPin, Moon, Building2 } from 'lucide-react';
 import { useEstablishments } from '../../../hooks';
 import type { Establishment } from '../../../types';
 
@@ -112,9 +112,9 @@ export function EmployeeEstablishment({
         gap: '8px'
       }}>
         {isFreelanceMode ? (
-          <>🌙 Associated Nightclubs <span style={{ fontSize: '12px', fontWeight: 'normal', color: 'rgba(255,255,255,0.6)' }}>(Optional)</span></>
+          <><Moon size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Associated Nightclubs <span style={{ fontSize: '12px', fontWeight: 'normal', color: 'rgba(255,255,255,0.6)' }}>(Optional)</span></>
         ) : (
-          <>🏢 {t('employee.currentEmployment')}</>
+          <><Building2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('employee.currentEmployment')}</>
         )}
       </h3>
 

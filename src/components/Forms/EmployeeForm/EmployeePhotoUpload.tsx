@@ -115,7 +115,7 @@ export function EmployeePhotoUpload({
             </div>
           ) : (
             <div>
-              <div style={{ fontSize: '40px', marginBottom: '10px' }}>📷</div>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}><Camera size={40} /></div>
               <div style={{ color: 'rgba(255,255,255,0.8)' }}>
                 {t('employee.clickToUpload')}
               </div>
