@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Wrench } from 'lucide-react';
 
 /**
  * ErrorTester - Component for testing Error Boundaries
@@ -39,7 +40,7 @@ const ErrorTester: React.FC = () => {
       }}
      role="dialog" aria-modal="true">
       <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>
-        🛠️ Error Boundary Tester
+        <Wrench size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Error Boundary Tester
       </div>
       <button
         onClick={() => setThrowError(true)}

@@ -1637,7 +1637,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                     display: 'block',
                     marginBottom: '10px'
                   }}>
-                    Permissions (hover ℹ️ for details)
+                    Permissions (hover <Info size={12} style={{ verticalAlign: 'middle' }} /> for details)
                   </label>
                   <div style={{
                     display: 'flex',
@@ -1806,7 +1806,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                     display: 'block',
                     marginBottom: '10px'
                   }}>
-                    Permissions (hover ℹ️ for details)
+                    Permissions (hover <Info size={12} style={{ verticalAlign: 'middle' }} /> for details)
                   </label>
                   <div style={{
                     display: 'flex',

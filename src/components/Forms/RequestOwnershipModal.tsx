@@ -1353,7 +1353,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                ⚠️ {t('ownership.important', 'Important')}
+                <AlertTriangle size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('ownership.important', 'Important')}
               </h4>
               <ul style={{
                 listStyle: 'none',
