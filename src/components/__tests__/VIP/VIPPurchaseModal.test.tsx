@@ -543,8 +543,10 @@ describe('VIPPurchaseModal Component', () => {
         expect(screen.getByText(/Purchase VIP Subscription/i)).toBeInTheDocument();
       });
 
-      const closeButton = screen.getByText('✕');
-      fireEvent.click(closeButton);
+      // Close button now uses Lucide X icon instead of ✕ text
+      const closeButton = document.querySelector('.close-modal');
+      expect(closeButton).toBeInTheDocument();
+      fireEvent.click(closeButton!);
 
       expect(mockOnClose).toHaveBeenCalled();
     });

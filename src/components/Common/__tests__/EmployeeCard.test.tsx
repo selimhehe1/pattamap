@@ -127,7 +127,9 @@ describe('EmployeeCard Component', () => {
     it('should render placeholder when no photo', () => {
       render(<EmployeeCard employee={createMockEmployee({ photos: [] })} />);
 
-      expect(screen.getByText('👤')).toBeInTheDocument();
+      // Placeholder now uses Lucide User icon instead of emoji
+      const placeholder = document.querySelector('.employee-card-placeholder');
+      expect(placeholder).toBeInTheDocument();
     });
   });
 
