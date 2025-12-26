@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Calendar, CalendarDays, PartyPopper, BookOpen, Target, RefreshCw, Medal, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Mission, UserMissionProgress } from '../../contexts/GamificationContext';
@@ -67,14 +68,15 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
   const displayMissions = maxDisplay ? filteredMissions.slice(0, maxDisplay) : filteredMissions;
 
   // Get mission type icon
-  const getMissionIcon = (type: string): string => {
-    const icons: Record<string, string> = {
-      daily: '📅',
-      weekly: '📆',
-      event: '🎉',
-      narrative: '📖'
-    };
-    return icons[type] || '🎯';
+  const getMissionIcon = (type: string): React.ReactNode => {
+    const iconStyle = { verticalAlign: 'middle' as const };
+    switch (type) {
+      case 'daily': return <Calendar size={16} style={iconStyle} />;
+      case 'weekly': return <CalendarDays size={16} style={iconStyle} />;
+      case 'event': return <PartyPopper size={16} style={iconStyle} />;
+      case 'narrative': return <BookOpen size={16} style={iconStyle} />;
+      default: return <Target size={16} style={iconStyle} />;
+    }
   };
 
   if (loading || loadingMissions) {
@@ -96,7 +98,7 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
         <div className="missions-header">
           <h3>{t('gamification.missions.active')}</h3>
           <button onClick={refreshUserMissions} className="missions-refresh-btn">
-            🔄 {t('gamification.missions.refresh')}
+            <RefreshCw size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('gamification.missions.refresh')}
           </button>
         </div>
       )}
@@ -107,19 +109,19 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
           className={`missions-tab ${activeTab === 'daily' ? 'missions-tab-active' : ''}`}
           onClick={() => setActiveTab('daily')}
         >
-          📅 {t('gamification.missions.daily')}
+          <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.missions.daily')}
         </button>
         <button
           className={`missions-tab ${activeTab === 'weekly' ? 'missions-tab-active' : ''}`}
           onClick={() => setActiveTab('weekly')}
         >
-          📆 {t('gamification.missions.weekly')}
+          <CalendarDays size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.missions.weekly')}
         </button>
         <button
           className={`missions-tab ${activeTab === 'narrative' ? 'missions-tab-active' : ''}`}
           onClick={() => setActiveTab('narrative')}
         >
-          📖 {t('gamification.missions.quests')}
+          <BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.missions.quests')}
         </button>
       </div>
 
@@ -169,7 +171,7 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
                   <span className="mission-xp">+{mission.xp_reward} {t('gamification.xp.points')}</span>
                   {mission.badge_reward && (
                     <span className="mission-badge-reward" title={t('gamification.missions.badgeReward')}>
-                      🏅
+                      <Medal size={16} />
                     </span>
                   )}
                 </div>
@@ -177,7 +179,7 @@ const MissionsDashboard: React.FC<MissionsDashboardProps> = ({
                 {/* Completed Checkmark */}
                 {isCompleted && (
                   <div className="mission-completed-badge">
-                    ✓
+                    <Check size={16} />
                   </div>
                 )}
               </div>

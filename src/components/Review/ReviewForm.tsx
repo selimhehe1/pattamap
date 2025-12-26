@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Lock, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import ImageUploadPreview from '../Common/ImageUploadPreview';
@@ -139,7 +140,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           margin: '0 0 15px 0',
           textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
         }}>
-          🔒 {t('review.form.loginRequired')}
+          <Lock size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('review.form.loginRequired')}
         </h3>
         <p style={{
           color: '#cccccc',
@@ -167,7 +168,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
         margin: '0 0 20px 0',
         textShadow: '0 0 10px rgba(193, 154, 107,0.5)'
       }}>
-        💬 {t('review.form.addComment')}
+        <MessageSquare size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('review.form.addComment')}
       </h3>
 
       <form onSubmit={handleSubmit}>

@@ -5,6 +5,7 @@
  * Zone-specific: Freelance support, CSRF, GirlProfile modal.
  */
 import React, { useMemo, useCallback, useRef } from 'react';
+import { Check, Pencil } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar, Employee } from '../../types';
 import { IndependentPosition } from '../../hooks/useFreelances';
@@ -467,7 +468,7 @@ const CustomBeachRoadMap: React.FC<CustomBeachRoadMapProps> = ({
         <div className="map-controls">
           <button onClick={toggleEditMode} className={`edit-mode-toggle ${isEditMode ? 'active' : ''}`}
             aria-pressed={isEditMode} disabled={isLoading}>
-            {isEditMode ? '✓ Editing' : '✎ Edit'}
+            {isEditMode ? <><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Editing</> : <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit</>}
           </button>
         </div>
       )}

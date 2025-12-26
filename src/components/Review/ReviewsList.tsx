@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MessageSquare, AlertTriangle, BookOpen } from 'lucide-react';
 // Note: StarRating retiré - commentaires sans étoiles
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -150,7 +151,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
     return (
       <div className="reviews-empty-state-nightlife">
         <h3 className="empty-state-title">
-          💬 {t('reviewsList.emptyStateTitle')}
+          <MessageSquare size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('reviewsList.emptyStateTitle')}
         </h3>
         <p className="empty-state-text">
           {t('reviewsList.emptyStateText')}
@@ -171,7 +172,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
           onClick={onOpenModal}
           title={onOpenModal ? t('reviewsList.titleViewAllModal') : undefined}
         >
-          💬 {t('reviewsList.titleReviews', { count: reviews.length })}
+          <MessageSquare size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('reviewsList.titleReviews', { count: reviews.length })}
         </h3>
       )}
 
@@ -207,7 +208,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                     aria-label={t('reviewsList.ariaReportReview', { author: review.user?.pseudonym || t('reviewsList.anonymous') })}
                     title={t('reviewsList.titleReportReview')}
                   >
-                    ⚠️
+                    <AlertTriangle size={14} />
                   </button>
                 )}
               </div>
@@ -231,7 +232,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                   className="review-reply-btn-nightlife"
                   aria-label={t('reviewsList.ariaReplyToReview', { author: review.user?.pseudonym || t('reviewsList.anonymous') })}
                 >
-                  💬 {t('reviewsList.buttonReply')}
+                  <MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('reviewsList.buttonReply')}
                 </button>
               )}
 
@@ -251,7 +252,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
 
               {review.replies && review.replies.length > 0 && autoExpandReplies && (
                 <span className="review-replies-counter">
-                  💬 {t('reviewsList.repliesCounter', { count: review.replies.length })}
+                  <MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('reviewsList.repliesCounter', { count: review.replies.length })}
                 </span>
               )}
             </div>
@@ -358,7 +359,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
             className="reviews-see-more-btn-nightlife"
             aria-label={t('reviewsList.ariaViewAllReviews', { count: reviews.length })}
           >
-            📖 {t('reviewsList.buttonViewAllReviews', { count: reviews.length })}
+            <BookOpen size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('reviewsList.buttonViewAllReviews', { count: reviews.length })}
           </button>
         </div>
       )}

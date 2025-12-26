@@ -5,6 +5,7 @@
  * Zone-specific logic: Street configurations, perpendicular streets positioning.
  */
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import { Check, Pencil } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 // Auth context is used via useMapEditMode hook
@@ -715,7 +716,7 @@ const CustomWalkingStreetMap: React.FC<CustomWalkingStreetMapProps> = ({
         <div className="map-controls">
           <button onClick={toggleEditMode} className={`edit-mode-toggle ${isEditMode ? 'active' : ''}`}
             aria-pressed={isEditMode} disabled={isLoading}>
-            {isEditMode ? '✓ Editing' : '✎ Edit'}
+            {isEditMode ? <><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Editing</> : <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit</>}
           </button>
         </div>
       )}

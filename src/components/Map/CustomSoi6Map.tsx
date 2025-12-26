@@ -8,6 +8,7 @@
  * Refactored: ~800 lines (58% reduction)
  */
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import { Lock, Pencil, Target, AlertTriangle } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 // Auth context is used via useMapEditMode hook
@@ -715,7 +716,7 @@ const CustomSoi6MapRefactored: React.FC<CustomSoi6MapProps> = ({
             aria-pressed={isEditMode}
             className={`edit-mode-btn ${isEditMode ? 'active' : ''}`}
           >
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            {isEditMode ? <><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Exit Edit</> : <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit Mode</>}
           </button>
         </div>
       )}
@@ -724,7 +725,7 @@ const CustomSoi6MapRefactored: React.FC<CustomSoi6MapProps> = ({
       {renderGridDebug()}
 
       {/* Edit Mode Indicator */}
-      {isEditMode && <div className="edit-mode-indicator">🎯 EDIT MODE</div>}
+      {isEditMode && <div className="edit-mode-indicator"><Target size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> EDIT MODE</div>}
 
       {/* Bars */}
       {allBars.map((bar, index) => {
@@ -790,7 +791,7 @@ const CustomSoi6MapRefactored: React.FC<CustomSoi6MapProps> = ({
             {isHovered && !isDragging && (
               <div className="bar-tooltip">
                 {bar.name}
-                {isEditMode && <div className="tooltip-edit-hint">🎯 Drag to move</div>}
+                {isEditMode && <div className="tooltip-edit-hint"><Target size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Drag to move</div>}
               </div>
             )}
           </div>
@@ -807,7 +808,7 @@ const CustomSoi6MapRefactored: React.FC<CustomSoi6MapProps> = ({
             style={{ left: `${x}px`, top: `${y}px` }}
             title={`${dup.count} establishments at same position`}
           >
-            <span className="duplicate-count">⚠️{dup.count}</span>
+            <span className="duplicate-count"><AlertTriangle size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} />{dup.count}</span>
           </div>
         );
       })}

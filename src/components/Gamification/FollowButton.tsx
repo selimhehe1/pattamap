@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle, Lock, Check, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -139,7 +139,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
           </>
         ) : (
           <>
-            <span className="follow-icon">{isFollowing ? '✓' : '+'}</span>
+            <span className="follow-icon">{isFollowing ? <Check size={14} /> : <Plus size={14} />}</span>
             <span>
               {compact
                 ? (isFollowing ? t('gamification.follow.following') : t('gamification.follow.follow'))

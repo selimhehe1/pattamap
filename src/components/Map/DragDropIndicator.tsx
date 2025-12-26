@@ -1,4 +1,5 @@
 import React from 'react';
+import { Target, CheckCircle, RefreshCw, XOctagon } from 'lucide-react';
 
 interface DragDropIndicatorProps {
   isEditMode: boolean;
@@ -124,7 +125,7 @@ const DragDropIndicator: React.FC<DragDropIndicatorProps> = ({
           marginBottom: '6px',
           fontSize: '11px'
         }}>
-          🎯 {draggedBar?.name}
+          <Target size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {draggedBar?.name}
         </div>
 
         {dragOverPosition && dropAction && (
@@ -146,9 +147,9 @@ const DragDropIndicator: React.FC<DragDropIndicatorProps> = ({
                   ? '#FFD700'
                   : '#FF6B6B'
             }}>
-              {dropAction === 'move' && '✅ Drop to move to empty position'}
-              {dropAction === 'swap' && '🔄 Drop to swap with existing bar'}
-              {dropAction === 'blocked' && '⛔ Cannot drop in blocked zone'}
+              {dropAction === 'move' && <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Drop to move to empty position</>}
+              {dropAction === 'swap' && <><RefreshCw size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Drop to swap with existing bar</>}
+              {dropAction === 'blocked' && <><XOctagon size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Cannot drop in blocked zone</>}
             </div>
           </>
         )}
@@ -158,7 +159,7 @@ const DragDropIndicator: React.FC<DragDropIndicatorProps> = ({
             fontSize: '10px',
             color: '#CCC'
           }}>
-            🎯 Move to target position
+            <Target size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Move to target position
           </div>
         )}
       </div>

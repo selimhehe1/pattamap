@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from 'react';
+import { MapIcon } from 'lucide-react';
 import { Establishment } from '../../types';
 import { IndependentPosition } from '../../hooks/useFreelances';
 
@@ -117,7 +118,7 @@ const ZoneMapRenderer: React.FC<ZoneMapRendererProps> = ({
             fontSize: '24px',
             fontWeight: 'bold'
           }}>
-            🗺️ Zone non reconnue: {currentZone}
+            <MapIcon size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Zone non reconnue: {currentZone}
             <div style={{ fontSize: '14px', marginTop: '10px', opacity: 0.8 }}>
               Sélectionnez une zone spécifique pour une vue détaillée
             </div>
@@ -148,7 +149,7 @@ const ZoneMapRenderer: React.FC<ZoneMapRendererProps> = ({
               fontSize: '48px',
               animation: 'pulse 1.5s ease-in-out infinite'
             }}>
-              🗺️
+              <MapIcon size={48} />
             </div>
             <div style={{
               fontSize: '18px',

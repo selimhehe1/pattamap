@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
 
 export interface StreetIntersectionProps {
   type: 'horizontal' | 'vertical';
@@ -26,13 +27,14 @@ const StreetIntersection: React.FC<StreetIntersectionProps> = ({
   const lineHeight = isHorizontal ? (isMajor ? '8px' : isMobile ? '30px' : '40px') : '40%';
 
   // Arrow symbol based on direction
-  const getArrow = () => {
+  const getArrow = (): React.ReactNode => {
+    const size = isMobile ? 10 : 12;
     switch (direction) {
-      case 'left': return '←';
-      case 'right': return '→';
-      case 'up': return '↑';
-      case 'down': return '↓';
-      default: return '';
+      case 'left': return <ArrowLeft size={size} />;
+      case 'right': return <ArrowRight size={size} />;
+      case 'up': return <ArrowUp size={size} />;
+      case 'down': return <ArrowDown size={size} />;
+      default: return null;
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Search, BarChart3, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
@@ -136,14 +137,14 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="employees-grid-view__search-input"
           />
-          <span className="employees-grid-view__search-icon">🔍</span>
+          <span className="employees-grid-view__search-icon"><Search size={16} /></span>
         </div>
       </div>
 
       {/* Results count */}
       {!loading && (
         <div className="employees-grid-view__count">
-          <span className="employees-grid-view__count-icon">📊</span>
+          <span className="employees-grid-view__count-icon"><BarChart3 size={14} /></span>
           <span className="employees-grid-view__count-text">
             {filteredEmployees.length} {filteredEmployees.length === 1 ? t('map.employee') : t('map.employees')}
             {searchTerm && ` (${t('search.filtered')})`}
@@ -166,7 +167,7 @@ const EmployeesGridView: React.FC<EmployeesGridViewProps> = ({
       {!loading && filteredEmployees.length === 0 && (
         <div className="employees-grid-view__empty">
           <div className="employees-grid-view__empty-icon">
-            {searchTerm ? '🔍' : '👥'}
+            {searchTerm ? <Search size={48} /> : <Users size={48} />}
           </div>
           <h3 className="employees-grid-view__empty-title">
             {searchTerm ? t('search.noResults') : t('map.noEmployeesInZone')}

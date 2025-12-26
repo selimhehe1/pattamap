@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { PartyPopper, Sparkles, Star, Zap } from 'lucide-react';
 import { useGamification } from '../../contexts/GamificationContext';
 import './XPToastNotifications.css';
 
@@ -57,7 +58,7 @@ const XPToastNotifications: React.FC = () => {
             >
               {/* Level Up Header */}
               <div className="xp-toast-levelup-header">
-                🎉 {t('gamification.level.up')} 🎉
+                <PartyPopper size={20} style={{ marginRight: '6px' }} /> {t('gamification.level.up')} <PartyPopper size={20} style={{ marginLeft: '6px' }} />
               </div>
 
               {/* Level Icon & Number */}
@@ -85,7 +86,7 @@ const XPToastNotifications: React.FC = () => {
                     }}
                     transition={{ duration: 1.2, ease: 'easeOut', delay: i * 0.1 }}
                   >
-                    {i % 3 === 0 ? '✨' : i % 3 === 1 ? '⭐' : '💫'}
+                    {i % 3 === 0 ? <Sparkles size={14} /> : i % 3 === 1 ? <Star size={14} /> : <Zap size={14} />}
                   </motion.span>
                 ))}
               </div>
@@ -126,7 +127,7 @@ const XPToastNotifications: React.FC = () => {
                   }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                 >
-                  ✨
+                  <Sparkles size={14} />
                 </motion.span>
                 <motion.span
                   className="xp-sparkle"
@@ -138,7 +139,7 @@ const XPToastNotifications: React.FC = () => {
                   }}
                   transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
                 >
-                  ⭐
+                  <Star size={14} />
                 </motion.span>
                 <motion.span
                   className="xp-sparkle"
@@ -150,7 +151,7 @@ const XPToastNotifications: React.FC = () => {
                   }}
                   transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
                 >
-                  💫
+                  <Zap size={14} />
                 </motion.span>
               </div>
             </motion.div>

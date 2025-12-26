@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Globe, Calendar, CalendarDays, Medal, Trophy, FileText, Camera, MapPin, ThumbsUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
@@ -42,11 +43,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Category config
-  const categories: { key: CategoryType; icon: string; labelKey: string }[] = [
-    { key: 'reviewers', icon: '📝', labelKey: 'gamification.leaderboard.categories.reviewers' },
-    { key: 'photographers', icon: '📸', labelKey: 'gamification.leaderboard.categories.photographers' },
-    { key: 'checkins', icon: '📍', labelKey: 'gamification.leaderboard.categories.checkins' },
-    { key: 'helpful', icon: '👍', labelKey: 'gamification.leaderboard.categories.helpful' },
+  const categories: { key: CategoryType; icon: React.ReactNode; labelKey: string }[] = [
+    { key: 'reviewers', icon: <FileText size={14} style={{ verticalAlign: 'middle' }} />, labelKey: 'gamification.leaderboard.categories.reviewers' },
+    { key: 'photographers', icon: <Camera size={14} style={{ verticalAlign: 'middle' }} />, labelKey: 'gamification.leaderboard.categories.photographers' },
+    { key: 'checkins', icon: <MapPin size={14} style={{ verticalAlign: 'middle' }} />, labelKey: 'gamification.leaderboard.categories.checkins' },
+    { key: 'helpful', icon: <ThumbsUp size={14} style={{ verticalAlign: 'middle' }} />, labelKey: 'gamification.leaderboard.categories.helpful' },
   ];
 
   // Close dropdown on click outside
@@ -103,10 +104,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   };
 
   // Get rank icon
-  const getRankIcon = (rank: number): string => {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
+  const getRankIcon = (rank: number): React.ReactNode => {
+    if (rank === 1) return <Medal size={18} style={{ color: '#FFD700' }} />;
+    if (rank === 2) return <Medal size={18} style={{ color: '#C0C0C0' }} />;
+    if (rank === 3) return <Medal size={18} style={{ color: '#CD7F32' }} />;
     return `#${rank}`;
   };
 
@@ -169,19 +170,19 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
               className={`leaderboard-tab ${activeTab === 'global' ? 'leaderboard-tab-active' : ''}`}
               onClick={() => setActiveTab('global')}
             >
-              🌍 {t('gamification.leaderboard.allTime')}
+              <Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('gamification.leaderboard.allTime')}
             </button>
             <button
               className={`leaderboard-tab ${activeTab === 'monthly' ? 'leaderboard-tab-active' : ''}`}
               onClick={() => setActiveTab('monthly')}
             >
-              📅 {t('gamification.leaderboard.monthly')}
+              <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('gamification.leaderboard.monthly')}
             </button>
             <button
               className={`leaderboard-tab ${activeTab === 'weekly' ? 'leaderboard-tab-active' : ''}`}
               onClick={() => setActiveTab('weekly')}
             >
-              📆 {t('gamification.leaderboard.weekly')}
+              <CalendarDays size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('gamification.leaderboard.weekly')}
             </button>
 
             {/* Category Dropdown */}
@@ -190,7 +191,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                 className={`leaderboard-tab leaderboard-tab-dropdown ${activeTab === 'category' ? 'leaderboard-tab-active' : ''}`}
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
               >
-                {activeTab === 'category' ? currentCategory?.icon : '🏅'}{' '}
+                {activeTab === 'category' ? currentCategory?.icon : <Medal size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />}{' '}
                 {activeTab === 'category'
                   ? t(currentCategory?.labelKey || '')
                   : t('gamification.leaderboard.categories.title')}
@@ -218,7 +219,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
       {/* Leaderboard Entries */}
       {leaderboardData.length === 0 ? (
         <div className="leaderboard-empty">
-          <div className="empty-icon">🏆</div>
+          <div className="empty-icon"><Trophy size={48} /></div>
           <p>{t('gamification.leaderboard.empty')}</p>
           <span className="empty-subtitle">{t('gamification.leaderboard.emptySubtitle')}</span>
         </div>
@@ -229,7 +230,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
             <div className="leaderboard-podium">
               {/* 2nd Place */}
               <div className="podium-entry podium-second">
-                <div className="podium-rank">🥈</div>
+                <div className="podium-rank"><Medal size={24} style={{ color: '#C0C0C0' }} /></div>
                 <div className="podium-avatar">
                   {getLevelIcon(leaderboardData[1].current_level || 1)}
                 </div>
@@ -239,7 +240,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
 
               {/* 1st Place */}
               <div className="podium-entry podium-first">
-                <div className="podium-rank">🥇</div>
+                <div className="podium-rank"><Medal size={28} style={{ color: '#FFD700' }} /></div>
                 <div className="podium-avatar">
                   {getLevelIcon(leaderboardData[0].current_level || 1)}
                 </div>
@@ -249,7 +250,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
 
               {/* 3rd Place */}
               <div className="podium-entry podium-third">
-                <div className="podium-rank">🥉</div>
+                <div className="podium-rank"><Medal size={24} style={{ color: '#CD7F32' }} /></div>
                 <div className="podium-avatar">
                   {getLevelIcon(leaderboardData[2].current_level || 1)}
                 </div>

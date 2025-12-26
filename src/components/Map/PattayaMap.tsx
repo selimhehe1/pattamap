@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, Component, ReactNode, ErrorInfo } from 'react';
+import { Map } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from '../../contexts/ModalContext';
 import { useMapControls } from '../../contexts/MapControlsContext';
@@ -64,7 +65,7 @@ class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorBoundary
           padding: '20px',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}><Map size={48} /></div>
           <div style={{ fontSize: '18px', marginBottom: '12px' }}>Map failed to load</div>
           <button
             onClick={() => this.setState({ hasError: false, retryCount: 0 })}

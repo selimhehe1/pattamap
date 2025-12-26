@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { Search, Users, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
@@ -121,7 +122,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
         {/* Header */}
         <div className="menu__header">
           <div className="menu__header-content">
-            <span className="employees-modal__header-icon">👥</span>
+            <span className="employees-modal__header-icon"><Users size={20} /></span>
             <div>
               <h2 className="menu__title">{t('map.zoneLineup')}</h2>
               <p className="menu__subtitle">{t(`map.zoneNames.${getZoneTranslationKey(zoneId)}`)}</p>
@@ -148,7 +149,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
               className="employees-modal__search-input"
               autoFocus
             />
-            <span className="employees-modal__search-icon">🔍</span>
+            <span className="employees-modal__search-icon"><Search size={16} /></span>
           </div>
 
           {/* Results Count */}
@@ -177,7 +178,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
           {!loading && filteredEmployees.length === 0 && (
             <div className="employees-modal__empty">
               <div className="employees-modal__empty-icon">
-                {searchTerm ? '🔍' : '👥'}
+                {searchTerm ? <Search size={40} /> : <Users size={40} />}
               </div>
               <h3 className="employees-modal__empty-title">
                 {searchTerm ? t('search.noResults') : t('map.noEmployeesInZone')}
@@ -264,7 +265,7 @@ const EmployeesListModal: React.FC<EmployeesListModalProps> = ({
                       {employee.average_rating !== undefined && employee.average_rating > 0 && (
                         <div className="employees-modal__card-rating">
                           <span className="employees-modal__card-rating-stars">
-                            {'⭐'.repeat(Math.round(employee.average_rating))}
+                            {[...Array(Math.round(employee.average_rating))].map((_, i) => <Star key={i} size={12} fill="#FFD700" color="#FFD700" />)}
                           </span>
                           <span className="employees-modal__card-rating-value">
                             {employee.average_rating.toFixed(1)}

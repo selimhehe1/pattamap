@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AlertTriangle, Settings, Sparkles, Tag, Gift, CheckCircle, Check, Lock, Unlock, Inbox } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useRewards, Reward, getLevelName, getXPForNextLevel, getXPForCurrentLevel } from '../../hooks/useRewards';
 import './RewardsShowcase.css';
@@ -41,7 +42,7 @@ const RewardsShowcase: React.FC = () => {
   if (error) {
     return (
       <div className="rewards-showcase rewards-showcase--error">
-        <div className="rewards-showcase__error-icon">⚠️</div>
+        <div className="rewards-showcase__error-icon"><AlertTriangle size={48} /></div>
         <p>{t('gamification.rewards.error', 'Failed to load rewards')}</p>
       </div>
     );
@@ -71,12 +72,13 @@ const RewardsShowcase: React.FC = () => {
   // Sort locked by unlock_value
   lockedRewards.sort((a, b) => (a.unlock_value || 0) - (b.unlock_value || 0));
 
-  const getCategoryIcon = (category: string): string => {
+  const getCategoryIcon = (category: string): React.ReactNode => {
+    const iconStyle = { verticalAlign: 'middle' as const };
     switch (category) {
-      case 'feature': return '⚙️';
-      case 'cosmetic': return '✨';
-      case 'title': return '🏷️';
-      default: return '🎁';
+      case 'feature': return <Settings size={14} style={iconStyle} />;
+      case 'cosmetic': return <Sparkles size={14} style={iconStyle} />;
+      case 'title': return <Tag size={14} style={iconStyle} />;
+      default: return <Gift size={14} style={iconStyle} />;
     }
   };
 
@@ -98,7 +100,7 @@ const RewardsShowcase: React.FC = () => {
       {/* Header with level info */}
       <div className="rewards-showcase__header">
         <h2 className="rewards-showcase__title">
-          <span className="rewards-showcase__title-icon">🎁</span>
+          <span className="rewards-showcase__title-icon"><Gift size={20} /></span>
           {t('gamification.rewards.title', 'Rewards & Unlocks')}
         </h2>
       </div>
@@ -141,19 +143,19 @@ const RewardsShowcase: React.FC = () => {
           className={`filter-btn ${categoryFilter === 'feature' ? 'filter-btn--active' : ''}`}
           onClick={() => setCategoryFilter('feature')}
         >
-          ⚙️ {t('gamification.rewards.filterFeatures', 'Features')}
+          <Settings size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.rewards.filterFeatures', 'Features')}
         </button>
         <button
           className={`filter-btn ${categoryFilter === 'cosmetic' ? 'filter-btn--active' : ''}`}
           onClick={() => setCategoryFilter('cosmetic')}
         >
-          ✨ {t('gamification.rewards.filterCosmetics', 'Cosmetics')}
+          <Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.rewards.filterCosmetics', 'Cosmetics')}
         </button>
         <button
           className={`filter-btn ${categoryFilter === 'title' ? 'filter-btn--active' : ''}`}
           onClick={() => setCategoryFilter('title')}
         >
-          🏷️ {t('gamification.rewards.filterTitles', 'Titles')}
+          <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('gamification.rewards.filterTitles', 'Titles')}
         </button>
       </div>
 
@@ -161,7 +163,7 @@ const RewardsShowcase: React.FC = () => {
       {unlockedRewards.length > 0 && (
         <div className="rewards-showcase__section">
           <h3 className="rewards-showcase__section-title">
-            <span className="section-icon">✅</span>
+            <span className="section-icon"><CheckCircle size={16} style={{ verticalAlign: 'middle' }} /></span>
             {t('gamification.rewards.unlocked', 'Unlocked')}
             <span className="section-count">{unlockedRewards.length}</span>
           </h3>
@@ -181,7 +183,7 @@ const RewardsShowcase: React.FC = () => {
                 </div>
                 <div className="reward-card__status">
                   {reward.claimed ? (
-                    <span className="reward-card__claimed">✓</span>
+                    <span className="reward-card__claimed"><Check size={16} /></span>
                   ) : (
                     <button
                       className="reward-card__claim-btn"
@@ -204,7 +206,7 @@ const RewardsShowcase: React.FC = () => {
       {lockedRewards.length > 0 && (
         <div className="rewards-showcase__section">
           <h3 className="rewards-showcase__section-title">
-            <span className="section-icon">🔒</span>
+            <span className="section-icon"><Lock size={16} style={{ verticalAlign: 'middle' }} /></span>
             {t('gamification.rewards.locked', 'Locked')}
             <span className="section-count">{lockedRewards.length}</span>
           </h3>
@@ -219,10 +221,10 @@ const RewardsShowcase: React.FC = () => {
                   <div className="reward-card__name">{reward.name.replace(/_/g, ' ')}</div>
                   <div className="reward-card__description">{reward.description}</div>
                   <div className="reward-card__requirement">
-                    🔓 {getUnlockRequirement(reward)}
+                    <Unlock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {getUnlockRequirement(reward)}
                   </div>
                 </div>
-                <div className="reward-card__lock-icon">🔒</div>
+                <div className="reward-card__lock-icon"><Lock size={16} /></div>
               </div>
             ))}
           </div>
@@ -232,7 +234,7 @@ const RewardsShowcase: React.FC = () => {
       {/* Empty State */}
       {filteredRewards.length === 0 && (
         <div className="rewards-showcase__empty">
-          <span className="empty-icon">📭</span>
+          <span className="empty-icon"><Inbox size={32} /></span>
           <p>{t('gamification.rewards.noRewards', 'No rewards in this category')}</p>
         </div>
       )}

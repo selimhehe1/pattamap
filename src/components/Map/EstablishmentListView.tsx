@@ -1,4 +1,5 @@
 import React from 'react';
+import { Search, Sparkles, MapPin, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Establishment } from '../../types';
 import { getCategoryIcon } from '../../utils/iconMapper';
@@ -105,7 +106,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
     return (
       <div className="establishment-listview-container-nightlife">
         <div className="establishment-listview-empty-nightlife">
-          <div className="establishment-listview-empty-icon-nightlife">🔍</div>
+          <div className="establishment-listview-empty-icon-nightlife"><Search size={48} /></div>
           <h3 className="establishment-listview-empty-title-nightlife">{t('establishmentList.noResults')}</h3>
           <p className="establishment-listview-empty-description-nightlife">
             {t('establishmentList.noResultsHint')}
@@ -120,10 +121,10 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
       {/* Results count */}
       <div className="establishment-listview-header-nightlife">
         <h2 className="establishment-listview-results-count-nightlife">
-          ✨ {t('establishmentList.resultsCount', { count: establishments.length })}
+          <Sparkles size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishmentList.resultsCount', { count: establishments.length })}
         </h2>
         <p className="establishment-listview-subtitle-nightlife">
-          💡 {t('establishmentList.clickToView')}
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishmentList.clickToView')}
         </p>
       </div>
 
@@ -220,7 +221,7 @@ const EstablishmentListView: React.FC<EstablishmentListViewProps> = ({
 
                   {/* Zone Badge - Inline (v10.3 Phase 5 - Repositionné) */}
                   <span className="establishment-card-zone-inline">
-                    🗺️ {formatZoneName(establishment.zone)}
+                    <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {formatZoneName(establishment.zone)}
                   </span>
                 </div>
 

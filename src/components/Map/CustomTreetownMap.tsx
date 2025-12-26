@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback, useRef } from 'react';
+import { Lock, Pencil } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 import { MAP_CONFIG } from '../../utils/constants';
@@ -857,7 +858,7 @@ const CustomTreetownMap: React.FC<CustomTreetownMapProps> = ({
               fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
             }}
           >
-            {isEditMode ? '🔒 Exit Edit' : '✏️ Edit Mode'}
+            {isEditMode ? <><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Exit Edit</> : <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit Mode</>}
           </button>
         </div>
       )}

@@ -8,6 +8,7 @@
  * Refactored: ~500 lines (67% reduction)
  */
 import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { Check, Pencil, Target } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Establishment, CustomBar } from '../../types';
 import { getZoneConfig } from '../../utils/zoneConfig';
@@ -524,7 +525,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
               background: isEditMode ? 'linear-gradient(135deg, #00FF00 0%, #00CC00 100%)' : 'linear-gradient(135deg, #333 0%, #555 100%)',
               color: isEditMode ? '#000' : '#fff', cursor: isLoading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
             }}>
-            {isEditMode ? '✓ Editing' : '✎ Edit'}
+            {isEditMode ? <><Check size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Editing</> : <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Edit</>}
           </button>
         </div>
       )}
@@ -621,7 +622,7 @@ const CustomSoiBuakhaoMap: React.FC<CustomSoiBuakhaoMapProps> = ({
                   fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', zIndex: 20, border: '1px solid #FFD700'
                 }}>
                   {bar.name}
-                  {isEditMode && <div style={{ fontSize: '10px', color: '#00FF00' }}>🎯 Drag to move</div>}
+                  {isEditMode && <div style={{ fontSize: '10px', color: '#00FF00' }}><Target size={10} style={{ marginRight: '2px', verticalAlign: 'middle' }} /> Drag to move</div>}
                 </div>
               )}
             </div>

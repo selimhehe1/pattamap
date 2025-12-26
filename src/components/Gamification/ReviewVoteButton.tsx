@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ThumbsUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -129,7 +129,7 @@ const ReviewVoteButton: React.FC<ReviewVoteButtonProps> = ({
           <span className="review-vote-spinner" />
         ) : (
           <>
-            <span className="review-vote-icon">👍</span>
+            <span className="review-vote-icon"><ThumbsUp size={16} /></span>
             {showCount && (
               <span className="review-vote-count">
                 {voteCount > 0 ? voteCount : (compact ? '' : '0')}
