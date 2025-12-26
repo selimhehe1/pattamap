@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DollarSign, Gem, Pencil, Trash2, Lightbulb } from 'lucide-react';
 import { ConsumableTemplate } from '../../../types';
 import '../../../styles/components/establishment-ui.css';
 
@@ -96,7 +97,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
         alignItems: 'center',
         gap: '6px'
       }}>
-        💰 {t('establishment.pricing.sectionTitle')}
+        <DollarSign size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.pricing.sectionTitle')}
       </h3>
 
       {/* Consommations */}
@@ -331,7 +332,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                             className="consumable-edit-btn-nightlife"
                             title={t('establishment.pricing.editPriceButton')}
                           >
-                            ✏️
+                            <Pencil size={12} />
                           </button>
                           <button
                             type="button"
@@ -345,7 +346,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                             }}
                             title={t('establishment.pricing.deleteButton')}
                           >
-                            🗑️
+                            <Trash2 size={12} />
                           </button>
                         </>
                       )}
@@ -361,7 +362,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
       {/* Tarifs spéciaux - Uniquement pour Bar et GoGo Bar */}
       {shouldShowSpecialPricing && (
         <div style={{ marginBottom: '15px' }}>
-          <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>💎 {t('establishment.pricing.specialPricingTitle')}</h4>
+          <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}><Gem size={14} /> {t('establishment.pricing.specialPricingTitle')}</h4>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
@@ -528,7 +529,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(0,255,255,0.3)'
         }}>
-          💡 {t('establishment.pricing.pricingTipText')}
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.pricing.pricingTipText')}
         </div>
       )}
     </div>

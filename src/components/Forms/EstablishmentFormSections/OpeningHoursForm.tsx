@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Lightbulb } from 'lucide-react';
 
 interface OpeningHoursFormProps {
   formData: {
@@ -105,7 +106,7 @@ const OpeningHoursForm: React.FC<OpeningHoursFormProps> = ({ formData, onChange 
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(0,255,255,0.3)'
       }}>
-        💡 {t('establishment.openingHours.tipText')}
+        <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.openingHours.tipText')}
       </div>
     </div>
   );

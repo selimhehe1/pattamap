@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { Lightbulb, AlertTriangle } from 'lucide-react';
 import { ALL_COUNTRIES, getCountryLabel } from '../../constants/countries';
 import { logger } from '../../utils/logger';
 import './NationalityTagsInput.css';
@@ -360,24 +361,24 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
       {/* Helper text */}
       {selectedNationalities.length === 0 && !showSuggestions && (
         <div className="nationality-helper-text">
-          💡 Click to select your nationality (max 2 for half/mixed)
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Click to select your nationality (max 2 for half/mixed)
         </div>
       )}
       {selectedNationalities.length === 1 && !showSuggestions && (
         <div className="nationality-helper-text">
-          💡 Click to add a second nationality for half/mixed heritage
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Click to add a second nationality for half/mixed heritage
         </div>
       )}
       {selectedNationalities.length === 2 && (
         <div className="nationality-helper-text">
-          💡 2 nationalities selected (Half/Mixed)
+          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> 2 nationalities selected (Half/Mixed)
         </div>
       )}
 
       {/* Error message */}
       {error && (
         <div className="nationality-error-text">
-          ⚠️ {error}
+          <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {error}
         </div>
       )}
     </div>

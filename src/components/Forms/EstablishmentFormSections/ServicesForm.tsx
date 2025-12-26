@@ -1,4 +1,5 @@
 import React from 'react';
+import { Star, Lightbulb } from 'lucide-react';
 
 // Force recompile 2
 
@@ -36,7 +37,7 @@ const ServicesForm: React.FC<ServicesFormProps> = ({
         alignItems: 'center',
         gap: '6px'
       }}>
-        ⭐ Services
+        <Star size={16} style={{ marginRight: '6px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> Services
       </h3>
 
       <div style={{ marginBottom: '12px' }}>
@@ -159,7 +160,7 @@ const ServicesForm: React.FC<ServicesFormProps> = ({
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(0,255,255,0.3)'
       }}>
-        💡 Suggestions: Pool/Billard, Karaoke, Terrasse, Climatisation, WiFi, Sport TV, Live Music, Jeux, Bar Food, Happy Hour
+        <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Suggestions: Pool/Billard, Karaoke, Terrasse, Climatisation, WiFi, Sport TV, Live Music, Jeux, Bar Food, Happy Hour
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
 import { EstablishmentCategory } from '../../../types';
 import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
@@ -82,13 +83,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         alignItems: 'center',
         gap: '6px'
       }}>
-        📍 {t('establishment.basicInfo.sectionTitle')}
+        <MapPin size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.sectionTitle')}
       </h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
         <div>
           <label className="label-nightlife">
-            🏪 {t('establishment.basicInfo.nameLabel')} *
+            <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.nameLabel')} *
           </label>
           <input
             type="text"
@@ -103,14 +104,14 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
           {errors.name && (
             <div className="error-message-nightlife">
-              ⚠️ {errors.name}
+              <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.name}
             </div>
           )}
         </div>
 
         <div>
           <label className="label-nightlife">
-            📍 {t('establishment.basicInfo.zoneLabel')} *
+            <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.zoneLabel')} *
           </label>
           <select
             name="zone"
@@ -128,7 +129,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           </select>
           {errors.zone && (
             <div className="error-message-nightlife">
-              ⚠️ {errors.zone}
+              <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.zone}
             </div>
           )}
         </div>
@@ -136,7 +137,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
       <div style={{ marginBottom: '12px' }}>
         <label className="label-nightlife">
-          📍 {t('establishment.basicInfo.addressLabel')} *
+          <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.addressLabel')} *
         </label>
         <input
           type="text"
@@ -151,14 +152,14 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         />
         {errors.address && (
           <div className="error-message-nightlife">
-            ⚠️ {errors.address}
+            <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.address}
           </div>
         )}
       </div>
 
       <div style={{ marginBottom: '12px' }}>
         <label className="label-nightlife">
-          🏷️ {t('establishment.basicInfo.categoryLabel')} *
+          <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.categoryLabel')} *
         </label>
         <select
           name="category_id"
@@ -178,7 +179,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         </select>
         {errors.category_id && (
           <div className="error-message-nightlife">
-            ⚠️ {errors.category_id}
+            <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.category_id}
           </div>
         )}
       </div>
@@ -186,7 +187,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       {/* Logo Upload Section */}
       <div className="logo-upload-section-nightlife">
         <label className="label-nightlife">
-          🖼️ {t('establishment.basicInfo.logoLabel')}
+          <ImageIcon size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.logoLabel')}
         </label>
 
         {/* Logo Preview or Upload Zone */}
@@ -262,7 +263,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     textAlign: 'center',
                     lineHeight: '1.3'
                   }}>
-                    📸<br/>{t('establishment.basicInfo.logoClickToChange')}
+                    <Camera size={16} /><br/>{t('establishment.basicInfo.logoClickToChange')}
                   </div>
                 </div>
               )}
@@ -376,7 +377,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               fontSize: '40px',
               marginBottom: '10px'
             }}>
-              {uploadingLogo ? '⏳' : '🖼️'}
+              {uploadingLogo ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <ImageIcon size={16} />}
             </div>
             <div style={{
               color: '#00E5FF',
@@ -406,12 +407,12 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
         <div className="logo-upload-help-nightlife">
           📏 {t('establishment.basicInfo.logoRecommendation')}<br/>
-          🔄 {t('establishment.basicInfo.logoOptimizationNote')}
+          <RefreshCw size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.logoOptimizationNote')}
         </div>
 
         {errors.logo_url && (
           <div className="error-message-nightlife">
-            ⚠️ {errors.logo_url}
+            <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.logo_url}
           </div>
         )}
       </div>

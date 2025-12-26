@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Lightbulb } from 'lucide-react';
 import { FaInstagram, FaTiktok } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -221,7 +222,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(0,255,255,0.3)'
       }}>
-        💡 {t('establishment.socialMedia.tipText')}
+        <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.socialMedia.tipText')}
       </div>
     </div>
   );
