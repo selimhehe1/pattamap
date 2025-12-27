@@ -96,6 +96,20 @@
    FREELANCES PAGE LAYOUT
    ========================================================================== */
 
+/* Search Layout - Used by FreelancesPage */
+.search-layout {
+  padding: 20px;
+  padding-top: calc(var(--height-header-desktop, 80px) + 30px); /* Account for fixed header */
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* Search Header - Title and subtitle */
+.search-header {
+  margin-bottom: 20px;
+}
+
 .freelances-page {
   padding: 20px;
   padding-top: calc(var(--height-header-desktop) + 20px); /* Compense header fixe */
@@ -197,6 +211,11 @@
    ========================================================================== */
 
 @media (max-width: 768px) {
+  .search-layout {
+    padding: 16px;
+    padding-top: calc(var(--height-header-mobile, 70px) + 20px); /* Account for mobile header */
+  }
+
   .freelances-page {
     padding: 16px;
     padding-top: calc(var(--height-header-mobile) + 16px); /* Compense header mobile */
@@ -251,6 +270,11 @@
 }
 
 @media (max-width: 480px) {
+  .search-layout {
+    padding: 12px;
+    padding-top: calc(var(--height-header-mobile, 70px) + 16px); /* Account for mobile header */
+  }
+
   .freelances-page {
     padding: 12px;
     padding-top: calc(var(--height-header-mobile) + 12px); /* Compense header mobile */
