@@ -36,6 +36,7 @@ interface UseEmployeesAdminReturn extends EmployeesAdminState {
   handleSaveEmployee: (employeeData: Partial<AdminEmployee>) => Promise<void>;
   handleVerifyEmployee: (employeeId: string, employeeName: string) => Promise<void>;
   handleRevokeVerification: (employeeId: string, employeeName: string) => Promise<void>;
+  handleDeleteEmployee: (employeeId: string, employeeName: string) => Promise<void>;
 
   // Bulk actions
   selectedIds: Set<string>;
@@ -406,6 +407,41 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     [t, dialog, secureFetch, loadEmployees, addProcessingId, removeProcessingId]
   );
 
+  // Delete employee permanently
+  const handleDeleteEmployee = useCallback(
+    async (employeeId: string, employeeName: string) => {
+      const confirmed = window.confirm(
+        `DELETE "${employeeName}" permanently?\n\nThis action cannot be undone. All related data (employment history, reviews, favorites, etc.) will also be deleted.`
+      );
+
+      if (!confirmed) return;
+
+      addProcessingId(employeeId);
+      try {
+        const API_URL = getApiUrl();
+        const response = await secureFetch(
+          `${API_URL}/api/employees/${employeeId}`,
+          { method: 'DELETE' }
+        );
+
+        if (response.ok) {
+          toast.success(`Employee "${employeeName}" deleted successfully`);
+          await loadEmployees();
+        } else {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to delete employee');
+        }
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to delete employee';
+        logger.error('Failed to delete employee:', error);
+        toast.error(errorMessage);
+      } finally {
+        removeProcessingId(employeeId);
+      }
+    },
+    [secureFetch, loadEmployees, addProcessingId, removeProcessingId]
+  );
+
   // Bulk approve selected employees
   const handleBulkApprove = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -554,6 +590,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     handleSaveEmployee,
     handleVerifyEmployee,
     handleRevokeVerification,
+    handleDeleteEmployee,
 
     // Bulk actions
     selectedIds,

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Calendar, User, MapPin, Briefcase, AlertTriangle, ClipboardList, Eye, Pencil, Loader2, CheckCircle, XCircle, ShieldCheck, ShieldX, HelpCircle } from 'lucide-react';
+import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Calendar, User, MapPin, Briefcase, AlertTriangle, ClipboardList, Eye, Pencil, Loader2, CheckCircle, XCircle, ShieldCheck, ShieldX, HelpCircle, Trash2 } from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
 import { getStatusColor, formatDate, getSocialMediaUrl } from './utils';
 import type { AdminEmployee } from './types';
@@ -21,6 +21,7 @@ interface EmployeeCardProps {
   onReject: (employeeId: string) => void;
   onVerify: (employeeId: string, employeeName: string) => void;
   onRevokeVerification: (employeeId: string, employeeName: string) => void;
+  onDelete: (employeeId: string, employeeName: string) => void;
 }
 
 const getSocialMediaIcon = (platform: string): React.ReactNode => {
@@ -56,6 +57,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   onReject,
   onVerify,
   onRevokeVerification,
+  onDelete,
 }) => {
   const { t } = useTranslation();
   const statusColor = getStatusColor(employee.status);
@@ -552,7 +554,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
         {/* Approve/Reject - Only for pending */}
         {employee.status === 'pending' && (
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -602,6 +604,33 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
             </button>
           </div>
         )}
+
+        {/* Delete Button - Always visible for admins */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(employee.id, employee.name);
+          }}
+          disabled={isProcessing}
+          className="btn"
+          style={{
+            width: '100%',
+            background: isProcessing
+              ? 'linear-gradient(45deg, #666666, #888888)'
+              : 'linear-gradient(45deg, #8B0000, #DC143C)',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            padding: '10px 8px',
+            borderRadius: '10px',
+            opacity: isProcessing ? 0.7 : 1,
+            cursor: isProcessing ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {isProcessing
+            ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
+            : <><Trash2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.deleteEmployee', 'Delete')}</>}
+        </button>
       </div>
     </div>
   );

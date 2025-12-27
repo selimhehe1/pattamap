@@ -49,6 +49,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
     handleSaveEmployee,
     handleVerifyEmployee,
     handleRevokeVerification,
+    handleDeleteEmployee,
     selectedIds,
     isBulkProcessing,
     toggleSelection,
@@ -259,6 +260,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 onReject={handleReject}
                 onVerify={handleVerifyEmployee}
                 onRevokeVerification={handleRevokeVerification}
+                onDelete={handleDeleteEmployee}
               />
             ))}
           </div>
