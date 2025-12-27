@@ -37,6 +37,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import session from 'express-session';
+import { RedisStore } from 'connect-redis';
+import Redis from 'ioredis';
 import cookieParser from 'cookie-parser';
 import { csrfTokenGenerator, csrfProtection, getCSRFToken } from './middleware/csrf';
 import { authenticateToken, requireAdmin, isEstablishmentOwner } from './middleware/auth';
@@ -71,7 +73,7 @@ import {
   commentRateLimit,
   healthCheckRateLimit
 } from './middleware/rateLimit';
-import { initRedis, cacheInvalidatePattern, cacheDel } from './config/redis';
+import { initRedis, cacheInvalidatePattern, cacheDel, getRedisClient, isRedisConnected } from './config/redis';
 import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
 
 const app = express();
@@ -242,8 +244,58 @@ if (NODE_ENV === 'development' && !cookiesSecure) {
   logger.warn('💡 Or set COOKIES_SECURE=true in .env (requires HTTPS setup)');
 }
 
+// 🔧 FIX: Create Redis session store for serverless compatibility (Vercel)
+// Without this, each serverless function instance has its own MemoryStore
+// which breaks CSRF validation across requests
+const createSessionStore = (): session.Store | undefined => {
+  const redisUrl = process.env.REDIS_URL;
+  const useRedis = process.env.USE_REDIS === 'true';
+
+  if (!useRedis || !redisUrl) {
+    if (NODE_ENV === 'production') {
+      logger.warn('⚠️  PRODUCTION WARNING: No Redis configured for session store!');
+      logger.warn('⚠️  Sessions will use MemoryStore which breaks in serverless environments');
+      logger.warn('💡 Set USE_REDIS=true and REDIS_URL in environment variables');
+    }
+    return undefined;
+  }
+
+  try {
+    const redisClient = new Redis(redisUrl, {
+      maxRetriesPerRequest: 3,
+      lazyConnect: false, // Connect immediately
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      }
+    });
+
+    redisClient.on('error', (err) => {
+      logger.error('Session Redis error:', err);
+    });
+
+    redisClient.on('connect', () => {
+      logger.info('✅ Session Redis connected');
+    });
+
+    const store = new RedisStore({
+      client: redisClient,
+      prefix: 'pattamap:session:'
+    });
+
+    logger.info('✅ Redis session store configured');
+    return store;
+  } catch (error) {
+    logger.error('Failed to create Redis session store:', error);
+    return undefined;
+  }
+};
+
+const sessionStore = createSessionStore();
+
 // Session configuration for CSRF - Fixed session synchronization
 app.use(session({
+  store: sessionStore, // Use Redis store in production for serverless compatibility
   secret: process.env.SESSION_SECRET || (() => {
     if (NODE_ENV === 'production') {
       throw new Error('SESSION_SECRET environment variable is required in production');
