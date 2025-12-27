@@ -372,7 +372,10 @@ const login = async (req, res) => {
         // Generate JWT with proper expiration
         logger_1.logger.debug('Login: generating JWT token...');
         const jwtSecret = process.env.JWT_SECRET;
-        const jwtExpiration = process.env.JWT_EXPIRES_IN || '7d';
+        // 🔧 FIX: Ensure JWT_EXPIRES_IN is valid (non-empty string or use default)
+        const rawExpiration = process.env.JWT_EXPIRES_IN;
+        const jwtExpiration = rawExpiration && rawExpiration.trim() ? rawExpiration.trim() : '7d';
+        logger_1.logger.debug(`Login: JWT expiration = "${jwtExpiration}"`);
         if (!jwtSecret) {
             logger_1.logger.error('JWT_SECRET not configured');
             return res.status(500).json({ error: 'Server configuration error' });
