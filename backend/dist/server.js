@@ -271,17 +271,41 @@ const createSessionStore = () => {
     try {
         // Check if TLS is required (rediss:// URLs)
         const useTLS = redisUrl.startsWith('rediss://');
-        const redisClient = new ioredis_1.default(redisUrl, {
-            maxRetriesPerRequest: 3,
-            lazyConnect: false, // Connect immediately
-            retryStrategy(times) {
-                const delay = Math.min(times * 50, 2000);
-                return delay;
-            },
-            // Enable TLS for rediss:// URLs (required for Upstash)
-            ...(useTLS && { tls: { rejectUnauthorized: false } })
-        });
-        logger_1.logger.info(`🔗 Redis connecting... TLS: ${useTLS}`);
+        // 🔧 FIX: ioredis doesn't parse rediss:// correctly, parse URL manually
+        let redisClient;
+        if (useTLS) {
+            // Parse the URL to extract components
+            // rediss://default:password@host:port -> redis://default:password@host:port
+            const urlForParsing = redisUrl.replace('rediss://', 'redis://');
+            const parsedUrl = new URL(urlForParsing);
+            logger_1.logger.info(`🔗 Redis connecting to ${parsedUrl.hostname}:${parsedUrl.port} with TLS...`);
+            redisClient = new ioredis_1.default({
+                host: parsedUrl.hostname,
+                port: parseInt(parsedUrl.port) || 6379,
+                username: parsedUrl.username || 'default',
+                password: parsedUrl.password,
+                maxRetriesPerRequest: 3,
+                lazyConnect: false,
+                retryStrategy(times) {
+                    const delay = Math.min(times * 50, 2000);
+                    return delay;
+                },
+                tls: {
+                    rejectUnauthorized: false // Required for Upstash
+                }
+            });
+        }
+        else {
+            // Non-TLS connection - use URL directly
+            redisClient = new ioredis_1.default(redisUrl, {
+                maxRetriesPerRequest: 3,
+                lazyConnect: false,
+                retryStrategy(times) {
+                    const delay = Math.min(times * 50, 2000);
+                    return delay;
+                }
+            });
+        }
         redisClient.on('error', (err) => {
             logger_1.logger.error('Session Redis error:', err);
         });
