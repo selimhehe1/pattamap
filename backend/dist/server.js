@@ -70,7 +70,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = require("connect-redis");
-const ioredis_1 = __importDefault(require("ioredis"));
+const redis_1 = require("@upstash/redis");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const csrf_1 = require("./middleware/csrf");
 const auth_1 = require("./middleware/auth");
@@ -98,7 +98,7 @@ const gamification_1 = __importDefault(require("./routes/gamification"));
 const employeeValidation_1 = __importDefault(require("./routes/employeeValidation"));
 const ownershipRequests_1 = __importDefault(require("./routes/ownershipRequests"));
 const rateLimit_1 = require("./middleware/rateLimit");
-const redis_1 = require("./config/redis");
+const redis_2 = require("./config/redis");
 const missionResetJobs_1 = require("./jobs/missionResetJobs");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5001;
@@ -269,53 +269,76 @@ const createSessionStore = () => {
         return undefined;
     }
     try {
-        // Check if TLS is required (rediss:// URLs)
-        const useTLS = redisUrl.startsWith('rediss://');
-        logger_1.logger.info(`🔗 Redis session store initializing... (TLS: ${useTLS})`);
-        // For Upstash: Parse URL and configure TLS manually
-        // URL format: rediss://default:password@host:port
+        logger_1.logger.info(`🔗 Redis session store initializing...`);
+        // Parse URL to extract host and password
+        // URL format: rediss://default:password@host:port or redis://default:password@host:port
         const urlForParsing = redisUrl.replace('rediss://', 'https://').replace('redis://', 'http://');
         const parsedUrl = new URL(urlForParsing);
-        const redisOptions = {
-            host: parsedUrl.hostname,
-            port: parseInt(parsedUrl.port) || 6379,
-            password: decodeURIComponent(parsedUrl.password), // Decode URL-encoded password
-            maxRetriesPerRequest: 3,
-            connectTimeout: 10000, // 10 seconds timeout
-            commandTimeout: 5000,
-            retryStrategy(times) {
-                if (times > 3)
-                    return null; // Stop retrying after 3 attempts
-                return Math.min(times * 100, 2000);
+        const password = decodeURIComponent(parsedUrl.password);
+        const host = parsedUrl.hostname;
+        // 🔧 FIX: Use Upstash HTTP REST API instead of TCP for serverless compatibility
+        // Upstash REST URL is https://host and token is the password
+        const restUrl = `https://${host}`;
+        logger_1.logger.info(`🔗 Using Upstash REST API: ${restUrl}`);
+        // Create Upstash HTTP client (stateless - perfect for serverless)
+        const upstashClient = new redis_1.Redis({
+            url: restUrl,
+            token: password
+        });
+        // Create a wrapper that makes Upstash client compatible with connect-redis
+        // connect-redis needs: get(key), set(key, value, 'EX', ttl), del(key)
+        const redisClientWrapper = {
+            get: async (key) => {
+                try {
+                    return await upstashClient.get(key);
+                }
+                catch (err) {
+                    logger_1.logger.error('Redis GET error:', err);
+                    return null;
+                }
             },
-            enableReadyCheck: true,
-            showFriendlyErrorStack: true
+            set: async (key, value, exFlag, ttl) => {
+                try {
+                    if (exFlag === 'EX' && ttl) {
+                        await upstashClient.setex(key, ttl, value);
+                    }
+                    else {
+                        await upstashClient.set(key, value);
+                    }
+                    return 'OK';
+                }
+                catch (err) {
+                    logger_1.logger.error('Redis SET error:', err);
+                    throw err;
+                }
+            },
+            del: async (key) => {
+                try {
+                    await upstashClient.del(key);
+                    return 1;
+                }
+                catch (err) {
+                    logger_1.logger.error('Redis DEL error:', err);
+                    return 0;
+                }
+            },
+            // For connect-redis v8+ compatibility
+            expire: async (key, seconds) => {
+                try {
+                    await upstashClient.expire(key, seconds);
+                    return 1;
+                }
+                catch (err) {
+                    logger_1.logger.error('Redis EXPIRE error:', err);
+                    return 0;
+                }
+            }
         };
-        // Add TLS config for rediss:// URLs
-        if (useTLS) {
-            redisOptions.tls = {
-                rejectUnauthorized: false // Required for Upstash
-            };
-        }
-        logger_1.logger.info(`🔗 Connecting to Redis: ${parsedUrl.hostname}:${parsedUrl.port}`);
-        const redisClient = new ioredis_1.default(redisOptions);
-        redisClient.on('error', (err) => {
-            logger_1.logger.error('❌ Session Redis error:', err.message);
-        });
-        redisClient.on('connect', () => {
-            logger_1.logger.info('✅ Session Redis TCP connected');
-        });
-        redisClient.on('ready', () => {
-            logger_1.logger.info('✅ Session Redis ready for commands');
-        });
-        redisClient.on('close', () => {
-            logger_1.logger.warn('⚠️ Session Redis connection closed');
-        });
         const store = new connect_redis_1.RedisStore({
-            client: redisClient,
+            client: redisClientWrapper,
             prefix: 'pattamap:session:'
         });
-        logger_1.logger.info('✅ Redis session store configured');
+        logger_1.logger.info('✅ Upstash Redis session store configured (HTTP/stateless)');
         return store;
     }
     catch (error) {
@@ -658,8 +681,8 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
                         establishment2: step2Data[0]
                     });
                     // 🔧 FIX M3: Invalidate cache after grid move
-                    await (0, redis_1.cacheInvalidatePattern)('establishments:*');
-                    await (0, redis_1.cacheDel)('dashboard:stats');
+                    await (0, redis_2.cacheInvalidatePattern)('establishments:*');
+                    await (0, redis_2.cacheDel)('dashboard:stats');
                     return res.json({
                         success: true,
                         message: 'Sequential swap operation completed successfully (fallback)',
@@ -674,8 +697,8 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
                 const sourceEstablishment = swapResult[0]?.source_establishment;
                 const targetEstablishment = swapResult[0]?.target_establishment;
                 // 🔧 FIX M3: Invalidate cache after grid move
-                await (0, redis_1.cacheInvalidatePattern)('establishments:*');
-                await (0, redis_1.cacheDel)('dashboard:stats');
+                await (0, redis_2.cacheInvalidatePattern)('establishments:*');
+                await (0, redis_2.cacheDel)('dashboard:stats');
                 res.json({
                     success: true,
                     message: 'Atomic swap operation completed successfully',
@@ -742,8 +765,8 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
                 if (!rpcError && rpcData && rpcData.length > 0 && rpcData[0].success) {
                     logger_1.logger.debug('✅ ATOMIC RPC SWAP SUCCESS:', rpcData[0]);
                     // 🔧 FIX M3: Invalidate cache after grid move
-                    await (0, redis_1.cacheInvalidatePattern)('establishments:*');
-                    await (0, redis_1.cacheDel)('dashboard:stats');
+                    await (0, redis_2.cacheInvalidatePattern)('establishments:*');
+                    await (0, redis_2.cacheDel)('dashboard:stats');
                     return res.json({
                         success: true,
                         message: 'Auto-swap operation completed successfully (atomic)',
@@ -818,8 +841,8 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
                         establishment2: step2Data[0]
                     });
                     // 🔧 FIX M3: Invalidate cache after grid move
-                    await (0, redis_1.cacheInvalidatePattern)('establishments:*');
-                    await (0, redis_1.cacheDel)('dashboard:stats');
+                    await (0, redis_2.cacheInvalidatePattern)('establishments:*');
+                    await (0, redis_2.cacheDel)('dashboard:stats');
                     return res.json({
                         success: true,
                         message: 'Auto-swap operation completed successfully (sequential)',
@@ -877,8 +900,8 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
                 }
                 logger_1.logger.debug('✅ Position updated successfully:', data);
                 // 🔧 FIX M3: Invalidate cache after grid move
-                await (0, redis_1.cacheInvalidatePattern)('establishments:*');
-                await (0, redis_1.cacheDel)('dashboard:stats');
+                await (0, redis_2.cacheInvalidatePattern)('establishments:*');
+                await (0, redis_2.cacheDel)('dashboard:stats');
                 res.json({
                     success: true,
                     message: 'Position updated successfully',
@@ -948,7 +971,7 @@ app.use((err, req, res, next) => {
 // Initialize Redis cache before starting server
 (async () => {
     try {
-        await (0, redis_1.initRedis)();
+        await (0, redis_2.initRedis)();
     }
     catch (error) {
         logger_1.logger.error('Failed to initialize Redis, server will start with fallback cache:', error);

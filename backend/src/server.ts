@@ -39,6 +39,7 @@ import compression from 'compression';
 import session from 'express-session';
 import { RedisStore } from 'connect-redis';
 import Redis from 'ioredis';
+import { Redis as UpstashRedis } from '@upstash/redis';
 import cookieParser from 'cookie-parser';
 import { csrfTokenGenerator, csrfProtection, getCSRFToken } from './middleware/csrf';
 import { authenticateToken, requireAdmin, isEstablishmentOwner } from './middleware/auth';
@@ -261,64 +262,78 @@ const createSessionStore = (): session.Store | undefined => {
   }
 
   try {
-    // Check if TLS is required (rediss:// URLs)
-    const useTLS = redisUrl.startsWith('rediss://');
+    logger.info(`🔗 Redis session store initializing...`);
 
-    logger.info(`🔗 Redis session store initializing... (TLS: ${useTLS})`);
-
-    // For Upstash: Parse URL and configure TLS manually
-    // URL format: rediss://default:password@host:port
+    // Parse URL to extract host and password
+    // URL format: rediss://default:password@host:port or redis://default:password@host:port
     const urlForParsing = redisUrl.replace('rediss://', 'https://').replace('redis://', 'http://');
     const parsedUrl = new URL(urlForParsing);
+    const password = decodeURIComponent(parsedUrl.password);
+    const host = parsedUrl.hostname;
 
-    const redisOptions: any = {
-      host: parsedUrl.hostname,
-      port: parseInt(parsedUrl.port) || 6379,
-      password: decodeURIComponent(parsedUrl.password), // Decode URL-encoded password
-      maxRetriesPerRequest: 3,
-      connectTimeout: 10000, // 10 seconds timeout
-      commandTimeout: 5000,
-      retryStrategy(times: number) {
-        if (times > 3) return null; // Stop retrying after 3 attempts
-        return Math.min(times * 100, 2000);
+    // 🔧 FIX: Use Upstash HTTP REST API instead of TCP for serverless compatibility
+    // Upstash REST URL is https://host and token is the password
+    const restUrl = `https://${host}`;
+
+    logger.info(`🔗 Using Upstash REST API: ${restUrl}`);
+
+    // Create Upstash HTTP client (stateless - perfect for serverless)
+    const upstashClient = new UpstashRedis({
+      url: restUrl,
+      token: password
+    });
+
+    // Create a wrapper that makes Upstash client compatible with connect-redis
+    // connect-redis needs: get(key), set(key, value, 'EX', ttl), del(key)
+    const redisClientWrapper = {
+      get: async (key: string) => {
+        try {
+          return await upstashClient.get(key);
+        } catch (err) {
+          logger.error('Redis GET error:', err);
+          return null;
+        }
       },
-      enableReadyCheck: true,
-      showFriendlyErrorStack: true
+      set: async (key: string, value: string, exFlag?: string, ttl?: number) => {
+        try {
+          if (exFlag === 'EX' && ttl) {
+            await upstashClient.setex(key, ttl, value);
+          } else {
+            await upstashClient.set(key, value);
+          }
+          return 'OK';
+        } catch (err) {
+          logger.error('Redis SET error:', err);
+          throw err;
+        }
+      },
+      del: async (key: string) => {
+        try {
+          await upstashClient.del(key);
+          return 1;
+        } catch (err) {
+          logger.error('Redis DEL error:', err);
+          return 0;
+        }
+      },
+      // For connect-redis v8+ compatibility
+      expire: async (key: string, seconds: number) => {
+        try {
+          await upstashClient.expire(key, seconds);
+          return 1;
+        } catch (err) {
+          logger.error('Redis EXPIRE error:', err);
+          return 0;
+        }
+      }
     };
 
-    // Add TLS config for rediss:// URLs
-    if (useTLS) {
-      redisOptions.tls = {
-        rejectUnauthorized: false // Required for Upstash
-      };
-    }
-
-    logger.info(`🔗 Connecting to Redis: ${parsedUrl.hostname}:${parsedUrl.port}`);
-
-    const redisClient = new Redis(redisOptions);
-
-    redisClient.on('error', (err) => {
-      logger.error('❌ Session Redis error:', err.message);
-    });
-
-    redisClient.on('connect', () => {
-      logger.info('✅ Session Redis TCP connected');
-    });
-
-    redisClient.on('ready', () => {
-      logger.info('✅ Session Redis ready for commands');
-    });
-
-    redisClient.on('close', () => {
-      logger.warn('⚠️ Session Redis connection closed');
-    });
-
     const store = new RedisStore({
-      client: redisClient,
+      client: redisClientWrapper as any,
       prefix: 'pattamap:session:'
     });
 
-    logger.info('✅ Redis session store configured');
+    logger.info('✅ Upstash Redis session store configured (HTTP/stateless)');
     return store;
   } catch (error) {
     logger.error('❌ Failed to create Redis session store:', error);
