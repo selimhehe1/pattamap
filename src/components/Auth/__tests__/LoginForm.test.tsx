@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '../../../contexts/ThemeContext';
 import LoginForm from '../LoginForm';
 
 // Mock logger
@@ -66,7 +67,9 @@ const renderWithProviders = (component: React.ReactElement) => {
   return render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        {component}
+        <ThemeProvider>
+          {component}
+        </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>
   );
