@@ -261,10 +261,10 @@ app.use(session({
     secure: cookiesSecure,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    // 🔧 FIX A7: Use 'lax' instead of 'none' for better CSRF protection
-    // 'lax' allows cookies on same-site requests and cross-site top-level navigation
-    // 'none' was overly permissive and unnecessary for same-domain subdomains
-    sameSite: 'lax',
+    // 🔧 FIX: Use 'none' for cross-subdomain AJAX requests (www.pattamap.com -> api.pattamap.com)
+    // 'lax' blocks cookies on POST AJAX requests even between subdomains in some browsers
+    // 'none' requires secure:true which is already set in production
+    sameSite: cookiesSecure ? 'none' : 'lax', // 'none' in production, 'lax' in dev (http)
     domain: cookieDomain // Share cookie across subdomains (e.g., .pattamap.com)
   },
   name: 'pattamap.sid'
