@@ -430,9 +430,16 @@ const login = async (req, res) => {
     }
     catch (error) {
         logger_1.logger.error('Login error:', error);
+        // Temporarily return error details for debugging
+        const errorDetails = error instanceof Error ? {
+            message: error.message,
+            name: error.name,
+            stack: error.stack?.split('\n').slice(0, 3).join('\n')
+        } : String(error);
         return res.status(500).json({
             error: 'Login failed',
-            code: 'INTERNAL_ERROR'
+            code: 'INTERNAL_ERROR',
+            debug: errorDetails // TODO: Remove after debugging
         });
     }
 };
