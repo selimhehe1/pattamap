@@ -16,9 +16,11 @@ interface LoginFormProps {
   onLoginSuccess?: () => void;
   /** Optional callback to switch to forgot password form */
   onSwitchToForgotPassword?: () => void;
+  /** When true, renders without its own overlay (for use inside Modal component) */
+  embedded?: boolean;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess, onSwitchToForgotPassword }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLoginSuccess, onSwitchToForgotPassword, embedded = false }) => {
   const { t } = useTranslation();
   const { login } = useAuth();
   const { theme } = useTheme();
@@ -171,13 +173,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     } : {}
   };
 
-  return (
-    <div
-      className="modal-overlay-nightlife"
-      data-testid="login-modal"
-      style={lightModeStyles.overlay}
-    >
-      <div className="modal-form-container" style={lightModeStyles.container}>
+  // Form content (shared between embedded and standalone modes)
+  const formContent = (
+    <div className={embedded ? "modal-form-container-embedded" : "modal-form-container"} style={embedded ? {} : lightModeStyles.container}>
+      {/* Close button only shown in standalone mode (not embedded) */}
+      {!embedded && (
         <button
           onClick={handleClose}
           className="modal-close-button"
@@ -187,6 +187,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
         >
           ×
         </button>
+      )}
 
         <div className="modal-header">
           <h2 className="header-title-nightlife" style={lightModeStyles.title}>
@@ -365,6 +366,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
           </div>
         </form>
       </div>
+  );
+
+  // If embedded (used inside Modal component), return just the form content
+  if (embedded) {
+    return formContent;
+  }
+
+  // Standalone mode: wrap in overlay
+  return (
+    <div
+      className="modal-overlay-nightlife"
+      data-testid="login-modal"
+      style={lightModeStyles.overlay}
+    >
+      {formContent}
     </div>
   );
 };

@@ -98,6 +98,7 @@ export const useAppModals = (): UseAppModalsReturn => {
   const openLoginForm = useCallback(() => {
     openModal(MODAL_IDS.LOGIN, LoginForm, {
       onClose: () => closeModal(MODAL_IDS.LOGIN),
+      embedded: true, // Render without overlay since Modal.tsx provides one
       onSwitchToRegister: () => {
         closeModal(MODAL_IDS.LOGIN);
         openModal(MODAL_IDS.REGISTER, MultiStepRegisterForm, {
@@ -105,7 +106,8 @@ export const useAppModals = (): UseAppModalsReturn => {
           onSwitchToLogin: () => {
             closeModal(MODAL_IDS.REGISTER);
             openModal(MODAL_IDS.LOGIN, LoginForm, {
-              onClose: () => closeModal(MODAL_IDS.LOGIN)
+              onClose: () => closeModal(MODAL_IDS.LOGIN),
+              embedded: true // Render without overlay since Modal.tsx provides one
             }, { size: 'medium' });
           }
         }, { size: 'large' });
