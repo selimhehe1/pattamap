@@ -63,7 +63,7 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
       initial="hidden"
       animate="visible"
       exit="exit"
-      style={{ zIndex, padding: isFullscreen ? '0' : undefined }}
+      style={{ zIndex }}
       onClick={handleOverlayClick}
     >
       <motion.div
