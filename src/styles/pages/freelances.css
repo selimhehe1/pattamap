@@ -298,3 +298,145 @@
 .freelance-card-skeleton:nth-child(4) { animation-delay: 150ms; }
 .freelance-card-skeleton:nth-child(5) { animation-delay: 200ms; }
 .freelance-card-skeleton:nth-child(6) { animation-delay: 250ms; }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES
+   ========================================================================== */
+
+/* Light Mode - Page Background */
+body[data-theme="light"] .search-layout {
+  background: #FFFFFF !important;
+}
+
+/* Light Mode - Header Title (override inline gradient) */
+body[data-theme="light"] .search-header h1 {
+  color: #B45309 !important;
+  -webkit-text-fill-color: #B45309 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* Light Mode - Header Subtitle */
+body[data-theme="light"] .search-header p {
+  color: #475569 !important;
+}
+
+/* Light Mode - Stats Badge */
+body[data-theme="light"] .search-header > div > div {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+}
+
+body[data-theme="light"] .search-header > div > div span:first-child {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .search-header > div > div span:last-child {
+  color: #475569 !important;
+}
+
+/* Light Mode - Filters Container */
+body[data-theme="light"] .search-filters {
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* Light Mode - Filter Labels (override inline #FFD700 yellow) */
+body[data-theme="light"] .search-filters label {
+  color: #B45309 !important;
+}
+
+/* Light Mode - Filter Inputs */
+body[data-theme="light"] .search-filters input,
+body[data-theme="light"] .search-filters select {
+  background: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #1E293B !important;
+}
+
+body[data-theme="light"] .search-filters input::placeholder {
+  color: #64748B !important;
+}
+
+body[data-theme="light"] .search-filters select option {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+}
+
+/* Light Mode - Clear Filters Button */
+body[data-theme="light"] .search-filters button {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .search-filters button:hover {
+  background: rgba(180, 83, 9, 0.2) !important;
+}
+
+/* Light Mode - Error State */
+body[data-theme="light"] .search-layout [style*="color: #FF4757"],
+body[data-theme="light"] .search-layout [style*="color: rgba(255,255,255"] {
+  color: #475569 !important;
+}
+
+/* Light Mode - Empty State */
+body[data-theme="light"] .search-layout h3 {
+  color: #1E293B !important;
+}
+
+/* Light Mode - Pagination */
+body[data-theme="light"] .search-layout .freelances-pagination button,
+body[data-theme="light"] .search-layout > div:last-child button {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .search-layout > div:last-child button:disabled {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #94A3B8 !important;
+}
+
+body[data-theme="light"] .search-layout > div:last-child > div {
+  background: #F1F5F9 !important;
+  color: #1E293B !important;
+}
+
+/* Light Mode - Freelance Card Wrapper Badge */
+body[data-theme="light"] .freelance-card-wrapper > div:first-child {
+  /* Keep the gradient badge visible */
+}
+
+/* Light Mode - Nightclubs Badge */
+body[data-theme="light"] .freelance-card-wrapper > div:last-child {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+  color: #475569 !important;
+}
+
+/* Light Mode - Skeleton Cards */
+body[data-theme="light"] .freelance-card-skeleton {
+  background: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+body[data-theme="light"] .freelance-card-skeleton .skeleton-image,
+body[data-theme="light"] .freelance-card-skeleton .skeleton-badge,
+body[data-theme="light"] .freelance-card-skeleton .skeleton-title,
+body[data-theme="light"] .freelance-card-skeleton .skeleton-subtitle,
+body[data-theme="light"] .freelance-card-skeleton .skeleton-tag {
+  background: #E2E8F0 !important;
+}
+
+body[data-theme="light"] .skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    rgba(180, 83, 9, 0.05) 0%,
+    rgba(180, 83, 9, 0.1) 50%,
+    rgba(180, 83, 9, 0.05) 100%
+  ) !important;
+}
