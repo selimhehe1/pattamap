@@ -10,9 +10,7 @@ import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
 import { Pencil, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
-import '../../styles/components/modals.css';
-import '../../styles/components/photos.css';
-import '../../styles/utilities/layout-utilities.css';
+import '../../styles/components/form-unified.css';
 import '../../styles/components/form-components.css';
 
 // Consumable item type for pricing
@@ -417,50 +415,36 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
   };
 
   return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--large">
-        {/* Bouton fermeture */}
-        <button
-          onClick={onCancel}
-          className="modal-close-btn"
-          aria-label="Close"
-        >
-          ×
-        </button>
-
-        <div className="modal-header">
-          <h2 className="header-title-nightlife">
-            {initialData ? <><Pencil size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.editTitle')}</> : <><Landmark size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.addTitle')}</>}
-          </h2>
-          <p className="modal-subtitle">
-            {initialData ? t('establishment.editSubtitle') : t('establishment.createSubtitle')}
-          </p>
-
-          {/* Auto-save indicator */}
-          {!initialData && (
-            <div style={{
-              fontSize: '0.75rem',
-              color: isSaving ? '#00E5FF' : isDraft ? '#4ADE80' : '#6B7280',
-              marginTop: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.375rem'
-            }}>
-              {isSaving ? (
-                <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('establishment.savingDraft')}</>
-              ) : isDraft && lastSaved ? (
-                <>
-                  <Check size={14} /> {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}
-                </>
-              ) : (
-                <><Save size={14} /> {t('establishment.autoSaveEnabled')}</>
-              )}
-            </div>
+    <div className="uf-container uf-animate-fade">
+      {/* Header */}
+      <div className="uf-header">
+        <h2 className="uf-title">
+          {initialData ? (
+            <><Pencil size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.editTitle')}</>
+          ) : (
+            <><Landmark size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('establishment.addTitle')}</>
           )}
-        </div>
+        </h2>
+        <p className="uf-subtitle">
+          {initialData ? t('establishment.editSubtitle') : t('establishment.createSubtitle')}
+        </p>
 
-      <form onSubmit={handleSubmit} className="form-layout">
-        <div className="form-section">
+        {/* Auto-save indicator */}
+        {!initialData && (
+          <div className={`uf-autosave ${isSaving ? 'saving' : isDraft ? 'saved' : ''}`}>
+            {isSaving ? (
+              <><Loader2 size={14} className="uf-spin" /> {t('establishment.savingDraft')}</>
+            ) : isDraft && lastSaved ? (
+              <><Check size={14} /> {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}</>
+            ) : (
+              <><Save size={14} /> {t('establishment.autoSaveEnabled')}</>
+            )}
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="uf-section">
           <BasicInfoForm
             formData={formData}
             categories={categories}
@@ -472,21 +456,21 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
           />
         </div>
 
-        <div className="form-section">
+        <div className="uf-section">
           <OpeningHoursForm
             formData={formData}
             onChange={handleInputChange}
           />
         </div>
 
-        <div className="form-section">
+        <div className="uf-section">
           <SocialMediaForm
             formData={formData}
             onSocialMediaChange={handleSocialMediaChange}
           />
         </div>
 
-        <div className="form-section">
+        <div className="uf-section">
           <PricingForm
             formData={formData}
             consumableTemplates={consumableTemplates}
@@ -501,56 +485,38 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
           />
         </div>
 
-        <div className="button-group-center">
+        <div className="uf-actions">
           <button
             type="button"
             onClick={onCancel}
-            className="btn btn--secondary"
+            className="uf-btn uf-btn-cancel"
           >
-            <X size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonCancel')}
+            <X size={16} /> {t('establishment.buttonCancel')}
           </button>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="btn btn--primary"
+            className="uf-btn uf-btn-submit"
           >
             {isLoading ? (
-              <span className="loading-flex">
-                <span className="loading-spinner-small-nightlife"></span>
-                <Loader2 size={14} style={{ animation: 'spin 1s linear infinite', marginRight: '6px' }} /> {t('establishment.buttonSubmitting')}
-              </span>
+              <><Loader2 size={14} className="uf-spin" /> {t('establishment.buttonSubmitting')}</>
+            ) : initialData ? (
+              <><Save size={16} /> {t('establishment.buttonSaveChanges')}</>
             ) : (
-              initialData ? <><Save size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonSaveChanges')}</> : <><Sparkles size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('establishment.buttonAddEstablishment')}</>
+              <><Sparkles size={16} /> {t('establishment.buttonAddEstablishment')}</>
             )}
           </button>
         </div>
       </form>
 
-      {/* Loading Animation CSS */}
       <style>{`
-        @keyframes spin {
+        .uf-spin { animation: uf-spin 1s linear infinite; }
+        @keyframes uf-spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        /* Animations spécifiques au formulaire */
       `}</style>
-      </div>
     </div>
   );
 };

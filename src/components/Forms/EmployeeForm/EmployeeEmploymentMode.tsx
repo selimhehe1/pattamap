@@ -19,7 +19,7 @@ export function EmployeeEmploymentMode({
   const { t } = useTranslation();
 
   return (
-    <div className="form-section">
+    <div className="uf-section">
       <h3 className="text-cyan-nightlife" style={{
         margin: '0 0 15px 0',
         fontSize: '16px',

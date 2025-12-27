@@ -21,7 +21,7 @@ import { EmployeeFormButtons } from './EmployeeFormButtons';
 import { useEmployeeFormState } from './hooks/useEmployeeFormState';
 import type { EmployeeFormProps } from './types';
 
-import '../../../styles/components/employee-form.css';
+import '../../../styles/components/form-unified.css';
 
 export function EmployeeForm({
   onSubmit,
@@ -47,19 +47,9 @@ export function EmployeeForm({
   } = useEmployeeFormState({ initialData, onSubmit });
 
   return (
-    <div
-      className="employee-form-container"
-      style={{
-        animation: 'fadeIn 0.3s ease-out'
-      }}
-    >
-      <div
-        className="employee-form-content"
-        style={{
-          animation: 'slideUp 0.4s ease-out'
-        }}
-      >
-        <form onSubmit={handleSubmit} className="employee-form">
+    <div className="uf-container uf-animate-fade">
+      <div className="uf-animate-slide">
+        <form onSubmit={handleSubmit}>
           {/* Basic Info Section */}
           <EmployeeBasicInfo
             formData={formData}
@@ -108,24 +98,6 @@ export function EmployeeForm({
           />
         </form>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }

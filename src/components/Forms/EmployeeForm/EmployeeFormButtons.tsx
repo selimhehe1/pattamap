@@ -28,37 +28,24 @@ export function EmployeeFormButtons({
   return (
     <>
       {errors.submit && (
-        <div className="error-message-nightlife" style={{
-          background: 'rgba(255,71,87,0.1)',
-          border: '1px solid rgba(255,71,87,0.3)',
-          padding: '15px 20px',
-          borderRadius: '12px',
-          fontSize: '14px',
-          backdropFilter: 'blur(10px)'
-        }}>
+        <div className="uf-error-box">
           <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.submit}
         </div>
       )}
 
-      <div className="button-group-center">
+      <div className="uf-actions">
         <button
           type="button"
           onClick={onCancel}
-          className="btn btn--secondary"
-          style={{
-            padding: '14px 30px'
-          }}
+          className="uf-btn uf-btn-cancel"
         >
-          <X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.buttonCancel')}
+          <X size={14} /> {t('employee.buttonCancel')}
         </button>
 
         <button
           type="submit"
           disabled={isLoading || uploadingPhotos}
-          className="btn btn--primary"
-          style={{
-            padding: '14px 30px'
-          }}
+          className="uf-btn uf-btn-submit"
         >
           {uploadingPhotos ? (
             <span className="loading-flex">
