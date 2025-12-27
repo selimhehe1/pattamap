@@ -100,9 +100,12 @@
 .search-layout {
   padding: 20px;
   padding-top: calc(var(--height-header-desktop, 80px) + 30px); /* Account for fixed header */
+  padding-bottom: 40px; /* Bottom padding to prevent cutoff */
   max-width: 1400px;
   margin: 0 auto;
   min-height: 100vh;
+  background: var(--gradient-main); /* Match body background to prevent grey zone */
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 /* Search Header - Title and subtitle */
