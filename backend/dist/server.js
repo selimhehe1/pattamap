@@ -291,43 +291,35 @@ const createSessionStore = () => {
         const redisClientWrapper = {
             get: async (key) => {
                 try {
-                    logger_1.logger.debug(`Redis GET: ${key}`);
                     const value = await upstashClient.get(key);
                     // If Upstash already deserialized it to an object, re-serialize it
                     if (value && typeof value === 'object') {
-                        logger_1.logger.debug(`Redis GET result (object->string): ${key}`);
                         return JSON.stringify(value);
                     }
-                    logger_1.logger.debug(`Redis GET result: ${key} -> ${value ? 'found' : 'null'}`);
                     return value;
                 }
                 catch (err) {
-                    logger_1.logger.error('Redis GET error:', { key, error: err });
+                    logger_1.logger.error('Redis GET error:', err);
                     return null;
                 }
             },
             set: async (key, value, optionsOrFlag, ttl) => {
                 try {
-                    logger_1.logger.debug(`Redis SET: ${key}`, { options: optionsOrFlag, ttl });
                     // connect-redis v8+ uses { EX: ttl } format
                     // connect-redis v7 uses 'EX', ttl format
                     if (typeof optionsOrFlag === 'object' && optionsOrFlag.EX) {
-                        logger_1.logger.debug(`Redis SETEX (v8 format): ${key}, EX: ${optionsOrFlag.EX}`);
                         await upstashClient.setex(key, optionsOrFlag.EX, value);
                     }
                     else if (optionsOrFlag === 'EX' && ttl) {
-                        logger_1.logger.debug(`Redis SETEX (v7 format): ${key}, EX: ${ttl}`);
                         await upstashClient.setex(key, ttl, value);
                     }
                     else {
-                        logger_1.logger.debug(`Redis SET (no TTL): ${key}`);
                         await upstashClient.set(key, value);
                     }
-                    logger_1.logger.debug(`Redis SET success: ${key}`);
                     return 'OK';
                 }
                 catch (err) {
-                    logger_1.logger.error('Redis SET error:', { key, error: err, stack: err.stack });
+                    logger_1.logger.error('Redis SET error:', err);
                     throw err;
                 }
             },
