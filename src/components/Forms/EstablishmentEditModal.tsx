@@ -502,22 +502,12 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   ] as const;
 
   return (
-    <div className="modal-overlay-nightlife">
-      <div
-        className="modal-form-container"
-        style={{
-          maxWidth: '900px',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          background: 'linear-gradient(135deg, rgba(20, 10, 40, 0.95), rgba(30, 20, 50, 0.92))',
-          border: '2px solid rgba(255,255,255,0.15)',
-          backdropFilter: 'blur(12px)',
-        }}
-      >
+    <div className="modal-overlay-unified">
+      <div className="modal-content-unified modal--large">
         {/* Close Button */}
         <button
           onClick={onCancel}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label="Close"
         >
           ×
