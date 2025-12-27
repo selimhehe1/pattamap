@@ -370,6 +370,7 @@ const login = async (req, res) => {
             });
         }
         // Generate JWT with proper expiration
+        logger_1.logger.debug('Login: generating JWT token...');
         const jwtSecret = process.env.JWT_SECRET;
         const jwtExpiration = process.env.JWT_EXPIRES_IN || '7d';
         if (!jwtSecret) {
@@ -382,7 +383,9 @@ const login = async (req, res) => {
             role: user.role,
             linkedEmployeeId: user.linked_employee_id // ✅ Include in JWT!
         }, jwtSecret, { expiresIn: jwtExpiration });
+        logger_1.logger.debug('Login: JWT token generated successfully');
         // Set secure httpOnly cookie
+        logger_1.logger.debug('Login: setting auth-token cookie...');
         res.cookie('auth-token', token, {
             httpOnly: true,
             secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
@@ -390,13 +393,20 @@ const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
             path: '/'
         });
+        logger_1.logger.debug('Login: auth-token cookie set');
         // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
+        logger_1.logger.debug('Login: regenerating CSRF token...');
         req.session.csrfToken = (0, csrf_1.generateCSRFToken)();
+        logger_1.logger.debug('Login: CSRF token regenerated, saving session...');
         // Explicitly save session before returning to ensure token is persisted
         await new Promise((resolve, reject) => {
             req.session.save((err) => {
                 if (err) {
-                    logger_1.logger.error('Failed to save session after token regeneration', err);
+                    logger_1.logger.error('Failed to save session after token regeneration', {
+                        error: err,
+                        sessionId: req.sessionID,
+                        stack: err.stack
+                    });
                     reject(err);
                 }
                 else {
@@ -408,6 +418,7 @@ const login = async (req, res) => {
                 }
             });
         });
+        logger_1.logger.debug('Login: session saved successfully');
         const freshCsrfToken = req.session.csrfToken;
         // Remove password from response
         const { password: _, ...userWithoutPassword } = user;

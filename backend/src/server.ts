@@ -284,32 +284,54 @@ const createSessionStore = (): session.Store | undefined => {
     });
 
     // Create a wrapper that makes Upstash client compatible with connect-redis
-    // connect-redis needs: get(key), set(key, value, 'EX', ttl), del(key)
+    // IMPORTANT: connect-redis expects raw strings, but Upstash auto-serializes JSON
+    // We need to handle serialization ourselves
     const redisClientWrapper = {
       get: async (key: string) => {
         try {
-          return await upstashClient.get(key);
+          logger.debug(`Redis GET: ${key}`);
+          const value = await upstashClient.get(key);
+          // If Upstash already deserialized it to an object, re-serialize it
+          if (value && typeof value === 'object') {
+            logger.debug(`Redis GET result (object->string): ${key}`);
+            return JSON.stringify(value);
+          }
+          logger.debug(`Redis GET result: ${key} -> ${value ? 'found' : 'null'}`);
+          return value;
         } catch (err) {
-          logger.error('Redis GET error:', err);
+          logger.error('Redis GET error:', { key, error: err });
           return null;
         }
       },
-      set: async (key: string, value: string, exFlag?: string, ttl?: number) => {
+      set: async (key: string, value: string, optionsOrFlag?: any, ttl?: number) => {
         try {
-          if (exFlag === 'EX' && ttl) {
+          logger.debug(`Redis SET: ${key}`, { options: optionsOrFlag, ttl });
+          // connect-redis v8+ uses { EX: ttl } format
+          // connect-redis v7 uses 'EX', ttl format
+          if (typeof optionsOrFlag === 'object' && optionsOrFlag.EX) {
+            logger.debug(`Redis SETEX (v8 format): ${key}, EX: ${optionsOrFlag.EX}`);
+            await upstashClient.setex(key, optionsOrFlag.EX, value);
+          } else if (optionsOrFlag === 'EX' && ttl) {
+            logger.debug(`Redis SETEX (v7 format): ${key}, EX: ${ttl}`);
             await upstashClient.setex(key, ttl, value);
           } else {
+            logger.debug(`Redis SET (no TTL): ${key}`);
             await upstashClient.set(key, value);
           }
+          logger.debug(`Redis SET success: ${key}`);
           return 'OK';
         } catch (err) {
-          logger.error('Redis SET error:', err);
+          logger.error('Redis SET error:', { key, error: err, stack: (err as Error).stack });
           throw err;
         }
       },
-      del: async (key: string) => {
+      del: async (key: string | string[]) => {
         try {
-          await upstashClient.del(key);
+          if (Array.isArray(key)) {
+            await Promise.all(key.map(k => upstashClient.del(k)));
+          } else {
+            await upstashClient.del(key);
+          }
           return 1;
         } catch (err) {
           logger.error('Redis DEL error:', err);
@@ -324,6 +346,15 @@ const createSessionStore = (): session.Store | undefined => {
         } catch (err) {
           logger.error('Redis EXPIRE error:', err);
           return 0;
+        }
+      },
+      // Needed by connect-redis for touch functionality
+      ttl: async (key: string) => {
+        try {
+          return await upstashClient.ttl(key);
+        } catch (err) {
+          logger.error('Redis TTL error:', err);
+          return -1;
         }
       }
     };
