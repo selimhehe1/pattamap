@@ -41,12 +41,12 @@ export const getFreelances = async (req: Request, res: Response) => {
     const limitNum = Math.min(100, Math.max(1, Number(limit)));
     const offset = (pageNum - 1) * limitNum;
 
-    // Build query
+    // Build query - Use LEFT JOIN (no !inner) to include freelances without employment history
     let query = supabase
       .from('employees')
       .select(`
         *,
-        current_employment:employment_history!inner(
+        current_employment:employment_history(
           *,
           establishment:establishments(
             id,
@@ -57,9 +57,6 @@ export const getFreelances = async (req: Request, res: Response) => {
       `, { count: 'exact' })
       .eq('is_freelance', true)
       .eq('status', 'approved');
-
-    // Filter by employment_history.is_current
-    query = query.eq('employment_history.is_current', true);
 
     // Search filter
     // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
@@ -91,9 +88,10 @@ export const getFreelances = async (req: Request, res: Response) => {
     }
 
     // Process employees: group nightclubs and filter based on has_nightclub
+    // Filter for is_current=true in code since we use LEFT JOIN
     const employees = (rawEmployees || []).map((emp: any) => {
       const nightclubs = (emp.current_employment || [])
-        .filter((eh: any) => eh.establishment?.category?.name === 'Nightclub')
+        .filter((eh: any) => eh.is_current === true && eh.establishment?.category?.name === 'Nightclub')
         .map((eh: any) => ({
           id: eh.establishment.id,
           name: eh.establishment.name,
