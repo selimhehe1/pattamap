@@ -560,3 +560,119 @@
     transform: none;
   }
 }
+
+/* ============================================
+   LIGHT MODE OVERRIDES
+   ============================================ */
+
+/* Light Mode - Search Input */
+body[data-theme="light"] .employees-modal__search-input {
+  background: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #1E293B !important;
+}
+
+body[data-theme="light"] .employees-modal__search-input::placeholder {
+  color: #64748B !important;
+}
+
+body[data-theme="light"] .employees-modal__search-input:focus {
+  border-color: #B45309 !important;
+  box-shadow: 0 0 20px rgba(180, 83, 9, 0.2) !important;
+}
+
+body[data-theme="light"] .employees-modal__search-icon {
+  color: #B45309 !important;
+}
+
+/* Light Mode - Employee Count */
+body[data-theme="light"] .employees-modal__count {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+}
+
+body[data-theme="light"] .employees-modal__count-text {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .employees-modal__count-icon {
+  color: #B45309 !important;
+  filter: none !important;
+}
+
+/* Light Mode - Cards */
+body[data-theme="light"] .employees-modal__card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+body[data-theme="light"] .employees-modal__card:hover {
+  background: #F8FAFC !important;
+  border-color: #B45309 !important;
+  box-shadow: 0 8px 30px rgba(180, 83, 9, 0.15) !important;
+}
+
+body[data-theme="light"] .employees-modal__card-name {
+  color: #1E293B !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="light"] .employees-modal__card-nickname {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .employees-modal__card-detail {
+  color: #475569 !important;
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.2) !important;
+}
+
+body[data-theme="light"] .employees-modal__card-photo {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+}
+
+body[data-theme="light"] .employees-modal__card-establishment {
+  background: rgba(180, 83, 9, 0.1) !important;
+  border-color: rgba(180, 83, 9, 0.2) !important;
+}
+
+body[data-theme="light"] .employees-modal__card-establishment-name {
+  color: #92400E !important;
+}
+
+body[data-theme="light"] .employees-modal__card-arrow {
+  color: #B45309 !important;
+}
+
+body[data-theme="light"] .employees-modal__card:hover .employees-modal__card-arrow {
+  color: #92400E !important;
+}
+
+/* Light Mode - Empty State */
+body[data-theme="light"] .employees-modal__empty-title {
+  color: #1E293B !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="light"] .employees-modal__empty-description {
+  color: #64748B !important;
+}
+
+body[data-theme="light"] .employees-modal__empty-icon {
+  filter: none !important;
+}
+
+/* Light Mode - Loading Skeletons */
+body[data-theme="light"] .employees-modal__skeleton {
+  background: #F1F5F9 !important;
+}
+
+body[data-theme="light"] .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(180, 83, 9, 0.1) 50%,
+    transparent 100%
+  ) !important;
+}

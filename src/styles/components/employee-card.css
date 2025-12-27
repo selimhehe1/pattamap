@@ -645,11 +645,12 @@ body[data-theme="light"] .employee-card-icon {
 }
 
 body[data-theme="light"] .employee-card-establishment {
-  color: #6B7280;
+  color: #475569; /* Slate-600 - improved contrast */
 }
 
 body[data-theme="light"] .employee-card-establishment-name {
-  color: #4B5563;
+  color: #334155; /* Slate-700 - stronger contrast for name */
+  font-weight: 600;
 }
 
 /* Light mode - Type badges */
