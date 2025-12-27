@@ -96,6 +96,22 @@
   color: var(--text-muted);
 }
 
+/* Initials placeholder - stylish avatar with first letter */
+.employee-card-placeholder-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.4);
+}
+
 /* ========================================
    BADGES (Top Corners)
    ======================================== */
@@ -685,4 +701,9 @@ body[data-theme="light"] .employee-card-placeholder {
 
 body[data-theme="light"] .employee-card-placeholder-icon {
   color: rgba(167, 139, 250, 0.5);
+}
+
+body[data-theme="light"] .employee-card-placeholder-initials {
+  background: linear-gradient(135deg, #B45309, #D97706);
+  box-shadow: 0 4px 15px rgba(180, 83, 9, 0.3);
 }

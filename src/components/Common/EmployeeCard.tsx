@@ -105,7 +105,9 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
           />
         ) : (
           <div className="employee-card-placeholder">
-            <span className="employee-card-placeholder-icon"><User size={48} /></span>
+            <div className="employee-card-placeholder-initials">
+              {employee.name?.charAt(0)?.toUpperCase() || '?'}
+            </div>
           </div>
         )}
       </div>

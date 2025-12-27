@@ -169,6 +169,8 @@
   gap: var(--spacing-5);
   /* Base fallback for browsers without container query support */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  /* Prevent single card from stretching to fill empty space */
+  justify-items: start;
 }
 
 /* Container Query aware grid columns handled by .cq-grid-auto class

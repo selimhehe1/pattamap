@@ -101,11 +101,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .admin-shield-icon {
   font-size: 2rem;
   filter: drop-shadow(0 0 10px rgba(193, 154, 107, 0.8));
+  flex-shrink: 0;
 }
 
 .admin-control-title {
@@ -117,7 +120,8 @@
   background-clip: text;
   margin: 0;
   font-family: var(--font-family-display);
-  text-shadow: 0 0 20px rgba(193, 154, 107, 0.5);
+  white-space: nowrap;
+  overflow: visible;
 }
 
 /* Live Stats */
@@ -393,6 +397,8 @@
   position: relative;
   z-index: var(--z-notification); /* 75 - Au-dessus du header */
   width: 100%;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll mobile */
 
   /* Scrollbar styling */
   scrollbar-width: thin;
@@ -425,11 +431,12 @@
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
-  flex: 1;
+  flex: 0 0 auto; /* Don't stretch - take natural width */
   text-align: center;
   white-space: nowrap;
   z-index: inherit;
   min-height: var(--tap-target-min); /* 44px WCAG */
+  min-width: fit-content;
 }
 
 .admin-tab-button.active {

@@ -173,7 +173,7 @@ const MyEstablishmentsPage: React.FC = () => {
           </h2>
           <p className="auth-message-text">
             This section is only available for establishment owners.<br />
-            Your current account type: <strong>{user.account_type}</strong>
+            Your role: <strong>{user.role}</strong> | Account type: <strong>{user.account_type}</strong>
           </p>
         </div>
       </div>
