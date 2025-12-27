@@ -114,24 +114,26 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay-nightlife">
-      <div className="edit-profile-modal-container">
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--large">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="modal-close-btn"
+          aria-label={t('editMyProfileModal.ariaCloseModal')}
+        >
+          ×
+        </button>
+
         {/* Header */}
-        <div className="edit-profile-modal-header">
+        <div style={{ padding: '20px 25px', borderBottom: '1px solid rgba(193, 154, 107, 0.3)' }}>
           <h2 className="header-title-nightlife">
             {t('editMyProfileModal.title')}
           </h2>
-          <button
-            onClick={onClose}
-            className="modal-close-button"
-            aria-label={t('editMyProfileModal.ariaCloseModal')}
-          >
-            <X size={20} />
-          </button>
         </div>
 
         {/* Content */}
-        <div className="edit-profile-modal-content">
+        <div style={{ padding: '25px', flex: 1, overflow: 'auto' }}>
           {isLoading ? (
             <div className="edit-profile-loading-state">
               <span className="loading-spinner-nightlife"></span>

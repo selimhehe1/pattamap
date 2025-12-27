@@ -14,7 +14,7 @@ import {
   Rocket,
   Info
 } from 'lucide-react';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 
 interface ClaimEmployeeModalProps {
   onClose: () => void;
@@ -184,9 +184,9 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
   };
 
   return (
-    <div className="modal-overlay-nightlife">
-      <div className="modal-form-container" style={{ maxWidth: '700px' }}>
-        <button onClick={onClose} className="modal-close-button" aria-label="Close">
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--medium">
+        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
           ×
         </button>
 
