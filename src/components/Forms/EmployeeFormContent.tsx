@@ -721,7 +721,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                     value={formData.social_media[platform as keyof typeof formData.social_media]}
                     onChange={handleInputChange}
                     className="uf-input"
-                    placeholder={`${labels[platform as keyof typeof labels].split(' ')[1]} username`}
+                    placeholder={`${labels[platform as keyof typeof labels]} username`}
                   />
                 </div>
               );
