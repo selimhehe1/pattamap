@@ -70,6 +70,9 @@ import {
   NotFoundPage
 } from './routes/lazyComponents';
 
+// LoginPage - lazy loaded for direct URL access
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import SEOHead from './components/Common/SEOHead';
 import StructuredData, { createOrganizationSchema, createWebSiteSchema } from './components/Common/StructuredData';
@@ -226,6 +229,7 @@ const AppContent: React.FC = () => {
                   PUBLIC ROUTES
                   ======================================== */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/freelances" element={<FreelancesPage />} />
               <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
