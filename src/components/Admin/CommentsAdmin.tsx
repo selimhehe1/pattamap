@@ -79,7 +79,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     const loadComments = async () => {
       setIsLoading(true);
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const API_URL = import.meta.env.VITE_API_URL || '';
         const response = await secureFetch(`${API_URL}/api/admin/comments?status=${filter === 'all' ? '' : filter}`);
 
         if (response.ok) {
@@ -98,7 +98,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleApprove = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/approve`, {
         method: 'POST'
       });
@@ -120,7 +120,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleReject = async (commentId: number, reason?: string) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason })
@@ -143,7 +143,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const handleDismissReports = async (commentId: number) => {
     setProcessingIds(prev => new Set(prev).add(commentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/dismiss-reports`, {
         method: 'POST'
       });
@@ -188,7 +188,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     setIsBulkProcessing(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const promises = Array.from(selectedIds).map(id =>
         secureFetch(`${API_URL}/api/admin/comments/${id}/approve`, { method: 'POST' })
       );
@@ -206,7 +206,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     setIsBulkProcessing(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const promises = Array.from(selectedIds).map(id =>
         secureFetch(`${API_URL}/api/admin/comments/${id}/reject`, {
           method: 'POST',
@@ -227,7 +227,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     setIsBulkProcessing(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const promises = Array.from(selectedIds).map(id =>
         secureFetch(`${API_URL}/api/admin/comments/${id}/dismiss-reports`, { method: 'POST' })
       );

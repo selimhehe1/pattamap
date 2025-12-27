@@ -338,7 +338,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                     current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
                   },
                   onSubmit: async (employeeData: EmployeeFormData) => {
-                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+                    const API_URL = import.meta.env.VITE_API_URL || '';
 
                     const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
                       method: 'POST',

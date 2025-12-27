@@ -143,7 +143,7 @@ const NotificationBell: React.FC = () => {
   const consecutiveErrorsRef = useRef(0);
   const currentIntervalRef = useRef(BASE_POLL_INTERVAL_MS);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   // Fetch unread count
   // 🔧 FIX N6: Returns success boolean for exponential backoff

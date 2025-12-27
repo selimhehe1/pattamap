@@ -154,7 +154,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     if (selectedIds.size === 0) return;
 
     setIsBulkProcessing(true);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const API_URL = import.meta.env.VITE_API_URL || '';
     let successCount = 0;
     let failCount = 0;
 
@@ -208,7 +208,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     if (!reason) return;
 
     setIsBulkProcessing(true);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const API_URL = import.meta.env.VITE_API_URL || '';
     let successCount = 0;
     let failCount = 0;
 
@@ -252,7 +252,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     const loadEstablishments = async () => {
       setIsLoading(true);
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const API_URL = import.meta.env.VITE_API_URL || '';
 
         if (filter === 'pending-edits') {
           const response = await secureFetch(`${API_URL}/api/edit-proposals?status=pending&item_type=establishment`);
@@ -283,7 +283,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const handleApprove = async (establishmentId: string) => {
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}/approve`, {
         method: 'POST'
       });
@@ -305,7 +305,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const handleReject = async (establishmentId: string, reason?: string) => {
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ reason })
@@ -337,7 +337,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(establishmentId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}`, {
         method: 'DELETE'
       });
@@ -363,7 +363,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
   const handleSaveEstablishment = async (establishmentData: Partial<Establishment>) => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
 
       // Determine if we're adding or editing
       const isEditing = !!editingEstablishment;
@@ -405,7 +405,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const handleApproveProposal = async (proposalId: string) => {
     setProcessingIds(prev => new Set(prev).add(proposalId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/edit-proposals/${proposalId}/approve`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: 'Approved via Establishments tab' })
@@ -440,7 +440,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(proposalId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/edit-proposals/${proposalId}/reject`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: reason })

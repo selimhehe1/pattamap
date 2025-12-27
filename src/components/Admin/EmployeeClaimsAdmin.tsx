@@ -56,7 +56,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     const loadClaims = async () => {
       setIsLoading(true);
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const API_URL = import.meta.env.VITE_API_URL || '';
         const statusParam = filter === 'all' ? '' : `?status=${filter}`;
 
         const response = await secureFetch(`${API_URL}/api/employees/claims${statusParam}`);
@@ -81,7 +81,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
   const handleApprove = async (claimId: string) => {
     setProcessingIds(prev => new Set(prev).add(claimId));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/employees/claims/${claimId}/approve`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: 'Claim approved' })
@@ -122,7 +122,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
     setProcessingIds(prev => new Set(prev).add(claimToReject));
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/employees/claims/${claimToReject}/reject`, {
         method: 'POST',
         body: JSON.stringify({ moderator_notes: rejectReason.trim() })
@@ -177,7 +177,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     setIsBulkProcessing(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const promises = Array.from(selectedIds).map(id =>
         secureFetch(`${API_URL}/api/employees/claims/${id}/approve`, {
           method: 'POST',

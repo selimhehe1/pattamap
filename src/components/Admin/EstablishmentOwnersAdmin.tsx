@@ -59,7 +59,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   const dialog = useDialog();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   // State Management
   const [viewMode, setViewMode] = useState<ViewMode>('owners');

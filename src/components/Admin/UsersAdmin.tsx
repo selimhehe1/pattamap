@@ -49,7 +49,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'user' | 'moderator' | 'admin' | 'inactive'>('all');

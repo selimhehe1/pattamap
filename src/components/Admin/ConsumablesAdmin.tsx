@@ -23,7 +23,7 @@ interface ConsumablesAdminProps {
 const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const [consumables, setConsumables] = useState<ConsumableTemplate[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingConsumable, setEditingConsumable] = useState<ConsumableTemplate | null>(null);
