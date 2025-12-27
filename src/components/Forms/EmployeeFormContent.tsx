@@ -303,17 +303,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   };
 
   return (
-    <div className="employee-form-container">
+    <div className="uf-container">
       {/* Header */}
-      <div className="employee-form-header">
-        <h2 className="employee-form-title">
+      <div className="uf-header">
+        <h2 className="uf-title">
           {initialData
             ? <><Pencil size={18} style={iconStyle} /> Edit Employee</>
             : isSelfProfile
               ? <><Sparkles size={18} style={iconStyle} /> Create Your Profile</>
               : <><Users size={18} style={iconStyle} /> Add New Employee</>}
         </h2>
-        <p className="employee-form-subtitle">
+        <p className="uf-subtitle">
           {initialData
             ? 'Propose changes to employee profile'
             : isSelfProfile
@@ -324,13 +324,13 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
       <form onSubmit={handleSubmit}>
         {/* Basic Information */}
-        <div className="employee-form-section">
-          <h3 className="employee-form-section-title">
+        <div className="uf-section">
+          <h3 className="uf-section-title">
             <FileText size={16} style={iconStyle} /> Basic Information
           </h3>
 
-          <div className="employee-form-field">
-            <label className="employee-form-label">
+          <div className="uf-field">
+            <label className="uf-label">
               <User size={14} style={iconStyle} /> Name *
             </label>
             <input
@@ -338,18 +338,18 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="employee-form-input"
+              className="uf-input"
               placeholder="Enter full name"
             />
             {errors.name && (
-              <div className="employee-form-error">
+              <div className="uf-error">
                 <AlertTriangle size={14} style={iconStyle} /> {errors.name}
               </div>
             )}
           </div>
 
-          <div className="employee-form-field">
-            <label className="employee-form-label">
+          <div className="uf-field">
+            <label className="uf-label">
               <UserCog size={14} style={iconStyle} /> Nickname
             </label>
             <input
@@ -357,14 +357,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               name="nickname"
               value={formData.nickname}
               onChange={handleInputChange}
-              className="employee-form-input"
+              className="uf-input"
               placeholder="Nickname or stage name"
             />
           </div>
 
-          <div className="employee-form-grid-2">
-            <div className="employee-form-field">
-              <label className="employee-form-label">
+          <div className="uf-grid-2">
+            <div className="uf-field">
+              <label className="uf-label">
                 <Cake size={14} style={iconStyle} /> Age
               </label>
               <input
@@ -372,20 +372,20 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                 name="age"
                 value={formData.age}
                 onChange={handleInputChange}
-                className="employee-form-input"
+                className="uf-input"
                 min="18"
                 max="80"
                 placeholder="Age"
               />
               {errors.age && (
-                <div className="employee-form-error">
+                <div className="uf-error">
                   <AlertTriangle size={14} style={iconStyle} /> {errors.age}
                 </div>
               )}
             </div>
 
-            <div className="employee-form-field">
-              <label className="employee-form-label">
+            <div className="uf-field">
+              <label className="uf-label">
                 <Globe size={14} style={iconStyle} /> Nationality
               </label>
               <NationalityTagsInput
@@ -398,15 +398,15 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             </div>
           </div>
 
-          <div className="employee-form-field">
-            <label className="employee-form-label">
+          <div className="uf-field">
+            <label className="uf-label">
               <FileText size={14} style={iconStyle} /> Description
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              className="employee-form-textarea"
+              className="uf-textarea"
               placeholder="Brief description..."
             />
           </div>
@@ -567,7 +567,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               <Music size={16} style={iconStyle} /> Nightclubs (Optional)
             </h3>
 
-            <div className="employee-form-field">
+            <div className="uf-field">
               <label className="nightclubs-selector-label">
                 <Building2 size={14} style={iconStyle} /> Select Nightclubs (you can work at multiple)
               </label>
@@ -625,20 +625,20 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
         {/* Current Employment */}
         {!isFreelanceMode && (
-          <div className="employee-form-section">
-          <h3 className="employee-form-section-title">
+          <div className="uf-section">
+          <h3 className="uf-section-title">
             <Building2 size={16} style={iconStyle} /> Current Employment (Optional)
           </h3>
 
-          <div className="employee-form-field">
-            <label className="employee-form-label">
+          <div className="uf-field">
+            <label className="uf-label">
               <Store size={14} style={iconStyle} /> Current Establishment
             </label>
             <select
               name="current_establishment_id"
               value={formData.current_establishment_id}
               onChange={handleInputChange}
-              className="employee-form-select"
+              className="uf-select"
             >
               <option value="">Select establishment</option>
               {(() => {
@@ -695,12 +695,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         )}
 
         {/* Social Media */}
-        <div className="employee-form-section">
-          <h3 className="employee-form-section-title">
+        <div className="uf-section">
+          <h3 className="uf-section-title">
             <Smartphone size={16} style={iconStyle} /> Social Media (Optional)
           </h3>
 
-          <div className="employee-form-grid-social">
+          <div className="uf-grid-social">
             {Object.keys(formData.social_media).map(platform => {
               const labels = {
                 ig: 'Instagram',
@@ -711,8 +711,8 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               };
 
               return (
-                <div key={platform} className="employee-form-field">
-                  <label className="employee-form-label">
+                <div key={platform} className="uf-field">
+                  <label className="uf-label">
                     {labels[platform as keyof typeof labels]}
                   </label>
                   <input
@@ -720,7 +720,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                     name={`social_media.${platform}`}
                     value={formData.social_media[platform as keyof typeof formData.social_media]}
                     onChange={handleInputChange}
-                    className="employee-form-input"
+                    className="uf-input"
                     placeholder={`${labels[platform as keyof typeof labels].split(' ')[1]} username`}
                   />
                 </div>
@@ -730,17 +730,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         </div>
 
         {errors.submit && (
-          <div className="employee-form-error-box">
+          <div className="uf-error-box">
             <AlertTriangle size={14} style={iconStyle} /> {errors.submit}
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="employee-form-actions">
+        <div className="uf-actions">
           <button
             type="button"
             onClick={onClose}
-            className="employee-form-btn employee-form-btn-cancel"
+            className="uf-btn uf-btn-cancel"
           >
             <X size={14} style={iconStyle} /> Cancel
           </button>
@@ -748,7 +748,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           <button
             type="submit"
             disabled={isLoading || uploadingPhotos}
-            className="employee-form-btn employee-form-btn-submit"
+            className="uf-btn uf-btn-submit"
           >
             {uploadingPhotos ? (
               <><Upload size={14} style={iconStyle} /> Uploading Photos...</>
