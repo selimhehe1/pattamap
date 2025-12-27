@@ -204,7 +204,35 @@ const cookiesSecure = NODE_ENV === 'production' ||
 
 // Cookie domain for cross-subdomain sharing (pattamap.com <-> api.pattamap.com)
 // In production, set COOKIE_DOMAIN=.pattamap.com to share cookies across subdomains
-const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+// 🔧 FIX: Auto-derive cookie domain from CORS_ORIGIN in production if not explicitly set
+const cookieDomain = (() => {
+  // Use explicit COOKIE_DOMAIN if set
+  if (process.env.COOKIE_DOMAIN) {
+    return process.env.COOKIE_DOMAIN;
+  }
+
+  // In production, try to derive from CORS_ORIGIN
+  if (NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
+    try {
+      // Extract domain from first CORS origin (e.g., https://www.pattamap.com -> .pattamap.com)
+      const firstOrigin = process.env.CORS_ORIGIN.split(',')[0];
+      const url = new URL(firstOrigin);
+      const hostParts = url.hostname.split('.');
+
+      // Get root domain (e.g., pattamap.com from www.pattamap.com)
+      if (hostParts.length >= 2) {
+        const rootDomain = hostParts.slice(-2).join('.');
+        const derivedDomain = `.${rootDomain}`;
+        logger.info(`🍪 Cookie domain auto-derived from CORS_ORIGIN: ${derivedDomain}`);
+        return derivedDomain;
+      }
+    } catch (error) {
+      logger.warn('Failed to auto-derive cookie domain from CORS_ORIGIN:', error);
+    }
+  }
+
+  return undefined;
+})();
 
 // Log warning if cookies are not secure in development
 if (NODE_ENV === 'development' && !cookiesSecure) {
