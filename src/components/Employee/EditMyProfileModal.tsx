@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, XCircle, RefreshCw } from 'lucide-react';
+import { XCircle, RefreshCw } from 'lucide-react';
 import toastService from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';

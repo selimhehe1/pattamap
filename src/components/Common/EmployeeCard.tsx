@@ -5,7 +5,6 @@ import { Employee } from '../../types';
 import LazyImage from './LazyImage';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import {
-  User,
   Star,
   Check,
   ThumbsUp,
