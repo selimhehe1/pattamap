@@ -261,14 +261,21 @@ const createSessionStore = (): session.Store | undefined => {
   }
 
   try {
+    // Check if TLS is required (rediss:// URLs)
+    const useTLS = redisUrl.startsWith('rediss://');
+
     const redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
       lazyConnect: false, // Connect immediately
       retryStrategy(times) {
         const delay = Math.min(times * 50, 2000);
         return delay;
-      }
+      },
+      // Enable TLS for rediss:// URLs (required for Upstash)
+      ...(useTLS && { tls: { rejectUnauthorized: false } })
     });
+
+    logger.info(`🔗 Redis connecting... TLS: ${useTLS}`);
 
     redisClient.on('error', (err) => {
       logger.error('Session Redis error:', err);
