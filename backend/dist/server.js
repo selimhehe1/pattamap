@@ -271,46 +271,45 @@ const createSessionStore = () => {
     try {
         // Check if TLS is required (rediss:// URLs)
         const useTLS = redisUrl.startsWith('rediss://');
-        // 🔧 FIX: ioredis doesn't parse rediss:// correctly, parse URL manually
-        let redisClient;
+        logger_1.logger.info(`🔗 Redis session store initializing... (TLS: ${useTLS})`);
+        // For Upstash: Parse URL and configure TLS manually
+        // URL format: rediss://default:password@host:port
+        const urlForParsing = redisUrl.replace('rediss://', 'https://').replace('redis://', 'http://');
+        const parsedUrl = new URL(urlForParsing);
+        const redisOptions = {
+            host: parsedUrl.hostname,
+            port: parseInt(parsedUrl.port) || 6379,
+            password: decodeURIComponent(parsedUrl.password), // Decode URL-encoded password
+            maxRetriesPerRequest: 3,
+            connectTimeout: 10000, // 10 seconds timeout
+            commandTimeout: 5000,
+            retryStrategy(times) {
+                if (times > 3)
+                    return null; // Stop retrying after 3 attempts
+                return Math.min(times * 100, 2000);
+            },
+            enableReadyCheck: true,
+            showFriendlyErrorStack: true
+        };
+        // Add TLS config for rediss:// URLs
         if (useTLS) {
-            // Parse the URL to extract components
-            // rediss://default:password@host:port -> redis://default:password@host:port
-            const urlForParsing = redisUrl.replace('rediss://', 'redis://');
-            const parsedUrl = new URL(urlForParsing);
-            logger_1.logger.info(`🔗 Redis connecting to ${parsedUrl.hostname}:${parsedUrl.port} with TLS...`);
-            redisClient = new ioredis_1.default({
-                host: parsedUrl.hostname,
-                port: parseInt(parsedUrl.port) || 6379,
-                username: parsedUrl.username || 'default',
-                password: parsedUrl.password,
-                maxRetriesPerRequest: 3,
-                lazyConnect: false,
-                retryStrategy(times) {
-                    const delay = Math.min(times * 50, 2000);
-                    return delay;
-                },
-                tls: {
-                    rejectUnauthorized: false // Required for Upstash
-                }
-            });
+            redisOptions.tls = {
+                rejectUnauthorized: false // Required for Upstash
+            };
         }
-        else {
-            // Non-TLS connection - use URL directly
-            redisClient = new ioredis_1.default(redisUrl, {
-                maxRetriesPerRequest: 3,
-                lazyConnect: false,
-                retryStrategy(times) {
-                    const delay = Math.min(times * 50, 2000);
-                    return delay;
-                }
-            });
-        }
+        logger_1.logger.info(`🔗 Connecting to Redis: ${parsedUrl.hostname}:${parsedUrl.port}`);
+        const redisClient = new ioredis_1.default(redisOptions);
         redisClient.on('error', (err) => {
-            logger_1.logger.error('Session Redis error:', err);
+            logger_1.logger.error('❌ Session Redis error:', err.message);
         });
         redisClient.on('connect', () => {
-            logger_1.logger.info('✅ Session Redis connected');
+            logger_1.logger.info('✅ Session Redis TCP connected');
+        });
+        redisClient.on('ready', () => {
+            logger_1.logger.info('✅ Session Redis ready for commands');
+        });
+        redisClient.on('close', () => {
+            logger_1.logger.warn('⚠️ Session Redis connection closed');
         });
         const store = new connect_redis_1.RedisStore({
             client: redisClient,
@@ -320,7 +319,7 @@ const createSessionStore = () => {
         return store;
     }
     catch (error) {
-        logger_1.logger.error('Failed to create Redis session store:', error);
+        logger_1.logger.error('❌ Failed to create Redis session store:', error);
         return undefined;
     }
 };
