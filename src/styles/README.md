@@ -14,12 +14,13 @@ styles/
 ├── design-system.css          ← ⭐ Variables centralisées (IMPORTER EN PREMIER)
 │
 ├── base/
-│   └── reset.css             ← Reset CSS global
+│   ├── accessibility.css     ← WCAG AAA compliance
+│   └── scrollbars.css        ← Scrollbar styling
 │
 ├── components/
 │   ├── buttons.css           ← Système de boutons
-│   ├── forms.css             ← Inputs, selects, etc.
 │   ├── modals.css            ← Modals génériques
+│   ├── form-components.css   ← Form inputs & validation
 │   └── cards.css             ← Cards
 │
 ├── layout/
@@ -40,8 +41,6 @@ styles/
 │   └── overlays.css          ← ⭐ Patterns overlay/menu réutilisables
 │
 └── [LEGACY]
-    ├── nightlife-theme.css   ← À déprécier (9,145 lignes)
-    ├── theme-variables.css   ← Remplacé par design-system.css
     └── theme-overrides.css   ← Remplacé par themes/
 ```
 
@@ -55,27 +54,24 @@ Dans `App.tsx`, **respecter cet ordre**:
 // 1. DESIGN SYSTEM (variables) - TOUJOURS EN PREMIER
 import './styles/design-system.css';
 
-// 2. BASE (reset, typography)
-import './styles/base/reset.css';
+// 2. BASE (accessibility, scrollbars)
+import './styles/base/accessibility.css';
+import './styles/base/scrollbars.css';
 
-// 3. UTILS (patterns réutilisables)
-import './styles/utils/overlays.css';
+// 3. COMPONENTS
+import './styles/components/buttons.css';
+import './styles/components/modals.css';
+import './styles/components/form-components.css';
 
 // 4. LAYOUT
 import './styles/layout/header.css';
 import './styles/layout/page.css';
 
-// 5. COMPONENTS
-import './styles/components/buttons.css';
-import './styles/components/forms.css';
-import './styles/components/modals.css';
+// 5. FEATURES (spécifiques)
+import './styles/components/maps.css';
 
-// 6. FEATURES (spécifiques)
-import './styles/features/maps.css';
-import './styles/features/admin.css';
-
-// 7. THEMES (overrides dark/light)
-import './styles/themes/dark.css';
+// 6. APP CSS (global styles)
+import './App.css';
 ```
 
 ---
@@ -229,8 +225,8 @@ z-index: var(--z-overlay);     /* 70 */
 
 #### Core System
 - ✅ **design-system.css** - Variables centralisées (657 lignes)
-- ✅ **base/reset.css** - Reset global (215 lignes)
 - ✅ **base/accessibility.css** - WCAG AAA compliance (617 lignes)
+- ✅ **base/scrollbars.css** - Custom scrollbars
 - ✅ **utils/overlays.css** - Patterns overlay/menu réutilisables (386 lignes)
 
 #### Modern CSS (2025)
@@ -239,7 +235,7 @@ z-index: var(--z-overlay);     /* 70 */
 
 #### Components
 - ✅ **components/buttons.css** - Système de boutons (550 lignes)
-- ✅ **components/forms.css** - Forms, inputs, validation (600 lignes)
+- ✅ **components/form-components.css** - Forms, inputs, validation
 - ✅ **components/modals.css** - Modales et dialogues (500 lignes)
 
 #### Layout
