@@ -8,7 +8,6 @@ import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
 import { Trophy, X, Search, Building2, Plus, FolderOpen, CheckCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
 import '../../styles/components/modals.css';
-import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
 

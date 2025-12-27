@@ -6,7 +6,7 @@ import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
 import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
-import '../../../styles/components/modal-forms.css';
+import '../../../styles/components/modals.css';
 
 interface BasicInfoFormProps {
   formData: {

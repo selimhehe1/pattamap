@@ -10,7 +10,7 @@ import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
 import { Pencil, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
@@ -417,27 +417,15 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ onSubmit, onCance
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.7)',
-      zIndex: 900,
-      animation: 'fadeIn 0.5s ease-out',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '10px'
-    }} role="dialog" aria-modal="true">
-      <div className="modal-form-container">
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--large">
         {/* Bouton fermeture */}
         <button
           onClick={onCancel}
-          className="modal-close-button"
+          className="modal-close-btn"
+          aria-label="Close"
         >
-          ✕
+          ×
         </button>
 
         <div className="modal-header">

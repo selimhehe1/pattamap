@@ -16,7 +16,7 @@ import {
   Check,
   Lightbulb
 } from 'lucide-react';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 
 interface EmployeeProfileWizardProps {
   onClose: () => void;
@@ -135,11 +135,11 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
   // 🆕 v10.0.2 - If showing employees list, render list view
   if (showEmployeesList) {
     return (
-      <div className="modal-overlay-nightlife">
-        <div className="modal-form-container" style={{ maxWidth: '900px', maxHeight: '90vh', overflow: 'auto' }}>
+      <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+        <div className="modal-content-unified modal--large" style={{ maxHeight: '90vh', overflow: 'auto' }}>
           <button
             onClick={onClose}
-            className="modal-close-button"
+            className="modal-close-btn"
             aria-label={t('employeeProfileWizard.ariaClose')}
           >
             ×
@@ -366,11 +366,11 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
   }
 
   return (
-    <div className="modal-overlay-nightlife">
-      <div className="modal-form-container" style={{ maxWidth: '800px' }}>
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--large">
         <button
           onClick={onClose}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label={t('employeeProfileWizard.ariaClose')}
         >
           ×

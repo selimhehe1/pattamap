@@ -21,7 +21,6 @@ import toast from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/components/employee-profile.css';
-import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/components/photo-gallery-modal.css';
 // profile-modal.css removed - now using unified modals.css from App.tsx

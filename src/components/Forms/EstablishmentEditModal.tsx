@@ -10,7 +10,7 @@ import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
 import { FileText, DollarSign, Phone, Clock, Pencil, Pen, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
