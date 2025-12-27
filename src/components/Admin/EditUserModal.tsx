@@ -16,6 +16,7 @@ import {
   Save,
   HelpCircle
 } from 'lucide-react';
+import '../../styles/components/modals.css';
 
 interface AdminUser extends User {
   is_active: boolean;
@@ -112,31 +113,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.9)',
-      zIndex: 1000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-      backdropFilter: 'blur(10px)'
-    }} role="dialog" aria-modal="true">
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-        borderRadius: '25px',
-        border: '2px solid #C19A6B',
-        boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
-        width: '90%',
-        maxWidth: '600px',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        position: 'relative'
-      }}>
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--medium">
         {/* Header */}
         <div style={{
           padding: '30px 30px 20px 30px',
@@ -145,21 +123,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           <button
             onClick={onClose}
             aria-label="Close"
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'rgba(193, 154, 107,0.2)',
-              border: '2px solid #C19A6B',
-              color: '#C19A6B',
-              fontSize: '20px',
-              cursor: 'pointer',
-              zIndex: 10,
-              transition: 'all 0.3s ease'
-            }}
+            className="modal-close-btn"
           >
             ×
           </button>

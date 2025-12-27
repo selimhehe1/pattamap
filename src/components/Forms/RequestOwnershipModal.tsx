@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
 import { Trophy, X, Search, Building2, Plus, FolderOpen, CheckCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
+import '../../styles/components/modals.css';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -365,32 +366,13 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
         }
       `}</style>
 
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '20px',
-        animation: 'fadeIn 0.3s ease'
-      }} role="dialog" aria-modal="true">
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(15,15,15,0.95), rgba(30,30,30,0.95))',
-        borderRadius: '20px',
-        padding: '30px',
-        width: '90%',
-        maxWidth: '900px',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        border: '2px solid rgba(193, 154, 107,0.3)',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
-        animation: 'slideUp 0.5s ease-out'
-      }}>
+      <div className="modal-overlay-unified" role="dialog" aria-modal="true">
+      <div className="modal-content-unified modal--large" style={{ padding: '30px' }}>
+        {/* Close Button */}
+        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
+          ×
+        </button>
+
         {/* Header */}
         <div style={{
           display: 'flex',
@@ -410,35 +392,6 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
           }}>
             <Trophy size={28} style={{ color: '#FFD700' }} /> {t('ownership.title', 'Request Establishment Ownership')}
           </h2>
-
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#fff',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '5px',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(193, 154, 107, 0.2)';
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'none';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            aria-label="Close">
-            <X size={20} />
-          </button>
         </div>
 
         {/* Subtitle */}

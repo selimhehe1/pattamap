@@ -5,6 +5,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { modalVariants, backdropVariants } from '../../animations/variants';
 import AnimatedButton from './AnimatedButton';
 import LoadingFallback from './LoadingFallback';
+import '../../styles/components/modals.css';
 
 interface ModalProps {
   modal: ModalConfig;
@@ -35,16 +36,18 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
   const baseZIndex = 100000;
   const zIndex = options?.zIndex || (baseZIndex + index * 10);
 
-  // 🎯 Tailles prédéfinies
-  const sizeStyles = {
-    small: { maxWidth: '400px', width: '90vw' },
-    medium: { maxWidth: '600px', width: '90vw' },
-    large: { maxWidth: '900px', width: '95vw' },
-    profile: { width: '600px', maxWidth: '95vw' }, // Taille exacte pour profils
-    fullscreen: { width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', borderRadius: '0' }
-  };
+  // 🎯 Taille du modal (utilisé pour la classe CSS)
+  const size = options?.size || 'medium';
+  const isFullscreen = size === 'fullscreen';
 
-  const sizeStyle = sizeStyles[options?.size || 'medium'];
+  // 🎯 Classes CSS pour le modal content
+  const sizeClasses: Record<string, string> = {
+    small: 'modal--small',
+    medium: 'modal--medium',
+    large: 'modal--large',
+    profile: 'modal--profile',
+    fullscreen: 'modal--fullscreen'
+  };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && options?.closeOnOverlayClick !== false) {
@@ -52,35 +55,20 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
     }
   };
 
-  // 🎯 Pour fullscreen sur mobile: pas de padding/margin
-  const isFullscreen = options?.size === 'fullscreen';
-
   return (
     <motion.div
       className="modal-overlay-unified view-transition-modal-backdrop"
+      data-fullscreen={isFullscreen}
       variants={backdropVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(10px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: isFullscreen ? '0' : '20px',
-        zIndex
-      }}
+      style={{ zIndex, padding: isFullscreen ? '0' : undefined }}
       onClick={handleOverlayClick}
     >
       <motion.div
         ref={modalRef}
-        className="modal-content-unified view-transition-modal"
+        className={`modal-content-unified ${sizeClasses[size]} view-transition-modal`}
         data-fullscreen={isFullscreen}
         variants={modalVariants}
         initial="hidden"
@@ -90,21 +78,9 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
         aria-modal="true"
         aria-labelledby={`modal-title-${id}`}
         aria-describedby={`modal-description-${id}`}
-        style={{
-          position: 'relative',
-          background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-          borderRadius: options?.size === 'fullscreen' ? '0' : '20px',
-          border: isFullscreen ? 'none' : '2px solid rgba(193, 154, 107, 0.4)',
-          boxShadow: isFullscreen ? 'none' : '0 20px 60px rgba(193, 154, 107, 0.25), 0 0 40px rgba(44, 62, 80, 0.2)',
-          maxHeight: options?.size === 'fullscreen' ? '100vh' : '90vh',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          boxSizing: 'border-box',
-          ...sizeStyle
-        }}
-        onClick={(e) => e.stopPropagation()} // Empêche la fermeture en cliquant sur le contenu
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Bouton de fermeture optionnel - Phase 3B Animated */}
+        {/* Bouton de fermeture optionnel */}
         {options?.showCloseButton !== false && (
           <AnimatedButton
             onClick={() => onClose(id)}
@@ -122,59 +98,6 @@ const Modal: React.FC<ModalProps> = ({ modal, index, onClose }) => {
           <Component {...props} />
         </Suspense>
       </motion.div>
-
-      {/* Responsive design */}
-      <style>{`
-        .modal-close-btn {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(44, 62, 80, 0.2));
-          border: 2px solid rgba(193, 154, 107, 0.4);
-          color: var(--color-text, #f5f5f5);
-          font-size: 24px;
-          font-weight: 300;
-          cursor: pointer;
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
-        }
-
-        .modal-close-btn:hover {
-          background: linear-gradient(135deg, rgba(193, 154, 107, 0.4), rgba(44, 62, 80, 0.4));
-          border-color: var(--color-primary, #C19A6B);
-          transform: scale(1.1);
-          box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
-        }
-
-        @media (max-width: 768px) {
-          .modal-content-unified:not([data-fullscreen="true"]) {
-            margin: 10px !important;
-            width: calc(100vw - 20px) !important;
-            max-width: none !important;
-          }
-        }
-
-        /* Landscape mode - full width for large modals */
-        @media (max-height: 768px) and (orientation: landscape) {
-          .modal-content-unified:not([data-fullscreen="true"]) {
-            width: calc(100vw - 20px) !important;
-            max-width: none !important;
-            margin: 10px !important;
-          }
-
-          .modal-overlay-unified {
-            padding: 10px !important;
-          }
-        }
-      `}</style>
     </motion.div>
   );
 };

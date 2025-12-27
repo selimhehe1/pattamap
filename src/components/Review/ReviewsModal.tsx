@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare, Lightbulb, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ReviewsList from './ReviewsList';
+import '../../styles/components/modals.css';
 
 interface Review {
   id: string;
@@ -55,24 +56,19 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="modal-app-overlay"
-      onClick={onClose}
-     role="button" tabIndex={0}>
+    <div className="modal-overlay-unified" onClick={onClose} role="dialog" aria-modal="true">
       <div
-        className="profile-container-vertical-nightlife"
-        style={{
-          width: '90%',
-          maxWidth: '800px',
-          maxHeight: '90vh',
-          margin: '20px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-        role="button" tabIndex={0} onClick={(e) => e.stopPropagation()}
+        className="modal-content-unified modal--large"
+        style={{ display: 'flex', flexDirection: 'column' }}
+        onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
+        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
+          ×
+        </button>
+
         {/* Header */}
-        <div className="profile-header-bar" style={{
+        <div style={{
           padding: '20px 25px',
           borderBottom: '1px solid rgba(193, 154, 107,0.3)',
           background: 'linear-gradient(135deg, rgba(193, 154, 107,0.2), rgba(0,0,0,0.4))',
@@ -88,39 +84,6 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
           }}>
             <MessageSquare size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('reviewsModal.title', { employeeName })}
           </h2>
-
-          <button
-            onClick={onClose}
-            className="profile-close-button"
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '25px',
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(193, 154, 107,0.3)',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#C19A6B',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(193, 154, 107,0.2)';
-              e.currentTarget.style.borderColor = '#C19A6B';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-              e.currentTarget.style.borderColor = 'rgba(193, 154, 107,0.3)';
-            }}
-          >
-            ✕
-          </button>
         </div>
 
         {/* Content */}

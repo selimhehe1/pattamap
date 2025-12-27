@@ -126,28 +126,39 @@
 }
 
 .modal__close {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--border-radius-lg);
-  background: rgba(193, 154, 107, 0.1);
-  border: 2px solid rgba(193, 154, 107, 0.3);
-  color: var(--color-primary);
-  font-size: var(--font-xl);
-  font-weight: var(--font-weight-bold);
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 44px;              /* WCAG touch target */
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(44, 62, 80, 0.2));
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  color: var(--text-primary, #f5f5f5);
+  font-size: 24px;
+  font-weight: 300;
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-in-out);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
 }
 
 .modal__close:hover,
 .modal__close:focus {
-  background: rgba(193, 154, 107, 0.2);
-  border-color: rgba(193, 154, 107, 0.6);
-  transform: rotate(90deg) scale(1.1);
-  box-shadow: var(--shadow-glow-primary);
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.4), rgba(44, 62, 80, 0.4));
+  border-color: var(--color-primary);
+  transform: scale(1.1);    /* Scale, pas rotation */
+  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+}
+
+.modal__close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ============================================
@@ -484,6 +495,141 @@ body.modal-open {
 }
 
 /* ============================================
+   UNIFIED MODAL SYSTEM (for Modal.tsx)
+   ============================================ */
+
+/**
+ * Styles for the unified Modal.tsx component
+ * These classes replace inline styles in Modal.tsx
+ */
+
+/* Unified overlay - used by Modal.tsx */
+.modal-overlay-unified {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: var(--z-modal, 100000);
+}
+
+/* Unified modal content - used by Modal.tsx */
+.modal-content-unified {
+  position: relative;
+  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
+  border-radius: 20px;
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  box-shadow: 0 20px 60px rgba(193, 154, 107, 0.25), 0 0 40px rgba(44, 62, 80, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Size variants for Modal.tsx */
+.modal-content-unified.modal--small {
+  max-width: 400px;
+  width: 90vw;
+}
+
+.modal-content-unified.modal--medium {
+  max-width: 600px;
+  width: 90vw;
+}
+
+.modal-content-unified.modal--large {
+  max-width: 900px;
+  width: 95vw;
+}
+
+.modal-content-unified.modal--profile {
+  width: 600px;
+  max-width: 95vw;
+}
+
+.modal-content-unified.modal--fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+/* Fullscreen overlay adjustments */
+.modal-overlay-unified[data-fullscreen="true"] {
+  padding: 0;
+}
+
+/* Unified close button - replaces .modal-close-btn in Modal.tsx */
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(44, 62, 80, 0.2));
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  color: var(--text-primary, #f5f5f5);
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
+}
+
+.modal-close-btn:hover {
+  background: linear-gradient(135deg, rgba(193, 154, 107, 0.4), rgba(44, 62, 80, 0.4));
+  border-color: var(--color-primary);
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+}
+
+.modal-close-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive for unified modals */
+@media (max-width: 768px) {
+  .modal-content-unified:not(.modal--fullscreen) {
+    margin: 10px;
+    width: calc(100vw - 20px);
+    max-width: none;
+  }
+
+  .modal-overlay-unified {
+    padding: 10px;
+  }
+}
+
+/* Landscape mode */
+@media (max-height: 768px) and (orientation: landscape) {
+  .modal-content-unified:not(.modal--fullscreen) {
+    width: calc(100vw - 20px);
+    max-width: none;
+    margin: 10px;
+  }
+
+  .modal-overlay-unified {
+    padding: 10px;
+  }
+}
+
+/* ============================================
    LEGACY ALIASES (for backwards compatibility)
    ============================================ */
 
@@ -491,6 +637,36 @@ body.modal-open {
  * Legacy class aliases - map old names to new system
  * Can be removed when all components are migrated
  */
-.modal-overlay-nightlife { /* Use .modal-overlay instead */ }
-.modal-content-nightlife { /* Use .modal instead */ }
-.loading-spinner-nightlife { /* Use .modal-spinner instead */ }
+.modal-overlay-nightlife {
+  /* Alias to modal-overlay */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 100000);
+}
+
+.modal-content-nightlife {
+  /* Alias to modal */
+  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
+  border-radius: 20px;
+  border: 2px solid rgba(193, 154, 107, 0.4);
+  box-shadow: 0 20px 60px rgba(193, 154, 107, 0.25);
+}
+
+.loading-spinner-nightlife {
+  /* Alias to modal-spinner */
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid rgba(193, 154, 107, 0.3);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  animation: modalSpin 1s linear infinite;
+}

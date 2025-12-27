@@ -11,6 +11,7 @@ import {
   MessageCircle,
   FileEdit
 } from 'lucide-react';
+import '../../styles/components/modals.css';
 
 interface UserInfoModalProps {
   user: User;
@@ -59,22 +60,14 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose }) => {
   };
 
   return (
-    <div
-      className="modal-overlay-nightlife"
-      onClick={onClose}
-      aria-hidden="true"
-    >
+    <div className="modal-overlay-unified" onClick={onClose} role="dialog" aria-modal="true">
       {/* Modal Container */}
       <div
-        className="modal-form-container user-info-modal"
+        className="modal-content-unified modal--small user-info-modal"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="modal-close-button"
-          aria-label="Close user info modal"
-        >
+        <button onClick={onClose} className="modal-close-btn" aria-label="Close user info modal">
           ×
         </button>
 
