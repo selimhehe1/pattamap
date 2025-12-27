@@ -7,7 +7,7 @@ import { useAutoSave } from '../../hooks/useAutoSave';
 import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import FormField from '../Common/FormField';
 import toast from '../../utils/toast';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 
 interface RegisterFormProps {
   onClose: () => void;
@@ -223,11 +223,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
   };
 
   return (
-    <div className="modal-overlay-nightlife" data-testid="register-modal">
-      <div className="modal-form-container">
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="register-modal">
+      <div className="modal-content-unified modal--medium">
         <button
           onClick={handleClose}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label="Close"
           data-testid="close-register-modal"
         >

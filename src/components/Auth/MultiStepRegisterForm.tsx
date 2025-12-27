@@ -14,7 +14,7 @@ import NationalityTagsInput from '../Forms/NationalityTagsInput';
 import { Employee } from '../../types';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 
 interface MultiStepRegisterFormProps {
@@ -561,11 +561,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     : currentStep === 1 ? 50 : 100;
 
   return (
-    <div className="modal-overlay-nightlife" data-testid="multistep-register-modal">
-      <div className="modal-form-container" style={{ maxWidth: '700px' }}>
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="multistep-register-modal">
+      <div className="modal-content-unified modal--large">
         <button
           onClick={handleClose}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label="Close"
           data-testid="close-multistep-register-modal"
         >

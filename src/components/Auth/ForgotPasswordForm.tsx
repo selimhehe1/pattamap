@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Mail } from 'lucide-react';
 import { useCSRF } from '../../contexts/CSRFContext';
 import toast from '../../utils/toast';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 
 interface ForgotPasswordFormProps {
   onClose: () => void;
@@ -81,11 +81,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   // Success state - show confirmation
   if (isSubmitted) {
     return (
-      <div className="modal-overlay-nightlife" data-testid="forgot-password-modal">
-        <div className="modal-form-container">
+      <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="forgot-password-modal">
+        <div className="modal-content-unified modal--medium">
           <button
             onClick={onClose}
-            className="modal-close-button"
+            className="modal-close-btn"
             aria-label={t('common.close')}
           >
             ×
@@ -126,11 +126,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   }
 
   return (
-    <div className="modal-overlay-nightlife" data-testid="forgot-password-modal">
-      <div className="modal-form-container">
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="forgot-password-modal">
+      <div className="modal-content-unified modal--medium">
         <button
           onClick={onClose}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label={t('common.close')}
         >
           ×

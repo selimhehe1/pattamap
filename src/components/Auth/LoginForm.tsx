@@ -7,7 +7,7 @@ import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import FormField from '../Common/FormField';
 import toast from '../../utils/toast';
-import '../../styles/components/modal-forms.css';
+import '../../styles/components/modals.css';
 
 interface LoginFormProps {
   onClose: () => void;
@@ -175,12 +175,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
   // Form content (shared between embedded and standalone modes)
   const formContent = (
-    <div className={embedded ? "modal-form-container-embedded" : "modal-form-container"} style={embedded ? {} : lightModeStyles.container}>
+    <div className={embedded ? "modal-form-container-embedded" : "modal-content-unified modal--medium"} style={embedded ? {} : lightModeStyles.container}>
       {/* Close button only shown in standalone mode (not embedded) */}
       {!embedded && (
         <button
           onClick={handleClose}
-          className="modal-close-button"
+          className="modal-close-btn"
           aria-label={t('common.close')}
           data-testid="close-login-modal"
           style={lightModeStyles.closeButton}
@@ -376,7 +376,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
   // Standalone mode: wrap in overlay
   return (
     <div
-      className="modal-overlay-nightlife"
+      className="modal-overlay-unified"
+      role="dialog"
+      aria-modal="true"
       data-testid="login-modal"
       style={lightModeStyles.overlay}
     >
