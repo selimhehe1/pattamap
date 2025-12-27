@@ -35,7 +35,7 @@ import PageTransition from './components/Common/PageTransition';
 import './styles/design-system.css';
 import './styles/base/scrollbars.css';
 import './styles/base/accessibility.css';
-import './styles/base/modal-base.css';
+import './styles/components/modals.css';
 import './styles/global/utilities.css';
 import './styles/utilities/typography.css';
 import './styles/utilities/layout-containers.css';

@@ -36,7 +36,7 @@ import {
   ShieldOff
 } from 'lucide-react';
 import '../../styles/admin/dashboard.css';
-import '../../styles/components/admin-profile-modal.css';
+// admin-profile-modal.css removed - now using unified modals.css from App.tsx
 
 // Feature flag check
 const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);

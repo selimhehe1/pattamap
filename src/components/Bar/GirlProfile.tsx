@@ -24,7 +24,7 @@ import '../../styles/components/employee-profile.css';
 import '../../styles/components/modal-forms.css';
 import '../../styles/components/photos.css';
 import '../../styles/components/photo-gallery-modal.css';
-import '../../styles/components/profile-modal.css';
+// profile-modal.css removed - now using unified modals.css from App.tsx
 import '../../styles/pages/user-dashboard.css';
 
 // Feature flag check

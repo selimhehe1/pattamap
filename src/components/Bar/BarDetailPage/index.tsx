@@ -22,7 +22,7 @@ import toast from '../../../utils/toast';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/pages/establishment.css';
 import '../../../styles/components/photos.css';
-import '../../../styles/components/modals-app.css';
+// modals-app.css removed - now using unified modals.css from App.tsx
 import '../../../styles/layout/page-layout.css';
 
 const BarDetailPage: React.FC = () => {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, X, Eye } from 'lucide-react';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import '../../styles/components/verification-modal.css';
+import '../../styles/components/modals.css';
 
 interface RequestVerificationModalProps {
   employeeId: string;
