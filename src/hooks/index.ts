@@ -7,7 +7,6 @@
 
 // Application Modals
 export { useAppModals } from './useAppModals';
-export { useModals } from './useModals';
 export { useDialog } from './useDialog';
 
 // Data Fetching

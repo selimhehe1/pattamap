@@ -52,12 +52,8 @@ import consumableRoutes from './routes/consumables';
 import uploadRoutes from './routes/upload';
 import moderationRoutes from './routes/moderation';
 import adminRoutes from './routes/admin';
-import migrationRoutes from './routes/migration';
-import tempAdminRoutes from './routes/temp-admin';
 import favoriteRoutes from './routes/favorites';
 import editProposalRoutes from './routes/editProposals';
-import debugRoutes from './routes/debug';
-import independentPositionRoutes from './routes/independentPositions';
 import freelanceRoutes from './routes/freelances';
 import notificationRoutes from './routes/notifications';
 import pushRoutes from './routes/push';
@@ -1025,7 +1021,6 @@ app.use('/api/consumables', csrfProtection, consumableRoutes);
 app.use('/api/upload', uploadRateLimit, uploadRoutes); // CSRF handled internally by upload routes
 app.use('/api/favorites', csrfProtection, favoriteRoutes);
 app.use('/api/edit-proposals', csrfProtection, editProposalRoutes);
-app.use('/api/independent-positions', csrfProtection, independentPositionRoutes);
 app.use('/api/freelances', freelanceRoutes); // No CSRF protection for GET-only routes
 app.use('/api/notifications', authenticateToken, notificationRoutes);
 app.use('/api/push', pushRoutes);
@@ -1038,26 +1033,12 @@ app.use('/api/moderation',
   csrfProtection,
   moderationRoutes
 );
-app.use('/api/migration',
-  process.env.NODE_ENV === 'production' ? adminRateLimit : (req, res, next) => next(),
-  csrfProtection,
-  migrationRoutes
-);
 app.use('/api/admin',
   process.env.NODE_ENV === 'production' ? adminRateLimit : (req, res, next) => next(),
   csrfProtection,
   adminRoutes
 );
 app.use('/api/ownership-requests', csrfProtection, ownershipRequestRoutes);
-
-// Remove unsafe debug and temp routes in production
-if (NODE_ENV === 'development') {
-  app.use('/api/temp-admin', tempAdminRoutes);
-  app.use('/api/debug', debugRoutes);
-  app.get('/api/admin-debug', (req, res) => {
-    res.json({ message: 'Direct admin debug route working!' });
-  });
-}
 
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {
