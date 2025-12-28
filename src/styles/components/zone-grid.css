@@ -12,6 +12,7 @@
   max-width: 1200px;
   margin: 0 auto;
   min-height: calc(100vh - var(--height-header-desktop, 80px));
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 /* Header */

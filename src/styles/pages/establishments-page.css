@@ -8,6 +8,7 @@
   background: var(--color-bg-primary, #0a0a1a);
   padding-top: var(--height-header-desktop); /* Use global CSS variable */
   padding-bottom: 2rem;
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 /* Header */
