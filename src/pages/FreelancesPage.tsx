@@ -164,7 +164,7 @@ const FreelancesPage: React.FC = () => {
         <h1 style={{
           fontSize: '32px',
           fontWeight: 'bold',
-          background: 'linear-gradient(135deg, #9D4EDD 0%, #C19A6B 100%)',
+          background: 'linear-gradient(135deg, #E879F9 0%, #00E5FF 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           marginBottom: '10px'
@@ -220,7 +220,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -237,7 +237,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -249,7 +249,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -264,7 +264,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -285,7 +285,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -304,7 +304,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -316,7 +316,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -335,7 +335,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -347,7 +347,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -362,7 +362,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -384,7 +384,7 @@ const FreelancesPage: React.FC = () => {
           <div>
             <label style={{
               display: 'block',
-              color: '#FFD700',
+              color: '#E879F9',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '8px'
@@ -399,7 +399,7 @@ const FreelancesPage: React.FC = () => {
                 width: '100%',
                 padding: '10px 12px',
                 background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(193, 154, 107, 0.3)',
+                border: '2px solid rgba(232, 121, 249, 0.3)',
                 borderRadius: '8px',
                 color: 'white',
                 fontSize: '14px'
@@ -426,8 +426,8 @@ const FreelancesPage: React.FC = () => {
           onClick={handleClearFilters}
           style={{
             padding: '10px 20px',
-            background: 'rgba(193, 154, 107, 0.08)',
-            border: '2px solid rgba(193, 154, 107, 0.3)',
+            background: 'rgba(232, 121, 249, 0.08)',
+            border: '2px solid rgba(232, 121, 249, 0.3)',
             borderRadius: '8px',
             color: '#C19A6B',
             fontWeight: 'bold',
@@ -435,10 +435,10 @@ const FreelancesPage: React.FC = () => {
             transition: 'all 0.2s'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(193, 154, 107, 0.15)';
+            e.currentTarget.style.background = 'rgba(232, 121, 249, 0.15)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(193, 154, 107, 0.08)';
+            e.currentTarget.style.background = 'rgba(232, 121, 249, 0.08)';
           }}
         >
           <Trash2 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
@@ -466,8 +466,8 @@ const FreelancesPage: React.FC = () => {
             style={{
               marginTop: '20px',
               padding: '10px 20px',
-              background: 'rgba(193, 154, 107, 0.08)',
-              border: '2px solid rgba(193, 154, 107, 0.3)',
+              background: 'rgba(232, 121, 249, 0.08)',
+              border: '2px solid rgba(232, 121, 249, 0.3)',
               borderRadius: '8px',
               color: '#C19A6B',
               fontWeight: 'bold',
