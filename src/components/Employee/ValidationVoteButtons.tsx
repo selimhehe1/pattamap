@@ -5,7 +5,7 @@ import { Lock, CheckCircle, Check, X, Loader2, PartyPopper, Star, AlertTriangle,
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import toast from '../../utils/toast';
-import './ValidationVoteButtons.css';
+import '../../styles/features/employee/ValidationVoteButtons.css';
 
 interface ValidationVoteButtonsProps {
   employeeId: string;

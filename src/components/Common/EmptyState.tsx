@@ -2,7 +2,7 @@ import React from 'react';
 import { Search, Star, MessageSquare, Users, Building2, Bell, Trophy, Inbox } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
-import './EmptyState.css';
+import '../../styles/components/EmptyState.css';
 
 /**
  * ============================================

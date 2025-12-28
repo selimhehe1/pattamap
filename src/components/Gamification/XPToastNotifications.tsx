@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { PartyPopper, Sparkles, Star, Zap } from 'lucide-react';
 import { useGamification } from '../../contexts/GamificationContext';
-import './XPToastNotifications.css';
+import '../../styles/features/gamification/XPToastNotifications.css';
 
 /**
  * XP Toast Notifications

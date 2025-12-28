@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
-import './ReviewVoteButton.css';
+import '../../styles/features/gamification/ReviewVoteButton.css';
 
 interface ReviewVoteButtonProps {
   reviewId: string;

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Map, X, MapPin, ChevronDown, Check, Search, RefreshCw, BarChart3, Lightbulb } from 'lucide-react';
 import { Zone } from './ZoneSelector';
 import '../../styles/utils/overlays.css';
-import './mobile-map-menu.css';
+import '../../styles/features/map/mobile-map-menu.css';
 
 interface EstablishmentCategory {
   id: string;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AlertTriangle, Settings, Sparkles, Tag, Gift, CheckCircle, Check, Lock, Unlock, Inbox } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useRewards, Reward, getLevelName, getXPForNextLevel, getXPForCurrentLevel } from '../../hooks/useRewards';
-import './RewardsShowcase.css';
+import '../../styles/features/gamification/RewardsShowcase.css';
 
 type CategoryFilter = 'all' | 'feature' | 'cosmetic' | 'title';
 

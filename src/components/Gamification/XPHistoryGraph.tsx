@@ -10,7 +10,7 @@ import {
   AreaChart
 } from 'recharts';
 import { useXPHistory, XPDataPoint } from '../../hooks/useXPHistory';
-import './XPHistoryGraph.css';
+import '../../styles/features/gamification/XPHistoryGraph.css';
 
 interface XPHistoryGraphProps {
   compact?: boolean;

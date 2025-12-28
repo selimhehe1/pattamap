@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { List, Map, Users } from 'lucide-react';
-import './mobile-bottom-nav.css';
+import '../../styles/features/map/mobile-bottom-nav.css';
 
 type ViewMode = 'map' | 'list' | 'employees';
 

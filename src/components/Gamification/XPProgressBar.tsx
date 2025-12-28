@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Crown } from 'lucide-react';
 import { useGamification } from '../../contexts/GamificationContext';
-import './XPProgressBar.css';
+import '../../styles/features/gamification/XPProgressBar.css';
 
 interface XPProgressBarProps {
   compact?: boolean;

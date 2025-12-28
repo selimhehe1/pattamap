@@ -17,7 +17,7 @@ import {
   Handshake,
   Trophy
 } from 'lucide-react';
-import './GamifiedUserProfile.css';
+import '../styles/pages/GamifiedUserProfile.css';
 
 interface UserProfile {
   id: string;

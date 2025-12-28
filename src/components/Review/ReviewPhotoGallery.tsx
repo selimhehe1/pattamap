@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ZoomIn } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LazyImage from '../Common/LazyImage';
-import './ReviewPhotoGallery.css';
+import '../../styles/components/ReviewPhotoGallery.css';
 
 /**
  * ReviewPhotoGallery - Display photos attached to reviews with lightbox

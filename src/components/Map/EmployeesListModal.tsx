@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import '../../styles/utils/overlays.css';
-import './employees-list-modal.css';
+import '../../styles/features/map/employees-list-modal.css';
 
 interface EmployeesListModalProps {
   isOpen: boolean;

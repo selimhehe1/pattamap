@@ -4,7 +4,7 @@ import { useCSRF } from '../../contexts/CSRFContext';
 import { useTranslation } from 'react-i18next';
 import { logger } from '../../utils/logger';
 import ReviewPhotoGallery, { ReviewPhoto } from '../Review/ReviewPhotoGallery';
-import './OwnerReviewsPanel.css';
+import '../../styles/features/owner/OwnerReviewsPanel.css';
 
 interface Review {
   id: string;

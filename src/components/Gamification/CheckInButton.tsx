@@ -5,7 +5,7 @@ import { useGamification } from '../../contexts/GamificationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOnline } from '../../hooks/useOnline';
 import { addToQueue, isOfflineQueueSupported } from '../../utils/offlineQueue';
-import './CheckInButton.css';
+import '../../styles/features/gamification/CheckInButton.css';
 
 interface CheckInButtonProps {
   establishmentId: string;

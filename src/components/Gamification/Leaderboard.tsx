@@ -3,7 +3,7 @@ import { Globe, Calendar, CalendarDays, Medal, Trophy, FileText, Camera, MapPin,
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
-import './Leaderboard.css';
+import '../../styles/features/gamification/Leaderboard.css';
 
 interface LeaderboardEntry {
   user_id: string;

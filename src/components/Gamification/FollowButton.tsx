@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
-import './FollowButton.css';
+import '../../styles/features/gamification/FollowButton.css';
 
 interface FollowButtonProps {
   targetUserId: string;

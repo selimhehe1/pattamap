@@ -34,7 +34,7 @@ import { triggerHaptic, getEventCoordinates } from './shared/utils';
 
 import '../../styles/components/map-components.css';
 import '../../styles/components/maps.css';
-import './CustomSoi6Map.css';
+import '../../styles/features/map/CustomSoi6Map.css';
 
 // Re-export Bar type for backward compatibility
 export type Bar = MapBar;

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Cloud, CloudOff, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { useOnline } from '../../hooks/useOnline';
-import './SyncIndicator.css';
+import '../../styles/components/SyncIndicator.css';
 
 interface SyncIndicatorProps {
   /** Whether to show the indicator even when queue is empty */

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import './ThemeToggle.css';
+import '../../styles/components/ThemeToggle.css';
 
 /**
  * ThemeToggle Component - Dark/Light Mode Toggle Button

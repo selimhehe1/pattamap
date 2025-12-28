@@ -17,7 +17,7 @@ import BadgeShowcase from '../components/Gamification/BadgeShowcase';
 import MissionsDashboard from '../components/Gamification/MissionsDashboard';
 import Leaderboard from '../components/Gamification/Leaderboard';
 import SEOHead from '../components/Common/SEOHead';
-import './MyAchievementsPage.css';
+import '../styles/pages/MyAchievementsPage.css';
 
 const MyAchievementsPage: React.FC = () => {
   const { user } = useAuth();

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Mission, UserMissionProgress } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
-import './MissionsDashboard.css';
+import '../../styles/features/gamification/MissionsDashboard.css';
 
 interface MissionsDashboardProps {
   compact?: boolean;

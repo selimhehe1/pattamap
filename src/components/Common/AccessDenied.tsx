@@ -2,7 +2,7 @@ import React from 'react';
 import { Lock } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
-import './AccessDenied.css';
+import '../../styles/components/AccessDenied.css';
 
 /**
  * ============================================

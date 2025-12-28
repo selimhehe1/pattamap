@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
 import { Badge, UserBadge } from '../../contexts/GamificationContext';
 import { logger } from '../../utils/logger';
-import './BadgeShowcase.css';
+import '../../styles/features/gamification/BadgeShowcase.css';
 
 interface BadgeShowcaseProps {
   userId?: string;

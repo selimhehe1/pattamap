@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Lightbulb, AlertTriangle } from 'lucide-react';
 import { ALL_COUNTRIES, getCountryLabel } from '../../constants/countries';
 import { logger } from '../../utils/logger';
-import './NationalityTagsInput.css';
+import '../../styles/components/NationalityTagsInput.css';
 
 interface NationalityTagsInputProps {
   value: string[] | null;

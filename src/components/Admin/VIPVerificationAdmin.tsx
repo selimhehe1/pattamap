@@ -23,7 +23,7 @@ import {
   Building2,
   Banknote
 } from 'lucide-react';
-import './VIPVerificationAdmin.css';
+import '../../styles/admin/VIPVerificationAdmin.css';
 
 interface VIPTransaction {
   id: string;

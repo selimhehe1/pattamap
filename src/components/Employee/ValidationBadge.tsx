@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Check, X } from 'lucide-react';
-import './ValidationBadge.css';
+import '../../styles/features/employee/ValidationBadge.css';
 
 interface ValidationBadgeProps {
   employeeId: string;

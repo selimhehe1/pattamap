@@ -8,7 +8,7 @@ import VIPPurchaseModal from './VIPPurchaseModal';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
-import './MyEmployeesList.css';
+import '../../styles/features/owner/MyEmployeesList.css';
 
 // Feature flag check
 const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);

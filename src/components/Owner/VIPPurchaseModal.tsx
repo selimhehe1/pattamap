@@ -19,7 +19,7 @@ import {
   Crown,
   Banknote
 } from 'lucide-react';
-import './VIPPurchaseModal.css';
+import '../../styles/features/owner/VIPPurchaseModal.css';
 
 interface Props {
   subscriptionType: VIPSubscriptionType; // 'employee' | 'establishment'
