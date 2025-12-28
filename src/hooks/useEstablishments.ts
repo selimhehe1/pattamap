@@ -10,6 +10,7 @@
  * - Invalidation après création/update d'établissement
  */
 
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSecureFetch } from './useSecureFetch';
 import { Establishment } from '../types';
@@ -219,4 +220,24 @@ export const useDeleteEstablishment = () => {
       toast.error(`Failed to delete establishment: ${error.message}`);
     },
   });
+};
+
+/**
+ * Hook pour récupérer les établissements filtrés par zone
+ * Utilise les données cachées de useEstablishments et filtre côté client
+ */
+export const useEstablishmentsByZone = (zone: string | null) => {
+  const { data: allEstablishments, isLoading, error } = useEstablishments();
+
+  const filteredEstablishments = React.useMemo(() => {
+    if (!allEstablishments || !zone) return [];
+    return allEstablishments.filter(est => est.zone === zone);
+  }, [allEstablishments, zone]);
+
+  return {
+    data: filteredEstablishments,
+    isLoading,
+    error,
+    totalCount: filteredEstablishments.length,
+  };
 };

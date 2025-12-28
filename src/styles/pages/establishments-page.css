@@ -1,0 +1,291 @@
+/**
+ * EstablishmentsPage Styles
+ * Displays establishments/venues filtered by zone
+ */
+
+.establishments-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary, #0a0a1a);
+  padding-bottom: 2rem;
+}
+
+/* Header */
+.establishments-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.1) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+  background: rgba(232, 121, 249, 0.2);
+  border-color: rgba(232, 121, 249, 0.4);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.page-title svg {
+  color: #E879F9;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0.25rem 0 0 0;
+}
+
+/* Content */
+.establishments-content {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  gap: 1rem;
+}
+
+.loading-state .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  gap: 1rem;
+}
+
+.error-state svg,
+.empty-state svg {
+  color: #E879F9;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  color: #ffffff;
+  margin: 0;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Establishments Error Page */
+.establishments-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  text-align: center;
+  gap: 1rem;
+}
+
+.establishments-error svg {
+  color: #E879F9;
+  opacity: 0.5;
+}
+
+.establishments-error h2 {
+  color: #ffffff;
+  margin: 0;
+}
+
+.establishments-error p {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.btn-back-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #E879F9 0%, #9D4EDD 100%);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.btn-back-home:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(232, 121, 249, 0.4);
+}
+
+/* Establishments Grid */
+.establishments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Establishment Card */
+.establishment-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.establishment-card:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.3);
+  transform: translateY(-2px);
+}
+
+.card-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-category {
+  font-size: 0.75rem;
+  color: #E879F9;
+}
+
+.card-address {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-arrow {
+  color: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.establishment-card:hover .card-arrow {
+  color: #E879F9;
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .establishments-header {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .establishments-content {
+    padding: 1rem;
+  }
+
+  .establishments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .establishment-card {
+    padding: 0.875rem;
+  }
+
+  .card-logo {
+    width: 50px;
+    height: 50px;
+  }
+}

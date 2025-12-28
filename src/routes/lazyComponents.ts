@@ -18,6 +18,7 @@ export const MyOwnershipRequests = lazy(() => import('../components/Owner/MyOwne
 export const MyAchievementsPage = lazy(() => import('../pages/MyAchievementsPage')); // 🆕 v10.3 - Gamification
 export const VisitHistoryPage = lazy(() => import('../pages/VisitHistoryPage')); // 🆕 v10.3 - Visit History
 export const NotFoundPage = lazy(() => import('../pages/NotFoundPage')); // 🆕 v10.4 - 404 Page
+export const EstablishmentsPage = lazy(() => import('../pages/EstablishmentsPage')); // Zone establishments listing
 
 // Heavy modal/form components with code splitting
 export const EmployeeForm = lazy(() => import('../components/Forms/EmployeeForm'));
@@ -34,6 +35,7 @@ export const importEmployeeDashboard = (): Promise<typeof import('../components/
 export const importMyOwnershipRequests = (): Promise<typeof import('../components/Owner/MyOwnershipRequests')> => import('../components/Owner/MyOwnershipRequests'); // 🆕 v10.2
 export const importMyAchievementsPage = (): Promise<typeof import('../pages/MyAchievementsPage')> => import('../pages/MyAchievementsPage'); // 🆕 v10.3
 export const importVisitHistoryPage = (): Promise<typeof import('../pages/VisitHistoryPage')> => import('../pages/VisitHistoryPage'); // 🆕 v10.3 - Visit History
+export const importEstablishmentsPage = (): Promise<typeof import('../pages/EstablishmentsPage')> => import('../pages/EstablishmentsPage'); // Zone establishments
 export const importEmployeeForm = (): Promise<typeof import('../components/Forms/EmployeeForm')> => import('../components/Forms/EmployeeForm');
 export const importEstablishmentForm = (): Promise<typeof import('../components/Forms/EstablishmentForm')> => import('../components/Forms/EstablishmentForm');
 export const importGirlProfile = (): Promise<typeof import('../components/Bar/GirlProfile')> => import('../components/Bar/GirlProfile');

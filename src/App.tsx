@@ -64,7 +64,8 @@ import {
   MyOwnershipRequests,
   MyAchievementsPage,
   VisitHistoryPage,
-  NotFoundPage
+  NotFoundPage,
+  EstablishmentsPage
 } from './routes/lazyComponents';
 
 // LoginPage - lazy loaded for direct URL access
@@ -170,6 +171,7 @@ const AppContent: React.FC = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/establishments" element={<EstablishmentsPage />} />
               <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
               <Route path="/bar/:id" element={<BarDetailPage />} />
 

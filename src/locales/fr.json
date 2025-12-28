@@ -22,7 +22,17 @@
     "freelanceDescription": "Travailleuses indépendantes"
   },
 
+  "establishments": {
+    "venuesInZone": "{{count}} établissements à {{zone}}",
+    "noZoneSelected": "Aucune zone sélectionnée",
+    "selectZoneFromHome": "Veuillez sélectionner une zone depuis la page d'accueil",
+    "noVenuesFound": "Aucun établissement trouvé",
+    "noVenuesInZone": "Il n'y a pas encore d'établissements dans cette zone."
+  },
+
   "common": {
+    "backToHome": "Retour à l'accueil",
+    "errorLoading": "Erreur de chargement",
     "loading": "Chargement...",
     "preparingExperience": "Préparation de votre expérience...",
     "error": "Une erreur s'est produite",

@@ -22,7 +22,17 @@
     "freelanceDescription": "Independent workers"
   },
 
+  "establishments": {
+    "venuesInZone": "{{count}} venues in {{zone}}",
+    "noZoneSelected": "No zone selected",
+    "selectZoneFromHome": "Please select a zone from the homepage",
+    "noVenuesFound": "No venues found",
+    "noVenuesInZone": "There are no establishments in this zone yet."
+  },
+
   "common": {
+    "backToHome": "Back to Home",
+    "errorLoading": "Error loading data",
     "loading": "Loading...",
     "preparingExperience": "Preparing your experience...",
     "error": "An error occurred",

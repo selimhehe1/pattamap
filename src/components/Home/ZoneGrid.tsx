@@ -73,7 +73,13 @@ const ZoneGrid: React.FC = () => {
   const { t } = useTranslation();
 
   const handleZoneClick = (zoneId: string) => {
-    navigate(`/search?zone=${zoneId}`);
+    // Freelance is a special case - shows employees via search
+    // All other zones show establishments
+    if (zoneId === 'freelance') {
+      navigate(`/search?zone=${zoneId}`);
+    } else {
+      navigate(`/establishments?zone=${zoneId}`);
+    }
   };
 
   return (
