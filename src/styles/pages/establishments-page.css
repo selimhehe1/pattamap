@@ -6,7 +6,7 @@
 .establishments-page {
   min-height: 100vh;
   background: var(--color-bg-primary, #0a0a1a);
-  padding-top: 70px; /* Account for fixed app header */
+  padding-top: 56px; /* Match actual header height (3.5rem = 56px) */
   padding-bottom: 2rem;
 }
 
@@ -19,7 +19,7 @@
   background: linear-gradient(180deg, rgba(232, 121, 249, 0.1) 0%, transparent 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
-  top: 70px;
+  top: 56px; /* Match actual header height (3.5rem = 56px) */
   z-index: 100;
   backdrop-filter: blur(10px);
   color: #ffffff !important;
@@ -266,8 +266,13 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .establishments-page {
+    padding-top: 48px; /* Mobile header is 3rem = 48px */
+  }
+
   .establishments-header {
     padding: 1rem;
+    top: 48px; /* Mobile header is 3rem = 48px */
   }
 
   .page-title {

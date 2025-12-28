@@ -55,9 +55,6 @@ const EstablishmentsPage: React.FC = () => {
     <div className="establishments-page">
       {/* Header */}
       <header className="establishments-header">
-        <button onClick={handleBack} className="btn-back" aria-label="Go back">
-          <ArrowLeft size={20} />
-        </button>
         <div className="header-content">
           <h1 className="page-title">
             <MapPin size={24} />
