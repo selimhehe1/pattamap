@@ -1,8 +1,7 @@
-import { Router, Request, Response } from 'express';
-import { authenticateToken, requireRole, requireAdmin, AuthRequest } from '../middleware/auth';
+import { Router } from 'express';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { supabase } from '../config/supabase';
-import express from 'express';
 import { logger } from '../utils/logger';
 import { categoriesCache, dashboardStatsCache, listingsCache } from '../middleware/cache';
 import { establishmentEmployeesRateLimit } from '../middleware/rateLimit';

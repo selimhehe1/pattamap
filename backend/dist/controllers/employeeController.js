@@ -977,7 +977,7 @@ const searchEmployees = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         // ✅ Filter employees - Accept ALL approved employees by default (no strict position requirement)
-        let filteredEmployees = (allEmployees || []).filter(emp => {
+        const filteredEmployees = (allEmployees || []).filter(emp => {
             // Identify positions for optional filters
             const hasCurrentEmployment = emp.current_employment?.some((ce) => ce.is_current === true);
             const currentEmp = emp.current_employment?.find((ce) => ce.is_current === true);

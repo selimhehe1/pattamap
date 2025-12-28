@@ -133,8 +133,8 @@ const getEstablishments = async (req, res) => {
         // 🔧 FIX M5: Combine employee count queries into single query
         // Previously: 2 separate queries (N+1 risk with large datasets)
         // Now: 1 query with employee status, count both total and approved client-side
-        let employeeCounts = {};
-        let approvedEmployeeCounts = {};
+        const employeeCounts = {};
+        const approvedEmployeeCounts = {};
         if (establishments && establishments.length > 0) {
             const establishmentIds = establishments.map((est) => est.id);
             // Single query to get all current employees with their status

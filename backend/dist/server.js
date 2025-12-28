@@ -83,12 +83,8 @@ const consumables_1 = __importDefault(require("./routes/consumables"));
 const upload_1 = __importDefault(require("./routes/upload"));
 const moderation_1 = __importDefault(require("./routes/moderation"));
 const admin_1 = __importDefault(require("./routes/admin"));
-const migration_1 = __importDefault(require("./routes/migration"));
-const temp_admin_1 = __importDefault(require("./routes/temp-admin"));
 const favorites_1 = __importDefault(require("./routes/favorites"));
 const editProposals_1 = __importDefault(require("./routes/editProposals"));
-const debug_1 = __importDefault(require("./routes/debug"));
-const independentPositions_1 = __importDefault(require("./routes/independentPositions"));
 const freelances_1 = __importDefault(require("./routes/freelances"));
 const notifications_1 = __importDefault(require("./routes/notifications"));
 const push_1 = __importDefault(require("./routes/push"));
@@ -97,6 +93,7 @@ const vip_1 = __importDefault(require("./routes/vip"));
 const gamification_1 = __importDefault(require("./routes/gamification"));
 const employeeValidation_1 = __importDefault(require("./routes/employeeValidation"));
 const ownershipRequests_1 = __importDefault(require("./routes/ownershipRequests"));
+const export_1 = __importDefault(require("./routes/export"));
 const rateLimit_1 = require("./middleware/rateLimit");
 const redis_2 = require("./config/redis");
 const missionResetJobs_1 = require("./jobs/missionResetJobs");
@@ -950,7 +947,6 @@ app.use('/api/consumables', csrf_1.csrfProtection, consumables_1.default);
 app.use('/api/upload', rateLimit_1.uploadRateLimit, upload_1.default); // CSRF handled internally by upload routes
 app.use('/api/favorites', csrf_1.csrfProtection, favorites_1.default);
 app.use('/api/edit-proposals', csrf_1.csrfProtection, editProposals_1.default);
-app.use('/api/independent-positions', csrf_1.csrfProtection, independentPositions_1.default);
 app.use('/api/freelances', freelances_1.default); // No CSRF protection for GET-only routes
 app.use('/api/notifications', auth_1.authenticateToken, notifications_1.default);
 app.use('/api/push', push_1.default);
@@ -959,17 +955,9 @@ app.use('/api/vip', vip_1.default); // VIP subscriptions (rate limiters + CSRF h
 app.use('/api/gamification', gamification_1.default); // Gamification system (auth + CSRF handled in routes)
 app.use('/api/employees', employeeValidation_1.default); // Employee community validation (auth + CSRF handled in routes)
 app.use('/api/moderation', process.env.NODE_ENV === 'production' ? rateLimit_1.adminRateLimit : (req, res, next) => next(), csrf_1.csrfProtection, moderation_1.default);
-app.use('/api/migration', process.env.NODE_ENV === 'production' ? rateLimit_1.adminRateLimit : (req, res, next) => next(), csrf_1.csrfProtection, migration_1.default);
 app.use('/api/admin', process.env.NODE_ENV === 'production' ? rateLimit_1.adminRateLimit : (req, res, next) => next(), csrf_1.csrfProtection, admin_1.default);
 app.use('/api/ownership-requests', csrf_1.csrfProtection, ownershipRequests_1.default);
-// Remove unsafe debug and temp routes in production
-if (NODE_ENV === 'development') {
-    app.use('/api/temp-admin', temp_admin_1.default);
-    app.use('/api/debug', debug_1.default);
-    app.get('/api/admin-debug', (req, res) => {
-        res.json({ message: 'Direct admin debug route working!' });
-    });
-}
+app.use('/api/export', export_1.default); // Export data to CSV (auth handled in routes)
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {
     Promise.resolve().then(() => __importStar(require('swagger-ui-express'))).then((swaggerUi) => {

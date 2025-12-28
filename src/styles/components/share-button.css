@@ -1,0 +1,109 @@
+/* ShareButton Component Styles */
+
+.share-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted, #9ca3af);
+}
+
+.share-button:hover {
+  color: var(--text-primary, #fff);
+}
+
+.share-button--icon {
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.share-button--icon:hover {
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.1));
+}
+
+.share-button--full {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.1));
+  font-size: 0.875rem;
+}
+
+.share-button--full:hover {
+  background: var(--bg-tertiary, rgba(255, 255, 255, 0.15));
+}
+
+/* Dropdown */
+.share-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay, 1000);
+}
+
+.share-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: var(--z-dropdown, 1001);
+  min-width: 160px;
+  padding: 0.5rem 0;
+  background: var(--bg-primary, #1f2937);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.share-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #d1d5db);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.share-dropdown-item:hover {
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+  color: var(--text-primary, #fff);
+}
+
+.share-dropdown-item svg {
+  flex-shrink: 0;
+}
+
+/* Focus styles for accessibility */
+.share-button:focus-visible,
+.share-dropdown-item:focus-visible {
+  outline: 2px solid var(--accent-color, #f97316);
+  outline-offset: 2px;
+}
+
+/* Animation */
+@keyframes shareDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-dropdown {
+  animation: shareDropdownIn 0.15s ease-out;
+}

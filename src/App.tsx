@@ -23,7 +23,7 @@ import { Establishment } from './types';
 import { logger } from './utils/logger';
 import { Toaster } from './utils/toast';
 import { generateEstablishmentUrl } from './utils/slugify';
-import { initGA, trackPageView } from './utils/analytics';
+import { initGA, initWebVitals, trackPageView } from './utils/analytics';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransition from './components/Common/PageTransition';
 
@@ -305,9 +305,10 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  // Initialize GA4 on app mount
+  // Initialize GA4 and Web Vitals on app mount
   useEffect(() => {
     initGA();
+    initWebVitals(); // Track Core Web Vitals (LCP, INP, CLS)
   }, []);
 
   return (

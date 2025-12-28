@@ -7,6 +7,7 @@ import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { generateCSRFToken } from '../middleware/csrf'; // 🔧 Import for token regeneration
 import { escapeLikeWildcards } from '../utils/validation'; // 🔧 FIX S1
+import { revokeAllUserTokens } from '../middleware/refreshToken'; // 🔧 Token rotation
 
 // Cookie security configuration (shared with server.ts)
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -943,6 +944,66 @@ export const checkAvailability = async (req: Request, res: Response) => {
     logger.error('Check availability error:', error);
     return res.status(500).json({
       error: 'Failed to check availability',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+};
+
+// ==========================================
+// 🔧 v10.3: Logout All Devices
+// ==========================================
+
+/**
+ * Logout from all devices
+ * Revokes all refresh tokens for the authenticated user
+ */
+export const logoutAll = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        code: 'AUTH_REQUIRED'
+      });
+    }
+
+    // Revoke all refresh tokens for this user
+    const success = await revokeAllUserTokens(req.user.id);
+
+    if (!success) {
+      return res.status(500).json({
+        error: 'Failed to logout from all devices',
+        code: 'REVOCATION_FAILED'
+      });
+    }
+
+    // Clear cookies
+    res.clearCookie('auth-token', {
+      httpOnly: true,
+      secure: COOKIES_SECURE,
+      sameSite: 'strict',
+      path: '/'
+    });
+
+    res.clearCookie('refresh-token', {
+      httpOnly: true,
+      secure: COOKIES_SECURE,
+      sameSite: 'strict',
+      path: '/'
+    });
+
+    logger.info('User logged out from all devices', {
+      userId: req.user.id,
+      pseudonym: req.user.pseudonym
+    });
+
+    res.json({
+      message: 'Successfully logged out from all devices'
+    });
+
+  } catch (error) {
+    logger.error('Logout all error:', error);
+    return res.status(500).json({
+      error: 'Logout failed',
       code: 'INTERNAL_ERROR'
     });
   }

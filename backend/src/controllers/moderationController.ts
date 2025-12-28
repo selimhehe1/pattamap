@@ -5,7 +5,6 @@ import { logger } from '../utils/logger';
 import {
   notifyUserContentApproved,
   notifyUserContentRejected,
-  notifyAdminsPendingContent,
   notifyFavoriteAvailable,
   notifyCommentRemoved
 } from '../utils/notificationHelper';

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
-import { CreateEmployeeRequest, Employee } from '../types';
+import { CreateEmployeeRequest } from '../types';
 import { logger } from '../utils/logger';
 import { notifyEmployeeUpdate, notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
 import { awardXP } from '../services/gamificationService';
@@ -1136,7 +1136,7 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
     }
 
     // ✅ Filter employees - Accept ALL approved employees by default (no strict position requirement)
-    let filteredEmployees = (allEmployees || []).filter(emp => {
+    const filteredEmployees = (allEmployees || []).filter(emp => {
       // Identify positions for optional filters
       const hasCurrentEmployment = emp.current_employment?.some((ce: any) => ce.is_current === true);
       const currentEmp = emp.current_employment?.find((ce: any) => ce.is_current === true);

@@ -2,11 +2,9 @@ import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
-import { detectFaceInImage } from '../config/azureFace';
 import {
   VERIFICATION_RATE_LIMIT,
-  VERIFICATION_STATUS,
-  VERIFICATION_POSE
+  VERIFICATION_STATUS
 } from '../config/verification';
 import {
   notifyEmployeeVerificationSubmitted,

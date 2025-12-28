@@ -29,7 +29,7 @@ interface Mission {
   is_active: boolean;
 }
 
-interface UserMissionProgress {
+interface _UserMissionProgress {
   id: string;
   user_id: string;
   mission_id: string;

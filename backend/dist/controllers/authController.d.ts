@@ -24,4 +24,9 @@ export declare const resetPassword: (req: Request, res: Response) => Promise<Res
  * Rate limited separately (more permissive than auth endpoints)
  */
 export declare const checkAvailability: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+/**
+ * Logout from all devices
+ * Revokes all refresh tokens for the authenticated user
+ */
+export declare const logoutAll: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=authController.d.ts.map

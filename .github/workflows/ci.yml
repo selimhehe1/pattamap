@@ -11,6 +11,39 @@ env:
 
 jobs:
   # ============================================
+  # SECURITY - npm audit for vulnerabilities
+  # ============================================
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Frontend security audit
+        run: npm audit --audit-level=high || echo "::warning::Frontend has high/critical vulnerabilities"
+        continue-on-error: true
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Backend security audit
+        run: npm audit --audit-level=high || echo "::warning::Backend has high/critical vulnerabilities"
+        working-directory: backend
+        continue-on-error: true
+
+  # ============================================
   # FRONTEND - Lint, Type Check, Test, Build
   # ============================================
   frontend:
@@ -48,6 +81,27 @@ jobs:
           GENERATE_SOURCEMAP: false
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+
+      - name: Check bundle size
+        run: |
+          # Calculate total JS bundle size
+          TOTAL_SIZE=$(find build -name "*.js" -type f -exec stat --printf="%s\n" {} \; | awk '{sum += $1} END {print sum}')
+          TOTAL_KB=$((TOTAL_SIZE / 1024))
+          MAX_SIZE_KB=2048  # 2MB budget
+
+          echo "📦 Total JS bundle size: ${TOTAL_KB}KB"
+
+          if [ $TOTAL_KB -gt $MAX_SIZE_KB ]; then
+            echo "::error::Bundle size ${TOTAL_KB}KB exceeds budget of ${MAX_SIZE_KB}KB"
+            exit 1
+          else
+            echo "✅ Bundle size within budget"
+          fi
+
+          # List largest chunks
+          echo ""
+          echo "📊 Largest JS chunks:"
+          find build -name "*.js" -type f -exec stat --printf="%s %n\n" {} \; | sort -rn | head -5 | awk '{printf "%.1fKB - %s\n", $1/1024, $2}'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

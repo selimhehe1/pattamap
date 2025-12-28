@@ -42,7 +42,7 @@ interface ZoneCheckIn {
 }
 
 // Reward type
-interface RewardEntry {
+interface _RewardEntry {
   id: string;
   reward_type: string;
   reward_value: unknown;

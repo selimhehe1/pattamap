@@ -1,4 +1,5 @@
 import ReactGA from 'react-ga4';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 import { logger } from './logger';
 
 /**
@@ -194,6 +195,73 @@ export const Analytics = {
   trackError: (errorType: string, errorMessage: string) => {
     trackEvent('Error', errorType, errorMessage);
   },
+};
+
+/**
+ * Send Web Vitals metrics to GA4
+ * Tracks Core Web Vitals (LCP, FID/INP, CLS) and other performance metrics
+ */
+const sendToGA4 = ({ name, delta, id, rating }: Metric): void => {
+  if (!isInitialized) return;
+
+  try {
+    ReactGA.event({
+      category: 'Web Vitals',
+      action: name,
+      label: id,
+      value: Math.round(name === 'CLS' ? delta * 1000 : delta), // CLS needs scaling
+      nonInteraction: true,
+    });
+
+    // Also send as a custom dimension for better analysis
+    ReactGA.gtag('event', name, {
+      event_category: 'Web Vitals',
+      value: Math.round(name === 'CLS' ? delta * 1000 : delta),
+      metric_id: id,
+      metric_rating: rating, // 'good', 'needs-improvement', or 'poor'
+    });
+
+    logger.debug(`📊 Web Vital: ${name}`, {
+      value: delta,
+      rating,
+      id,
+    });
+  } catch (error) {
+    logger.error('Failed to send Web Vital:', error);
+  }
+};
+
+/**
+ * Initialize Web Vitals tracking
+ * Should be called after GA4 is initialized
+ *
+ * Metrics tracked:
+ * - LCP (Largest Contentful Paint): Loading performance
+ * - INP (Interaction to Next Paint): Interactivity (replaces FID)
+ * - CLS (Cumulative Layout Shift): Visual stability
+ * - FCP (First Contentful Paint): Initial render
+ * - TTFB (Time to First Byte): Server response
+ */
+export const initWebVitals = (): void => {
+  if (!isInitialized) {
+    logger.warn('Cannot init Web Vitals: GA4 not initialized');
+    return;
+  }
+
+  try {
+    // Core Web Vitals (Google ranking factors)
+    onLCP(sendToGA4);  // Largest Contentful Paint
+    onINP(sendToGA4);  // Interaction to Next Paint (replaced FID)
+    onCLS(sendToGA4);  // Cumulative Layout Shift
+
+    // Additional metrics
+    onFCP(sendToGA4);  // First Contentful Paint
+    onTTFB(sendToGA4); // Time to First Byte
+
+    logger.info('📊 Web Vitals tracking initialized');
+  } catch (error) {
+    logger.error('Failed to initialize Web Vitals:', error);
+  }
 };
 
 export default Analytics;

@@ -62,6 +62,7 @@ import vipRoutes from './routes/vip';
 import gamificationRoutes from './routes/gamification';
 import employeeValidationRoutes from './routes/employeeValidation';
 import ownershipRequestRoutes from './routes/ownershipRequests';
+import exportRoutes from './routes/export';
 import {
   apiRateLimit,
   authRateLimit,
@@ -1039,6 +1040,7 @@ app.use('/api/admin',
   adminRoutes
 );
 app.use('/api/ownership-requests', csrfProtection, ownershipRequestRoutes);
+app.use('/api/export', exportRoutes); // Export data to CSV (auth handled in routes)
 
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {

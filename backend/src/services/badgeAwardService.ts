@@ -17,7 +17,7 @@ interface Badge {
   is_hidden: boolean;
 }
 
-interface UserBadge {
+interface _UserBadge {
   id: string;
   user_id: string;
   badge_id: string;

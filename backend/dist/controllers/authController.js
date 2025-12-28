@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkAvailability = exports.resetPassword = exports.forgotPassword = exports.logout = exports.changePassword = exports.getProfile = exports.login = exports.register = void 0;
+exports.logoutAll = exports.checkAvailability = exports.resetPassword = exports.forgotPassword = exports.logout = exports.changePassword = exports.getProfile = exports.login = exports.register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
@@ -11,6 +11,7 @@ const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
 const csrf_1 = require("../middleware/csrf"); // 🔧 Import for token regeneration
 const validation_1 = require("../utils/validation"); // 🔧 FIX S1
+const refreshToken_1 = require("../middleware/refreshToken"); // 🔧 Token rotation
 // Cookie security configuration (shared with server.ts)
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const COOKIES_SECURE = NODE_ENV === 'production' ||
@@ -840,4 +841,57 @@ const checkAvailability = async (req, res) => {
     }
 };
 exports.checkAvailability = checkAvailability;
+// ==========================================
+// 🔧 v10.3: Logout All Devices
+// ==========================================
+/**
+ * Logout from all devices
+ * Revokes all refresh tokens for the authenticated user
+ */
+const logoutAll = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                error: 'Authentication required',
+                code: 'AUTH_REQUIRED'
+            });
+        }
+        // Revoke all refresh tokens for this user
+        const success = await (0, refreshToken_1.revokeAllUserTokens)(req.user.id);
+        if (!success) {
+            return res.status(500).json({
+                error: 'Failed to logout from all devices',
+                code: 'REVOCATION_FAILED'
+            });
+        }
+        // Clear cookies
+        res.clearCookie('auth-token', {
+            httpOnly: true,
+            secure: COOKIES_SECURE,
+            sameSite: 'strict',
+            path: '/'
+        });
+        res.clearCookie('refresh-token', {
+            httpOnly: true,
+            secure: COOKIES_SECURE,
+            sameSite: 'strict',
+            path: '/'
+        });
+        logger_1.logger.info('User logged out from all devices', {
+            userId: req.user.id,
+            pseudonym: req.user.pseudonym
+        });
+        res.json({
+            message: 'Successfully logged out from all devices'
+        });
+    }
+    catch (error) {
+        logger_1.logger.error('Logout all error:', error);
+        return res.status(500).json({
+            error: 'Logout failed',
+            code: 'INTERNAL_ERROR'
+        });
+    }
+};
+exports.logoutAll = logoutAll;
 //# sourceMappingURL=authController.js.map

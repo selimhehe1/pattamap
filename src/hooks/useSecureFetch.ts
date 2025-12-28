@@ -201,11 +201,34 @@ export const useSecureFetch = () => {
         }
       }
 
-      // If response is 401 and auth is required, logout user
+      // If response is 401 and auth is required, try token refresh first
       if (response.status === 401 && requireAuth) {
-        logger.warn('Authentication failed, logging out user');
-        await logout();
-        throw new Error('Authentication required');
+        logger.warn('🔄 Access token expired, attempting refresh...');
+
+        try {
+          // Try to refresh the token
+          const refreshResponse = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          if (refreshResponse.ok) {
+            logger.info('🔄 Token refreshed successfully, retrying original request');
+
+            // Token refreshed successfully, retry the original request
+            const retryResponse = await fetch(url, defaultOptions);
+            return retryResponse;
+          } else {
+            // Refresh failed, logout user
+            logger.warn('🔄 Token refresh failed, logging out user');
+            await logout();
+            throw new Error('Session expired, please login again');
+          }
+        } catch (refreshError) {
+          logger.error('🔄 Token refresh error:', refreshError);
+          await logout();
+          throw new Error('Authentication required');
+        }
       }
 
       return response;

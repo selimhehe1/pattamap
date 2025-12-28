@@ -3,9 +3,9 @@ import { supabase } from '../config/supabase';
 import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
-import { getVIPTransactions, verifyPayment, rejectPayment } from '../controllers/vipController';
+import { getVIPTransactions } from '../controllers/vipController';
 import { awardXP } from '../services/gamificationService';
-import { Establishment, Employee, EmploymentHistory, User, EstablishmentCategory } from '../types';
+import { User, EstablishmentCategory } from '../types';
 
 // Type-safe error message extraction
 const getErrorMessage = (error: unknown): string => {

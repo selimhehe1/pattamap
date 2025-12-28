@@ -3,8 +3,6 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import {
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
   getUnreadNotificationCount
 } from '../utils/notificationHelper';
 

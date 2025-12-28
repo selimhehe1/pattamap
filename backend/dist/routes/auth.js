@@ -5,6 +5,7 @@ const authController_1 = require("../controllers/authController");
 const auth_1 = require("../middleware/auth");
 const csrf_1 = require("../middleware/csrf");
 const rateLimit_1 = require("../middleware/rateLimit");
+const refreshToken_1 = require("../middleware/refreshToken");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -274,5 +275,62 @@ router.post('/reset-password', csrf_1.csrfProtection, authController_1.resetPass
  *         description: Rate limit exceeded
  */
 router.get('/check-availability', rateLimit_1.availabilityCheckRateLimit, authController_1.checkAvailability);
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     description: Get a new access token using a valid refresh token (stored in httpOnly cookie)
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: New auth-token and refresh-token cookies
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Token refreshed successfully
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Invalid or expired refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/refresh', refreshToken_1.refreshAccessToken);
+/**
+ * @swagger
+ * /api/auth/logout-all:
+ *   post:
+ *     summary: Logout from all devices
+ *     description: Revoke all refresh tokens for the authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: All sessions terminated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logged out from all devices
+ *       401:
+ *         description: Not authenticated
+ */
+router.post('/logout-all', auth_1.authenticateToken, csrf_1.csrfProtection, authController_1.logoutAll);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

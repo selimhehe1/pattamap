@@ -1,7 +1,6 @@
 import express from 'express';
 import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
-import { logger } from '../utils/logger';
 import {
   createOwnershipRequest,
   getMyOwnershipRequests,

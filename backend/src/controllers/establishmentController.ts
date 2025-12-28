@@ -1,10 +1,9 @@
 import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest, isEstablishmentOwner } from '../middleware/auth';
-import { CreateEstablishmentRequest, Establishment, Employee } from '../types';
+import { CreateEstablishmentRequest } from '../types';
 import { validateTextInput, validateNumericInput, prepareFilterParams } from '../utils/validation';
 import { logger } from '../utils/logger';
-import { paginateQuery, validatePaginationParams, offsetFromPage, buildOffsetPaginationMeta } from '../utils/pagination';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 import { notifyAdminsPendingContent } from '../utils/notificationHelper';
 
@@ -239,8 +238,8 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
     // 🔧 FIX M5: Combine employee count queries into single query
     // Previously: 2 separate queries (N+1 risk with large datasets)
     // Now: 1 query with employee status, count both total and approved client-side
-    let employeeCounts: { [key: string]: number } = {};
-    let approvedEmployeeCounts: { [key: string]: number } = {};
+    const employeeCounts: { [key: string]: number } = {};
+    const approvedEmployeeCounts: { [key: string]: number } = {};
     if (establishments && establishments.length > 0) {
       const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
 

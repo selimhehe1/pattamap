@@ -11,7 +11,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Calendar, User, MapPin, Briefcase, AlertTriangle, ClipboardList, Eye, Pencil, Loader2, CheckCircle, XCircle, ShieldCheck, ShieldX, HelpCircle, Trash2 } from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
-import { getStatusColor, formatDate, getSocialMediaUrl } from './utils';
+import { formatDate, getSocialMediaUrl } from './utils';
 import type { AdminEmployee } from './types';
 
 interface EmployeeCardProps {
