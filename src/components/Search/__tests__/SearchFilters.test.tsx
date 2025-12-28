@@ -27,7 +27,16 @@ vi.mock('react-i18next', () => ({
 
 // Mock utils/constants
 vi.mock('../../../utils/constants', () => ({
-  getZoneLabel: (zone: string) => zone.toUpperCase()
+  getZoneLabel: (zone: string) => zone.toUpperCase(),
+  ZONE_OPTIONS: [
+    { value: 'soi6', label: 'Soi 6' },
+    { value: 'walkingstreet', label: 'Walking Street' },
+    { value: 'lkmetro', label: 'LK Metro' },
+    { value: 'treetown', label: 'Tree Town' },
+    { value: 'soibuakhao', label: 'Soi Buakhao' },
+    { value: 'beachroad', label: 'Beach Road' },
+    { value: 'freelance', label: 'Freelance' }
+  ]
 }));
 
 describe('SearchFilters - Filter Fixes', () => {
@@ -337,7 +346,7 @@ describe('SearchFilters - Filter Fixes', () => {
       );
 
       // Find zone select by display value (zone is already set to 'soi6')
-      const zoneSelect = screen.getByDisplayValue('SOI6');
+      const zoneSelect = screen.getByDisplayValue('Soi 6');
       expect(zoneSelect).toBeInTheDocument();
 
       // Change zone
