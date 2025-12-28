@@ -5,7 +5,7 @@ import {
   Cake, Globe, MapPin, Tag, ArrowUpDown,
   Loader2, Pencil, Lightbulb, AlertTriangle
 } from 'lucide-react';
-import { getZoneLabel } from '../../utils/constants';
+import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import '../../styles/layout/search-layout.css';
 
@@ -772,9 +772,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           data-testid="zone-filter"
         >
           <option value="">{t('search.allZones')}</option>
-          {availableFilters.zones.map(zone => (
-            <option key={zone} value={zone} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-              {getZoneLabel(zone)}
+          {ZONE_OPTIONS.map(zone => (
+            <option key={zone.value} value={zone.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>
+              {zone.label}
             </option>
           ))}
         </select>
