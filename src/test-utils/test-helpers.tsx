@@ -12,7 +12,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContext } from '../contexts/AuthContext';
 import { ModalProvider } from '../contexts/ModalContext';
-import { MapControlsProvider } from '../contexts/MapControlsContext';
 import { CSRFProvider } from '../contexts/CSRFContext';
 
 /**
@@ -75,9 +74,7 @@ export function AllProviders({ children, initialAuth }: AllProvidersProps) {
         <CSRFProvider>
           <AuthContext.Provider value={authValue as any}>
             <ModalProvider>
-              <MapControlsProvider>
-                {children}
-              </MapControlsProvider>
+              {children}
             </ModalProvider>
           </AuthContext.Provider>
         </CSRFProvider>
@@ -142,15 +139,6 @@ export const mockHooks = {
     closeModal: vi.fn(),
     isModalOpen: false,
     modalContent: null,
-    ...overrides,
-  }),
-
-  // Mock useMapControls hook
-  useMapControls: (overrides = {}) => ({
-    viewMode: 'map' as const,
-    setViewMode: vi.fn(),
-    selectedZone: null,
-    setSelectedZone: vi.fn(),
     ...overrides,
   }),
 };

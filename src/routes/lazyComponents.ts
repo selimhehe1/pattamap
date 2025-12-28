@@ -10,7 +10,6 @@ import { lazy } from 'react';
 // Main route components with code splitting
 export const AdminPanel = lazy(() => import('../components/Admin/AdminPanel'));
 export const SearchPage = lazy(() => import('../components/Search/SearchPage'));
-export const FreelancesPage = lazy(() => import('../pages/FreelancesPage')); // 🆕 v10.3 - Freelances List
 export const BarDetailPage = lazy(() => import('../components/Bar/BarDetailPage'));
 export const UserDashboard = lazy(() => import('../components/User/UserDashboard'));
 export const MyEstablishmentsPage = lazy(() => import('../pages/MyEstablishmentsPage')); // 🆕 v10.1 - Owner Dashboard
@@ -28,7 +27,6 @@ export const GirlProfile = lazy(() => import('../components/Bar/GirlProfile'));
 // Import functions for preloading
 export const importAdminPanel = (): Promise<typeof import('../components/Admin/AdminPanel')> => import('../components/Admin/AdminPanel');
 export const importSearchPage = (): Promise<typeof import('../components/Search/SearchPage')> => import('../components/Search/SearchPage');
-export const importFreelancesPage = (): Promise<typeof import('../pages/FreelancesPage')> => import('../pages/FreelancesPage'); // 🆕 v10.3
 export const importBarDetailPage = (): Promise<typeof import('../components/Bar/BarDetailPage')> => import('../components/Bar/BarDetailPage');
 export const importUserDashboard = (): Promise<typeof import('../components/User/UserDashboard')> => import('../components/User/UserDashboard');
 export const importMyEstablishmentsPage = (): Promise<typeof import('../pages/MyEstablishmentsPage')> => import('../pages/MyEstablishmentsPage'); // 🆕 v10.1

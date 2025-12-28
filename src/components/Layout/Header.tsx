@@ -34,8 +34,7 @@ import {
   importMyOwnershipRequests, // 🆕 v10.2 - Ownership Requests preload
   importEmployeeDashboard, // 🆕 v10.2 - Employee Dashboard preload
   importMyAchievementsPage, // 🆕 v10.3 - Gamification preload
-  importVisitHistoryPage, // 🆕 v10.3 - Visit History preload
-  importFreelancesPage // 🆕 Freelances page preload
+  importVisitHistoryPage // 🆕 v10.3 - Visit History preload
 } from '../../routes/lazyComponents';
 import ThemeToggle from '../Common/ThemeToggle';
 import AnimatedButton from '../Common/AnimatedButton';
@@ -44,7 +43,6 @@ import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
-import { useMapControls } from '../../contexts/MapControlsContext';
 import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
 import { useMediaQuery } from '../../hooks/useMediaQuery'; // Phase 3 - Responsive detection
 import '../../styles/layout/header.css';
@@ -79,9 +77,6 @@ const Header: React.FC = () => {
 
   // Phase 3: Detect mobile for hamburger menu
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  // Map controls from context (only used on homepage)
-  const { viewMode, setViewMode } = useMapControls();
 
   // Memoized navigation handlers to prevent unnecessary re-renders
   const handleNavigate = useCallback((path: string) => {
@@ -208,41 +203,6 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Map Controls - Icon-only on desktop, hidden on mobile */}
-          {isHomePage && (
-            <div className="header-map-controls">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`header-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                aria-label={t('map.viewList')}
-                title={t('map.viewList')}
-                aria-current={viewMode === 'list' ? 'page' : undefined}
-              >
-                <List size={16} />
-              </button>
-
-              <button
-                onClick={() => setViewMode('map')}
-                className={`header-view-btn header-view-btn--primary ${viewMode === 'map' ? 'active' : ''}`}
-                aria-label={t('map.viewMap')}
-                title={t('map.viewMap')}
-                aria-current={viewMode === 'map' ? 'page' : undefined}
-              >
-                <Map size={18} />
-              </button>
-
-              <button
-                onClick={() => setViewMode('employees')}
-                className={`header-view-btn ${viewMode === 'employees' ? 'active' : ''}`}
-                aria-label={t('map.lineup')}
-                title={t('map.lineup')}
-                aria-current={viewMode === 'employees' ? 'page' : undefined}
-              >
-                <Users size={16} />
-              </button>
-            </div>
-          )}
-
           {/* Notification Bell - visible seulement pour utilisateurs connectés */}
           {user && <NotificationBell />}
 
@@ -339,8 +299,8 @@ const Header: React.FC = () => {
                           enableHaptic
                           hapticLevel="light"
                           className="menu-item-modern"
-                          onMouseEnter={createPreloadHandler(importFreelancesPage, 'FreelancesPage')}
-                          onClick={() => handleNavigate('/freelances')}
+                          onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
+                          onClick={() => handleNavigate('/search?zone=freelance')}
                         >
                           <span className="menu-item-icon"><Users size={18} /></span>
                           <span className="menu-item-text">{t('header.freelances', 'Freelances')}</span>
@@ -559,10 +519,10 @@ const Header: React.FC = () => {
                     enableHaptic
                     hapticLevel="light"
                     className="menu-item-modern"
-                    onMouseEnter={createPreloadHandler(importFreelancesPage, 'FreelancesPage')}
+                    onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
                     onClick={() => {
                       setShowUserMenu(false);
-                      navigate('/freelances');
+                      navigate('/search?zone=freelance');
                     }}
                   >
                     <span className="menu-item-icon"><Users size={18} /></span>

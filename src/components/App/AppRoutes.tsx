@@ -9,7 +9,6 @@ import ProtectedRoute from '../Auth/ProtectedRoute';
 import {
   AdminPanel,
   SearchPage,
-  FreelancesPage,
   BarDetailPage,
   UserDashboard,
   MyEstablishmentsPage,
@@ -39,7 +38,6 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ HomePage }) => {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/freelances" element={<FreelancesPage />} />
             {/* SEO-friendly URL with zone and slug */}
             <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
             {/* Legacy redirect for old /bar/:id URLs */}

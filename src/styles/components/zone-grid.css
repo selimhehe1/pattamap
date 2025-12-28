@@ -1,0 +1,277 @@
+/**
+ * ZoneGrid Styles
+ * Homepage zone selection grid with Neo-Nightlife theme
+ */
+
+/* Container */
+.zone-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6, 1.5rem);
+  padding: var(--spacing-6, 1.5rem);
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - var(--height-header-desktop, 80px));
+}
+
+/* Header */
+.zone-grid-header {
+  text-align: center;
+  margin-bottom: var(--spacing-4, 1rem);
+}
+
+.zone-grid-title {
+  font-size: var(--font-3xl, 2rem);
+  font-weight: var(--font-weight-bold, 700);
+  background: linear-gradient(135deg, #E879F9 0%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 var(--spacing-2, 0.5rem) 0;
+}
+
+.zone-grid-subtitle {
+  font-size: var(--font-lg, 1.125rem);
+  color: var(--text-secondary, #A1A1AA);
+  margin: 0;
+}
+
+/* Grid */
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-4, 1rem);
+}
+
+/* Zone Card */
+.zone-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4, 1rem);
+  padding: var(--spacing-5, 1.25rem);
+  background: rgba(30, 30, 36, 0.8);
+  border: 2px solid rgba(232, 121, 249, 0.2);
+  border-radius: var(--border-radius-lg, 16px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+}
+
+.zone-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--zone-gradient, linear-gradient(135deg, #E879F9 0%, #00E5FF 100%));
+  opacity: 0.8;
+  transition: height 0.3s ease;
+}
+
+.zone-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232, 121, 249, 0.5);
+  box-shadow:
+    0 8px 32px rgba(232, 121, 249, 0.2),
+    0 0 40px rgba(232, 121, 249, 0.1);
+}
+
+.zone-card:hover::before {
+  height: 6px;
+}
+
+.zone-card:active {
+  transform: translateY(-2px);
+}
+
+/* Zone Card Icon */
+.zone-card-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: var(--zone-gradient, linear-gradient(135deg, #E879F9 0%, #00E5FF 100%));
+  border-radius: var(--border-radius-md, 12px);
+  color: white;
+}
+
+/* Zone Card Content */
+.zone-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.zone-card-name {
+  font-size: var(--font-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #FAFAFA);
+  margin: 0 0 var(--spacing-1, 0.25rem) 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-card-description {
+  font-size: var(--font-sm, 0.875rem);
+  color: var(--text-secondary, #A1A1AA);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Zone Card Arrow */
+.zone-card-arrow {
+  flex-shrink: 0;
+  color: var(--text-muted, #71717A);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.zone-card:hover .zone-card-arrow {
+  transform: translateX(4px);
+  color: var(--color-primary, #E879F9);
+}
+
+/* Footer */
+.zone-grid-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-4, 1rem);
+}
+
+.zone-search-all-btn {
+  padding: var(--spacing-3, 0.75rem) var(--spacing-6, 1.5rem);
+  background: transparent;
+  border: 2px solid rgba(232, 121, 249, 0.4);
+  border-radius: var(--border-radius-full, 9999px);
+  color: var(--color-primary, #E879F9);
+  font-size: var(--font-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.zone-search-all-btn:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.6);
+  box-shadow: 0 0 20px rgba(232, 121, 249, 0.2);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .zone-grid-container {
+    padding: var(--spacing-4, 1rem);
+    padding-top: calc(var(--height-header-mobile, 70px) + var(--spacing-4, 1rem));
+  }
+
+  .zone-grid-title {
+    font-size: var(--font-2xl, 1.5rem);
+  }
+
+  .zone-grid-subtitle {
+    font-size: var(--font-base, 1rem);
+  }
+
+  .zone-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zone-card {
+    padding: var(--spacing-4, 1rem);
+  }
+
+  .zone-card-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .zone-card-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .zone-grid-container {
+    padding: var(--spacing-3, 0.75rem);
+    gap: var(--spacing-4, 1rem);
+  }
+
+  .zone-grid {
+    gap: var(--spacing-3, 0.75rem);
+  }
+
+  .zone-card-name {
+    font-size: var(--font-base, 1rem);
+  }
+
+  .zone-card-description {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ==========================================================================
+   LIGHT MODE
+   ========================================================================== */
+
+body[data-theme="light"] .zone-grid-container {
+  background: #FFFFFF;
+}
+
+body[data-theme="light"] .zone-grid-title {
+  background: linear-gradient(135deg, #B45309 0%, #0891B2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body[data-theme="light"] .zone-grid-subtitle {
+  color: #64748B;
+}
+
+body[data-theme="light"] .zone-card {
+  background: #F8FAFC;
+  border-color: rgba(180, 83, 9, 0.2);
+}
+
+body[data-theme="light"] .zone-card:hover {
+  border-color: rgba(180, 83, 9, 0.5);
+  box-shadow:
+    0 8px 32px rgba(180, 83, 9, 0.15),
+    0 0 40px rgba(180, 83, 9, 0.05);
+}
+
+body[data-theme="light"] .zone-card-name {
+  color: #1E293B;
+}
+
+body[data-theme="light"] .zone-card-description {
+  color: #64748B;
+}
+
+body[data-theme="light"] .zone-card-arrow {
+  color: #94A3B8;
+}
+
+body[data-theme="light"] .zone-card:hover .zone-card-arrow {
+  color: #B45309;
+}
+
+body[data-theme="light"] .zone-search-all-btn {
+  border-color: rgba(180, 83, 9, 0.4);
+  color: #B45309;
+}
+
+body[data-theme="light"] .zone-search-all-btn:hover {
+  background: rgba(180, 83, 9, 0.1);
+  border-color: rgba(180, 83, 9, 0.6);
+}

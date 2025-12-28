@@ -25,7 +25,6 @@ export { useFormSubmissions } from './useFormSubmissions';
 export { useMediaQuery } from './useMediaQuery';
 export { useFocusTrap } from './useFocusTrap';
 export { useContainerSize } from './useContainerSize';
-export { useMapHeight } from './useMapHeight';
 
 // Filters
 export { useEstablishmentFilters } from './useEstablishmentFilters';

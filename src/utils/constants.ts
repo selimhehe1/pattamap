@@ -19,7 +19,8 @@ export const ZONE_OPTIONS: ZoneOption[] = [
   { value: 'lkmetro', label: 'LK Metro' },
   { value: 'treetown', label: 'Tree Town' },
   { value: 'soibuakhao', label: 'Soi Buakhao' },
-  { value: 'beachroad', label: 'Beach Road' }
+  { value: 'beachroad', label: 'Beach Road' },
+  { value: 'freelance', label: 'Freelance' }
 ];
 
 /**
@@ -44,12 +45,3 @@ export const getAllZoneValues = (): string[] => {
   return ZONE_OPTIONS.map(z => z.value);
 };
 
-/**
- * Map configuration constants
- * Unified dimensions for all zone maps to ensure consistent UX
- */
-export const MAP_CONFIG = {
-  DEFAULT_HEIGHT: 600,  // Unified fallback height for all maps (px)
-  MIN_HEIGHT: 400,      // Minimum height for mobile devices (px)
-  MAX_HEIGHT: 800       // Maximum height for desktop (px)
-} as const;

@@ -16,8 +16,5 @@ export { ModalProvider, useModal } from './ModalContext';
 export { ThemeProvider, useTheme } from './ThemeContext';
 export { SidebarProvider, useSidebar } from './SidebarContext';
 
-// Map
-export { MapControlsProvider, useMapControls } from './MapControlsContext';
-
 // Gamification
 export { GamificationProvider, useGamification } from './GamificationContext';

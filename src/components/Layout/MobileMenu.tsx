@@ -18,15 +18,11 @@ import {
   Building,
   MapPin,
   X,
-  List,
-  Map,
   Users
 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
-import { useMapControls } from '../../contexts/MapControlsContext';
 import { useAppModals } from '../../hooks/useAppModals';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import ThemeToggle from '../Common/ThemeToggle';
@@ -44,16 +40,13 @@ interface MobileMenuProps {
  * Phase 3 Modernisation - Hamburger Menu
  *
  * Full-screen sliding menu for mobile devices.
- * Includes view mode controls (List/Map/Employees).
  * Updated: Fixed overlay click interception bug
  */
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigateWithTransition();
-  const location = useLocation();
   const { user, logout, linkedEmployeeProfile } = useAuth();
   const { userProgress } = useGamification();
-  const { viewMode, setViewMode } = useMapControls();
   const { openLoginForm, openEmployeeForm, openEstablishmentForm, handleEditMyProfile, openUserInfoModal } = useAppModals();
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -88,17 +81,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const isHomePage = location.pathname === '/';
-
   const handleNavigate = useCallback((path: string) => {
     onClose();
     navigate(path);
   }, [navigate, onClose]);
-
-  const handleViewModeChange = useCallback((mode: 'map' | 'list' | 'employees') => {
-    setViewMode(mode);
-    onClose();
-  }, [setViewMode, onClose]);
 
   const handleAvatarClick = useCallback(() => {
     onClose();
@@ -209,39 +195,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
         {/* Scrollable content */}
         <div className="mobile-menu-content">
-          {/* View Mode Controls - Only on homepage */}
-          {isHomePage && (
-            <div className="mobile-menu-view-section">
-              <div className="mobile-menu-view-label">{t('map.viewMode', 'View Mode')}</div>
-              <div className="mobile-menu-view-buttons">
-                <button
-                  className={`mobile-menu-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                  onClick={() => handleViewModeChange('list')}
-                  aria-pressed={viewMode === 'list'}
-                >
-                  <span className="mobile-menu-view-icon"><List size={20} /></span>
-                  <span className="mobile-menu-view-text">{t('map.viewList', 'List')}</span>
-                </button>
-                <button
-                  className={`mobile-menu-view-btn ${viewMode === 'map' ? 'active' : ''}`}
-                  onClick={() => handleViewModeChange('map')}
-                  aria-pressed={viewMode === 'map'}
-                >
-                  <span className="mobile-menu-view-icon"><Map size={20} /></span>
-                  <span className="mobile-menu-view-text">{t('map.viewMap', 'Map')}</span>
-                </button>
-                <button
-                  className={`mobile-menu-view-btn ${viewMode === 'employees' ? 'active' : ''}`}
-                  onClick={() => handleViewModeChange('employees')}
-                  aria-pressed={viewMode === 'employees'}
-                >
-                  <span className="mobile-menu-view-icon"><Users size={20} /></span>
-                  <span className="mobile-menu-view-text">{t('map.lineup', 'Lineup')}</span>
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Navigation Section */}
           <div className="mobile-menu-section">
             <div className="mobile-menu-section-label">{t('menu.navigation', 'Navigation')}</div>
@@ -252,7 +205,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <span className="mobile-menu-item-arrow">›</span>
             </button>
 
-            <button className="mobile-menu-item" onClick={() => handleNavigate('/freelances')}>
+            <button className="mobile-menu-item" onClick={() => handleNavigate('/search?zone=freelance')}>
               <span className="mobile-menu-item-icon"><Users size={20} /></span>
               <span className="mobile-menu-item-text">{t('header.freelances', 'Freelances')}</span>
               <span className="mobile-menu-item-arrow">›</span>

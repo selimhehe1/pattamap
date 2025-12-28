@@ -1,28 +1,23 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ModalProvider } from './contexts/ModalContext';
 import { CSRFProvider } from './contexts/CSRFContext';
 import { QueryProvider } from './providers/QueryProvider';
 import { GamificationProvider } from './contexts/GamificationContext';
-import { useEstablishments } from './hooks/useEstablishments';
-import { useFreelances } from './hooks/useFreelances';
 import { useAppModals } from './hooks/useAppModals';
-import { SidebarProvider, useSidebar } from './contexts/SidebarContext';
-import { MapControlsProvider } from './contexts/MapControlsContext';
+import { SidebarProvider } from './contexts/SidebarContext';
 import ModalRenderer from './components/Common/ModalRenderer';
-import PattayaMap from './components/Map/PattayaMap';
+import ZoneGrid from './components/Home/ZoneGrid';
 import Header from './components/Layout/Header';
 import SkipToContent from './components/Layout/SkipToContent';
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import XPToastNotifications from './components/Gamification/XPToastNotifications';
 import OfflineBanner from './components/Common/OfflineBanner';
-import { Establishment } from './types';
 import { logger } from './utils/logger';
 import { Toaster } from './utils/toast';
-import { generateEstablishmentUrl } from './utils/slugify';
 import { initGA, initWebVitals, trackPageView } from './utils/analytics';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransition from './components/Common/PageTransition';
@@ -62,7 +57,6 @@ import './styles/modern/index.css'; // Phase 5.2: Container queries & scroll-dri
 import {
   AdminPanel,
   SearchPage,
-  FreelancesPage,
   BarDetailPage,
   UserDashboard,
   MyEstablishmentsPage,
@@ -82,50 +76,6 @@ import StructuredData, { createOrganizationSchema, createWebSiteSchema } from '.
 
 const HomePage: React.FC = () => {
   logger.debug('HomePage rendering');
-  const navigate = useNavigate();
-  const { sidebarOpen, toggleSidebar } = useSidebar();
-
-  // React Query hooks
-  const { data: establishments = [], isLoading: establishmentsLoading, isError: establishmentsError, refetch: refetchEstablishments } = useEstablishments();
-  const { data: freelances = [], isLoading: freelancesLoading } = useFreelances();
-
-  // Local states for filtering and selection
-  const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
-  const [selectedCategories] = useState<string[]>(['cat-001', 'cat-002', 'cat-003', 'cat-004', 'cat-005', 'cat-006']);
-  const [searchTerm] = useState('');
-  const [selectedEstablishment, setSelectedEstablishment] = useState<string | null>(null);
-
-  logger.debug('HomePage state from React Query', {
-    establishmentsCount: establishments.length,
-    freelancesCount: freelances.length,
-    filteredCount: filteredEstablishments.length,
-    isLoading: establishmentsLoading || freelancesLoading
-  });
-
-  // Filter establishments based on search and categories
-  useEffect(() => {
-    if (establishments.length > 0) {
-      logger.debug('Filtering establishments', { selectedCategories });
-      const filtered = establishments.filter(est => {
-        const isIncluded = selectedCategories.includes(`cat-${String(est.category_id).padStart(3, '0')}`);
-        return isIncluded &&
-          (est.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           est.address.toLowerCase().includes(searchTerm.toLowerCase()));
-      });
-      logger.debug('Establishments filtered', {
-        total: filtered.length,
-        soi6Count: filtered.filter(e => e.zone === 'soi6').length
-      });
-      setFilteredEstablishments(filtered);
-    }
-  }, [establishments, selectedCategories, searchTerm]);
-
-  // Handlers
-  const handleEstablishmentClick = (establishment: Establishment) => {
-    setSelectedEstablishment(establishment.id);
-    const seoUrl = generateEstablishmentUrl(establishment.id, establishment.name, establishment.zone || 'other');
-    navigate(seoUrl);
-  };
 
   return (
     <div className="App" style={{
@@ -135,7 +85,7 @@ const HomePage: React.FC = () => {
       {/* SEO Meta Tags */}
       <SEOHead
         title="Home"
-        description="Discover the best nightlife entertainment in Pattaya. Interactive maps, reviews, employee profiles, and real-time information for bars, clubs, and entertainment venues."
+        description="Discover the best nightlife entertainment in Pattaya. Browse zones, find bars, clubs, and entertainment venues in Soi 6, Walking Street, LK Metro, and more."
         keywords={['Pattaya nightlife', 'Pattaya bars', 'Pattaya clubs', 'entertainment directory', 'nightlife guide']}
       />
 
@@ -149,22 +99,8 @@ const HomePage: React.FC = () => {
         aria-label="Main content"
         className="page-content-with-header-nightlife"
         tabIndex={-1}
-        style={{ overflow: 'hidden' }}
       >
-        <PattayaMap
-          establishments={filteredEstablishments}
-          freelances={freelances}
-          onEstablishmentClick={handleEstablishmentClick}
-          selectedEstablishment={selectedEstablishment || undefined}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={toggleSidebar}
-          isError={establishmentsError}
-          onRetry={() => refetchEstablishments()}
-          onEstablishmentUpdate={async () => {
-            logger.debug('✅ Establishment updated - refetching data');
-            await refetchEstablishments();
-          }}
-        />
+        <ZoneGrid />
       </main>
     </div>
   );
@@ -234,7 +170,6 @@ const AppContent: React.FC = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/freelances" element={<FreelancesPage />} />
               <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
               <Route path="/bar/:id" element={<BarDetailPage />} />
 
@@ -321,9 +256,7 @@ const App: React.FC = () => {
                 <GamificationProvider>
                   <ModalProvider>
                     <SidebarProvider>
-                      <MapControlsProvider>
                         <AppContent />
-                      </MapControlsProvider>
                     </SidebarProvider>
                   </ModalProvider>
                 </GamificationProvider>

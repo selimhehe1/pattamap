@@ -1,4 +1,27 @@
 {
+  "home": {
+    "selectZone": "Select a Zone",
+    "exploreNightlife": "Explore Pattaya nightlife by area",
+    "searchAll": "Search All Zones"
+  },
+
+  "zones": {
+    "soi6": "Soi 6",
+    "soi6Description": "Beer bars & GoGo clubs",
+    "walkingstreet": "Walking Street",
+    "walkingstreetDescription": "GoGo bars & nightclubs",
+    "lkmetro": "LK Metro",
+    "lkmetroDescription": "Beer bars & entertainment",
+    "treetown": "Tree Town",
+    "treetownDescription": "Beer bars & local scene",
+    "soibuakhao": "Soi Buakhao",
+    "soibuakhaoDescription": "Beer bars & nightlife",
+    "beachroad": "Beach Road",
+    "beachroadDescription": "Beach clubs & bars",
+    "freelance": "Freelance",
+    "freelanceDescription": "Independent workers"
+  },
+
   "common": {
     "loading": "Loading...",
     "preparingExperience": "Preparing your experience...",
