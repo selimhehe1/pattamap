@@ -6,6 +6,7 @@
 .establishments-page {
   min-height: 100vh;
   background: var(--color-bg-primary, #0a0a1a);
+  padding-top: 70px; /* Account for fixed app header */
   padding-bottom: 2rem;
 }
 
