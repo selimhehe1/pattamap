@@ -5,6 +5,73 @@ All notable changes to PattaMap will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.4.0] - 2025-12-28 - Reviews Améliorées & Gamification Complete
+
+### Added
+- **Reviews Améliorées**: Photos dans reviews (1-3 photos par avis), réponses établissements (OwnerReviewsPanel)
+- **Gamification Complete**: XP system, badges, missions, leaderboards, rewards system
+- **Mode Hors Ligne (PWA)**: Offline-first avec Service Worker, background sync queue
+- **i18n 8 langues**: Ajout Japonais (JA) et Coréen (KO) - total 1,100+ clés
+- **Context Tests**: 105 nouveaux tests (SidebarContext, MapControlsContext, ThemeContext, ModalContext, CSRFContext, GamificationContext, AuthContext)
+- **E2E Tests**: 67 tests Playwright (auth-integration, user-search, owner-management)
+
+### Changed
+- Tests: 162 → 622 tests passing (100%)
+- Context coverage: 34% → 63.45%
+
+---
+
+## [10.3.0] - 2025-12-25 - VIP Subscriptions & Dark Mode
+
+### Added
+- **VIP Subscriptions Backend**: 3 tables, 22 indexes, 16 RLS policies, 7 API endpoints
+- **Dark Mode**: ThemeContext avec toggle, détection préférences système, persistance localStorage
+- **Historique Visites UI**: Dashboard complet avec timeline et stats
+- **Freelance System**: FreelancesPage avec filtres et VIP priority sorting
+- **Community Validation**: Vote weight system basé sur niveau XP
+
+### Security
+- 7/7 vulnérabilités résolues (CSRF, Password Policy, CSP, Rate Limiting)
+
+---
+
+## [10.2.0] - 2025-12-22 - Notifications PWA
+
+### Added
+- **PWA Push Notifications**: Service Worker, Web Push Protocol, VAPID keys
+- **Enhanced NotificationBell UI**: 21 types, dual grouping (Type/Date), 6 category filters
+- **Profile View Tracking**: Analytics complet avec timestamps
+- **Consumables System**: Menu boissons avec pricing par établissement
+
+### Changed
+- 50+ tests notifications (NotificationBell, pushManager, pushController)
+
+---
+
+## [10.1.0] - 2025-12-20 - Establishment Owners
+
+### Added
+- **Establishment Owners System**: 5 API endpoints, permissions JSONB, middleware
+- **Multilingue (i18n)**: 6 langues (EN/TH/RU/CN/FR/HI) - 1,046 clés
+- **Photo Upload System**: Cloudinary CDN integration
+- **Social Media Integration**: Formulaire réseaux sociaux établissements
+
+---
+
+## [10.0.0] - 2025-12-18 - Foundation v10
+
+### Added
+- **Employee Claims System**: Modal, dashboard, admin verification workflow
+- **Edit Proposals**: Système de suggestions avec modération
+- **Favorites System**: 13 tests, 100% coverage
+- **Moderation System**: Queue avec workflow approval
+
+### Changed
+- Migration vers React 19.1 + TypeScript strict
+- Architecture cartes ergonomiques (9 zones, 322 positions)
+
+---
+
 ## [2.1.0] - 2025-12-22
 
 ### Phase 5-7 Bug Fixes Release

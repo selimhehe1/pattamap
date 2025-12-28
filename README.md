@@ -2,8 +2,8 @@
 
 > Collaborative platform for referencing entertainment venues and employees in Pattaya, Thailand, with innovative ergonomic maps.
 
-**Version**: v10.3.4 (Code Quality Improved)
-**Status**: ✅ Production-Ready with 162 tests, TypeScript strict, security hardening
+**Version**: v10.4.0 (Reviews Améliorées Complete)
+**Status**: ✅ Production-Ready with 622 tests, TypeScript strict, security hardening
 **Last Updated**: December 2025
 
 > **📖 For complete documentation, see [docs/CLAUDE.md](docs/CLAUDE.md) - Main entry point for developers and Claude Code**
@@ -63,7 +63,7 @@ npm start                  # Terminal 2 → :3000
 - **Storage**: Cloudinary (images CDN)
 - **Auth**: JWT + httpOnly cookies + CSRF protection
 - **Monitoring**: Sentry (errors + performance tracing)
-- **Testing**: Jest + React Testing Library (162 tests, 85%+ middleware coverage)
+- **Testing**: Jest + React Testing Library (622 tests, 85%+ middleware coverage)
 
 → **Full Stack Details**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -133,7 +133,7 @@ docs/
 
 ---
 
-## 📊 Key Metrics (v10.3.4)
+## 📊 Key Metrics (v10.4.0)
 
 | Metric | Value |
 |--------|-------|
@@ -143,8 +143,8 @@ docs/
 | **Grid Positions** | 322 total |
 | **Reviews** | 52 community ratings |
 | **Users** | 14 (user/moderator/admin/establishment_owner) |
-| **Frontend Tests** | 162 (hooks, components) |
-| **Backend Tests** | 33+ (middleware 85%+ coverage) |
+| **Frontend Tests** | 300+ (hooks, components, contexts) |
+| **Backend Tests** | 322+ (middleware 85%+ coverage) |
 | **Performance** | ~20ms P50 latency |
 
 ---
@@ -152,14 +152,18 @@ docs/
 ## 🗺️ Roadmap (v10.0+)
 
 **Completed** ✅:
-1. ~~**Multilingue (i18n)**~~ - EN/TH/RU/CN/FR/HI (6 languages, 1,046 keys)
+1. ~~**Multilingue (i18n)**~~ - EN/TH/RU/CN/FR/HI/JA/KO (8 languages, 1,100+ keys)
 2. ~~**Notifications Push (PWA)**~~ - 21 types, grouping, filtering
-3. ~~**VIP Subscriptions**~~ - Backend complete, Frontend in progress
+3. ~~**VIP Subscriptions**~~ - Backend + Frontend complete (disabled via feature flag)
 4. ~~**Establishment Owners**~~ - Full system with permissions
+5. ~~**Gamification**~~ - XP, badges, missions, leaderboards
+6. ~~**Reviews Améliorées**~~ - Photos, owner responses, i18n
+7. ~~**Dark Mode**~~ - Theme toggle with system preference detection
+8. ~~**Mode Hors Ligne**~~ - PWA offline-first
 
-**In Progress** 🟡:
-- **VIP Frontend** - Purchase modal, admin verification panel
-- **Employee Verification** - Badge system, face comparison
+**Next Features** 🟡:
+- **Système Tips** - Digital tipping (7 days)
+- **Publicité Ciblée** - Sponsored listings (4 days)
 
 → **Full Roadmap**: [docs/features/ROADMAP.md](docs/features/ROADMAP.md)
 
@@ -168,17 +172,17 @@ docs/
 ## 🧪 Testing
 
 ```bash
-# Frontend (162 tests)
+# Frontend (300+ tests)
 npm test                     # Run all tests
 npm run build                # Production build
 
-# Test files:
-# - src/hooks/__tests__/useFormValidation.test.ts (13 tests)
-# - src/hooks/__tests__/useAutoSave.test.ts (10 tests)
-# - src/components/Auth/__tests__/LoginForm.test.tsx (7 tests)
-# - src/components/Search/__tests__/SearchPage.test.tsx
+# Key test suites:
+# - src/contexts/__tests__/ (105 tests - 7 contexts)
+# - src/hooks/__tests__/ (30 tests - validation, auto-save)
+# - src/components/Auth/__tests__/ (7 tests)
+# - tests/e2e/ (67 Playwright tests)
 
-# Backend (33+ tests)
+# Backend (322+ tests)
 cd backend
 npm test                     # Run all tests (85%+ middleware coverage)
 npm run build                # TypeScript compile
@@ -221,4 +225,4 @@ Private project - All rights reserved
 
 **Built with ❤️ for the Pattaya nightlife community**
 
-**Version**: v10.3.4 | **Status**: Production-Ready | **December 2025**
+**Version**: v10.4.0 | **Status**: Production-Ready | **December 2025**
