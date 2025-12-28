@@ -1,9 +1,9 @@
 /* Push Notification Settings Component */
 
 .push-notification-settings {
-  max-width: 600px;
+  max-width: var(--max-width-form, 600px);
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--spacing-5);
 }
 
 /* Loading State */
@@ -315,9 +315,9 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .push-notification-settings {
-    padding: 16px;
+    padding: var(--spacing-4);
   }
 
   .push-header {

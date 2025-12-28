@@ -1,0 +1,346 @@
+/**
+ * Shared Animations System
+ *
+ * Reusable animation keyframes and utility classes for consistent
+ * motion design across the PattaMap application.
+ *
+ * @dependencies design-system.css (timing variables)
+ */
+
+/* ==========================================================================
+   KEYFRAME DEFINITIONS
+   ========================================================================== */
+
+/* Spin animation for loading spinners */
+@keyframes shared-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse animation for attention-seeking elements */
+@keyframes shared-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* VIP Pulse - Gold glow effect */
+@keyframes vip-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--color-gold, #FFD700),
+                0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-gold, #FFD700),
+                0 0 40px rgba(255, 215, 0, 0.5);
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade in up animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in down animation */
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from left */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in animation */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 20%, 53%, 100% {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transform: translateY(0);
+  }
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translateY(-15px);
+  }
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translateY(-7px);
+  }
+  80% {
+    transform: translateY(0);
+  }
+  90% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Hover lift effect - CSS replacement for JS handlers */
+.hover-lift {
+  transition: transform var(--duration-normal, 0.3s) var(--ease-in-out, ease),
+              box-shadow var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Subtle hover lift */
+.hover-lift-sm {
+  transition: transform var(--duration-fast, 0.2s) var(--ease-in-out, ease);
+}
+
+.hover-lift-sm:hover {
+  transform: translateY(-2px);
+}
+
+/* Large hover lift */
+.hover-lift-lg {
+  transition: transform var(--duration-normal, 0.3s) var(--ease-in-out, ease),
+              box-shadow var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+.hover-lift-lg:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
+}
+
+/* Hover scale effect */
+.hover-scale {
+  transition: transform var(--duration-fast, 0.2s) var(--ease-in-out, ease);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Hover glow effect */
+.hover-glow {
+  transition: box-shadow var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px var(--color-primary, #C19A6B);
+}
+
+/* ==========================================================================
+   ANIMATION UTILITY CLASSES
+   ========================================================================== */
+
+/* Spin animation */
+.animate-spin {
+  animation: shared-spin 1s linear infinite;
+}
+
+/* Pulse animation */
+.animate-pulse {
+  animation: shared-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* VIP pulse */
+.animate-vip-pulse {
+  animation: vip-pulse 2s ease-in-out infinite;
+}
+
+/* Shimmer loading */
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Fade in */
+.animate-fade-in {
+  animation: fade-in var(--duration-normal, 0.3s) var(--ease-out, ease-out) forwards;
+}
+
+/* Fade in up */
+.animate-fade-in-up {
+  animation: fade-in-up var(--duration-normal, 0.3s) var(--ease-out, ease-out) forwards;
+}
+
+/* Fade in down */
+.animate-fade-in-down {
+  animation: fade-in-down var(--duration-normal, 0.3s) var(--ease-out, ease-out) forwards;
+}
+
+/* Slide in left */
+.animate-slide-in-left {
+  animation: slide-in-left var(--duration-normal, 0.3s) var(--ease-out, ease-out) forwards;
+}
+
+/* Slide in right */
+.animate-slide-in-right {
+  animation: slide-in-right var(--duration-normal, 0.3s) var(--ease-out, ease-out) forwards;
+}
+
+/* Scale in */
+.animate-scale-in {
+  animation: scale-in var(--duration-fast, 0.2s) var(--ease-out, ease-out) forwards;
+}
+
+/* Bounce */
+.animate-bounce {
+  animation: bounce 1s ease infinite;
+}
+
+/* ==========================================================================
+   DELAY UTILITIES
+   ========================================================================== */
+
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+.animation-delay-700 { animation-delay: 700ms; }
+.animation-delay-1000 { animation-delay: 1000ms; }
+
+/* ==========================================================================
+   TRANSITION UTILITIES
+   ========================================================================== */
+
+/* Transition all properties */
+.transition-all {
+  transition: all var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+/* Fast transition */
+.transition-fast {
+  transition: all var(--duration-fast, 0.2s) var(--ease-in-out, ease);
+}
+
+/* Slow transition */
+.transition-slow {
+  transition: all var(--duration-slow, 0.5s) var(--ease-in-out, ease);
+}
+
+/* Transform transition only */
+.transition-transform {
+  transition: transform var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+/* Opacity transition only */
+.transition-opacity {
+  transition: opacity var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+}
+
+/* Colors transition only */
+.transition-colors {
+  transition: color var(--duration-fast, 0.2s) var(--ease-in-out, ease),
+              background-color var(--duration-fast, 0.2s) var(--ease-in-out, ease),
+              border-color var(--duration-fast, 0.2s) var(--ease-in-out, ease);
+}
+
+/* ==========================================================================
+   REDUCED MOTION SUPPORT
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift,
+  .hover-lift-sm,
+  .hover-lift-lg,
+  .hover-scale,
+  .hover-glow,
+  .animate-spin,
+  .animate-pulse,
+  .animate-vip-pulse,
+  .animate-shimmer,
+  .animate-fade-in,
+  .animate-fade-in-up,
+  .animate-fade-in-down,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-scale-in,
+  .animate-bounce,
+  .transition-all,
+  .transition-fast,
+  .transition-slow,
+  .transition-transform,
+  .transition-opacity,
+  .transition-colors {
+    animation: none !important;
+    transition: none !important;
+  }
+}

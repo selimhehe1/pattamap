@@ -79,6 +79,13 @@
   --accent-purple: var(--color-primary);   /* #C19A6B - Or rose (remplace violet) */
   --accent-gold: var(--color-primary);     /* #C19A6B - Or rose */
 
+  /* Legacy color-text aliases (for form-unified.css compatibility) */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+  --color-text-inverse: var(--text-inverse);
+
   /* Semantic Colors - Douces & Modernes 2025 */
   --color-success: #10B981;           /* Émeraude - Garder */
   --color-success-button: #059669;    /* Émeraude foncée (WCAG AA) */
@@ -271,6 +278,17 @@ body[data-theme="light"] {
   /* Focus ring - Light Mode (Amber) */
   --focus-ring: 0 0 0 3px rgba(180, 83, 9, 0.25);
   --focus-ring-offset: 2px;
+
+  /* Accent Colors - Light Mode Adaptations */
+  --color-gold: #D97706;              /* Amber-600 - Gold adapté light */
+  --color-cyan: #0891B2;              /* Cyan-600 - Cyan adapté light */
+
+  /* Legacy color-text aliases (for form-unified.css compatibility) */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+  --color-text-inverse: var(--text-inverse);
 }
 
 /* ============================================

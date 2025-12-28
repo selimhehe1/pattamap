@@ -44,6 +44,8 @@ import './styles/components/autocomplete.css';
 import './styles/components/auth.css';
 import './styles/components/EmptyState.css';
 import './styles/components/mobile-menu.css'; // Phase 3 - Mobile hamburger menu
+import './styles/admin/admin-employee-card.css'; // Phase 1 - Admin employee card styles
+import './styles/admin/admin-light-mode.css'; // Phase 2 - Admin light mode overrides
 import './App.css';
 // REMOVED: import './styles/nightlife-theme.css'; - Legacy 9,145 line file deprecated
 import './styles/responsive/large-desktop.css';
@@ -52,6 +54,7 @@ import './styles/theme-overrides.css';
 import './styles/css-pro-polish.css';
 import './styles/header-ultra-visibility.css';
 import './styles/animations/scroll-animations.css';
+import './styles/animations/shared-animations.css'; // Phase 6 - Shared animation utilities
 import './styles/css-consolidated-fixes.css';
 import './styles/modern/index.css'; // Phase 5.2: Container queries & scroll-driven animations
 

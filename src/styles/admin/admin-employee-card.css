@@ -1,0 +1,546 @@
+/**
+ * Admin Employee Card Styles
+ * Extracted from EmployeeCard.tsx inline styles
+ * Uses design system variables for consistency
+ *
+ * Prefix: .aec- (admin-employee-card)
+ */
+
+/* ==========================================================================
+   Card Container
+   ========================================================================== */
+
+.aec-card {
+  transition: transform var(--duration-normal, 0.3s) var(--ease-in-out, ease),
+              box-shadow var(--duration-normal, 0.3s) var(--ease-in-out, ease);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.aec-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(193, 154, 107, 0.2);
+}
+
+.aec-card:focus-visible {
+  outline: 2px solid var(--color-primary, #C19A6B);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Selection Checkbox
+   ========================================================================== */
+
+.aec-checkbox {
+  position: absolute;
+  top: var(--spacing-3, 12px);
+  left: var(--spacing-3, 12px);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--border-radius-sm, 6px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 15;
+  transition: all var(--duration-fast, 0.2s) ease;
+}
+
+.aec-checkbox--selected {
+  border-color: var(--color-primary, #C19A6B);
+  background: var(--color-primary, #C19A6B);
+}
+
+.aec-checkbox__checkmark {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   Status Badge
+   ========================================================================== */
+
+.aec-status-badge {
+  position: absolute;
+  top: var(--spacing-4, 15px);
+  right: var(--spacing-4, 15px);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.aec-status-badge--pending {
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid var(--color-warning, #FBBF24);
+  color: var(--color-warning, #FBBF24);
+}
+
+.aec-status-badge--approved {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid var(--color-success, #10B981);
+  color: var(--color-success, #10B981);
+}
+
+.aec-status-badge--rejected {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--color-error, #EF4444);
+  color: var(--color-error, #EF4444);
+}
+
+/* ==========================================================================
+   Content Area
+   ========================================================================== */
+
+.aec-content {
+  flex: 1;
+  padding-top: var(--spacing-2, 10px);
+}
+
+.aec-main-info {
+  display: flex;
+  gap: var(--spacing-2, 10px);
+  margin-bottom: var(--spacing-4, 15px);
+}
+
+/* ==========================================================================
+   Photo
+   ========================================================================== */
+
+.aec-photo-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border-width: 3px;
+  border-style: solid;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.aec-photo-container--pending {
+  border-color: var(--color-warning, #FBBF24);
+}
+
+.aec-photo-container--approved {
+  border-color: var(--color-success, #10B981);
+}
+
+.aec-photo-container--rejected {
+  border-color: var(--color-error, #EF4444);
+}
+
+.aec-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.aec-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--color-primary, #C19A6B), var(--color-gold, #FFD700));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+}
+
+.aec-photo-count {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   Employee Details
+   ========================================================================== */
+
+.aec-details {
+  flex: 1;
+}
+
+.aec-name {
+  color: var(--text-primary, #ffffff);
+  font-size: var(--font-base, 16px);
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aec-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--color-cyan, #00d4ff) 0%, #0099cc 100%);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.aec-age-nationality {
+  color: var(--color-cyan, #00E5FF);
+  font-size: var(--font-xs, 12px);
+  margin-bottom: var(--spacing-2, 8px);
+}
+
+/* Light mode override */
+body[data-theme="light"] .aec-age-nationality {
+  color: var(--color-cyan, #0891B2);
+}
+
+.aec-submission-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted, #888888);
+  margin-bottom: var(--spacing-2, 8px);
+}
+
+.aec-submitter {
+  color: var(--color-gold, #FFD700);
+}
+
+body[data-theme="light"] .aec-submitter {
+  color: var(--color-gold, #D97706);
+}
+
+/* ==========================================================================
+   Employment History
+   ========================================================================== */
+
+.aec-employment-section {
+  margin-bottom: var(--spacing-4, 15px);
+}
+
+.aec-current-job {
+  margin-bottom: var(--spacing-2, 10px);
+}
+
+.aec-current-job__label {
+  color: var(--color-cyan, #00E5FF);
+  font-size: var(--font-xs, 12px);
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+body[data-theme="light"] .aec-current-job__label {
+  color: var(--color-cyan, #0891B2);
+}
+
+.aec-current-job__name {
+  font-size: var(--font-sm, 14px);
+  font-weight: bold;
+  color: var(--color-success, #00FF7F);
+  margin-bottom: 2px;
+}
+
+.aec-current-job__position {
+  color: var(--color-gold, #FFD700);
+  font-size: var(--font-xs, 12px);
+  margin-bottom: 2px;
+}
+
+body[data-theme="light"] .aec-current-job__position {
+  color: var(--color-gold, #D97706);
+}
+
+.aec-current-job__date {
+  color: var(--text-muted, #cccccc);
+  font-size: 11px;
+}
+
+/* Past Employment */
+.aec-past-jobs {
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--spacing-1, 6px);
+}
+
+.aec-past-jobs__header {
+  color: var(--color-gold, #FFD700);
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: var(--spacing-2, 8px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+body[data-theme="light"] .aec-past-jobs__header {
+  color: var(--color-gold, #D97706);
+}
+
+.aec-past-job {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted, #cccccc);
+  margin-bottom: 4px;
+  padding-left: var(--spacing-2, 8px);
+}
+
+.aec-past-job:last-child {
+  margin-bottom: 0;
+}
+
+.aec-past-job__name {
+  color: var(--color-gold, #FFD700);
+  font-weight: bold;
+}
+
+body[data-theme="light"] .aec-past-job__name {
+  color: var(--color-gold, #D97706);
+}
+
+.aec-past-job__position {
+  color: var(--text-muted, #cccccc);
+  font-weight: normal;
+}
+
+.aec-past-job__dates {
+  color: var(--text-disabled, #999999);
+  font-size: 10px;
+}
+
+/* ==========================================================================
+   Description
+   ========================================================================== */
+
+.aec-description {
+  color: var(--text-muted, #cccccc);
+  font-size: var(--font-sm, 13px);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-4, 15px);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Action Buttons Container
+   ========================================================================== */
+
+.aec-actions {
+  margin-top: auto;
+  padding-top: var(--spacing-4, 15px);
+}
+
+.aec-actions__row {
+  display: flex;
+  gap: var(--spacing-2, 10px);
+  margin-bottom: var(--spacing-2, 8px);
+}
+
+.aec-actions__row:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Admin Buttons
+   ========================================================================== */
+
+.aec-btn {
+  flex: 1;
+  font-size: var(--font-xs, 12px);
+  font-weight: bold;
+  padding: var(--spacing-2, 10px) var(--spacing-2, 8px);
+  border-radius: var(--border-radius-md, 10px);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all var(--duration-fast, 0.2s) ease;
+}
+
+.aec-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.aec-btn--full {
+  width: 100%;
+}
+
+/* View Profile Button */
+.aec-btn--view {
+  background: linear-gradient(45deg, var(--color-primary, #C19A6B), #D4AF37);
+  color: white;
+}
+
+.aec-btn--view:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Edit Button */
+.aec-btn--edit {
+  background: linear-gradient(45deg, var(--color-gold, #FFD700), #FFA500);
+  color: #000;
+}
+
+.aec-btn--edit:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Verify Button */
+.aec-btn--verify {
+  background: linear-gradient(45deg, var(--color-cyan, #00D4FF), #0099CC);
+  color: white;
+}
+
+.aec-btn--verify:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Revoke Button */
+.aec-btn--revoke {
+  background: linear-gradient(45deg, #FF6B00, #FF4500);
+  color: white;
+}
+
+.aec-btn--revoke:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Approve Button */
+.aec-btn--approve {
+  background: linear-gradient(45deg, var(--color-success, #00FF7F), #00CC65);
+  color: white;
+}
+
+.aec-btn--approve:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Reject Button */
+.aec-btn--reject {
+  background: linear-gradient(45deg, var(--color-error, #FF4757), #FF3742);
+  color: white;
+}
+
+.aec-btn--reject:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Delete Button */
+.aec-btn--delete {
+  background: linear-gradient(45deg, #8B0000, #DC143C);
+  color: white;
+}
+
+.aec-btn--delete:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Processing State */
+.aec-btn--processing {
+  background: linear-gradient(45deg, #666666, #888888);
+}
+
+/* ==========================================================================
+   Icon Utilities
+   ========================================================================== */
+
+.aec-icon {
+  vertical-align: middle;
+}
+
+.aec-icon--spin {
+  animation: aec-spin 1s linear infinite;
+}
+
+@keyframes aec-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 48rem) {
+  .aec-photo-container {
+    width: 50px;
+    height: 50px;
+  }
+
+  .aec-photo-placeholder {
+    font-size: 22px;
+  }
+
+  .aec-name {
+    font-size: var(--font-sm, 14px);
+  }
+
+  .aec-btn {
+    padding: var(--spacing-2, 8px) var(--spacing-1, 6px);
+    font-size: 11px;
+  }
+}
+
+/* ==========================================================================
+   Light Mode Overrides
+   ========================================================================== */
+
+body[data-theme="light"] .aec-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+body[data-theme="light"] .aec-checkbox {
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body[data-theme="light"] .aec-name {
+  color: var(--text-primary, #1E293B);
+}
+
+body[data-theme="light"] .aec-description {
+  color: var(--text-secondary, #475569);
+}
+
+body[data-theme="light"] .aec-submission-info {
+  color: var(--text-secondary, #64748B);
+}
+
+body[data-theme="light"] .aec-past-jobs {
+  background: rgba(217, 119, 6, 0.05);
+  border-color: rgba(217, 119, 6, 0.2);
+}
+
+body[data-theme="light"] .aec-past-job,
+body[data-theme="light"] .aec-past-job__position,
+body[data-theme="light"] .aec-current-job__date {
+  color: var(--text-secondary, #475569);
+}

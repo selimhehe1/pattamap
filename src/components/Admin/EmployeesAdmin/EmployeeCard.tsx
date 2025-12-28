@@ -1,6 +1,10 @@
 /**
  * Employee card component for EmployeesAdmin grid view
  * Displays employee info, photos, employment history, and action buttons
+ *
+ * Uses CSS classes from:
+ * - src/styles/admin/admin-employee-card.css (.aec-* classes)
+ * - src/styles/components/buttons.css (.btn--* variants)
  */
 
 import React from 'react';
@@ -25,24 +29,40 @@ interface EmployeeCardProps {
 }
 
 const getSocialMediaIcon = (platform: string): React.ReactNode => {
-  const iconStyle = { verticalAlign: 'middle' as const };
   switch (platform) {
-    case 'instagram': return <Instagram size={14} style={iconStyle} />;
-    case 'line': return <MessageSquare size={14} style={iconStyle} />;
-    case 'telegram': return <Send size={14} style={iconStyle} />;
-    case 'whatsapp': return <Smartphone size={14} style={iconStyle} />;
-    case 'facebook': return <Users size={14} style={iconStyle} />;
-    default: return <Link size={14} style={iconStyle} />;
+    case 'instagram': return <Instagram size={14} className="aec-icon" />;
+    case 'line': return <MessageSquare size={14} className="aec-icon" />;
+    case 'telegram': return <Send size={14} className="aec-icon" />;
+    case 'whatsapp': return <Smartphone size={14} className="aec-icon" />;
+    case 'facebook': return <Users size={14} className="aec-icon" />;
+    default: return <Link size={14} className="aec-icon" />;
   }
 };
 
 const getStatusIcon = (status: string): React.ReactNode => {
-  const iconStyle = { verticalAlign: 'middle' as const };
   switch (status) {
-    case 'pending': return <Loader2 size={12} style={iconStyle} />;
-    case 'approved': return <CheckCircle size={12} style={iconStyle} />;
-    case 'rejected': return <XCircle size={12} style={iconStyle} />;
-    default: return <HelpCircle size={12} style={iconStyle} />;
+    case 'pending': return <Loader2 size={12} className="aec-icon" />;
+    case 'approved': return <CheckCircle size={12} className="aec-icon" />;
+    case 'rejected': return <XCircle size={12} className="aec-icon" />;
+    default: return <HelpCircle size={12} className="aec-icon" />;
+  }
+};
+
+const getStatusModifier = (status: string): string => {
+  switch (status) {
+    case 'pending': return 'aec-status-badge--pending';
+    case 'approved': return 'aec-status-badge--approved';
+    case 'rejected': return 'aec-status-badge--rejected';
+    default: return '';
+  }
+};
+
+const getPhotoContainerModifier = (status: string): string => {
+  switch (status) {
+    case 'pending': return 'aec-photo-container--pending';
+    case 'approved': return 'aec-photo-container--approved';
+    case 'rejected': return 'aec-photo-container--rejected';
+    default: return '';
   }
 };
 
@@ -60,7 +80,6 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   onDelete,
 }) => {
   const { t } = useTranslation();
-  const statusColor = getStatusColor(employee.status);
 
   const handleCardClick = () => {
     onViewProfile(employee);
@@ -69,16 +88,6 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleSelection?.(employee.id);
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = 'translateY(-3px)';
-    e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107, 0.2)';
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = 'translateY(0)';
-    e.currentTarget.style.boxShadow = 'none';
   };
 
   // Get employment history info
@@ -90,68 +99,27 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
   return (
     <div
-      className="employee-card-nightlife"
+      className="employee-card-nightlife aec-card"
       role="button"
       tabIndex={0}
-      style={{
-        transition: 'all 0.3s ease',
-        cursor: 'pointer',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-      }}
       onClick={handleCardClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
     >
       {/* Selection Checkbox */}
       {onToggleSelection && (
         <div
           onClick={handleCheckboxClick}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            width: '24px',
-            height: '24px',
-            borderRadius: '6px',
-            border: isSelected ? '2px solid #C19A6B' : '2px solid rgba(255,255,255,0.3)',
-            background: isSelected ? '#C19A6B' : 'rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 15,
-            transition: 'all 0.2s ease',
-          }}
+          className={`aec-checkbox ${isSelected ? 'aec-checkbox--selected' : ''}`}
           role="checkbox"
           aria-checked={isSelected}
           aria-label={t('admin.selectEmployee', 'Select employee')}
         >
-          {isSelected && (
-            <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
-          )}
+          {isSelected && <span className="aec-checkbox__checkmark">✓</span>}
         </div>
       )}
 
       {/* Status Badge */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '15px',
-          right: '15px',
-          padding: '4px 8px',
-          borderRadius: '12px',
-          background: `${statusColor}20`,
-          border: `1px solid ${statusColor}`,
-          color: statusColor,
-          fontSize: '10px',
-          fontWeight: 'bold',
-          whiteSpace: 'nowrap',
-          zIndex: 10,
-        }}
-      >
+      <div className={`aec-status-badge ${getStatusModifier(employee.status)}`}>
         {getStatusIcon(employee.status)}{' '}
         {employee.status === 'approved'
           ? 'OK'
@@ -163,96 +131,40 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </div>
 
       {/* Content Area */}
-      <div style={{ flex: 1, paddingTop: '10px' }}>
+      <div className="aec-content">
         {/* Main Employee Info */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+        <div className="aec-main-info">
           {/* Circular Photo */}
-          <div
-            style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: `3px solid ${statusColor}`,
-              flexShrink: 0,
-              position: 'relative',
-            }}
-          >
+          <div className={`aec-photo-container ${getPhotoContainerModifier(employee.status)}`}>
             {employee.photos && employee.photos.length > 0 ? (
               <LazyImage
                 src={employee.photos[0]}
                 alt={`${employee.name}, ${employee.age} years old from ${employee.nationality}`}
                 cloudinaryPreset="thumbnail"
-                style={{ width: '100%', height: '100%' }}
+                className="aec-photo"
                 objectFit="cover"
               />
             ) : (
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '28px',
-                  color: 'white',
-                }}
-              >
+              <div className="aec-photo-placeholder">
                 {employee.name.charAt(0).toUpperCase()}
               </div>
             )}
             {/* Photo Count Badge */}
             {employee.photos && employee.photos.length > 1 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '-2px',
-                  right: '-2px',
-                  background: 'rgba(0,0,0,0.8)',
-                  color: 'white',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                }}
-              >
+              <div className="aec-photo-count">
                 📷 {employee.photos.length}
               </div>
             )}
           </div>
 
           {/* Employee Details */}
-          <div style={{ flex: 1 }}>
+          <div className="aec-details">
             {/* Name with Verified Badge */}
-            <h3
-              style={{
-                color: '#ffffff',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                margin: '0 0 5px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
+            <h3 className="aec-name">
               <span>{employee.name}</span>
               {employee.is_verified && (
                 <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '18px',
-                    height: '18px',
-                    background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
-                    borderRadius: '50%',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    color: '#fff',
-                    boxShadow: '0 2px 8px rgba(0, 212, 255, 0.4)',
-                    flexShrink: 0,
-                  }}
+                  className="aec-verified-badge"
                   title={`Verified ${
                     employee.verified_at
                       ? `on ${new Date(employee.verified_at).toLocaleDateString()}`
@@ -270,23 +182,19 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
             </h3>
 
             {/* Age and Nationality */}
-            <div style={{ color: '#00E5FF', fontSize: '12px', marginBottom: '8px' }}>
+            <div className="aec-age-nationality">
               {employee.age} {t('admin.years')} • {employee.nationality}
             </div>
 
             {/* Submission Info */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '11px',
-                color: '#888888',
-                marginBottom: '8px',
-              }}
-            >
-              <span><Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{formatDate(employee.created_at)}</span>
-              <span style={{ color: '#FFD700' }}>
-                <User size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employee.user?.pseudonym || t('admin.unknown')}
+            <div className="aec-submission-info">
+              <span>
+                <Calendar size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+                {formatDate(employee.created_at)}
+              </span>
+              <span className="aec-submitter">
+                <User size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+                {employee.user?.pseudonym || t('admin.unknown')}
               </span>
             </div>
           </div>
@@ -294,39 +202,26 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
         {/* Employment History */}
         {employee.employment_history && employee.employment_history.length > 0 ? (
-          <div style={{ marginBottom: '15px' }}>
+          <div className="aec-employment-section">
             {/* Current Employment */}
             {currentJob ? (
               <div
-                className="status-card-nightlife status-employed-nightlife"
-                style={{ marginBottom: pastJobs && pastJobs.length > 0 ? '10px' : '0px' }}
+                className="status-card-nightlife status-employed-nightlife aec-current-job"
               >
-                <div
-                  style={{
-                    color: '#00E5FF',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    marginBottom: '5px',
-                  }}
-                >
-                  <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.currentlyWorkingAt')}
+                <div className="aec-current-job__label">
+                  <MapPin size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+                  {t('admin.currentlyWorkingAt')}
                 </div>
-                <div
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    color: '#00FF7F',
-                    marginBottom: '2px',
-                  }}
-                >
+                <div className="aec-current-job__name">
                   {currentJob.establishment_name}
                 </div>
                 {currentJob.position && (
-                  <div style={{ color: '#FFD700', fontSize: '12px', marginBottom: '2px' }}>
-                    <Briefcase size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{currentJob.position}
+                  <div className="aec-current-job__position">
+                    <Briefcase size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+                    {currentJob.position}
                   </div>
                 )}
-                <div style={{ color: '#cccccc', fontSize: '11px' }}>
+                <div className="aec-current-job__date">
                   Since{' '}
                   {new Date(currentJob.start_date).toLocaleDateString('en-US', {
                     month: 'short',
@@ -335,61 +230,29 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 </div>
               </div>
             ) : (
-              <div
-                className="status-card-nightlife status-unemployed-nightlife"
-                style={{ marginBottom: pastJobs && pastJobs.length > 0 ? '10px' : '0px' }}
-              >
-                <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.notCurrentlyEmployed')}
+              <div className="status-card-nightlife status-unemployed-nightlife aec-current-job">
+                <AlertTriangle size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+                {t('admin.notCurrentlyEmployed')}
               </div>
             )}
 
             {/* Previous Employment History */}
             {pastJobs && pastJobs.length > 0 && (
-              <div
-                style={{
-                  background: 'rgba(255, 215, 0, 0.05)',
-                  border: '1px solid rgba(255, 215, 0, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                }}
-              >
-                <div
-                  style={{
-                    color: '#FFD700',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    marginBottom: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}
-                >
-                  <ClipboardList size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.employmentHistory')} ({pastJobs.length}{' '}
+              <div className="aec-past-jobs">
+                <div className="aec-past-jobs__header">
+                  <ClipboardList size={12} className="aec-icon" />
+                  {t('admin.employmentHistory')} ({pastJobs.length}{' '}
                   {t('admin.previousJob', { count: pastJobs.length })}):
                 </div>
                 {pastJobs.map((job, index) => (
-                  <div
-                    key={job.id || index}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      fontSize: '11px',
-                      color: '#cccccc',
-                      marginBottom: index === pastJobs.length - 1 ? '0px' : '4px',
-                      paddingLeft: '8px',
-                    }}
-                  >
-                    <span style={{ color: '#FFD700', fontWeight: 'bold' }}>
+                  <div key={job.id || index} className="aec-past-job">
+                    <span className="aec-past-job__name">
                       • {job.establishment_name}
                       {job.position && (
-                        <span style={{ color: '#cccccc', fontWeight: 'normal' }}>
-                          {' '}
-                          ({job.position})
-                        </span>
+                        <span className="aec-past-job__position"> ({job.position})</span>
                       )}
                     </span>
-                    <span style={{ color: '#999999', fontSize: '10px' }}>
+                    <span className="aec-past-job__dates">
                       {new Date(job.start_date).getFullYear()}
                       {job.end_date && ` - ${new Date(job.end_date).getFullYear()}`}
                     </span>
@@ -399,18 +262,16 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
             )}
           </div>
         ) : (
-          <div
-            className="status-card-nightlife status-unemployed-nightlife"
-            style={{ marginBottom: '15px' }}
-          >
-            <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.noEmploymentHistory')}
+          <div className="status-card-nightlife status-unemployed-nightlife aec-employment-section">
+            <AlertTriangle size={12} className="aec-icon" style={{ marginRight: '4px' }} />
+            {t('admin.noEmploymentHistory')}
           </div>
         )}
 
         {/* Social Media */}
         {employee.social_media &&
           Object.values(employee.social_media).some((username) => username) && (
-            <div className="social-media-container-nightlife" style={{ marginBottom: '15px' }}>
+            <div className="social-media-container-nightlife" style={{ marginBottom: 'var(--spacing-4)' }}>
               {Object.entries(employee.social_media).map(([platform, username]) => {
                 if (!username) return null;
                 return (
@@ -432,42 +293,25 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
         {/* Description Preview */}
         {employee.description && (
-          <div
-            style={{
-              color: '#cccccc',
-              fontSize: '13px',
-              lineHeight: '1.5',
-              marginBottom: '15px',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
+          <div className="aec-description">
             💭 {employee.description}
           </div>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div style={{ marginTop: 'auto', padding: '15px 0 0 0' }}>
+      <div className="aec-actions">
         {/* View Profile + Edit */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
+        <div className="aec-actions__row">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onViewProfile(employee);
             }}
-            className="btn btn--primary"
-            style={{
-              flex: 1,
-              fontSize: '12px',
-              fontWeight: 'bold',
-              padding: '10px 8px',
-              borderRadius: '10px',
-            }}
+            className="btn btn--primary btn--admin-sm aec-btn"
           >
-            <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.viewProfile')}
+            <Eye size={14} className="aec-icon" />
+            {t('admin.viewProfile')}
           </button>
 
           <button
@@ -475,108 +319,87 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               e.stopPropagation();
               onEdit(employee);
             }}
-            className="btn"
-            style={{
-              flex: 1,
-              background: 'linear-gradient(45deg, #FFD700, #FFA500)',
-              color: '#000',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              padding: '10px 8px',
-              borderRadius: '10px',
-            }}
+            className="btn btn--edit btn--admin-sm aec-btn"
           >
-            <Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.edit')}
+            <Pencil size={14} className="aec-icon" />
+            {t('common.edit')}
           </button>
         </div>
 
         {/* Verify Profile Button - Only for non-verified approved employees */}
         {!employee.is_verified && employee.status === 'approved' && (
-          <div style={{ marginBottom: '8px' }}>
+          <div className="aec-actions__row">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onVerify(employee.id, employee.name);
               }}
               disabled={isProcessing}
-              className="btn"
-              style={{
-                width: '100%',
-                background: isProcessing
-                  ? 'linear-gradient(45deg, #666666, #888888)'
-                  : 'linear-gradient(45deg, #00D4FF, #0099CC)',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                opacity: isProcessing ? 0.7 : 1,
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-              }}
+              className={`btn btn--admin-sm aec-btn aec-btn--full ${isProcessing ? 'btn--processing' : 'btn--verify'}`}
             >
-              {isProcessing
-                ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
-                : <><ShieldCheck size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.verifyProfile', 'Verify Profile')}</>}
+              {isProcessing ? (
+                <>
+                  <Loader2 size={14} className="aec-icon aec-icon--spin" />
+                  {t('admin.processing')}
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={14} className="aec-icon" />
+                  {t('admin.verifyProfile', 'Verify Profile')}
+                </>
+              )}
             </button>
           </div>
         )}
 
         {/* Revoke Verification Button - Only for verified employees */}
         {employee.is_verified && (
-          <div style={{ marginBottom: '8px' }}>
+          <div className="aec-actions__row">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onRevokeVerification(employee.id, employee.name);
               }}
               disabled={isProcessing}
-              className="btn"
-              style={{
-                width: '100%',
-                background: isProcessing
-                  ? 'linear-gradient(45deg, #666666, #888888)'
-                  : 'linear-gradient(45deg, #FF6B00, #FF4500)',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                opacity: isProcessing ? 0.7 : 1,
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-              }}
+              className={`btn btn--admin-sm aec-btn aec-btn--full ${isProcessing ? 'btn--processing' : 'btn--revoke'}`}
             >
-              {isProcessing
-                ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
-                : <><ShieldX size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.revokeVerification', 'Revoke Verification')}</>}
+              {isProcessing ? (
+                <>
+                  <Loader2 size={14} className="aec-icon aec-icon--spin" />
+                  {t('admin.processing')}
+                </>
+              ) : (
+                <>
+                  <ShieldX size={14} className="aec-icon" />
+                  {t('admin.revokeVerification', 'Revoke Verification')}
+                </>
+              )}
             </button>
           </div>
         )}
 
         {/* Approve/Reject - Only for pending */}
         {employee.status === 'pending' && (
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
+          <div className="aec-actions__row">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onApprove(employee.id);
               }}
               disabled={isProcessing}
-              className="btn"
-              style={{
-                flex: 1,
-                background: isProcessing
-                  ? 'linear-gradient(45deg, #666666, #888888)'
-                  : 'linear-gradient(45deg, #00FF7F, #00CC65)',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                opacity: isProcessing ? 0.7 : 1,
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-              }}
+              className={`btn btn--admin-sm aec-btn ${isProcessing ? 'btn--processing' : 'btn--success'}`}
             >
-              {isProcessing ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</> : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approve')}</>}
+              {isProcessing ? (
+                <>
+                  <Loader2 size={14} className="aec-icon aec-icon--spin" />
+                  {t('admin.processing')}
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={14} className="aec-icon" />
+                  {t('admin.approve')}
+                </>
+              )}
             </button>
 
             <button
@@ -585,22 +408,19 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 onReject(employee.id);
               }}
               disabled={isProcessing}
-              className="btn"
-              style={{
-                flex: 1,
-                background: isProcessing
-                  ? 'linear-gradient(45deg, #666666, #888888)'
-                  : 'linear-gradient(45deg, #FF4757, #FF3742)',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                opacity: isProcessing ? 0.7 : 1,
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-              }}
+              className={`btn btn--admin-sm aec-btn ${isProcessing ? 'btn--processing' : 'btn--danger'}`}
             >
-              {isProcessing ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</> : <><XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}</>}
+              {isProcessing ? (
+                <>
+                  <Loader2 size={14} className="aec-icon aec-icon--spin" />
+                  {t('admin.processing')}
+                </>
+              ) : (
+                <>
+                  <XCircle size={14} className="aec-icon" />
+                  {t('admin.reject')}
+                </>
+              )}
             </button>
           </div>
         )}
@@ -612,24 +432,19 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
             onDelete(employee.id, employee.name);
           }}
           disabled={isProcessing}
-          className="btn"
-          style={{
-            width: '100%',
-            background: isProcessing
-              ? 'linear-gradient(45deg, #666666, #888888)'
-              : 'linear-gradient(45deg, #8B0000, #DC143C)',
-            color: 'white',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            padding: '10px 8px',
-            borderRadius: '10px',
-            opacity: isProcessing ? 0.7 : 1,
-            cursor: isProcessing ? 'not-allowed' : 'pointer',
-          }}
+          className={`btn btn--admin-sm aec-btn aec-btn--full ${isProcessing ? 'btn--processing' : 'btn--delete'}`}
         >
-          {isProcessing
-            ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('admin.processing')}</>
-            : <><Trash2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.deleteEmployee', 'Delete')}</>}
+          {isProcessing ? (
+            <>
+              <Loader2 size={14} className="aec-icon aec-icon--spin" />
+              {t('admin.processing')}
+            </>
+          ) : (
+            <>
+              <Trash2 size={14} className="aec-icon" />
+              {t('admin.deleteEmployee', 'Delete')}
+            </>
+          )}
         </button>
       </div>
     </div>

@@ -184,6 +184,51 @@
   margin-bottom: var(--spacing-8);
 }
 
+/* Error state for inputs */
+.uf-input--error,
+.uf-textarea--error,
+.uf-select--error,
+.uf-input.error,
+.uf-textarea.error,
+.uf-select.error {
+  border-color: var(--color-error);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.uf-input--error:focus,
+.uf-textarea--error:focus,
+.uf-select--error:focus,
+.uf-input.error:focus,
+.uf-textarea.error:focus,
+.uf-select.error:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* Success state for inputs */
+.uf-input--success,
+.uf-textarea--success,
+.uf-select--success {
+  border-color: var(--color-success);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.uf-input--success:focus,
+.uf-textarea--success:focus,
+.uf-select--success:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Disabled state for inputs */
+.uf-input:disabled,
+.uf-textarea:disabled,
+.uf-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.01);
+}
+
 /* ===== 6. BUTTONS ===== */
 
 .uf-actions {
