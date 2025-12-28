@@ -122,7 +122,7 @@
   overflow: hidden;
   cursor: pointer;
   background: linear-gradient(135deg, rgba(25, 0, 45, 0.95), rgba(45, 0, 85, 0.95));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
   border: 2px solid rgba(255, 255, 255, 0.1);
   display: flex;
@@ -131,7 +131,7 @@
 
 .establishment-card-tinder:hover {
   transform: scale(1.05);
-  box-shadow: 0 20px 40px rgba(193, 154, 107, 0.4);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
   border-color: rgba(193, 154, 107, 0.5);
 }
 
@@ -142,7 +142,7 @@
 
 .establishment-card-tinder.selected {
   border: 2px solid var(--color-accent);
-  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.4);
+  box-shadow: var(--shadow-xl), 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 /* ========================================

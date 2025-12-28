@@ -152,12 +152,26 @@
 }
 
 .profile-photo-dot {
+  /* Visual size */
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 50%;
   border: none;
   cursor: pointer;
   transition: var(--transition-base);
+  position: relative;
+}
+
+/* WCAG: Expand touch target with ::after pseudo-element */
+.profile-photo-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%;
 }
 
 .profile-photo-dot.active {

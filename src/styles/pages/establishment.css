@@ -87,7 +87,8 @@
 /* Layout containers - Grid 2 colonnes (main + sidebar) */
 .establishment-layout-nightlife {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  /* Fix: use minmax for responsive sidebar instead of fixed 340px */
+  grid-template-columns: 1fr minmax(280px, 340px);
   gap: var(--spacing-md);
   padding: var(--spacing-md);
 }

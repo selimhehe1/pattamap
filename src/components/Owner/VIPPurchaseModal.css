@@ -29,7 +29,8 @@
 .vip-purchase-modal-content {
   background: linear-gradient(135deg, #1a1a2e, #16213e, #240046);
   border-radius: 16px;
-  max-width: 900px;
+  /* Fix: use min() for responsive modal width */
+  max-width: min(95vw, 900px);
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;

@@ -56,8 +56,9 @@
 
 .establishments-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
+  /* Fix: use min() to prevent horizontal scroll on small screens */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--spacing-6);
 }
 
 .establishment-card {
@@ -65,7 +66,7 @@
   border: 2px solid var(--border-primary);
   border-radius: var(--border-radius-2xl);
   padding: 25px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;

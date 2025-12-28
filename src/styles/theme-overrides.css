@@ -18,6 +18,8 @@
 body {
   background: var(--gradient-main);
   color: var(--text-primary);
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 .App {
