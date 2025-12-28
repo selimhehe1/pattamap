@@ -8,6 +8,41 @@
  */
 
 /* ==========================================================================
+   Admin Page Header - Both Modes
+   ========================================================================== */
+
+.admin-page-container {
+  padding: var(--spacing-6);
+}
+
+.admin-page-header {
+  margin-bottom: var(--spacing-6);
+}
+
+.admin-page-title {
+  font-size: var(--font-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-2) 0;
+  display: flex;
+  align-items: center;
+}
+
+.admin-page-subtitle {
+  font-size: var(--font-base);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Light Mode - Admin Page Header */
+body[data-theme="light"] .admin-page-title {
+  color: var(--text-primary);
+}
+
+body[data-theme="light"] .admin-page-subtitle {
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
    Admin Cards - Light Mode
    ========================================================================== */
 
