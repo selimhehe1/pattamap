@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Building2, MapPin, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { useEstablishmentsByZone } from '../hooks/useEstablishments';
 import { getZoneLabel } from '../utils/constants';
+import { generateEstablishmentUrl } from '../utils/slugify';
 import { Establishment } from '../types';
 import LazyImage from '../components/Common/LazyImage';
 import '../styles/pages/establishments-page.css';
@@ -23,18 +24,10 @@ const EstablishmentsPage: React.FC = () => {
 
   const { data: establishments, isLoading, error, totalCount } = useEstablishmentsByZone(zone);
 
-  // Generate URL slug from establishment name
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-  };
-
   // Navigate to establishment detail page
   const handleEstablishmentClick = (establishment: Establishment) => {
-    const slug = generateSlug(establishment.name);
-    navigate(`/bar/${establishment.zone}/${slug}`);
+    const url = generateEstablishmentUrl(establishment.id, establishment.name, establishment.zone || zone || 'other');
+    navigate(url);
   };
 
   // Go back to home
