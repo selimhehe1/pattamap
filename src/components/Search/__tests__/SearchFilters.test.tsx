@@ -392,7 +392,6 @@ describe('SearchFilters - Filter Fixes', () => {
 
       // Should have all filter inputs
       expect(screen.getByText(/search\.verifiedOnly/)).toBeInTheDocument();
-      expect(screen.getByText(/search\.employeeType/)).toBeInTheDocument();
       expect(screen.getByText(/search\.searchName/)).toBeInTheDocument();
       expect(screen.getByText(/search\.ageRange/)).toBeInTheDocument();
       expect(screen.getByText(/search\.nationality/)).toBeInTheDocument();

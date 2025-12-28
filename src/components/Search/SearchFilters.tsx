@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Search, ChevronDown, Trash2, Check, User, Building2,
+  Search, ChevronDown, Trash2, Check, Building2,
   Cake, Globe, MapPin, Tag, ArrowUpDown,
   Loader2, Pencil, Lightbulb, AlertTriangle
 } from 'lucide-react';
@@ -566,30 +566,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             {t('search.verifiedOnly', 'Verified Profiles Only')}
           </span>
         </button>
-      </div>
-
-      {/* Employee Type Filter - 🆕 v10.3 - Freelance vs Regular */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <User size={20} /> {t('search.employeeType')}
-        </label>
-        <select
-          value={filters.type}
-          onChange={(e) => onFilterChange('type', e.target.value)}
-          disabled={loading}
-          className="select-nightlife"
-          data-testid="type-filter"
-        >
-          <option value="all" style={{ background: '#1a1a2e', color: '#ffffff' }}>
-            {t('search.allEmployeeTypes')}
-          </option>
-          <option value="freelance" style={{ background: '#1a1a2e', color: '#ffffff' }}>
-            {t('search.freelances')}
-          </option>
-          <option value="regular" style={{ background: '#1a1a2e', color: '#ffffff' }}>
-            {t('search.regularEmployees')}
-          </option>
-        </select>
       </div>
 
       {/* Search Query with Autocomplete */}
