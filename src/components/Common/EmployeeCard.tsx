@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import LazyImage from './LazyImage';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
+import { use3DTilt } from '../../hooks/use3DTilt';
 import {
   Star,
   Check,
@@ -11,9 +12,12 @@ import {
   Cake,
   Globe,
   Building2,
-  Gem
+  Gem,
+  Flame,
+  Sparkles
 } from 'lucide-react';
 import '../../styles/components/employee-card.css';
+import '../../styles/components/card-animations.css';
 
 // Feature flag check
 const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
@@ -47,6 +51,14 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
   className = ''
 }) => {
   const { t } = useTranslation();
+
+  // 3D Tilt effect hook
+  const tiltRef = use3DTilt<HTMLDivElement>({
+    maxTilt: 12,
+    scale: 1.03,
+    glowColor: 'rgba(232, 121, 249, 0.4)',
+  });
+
   const mainPhoto = employee.photos && Array.isArray(employee.photos) && employee.photos.length > 0
     ? employee.photos[0]
     : null;
@@ -64,16 +76,25 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
   // Check if employee is VIP (active subscription) - only if VIP feature is enabled
   const isVIP = VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date();
 
+  // Check if employee is "HOT" (popular - high vote count)
+  const isHot = useMemo(() => {
+    return (employee.vote_count ?? 0) >= 10;
+  }, [employee.vote_count]);
+
+  // Check if employee is NEW (created in last 7 days)
+  const isNew = useMemo(() => {
+    if (!employee.created_at) return false;
+    const createdDate = new Date(employee.created_at);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return createdDate > sevenDaysAgo;
+  }, [employee.created_at]);
+
   return (
-    <motion.div
-      className={`employee-card-tinder employee-card-container employee-card-scroll-reveal ${isVIP ? 'employee-card-vip' : ''} ${className}`}
+    <div
+      ref={tiltRef}
+      className={`employee-card-tinder employee-card-container employee-card-premium card-3d-tilt ${isVIP ? 'employee-card-vip' : ''} ${isHot ? 'employee-card-hot' : ''} ${className}`}
       onClick={() => onClick?.(employee)}
-      whileHover={{
-        scale: 1.05,
-        boxShadow: '0 20px 40px rgba(193, 154, 107,0.4)',
-        transition: { type: 'spring', stiffness: 300 }
-      }}
-      whileTap={{ scale: 0.98 }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -85,6 +106,13 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
       aria-label={t('employeeCard.ariaViewProfile', { name: employee.name })}
       data-testid="employee-card-inner"
     >
+      {/* NEW Ribbon */}
+      {isNew && (
+        <div className="ribbon-new">
+          <Sparkles size={10} style={{ marginRight: 4 }} />
+          NEW
+        </div>
+      )}
       {/* Full Height Image */}
       <div className="employee-card-image">
         {mainPhoto ? (
@@ -219,9 +247,27 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
               VIP
             </div>
           )}
+
+          {/* HOT Badge - For popular employees */}
+          {isHot && !isVIP && (
+            <div className="employee-card-hot-badge fire-glow">
+              <Flame size={12} />
+              <span>HOT</span>
+            </div>
+          )}
+
+          {/* Description preview (visible on hover) */}
+          {employee.description && (
+            <div className="employee-card-description hover-reveal">
+              <p>{employee.description}</p>
+            </div>
+          )}
         </div>
       </div>
-    </motion.div>
+
+      {/* Neon border glow */}
+      <div className="employee-card-neon-border" />
+    </div>
   );
 });
 

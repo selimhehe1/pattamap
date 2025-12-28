@@ -1,35 +1,83 @@
 /**
- * BarDetailHeader
- * Header section with logo, title, description and status
+ * BarDetailHeader - Premium Hero Section
+ * Full-width hero with blurred background, stats bar, and neon effects
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil } from 'lucide-react';
+import { Pencil, Users, Star, MapPin, Clock, Sparkles } from 'lucide-react';
 import { Establishment } from '../../../types';
 import LazyImage from '../../Common/LazyImage';
+import { getZoneLabel } from '../../../utils/constants';
 
 interface BarDetailHeaderProps {
   bar: Establishment;
   isAdmin: boolean;
   hasUser: boolean;
   onEditClick: () => void;
+  employeeCount?: number;
 }
+
+// Category icons/names mapping
+const categoryInfo: Record<string | number, { icon: string; name: string }> = {
+  1: { icon: '🍺', name: 'Bar' },
+  2: { icon: '💃', name: 'GoGo' },
+  3: { icon: '💆', name: 'Massage' },
+  4: { icon: '🎵', name: 'Club' },
+  5: { icon: '🎤', name: 'Karaoke' },
+  6: { icon: '🍽️', name: 'Restaurant' },
+  7: { icon: '🏨', name: 'Hotel' },
+  bar: { icon: '🍺', name: 'Bar' },
+  'go-go': { icon: '💃', name: 'GoGo' },
+  agogo: { icon: '💃', name: 'GoGo' },
+  massage: { icon: '💆', name: 'Massage' },
+  club: { icon: '🎵', name: 'Club' },
+  karaoke: { icon: '🎤', name: 'Karaoke' },
+};
 
 export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
   bar,
   isAdmin,
   hasUser,
   onEditClick,
+  employeeCount = 0,
 }) => {
   const { t } = useTranslation();
 
+  // Check if currently open (nightlife hours: 6pm - 4am)
+  const isOpen = useMemo(() => {
+    const hour = new Date().getHours();
+    return hour >= 18 || hour < 4;
+  }, []);
+
+  // Get category info
+  const category = categoryInfo[bar.category_id] ||
+                   categoryInfo[bar.category?.name?.toLowerCase() || ''] ||
+                   { icon: '🏢', name: 'Venue' };
+
+  // Get zone display name
+  const zoneName = bar.zone ? getZoneLabel(bar.zone) : '';
+
   return (
-    <div className="establishment-header-nightlife">
+    <section className="establishment-hero-premium">
+      {/* Background Layer with Blurred Image */}
+      <div className="hero-bg-layer">
+        {bar.logo_url && (
+          <img
+            src={bar.logo_url}
+            alt=""
+            className="hero-bg-image"
+            aria-hidden="true"
+          />
+        )}
+        <div className="hero-bg-overlay" />
+        <div className="hero-bg-glow" />
+      </div>
+
       {/* Edit Button - Floating */}
       {hasUser && (
         <button
           onClick={onEditClick}
-          className="establishment-edit-icon-floating-nightlife"
+          className="hero-edit-btn"
           aria-label={
             isAdmin
               ? t('barDetailPage.ariaEditBar', { name: bar.name })
@@ -37,41 +85,78 @@ export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
           }
           title={isAdmin ? t('barDetailPage.titleEdit') : t('barDetailPage.titleSuggestEdit')}
         >
-          <Pencil size={16} />
+          <Pencil size={18} />
         </button>
       )}
 
-      <div className="establishment-header-content-nightlife">
-        {/* Logo Hero - Left */}
-        {bar.logo_url && (
-          <div className="establishment-logo-hero-nightlife">
+      {/* Hero Content */}
+      <div className="hero-content">
+        {/* Logo with Glow */}
+        <div className="hero-logo-container">
+          {bar.logo_url ? (
             <LazyImage
               src={bar.logo_url}
               alt={`${bar.name} logo`}
               cloudinaryPreset="establishmentLogo"
-              className="establishment-logo-header-image-nightlife"
-              objectFit="contain"
+              className="hero-logo"
+              objectFit="cover"
             />
+          ) : (
+            <div className="hero-logo-placeholder">
+              <Sparkles size={32} />
+            </div>
+          )}
+          <div className="hero-logo-glow" />
+        </div>
+
+        {/* Info Section */}
+        <div className="hero-info">
+          {/* Category Badge */}
+          <div className="hero-category-badge">
+            <span className="category-icon">{category.icon}</span>
+            <span className="category-name">{category.name}</span>
+          </div>
+
+          {/* Title */}
+          <h1 className="hero-title">{bar.name}</h1>
+
+          {/* Description */}
+          {bar.description && (
+            <p className="hero-description">{bar.description}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="hero-stats-bar">
+        <div className="hero-stat">
+          <Users size={18} />
+          <span className="stat-value">{employeeCount}</span>
+          <span className="stat-label">Staff</span>
+        </div>
+
+        <div className="hero-stat">
+          <Star size={18} />
+          <span className="stat-value">4.5</span>
+          <span className="stat-label">Rating</span>
+        </div>
+
+        {zoneName && (
+          <div className="hero-stat">
+            <MapPin size={18} />
+            <span className="stat-value">{zoneName}</span>
+            <span className="stat-label">Zone</span>
           </div>
         )}
 
-        {/* Text content - Center */}
-        <div className="establishment-text-content-nightlife">
-          <h1 className="establishment-name-nightlife">{bar.name}</h1>
-          <p className="establishment-meta-nightlife">
-            {bar.description || t('barDetailPage.defaultDescription')}
-          </p>
-
-          {/* Status and Hours */}
-          <div className="sidebar-status-container-nightlife">
-            <span className="sidebar-status-indicator-nightlife" />
-            <span className="sidebar-status-text-nightlife">
-              {t('barDetailPage.statusOpenNow')} • {bar.opening_hours?.open || '14:00'} -{' '}
-              {bar.opening_hours?.close || '02:00'}
-            </span>
-          </div>
+        <div className={`hero-stat ${isOpen ? 'status-open' : 'status-closed'}`}>
+          <Clock size={18} />
+          <span className="stat-value">{isOpen ? 'Open' : 'Closed'}</span>
+          <span className="stat-label">
+            {bar.opening_hours?.open || '18:00'} - {bar.opening_hours?.close || '02:00'}
+          </span>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

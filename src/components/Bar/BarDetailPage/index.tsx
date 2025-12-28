@@ -200,6 +200,7 @@ const BarDetailPage: React.FC = () => {
         isAdmin={isAdmin}
         hasUser={!!user}
         onEditClick={() => setShowEditModal(true)}
+        employeeCount={girls.length}
       />
 
       {/* Main content */}

@@ -23,6 +23,7 @@
   right: 0;
   width: 100%;
   z-index: 65;
+  box-sizing: border-box; /* Include padding in width calculation */
 
   /* Layout */
   display: flex;
