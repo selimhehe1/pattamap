@@ -329,8 +329,8 @@ body[data-theme="light"] {
   /* Component sizing */
   --height-input: 2.75rem;      /* 44px - WCAG touch target */
   --height-button: 2.75rem;     /* 44px - WCAG touch target */
-  --height-header-mobile: 3.75rem;   /* 60px */
-  --height-header-desktop: 5rem;     /* 80px */
+  --height-header-mobile: 4.5rem;    /* 72px - actual header height with padding */
+  --height-header-desktop: 5.875rem; /* 94px - actual header height with padding */
 
   /* Max widths */
   --max-width-content: 100%;    /* Full-width responsive */

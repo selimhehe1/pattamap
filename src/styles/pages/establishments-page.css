@@ -6,7 +6,7 @@
 .establishments-page {
   min-height: 100vh;
   background: var(--color-bg-primary, #0a0a1a);
-  padding-top: 94px; /* Match actual header height including padding */
+  padding-top: var(--height-header-desktop); /* Use global CSS variable */
   padding-bottom: 2rem;
 }
 
@@ -19,7 +19,7 @@
   background: linear-gradient(180deg, rgba(232, 121, 249, 0.1) 0%, transparent 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
-  top: 94px; /* Match actual header height including padding */
+  top: var(--height-header-desktop); /* Use global CSS variable */
   z-index: 100;
   backdrop-filter: blur(10px);
   color: #ffffff !important;
@@ -267,12 +267,12 @@
 /* Responsive */
 @media (max-width: 768px) {
   .establishments-page {
-    padding-top: 72px; /* Mobile header height including padding */
+    padding-top: var(--height-header-mobile); /* Use global CSS variable */
   }
 
   .establishments-header {
     padding: 1rem;
-    top: 72px; /* Mobile header height including padding */
+    top: var(--height-header-mobile); /* Use global CSS variable */
   }
 
   .page-title {
