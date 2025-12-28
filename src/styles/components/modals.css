@@ -63,10 +63,10 @@
  * Conteneur principal de la modale
  */
 .modal {
-  background: linear-gradient(135deg, #1a1a2e, #240046);
+  background: var(--bg-tertiary);
   border-radius: var(--border-radius-xl);
-  border: 2px solid var(--border-primary);
-  box-shadow: var(--shadow-xl);
+  border: 2px solid rgba(232, 121, 249, 0.3);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
   max-width: 37.5rem; /* 600px */
   max-height: 90vh;
   width: 100%;
@@ -132,28 +132,28 @@
   width: 44px;              /* WCAG touch target */
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(44, 62, 80, 0.2));
-  border: 2px solid rgba(193, 154, 107, 0.4);
-  color: var(--text-primary, #f5f5f5);
+  background: rgba(232, 121, 249, 0.15);
+  border: 2px solid rgba(232, 121, 249, 0.4);
+  color: var(--text-primary);
   font-size: 24px;
   font-weight: 300;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--duration-normal) var(--ease-in-out);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--backdrop-blur-sm);
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
+  box-shadow: 0 2px 8px rgba(232, 121, 249, 0.2);
 }
 
 .modal__close:hover,
 .modal__close:focus {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.4), rgba(44, 62, 80, 0.4));
+  background: rgba(232, 121, 249, 0.3);
   border-color: var(--color-primary);
-  transform: scale(1.1);    /* Scale, pas rotation */
-  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .modal__close:focus-visible {
@@ -344,7 +344,7 @@
   display: inline-block;
   width: 2.5rem;
   height: 2.5rem;
-  border: 4px solid rgba(193, 154, 107, 0.3);
+  border: 4px solid rgba(232, 121, 249, 0.3);
   border-top: 4px solid var(--color-primary);
   border-radius: var(--border-radius-full);
   animation: modalSpin 1s linear infinite;
@@ -392,7 +392,7 @@
 .modal-confirm__icon {
   font-size: 4rem;
   margin-bottom: var(--spacing-4);
-  filter: drop-shadow(0 0 20px rgba(193, 154, 107, 0.6));
+  filter: drop-shadow(0 0 20px rgba(232, 121, 249, 0.6));
 }
 
 .modal-confirm__message {
@@ -535,9 +535,9 @@ body.modal-open {
 /* Unified modal content - used by Modal.tsx */
 .modal-content-unified {
   position: relative;
-  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
-  border-radius: 20px;
-  border: 2px solid rgba(193, 154, 107, 0.4);
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
   max-height: 90vh;
   overflow-y: auto;
@@ -589,9 +589,9 @@ body.modal-open {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(44, 62, 80, 0.2));
-  border: 2px solid rgba(193, 154, 107, 0.4);
-  color: var(--text-primary, #f5f5f5);
+  background: rgba(232, 121, 249, 0.15);
+  border: 2px solid rgba(232, 121, 249, 0.4);
+  color: var(--text-primary);
   font-size: 24px;
   font-weight: 300;
   cursor: pointer;
@@ -599,16 +599,16 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(193, 154, 107, 0.2);
+  transition: all var(--duration-normal) var(--ease-in-out);
+  backdrop-filter: var(--backdrop-blur-sm);
+  box-shadow: 0 2px 8px rgba(232, 121, 249, 0.2);
 }
 
 .modal-close-btn:hover {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.4), rgba(44, 62, 80, 0.4));
+  background: rgba(232, 121, 249, 0.3);
   border-color: var(--color-primary);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(193, 154, 107, 0.4);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .modal-close-btn:focus-visible {
@@ -669,10 +669,10 @@ body.modal-open {
 
 .modal-content-nightlife {
   /* Alias to modal */
-  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
-  border-radius: 20px;
-  border: 2px solid rgba(193, 154, 107, 0.4);
-  box-shadow: var(--shadow-xl);
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid rgba(232, 121, 249, 0.3);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
 }
 
 .loading-spinner-nightlife {
@@ -680,7 +680,7 @@ body.modal-open {
   display: inline-block;
   width: 2.5rem;
   height: 2.5rem;
-  border: 4px solid rgba(193, 154, 107, 0.3);
+  border: 4px solid rgba(232, 121, 249, 0.3);
   border-top: 4px solid var(--color-primary);
   border-radius: 50%;
   animation: modalSpin 1s linear infinite;

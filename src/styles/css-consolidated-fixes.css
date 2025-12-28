@@ -350,7 +350,7 @@ button[aria-label*="retour" i] {
   font-size: 1.25rem;
   padding: var(--spacing-2) var(--spacing-3);
   background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(193, 154, 107, 0.6);
+  border: 2px solid rgba(232, 121, 249, 0.6);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
@@ -358,10 +358,10 @@ button[aria-label*="retour" i] {
 
 .back-button-absolute-nightlife:hover,
 .header-back-btn:hover {
-  background: rgba(193, 154, 107, 0.2);
+  background: rgba(232, 121, 249, 0.2);
   border-color: var(--color-gold);
   transform: translateX(-2px);
-  box-shadow: 0 6px 16px rgba(193, 154, 107, 0.3);
+  box-shadow: 0 6px 16px rgba(232, 121, 249, 0.3);
 }
 
 /* Header Navigation Icons */
@@ -521,7 +521,7 @@ input:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-gold, #C19A6B);
+  color: var(--color-gold, #E879F9);
   font-size: 1.25rem;
   opacity: 1;
   visibility: visible;
@@ -577,7 +577,7 @@ body[data-theme="light"] .header-tagline-nightlife {
 .header-home-btn,
 .btn-hamburger-nightlife {
   background: transparent;
-  border: 2px solid rgba(193, 154, 107, 0.4);
+  border: 2px solid rgba(232, 121, 249, 0.4);
   color: var(--color-text-primary);
   transition: all 0.3s ease;
 }
@@ -866,15 +866,15 @@ body[data-theme="light"] .header-tagline-nightlife {
 }
 
 .zone-button-nightlife:hover {
-  border-left-color: var(--color-gold, #C19A6B);
-  background: rgba(193, 154, 107, 0.1);
+  border-left-color: var(--color-gold, #E879F9);
+  background: rgba(232, 121, 249, 0.1);
   transform: translateX(4px);
 }
 
 .zone-button-nightlife.active,
 .zone-button-nightlife[aria-selected="true"] {
-  background: rgba(193, 154, 107, 0.15);
-  border-left-color: var(--color-gold, #C19A6B);
+  background: rgba(232, 121, 249, 0.15);
+  border-left-color: var(--color-gold, #E879F9);
   border-left-width: 4px;
 }
 
@@ -891,8 +891,8 @@ body[data-theme="light"] .header-tagline-nightlife {
 .establishment-marker-nightlife:hover {
   transform: scale(1.15);
   box-shadow:
-    0 0 0 3px var(--color-gold, #C19A6B),
-    0 8px 20px rgba(193, 154, 107, 0.4);
+    0 0 0 3px var(--color-gold, #E879F9),
+    0 8px 20px rgba(232, 121, 249, 0.4);
   z-index: 100;
 }
 
@@ -1016,7 +1016,7 @@ body[data-theme="light"] .header-tagline-nightlife {
 input[type="checkbox"] {
   min-width: 1.25rem;
   min-height: 1.25rem;
-  accent-color: var(--color-gold, #C19A6B);
+  accent-color: var(--color-gold, #E879F9);
   cursor: pointer;
 }
 
@@ -1239,9 +1239,9 @@ input[class*="nightlife"]:focus-visible,
 .admin-tab-button:focus-visible,
 .admin-action-button:focus-visible,
 .admin-quick-action-btn:focus-visible {
-  outline: 3px solid #C19A6B;
+  outline: 3px solid #E879F9;
   outline-offset: 3px;
-  box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.2);
+  box-shadow: 0 0 0 6px rgba(232, 121, 249, 0.2);
 }
 
 /* Reduced Motion */

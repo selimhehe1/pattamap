@@ -22,11 +22,11 @@
 
 .aec-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(193, 154, 107, 0.2);
+  box-shadow: 0 10px 25px rgba(232, 121, 249, 0.2);
 }
 
 .aec-card:focus-visible {
-  outline: 2px solid var(--color-primary, #C19A6B);
+  outline: 2px solid var(--color-primary, #E879F9);
   outline-offset: 2px;
 }
 
@@ -52,8 +52,8 @@
 }
 
 .aec-checkbox--selected {
-  border-color: var(--color-primary, #C19A6B);
-  background: var(--color-primary, #C19A6B);
+  border-color: var(--color-primary, #E879F9);
+  background: var(--color-primary, #E879F9);
 }
 
 .aec-checkbox__checkmark {
@@ -147,7 +147,7 @@
 .aec-photo-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, var(--color-primary, #C19A6B), var(--color-gold, #FFD700));
+  background: linear-gradient(45deg, var(--color-primary, #E879F9), var(--color-gold, #FFD700));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -391,7 +391,7 @@ body[data-theme="light"] .aec-past-job__name {
 
 /* View Profile Button */
 .aec-btn--view {
-  background: linear-gradient(45deg, var(--color-primary, #C19A6B), #D4AF37);
+  background: linear-gradient(45deg, var(--color-primary, #E879F9), #D4AF37);
   color: white;
 }
 

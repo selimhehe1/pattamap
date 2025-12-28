@@ -232,15 +232,15 @@ const SearchPage: React.FC = () => {
           <div style={{
             marginTop: '20px',
             padding: '10px 20px',
-            background: 'rgba(193, 154, 107,0.1)',
-            border: '1px solid rgba(193, 154, 107,0.3)',
+            background: 'rgba(232, 121, 249, 0.1)',
+            border: '1px solid rgba(232, 121, 249, 0.3)',
             borderRadius: '25px',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             fontSize: '14px',
             fontWeight: 'bold',
-            color: '#C19A6B'
+            color: '#E879F9'
           }}>
             <BarChart3 size={16} /> {filters.q
               ? t('search.foundResultsFor', { count: totalResults, query: filters.q })

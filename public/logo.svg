@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Gradient principal Pink → Cyan -->
+    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E879F9"/>
+      <stop offset="50%" style="stop-color:#D946EF"/>
+      <stop offset="100%" style="stop-color:#00E5FF"/>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Strong glow for accent -->
+    <filter id="strongGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Background gradient -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1E1E24"/>
+      <stop offset="100%" style="stop-color:#0D0D0F"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)" stroke="url(#neonGradient)" stroke-width="3"/>
+
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="url(#neonGradient)" stroke-width="2" opacity="0.3" filter="url(#strongGlow)"/>
+
+  <!-- Letter P - Modern geometric style -->
+  <g filter="url(#glow)">
+    <!-- P stem -->
+    <path d="M160 120 L160 392 L200 392 L200 280 L280 280 L280 240 L200 240 L200 160 L280 160 Q340 160 340 200 L340 200 Q340 240 280 240 L200 240 L200 280 L280 280 Q380 280 380 200 L380 200 Q380 120 280 120 Z"
+          fill="url(#neonGradient)"/>
+  </g>
+
+  <!-- Map pin accent -->
+  <g transform="translate(300, 300)" filter="url(#glow)">
+    <path d="M40 0 C62 0 80 18 80 40 C80 70 40 100 40 100 C40 100 0 70 0 40 C0 18 18 0 40 0 Z"
+          fill="url(#neonGradient)" opacity="0.9"/>
+    <circle cx="40" cy="40" r="15" fill="#0D0D0F"/>
+  </g>
+</svg>

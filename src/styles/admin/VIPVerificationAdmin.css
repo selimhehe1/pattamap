@@ -10,7 +10,7 @@
   text-align: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid rgba(193, 154, 107, 0.3);
+  border-bottom: 2px solid rgba(232, 121, 249, 0.3);
 }
 
 .verification-header h2 {
@@ -38,8 +38,8 @@
 }
 
 .filter-tab {
-  background: rgba(193, 154, 107, 0.1);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.1);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   color: #fff;
   padding: 12px 24px;
   border-radius: 8px;
@@ -51,15 +51,15 @@
 }
 
 .filter-tab:hover {
-  background: rgba(193, 154, 107, 0.2);
-  border-color: rgba(193, 154, 107, 0.5);
+  background: rgba(232, 121, 249, 0.2);
+  border-color: rgba(232, 121, 249, 0.5);
   transform: translateY(-2px);
 }
 
 .filter-tab.active {
   background: linear-gradient(135deg, #ff1b8d, #ff6ec7);
   border-color: #ff1b8d;
-  box-shadow: 0 5px 20px rgba(193, 154, 107, 0.4);
+  box-shadow: 0 5px 20px rgba(232, 121, 249, 0.4);
 }
 
 .count-badge {
@@ -134,15 +134,15 @@
 
 .retry-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(193, 154, 107, 0.5);
+  box-shadow: 0 5px 20px rgba(232, 121, 249, 0.5);
 }
 
 /* Empty State */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  background: rgba(193, 154, 107, 0.05);
-  border: 2px dashed rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.05);
+  border: 2px dashed rgba(232, 121, 249, 0.3);
   border-radius: 16px;
 }
 
@@ -167,7 +167,7 @@
 
 .transaction-card {
   background: linear-gradient(135deg, rgba(36, 0, 70, 0.6), rgba(10, 10, 46, 0.6));
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: 16px;
   padding: 24px;
   transition: all 0.3s ease;
@@ -187,8 +187,8 @@
 
 .transaction-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(193, 154, 107, 0.4);
-  border-color: rgba(193, 154, 107, 0.6);
+  box-shadow: 0 10px 30px rgba(232, 121, 249, 0.4);
+  border-color: rgba(232, 121, 249, 0.6);
 }
 
 .transaction-card.pending {
@@ -212,7 +212,7 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(193, 154, 107, 0.2);
+  border-bottom: 1px solid rgba(232, 121, 249, 0.2);
 }
 
 .transaction-type {
@@ -296,8 +296,8 @@
 
 /* Payment Details */
 .payment-details {
-  background: rgba(193, 154, 107, 0.05);
-  border: 1px solid rgba(193, 154, 107, 0.2);
+  background: rgba(232, 121, 249, 0.05);
+  border: 1px solid rgba(232, 121, 249, 0.2);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 16px;
@@ -403,8 +403,8 @@
 }
 
 .refresh-button {
-  background: rgba(193, 154, 107, 0.1);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.1);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   color: #fff;
   padding: 12px 30px;
   border-radius: 8px;
@@ -415,8 +415,8 @@
 }
 
 .refresh-button:hover:not(:disabled) {
-  background: rgba(193, 154, 107, 0.2);
-  border-color: rgba(193, 154, 107, 0.5);
+  background: rgba(232, 121, 249, 0.2);
+  border-color: rgba(232, 121, 249, 0.5);
   transform: translateY(-2px);
 }
 
@@ -432,7 +432,7 @@
   gap: 12px;
   margin-bottom: 20px;
   padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(193, 154, 107, 0.1));
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(232, 121, 249, 0.1));
   border: 2px solid rgba(255, 215, 0, 0.5);
   border-radius: 12px;
   flex-wrap: wrap;

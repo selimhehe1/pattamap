@@ -30,18 +30,18 @@
   cursor: pointer;
   overflow: hidden;
   border-radius: 8px;
-  border: 2px solid rgba(193, 154, 107, 0.2);
+  border: 2px solid rgba(232, 121, 249, 0.2);
   transition: all 0.3s ease;
 }
 
 .review-photo-item:hover {
-  border-color: rgba(193, 154, 107, 0.6);
+  border-color: rgba(232, 121, 249, 0.6);
   transform: scale(1.02);
   z-index: 5;
 }
 
 .review-photo-item:focus {
-  outline: 2px solid #C19A6B;
+  outline: 2px solid #E879F9;
   outline-offset: 2px;
 }
 
@@ -146,8 +146,8 @@
 }
 
 .review-lightbox-nav:hover {
-  background: rgba(193, 154, 107, 0.8);
-  border-color: #C19A6B;
+  background: rgba(232, 121, 249, 0.8);
+  border-color: #E879F9;
   transform: translateY(-50%) scale(1.1);
 }
 
@@ -192,7 +192,7 @@
 .review-lightbox-counter {
   margin-top: 15px;
   padding: 8px 20px;
-  background: rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.3);
   border-radius: 20px;
   color: white;
   font-size: 14px;
@@ -226,7 +226,7 @@
 .review-lightbox-thumb:hover,
 .review-lightbox-thumb.active {
   opacity: 1;
-  border-color: #C19A6B;
+  border-color: #E879F9;
   transform: scale(1.1);
 }
 

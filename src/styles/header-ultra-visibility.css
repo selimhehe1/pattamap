@@ -43,21 +43,21 @@
   /* Ultra contrast background */
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.3),
+    rgba(232, 121, 249, 0.3),
     rgba(255, 215, 0, 0.2)
   );
 
   /* Gold border - VERY visible */
-  border: 2px solid var(--color-gold, #C19A6B);
+  border: 2px solid var(--color-gold, #E879F9);
   border-radius: var(--border-radius-lg, 12px);
 
   /* Shadow - depth */
   box-shadow:
-    0 4px 12px rgba(193, 154, 107, 0.4),
+    0 4px 12px rgba(232, 121, 249, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 
   /* Text */
-  color: var(--color-gold, #C19A6B);
+  color: var(--color-gold, #E879F9);
   font-size: var(--font-base, 1rem);
   font-weight: var(--font-weight-semibold, 600);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -74,14 +74,14 @@
   /* Gold gradient on hover */
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.5),
+    rgba(232, 121, 249, 0.5),
     rgba(255, 215, 0, 0.3)
   );
 
   border-color: #D4A574;
 
   box-shadow:
-    0 6px 16px rgba(193, 154, 107, 0.6),
+    0 6px 16px rgba(232, 121, 249, 0.6),
     0 0 0 2px rgba(255, 255, 255, 0.15) inset;
 
   transform: translateY(-2px) scale(1.05);
@@ -94,7 +94,7 @@
 /* Icon inside hamburger button */
 .btn-hamburger-nightlife .btn-icon {
   font-size: 1.25rem; /* 20px */
-  color: var(--color-gold, #C19A6B);
+  color: var(--color-gold, #E879F9);
 }
 
 /* Text inside hamburger button */
@@ -124,16 +124,16 @@
   /* Gold gradient background */
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.25),
+    rgba(232, 121, 249, 0.25),
     rgba(255, 215, 0, 0.15)
   );
 
   /* Gold border */
-  border: 2px solid rgba(193, 154, 107, 0.5);
+  border: 2px solid rgba(232, 121, 249, 0.5);
   border-radius: var(--border-radius-md, 8px);
 
   /* Shadow */
-  box-shadow: 0 4px 12px rgba(193, 154, 107, 0.3);
+  box-shadow: 0 4px 12px rgba(232, 121, 249, 0.3);
 
   /* Cursor */
   cursor: pointer;
@@ -145,13 +145,13 @@
 .header-xp-indicator:hover {
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.35),
+    rgba(232, 121, 249, 0.35),
     rgba(255, 215, 0, 0.25)
   );
 
-  border-color: var(--color-gold, #C19A6B);
+  border-color: var(--color-gold, #E879F9);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(193, 154, 107, 0.5);
+  box-shadow: 0 6px 16px rgba(232, 121, 249, 0.5);
 }
 
 /* XP text - HIGH CONTRAST */
@@ -171,9 +171,9 @@
 }
 
 .header-xp-indicator .user-xp-bar-fill-mini {
-  background: linear-gradient(90deg, var(--color-gold, #C19A6B), #D4A574);
+  background: linear-gradient(90deg, var(--color-gold, #E879F9), #D4A574);
   height: 100%;
-  box-shadow: 0 0 8px rgba(193, 154, 107, 0.8);
+  box-shadow: 0 0 8px rgba(232, 121, 249, 0.8);
 }
 
 /* Never hide XP indicator - override media query */
@@ -227,13 +227,13 @@
   );
 
   /* Gold border */
-  border: 2px solid var(--color-gold, #C19A6B);
+  border: 2px solid var(--color-gold, #E879F9);
   border-radius: var(--border-radius-lg, 12px);
 
   /* Shadow - VERY pronounced */
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(193, 154, 107, 0.3) inset;
+    0 0 0 1px rgba(232, 121, 249, 0.3) inset;
 
   /* Backdrop blur */
   backdrop-filter: blur(20px);
@@ -283,7 +283,7 @@
 
   /* Background */
   background: transparent;
-  border: 1px solid rgba(193, 154, 107, 0.2);
+  border: 1px solid rgba(232, 121, 249, 0.2);
   border-radius: var(--border-radius-md, 8px);
 
   /* Transition */
@@ -291,8 +291,8 @@
 }
 
 .btn-admin-menu-nightlife:hover {
-  background: rgba(193, 154, 107, 0.15);
-  border-color: rgba(193, 154, 107, 0.4);
+  background: rgba(232, 121, 249, 0.15);
+  border-color: rgba(232, 121, 249, 0.4);
   color: white;
   transform: translateX(4px);
 }
@@ -306,20 +306,20 @@
   /* Assume first button in non-logged dropdown is Login */
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.2),
+    rgba(232, 121, 249, 0.2),
     rgba(255, 215, 0, 0.1)
   );
-  border: 2px solid rgba(193, 154, 107, 0.4);
+  border: 2px solid rgba(232, 121, 249, 0.4);
   font-weight: var(--font-weight-semibold, 600);
 }
 
 .btn-admin-menu-nightlife:first-of-type:hover {
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.3),
+    rgba(232, 121, 249, 0.3),
     rgba(255, 215, 0, 0.2)
   );
-  border-color: var(--color-gold, #C19A6B);
+  border-color: var(--color-gold, #E879F9);
 }
 
 /* ============================================
@@ -386,7 +386,7 @@
   .btn-hamburger-nightlife,
   .header-xp-indicator {
     border-width: 3px;
-    border-color: var(--color-gold, #C19A6B);
+    border-color: var(--color-gold, #E879F9);
     background: rgba(0, 0, 0, 0.9);
   }
 

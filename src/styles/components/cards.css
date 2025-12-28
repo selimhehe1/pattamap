@@ -1,0 +1,928 @@
+/**
+ * ============================================
+ * CARDS - Unified Card System
+ * ============================================
+ *
+ * Unified card system for employees, establishments, and favorites.
+ * Uses Neo-Nightlife design with glassmorphism and neon accents.
+ *
+ * USAGE:
+ * <div class="card card--employee">...</div>
+ * <div class="card card--establishment">...</div>
+ * <div class="card card--favorite">...</div>
+ *
+ * MODIFIERS:
+ * .card--vip          - VIP gold border with glow
+ * .card--verified     - Verified badge
+ * .card--selected     - Selection state
+ * .card--loading      - Skeleton loading state
+ *
+ * @dependencies design-system.css (variables)
+ */
+
+/* ============================================
+   BASE CARD
+   ============================================ */
+
+/**
+ * Base card styles - shared across all card types
+ * Glassmorphism with subtle border and shadow
+ */
+.card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  /* Visual */
+  background: var(--bg-tertiary);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: var(--backdrop-blur-sm);
+
+  /* Animation */
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-ring);
+}
+
+.card:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* ============================================
+   EMPLOYEE CARD
+   ============================================ */
+
+/**
+ * Employee Card - Tinder-style with full image
+ * Aspect ratio 3:4 (portrait)
+ */
+.card--employee {
+  aspect-ratio: 3/4;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Image container */
+.card__image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Placeholder when no image */
+.card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+}
+
+.card__placeholder-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-inverse);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/* Content overlay with gradient */
+.card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  padding: var(--spacing-3) var(--spacing-2);
+}
+
+/* Info box with glassmorphism */
+.card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: var(--backdrop-blur-md);
+  -webkit-backdrop-filter: var(--backdrop-blur-md);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Two-column layout for info */
+.card__info-columns {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: flex-start;
+}
+
+.card__info-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.card__info-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Name */
+.card__name {
+  margin: 0;
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Nickname */
+.card__nickname {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Detail items (age, nationality, etc.) */
+.card__detail {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-xs);
+  color: var(--text-primary);
+}
+
+.card__detail-icon {
+  font-size: var(--font-sm);
+  color: var(--color-secondary);
+  opacity: 0.9;
+}
+
+/* Establishment info */
+.card__establishment {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-2xs);
+  color: var(--text-muted);
+}
+
+.card__establishment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+/* ============================================
+   ESTABLISHMENT CARD
+   ============================================ */
+
+/**
+ * Establishment Card - Similar to employee but with logo
+ * Aspect ratio 3:4 (portrait) for grid consistency
+ */
+.card--establishment {
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+}
+
+/* Centered logo */
+.card__logo {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: var(--backdrop-blur-md);
+}
+
+.card__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card__logo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(0, 229, 255, 0.3));
+}
+
+/* Establishment content overlay */
+.card--establishment .card__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.7) 40%,
+    transparent 100%
+  );
+  padding: var(--spacing-4) var(--spacing-3);
+}
+
+/* Establishment name (centered) */
+.card--establishment .card__name {
+  text-align: center;
+  font-size: var(--font-lg);
+}
+
+/* Meta info (employees count, zone) */
+.card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-3);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-2);
+}
+
+.card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-xs);
+}
+
+.card__meta-item strong {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Description */
+.card__description {
+  margin: var(--spacing-2) 0 0;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ============================================
+   FAVORITE CARD
+   ============================================ */
+
+/**
+ * Favorite Card - Vertical layout with actions
+ * For user dashboard favorites section
+ */
+.card--favorite {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border-color: rgba(232, 121, 249, 0.3);
+}
+
+.card--favorite:hover {
+  border-color: rgba(232, 121, 249, 0.6);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
+}
+
+/* Favorite photo container */
+.card--favorite .card__image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+}
+
+/* Favorite badge */
+.card__favorite-badge {
+  position: absolute;
+  top: var(--spacing-3);
+  left: var(--spacing-3);
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  color: #000;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-lg);
+  box-shadow: var(--shadow-glow-gold);
+  z-index: 3;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.card__favorite-badge:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 25px rgba(255, 215, 0, 0.7);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+/* Rating badge - Top right */
+.card__badge-rating {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 3;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: var(--spacing-1-5) var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-glow-primary);
+  backdrop-filter: var(--backdrop-blur-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* Verified badge - Top left */
+.card__badge-verified {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1-5) var(--spacing-3);
+  background: rgba(16, 185, 129, 0.95);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Vote count badge */
+.card__badge-vote {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: rgba(128, 128, 128, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+/* Offset when verified badge is present */
+.card__badge-vote--offset {
+  top: 52px;
+}
+
+/* Photo count badge */
+.card__badge-photos {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  z-index: 3;
+  background: var(--bg-surface);
+  color: #FFD700;
+  padding: var(--spacing-1-5) var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: var(--backdrop-blur-sm);
+}
+
+/* Category badge - Establishments */
+.card__badge-category {
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-2);
+  z-index: 3;
+  padding: var(--spacing-1-5) var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  border: 2px solid;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  backdrop-filter: var(--backdrop-blur-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* ============================================
+   TYPE BADGES (Freelance/Regular)
+   ============================================ */
+
+.card__type {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-xs);
+  margin-top: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-lg);
+  width: fit-content;
+}
+
+.card__type-icon {
+  font-size: var(--font-sm);
+}
+
+.card__type-label {
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  font-size: var(--font-2xs);
+  letter-spacing: 0.5px;
+}
+
+/* Freelance badge - Pink/Magenta theme */
+.card__type--freelance {
+  background: rgba(232, 121, 249, 0.2);
+  border: 1px solid rgba(232, 121, 249, 0.5);
+  color: var(--color-primary);
+}
+
+/* Regular employee badge - Cyan theme */
+.card__type--regular {
+  background: rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: var(--color-secondary);
+}
+
+/* ============================================
+   VIP STATE
+   ============================================ */
+
+/**
+ * VIP card with gold border and animated glow
+ */
+.card--vip {
+  border: 3px solid rgba(255, 215, 0, 0.9);
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.6),
+    0 0 50px rgba(255, 165, 0, 0.4),
+    var(--shadow-lg);
+  animation: vipPulse 2s ease-in-out infinite;
+}
+
+.card--vip:hover {
+  border-color: rgba(255, 215, 0, 1);
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.8),
+    0 0 60px rgba(255, 165, 0, 0.6),
+    var(--shadow-xl);
+}
+
+@keyframes vipPulse {
+  0%, 100% {
+    border-color: rgba(255, 215, 0, 0.8);
+    box-shadow:
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 50px rgba(255, 165, 0, 0.4),
+      var(--shadow-lg);
+  }
+  50% {
+    border-color: rgba(255, 215, 0, 1);
+    box-shadow:
+      0 0 40px rgba(255, 215, 0, 0.8),
+      0 0 60px rgba(255, 165, 0, 0.6),
+      var(--shadow-lg);
+  }
+}
+
+/* VIP Badge - Bottom right */
+.card__badge-vip {
+  position: absolute;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 3;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.95));
+  color: #000;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-glow-gold);
+  backdrop-filter: var(--backdrop-blur-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.card__badge-vip::before {
+  content: '👑';
+  font-size: var(--font-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--border-radius-full);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* ============================================
+   SELECTED STATE
+   ============================================ */
+
+.card--selected {
+  border: 2px solid #FFD700;
+  box-shadow: var(--shadow-xl), 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* ============================================
+   LOADING STATE (Skeleton)
+   ============================================ */
+
+.card--loading {
+  cursor: default;
+  pointer-events: none;
+}
+
+.card__skeleton {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ============================================
+   RESPONSIVE - TABLET
+   ============================================ */
+
+@media (max-width: 768px) {
+  .card__name {
+    font-size: var(--font-sm);
+  }
+
+  .card__nickname {
+    font-size: var(--font-xs);
+  }
+
+  .card__detail {
+    font-size: var(--font-2xs);
+  }
+
+  .card__info {
+    padding: var(--spacing-1-5);
+  }
+
+  .card__overlay {
+    padding: var(--spacing-2);
+  }
+
+  .card__logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .card__placeholder-initials {
+    width: 60px;
+    height: 60px;
+    font-size: 1.75rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE
+   ============================================ */
+
+@media (max-width: 480px) {
+  .card:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .card__name {
+    font-size: var(--font-sm);
+    gap: var(--spacing-1);
+  }
+
+  .card__nickname {
+    font-size: var(--font-xs);
+  }
+
+  .card__detail,
+  .card__establishment {
+    font-size: var(--font-2xs);
+  }
+
+  .card__info {
+    padding: var(--spacing-1);
+    gap: var(--spacing-0-5);
+  }
+
+  .card__overlay {
+    padding: var(--spacing-2) var(--spacing-1-5);
+  }
+
+  .card__info-columns {
+    gap: var(--spacing-1);
+  }
+
+  .card__logo {
+    width: 80px;
+    height: 80px;
+    border-width: 3px;
+  }
+
+  .card__logo-placeholder {
+    font-size: 2rem;
+  }
+
+  /* Badges compact */
+  .card__badge-rating,
+  .card__badge-photos {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-2xs);
+  }
+
+  .card__badge-verified {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-2xs);
+  }
+
+  .card__badge-vip {
+    padding: var(--spacing-0-5) var(--spacing-2);
+    font-size: var(--font-2xs);
+  }
+
+  .card__badge-vip::before {
+    font-size: var(--font-xs);
+    width: 14px;
+    height: 14px;
+  }
+
+  .card__type {
+    padding: var(--spacing-0-5) var(--spacing-1-5);
+    font-size: var(--font-2xs);
+  }
+
+  .card__type-label {
+    font-size: 0.625rem; /* 10px - WCAG minimum */
+  }
+
+  /* Favorite card adjustments */
+  .card--favorite .card__image {
+    aspect-ratio: 1/1;
+  }
+
+  .card__favorite-badge {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: var(--font-sm);
+    top: var(--spacing-2);
+    left: var(--spacing-2);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card__badge-vip {
+    transition: none;
+    animation: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .card__skeleton {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .card {
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .card:hover {
+    border-color: var(--color-primary);
+  }
+
+  .card--vip {
+    border-width: 4px;
+  }
+
+  .card__info {
+    background: rgba(0, 0, 0, 0.95);
+  }
+
+  .card__badge-verified,
+  .card__badge-rating,
+  .card__badge-vip {
+    border-width: 3px;
+  }
+}
+
+/* ============================================
+   LIGHT MODE SUPPORT
+   ============================================ */
+
+[data-theme="light"] .card {
+  background: var(--bg-secondary);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 30px rgba(192, 38, 211, 0.15);
+}
+
+[data-theme="light"] .card__info {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .card__name {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+[data-theme="light"] .card__nickname {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .card__detail {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .card__detail-icon {
+  color: var(--color-primary);
+}
+
+[data-theme="light"] .card__establishment {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .card__placeholder {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+}
+
+[data-theme="light"] .card__placeholder-initials {
+  background: linear-gradient(135deg, var(--color-primary), #A21CAF);
+  box-shadow: 0 4px 15px rgba(192, 38, 211, 0.3);
+}
+
+[data-theme="light"] .card__type--freelance {
+  background: rgba(192, 38, 211, 0.1);
+  border-color: rgba(192, 38, 211, 0.3);
+  color: var(--color-primary);
+}
+
+[data-theme="light"] .card__type--regular {
+  background: rgba(8, 145, 178, 0.1);
+  border-color: rgba(8, 145, 178, 0.3);
+  color: var(--color-secondary);
+}
+
+[data-theme="light"] .card__badge-rating {
+  background: rgba(192, 38, 211, 0.9);
+}
+
+[data-theme="light"] .card__badge-verified {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+/* ============================================
+   CARD GRID
+   ============================================ */
+
+/**
+ * Responsive grid for cards
+ * Desktop: 4 cols | Tablet: 3 cols | Mobile: 2 cols
+ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--spacing-5);
+  padding: var(--spacing-4);
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+    gap: var(--spacing-6);
+  }
+}
+
+/* Empty state */
+.card-grid--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: var(--spacing-8);
+  text-align: center;
+}
+
+.card-grid__empty-icon {
+  font-size: 5rem;
+  margin-bottom: var(--spacing-4);
+  opacity: 0.5;
+}
+
+.card-grid__empty-title {
+  font-size: var(--font-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.card-grid__empty-description {
+  font-size: var(--font-base);
+  color: var(--text-muted);
+  max-width: 400px;
+}

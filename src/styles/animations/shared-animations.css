@@ -196,7 +196,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px var(--color-primary, #C19A6B);
+  box-shadow: 0 0 20px var(--color-primary, #E879F9);
 }
 
 /* ==========================================================================

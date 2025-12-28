@@ -311,7 +311,7 @@
   input:focus-visible {
     outline: 3px solid var(--color-gold);
     outline-offset: 3px;
-    box-shadow: 0 0 0 6px rgba(193, 154, 107, 0.3); /* Glow plus prononcé */
+    box-shadow: 0 0 0 6px rgba(232, 121, 249, 0.3); /* Glow plus prononcé */
   }
 
   /* ============================================

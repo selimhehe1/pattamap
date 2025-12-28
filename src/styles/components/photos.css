@@ -233,15 +233,15 @@
   padding: var(--spacing-10) var(--spacing-5);
   text-align: center;
   position: relative;
-  background: rgba(193, 154, 107, 0.05);
+  background: rgba(232, 121, 249, 0.05);
   margin-bottom: var(--spacing-5);
   transition: all var(--duration-normal) var(--ease-in-out);
   cursor: pointer;
 }
 
 .photo-upload-zone:hover {
-  border-color: rgba(193, 154, 107, 0.5);
-  background: rgba(193, 154, 107, 0.1);
+  border-color: rgba(232, 121, 249, 0.5);
+  background: rgba(232, 121, 249, 0.1);
 }
 
 .photo-upload-input {

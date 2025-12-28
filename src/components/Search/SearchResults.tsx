@@ -45,13 +45,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         padding: '60px 20px',
         background: 'rgba(0,0,0,0.3)',
         borderRadius: '20px',
-        border: '2px solid rgba(193, 154, 107,0.3)'
+        border: '2px solid rgba(232, 121, 249, 0.3)'
       }} data-testid="empty-state">
         <div style={{ marginBottom: '20px' }}><Search size={64} color="var(--color-primary)" /></div>
         <h3 style={{
           fontSize: '24px',
           fontWeight: 'bold',
-          color: '#C19A6B',
+          color: '#E879F9',
           marginBottom: '10px'
         }}>
           {t('search.noResultsTitle')}

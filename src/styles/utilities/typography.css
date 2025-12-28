@@ -89,7 +89,7 @@
 
 /* Primary: Couleur principale (rose/magenta) */
 .text-primary {
-  color: var(--nightlife-primary, #C19A6B);
+  color: var(--nightlife-primary, #E879F9);
 }
 
 /* Secondary: Couleur secondaire (cyan) */

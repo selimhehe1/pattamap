@@ -34,7 +34,7 @@
   padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
 
   /* Background nightlife */
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(232, 121, 249, 0.15));
   border: 2px solid rgba(44, 62, 80, 0.4);
   border-radius: var(--border-radius-lg);
 
@@ -60,7 +60,7 @@
 }
 
 .language-selector-btn:hover {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(232, 121, 249, 0.25));
   border-color: rgba(44, 62, 80, 0.6);
   box-shadow:
     0 6px 20px rgba(44, 62, 80, 0.4),
@@ -184,14 +184,14 @@
 }
 
 .language-dropdown-item:hover {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(232, 121, 249, 0.15));
   border-color: rgba(44, 62, 80, 0.3);
   transform: translateX(4px);
 }
 
 .language-dropdown-item.active {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(193, 154, 107, 0.2));
-  border-color: rgba(193, 154, 107, 0.4);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.15), rgba(232, 121, 249, 0.2));
+  border-color: rgba(232, 121, 249, 0.4);
 }
 
 .language-dropdown-item:focus-visible {
@@ -224,7 +224,7 @@
   padding: var(--spacing-2) var(--spacing-3); /* 8px 12px */
 
   /* Background nightlife */
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(232, 121, 249, 0.15));
   border: 2px solid rgba(44, 62, 80, 0.4);
   border-radius: var(--border-radius-lg);
 
@@ -262,7 +262,7 @@
    ============================================ */
 
 .language-btn:hover {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(232, 121, 249, 0.25));
   border-color: rgba(44, 62, 80, 0.6);
   box-shadow:
     0 6px 20px rgba(44, 62, 80, 0.4),
@@ -276,20 +276,20 @@
    ============================================ */
 
 .language-btn.active {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(193, 154, 107, 0.25));
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(232, 121, 249, 0.25));
   border-color: var(--color-primary);
   box-shadow:
-    0 6px 25px rgba(193, 154, 107, 0.5),
-    0 0 35px rgba(193, 154, 107, 0.4),
-    inset 0 0 25px rgba(193, 154, 107, 0.15);
+    0 6px 25px rgba(232, 121, 249, 0.5),
+    0 0 35px rgba(232, 121, 249, 0.4),
+    inset 0 0 25px rgba(232, 121, 249, 0.15);
 }
 
 .language-btn.active:hover {
   transform: translateY(-2px) scale(1.08);
   box-shadow:
-    0 8px 30px rgba(193, 154, 107, 0.6),
-    0 0 40px rgba(193, 154, 107, 0.5),
-    inset 0 0 30px rgba(193, 154, 107, 0.2);
+    0 8px 30px rgba(232, 121, 249, 0.6),
+    0 0 40px rgba(232, 121, 249, 0.5),
+    inset 0 0 30px rgba(232, 121, 249, 0.2);
 }
 
 /* ============================================
@@ -460,13 +460,13 @@
   background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(193, 154, 107, 0.25);
+  border: 1px solid rgba(232, 121, 249, 0.25);
   border-radius: 16px;
 
   /* Effects - Match menu principal */
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.6),
-    0 2px 8px rgba(193, 154, 107, 0.1);
+    0 2px 8px rgba(232, 121, 249, 0.1);
 
   /* Animation - Slide in from left */
   animation: languageMenuDropdownSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -505,7 +505,7 @@
   /* Background - Transparent par défaut */
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(193, 154, 107, 0.1);
+  border-bottom: 1px solid rgba(232, 121, 249, 0.1);
 
   /* Typography */
   font-size: var(--font-base);
@@ -529,17 +529,17 @@
 }
 
 .language-menu-dropdown-option:hover {
-  background: rgba(193, 154, 107, 0.1);
-  border-bottom-color: rgba(193, 154, 107, 0.2);
+  background: rgba(232, 121, 249, 0.1);
+  border-bottom-color: rgba(232, 121, 249, 0.2);
 }
 
 .language-menu-dropdown-option.active {
-  background: rgba(193, 154, 107, 0.15);
-  border-bottom-color: rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.15);
+  border-bottom-color: rgba(232, 121, 249, 0.3);
 }
 
 .language-menu-dropdown-option.active:hover {
-  background: rgba(193, 154, 107, 0.2);
+  background: rgba(232, 121, 249, 0.2);
 }
 
 .language-menu-dropdown-option:active {
@@ -671,14 +671,14 @@
     rgba(20, 20, 40, 0.95),
     rgba(30, 15, 45, 0.95)
   );
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-xl);
 
   /* Effects */
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.7),
-    0 0 80px rgba(193, 154, 107, 0.2),
-    inset 0 0 40px rgba(193, 154, 107, 0.05);
+    0 0 80px rgba(232, 121, 249, 0.2),
+    inset 0 0 40px rgba(232, 121, 249, 0.05);
   backdrop-filter: blur(24px);
 
   /* Animation */
@@ -733,7 +733,7 @@
   padding: var(--spacing-3); /* 12px */
 
   /* Background */
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(193, 154, 107, 0.15));
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(232, 121, 249, 0.15));
   border: 2px solid rgba(44, 62, 80, 0.4);
   border-radius: var(--border-radius-lg);
 
@@ -758,30 +758,30 @@
 }
 
 .language-modal-option:hover {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(193, 154, 107, 0.25));
-  border-color: rgba(193, 154, 107, 0.5);
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(232, 121, 249, 0.25));
+  border-color: rgba(232, 121, 249, 0.5);
   box-shadow:
-    0 6px 20px rgba(193, 154, 107, 0.3),
-    0 0 30px rgba(193, 154, 107, 0.2),
-    inset 0 0 20px rgba(193, 154, 107, 0.1);
+    0 6px 20px rgba(232, 121, 249, 0.3),
+    0 0 30px rgba(232, 121, 249, 0.2),
+    inset 0 0 20px rgba(232, 121, 249, 0.1);
   transform: translateY(-2px) scale(1.03);
 }
 
 .language-modal-option.active {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(193, 154, 107, 0.25));
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(232, 121, 249, 0.25));
   border-color: var(--color-primary);
   box-shadow:
-    0 8px 25px rgba(193, 154, 107, 0.5),
-    0 0 40px rgba(193, 154, 107, 0.3),
-    inset 0 0 25px rgba(193, 154, 107, 0.15);
+    0 8px 25px rgba(232, 121, 249, 0.5),
+    0 0 40px rgba(232, 121, 249, 0.3),
+    inset 0 0 25px rgba(232, 121, 249, 0.15);
 }
 
 .language-modal-option.active:hover {
   transform: translateY(-2px) scale(1.05);
   box-shadow:
-    0 10px 30px rgba(193, 154, 107, 0.6),
-    0 0 50px rgba(193, 154, 107, 0.4),
-    inset 0 0 30px rgba(193, 154, 107, 0.2);
+    0 10px 30px rgba(232, 121, 249, 0.6),
+    0 0 50px rgba(232, 121, 249, 0.4),
+    inset 0 0 30px rgba(232, 121, 249, 0.2);
 }
 
 .language-modal-option:active {
@@ -824,7 +824,7 @@
   color: var(--color-primary);
 
   /* Effect */
-  text-shadow: 0 0 10px rgba(193, 154, 107, 0.5);
+  text-shadow: 0 0 10px rgba(232, 121, 249, 0.5);
   animation: checkmarkPulse 2s ease-in-out infinite;
 }
 

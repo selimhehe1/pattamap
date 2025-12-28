@@ -203,7 +203,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--color-primary, #C19A6B);
+  background: var(--color-primary, #E879F9);
   transform-origin: left;
   animation: scroll-progress linear;
   animation-timeline: scroll(root);
@@ -219,7 +219,7 @@
   height: 3px;
   background: linear-gradient(
     90deg,
-    var(--color-primary, #C19A6B),
+    var(--color-primary, #E879F9),
     var(--color-accent, #FF6B9D)
   );
   transform-origin: left;

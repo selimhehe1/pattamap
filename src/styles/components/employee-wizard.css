@@ -271,12 +271,12 @@
 
 /* Option B - Gold variant */
 .wizard-option-card--create {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.1), rgba(193, 154, 107, 0.25));
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.1), rgba(232, 121, 249, 0.25));
   border: 2px solid var(--color-primary);
 }
 
 .wizard-option-card--create:hover {
-  box-shadow: 0 8px 24px rgba(193, 154, 107, 0.4);
+  box-shadow: 0 8px 24px rgba(232, 121, 249, 0.4);
 }
 
 /* Option Badge */

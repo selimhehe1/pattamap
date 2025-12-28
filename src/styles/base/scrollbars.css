@@ -45,7 +45,7 @@
 
 *::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
-  box-shadow: 0 0 15px rgba(193, 154, 107, 0.5);
+  box-shadow: 0 0 15px rgba(232, 121, 249, 0.5);
 }
 
 * {

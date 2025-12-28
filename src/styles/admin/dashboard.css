@@ -49,11 +49,11 @@
 .admin-header-modern-nightlife {
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.2),
+    rgba(232, 121, 249, 0.2),
     rgba(0, 255, 255, 0.1),
     rgba(255, 215, 0, 0.1)
   );
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--radius-xl);
   padding: var(--spacing-md) var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
@@ -107,7 +107,7 @@
 
 .admin-shield-icon {
   font-size: 2rem;
-  filter: drop-shadow(0 0 10px rgba(193, 154, 107, 0.8));
+  filter: drop-shadow(0 0 10px rgba(232, 121, 249, 0.8));
   flex-shrink: 0;
 }
 
@@ -151,33 +151,33 @@
   gap: var(--spacing-md);
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.25),
-    rgba(193, 154, 107, 0.3),
+    rgba(232, 121, 249, 0.25),
+    rgba(232, 121, 249, 0.3),
     rgba(44, 62, 80, 0.2)
   );
   backdrop-filter: blur(10px);
   padding: var(--spacing-sm) var(--spacing-xl);
   border-radius: 25px;
-  border: 2px solid rgba(193, 154, 107, 0.5);
+  border: 2px solid rgba(232, 121, 249, 0.5);
   min-height: var(--tap-target-min); /* 44px WCAG */
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow:
     0 4px 15px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(193, 154, 107, 0.2);
+    0 0 20px rgba(232, 121, 249, 0.2);
 }
 
 .admin-user-badge:hover {
   border-color: var(--color-primary);
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.35),
-    rgba(193, 154, 107, 0.4),
+    rgba(232, 121, 249, 0.35),
+    rgba(232, 121, 249, 0.4),
     rgba(44, 62, 80, 0.3)
   );
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
-    0 0 25px rgba(193, 154, 107, 0.3);
+    0 0 25px rgba(232, 121, 249, 0.3);
 }
 
 /* Focus visible pour accessibilité WCAG 2.1 Level AAA */
@@ -236,7 +236,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 15px rgba(193, 154, 107, 0.5);
+  text-shadow: 0 0 15px rgba(232, 121, 249, 0.5);
   margin-bottom: var(--spacing-1);
 }
 
@@ -267,7 +267,7 @@
   background: linear-gradient(
     45deg,
     rgba(255, 71, 87, 0.3),
-    rgba(193, 154, 107, 0.3)
+    rgba(232, 121, 249, 0.3)
   );
   padding: var(--spacing-2) var(--spacing-md);
   border-radius: 20px;
@@ -422,10 +422,10 @@
   position: relative;
   padding: var(--spacing-md) var(--spacing-xl);
   border-radius: var(--radius-lg);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.1),
+    rgba(232, 121, 249, 0.1),
     rgba(0, 0, 0, 0.3)
   );
   color: var(--color-text-primary);
@@ -443,7 +443,7 @@
   border-color: var(--color-primary);
   background: linear-gradient(
     45deg,
-    rgba(193, 154, 107, 0.2),
+    rgba(232, 121, 249, 0.2),
     rgba(255, 215, 0, 0.1)
   );
   color: var(--color-primary);
@@ -453,7 +453,7 @@
   border-color: var(--color-primary);
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.2),
+    rgba(232, 121, 249, 0.2),
     rgba(0, 0, 0, 0.3)
   );
 }
@@ -625,10 +625,10 @@
 .admin-global-search-btn {
   background: linear-gradient(
     45deg,
-    rgba(193, 154, 107, 0.3),
+    rgba(232, 121, 249, 0.3),
     rgba(0, 255, 255, 0.3)
   );
-  border: 2px solid rgba(193, 154, 107, 0.5);
+  border: 2px solid rgba(232, 121, 249, 0.5);
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
   padding: var(--spacing-sm) var(--spacing-xl);
@@ -646,12 +646,12 @@
 .admin-global-search-btn:hover {
   background: linear-gradient(
     45deg,
-    rgba(193, 154, 107, 0.5),
+    rgba(232, 121, 249, 0.5),
     rgba(0, 255, 255, 0.5)
   );
-  border-color: rgba(193, 154, 107, 0.8);
+  border-color: rgba(232, 121, 249, 0.8);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(193, 154, 107, 0.3);
+  box-shadow: 0 8px 20px rgba(232, 121, 249, 0.3);
 }
 
 .admin-global-search-btn:focus-visible {
@@ -702,11 +702,11 @@
 .admin-quick-actions {
   background: linear-gradient(
     135deg,
-    rgba(193, 154, 107, 0.1),
+    rgba(232, 121, 249, 0.1),
     rgba(0, 0, 0, 0.3)
   );
   border-radius: var(--radius-xl);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   padding: var(--spacing-xl);
   margin-top: var(--spacing-xl);
 }
@@ -716,7 +716,7 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   margin: 0 0 var(--spacing-lg) 0;
-  text-shadow: 0 0 10px rgba(193, 154, 107, 0.5);
+  text-shadow: 0 0 10px rgba(232, 121, 249, 0.5);
 }
 
 .admin-quick-actions-grid {

@@ -127,7 +127,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(193, 154, 107, 0.1) 50%,
+    rgba(232, 121, 249, 0.1) 50%,
     transparent 100%
   );
   animation: shimmer 2s infinite;
@@ -415,10 +415,10 @@
     border-radius: var(--border-radius-xl);
 
     /* BORDURE AMÉLIORÉE - Délimitation claire */
-    border: 2px solid rgba(193, 154, 107, 0.6); /* Rose vif 2px */
+    border: 2px solid rgba(232, 121, 249, 0.6); /* Rose vif 2px */
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.8), /* Contour noir fin extérieur */
-      0 0 20px rgba(193, 154, 107, 0.4), /* Glow rose nightlife */
+      0 0 20px rgba(232, 121, 249, 0.4), /* Glow rose nightlife */
       0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow profonde */
   }
 
@@ -496,10 +496,10 @@
 
   /* ÉTABLISSEMENT: Badge ROSE translucide */
   .employees-modal__card-establishment {
-    background: rgba(193, 154, 107, 0.85); /* Rose nightlife */
+    background: rgba(232, 121, 249, 0.85); /* Rose nightlife */
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(193, 154, 107, 0.6);
-    box-shadow: 0 4px 15px rgba(193, 154, 107, 0.3);
+    border: 1px solid rgba(232, 121, 249, 0.6);
+    box-shadow: 0 4px 15px rgba(232, 121, 249, 0.3);
   }
 
   .employees-modal__card-establishment-icon {

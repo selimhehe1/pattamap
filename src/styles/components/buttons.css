@@ -85,24 +85,24 @@
 
 /**
  * Primary button - Main actions
- * Pink gradient with hover lift effect
+ * Pink/Magenta gradient with neon glow
  */
 .btn--primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  border-color: var(--color-primary);
-  color: var(--text-inverse);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+  background: linear-gradient(135deg, #E879F9, #D946EF);
+  border-color: #E879F9;
+  color: #0D0D0F;
+  box-shadow: 0 4px 15px rgba(232, 121, 249, 0.25);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  box-shadow: var(--shadow-glow-primary);
+  background: linear-gradient(135deg, #F0ABFC, #E879F9);
+  box-shadow: 0 0 25px rgba(232, 121, 249, 0.5);
   transform: translateY(-2px);
 }
 
 .btn--primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+  box-shadow: 0 4px 15px rgba(232, 121, 249, 0.25);
 }
 
 /**
@@ -110,23 +110,23 @@
  * Cyan outline with glass effect
  */
 .btn--secondary {
-  border: 2px solid var(--color-secondary);
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.2));
-  color: var(--color-secondary);
-  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
-  text-shadow: 0 0 10px rgba(44, 62, 80, 0.5);
+  border: 2px solid #00E5FF;
+  background: rgba(0, 229, 255, 0.1);
+  color: #00E5FF;
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.15);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
   backdrop-filter: var(--backdrop-blur-sm);
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.2), rgba(44, 62, 80, 0.3));
-  box-shadow: var(--shadow-glow-secondary);
+  background: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
   transform: translateY(-2px);
 }
 
 .btn--secondary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.15);
 }
 
 /**

@@ -169,7 +169,7 @@ main[id="main-content"]:focus {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(193, 154, 107, 0.15) 50%,
+    rgba(232, 121, 249, 0.15) 50%,
     transparent 100%
   );
   animation: shimmer 1.5s infinite;
@@ -217,7 +217,7 @@ main[id="main-content"]:focus {
   /* Disable skeleton animations */
   .skeleton-shimmer {
     animation: none;
-    background: rgba(193, 154, 107, 0.08);
+    background: rgba(232, 121, 249, 0.08);
   }
 
   .skeleton-pulse {

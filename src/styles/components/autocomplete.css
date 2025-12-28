@@ -61,7 +61,7 @@
   min-height: var(--tap-target-min); /* 44px - WCAG AAA */
   cursor: pointer;
   color: var(--text-primary);
-  border-bottom: 1px solid rgba(193, 154, 107, 0.1);
+  border-bottom: 1px solid rgba(232, 121, 249, 0.1);
   transition: background-color var(--duration-fast) var(--ease-in-out);
   display: flex;
   align-items: center;

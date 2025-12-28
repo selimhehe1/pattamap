@@ -56,28 +56,35 @@
    2. COLORS - Dark/Light Mode
    ============================================ */
 
-/* DARK MODE (Default) */
+/* DARK MODE (Default) - Neo-Nightlife 2025 */
 :root,
 :root[data-theme="dark"] {
-  /* Brand Colors - Luxe Sophistiqué 2025 (Or Rose + Marine) */
-  --color-primary: #C19A6B;           /* Or rose champagne (sophistiqué) */
-  --color-primary-button: #A67C52;    /* Or foncé pour boutons (WCAG AA) */
-  --color-secondary: #334155;         /* Slate-700 - Moderne 2025 */
-  --color-secondary-button: #1E293B;  /* Slate-800 pour boutons (WCAG AA) */
-  --color-accent: #E879F9;            /* Fuchsia-400 - Tendance 2025 */
+  /* ============================================
+   * NEO-NIGHTLIFE PALETTE 2025
+   * Glassmorphism + Neon Accents
+   * ============================================ */
+
+  /* Brand Colors - Neon Nightlife */
+  --color-primary: #E879F9;           /* Rose/Magenta - CTA principal */
+  --color-primary-button: #D946EF;    /* Fuchsia-500 pour boutons (WCAG AA) */
+  --color-secondary: #00E5FF;         /* Cyan - Liens, highlights */
+  --color-secondary-button: #06B6D4;  /* Cyan-500 pour boutons (WCAG AA) */
+  --color-accent: #E879F9;            /* Fuchsia-400 - Accent principal */
   --color-accent-subtle: #F0ABFC;     /* Fuchsia-300 - Subtil */
   --color-accent-button: #D946EF;     /* Fuchsia-500 pour boutons (WCAG AA) */
 
-  /* Nouveaux Accents Chaleur 2025 */
-  --color-terracotta: #E2725B;        /* Terracotta trend 2025 */
-  --color-coral: #FF8870;             /* Coral warm accent */
+  /* Accents Nightlife */
+  --color-terracotta: #FB7185;        /* Rose-400 - Warm accent */
+  --color-coral: #F472B6;             /* Pink-400 - Coral accent */
   --color-gold: #FFD700;              /* Gold (pour badges VIP, stats) */
   --color-cyan: #00E5FF;              /* Cyan (pour accents tech/UI) */
+  --color-neon-pink: #FF10F0;         /* Neon pink pour effets glow */
+  --color-neon-cyan: #00FFFF;         /* Neon cyan pour effets glow */
 
   /* Legacy accent variables (pour compatibilité) */
-  --accent-pink: var(--color-accent);      /* #FF6B9D - Rose vif */
-  --accent-purple: var(--color-primary);   /* #C19A6B - Or rose (remplace violet) */
-  --accent-gold: var(--color-primary);     /* #C19A6B - Or rose */
+  --accent-pink: var(--color-primary);     /* Rose/Magenta */
+  --accent-purple: var(--color-primary);   /* Alias */
+  --accent-gold: var(--color-gold);        /* Or */
 
   /* Legacy color-text aliases (for form-unified.css compatibility) */
   --color-text: var(--text-primary);
@@ -86,78 +93,79 @@
   --color-text-disabled: var(--text-disabled);
   --color-text-inverse: var(--text-inverse);
 
-  /* Semantic Colors - Douces & Modernes 2025 */
-  --color-success: #10B981;           /* Émeraude - Garder */
-  --color-success-button: #059669;    /* Émeraude foncée (WCAG AA) */
-  --color-warning: #FBBF24;           /* Amber-400 - Plus doux */
+  /* Semantic Colors - Modernes */
+  --color-success: #10B981;           /* Emerald-500 */
+  --color-success-button: #059669;    /* Emerald-600 (WCAG AA) */
+  --color-warning: #FBBF24;           /* Amber-400 */
   --color-warning-button: #F59E0B;    /* Amber-500 (WCAG AA) */
-  --color-error: #F87171;             /* Red-400 - Moins agressif */
+  --color-error: #F87171;             /* Red-400 */
   --color-error-button: #EF4444;      /* Red-500 (WCAG AA) */
-  --color-info: #60A5FA;              /* Blue-400 - Plus accessible */
+  --color-info: #60A5FA;              /* Blue-400 */
 
-  /* Backgrounds - Slate Moderne 2025 */
-  --bg-primary: #0F172A;              /* Slate-900 - Profond moderne */
-  --bg-secondary: #1E293B;            /* Slate-800 */
-  --bg-tertiary: #334155;             /* Slate-700 (= secondary color) */
-  --bg-surface: #1E293B;              /* Slate-800 - Surfaces */
-  --bg-surface-alt: #1f2937;          /* Slate-800 alternatif */
-  --bg-overlay: rgba(0, 0, 0, 0.6);   /* Light overlay (dropdown, tooltip) */
-  --bg-overlay-strong: rgba(0, 0, 0, 0.85); /* Modal overlay - Standard darkness */
-  --bg-modal: rgba(0, 0, 0, 0.9);     /* Modal background (90% opacité - Plus opaque pour meilleure lisibilité) */
-  --bg-hover: rgba(255, 255, 255, 0.08); /* Hover plus visible */
-  --bg-active: rgba(255, 255, 255, 0.15); /* Active plus visible */
+  /* Backgrounds - Deep Dark Neo-Nightlife */
+  --bg-primary: #0D0D0F;              /* Presque noir - Fond principal */
+  --bg-secondary: #16161A;            /* Surfaces élevées */
+  --bg-tertiary: #1E1E24;             /* Cards, modales */
+  --bg-surface: #16161A;              /* Surfaces */
+  --bg-surface-alt: #1E1E24;          /* Surfaces alternatives */
+  --bg-glass: rgba(30, 30, 36, 0.7);  /* Glassmorphism */
+  --bg-overlay: rgba(0, 0, 0, 0.6);   /* Light overlay */
+  --bg-overlay-strong: rgba(0, 0, 0, 0.85); /* Modal overlay */
+  --bg-modal: rgba(13, 13, 15, 0.95); /* Modal background */
+  --bg-hover: rgba(255, 255, 255, 0.06); /* Hover subtil */
+  --bg-active: rgba(255, 255, 255, 0.12); /* Active */
 
-  /* Text Colors - Contraste Maximum 2025 */
-  --text-primary: #FFFFFF;            /* Blanc pur - Contraste maximum */
-  --text-secondary: #F1F5F9;          /* Slate-100 - Plus lumineux */
-  --text-muted: rgba(255, 255, 255, 0.85); /* 85% opacité - Meilleure lisibilité */
-  --text-disabled: rgba(255, 255, 255, 0.6); /* 60% - Plus visible */
-  --text-inverse: #0F172A;            /* Slate-900 pour fonds clairs */
+  /* Text Colors - Contraste Maximum */
+  --text-primary: #FAFAFA;            /* Blanc cassé - pas #FFF pur */
+  --text-secondary: #A1A1AA;          /* Gris clair */
+  --text-muted: #71717A;              /* Gris foncé */
+  --text-disabled: rgba(255, 255, 255, 0.4); /* Disabled */
+  --text-inverse: #0D0D0F;            /* Pour fonds clairs */
 
-  /* Borders - Adoucies pour Dual Tone */
-  --border-color: rgba(255, 255, 255, 0.2);    /* Subtiles (vs 0.35) */
-  --border-color-strong: rgba(255, 255, 255, 0.3); /* Moins prononcées (vs 0.45) */
-  --border-primary: rgba(193, 154, 107, 0.5);   /* Or rose champagne */
-  --border-secondary: rgba(51, 65, 85, 0.5);    /* Slate-700 */
-  --border-focus: #C19A6B;                     /* Focus = Primary (or rose) */
-  --border-radius-sm: 0.375rem;       /* 6px */
-  --border-radius-md: 0.5rem;         /* 8px */
-  --border-radius-lg: 0.75rem;        /* 12px */
-  --border-radius-xl: 1rem;           /* 16px */
-  --border-radius-2xl: 1.25rem;       /* 20px */
+  /* Borders - Neo-Nightlife */
+  --border-color: rgba(255, 255, 255, 0.1);    /* Subtiles */
+  --border-color-strong: rgba(255, 255, 255, 0.2); /* Prononcées */
+  --border-primary: rgba(232, 121, 249, 0.5);   /* Rose/Magenta */
+  --border-secondary: rgba(0, 229, 255, 0.3);   /* Cyan */
+  --border-focus: #E879F9;                      /* Focus = Primary */
+  --border-radius-sm: 0.5rem;         /* 8px */
+  --border-radius-md: 0.75rem;        /* 12px */
+  --border-radius-lg: 1rem;           /* 16px */
+  --border-radius-xl: 1.5rem;         /* 24px */
+  --border-radius-2xl: 2rem;          /* 32px */
   --border-radius-full: 9999px;       /* Circle */
 
-  /* Zone Colors (for maps) - Harmonisées 2025 */
-  --zone-soi6: rgba(193, 154, 107, 0.9);        /* Or rose (primary) */
-  --zone-beachroad: rgba(51, 65, 85, 0.9);      /* Slate-700 (secondary) */
-  --zone-walkingstreet: rgba(232, 121, 249, 0.9); /* Fuchsia-400 (accent) */
-  --zone-boyztown: rgba(16, 185, 129, 0.9);     /* Émeraude (conservé) */
-  --zone-lkmetro: rgba(166, 124, 82, 0.9);      /* Or foncé (harmonie primary) */
-  --zone-jomtiencomplex: rgba(193, 154, 107, 0.9); /* Or rose */
-  --zone-soi78: rgba(210, 180, 140, 0.9);       /* Tan doré */
-  --zone-treetown: rgba(30, 41, 59, 0.9);       /* Slate-800 */
-  --zone-soibuakhao: rgba(240, 171, 252, 0.9);  /* Fuchsia-300 (harmonie accent) */
+  /* Zone Colors (for maps) - Neon Style */
+  --zone-soi6: rgba(232, 121, 249, 0.85);       /* Rose/Magenta (primary) */
+  --zone-beachroad: rgba(0, 229, 255, 0.85);    /* Cyan (secondary) */
+  --zone-walkingstreet: rgba(255, 16, 240, 0.85); /* Neon Pink */
+  --zone-boyztown: rgba(16, 185, 129, 0.85);    /* Emerald */
+  --zone-lkmetro: rgba(139, 92, 246, 0.85);     /* Violet-500 */
+  --zone-jomtiencomplex: rgba(251, 113, 133, 0.85); /* Rose-400 */
+  --zone-soi78: rgba(244, 114, 182, 0.85);      /* Pink-400 */
+  --zone-treetown: rgba(99, 102, 241, 0.85);    /* Indigo-500 */
+  --zone-soibuakhao: rgba(240, 171, 252, 0.85); /* Fuchsia-300 */
 
-  /* Modern Hover Effects - Glassmorphism & Glow (v10.3.3) */
-  --hover-glass-bg: rgba(193, 154, 107, 0.08);        /* Or rose glass background */
-  --hover-glass-bg-strong: rgba(193, 154, 107, 0.15); /* Or rose glass background hover */
-  --hover-glass-border: rgba(193, 154, 107, 0.3);     /* Or rose glass border */
-  --hover-glass-border-strong: rgba(193, 154, 107, 0.5); /* Or rose glass border hover */
-  --hover-glass-shadow: 0 8px 24px rgba(193, 154, 107, 0.25); /* Or rose glass shadow */
-  --hover-glow: 0 0 20px rgba(193, 154, 107, 0.3);    /* Or rose glow effect */
-  --hover-glow-strong: 0 0 30px rgba(193, 154, 107, 0.5); /* Or rose glow hover */
+  /* Modern Hover Effects - Glassmorphism & Glow */
+  --hover-glass-bg: rgba(232, 121, 249, 0.08);        /* Pink glass background */
+  --hover-glass-bg-strong: rgba(232, 121, 249, 0.15); /* Pink glass hover */
+  --hover-glass-border: rgba(232, 121, 249, 0.3);     /* Pink glass border */
+  --hover-glass-border-strong: rgba(232, 121, 249, 0.5); /* Pink glass border hover */
+  --hover-glass-shadow: 0 8px 24px rgba(232, 121, 249, 0.2); /* Pink glass shadow */
+  --hover-glow: 0 0 20px rgba(232, 121, 249, 0.3);    /* Pink glow effect */
+  --hover-glow-strong: 0 0 30px rgba(232, 121, 249, 0.5); /* Pink glow hover */
 }
 
-/* LIGHT MODE - Clean & Modern 2025 (Blanc/Slate + Amber) */
+/* LIGHT MODE - Neo-Nightlife Clean 2025 */
 body[data-theme="light"] {
-  /* Brand Colors - Amber Gold adapté pour light + Slate */
-  --color-primary: #B45309;           /* Amber-700 - Gold adapté light */
-  --color-primary-button: #92400E;    /* Amber-800 pour boutons (WCAG AA) */
-  --color-secondary: #475569;         /* Slate-600 - Neutre moderne */
-  --color-secondary-button: #334155;  /* Slate-700 pour boutons (WCAG AA) */
-  --color-accent: #DB2777;            /* Pink-600 (WCAG AA) */
-  --color-accent-subtle: #F9A8D4;     /* Pink-300 pour décorations */
-  --color-accent-button: #BE185D;     /* Pink-700 pour boutons (WCAG AA) */
+  /* Brand Colors - Vibrant for Light Mode */
+  --color-primary: #C026D3;           /* Fuchsia-600 - Visible sur blanc */
+  --color-primary-button: #A21CAF;    /* Fuchsia-700 pour boutons (WCAG AA) */
+  --color-secondary: #0891B2;         /* Cyan-600 - Visible sur blanc */
+  --color-secondary-button: #0E7490;  /* Cyan-700 pour boutons (WCAG AA) */
+  --color-accent: #C026D3;            /* Fuchsia-600 */
+  --color-accent-subtle: #F0ABFC;     /* Fuchsia-300 pour décorations */
+  --color-accent-button: #A21CAF;     /* Fuchsia-700 pour boutons (WCAG AA) */
 
   /* Semantic Colors - Contrastées pour light */
   --color-success: #059669;           /* Emerald-600 - Visible sur blanc */
@@ -168,122 +176,126 @@ body[data-theme="light"] {
   --color-error-button: #B91C1C;      /* Red-700 (WCAG AA) */
   --color-info: #2563EB;              /* Blue-600 - Visible sur blanc */
 
-  /* Accents 2025 - Light variants */
-  --color-terracotta: #EA580C;        /* Orange-600 */
-  --color-coral: #F97316;             /* Orange-500 */
+  /* Accents - Light variants */
+  --color-terracotta: #E11D48;        /* Rose-600 */
+  --color-coral: #DB2777;             /* Pink-600 */
+  --color-neon-pink: #C026D3;         /* Fuchsia-600 */
+  --color-neon-cyan: #0891B2;         /* Cyan-600 */
 
-  /* Backgrounds - Blanc/Slate propre et moderne */
-  --bg-primary: #FFFFFF;              /* Blanc pur */
-  --bg-secondary: #F8FAFC;            /* Slate-50 */
-  --bg-tertiary: #F1F5F9;             /* Slate-100 */
+  /* Backgrounds - Clean & Modern */
+  --bg-primary: #FAFAFA;              /* Gris très clair */
+  --bg-secondary: #FFFFFF;            /* Blanc */
+  --bg-tertiary: #F4F4F5;             /* Zinc-100 */
   --bg-surface: #FFFFFF;              /* Blanc pour cards */
-  --bg-surface-alt: #F8FAFC;          /* Slate-50 alternatif */
-  --bg-overlay: rgba(15, 23, 42, 0.4); /* Slate-900 semi-transparent */
+  --bg-surface-alt: #FAFAFA;          /* Alternatif */
+  --bg-glass: rgba(255, 255, 255, 0.8); /* Glassmorphism light */
+  --bg-overlay: rgba(0, 0, 0, 0.4);   /* Overlay */
+  --bg-overlay-strong: rgba(0, 0, 0, 0.6); /* Modal overlay */
   --bg-modal: rgba(255, 255, 255, 0.98); /* Blanc modal */
-  --bg-hover: rgba(15, 23, 42, 0.04);  /* Slate hover subtil */
-  --bg-active: rgba(15, 23, 42, 0.08); /* Slate active */
+  --bg-hover: rgba(0, 0, 0, 0.04);    /* Hover subtil */
+  --bg-active: rgba(0, 0, 0, 0.08);   /* Active */
 
-  /* Text Colors - Slate foncé pour excellent contraste */
-  --text-primary: #0F172A;            /* Slate-900 - Maximum contraste */
-  --text-secondary: #475569;          /* Slate-600 */
-  --text-muted: rgba(15, 23, 42, 0.6);   /* Slate semi-transparent */
-  --text-disabled: rgba(15, 23, 42, 0.4); /* Slate transparent (UI state) */
-  --text-inverse: #FFFFFF;            /* Texte sur fonds foncés */
+  /* Text Colors - Maximum contraste */
+  --text-primary: #18181B;            /* Zinc-900 */
+  --text-secondary: #52525B;          /* Zinc-600 */
+  --text-muted: #71717A;              /* Zinc-500 */
+  --text-disabled: rgba(0, 0, 0, 0.3); /* Disabled */
+  --text-inverse: #FAFAFA;            /* Pour fonds foncés */
 
-  /* Borders - Slate subtil */
-  --border-color: rgba(15, 23, 42, 0.1);     /* Slate bordure subtile */
-  --border-color-strong: rgba(15, 23, 42, 0.15); /* Slate bordure prononcée */
-  --border-primary: rgba(180, 83, 9, 0.3);    /* Amber primary border */
-  --border-secondary: rgba(71, 85, 105, 0.3);  /* Slate-600 border */
-  --border-focus: #B45309;                    /* Focus = Primary (Amber) */
+  /* Borders - Clean */
+  --border-color: rgba(0, 0, 0, 0.1);      /* Subtiles */
+  --border-color-strong: rgba(0, 0, 0, 0.15); /* Prononcées */
+  --border-primary: rgba(192, 38, 211, 0.4);  /* Fuchsia */
+  --border-secondary: rgba(8, 145, 178, 0.3); /* Cyan */
+  --border-focus: #C026D3;                    /* Focus = Primary */
 
-  /* Gradients - Subtils et modernes */
-  --gradient-primary: linear-gradient(135deg, #B45309, #DB2777);           /* Amber → Pink */
-  --gradient-secondary: linear-gradient(135deg, #475569, #334155);         /* Slate dégradé */
-  --gradient-main: linear-gradient(135deg, #FFFFFF, #F8FAFC, #F1F5F9);    /* Blanc → Slate-100 */
-  --gradient-overlay: linear-gradient(135deg, rgba(180, 83, 9, 0.05), rgba(71, 85, 105, 0.03)); /* Amber + Slate ultra-léger */
-  --gradient-header: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 250, 252, 0.97)); /* Blanc header */
-  --gradient-card-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 0.4) 60%, transparent 100%); /* Card overlay blanc */
+  /* Gradients - Light Mode */
+  --gradient-primary: linear-gradient(135deg, #C026D3, #0891B2);  /* Fuchsia → Cyan */
+  --gradient-secondary: linear-gradient(135deg, #52525B, #3F3F46); /* Zinc dégradé */
+  --gradient-main: linear-gradient(135deg, #FAFAFA, #FFFFFF, #F4F4F5); /* Clean */
+  --gradient-overlay: linear-gradient(135deg, rgba(192, 38, 211, 0.03), rgba(8, 145, 178, 0.02));
+  --gradient-header: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(250, 250, 250, 0.95));
+  --gradient-card-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
 
-  /* Glassmorphism - Light Mode Clean */
-  --glass-bg: rgba(255, 255, 255, 0.7);        /* Blanc glass */
-  --glass-bg-strong: rgba(255, 255, 255, 0.85); /* Blanc glass prononcé */
-  --glass-bg-subtle: rgba(255, 255, 255, 0.5); /* Blanc glass subtil */
-  --glass-border: rgba(15, 23, 42, 0.08);      /* Slate glass border */
-  --glass-border-strong: rgba(15, 23, 42, 0.12); /* Slate glass border prononcé */
-  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);   /* Slate glass shadow */
-  --glass-shadow-sm: 0 4px 16px rgba(15, 23, 42, 0.05); /* Slate glass shadow small */
-  --glass-shadow-lg: 0 12px 48px rgba(15, 23, 42, 0.12); /* Slate glass shadow large */
-  --glass-blur: blur(20px) saturate(180%);     /* Blur glass */
-  --glass-blur-strong: blur(30px) saturate(200%); /* Blur glass prononcé */
-  --glass-blur-subtle: blur(10px) saturate(160%); /* Blur glass subtil */
+  /* Glassmorphism - Light Mode */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.5);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-strong: rgba(0, 0, 0, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --glass-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.05);
+  --glass-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-blur-strong: blur(30px) saturate(200%);
+  --glass-blur-subtle: blur(10px) saturate(160%);
 
-  /* Material Design Elevation Shadows - Light Mode (Slate tint) */
-  --shadow-elevation-1: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-elevation-2: 0 2px 4px rgba(15, 23, 42, 0.06), 0 2px 3px rgba(15, 23, 42, 0.04);
-  --shadow-elevation-3: 0 3px 6px rgba(15, 23, 42, 0.06), 0 3px 4px rgba(15, 23, 42, 0.04);
-  --shadow-elevation-4: 0 4px 8px rgba(15, 23, 42, 0.06), 0 4px 5px rgba(15, 23, 42, 0.04);
-  --shadow-elevation-6: 0 6px 12px rgba(15, 23, 42, 0.08), 0 6px 8px rgba(15, 23, 42, 0.05);
-  --shadow-elevation-8: 0 8px 16px rgba(15, 23, 42, 0.08), 0 8px 10px rgba(15, 23, 42, 0.05);
-  --shadow-elevation-12: 0 12px 24px rgba(15, 23, 42, 0.10), 0 12px 15px rgba(15, 23, 42, 0.06);
-  --shadow-elevation-16: 0 16px 32px rgba(15, 23, 42, 0.10), 0 16px 20px rgba(15, 23, 42, 0.06);
-  --shadow-elevation-24: 0 24px 48px rgba(15, 23, 42, 0.12), 0 24px 30px rgba(15, 23, 42, 0.08);
+  /* Elevation Shadows - Light Mode */
+  --shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-2: 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 3px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-3: 0 3px 6px rgba(0, 0, 0, 0.06), 0 3px 4px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-4: 0 4px 8px rgba(0, 0, 0, 0.06), 0 4px 5px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-6: 0 6px 12px rgba(0, 0, 0, 0.08), 0 6px 8px rgba(0, 0, 0, 0.05);
+  --shadow-elevation-8: 0 8px 16px rgba(0, 0, 0, 0.08), 0 8px 10px rgba(0, 0, 0, 0.05);
+  --shadow-elevation-12: 0 12px 24px rgba(0, 0, 0, 0.10), 0 12px 15px rgba(0, 0, 0, 0.06);
+  --shadow-elevation-16: 0 16px 32px rgba(0, 0, 0, 0.10), 0 16px 20px rgba(0, 0, 0, 0.06);
+  --shadow-elevation-24: 0 24px 48px rgba(0, 0, 0, 0.12), 0 24px 30px rgba(0, 0, 0, 0.08);
 
-  /* Box shadows override - Light Mode optimized */
+  /* Box shadows override */
   --shadow-sm: var(--shadow-elevation-2);
   --shadow-md: var(--shadow-elevation-4);
   --shadow-lg: var(--shadow-elevation-8);
   --shadow-xl: var(--shadow-elevation-16);
 
-  /* Glow effects - Light Mode (Amber/Slate glow) */
-  --shadow-glow-primary: 0 0 20px rgba(180, 83, 9, 0.15);     /* Amber glow */
-  --shadow-glow-secondary: 0 0 20px rgba(71, 85, 105, 0.12);  /* Slate glow */
-  --shadow-glow-success: 0 0 20px rgba(5, 150, 105, 0.15);    /* Emerald glow */
-  --shadow-glow-error: 0 0 20px rgba(220, 38, 38, 0.15);      /* Red glow */
+  /* Glow effects - Light Mode */
+  --shadow-glow-primary: 0 0 20px rgba(192, 38, 211, 0.2);
+  --shadow-glow-secondary: 0 0 20px rgba(8, 145, 178, 0.15);
+  --shadow-glow-success: 0 0 20px rgba(5, 150, 105, 0.15);
+  --shadow-glow-error: 0 0 20px rgba(220, 38, 38, 0.15);
 
   /* Text shadows */
-  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);               /* Subtle text shadow for buttons */
-  --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);                  /* Standard text shadow */
+  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 
   /* Rarity Colors - Gamification */
-  --rarity-common: #9ca3af;                                     /* Gray - common items */
-  --rarity-common-bg: rgba(156, 163, 175, 0.15);
-  --rarity-rare: #3b82f6;                                       /* Blue - rare items */
-  --rarity-rare-bg: rgba(59, 130, 246, 0.15);
-  --rarity-epic: #a855f7;                                       /* Purple - epic items */
-  --rarity-epic-bg: rgba(168, 85, 247, 0.15);
-  --rarity-legendary: var(--color-warning);                     /* Gold - legendary items */
-  --rarity-legendary-bg: color-mix(in srgb, var(--color-warning) 15%, transparent);
+  --rarity-common: #71717A;
+  --rarity-common-bg: rgba(113, 113, 122, 0.1);
+  --rarity-rare: #2563EB;
+  --rarity-rare-bg: rgba(37, 99, 235, 0.1);
+  --rarity-epic: #9333EA;
+  --rarity-epic-bg: rgba(147, 51, 234, 0.1);
+  --rarity-legendary: var(--color-warning);
+  --rarity-legendary-bg: color-mix(in srgb, var(--color-warning) 10%, transparent);
 
-  /* Zone Colors - Light Mode (couleurs saturées pour contraste) */
-  --zone-soi6: rgba(180, 83, 9, 0.85);           /* Amber-700 */
-  --zone-beachroad: rgba(71, 85, 105, 0.85);     /* Slate-600 */
-  --zone-walkingstreet: rgba(219, 39, 119, 0.85); /* Pink-600 */
-  --zone-boyztown: rgba(5, 150, 105, 0.85);      /* Emerald-600 */
-  --zone-lkmetro: rgba(146, 64, 14, 0.85);       /* Amber-800 */
-  --zone-jomtiencomplex: rgba(180, 83, 9, 0.85); /* Amber-700 */
-  --zone-soi78: rgba(234, 88, 12, 0.85);         /* Orange-600 */
-  --zone-treetown: rgba(51, 65, 85, 0.85);       /* Slate-700 */
-  --zone-soibuakhao: rgba(244, 114, 182, 0.85);  /* Pink-400 */
+  /* Zone Colors - Light Mode */
+  --zone-soi6: rgba(192, 38, 211, 0.8);
+  --zone-beachroad: rgba(8, 145, 178, 0.8);
+  --zone-walkingstreet: rgba(219, 39, 119, 0.8);
+  --zone-boyztown: rgba(5, 150, 105, 0.8);
+  --zone-lkmetro: rgba(124, 58, 237, 0.8);
+  --zone-jomtiencomplex: rgba(236, 72, 153, 0.8);
+  --zone-soi78: rgba(244, 63, 94, 0.8);
+  --zone-treetown: rgba(79, 70, 229, 0.8);
+  --zone-soibuakhao: rgba(232, 121, 249, 0.8);
 
-  /* Modern Hover Effects - Light Mode Clean */
-  --hover-glass-bg: rgba(15, 23, 42, 0.03);           /* Slate très subtil */
-  --hover-glass-bg-strong: rgba(15, 23, 42, 0.06);    /* Slate subtil hover */
-  --hover-glass-border: rgba(180, 83, 9, 0.2);        /* Amber border */
-  --hover-glass-border-strong: rgba(180, 83, 9, 0.35); /* Amber border hover */
-  --hover-glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.1); /* Slate shadow */
-  --hover-glow: 0 0 20px rgba(180, 83, 9, 0.12);      /* Amber glow effect */
-  --hover-glow-strong: 0 0 30px rgba(180, 83, 9, 0.2); /* Amber glow hover */
+  /* Modern Hover Effects - Light Mode */
+  --hover-glass-bg: rgba(192, 38, 211, 0.04);
+  --hover-glass-bg-strong: rgba(192, 38, 211, 0.08);
+  --hover-glass-border: rgba(192, 38, 211, 0.2);
+  --hover-glass-border-strong: rgba(192, 38, 211, 0.35);
+  --hover-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --hover-glow: 0 0 20px rgba(192, 38, 211, 0.15);
+  --hover-glow-strong: 0 0 30px rgba(192, 38, 211, 0.25);
 
-  /* Focus ring - Light Mode (Amber) */
-  --focus-ring: 0 0 0 3px rgba(180, 83, 9, 0.25);
+  /* Focus ring - Light Mode */
+  --focus-ring: 0 0 0 3px rgba(192, 38, 211, 0.3);
   --focus-ring-offset: 2px;
 
-  /* Accent Colors - Light Mode Adaptations */
-  --color-gold: #D97706;              /* Amber-600 - Gold adapté light */
-  --color-cyan: #0891B2;              /* Cyan-600 - Cyan adapté light */
+  /* Accent Colors - Light Mode */
+  --color-gold: #D97706;
+  --color-cyan: #0891B2;
 
-  /* Legacy color-text aliases (for form-unified.css compatibility) */
+  /* Legacy color-text aliases */
   --color-text: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
@@ -503,25 +515,28 @@ body, p, span, div, li, a, button, label, input, select, textarea {
    ============================================ */
 
 :root {
-  /* Box shadows - Adoucies pour Dual Tone */
-  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.15);  /* Plus subtil (vs 0.3) */
-  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.2);  /* Moins prononcé (vs 0.4) */
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.25); /* Plus léger (vs 0.5) */
-  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.3); /* Moins agressif (vs 0.6) */
+  /* Box shadows - Neo-Nightlife */
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.4);
 
-  /* Glow effects - Luxe Sophistiqué */
-  --shadow-glow-primary: 0 0 15px rgba(193, 154, 107, 0.4);    /* Or rose doré */
-  --shadow-glow-secondary: 0 0 15px rgba(51, 65, 85, 0.3);     /* Slate-700 */
-  --shadow-glow-success: 0 0 15px rgba(16, 185, 129, 0.3);    /* Émeraude */
-  --shadow-glow-error: 0 0 15px rgba(239, 68, 68, 0.3);       /* Rouge moderne */
+  /* Glow effects - Neon Nightlife */
+  --shadow-glow-primary: 0 0 20px rgba(232, 121, 249, 0.4);    /* Pink glow */
+  --shadow-glow-secondary: 0 0 20px rgba(0, 229, 255, 0.3);    /* Cyan glow */
+  --shadow-glow-success: 0 0 20px rgba(16, 185, 129, 0.3);     /* Emerald glow */
+  --shadow-glow-error: 0 0 20px rgba(248, 113, 113, 0.3);      /* Red glow */
+  --shadow-glow-gold: 0 0 20px rgba(255, 215, 0, 0.4);         /* Gold glow (VIP) */
+  --shadow-glow-neon: 0 0 30px rgba(255, 16, 240, 0.5);        /* Neon pink glow */
 
-  /* Gradients - Luxe Sophistiqué 2025 (Or Rose + Fuchsia + Slate) */
-  --gradient-primary: linear-gradient(45deg, #C19A6B, #E879F9);                /* Or rose → Fuchsia */
-  --gradient-secondary: linear-gradient(45deg, #334155, #1E293B);              /* Slate dégradé */
-  --gradient-main: linear-gradient(135deg, #0F172A, #1E293B, #0F172A);        /* Slate profond */
-  --gradient-overlay: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(51, 65, 85, 0.1)); /* Or + Slate */
-  --gradient-header: linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(30, 41, 59, 0.97));   /* Slate-900 → Slate-800 */
-  --gradient-card-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.4) 60%, transparent 100%); /* Card info overlay (dark bg for white text) */
+  /* Gradients - Neo-Nightlife 2025 */
+  --gradient-primary: linear-gradient(135deg, #E879F9, #00E5FF);              /* Pink → Cyan */
+  --gradient-secondary: linear-gradient(135deg, #1E1E24, #16161A);            /* Dark surfaces */
+  --gradient-main: linear-gradient(135deg, #0D0D0F, #16161A, #0D0D0F);       /* Deep dark */
+  --gradient-overlay: linear-gradient(135deg, rgba(232, 121, 249, 0.1), rgba(0, 229, 255, 0.05)); /* Pink + Cyan subtle */
+  --gradient-header: linear-gradient(135deg, rgba(13, 13, 15, 0.95), rgba(22, 22, 26, 0.95));    /* Header glassmorphism */
+  --gradient-card-overlay: linear-gradient(180deg, rgba(13, 13, 15, 0.95) 0%, rgba(13, 13, 15, 0.7) 40%, transparent 100%); /* Card overlay */
+  --gradient-neon: linear-gradient(135deg, #FF10F0, #00FFFF);                 /* Neon effect */
 
   /* Backdrop filters */
   --backdrop-blur-sm: blur(8px);
@@ -547,8 +562,8 @@ body, p, span, div, li, a, button, label, input, select, textarea {
    ============================================ */
 
 :root {
-  /* Focus ring */
-  --focus-ring: 0 0 0 3px rgba(193, 154, 107, 0.5);
+  /* Focus ring - Neo-Nightlife Pink */
+  --focus-ring: 0 0 0 3px rgba(232, 121, 249, 0.5);
   --focus-ring-offset: 2px;
 
   /* Tap targets (WCAG 2.1 Level AAA) */

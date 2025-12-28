@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Gradient principal pour light mode -->
+    <linearGradient id="neonGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C026D3"/>
+      <stop offset="50%" style="stop-color:#A21CAF"/>
+      <stop offset="100%" style="stop-color:#0891B2"/>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glowLight" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Background gradient light -->
+    <radialGradient id="bgGradientLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#FAFAFA"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradientLight)" stroke="url(#neonGradientLight)" stroke-width="3"/>
+
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="url(#neonGradientLight)" stroke-width="2" opacity="0.2"/>
+
+  <!-- Letter P - Modern geometric style -->
+  <g filter="url(#glowLight)">
+    <path d="M160 120 L160 392 L200 392 L200 280 L280 280 L280 240 L200 240 L200 160 L280 160 Q340 160 340 200 L340 200 Q340 240 280 240 L200 240 L200 280 L280 280 Q380 280 380 200 L380 200 Q380 120 280 120 Z"
+          fill="url(#neonGradientLight)"/>
+  </g>
+
+  <!-- Map pin accent -->
+  <g transform="translate(300, 300)" filter="url(#glowLight)">
+    <path d="M40 0 C62 0 80 18 80 40 C80 70 40 100 40 100 C40 100 0 70 0 40 C0 18 18 0 40 0 Z"
+          fill="url(#neonGradientLight)" opacity="0.9"/>
+    <circle cx="40" cy="40" r="15" fill="#FFFFFF"/>
+  </g>
+</svg>

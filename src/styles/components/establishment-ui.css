@@ -36,7 +36,7 @@
 
 .consumable-item-nightlife:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(193, 154, 107, 0.2);
+  border-color: rgba(232, 121, 249, 0.2);
   transform: translateX(2px);
 }
 
@@ -180,19 +180,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.08), rgba(193, 154, 107, 0.04));
-  border: 1.5px solid rgba(193, 154, 107, 0.25);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.08), rgba(232, 121, 249, 0.04));
+  border: 1.5px solid rgba(232, 121, 249, 0.25);
   border-radius: 16px;
   margin-bottom: 1.25rem;
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 10px rgba(193, 154, 107, 0.15);
+  box-shadow: 0 2px 10px rgba(232, 121, 249, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .rooms-toggle-container-nightlife:hover {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.12), rgba(193, 154, 107, 0.06));
-  border-color: rgba(193, 154, 107, 0.4);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.25);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.12), rgba(232, 121, 249, 0.06));
+  border-color: rgba(232, 121, 249, 0.4);
+  box-shadow: 0 4px 15px rgba(232, 121, 249, 0.25);
 }
 
 /* Rooms Toggle Label */
@@ -224,7 +224,7 @@
 
 .rooms-toggle-switch-nightlife:hover {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(193, 154, 107, 0.3);
+  border-color: rgba(232, 121, 249, 0.3);
 }
 
 .rooms-toggle-switch-nightlife:focus-visible {
@@ -233,10 +233,10 @@
 }
 
 .rooms-toggle-switch-nightlife.active {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.9), rgba(193, 154, 107, 0.7));
-  border-color: rgba(193, 154, 107, 0.6);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.9), rgba(232, 121, 249, 0.7));
+  border-color: rgba(232, 121, 249, 0.6);
   box-shadow:
-    0 0 20px rgba(193, 154, 107, 0.4),
+    0 0 20px rgba(232, 121, 249, 0.4),
     inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -259,15 +259,15 @@
   transform: translateX(28px);
   background: linear-gradient(135deg, #ffffff, #ffffff);
   box-shadow:
-    0 3px 12px rgba(193, 154, 107, 0.5),
+    0 3px 12px rgba(232, 121, 249, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 /* Accent Button (pour "Ajouter Rooms") */
 .btn-accent-nightlife {
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.9), rgba(193, 154, 107, 0.7));
-  border: 1.5px solid rgba(193, 154, 107, 0.5);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.9), rgba(232, 121, 249, 0.7));
+  border: 1.5px solid rgba(232, 121, 249, 0.5);
   border-radius: 12px;
   color: #ffffff;
   font-size: 0.9375rem;
@@ -276,15 +276,15 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
-    0 4px 15px rgba(193, 154, 107, 0.25),
+    0 4px 15px rgba(232, 121, 249, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-accent-nightlife:hover {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 1), rgba(193, 154, 107, 0.8));
-  border-color: rgba(193, 154, 107, 0.7);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 1), rgba(232, 121, 249, 0.8));
+  border-color: rgba(232, 121, 249, 0.7);
   box-shadow:
-    0 6px 25px rgba(193, 154, 107, 0.4),
+    0 6px 25px rgba(232, 121, 249, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
@@ -292,7 +292,7 @@
 .btn-accent-nightlife:active {
   transform: translateY(0);
   box-shadow:
-    0 3px 15px rgba(193, 154, 107, 0.3),
+    0 3px 15px rgba(232, 121, 249, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 

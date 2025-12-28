@@ -32,7 +32,7 @@
  */
 .favorite-card-nightlife {
   background: linear-gradient(135deg, rgba(10, 10, 46, 0.95), rgba(22, 33, 62, 0.95));
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-xl);
   overflow: hidden;
   transition: all var(--duration-normal) var(--ease-in-out);
@@ -46,8 +46,8 @@
 
 .favorite-card-nightlife:hover {
   transform: translateY(-4px);
-  border-color: rgba(193, 154, 107, 0.6);
-  box-shadow: 0 8px 25px rgba(193, 154, 107, 0.3);
+  border-color: rgba(232, 121, 249, 0.6);
+  box-shadow: 0 8px 25px rgba(232, 121, 249, 0.3);
 }
 
 /* ============================================
@@ -62,7 +62,7 @@
   width: 100%;
   aspect-ratio: 3 / 4; /* Portrait standard */
   overflow: hidden;
-  background: linear-gradient(45deg, rgba(193, 154, 107, 0.1), rgba(0, 255, 255, 0.1));
+  background: linear-gradient(45deg, rgba(232, 121, 249, 0.1), rgba(0, 255, 255, 0.1));
   cursor: pointer;
 }
 
@@ -86,7 +86,7 @@
   justify-content: center;
   font-size: 4rem;
   color: rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.2), rgba(0, 255, 255, 0.2));
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(0, 255, 255, 0.2));
 }
 
 /* Badge favori (étoile) - Cliquable pour retirer des favoris */
@@ -188,7 +188,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   margin: 0;
-  text-shadow: 0 2px 4px rgba(193, 154, 107, 0.3);
+  text-shadow: 0 2px 4px rgba(232, 121, 249, 0.3);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -246,8 +246,8 @@
 
 /* Establishment card */
 .favorite-establishment-card-nightlife {
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.15), rgba(0, 0, 0, 0.4));
-  border: 2px solid rgba(193, 154, 107, 0.4);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.15), rgba(0, 0, 0, 0.4));
+  border: 2px solid rgba(232, 121, 249, 0.4);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-3);
   cursor: pointer;
@@ -256,10 +256,10 @@
 }
 
 .favorite-establishment-card-nightlife:hover {
-  border-color: rgba(193, 154, 107, 0.7);
-  background: linear-gradient(135deg, rgba(193, 154, 107, 0.25), rgba(0, 0, 0, 0.5));
+  border-color: rgba(232, 121, 249, 0.7);
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(0, 0, 0, 0.5));
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(193, 154, 107, 0.2);
+  box-shadow: 0 4px 15px rgba(232, 121, 249, 0.2);
 }
 
 .favorite-establishment-label-nightlife {

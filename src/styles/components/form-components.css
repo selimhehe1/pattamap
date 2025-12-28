@@ -31,7 +31,7 @@
 
 /* Form Section avec bordure et background gradient */
 .form-section-nightlife {
-  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(193, 154, 107,0.3) */
+  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(232, 121, 249,0.3) */
   border-radius: var(--border-radius-sm);
   padding: var(--spacing-5); /* --spacing-lg */
   margin-bottom: var(--spacing-4); /* --spacing-md */
@@ -41,8 +41,8 @@
 
 /* Form Section Hover - Border plus visible */
 .form-section-nightlife:hover {
-  border-color: var(--color-primary-50); /* rgba(193, 154, 107,0.5) */
-  box-shadow: 0 var(--spacing-1) var(--spacing-3) var(--color-primary-20); /* 0 4px 15px rgba(193, 154, 107,0.2) */
+  border-color: var(--color-primary-50); /* rgba(232, 121, 249,0.5) */
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) var(--color-primary-20); /* 0 4px 15px rgba(232, 121, 249,0.2) */
 }
 
 /* ===== FORM SECTION HEADERS ===== */
@@ -112,7 +112,7 @@
   position: relative;
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(193, 154, 107,0.3) */
+  border: var(--border-width-normal) solid var(--color-primary-30); /* 2px, rgba(232, 121, 249,0.3) */
 }
 
 /* Photo Preview Image - Object-fit cover */

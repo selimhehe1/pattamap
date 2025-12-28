@@ -81,7 +81,7 @@
   width: 60px;
   height: 24px;
   border-radius: 12px;
-  background: rgba(193, 154, 107, 0.15);
+  background: rgba(232, 121, 249, 0.15);
 }
 
 /* Skeleton Grid */
@@ -141,7 +141,7 @@
   width: 100%;
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -176,8 +176,8 @@
 /* Clear Filters Button */
 .freelances-clear-btn {
   padding: 12px 20px;
-  background: rgba(193, 154, 107, 0.08);
-  border: 2px solid rgba(193, 154, 107, 0.3);
+  background: rgba(232, 121, 249, 0.08);
+  border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: 8px;
   color: var(--color-primary);
   font-weight: var(--font-weight-bold);
@@ -187,7 +187,7 @@
 }
 
 .freelances-clear-btn:hover {
-  background: rgba(193, 154, 107, 0.15);
+  background: rgba(232, 121, 249, 0.15);
 }
 
 /* Pagination */
