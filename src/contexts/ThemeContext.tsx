@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { logger } from '../utils/logger';
 
 /**
  * Theme Context - Dark/Light Mode Management
@@ -80,7 +81,7 @@ const getSavedTheme = (): Theme | null => {
       return saved;
     }
   } catch (error) {
-    console.warn('Failed to read theme from localStorage:', error);
+    logger.warn('Failed to read theme from localStorage', { context: { error, source: 'ThemeContext' } });
   }
 
   return null;
@@ -95,7 +96,7 @@ const saveTheme = (theme: Theme): void => {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch (error) {
-    console.warn('Failed to save theme to localStorage:', error);
+    logger.warn('Failed to save theme to localStorage', { context: { error, source: 'ThemeContext' } });
   }
 };
 

@@ -24,6 +24,7 @@ import {
   UNSAFE_NavigationContext,
 } from 'react-router-dom';
 import { useViewTransition } from './useViewTransition';
+import { logger } from '../utils/logger';
 
 export interface UseNavigateWithTransitionReturn {
   /** Navigate to a path with View Transitions */
@@ -83,7 +84,7 @@ export const useNavigateWithTransition = (): UseNavigateWithTransitionReturn => 
   const navigate = useMemo(() => {
     if (!hasRouterContext || !navigator) {
       // Fallback to window.location when outside router
-      console.warn('[useNavigateWithTransition] Router context unavailable, using fallback navigation');
+      logger.warn('Router context unavailable, using fallback navigation', { context: { hook: 'useNavigateWithTransition' } });
       return createFallbackNavigate();
     }
 

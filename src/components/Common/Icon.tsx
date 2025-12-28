@@ -11,6 +11,7 @@
 
 import { LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 // Standard icon sizes matching design system --icon-* variables
 const sizeMap = {
@@ -57,7 +58,7 @@ export const Icon = ({
   const LucideIcon = LucideIcons[name] as LucideIcon;
 
   if (!LucideIcon) {
-    console.warn(`[Icon] Unknown icon name: ${name}`);
+    logger.warn(`Unknown icon name: ${name}`, { context: { component: 'Icon' } });
     return null;
   }
 

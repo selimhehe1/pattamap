@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { logger } from '../../../../utils/logger';
 
 /**
  * useMapEditMode - Shared hook for map edit mode management
@@ -44,7 +45,7 @@ export const useMapEditMode = (): UseMapEditModeReturn => {
   // Toggle edit mode (only if authorized)
   const toggleEditMode = useCallback(() => {
     if (!canEdit) {
-      console.warn('[useMapEditMode] User not authorized to toggle edit mode');
+      logger.warn('User not authorized to toggle edit mode', { context: { hook: 'useMapEditMode' } });
       return;
     }
     setIsEditMode(prev => !prev);
@@ -53,7 +54,7 @@ export const useMapEditMode = (): UseMapEditModeReturn => {
   // Set edit mode directly (only if authorized)
   const setEditMode = useCallback((value: boolean) => {
     if (!canEdit && value) {
-      console.warn('[useMapEditMode] User not authorized to enable edit mode');
+      logger.warn('User not authorized to enable edit mode', { context: { hook: 'useMapEditMode' } });
       return;
     }
     setIsEditMode(value);

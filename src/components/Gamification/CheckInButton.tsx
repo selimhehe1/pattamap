@@ -5,6 +5,7 @@ import { useGamification } from '../../contexts/GamificationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOnline } from '../../hooks/useOnline';
 import { addToQueue, isOfflineQueueSupported } from '../../utils/offlineQueue';
+import { logger } from '../../utils/logger';
 import '../../styles/features/gamification/CheckInButton.css';
 
 interface CheckInButtonProps {
@@ -91,7 +92,7 @@ const CheckInButton: React.FC<CheckInButtonProps> = ({
               setLoading(false);
               return;
             } catch (queueError) {
-              console.error('[CheckIn] Failed to queue offline:', queueError);
+              logger.error('Failed to queue offline check-in', queueError as Error, { context: { component: 'CheckInButton' } });
               // Continue to try online request as fallback
             }
           }
