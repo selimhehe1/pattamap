@@ -4,9 +4,8 @@
  */
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil, Users, Star, MapPin, Clock, Sparkles } from 'lucide-react';
+import { Pencil, Users, Star, MapPin, Clock } from 'lucide-react';
 import { Establishment } from '../../../types';
-import LazyImage from '../../Common/LazyImage';
 import { getZoneLabel } from '../../../utils/constants';
 
 interface BarDetailHeaderProps {
@@ -89,26 +88,8 @@ export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
         </button>
       )}
 
-      {/* Hero Content */}
+      {/* Hero Content - Netflix Style */}
       <div className="hero-content">
-        {/* Logo with Glow */}
-        <div className="hero-logo-container">
-          {bar.logo_url ? (
-            <LazyImage
-              src={bar.logo_url}
-              alt={`${bar.name} logo`}
-              cloudinaryPreset="establishmentLogo"
-              className="hero-logo"
-              objectFit="cover"
-            />
-          ) : (
-            <div className="hero-logo-placeholder">
-              <Sparkles size={32} />
-            </div>
-          )}
-          <div className="hero-logo-glow" />
-        </div>
-
         {/* Info Section */}
         <div className="hero-info">
           {/* Category Badge */}

@@ -309,11 +309,19 @@
   flex-direction: column;
 }
 
-/* Background Layer */
+/* Background Layer - IMPROVED with fallback gradient */
 .hero-bg-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
+  /* Fallback gradient when no logo */
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.3) 0%,
+    rgba(139, 92, 246, 0.2) 30%,
+    rgba(0, 229, 255, 0.15) 70%,
+    rgba(13, 13, 15, 0.95) 100%
+  );
 }
 
 .hero-bg-image {
@@ -322,30 +330,39 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: blur(30px) brightness(0.4);
-  transform: scale(1.1);
+  /* Blur moins intense pour être plus visible */
+  filter: blur(25px) brightness(0.5) saturate(1.2);
+  transform: scale(1.15);
 }
 
 .hero-bg-overlay {
   position: absolute;
   inset: 0;
+  /* Overlay plus subtil pour voir le blur */
   background: linear-gradient(
     180deg,
-    rgba(13, 13, 15, 0.3) 0%,
-    rgba(13, 13, 15, 0.6) 40%,
-    rgba(13, 13, 15, 0.9) 80%,
-    rgba(13, 13, 15, 0.98) 100%
+    rgba(13, 13, 15, 0.2) 0%,
+    rgba(13, 13, 15, 0.4) 40%,
+    rgba(13, 13, 15, 0.75) 80%,
+    rgba(13, 13, 15, 0.95) 100%
   );
 }
 
 .hero-bg-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at 30% 20%,
-    rgba(232, 121, 249, 0.15) 0%,
-    transparent 50%
-  );
+  /* Glow double plus visible */
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 20% 20%,
+      rgba(232, 121, 249, 0.25) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 80%,
+      rgba(0, 229, 255, 0.15) 0%,
+      transparent 50%
+    );
   pointer-events: none;
 }
 
@@ -381,75 +398,24 @@
   outline-offset: 2px;
 }
 
-/* Hero Content */
+/* Hero Content - Netflix Style */
 .hero-content {
   position: relative;
   z-index: 2;
   flex: 1;
   display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 2.5rem;
-  padding-bottom: 1.5rem;
+  align-items: flex-end; /* Aligner en bas comme Netflix */
+  padding: 3rem 2.5rem;
+  padding-top: 4rem; /* Plus d'espace en haut */
 }
 
-/* Logo Container */
-.hero-logo-container {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.hero-logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 2px solid rgba(232, 121, 249, 0.5);
-  box-shadow:
-    0 6px 24px rgba(232, 121, 249, 0.3),
-    0 3px 12px rgba(0, 0, 0, 0.5);
-  transition: all 0.4s ease;
-}
-
-.hero-logo:hover {
-  transform: scale(1.08);
-  box-shadow:
-    0 8px 32px rgba(232, 121, 249, 0.5),
-    0 4px 16px rgba(0, 0, 0, 0.6);
-}
-
-.hero-logo-placeholder {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(0, 229, 255, 0.1));
-  border: 3px solid rgba(232, 121, 249, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(232, 121, 249, 0.6);
-}
-
-.hero-logo-glow {
-  position: absolute;
-  inset: -4px;
-  border-radius: 16px;
-  background: radial-gradient(
-    circle,
-    rgba(232, 121, 249, 0.3) 0%,
-    transparent 70%
-  );
-  z-index: -1;
-  animation: logoPulse 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Hero Info */
+/* Hero Info - Netflix Style (prend toute la largeur) */
 .hero-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  max-width: 600px; /* Limiter la largeur du texte */
 }
 
 /* Category Badge */
@@ -515,18 +481,6 @@
   max-width: 500px;
 }
 
-/* Logo Pulse Animation */
-@keyframes logoPulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
 /* Stats Bar */
 .hero-stats-bar {
   position: relative;
@@ -590,13 +544,6 @@
     gap: 1.5rem;
   }
 
-  .hero-logo,
-  .hero-logo-placeholder {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-  }
-
   .hero-title {
     font-size: 2rem;
   }
@@ -637,14 +584,6 @@
 
   .hero-content {
     padding: 1.5rem 1rem;
-    gap: 1rem;
-  }
-
-  .hero-logo,
-  .hero-logo-placeholder {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
   }
 
   .hero-title {
@@ -690,13 +629,6 @@
 
   .hero-content {
     padding: 1rem 1.5rem;
-    gap: 1rem;
-  }
-
-  .hero-logo,
-  .hero-logo-placeholder {
-    width: 45px;
-    height: 45px;
   }
 
   .hero-title {
@@ -762,15 +694,6 @@ body[data-theme="light"] .hero-stat .stat-label {
 @media (prefers-reduced-motion: reduce) {
   .hero-title {
     animation: none;
-  }
-
-  .hero-logo-glow {
-    animation: none;
-    opacity: 0.6;
-  }
-
-  .hero-logo:hover {
-    transform: none;
   }
 }
 
