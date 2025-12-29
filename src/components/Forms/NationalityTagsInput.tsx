@@ -320,7 +320,7 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
                 top: `${dropdownPosition.top}px`,
                 left: `${dropdownPosition.left}px`,
                 width: `${dropdownPosition.width}px`,
-                zIndex: 10000
+                zIndex: 100002
               }}
             >
               {filteredSuggestions.map((country, index) => (
@@ -346,7 +346,7 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
                 top: `${dropdownPosition.top}px`,
                 left: `${dropdownPosition.left}px`,
                 width: `${dropdownPosition.width}px`,
-                zIndex: 10000
+                zIndex: 100002
               }}
             >
               <div className="nationality-suggestion-item nationality-suggestion-item-disabled">

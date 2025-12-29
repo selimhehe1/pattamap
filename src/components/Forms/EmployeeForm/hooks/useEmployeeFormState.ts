@@ -109,20 +109,34 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   // Photo handlers
   const addNewPhotos = useCallback((files: File[]) => {
     // Validate files
+    let validationError: string | undefined;
     const validFiles = files.filter(file => {
       if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({ ...prev, photos: t('employee.errorPhotosType') }));
+        validationError = t('employee.errorPhotosType');
+        logger.warn(`Invalid file type: ${file.type} - ${file.name}`);
         return false;
       }
       if (file.size > 10 * 1024 * 1024) { // 10MB
-        setErrors(prev => ({ ...prev, photos: t('employee.errorPhotosSize') }));
+        validationError = t('employee.errorPhotosSize');
+        logger.warn(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB - ${file.name}`);
         return false;
       }
       return true;
     });
 
-    setNewPhotos(prev => [...prev, ...validFiles]);
-    setErrors(prev => ({ ...prev, photos: undefined }));
+    // Add valid files
+    if (validFiles.length > 0) {
+      setNewPhotos(prev => [...prev, ...validFiles]);
+      logger.debug(`Added ${validFiles.length} valid photos`);
+    }
+
+    // Set or clear error based on validation result
+    if (validationError) {
+      setErrors(prev => ({ ...prev, photos: validationError }));
+    } else if (validFiles.length > 0) {
+      // Only clear error if we successfully added files without errors
+      setErrors(prev => ({ ...prev, photos: undefined }));
+    }
   }, [t]);
 
   const removeNewPhoto = useCallback((index: number) => {
