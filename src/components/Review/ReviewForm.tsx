@@ -195,6 +195,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             disabled={isLoading}
             style={{
               width: '100%',
+              boxSizing: 'border-box',
               minHeight: '100px',
               padding: '12px',
               borderRadius: '8px',
