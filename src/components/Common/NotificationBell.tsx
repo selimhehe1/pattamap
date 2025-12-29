@@ -140,7 +140,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('type');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right?: number; left?: number }>({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const notificationItemsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -360,30 +360,35 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
       const dropdownHeight = 500; // max-height from CSS
 
       let topPos = rect.bottom + 10;
-      let rightPos: number;
 
-      // Pour la variante menu-item, positionner à gauche du menu
+      // Pour la variante menu-item, utiliser LEFT positioning (plus fiable)
       if (variant === 'menu-item') {
-        // Le menu est à droite de l'écran, donc on positionne le dropdown
-        // près du bord gauche du viewport pour qu'il soit visible
-        rightPos = viewportWidth - dropdownWidth - 10;
+        // Positionner le dropdown à gauche de l'écran (10px du bord)
+        const leftPos = 10;
 
         // Si pas assez de place en bas, afficher au-dessus
         if (topPos + dropdownHeight > viewportHeight) {
           topPos = Math.max(10, rect.top - dropdownHeight - 10);
         }
+
+        setDropdownPosition({
+          top: topPos,
+          left: leftPos,
+          right: undefined
+        });
       } else {
-        // Variante default - comportement existant
-        rightPos = viewportWidth - rect.right;
+        // Variante default - comportement existant avec RIGHT positioning
+        let rightPos = viewportWidth - rect.right;
         if (rect.right - dropdownWidth < 0) {
           rightPos = viewportWidth - dropdownWidth - 10;
         }
-      }
 
-      setDropdownPosition({
-        top: topPos,
-        right: Math.max(10, rightPos)
-      });
+        setDropdownPosition({
+          top: topPos,
+          right: Math.max(10, rightPos),
+          left: undefined
+        });
+      }
     }
   }, [showDropdown, variant]);
 
@@ -777,7 +782,9 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
           className="notification-dropdown"
           style={{
             top: `${dropdownPosition.top}px`,
-            right: `${dropdownPosition.right}px`
+            ...(dropdownPosition.left !== undefined
+              ? { left: `${dropdownPosition.left}px` }
+              : { right: `${dropdownPosition.right}px` })
           }}
         >
           {/* Header */}
