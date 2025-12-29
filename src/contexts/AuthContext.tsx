@@ -224,6 +224,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
       }
 
+      // 🔧 CSRF FIX: Update CSRF token from login response (same as register)
+      // Backend regenerates session after login, so we need the fresh token
+      if (data.csrfToken) {
+        logger.debug('✅ CSRF token received from login response', {
+          hasFreshToken: true,
+          freshTokenPreview: `${data.csrfToken.substring(0, 8)}...`
+        });
+        // Refresh the CSRF context with the new token
+        await refreshCSRFToken();
+      } else {
+        logger.warn('⚠️ No CSRF token in login response, refreshing manually');
+        await refreshCSRFToken();
+      }
+
       // 🆕 v10.0 - Linked employee profile is now fetched automatically via useEffect
       // when user state changes (see useEffect at bottom of component)
     } catch (error) {
