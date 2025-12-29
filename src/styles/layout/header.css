@@ -61,21 +61,22 @@
   gap: 0.75rem; /* 12px */
 }
 
+/* 🆕 Header Redesign - Compact Back Button */
 .header-back-btn {
   /* Reset */
-  background: none;
+  background: rgba(232, 121, 249, 0.1);
   border: 1px solid rgba(232, 121, 249, 0.3);
   border-radius: 8px;
-  padding: 0.5rem 0.75rem; /* 8px 12px */
+  padding: 0.375rem; /* 6px - more compact */
 
   /* Style */
   color: rgba(232, 121, 249, 0.9);
   cursor: pointer;
   transition: all 0.2s ease;
 
-  /* Touch target */
-  min-width: 44px;
-  min-height: 44px;
+  /* Compact touch target - still accessible */
+  min-width: 36px;
+  min-height: 36px;
 
   display: flex;
   align-items: center;
@@ -83,14 +84,13 @@
 }
 
 .header-back-btn:hover {
-  background: rgba(232, 121, 249, 0.1);
+  background: rgba(232, 121, 249, 0.2);
   border-color: rgba(232, 121, 249, 0.5);
   transform: translateX(-2px);
 }
 
-.header-back-icon {
-  font-size: 1.25rem; /* 20px */
-  line-height: 1;
+.header-back-btn:active {
+  transform: translateX(-2px) scale(0.95);
 }
 
 .header-branding {
@@ -307,6 +307,43 @@
 .header-menu-icon {
   font-size: 1.25rem; /* 20px */
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   🆕 MENU WRAPPER & NOTIFICATION DOT
+   ============================================ */
+
+.header-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.header-notification-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: #EF4444;
+  border-radius: 50%;
+  border: 2px solid rgba(13, 13, 15, 0.98);
+  pointer-events: none;
+  z-index: 1;
+  animation: notificationPulse 2s ease-in-out infinite;
+}
+
+@keyframes notificationPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+  }
 }
 
 /* ============================================
@@ -520,6 +557,71 @@
   letter-spacing: 0.1em;
   margin-bottom: 0.625rem; /* 10px */
   padding-left: 0.75rem; /* 12px */
+}
+
+/* ============================================
+   🆕 MY PROGRESS SECTION - Header Redesign
+   ============================================ */
+
+.menu-section-progress {
+  background: rgba(255, 215, 0, 0.03);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+}
+
+.menu-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+}
+
+.menu-xp-badge {
+  /* Reset */
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(232, 121, 249, 0.08));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  font: inherit;
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 12px;
+
+  /* Style */
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex: 1;
+}
+
+.menu-xp-badge:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(232, 121, 249, 0.12));
+  border-color: rgba(255, 215, 0, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+}
+
+.menu-xp-badge:active {
+  transform: scale(0.98);
+}
+
+.menu-xp-icon {
+  color: rgba(255, 215, 0, 0.9);
+  flex-shrink: 0;
+}
+
+.menu-xp-level {
+  color: rgba(255, 215, 0, 0.95);
+  font-weight: var(--font-weight-bold);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.menu-xp-amount {
+  color: rgba(255, 215, 0, 0.7);
+  font-size: 0.75rem;
+  margin-left: auto;
 }
 
 /* ============================================
@@ -890,6 +992,39 @@ body[data-theme="light"] .header-menu-btn:hover {
   background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(180, 83, 9, 0.1));
   border-color: #B45309;
   box-shadow: 0 4px 12px rgba(180, 83, 9, 0.25);
+}
+
+/* 🆕 Light mode - Notification dot */
+body[data-theme="light"] .header-notification-dot {
+  border-color: rgba(255, 255, 255, 0.98);
+}
+
+/* 🆕 Light mode - Progress section */
+body[data-theme="light"] .menu-section-progress {
+  background: rgba(180, 83, 9, 0.03);
+  border-bottom-color: rgba(180, 83, 9, 0.15);
+}
+
+body[data-theme="light"] .menu-xp-badge {
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.08), rgba(180, 83, 9, 0.04));
+  border-color: rgba(180, 83, 9, 0.25);
+}
+
+body[data-theme="light"] .menu-xp-badge:hover {
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.15), rgba(180, 83, 9, 0.08));
+  border-color: rgba(180, 83, 9, 0.4);
+}
+
+body[data-theme="light"] .menu-xp-icon {
+  color: #B45309;
+}
+
+body[data-theme="light"] .menu-xp-level {
+  color: #92400E;
+}
+
+body[data-theme="light"] .menu-xp-amount {
+  color: rgba(146, 64, 14, 0.7);
 }
 
 body[data-theme="light"] .header-map-controls {

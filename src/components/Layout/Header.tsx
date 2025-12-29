@@ -19,7 +19,10 @@ import {
   MapPin, // 🆕 v10.3 - Visit History icon
   List,
   Map,
-  Users
+  Users,
+  ChevronLeft, // 🆕 Header redesign - Back button icon
+  Menu, // 🆕 Header redesign - Menu icon
+  X // 🆕 Header redesign - Close icon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGamification } from '../../contexts/GamificationContext';
@@ -41,6 +44,7 @@ import AnimatedButton from '../Common/AnimatedButton';
 import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
+import { useUnreadNotificationCount } from '../../hooks/useUnreadNotificationCount'; // 🆕 Header redesign - Notification dot
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
 import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
@@ -77,6 +81,9 @@ const Header: React.FC = () => {
 
   // Phase 3: Detect mobile for hamburger menu
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // 🆕 Header redesign: Get notification count for dot indicator
+  const { hasUnread } = useUnreadNotificationCount();
 
   // Memoized navigation handlers to prevent unnecessary re-renders
   const handleNavigate = useCallback((path: string) => {
@@ -151,7 +158,7 @@ const Header: React.FC = () => {
               className="header-back-btn"
               data-testid="back-button"
             >
-              <span className="header-back-icon">←</span>
+              <ChevronLeft size={18} strokeWidth={2.5} />
             </AnimatedButton>
           )}
 
@@ -203,39 +210,30 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Notification Bell - visible seulement pour utilisateurs connectés */}
-          {user && <NotificationBell />}
-
           {/* Sync Indicator - shows pending offline actions */}
           <SyncIndicator compact />
 
-          {/* XP Badge - Compact level indicator */}
-          {user && userProgress && (
-            <button
-              className="header-xp-badge"
-              title={`Level ${userProgress.current_level} - ${userProgress.total_xp.toLocaleString()} XP\nClick to view achievements`}
-              onClick={() => navigate('/achievements')}
-              aria-label={`Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP`}
-              data-testid="xp"
+          {/* Menu Button with Notification Dot */}
+          <div className="header-menu-wrapper">
+            <AnimatedButton
+              ref={menuButtonRef}
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              ariaLabel={user ? `User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu${hasUnread ? '. You have unread notifications' : ''}` : showUserMenu ? 'Close menu' : 'Open menu'}
+              tabIndex={0}
+              enableHaptic
+              hapticLevel="light"
+              className="header-menu-btn"
+              data-testid="mobile-menu"
             >
-              <Trophy size={14} className="header-xp-icon" />
-              <span className="header-xp-level">{userProgress.current_level}</span>
-            </button>
-          )}
-
-          {/* Menu Button/Avatar */}
-          <AnimatedButton
-            ref={menuButtonRef}
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            ariaLabel={user ? `User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu` : showUserMenu ? 'Close menu' : 'Open menu'}
-            tabIndex={0}
-            enableHaptic
-            hapticLevel="light"
-            className="header-menu-btn"
-            data-testid="mobile-menu"
-          >
-            <span className="header-menu-icon">{showUserMenu ? '✕' : '☰'}</span>
-          </AnimatedButton>
+              <span className="header-menu-icon">
+                {showUserMenu ? <X size={20} /> : <Menu size={20} />}
+              </span>
+            </AnimatedButton>
+            {/* Notification dot - shows when user has unread notifications */}
+            {user && hasUnread && (
+              <span className="header-notification-dot" aria-hidden="true" />
+            )}
+          </div>
 
           {/* Desktop Dropdown - Hidden on mobile (MobileMenu used instead) */}
           <div style={{ position: 'relative' }} ref={userMenuRef}>
@@ -276,6 +274,25 @@ const Header: React.FC = () => {
                           </span>
                         </div>
                       </div>
+
+                      {/* Progress Section - Moved from header for cleaner design */}
+                      {userProgress && (
+                        <div className="menu-section menu-section-progress">
+                          <div className="menu-section-label">{t('header.myProgress', 'MY PROGRESS')}</div>
+                          <div className="menu-progress-row">
+                            <button
+                              className="menu-xp-badge"
+                              onClick={() => handleNavigate('/achievements')}
+                              aria-label={`Level ${userProgress.current_level}, ${userProgress.total_xp.toLocaleString()} XP. Click to view achievements`}
+                            >
+                              <Trophy size={16} className="menu-xp-icon" />
+                              <span className="menu-xp-level">Level {userProgress.current_level}</span>
+                              <span className="menu-xp-amount">{userProgress.total_xp.toLocaleString()} XP</span>
+                            </button>
+                            <NotificationBell />
+                          </div>
+                        </div>
+                      )}
 
                       {/* Navigation Section */}
                       <div className="menu-section">
