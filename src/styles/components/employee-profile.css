@@ -120,7 +120,7 @@
 .profile-v2 {
   display: grid;
   grid-template-columns: var(--profile-v2-hero-width) var(--profile-v2-content-width);
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   width: 100%;
   max-width: 100vw;
   height: 100%;
@@ -245,6 +245,7 @@
   grid-column: 1;
   overflow: hidden;
   background: #0D0D0F;
+  min-height: 0; /* Fix grid overflow */
 }
 
 .profile-v2-hero-image {
@@ -424,6 +425,27 @@
   flex-direction: column;
   gap: var(--profile-v2-section-gap);
   scroll-behavior: smooth;
+  min-height: 0; /* Fix grid overflow */
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 121, 249, 0.3) transparent;
+}
+
+.profile-v2-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-v2-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-v2-content::-webkit-scrollbar-thumb {
+  background: rgba(232, 121, 249, 0.3);
+  border-radius: 3px;
+}
+
+.profile-v2-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 121, 249, 0.5);
 }
 
 /* Editorial Name Section */
@@ -961,9 +983,8 @@
    ======================================== */
 
 .profile-v2-photo {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   cursor: pointer;
   overflow: hidden;
 }
@@ -971,9 +992,6 @@
 .profile-v2-photo-wrapper {
   width: 100%;
   height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .profile-v2-photo-img {
@@ -981,6 +999,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center top;
+  display: block;
 }
 
 .profile-v2-photo-placeholder {

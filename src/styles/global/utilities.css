@@ -216,8 +216,23 @@
   outline: none;
   transition: all var(--transition-duration-normal) ease;
   resize: vertical;
-  min-height: 6.25rem;
+  min-height: 5rem;
   font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* Form Grid 2 Columns */
+.form-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (max-width: 600px) {
+  .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
 }
 
 .textarea-nightlife:focus {
