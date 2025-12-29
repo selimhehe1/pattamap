@@ -78,7 +78,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
           onClick={handleOverlayClick}
         >
           <motion.div
-            className="modal-premium modal-premium--large"
+            className="modal-premium modal-premium--medium"
             variants={premiumModalVariants}
             initial="hidden"
             animate="visible"

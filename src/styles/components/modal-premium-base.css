@@ -54,17 +54,17 @@
 /* Size variants */
 .modal-premium--small {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
 }
 
 .modal-premium--medium {
   width: 100%;
-  max-width: 600px;
+  max-width: 540px;
 }
 
 .modal-premium--large {
   width: 100%;
-  max-width: 900px;
+  max-width: 720px;
 }
 
 .modal-premium--fullscreen {
@@ -797,6 +797,22 @@
    16. RESPONSIVE
    ============================================ */
 
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .modal-premium--large {
+    max-width: 90%;
+  }
+
+  .modal-premium--medium {
+    max-width: 95%;
+  }
+
+  .modal-premium__grid--2cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile breakpoint */
 @media (max-width: 640px) {
   .modal-premium-overlay {
     padding: 0;
