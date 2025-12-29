@@ -59,7 +59,7 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
           onClick={handleOverlayClick}
         >
           <motion.div
-            className="modal-premium modal-premium--medium"
+            className="modal-premium modal-premium--small"
             variants={premiumModalVariants}
             initial="hidden"
             animate="visible"
