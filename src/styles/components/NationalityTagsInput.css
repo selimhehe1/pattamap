@@ -126,8 +126,8 @@
 
 /* Input Field */
 .nationality-tags-input-field {
-  flex: 1;
-  min-width: 120px;
+  flex: 1 1 auto;
+  min-width: 60px;
   max-width: 100%;
   border: none;
   background: transparent;
@@ -135,6 +135,7 @@
   font-size: 15px;
   outline: none;
   padding: 6px 0;
+  padding-right: 24px; /* Space for dropdown arrow */
   height: 28px;
 }
 
@@ -280,7 +281,7 @@
   }
 
   .nationality-tags-input-field {
-    min-width: 100px;
+    min-width: 50px;
     font-size: 16px;
   }
 
@@ -307,7 +308,7 @@
   }
 
   .nationality-tags-input-field {
-    min-width: 80px;
+    min-width: 40px;
     font-size: 15px;
   }
 

@@ -130,24 +130,28 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
 
   // Calculate dropdown position when showing suggestions
   // Prefer showing ABOVE to avoid overlapping form content below
+  // Recalculate when filtered results change (user types)
   useEffect(() => {
     if (showSuggestions && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const dropdownHeight = 200; // max-height from CSS
+      // Calculate actual dropdown height based on number of items (each ~41px) + padding
+      const itemHeight = 41;
+      const maxItems = Math.min(filteredSuggestions.length, 5);
+      const actualDropdownHeight = Math.min(maxItems * itemHeight + 8, 200);
       const spaceAbove = rect.top;
 
       // Prefer showing above unless not enough space above
-      const showAbove = spaceAbove >= dropdownHeight;
+      const showAbove = spaceAbove >= actualDropdownHeight;
 
       setDropdownPosition({
         top: showAbove
-          ? rect.top + window.scrollY - dropdownHeight - 4  // Above the input
+          ? rect.top + window.scrollY - actualDropdownHeight - 4  // Above the input
           : rect.bottom + window.scrollY + 4,               // Below the input (fallback)
         left: rect.left + window.scrollX,
         width: rect.width
       });
     }
-  }, [showSuggestions]);
+  }, [showSuggestions, filteredSuggestions.length]);
 
   // Handle adding a nationality
   const handleAddNationality = (countryValue: string) => {
