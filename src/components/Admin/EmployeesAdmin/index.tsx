@@ -6,7 +6,7 @@
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, X, Loader2, Ban, CheckCircle, MailX, Users, UsersRound } from 'lucide-react';
-import { EmployeeForm, GirlProfile } from '../../../routes/lazyComponents';
+import { GirlProfile } from '../../../routes/lazyComponents';
 import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
 import LoadingFallback from '../../Common/LoadingFallback';
 import { useEmployeesAdmin } from './hooks/useEmployeesAdmin';
@@ -14,6 +14,7 @@ import { EmployeesFilterTabs } from './EmployeesFilterTabs';
 import { EmployeeCard } from './EmployeeCard';
 import { EditProposalCard } from './EditProposalCard';
 import { EmployeeDetailModal } from './EmployeeDetailModal';
+import { EditEmployeeModal } from './EditEmployeeModal';
 import { logger } from '../../../utils/logger';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/components/social-icons.css';
@@ -339,24 +340,14 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         </div>
       )}
 
-      {/* Edit Employee Form */}
+      {/* Edit Employee Modal */}
       {editingEmployee && (
-        <Suspense fallback={<LoadingFallback message="Loading employee form..." variant="modal" />}>
-          <EmployeeForm
-            initialData={{
-              ...editingEmployee,
-              current_establishment_id: (() => {
-                const fromHistory = editingEmployee.employment_history?.find(
-                  (eh) => eh.is_current
-                )?.establishment_id;
-                logger.debug('EmployeesAdmin: current_establishment_id:', fromHistory);
-                return fromHistory || '';
-              })(),
-            }}
-            onSubmit={handleSaveEmployee}
-            onCancel={() => setEditingEmployee(null)}
-          />
-        </Suspense>
+        <EditEmployeeModal
+          employee={editingEmployee}
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          onSave={handleSaveEmployee}
+        />
       )}
     </div>
   );
