@@ -340,15 +340,13 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
         </div>
       )}
 
-      {/* Edit Employee Modal */}
-      {editingEmployee && (
-        <EditEmployeeModal
-          employee={editingEmployee}
-          isOpen={!!editingEmployee}
-          onClose={() => setEditingEmployee(null)}
-          onSave={handleSaveEmployee}
-        />
-      )}
+      {/* Edit Employee Modal - Always render to allow AnimatePresence exit animation */}
+      <EditEmployeeModal
+        employee={editingEmployee}
+        isOpen={!!editingEmployee}
+        onClose={() => setEditingEmployee(null)}
+        onSave={handleSaveEmployee}
+      />
     </div>
   );
 };

@@ -45,6 +45,14 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
   const shouldShowInfoNote = showInfoNote ?? !employeeProp;
 
   useEffect(() => {
+    // Reset state when modal closes
+    if (!isOpen) {
+      setLinkedProfile(null);
+      setIsLoading(true);
+      setFetchError(null);
+      return;
+    }
+
     // If employee is provided as prop, use it directly (Admin mode)
     if (employeeProp) {
       setLinkedProfile(employeeProp);
@@ -79,9 +87,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       }
     };
 
-    if (isOpen) {
-      fetchLinkedProfile();
-    }
+    fetchLinkedProfile();
   }, [isOpen, secureFetch, t, retryCount, employeeProp]);
 
   const handleSubmit = async (employeeData: EmployeeFormData) => {
