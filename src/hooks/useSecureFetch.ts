@@ -100,6 +100,7 @@ export const useSecureFetch = () => {
     const isCriticalOperation = (
       (url.includes('/establishments') && (fetchOptions.method === 'POST' || fetchOptions.method === 'PUT')) ||
       (url.includes('/comments/user-rating') && fetchOptions.method === 'PUT') ||
+      (url.includes('/comments') && fetchOptions.method === 'POST') || // Reviews/comments submission
       (url.includes('/favorites') && (fetchOptions.method === 'POST' || fetchOptions.method === 'DELETE')) ||
       (url.includes('/validation') && fetchOptions.method === 'POST')
     );

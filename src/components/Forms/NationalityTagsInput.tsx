@@ -129,21 +129,20 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
   }, [showSuggestions]);
 
   // Calculate dropdown position when showing suggestions
-  // Smart positioning: show above if not enough space below
+  // Prefer showing ABOVE to avoid overlapping form content below
   useEffect(() => {
     if (showSuggestions && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       const dropdownHeight = 200; // max-height from CSS
-      const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
 
-      // Show above if: not enough space below AND more space above
-      const showAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+      // Prefer showing above unless not enough space above
+      const showAbove = spaceAbove >= dropdownHeight;
 
       setDropdownPosition({
         top: showAbove
           ? rect.top + window.scrollY - dropdownHeight - 4  // Above the input
-          : rect.bottom + window.scrollY + 4,               // Below the input
+          : rect.bottom + window.scrollY + 4,               // Below the input (fallback)
         left: rect.left + window.scrollX,
         width: rect.width
       });
