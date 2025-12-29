@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import cloudinary from '../config/cloudinary';
+import cloudinary, { ensureConfigured } from '../config/cloudinary';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/supabase';
@@ -7,6 +7,9 @@ import { missionTrackingService } from '../services/missionTrackingService';
 
 export const uploadImages = async (req: AuthRequest, res: Response) => {
   try {
+    // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+    ensureConfigured();
+
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'No images provided' });
     }
@@ -110,6 +113,9 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
 
 export const uploadSingleImage = async (req: AuthRequest, res: Response) => {
   try {
+    // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+    ensureConfigured();
+
     if (!req.file) {
       return res.status(400).json({ error: 'No image provided' });
     }
@@ -170,6 +176,9 @@ export const uploadSingleImage = async (req: AuthRequest, res: Response) => {
 
 export const deleteImage = async (req: AuthRequest, res: Response) => {
   try {
+    // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+    ensureConfigured();
+
     const { public_id } = req.body;
 
     if (!public_id) {
@@ -191,6 +200,9 @@ export const deleteImage = async (req: AuthRequest, res: Response) => {
 
 export const uploadEstablishmentLogo = async (req: AuthRequest, res: Response) => {
   try {
+    // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+    ensureConfigured();
+
     if (!req.file) {
       return res.status(400).json({ error: 'No logo image provided' });
     }
@@ -256,6 +268,9 @@ export const uploadEstablishmentLogo = async (req: AuthRequest, res: Response) =
 
 export const getImageInfo = async (req: AuthRequest, res: Response) => {
   try {
+    // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+    ensureConfigured();
+
     const { public_id } = req.params;
 
     if (!public_id) {

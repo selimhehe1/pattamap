@@ -1,12 +1,34 @@
 import { v2 as cloudinary } from 'cloudinary';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Flag to track if Cloudinary has been configured this request cycle
+let isConfigured = false;
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+/**
+ * Lazy initialization for Cloudinary
+ * Must be called before any Cloudinary operation to ensure env vars are available
+ * This fixes the Vercel serverless timing issue where env vars aren't available
+ * at module import time during cold starts
+ */
+export const ensureConfigured = (): void => {
+  // Skip if already configured in this process (optimization for warm starts)
+  if (isConfigured && cloudinary.config().cloud_name) {
+    return;
+  }
+
+  const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
+  const api_key = process.env.CLOUDINARY_API_KEY;
+  const api_secret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloud_name || !api_key || !api_secret) {
+    const missing = [];
+    if (!cloud_name) missing.push('CLOUDINARY_CLOUD_NAME');
+    if (!api_key) missing.push('CLOUDINARY_API_KEY');
+    if (!api_secret) missing.push('CLOUDINARY_API_SECRET');
+    throw new Error(`Cloudinary configuration missing: ${missing.join(', ')}`);
+  }
+
+  cloudinary.config({ cloud_name, api_key, api_secret });
+  isConfigured = true;
+};
 
 export default cloudinary;

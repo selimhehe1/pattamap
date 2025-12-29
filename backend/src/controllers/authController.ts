@@ -500,7 +500,11 @@ export const login = async (req: Request, res: Response) => {
     logger.error('Login error:', error);
     return res.status(500).json({
       error: 'Login failed',
-      code: 'INTERNAL_ERROR'
+      code: 'INTERNAL_ERROR',
+      debug: {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : undefined
+      }
     });
   }
 };
