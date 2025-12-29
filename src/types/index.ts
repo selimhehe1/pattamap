@@ -114,6 +114,7 @@ export interface Employee {
   nickname?: string;
   age?: number;
   nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
+  languages_spoken?: string[] | null; // v10.5: Languages spoken (Thai, English, Chinese, Russian, etc.)
   description?: string;
   photos: string[];
   social_media?: {
@@ -219,6 +220,7 @@ export interface EmployeeFormData {
   nickname?: string;
   age?: number;
   nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
+  languages_spoken?: string[] | null; // v10.5: Languages spoken (Thai, English, Chinese, Russian, etc.)
   description?: string;
   photos: string[];
   social_media?: {

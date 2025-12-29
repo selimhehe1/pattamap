@@ -50,6 +50,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         nickname: initialData.nickname || '',
         age: initialData.age?.toString() || '',
         nationality: initialData.nationality || null,
+        languages_spoken: initialData.languages_spoken || null,
         description: initialData.description || '',
         social_media: {
           ig: socialMedia?.ig || '',
@@ -93,6 +94,10 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
 
   const handleNationalityChange = useCallback((nationalities: string[] | null) => {
     setFormData(prev => ({ ...prev, nationality: nationalities }));
+  }, []);
+
+  const handleLanguagesChange = useCallback((languages: string[] | null) => {
+    setFormData(prev => ({ ...prev, languages_spoken: languages }));
   }, []);
 
   const handleEstablishmentChange = useCallback((establishmentId: string) => {
@@ -244,6 +249,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         nickname: formData.nickname.trim() || undefined,
         age: formData.age ? parseInt(formData.age, 10) : undefined,
         nationality: formData.nationality,
+        languages_spoken: formData.languages_spoken,
         description: formData.description.trim() || undefined,
         photos: finalPhotoUrls,
         social_media: Object.keys(mappedSocialMedia).length > 0 ? mappedSocialMedia : undefined,
@@ -271,6 +277,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     uploadingPhotos,
     handleInputChange,
     handleNationalityChange,
+    handleLanguagesChange,
     handleEstablishmentChange,
     handleFreelanceModeChange,
     addNewPhotos,

@@ -102,6 +102,9 @@ export const useSecureFetch = () => {
       (url.includes('/comments/user-rating') && fetchOptions.method === 'PUT')
     );
 
+    // Track fresh token from refresh (React state updates are async, so getCSRFHeaders() might be stale)
+    let freshlyRefreshedToken: string | null = null;
+
     if (isModifyingRequest && (isCriticalOperation || !getCSRFHeaders() || Object.keys(getCSRFHeaders()).length === 0)) {
       if (process.env.NODE_ENV === 'development') {
         logger.debug('🛡️ Refreshing CSRF token', {
@@ -109,7 +112,7 @@ export const useSecureFetch = () => {
           url
         });
       }
-      await refreshToken();
+      freshlyRefreshedToken = await refreshToken();
       // Longer delay for critical operations to ensure session synchronization
       await new Promise(resolve => setTimeout(resolve, isCriticalOperation ? 500 : 200));
     }
@@ -117,8 +120,10 @@ export const useSecureFetch = () => {
     // Check if this is the establishment-logo endpoint (CSRF-exempt)
     const isEstablishmentLogoEndpoint = url.includes('establishment-logo');
 
-    // Get CSRF headers for all non-GET requests (except establishment-logo endpoint)
-    const csrfHeaders = (isModifyingRequest && !isEstablishmentLogoEndpoint) ? (getCSRFHeaders() || {}) : {};
+    // Get CSRF headers - prefer freshly refreshed token over getCSRFHeaders() which might be stale
+    const csrfHeaders = (isModifyingRequest && !isEstablishmentLogoEndpoint)
+      ? (freshlyRefreshedToken ? { 'X-CSRF-Token': freshlyRefreshedToken } : (getCSRFHeaders() || {}))
+      : {};
 
     // Enhanced debugging for CSRF headers (development only)
     if (isModifyingRequest && process.env.NODE_ENV === 'development') {
@@ -156,8 +161,9 @@ export const useSecureFetch = () => {
         if (errorData.error && (errorData.error.includes('CSRF') || errorData.code?.includes('CSRF'))) {
           logger.warn('🛡️ CSRF token mismatch detected, refreshing token and retrying...');
 
-          // Refresh CSRF token with fresh fetch
-          await refreshToken();
+          // Refresh CSRF token with fresh fetch - GET THE RETURNED TOKEN DIRECTLY
+          // (React state updates are async, so getCSRFHeaders() might return stale value)
+          const freshToken = await refreshToken();
 
           // Longer delay for critical operations to ensure proper session sync
           const isCriticalRetry = url.includes('/establishments') || url.includes('/comments/user-rating');
@@ -166,12 +172,15 @@ export const useSecureFetch = () => {
           if (process.env.NODE_ENV === 'development') {
             logger.debug('🛡️ CSRF retry', {
               operation: isCriticalRetry ? 'critical operation' : 'regular operation',
-              waiting: isCriticalRetry ? '800ms' : '300ms'
+              waiting: isCriticalRetry ? '800ms' : '300ms',
+              hasFreshToken: !!freshToken
             });
           }
 
-          // Get fresh CSRF headers (except for establishment-logo endpoint)
-          const newCsrfHeaders = (isModifyingRequest && !isEstablishmentLogoEndpoint) ? (getCSRFHeaders() || {}) : {};
+          // Use the fresh token DIRECTLY instead of getCSRFHeaders() which might be stale
+          const newCsrfHeaders = (isModifyingRequest && !isEstablishmentLogoEndpoint && freshToken)
+            ? { 'X-CSRF-Token': freshToken }
+            : {};
 
           if (process.env.NODE_ENV === 'development') {
             logger.debug('🛡️ Retrying with fresh CSRF token:', Object.keys(newCsrfHeaders).length > 0 ? 'PRESENT' : 'MISSING');

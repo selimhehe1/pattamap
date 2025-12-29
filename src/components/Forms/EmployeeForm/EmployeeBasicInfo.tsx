@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle } from 'lucide-react';
+import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle, Languages } from 'lucide-react';
 import NationalityTagsInput from '../NationalityTagsInput';
+import LanguagesTagsInput from '../LanguagesTagsInput';
 import type { InternalFormData, FormErrors } from './types';
 
 interface EmployeeBasicInfoProps {
@@ -14,13 +15,15 @@ interface EmployeeBasicInfoProps {
   errors: FormErrors;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onNationalityChange: (nationalities: string[] | null) => void;
+  onLanguagesChange: (languages: string[] | null) => void;
 }
 
 export function EmployeeBasicInfo({
   formData,
   errors,
   onInputChange,
-  onNationalityChange
+  onNationalityChange,
+  onLanguagesChange
 }: EmployeeBasicInfoProps) {
   const { t } = useTranslation();
 
@@ -104,6 +107,17 @@ export function EmployeeBasicInfo({
             onChange={onNationalityChange}
           />
         </div>
+      </div>
+
+      {/* Languages Spoken */}
+      <div className="form-input-group-lg">
+        <label className="label-nightlife">
+          <Languages size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.languagesLabel', 'Languages Spoken')}
+        </label>
+        <LanguagesTagsInput
+          value={formData.languages_spoken}
+          onChange={onLanguagesChange}
+        />
       </div>
 
       {/* Description */}

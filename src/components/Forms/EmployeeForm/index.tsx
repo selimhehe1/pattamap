@@ -38,6 +38,7 @@ export function EmployeeForm({
     uploadingPhotos,
     handleInputChange,
     handleNationalityChange,
+    handleLanguagesChange,
     handleEstablishmentChange,
     handleFreelanceModeChange,
     addNewPhotos,
@@ -56,6 +57,7 @@ export function EmployeeForm({
             errors={errors}
             onInputChange={handleInputChange}
             onNationalityChange={handleNationalityChange}
+            onLanguagesChange={handleLanguagesChange}
           />
 
           {/* Photo Upload Section */}

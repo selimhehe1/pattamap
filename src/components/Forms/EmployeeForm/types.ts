@@ -18,6 +18,7 @@ export interface InternalFormData {
   nickname: string;
   age: string;
   nationality: string[] | null;
+  languages_spoken: string[] | null;
   description: string;
   social_media: FormSocialMedia;
   current_establishment_id: string;
@@ -28,6 +29,7 @@ export interface EmployeeSubmitData {
   nickname?: string;
   age?: number;
   nationality?: string[] | null;
+  languages_spoken?: string[] | null;
   description?: string;
   photos: string[];
   social_media?: Record<string, string>;
@@ -54,6 +56,7 @@ export const INITIAL_FORM_DATA: InternalFormData = {
   nickname: '',
   age: '',
   nationality: null,
+  languages_spoken: null,
   description: '',
   social_media: { ig: '', fb: '', line: '', tg: '', wa: '' },
   current_establishment_id: ''
