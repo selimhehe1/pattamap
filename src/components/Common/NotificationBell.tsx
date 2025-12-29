@@ -355,22 +355,37 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     if (showDropdown && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
       const dropdownWidth = 380; // Width from CSS
+      const dropdownHeight = 500; // max-height from CSS
 
-      // Calculate right position - ensure dropdown stays in viewport
-      let rightPos = viewportWidth - rect.right;
+      let topPos = rect.bottom + 10;
+      let rightPos: number;
 
-      // If dropdown would overflow left edge, adjust
-      if (rect.right - dropdownWidth < 0) {
-        rightPos = viewportWidth - dropdownWidth - 10; // 10px margin
+      // Pour la variante menu-item, positionner à gauche du menu
+      if (variant === 'menu-item') {
+        // Le menu est à droite de l'écran, donc on positionne le dropdown
+        // près du bord gauche du viewport pour qu'il soit visible
+        rightPos = viewportWidth - dropdownWidth - 10;
+
+        // Si pas assez de place en bas, afficher au-dessus
+        if (topPos + dropdownHeight > viewportHeight) {
+          topPos = Math.max(10, rect.top - dropdownHeight - 10);
+        }
+      } else {
+        // Variante default - comportement existant
+        rightPos = viewportWidth - rect.right;
+        if (rect.right - dropdownWidth < 0) {
+          rightPos = viewportWidth - dropdownWidth - 10;
+        }
       }
 
       setDropdownPosition({
-        top: rect.bottom + 10, // 10px below button
-        right: Math.max(10, rightPos) // At least 10px from right edge
+        top: topPos,
+        right: Math.max(10, rightPos)
       });
     }
-  }, [showDropdown]);
+  }, [showDropdown, variant]);
 
   // Format date
   const formatDate = (dateString: string) => {
