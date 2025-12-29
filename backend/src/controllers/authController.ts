@@ -343,26 +343,21 @@ export const register = async (req: Request, res: Response) => {
       });
 
       // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
-      // This prevents session ID mismatch between register and subsequent requests
-      req.session.csrfToken = generateCSRFToken();
+      // Non-blocking save - register succeeds even if session store fails
+      const freshCsrfToken = generateCSRFToken();
+      req.session.csrfToken = freshCsrfToken;
 
-      // Explicitly save session before returning to ensure token is persisted
-      await new Promise<void>((resolve, reject) => {
-        req.session.save((err) => {
-          if (err) {
-            logger.error('Failed to save session after token regeneration', err);
-            reject(err);
-          } else {
-            logger.debug('CSRF token regenerated and session saved after auth', {
-              sessionId: req.sessionID,
-              tokenPreview: req.session.csrfToken!.substring(0, 8) + '...'
-            });
-            resolve();
-          }
-        });
+      // Fire and forget - don't block register on session save
+      req.session.save((err) => {
+        if (err) {
+          logger.error('Failed to save session after register (non-blocking)', err);
+        } else {
+          logger.debug('CSRF token regenerated and session saved after register', {
+            sessionId: req.sessionID,
+            tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+          });
+        }
       });
-
-      const freshCsrfToken = req.session.csrfToken;
 
       res.status(201).json({
         message: 'User registered successfully',
@@ -476,25 +471,21 @@ export const login = async (req: Request, res: Response) => {
     });
 
     // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
-    req.session.csrfToken = generateCSRFToken();
+    // Non-blocking save - login succeeds even if session store fails
+    const freshCsrfToken = generateCSRFToken();
+    req.session.csrfToken = freshCsrfToken;
 
-    // Explicitly save session before returning to ensure token is persisted
-    await new Promise<void>((resolve, reject) => {
-      req.session.save((err) => {
-        if (err) {
-          logger.error('Failed to save session after token regeneration', err);
-          reject(err);
-        } else {
-          logger.debug('CSRF token regenerated and session saved after login', {
-            sessionId: req.sessionID,
-            tokenPreview: req.session.csrfToken!.substring(0, 8) + '...'
-          });
-          resolve();
-        }
-      });
+    // Fire and forget - don't block login on session save
+    req.session.save((err) => {
+      if (err) {
+        logger.error('Failed to save session after login (non-blocking)', err);
+      } else {
+        logger.debug('CSRF token regenerated and session saved after login', {
+          sessionId: req.sessionID,
+          tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+        });
+      }
     });
-
-    const freshCsrfToken = req.session.csrfToken;
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
