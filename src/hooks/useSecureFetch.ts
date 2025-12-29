@@ -143,16 +143,19 @@ export const useSecureFetch = () => {
     // Check if body is FormData (for file uploads)
     const isFormData = fetchOptions.body instanceof FormData;
 
+    // Destructure headers from fetchOptions to prevent overwriting merged headers
+    const { headers: userHeaders, ...restFetchOptions } = fetchOptions;
+
     // Default options for secure communication
     const defaultOptions: RequestInit = {
       credentials: 'include', // Always include cookies
+      ...restFetchOptions, // Spread other options first (method, body, etc.)
       headers: {
         // Only set Content-Type for non-FormData requests
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...csrfHeaders, // Include CSRF token when needed
-        ...(fetchOptions.headers || {}),
+        ...(userHeaders || {}), // User headers last (can override Content-Type but not CSRF)
       } as HeadersInit,
-      ...fetchOptions,
     };
 
     try {
@@ -192,13 +195,13 @@ export const useSecureFetch = () => {
           // Retry with new token - rebuild complete options
           const retryOptions: RequestInit = {
             credentials: 'include',
+            ...restFetchOptions, // Use already destructured options (without headers)
             headers: {
               // Only set Content-Type for non-FormData requests
               ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
               ...newCsrfHeaders,
-              ...(fetchOptions.headers || {}),
+              ...(userHeaders || {}),
             } as HeadersInit,
-            ...fetchOptions,
           };
 
           const retryResponse = await fetch(url, retryOptions);
