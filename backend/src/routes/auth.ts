@@ -57,7 +57,8 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', csrfProtection, register);
+// No CSRF for register - users don't have a session yet
+router.post('/register', register);
 
 /**
  * @swagger
@@ -110,7 +111,8 @@ router.post('/register', csrfProtection, register);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', csrfProtection, login);
+// No CSRF for login - users don't have a session yet
+router.post('/login', login);
 
 /**
  * @swagger
@@ -196,7 +198,8 @@ router.get('/profile', authenticateToken, getProfile);
  *       400:
  *         description: Invalid email format
  */
-router.post('/forgot-password', csrfProtection, forgotPassword);
+// No CSRF for forgot-password - public endpoint
+router.post('/forgot-password', forgotPassword);
 
 /**
  * @swagger
@@ -237,7 +240,8 @@ router.post('/forgot-password', csrfProtection, forgotPassword);
  *       400:
  *         description: Invalid token, expired token, or weak password
  */
-router.post('/reset-password', csrfProtection, resetPassword);
+// No CSRF for reset-password - uses token-based auth
+router.post('/reset-password', resetPassword);
 
 /**
  * @swagger
