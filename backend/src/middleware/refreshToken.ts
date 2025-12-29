@@ -5,6 +5,32 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from './auth';
 import { logger } from '../utils/logger';
 
+// 🔧 FIX: Cookie security configuration (same as authController)
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const COOKIES_SECURE = NODE_ENV === 'production' ||
+  process.env.COOKIES_SECURE === 'true' ||
+  process.env.HTTPS_ENABLED === 'true';
+
+const COOKIE_DOMAIN = (() => {
+  if (process.env.COOKIE_DOMAIN) {
+    return process.env.COOKIE_DOMAIN;
+  }
+  if (NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
+    try {
+      const url = new URL(process.env.CORS_ORIGIN);
+      const parts = url.hostname.split('.');
+      if (parts.length >= 2) {
+        return '.' + parts.slice(-2).join('.');
+      }
+    } catch {
+      // Ignore
+    }
+  }
+  return undefined;
+})();
+
+const COOKIE_SAME_SITE: 'none' | 'lax' | 'strict' = COOKIES_SECURE ? 'none' : 'lax';
+
 interface RefreshTokenPayload {
   userId: string;
   tokenFamily: string;
@@ -160,25 +186,25 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
       .update({ is_active: false })
       .eq('token_hash', tokenHash);
 
-    // Set new cookies
-    const isProduction = process.env.NODE_ENV === 'production';
-
+    // Set new cookies with cross-subdomain support
     // Access token cookie (short-lived)
     res.cookie('auth-token', accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      secure: COOKIES_SECURE,
+      sameSite: COOKIE_SAME_SITE,
       maxAge: 15 * 60 * 1000, // 15 minutes
-      path: '/'
+      path: '/',
+      domain: COOKIE_DOMAIN
     });
 
     // Refresh token cookie (long-lived)
     res.cookie('refresh-token', newRefreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      secure: COOKIES_SECURE,
+      sameSite: COOKIE_SAME_SITE,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/'
+      path: '/',
+      domain: COOKIE_DOMAIN
     });
 
     res.json({

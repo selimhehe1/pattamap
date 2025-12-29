@@ -15,6 +15,29 @@ const COOKIES_SECURE = NODE_ENV === 'production' ||
   process.env.COOKIES_SECURE === 'true' ||
   process.env.HTTPS_ENABLED === 'true';
 
+// 🔧 FIX: Cookie domain for cross-subdomain sharing (www.pattamap.com <-> api.pattamap.com)
+const COOKIE_DOMAIN = (() => {
+  if (process.env.COOKIE_DOMAIN) {
+    return process.env.COOKIE_DOMAIN;
+  }
+  // Auto-derive from CORS_ORIGIN in production
+  if (NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
+    try {
+      const url = new URL(process.env.CORS_ORIGIN);
+      const parts = url.hostname.split('.');
+      if (parts.length >= 2) {
+        return '.' + parts.slice(-2).join('.');
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+  }
+  return undefined;
+})();
+
+// 🔧 FIX: sameSite must be 'none' for cross-subdomain, 'lax' for same-origin dev
+const COOKIE_SAME_SITE: 'none' | 'lax' | 'strict' = COOKIES_SECURE ? 'none' : 'lax';
+
 // Input validation helpers
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -313,9 +336,10 @@ export const register = async (req: Request, res: Response) => {
       res.cookie('auth-token', token, {
         httpOnly: true,
         secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
-        sameSite: 'strict',
+        sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        path: '/'
+        path: '/',
+        domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
       });
 
       // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
@@ -445,9 +469,10 @@ export const login = async (req: Request, res: Response) => {
     res.cookie('auth-token', token, {
       httpOnly: true,
       secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
-      sameSite: 'strict',
+      sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      path: '/'
+      path: '/',
+      domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
     });
 
     // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
@@ -652,8 +677,9 @@ export const logout = async (req: AuthRequest, res: Response) => {
     res.clearCookie('auth-token', {
       httpOnly: true,
       secure: COOKIES_SECURE,
-      sameSite: 'strict',
-      path: '/'
+      sameSite: COOKIE_SAME_SITE,
+      path: '/',
+      domain: COOKIE_DOMAIN
     });
 
     res.json({
@@ -980,15 +1006,17 @@ export const logoutAll = async (req: AuthRequest, res: Response) => {
     res.clearCookie('auth-token', {
       httpOnly: true,
       secure: COOKIES_SECURE,
-      sameSite: 'strict',
-      path: '/'
+      sameSite: COOKIE_SAME_SITE,
+      path: '/',
+      domain: COOKIE_DOMAIN
     });
 
     res.clearCookie('refresh-token', {
       httpOnly: true,
       secure: COOKIES_SECURE,
-      sameSite: 'strict',
-      path: '/'
+      sameSite: COOKIE_SAME_SITE,
+      path: '/',
+      domain: COOKIE_DOMAIN
     });
 
     logger.info('User logged out from all devices', {
