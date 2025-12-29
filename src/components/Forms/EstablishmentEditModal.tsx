@@ -512,6 +512,7 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   return (
     <motion.div
       className="modal-overlay-unified"
+      style={{ zIndex: 100001 }}
       variants={premiumBackdropVariants}
       initial="hidden"
       animate="visible"
