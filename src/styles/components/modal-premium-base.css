@@ -67,6 +67,12 @@
   max-width: 720px;
 }
 
+/* Profile/Form modal: wider for complex forms */
+.modal-premium--profile {
+  width: 100%;
+  max-width: 640px;
+}
+
 .modal-premium--fullscreen {
   width: 100%;
   max-width: 100%;
@@ -235,6 +241,35 @@
 
 .modal-premium__header--with-icon {
   padding-top: 40px;
+}
+
+/* Form-style header: left-aligned with icon inline */
+.modal-premium__header--form {
+  text-align: left;
+  padding: 24px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+}
+
+.modal-premium__header--form .modal-premium__icon {
+  margin: 0;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.modal-premium__header--form .modal-premium__icon::before {
+  inset: -6px;
+}
+
+.modal-premium__header--form .modal-premium__title {
+  justify-content: flex-start;
+  font-size: 20px;
+  margin: 0;
 }
 
 /* ============================================

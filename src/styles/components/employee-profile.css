@@ -947,6 +947,391 @@
 }
 
 /* ========================================
+   V2 LAYOUT WRAPPER
+   Grid container for hero + content
+   ======================================== */
+
+.profile-v2-layout {
+  display: contents;
+}
+
+/* ========================================
+   V2 PHOTO ELEMENTS
+   Photo container, wrapper, image
+   ======================================== */
+
+.profile-v2-photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-v2-photo-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.profile-v2-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.profile-v2-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16161A 100%);
+}
+
+.profile-v2-photo-placeholder span {
+  font-size: 6rem;
+  font-weight: 700;
+  color: rgba(232, 121, 249, 0.3);
+  text-transform: uppercase;
+}
+
+.profile-v2-photo-counter {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-full);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* V2 Badges Container (on photo) */
+.profile-v2-badges {
+  position: absolute;
+  top: auto;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+/* ========================================
+   V2 SOCIAL LINKS
+   Horizontal pills for social media
+   ======================================== */
+
+.profile-v2-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-v2-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.profile-v2-social-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* ========================================
+   V2 WORKPLACE ELEMENTS
+   ======================================== */
+
+.profile-v2-workplaces {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.profile-v2-workplace-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-v2-workplace-position,
+.profile-v2-workplace-date {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.25rem;
+}
+
+.profile-v2-workplace-position svg,
+.profile-v2-workplace-date svg {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+/* ========================================
+   V2 VIP SECTION STYLES
+   ======================================== */
+
+.profile-v2-section--vip {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.profile-v2-section-title--vip {
+  color: #FFD700 !important;
+}
+
+.profile-v2-section-title--vip svg {
+  color: #FFD700;
+}
+
+.profile-v2-vip-expiry {
+  font-size: 0.875rem;
+  color: rgba(255, 215, 0, 0.8);
+  margin-top: 0.5rem;
+}
+
+/* ========================================
+   V2 VALIDATION SECTION
+   ======================================== */
+
+.profile-v2-section--validation {
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+/* ========================================
+   V2 VERIFIED BADGE
+   ======================================== */
+
+.profile-v2-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: var(--border-radius-full);
+  color: #10B981;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.profile-v2-verified-badge svg {
+  flex-shrink: 0;
+}
+
+/* ========================================
+   V2 REVIEWS SECTION
+   Rating and comments
+   ======================================== */
+
+.profile-v2-section--reviews {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.profile-v2-rating {
+  margin-bottom: 1rem;
+}
+
+.profile-v2-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(232, 121, 249, 0.15);
+  border: 1px solid rgba(232, 121, 249, 0.4);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1rem;
+}
+
+.profile-v2-review-btn:hover {
+  background: rgba(232, 121, 249, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(232, 121, 249, 0.3);
+}
+
+.profile-v2-review-btn--active {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: rgba(255, 68, 68, 0.4);
+  color: #FF4444;
+}
+
+.profile-v2-review-btn--active:hover {
+  background: rgba(255, 68, 68, 0.25);
+  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+}
+
+.profile-v2-review-form {
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.profile-v2-reviews-list {
+  margin-top: 1rem;
+}
+
+/* ========================================
+   V2 HEADER BUTTON MODIFIERS
+   ======================================== */
+
+.profile-v2-header-btn--active {
+  background: linear-gradient(135deg, var(--color-primary), #c026d3);
+  color: #fff;
+}
+
+.profile-v2-header-btn--claim {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--color-secondary);
+}
+
+.profile-v2-header-btn--claim:hover {
+  background: rgba(0, 229, 255, 0.25);
+}
+
+/* V2 Story progress animation */
+.profile-v2-story-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: inherit;
+}
+
+/* ========================================
+   V2 VIP GLOW EFFECT
+   ======================================== */
+
+.profile-v2--vip {
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+}
+
+.profile-v2--vip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+  animation: profileV2GradientShift 3s ease-in-out infinite;
+  z-index: 100;
+}
+
+/* ========================================
+   V2 RESPONSIVE ADJUSTMENTS
+   Additional mobile optimizations
+   ======================================== */
+
+@media (max-width: 1023px) {
+  .profile-v2 {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 50vh 1fr;
+    max-height: none;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .profile-v2-hero {
+    grid-column: 1;
+    height: 50vh;
+    min-height: 300px;
+  }
+
+  .profile-v2-content {
+    grid-column: 1;
+    max-height: none;
+    overflow: visible;
+    padding: 1.5rem;
+  }
+
+  .profile-v2-badges {
+    bottom: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .profile-v2-photo-counter {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .profile-v2 {
+    grid-template-rows: auto 45vh 1fr;
+    border-radius: 0;
+  }
+
+  .profile-v2-header {
+    padding: 0.625rem 1rem;
+  }
+
+  .profile-v2-header-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-v2-header-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .profile-v2-header-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-v2-hero {
+    height: 45vh;
+    min-height: 280px;
+  }
+
+  .profile-v2-photo-placeholder span {
+    font-size: 4rem;
+  }
+
+  .profile-v2-nav {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-v2-nav svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .profile-v2-content {
+    padding: 1.25rem;
+  }
+
+  .profile-v2-social-links {
+    gap: 0.375rem;
+  }
+}
+
+/* ========================================
    LEGACY STYLES BELOW
    Keep for backward compatibility during migration
    ======================================== */

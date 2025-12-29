@@ -27,9 +27,9 @@
 /* ===== 1. FORM CONTAINER ===== */
 
 .uf-container {
-  padding: var(--spacing-8);
-  /* Responsive max-width using min() */
-  max-width: min(100%, 600px);
+  padding: var(--spacing-6);
+  /* Responsive max-width - fits inside modal without overflow */
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -61,8 +61,8 @@
 /* ===== 3. SECTIONS ===== */
 
 .uf-section {
-  margin-bottom: var(--spacing-10, 2.5rem);
-  padding: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  padding: var(--spacing-5);
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-lg);
@@ -293,8 +293,8 @@
 /* ===== 7. PHOTO MANAGEMENT ===== */
 
 .uf-photo-container {
-  margin-bottom: var(--spacing-10, 2.5rem);
-  padding: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  padding: var(--spacing-5);
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-lg);
@@ -470,8 +470,8 @@
 /* ===== 8. FREELANCE MODE / TOGGLE SECTIONS ===== */
 
 .uf-toggle-container {
-  margin-bottom: var(--spacing-10, 2.5rem);
-  padding: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  padding: var(--spacing-5);
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-lg);
@@ -536,8 +536,8 @@
 /* ===== 9. SELECTOR (Nightclubs, etc.) ===== */
 
 .uf-selector {
-  margin-bottom: var(--spacing-10, 2.5rem);
-  padding: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+  padding: var(--spacing-5);
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid rgba(232, 121, 249, 0.3);
   border-radius: var(--border-radius-lg);

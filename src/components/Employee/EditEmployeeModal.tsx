@@ -147,7 +147,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
           onClick={handleOverlayClick}
         >
           <motion.div
-            className="modal-premium modal-premium--medium"
+            className="modal-premium modal-premium--profile"
             variants={premiumModalVariants}
             initial="hidden"
             animate="visible"
@@ -168,21 +168,21 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
               <X size={18} />
             </motion.button>
 
-            {/* Header */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
+            {/* Header - Form style (left-aligned) */}
+            <div className="modal-premium__header modal-premium__header--form">
               <motion.div
                 className="modal-premium__icon modal-premium__icon--info"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
               >
-                <UserCog size={32} />
+                <UserCog size={24} />
               </motion.div>
               <motion.h2
                 id="edit-my-profile-modal-title"
                 className="modal-premium__title modal-premium__title--info"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15 }}
               >
                 {t('editMyProfileModal.title')}
