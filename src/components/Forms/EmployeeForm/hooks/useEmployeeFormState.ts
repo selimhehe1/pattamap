@@ -116,9 +116,14 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     // Validate files
     let validationError: string | undefined;
     const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
+      // Check image type by MIME type OR by file extension (fallback for browsers that don't provide MIME type)
+      const isImageByMime = file.type && file.type.startsWith('image/');
+      const isImageByExtension = /\.(jpg|jpeg|png|gif|webp|bmp|heic|heif)$/i.test(file.name);
+      const isImage = isImageByMime || isImageByExtension;
+
+      if (!isImage) {
         validationError = t('employee.errorPhotosType');
-        logger.warn(`Invalid file type: ${file.type} - ${file.name}`);
+        logger.warn(`Invalid file type: MIME="${file.type}", name="${file.name}"`);
         return false;
       }
       if (file.size > 10 * 1024 * 1024) { // 10MB
