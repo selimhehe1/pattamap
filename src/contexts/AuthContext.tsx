@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [linkedEmployeeProfile, setLinkedEmployeeProfile] = useState<Employee | null>(null); // 🆕 v10.0 - Linked employee profile
 
   // Get CSRF token from context (for non-register operations)
-  const { csrfToken, refreshToken: refreshCSRFToken } = useCSRF();
+  const { csrfToken, refreshToken: refreshCSRFToken, setToken: setCSRFToken } = useCSRF();
 
   // 🔧 FIX A3: Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
@@ -224,15 +224,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
       }
 
-      // 🔧 CSRF FIX: Update CSRF token from login response (same as register)
-      // Backend regenerates session after login, so we need the fresh token
+      // 🔧 CSRF FIX: Use token directly from login response (NOT refreshCSRFToken!)
+      // refreshCSRFToken() fetches a NEW session, causing token mismatch
       if (data.csrfToken) {
         logger.debug('✅ CSRF token received from login response', {
           hasFreshToken: true,
           freshTokenPreview: `${data.csrfToken.substring(0, 8)}...`
         });
-        // Refresh the CSRF context with the new token
-        await refreshCSRFToken();
+        // Set the token directly (avoid fetch which creates new session)
+        setCSRFToken(data.csrfToken);
       } else {
         logger.warn('⚠️ No CSRF token in login response, refreshing manually');
         await refreshCSRFToken();
@@ -310,8 +310,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
       }
 
-      // 🔧 CSRF FIX: Backend now returns CSRF token directly in response
-      // This eliminates session ID mismatch issues (no separate /csrf-token call needed)
+      // 🔧 CSRF FIX: Use token directly from register response (same fix as login)
       const freshToken = data.csrfToken;
 
       if (freshToken) {
@@ -319,6 +318,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           hasFreshToken: true,
           freshTokenPreview: `${freshToken.substring(0, 8)}...`
         });
+        // Set the token directly (avoid fetch which creates new session)
+        setCSRFToken(freshToken);
       } else {
         logger.warn('⚠️ No CSRF token in register response');
       }

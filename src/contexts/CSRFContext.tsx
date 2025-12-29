@@ -13,6 +13,7 @@ interface CSRFContextType {
   error: string;
   getCSRFHeaders: () => Record<string, string>;
   refreshToken: () => Promise<string | null>; // 🔧 Returns fresh token
+  setToken: (token: string) => void; // 🔧 FIX: Set token directly (from login/register response)
 }
 
 const CSRFContext = createContext<CSRFContextType | undefined>(undefined);
@@ -145,6 +146,16 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return csrfHeaders;
   }, [csrfHeaders]);
 
+  // 🔧 FIX: Set token directly from login/register response (avoids fetch mismatch)
+  const setToken = useCallback((token: string) => {
+    if (token && token.trim().length > 0) {
+      logger.debug('CSRF token set directly', { tokenPreview: token.substring(0, 8) + '...' });
+      setCsrfToken(token);
+      setLoading(false);
+      setError('');
+    }
+  }, []);
+
   const value: CSRFContextType = {
     csrfToken,
     loading,
@@ -155,7 +166,8 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const controller = new AbortController();
       const freshToken = await fetchCSRFToken(controller.signal, true); // Always force refresh when manually called
       return freshToken || csrfToken; // Return the fresh token (or current if fetch failed)
-    }
+    },
+    setToken
   };
 
   return (
