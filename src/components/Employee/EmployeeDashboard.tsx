@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
+import { useAppModals } from '../../hooks/useAppModals';
 import LoadingFallback from '../Common/LoadingFallback';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
-import EditEmployeeModal from './EditEmployeeModal';
 import VIPPurchaseModal from '../Owner/VIPPurchaseModal';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import {
@@ -73,6 +73,7 @@ const EmployeeDashboard: React.FC = () => {
   const { user, linkedEmployeeProfile, refreshLinkedProfile } = useAuth();
   const { secureFetch } = useSecureFetch();
   const { t } = useTranslation();
+  const { handleEditMyProfile } = useAppModals();
 
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
@@ -82,7 +83,6 @@ const EmployeeDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showVIPModal, setShowVIPModal] = useState(false);
   const [refreshDashboard, setRefreshDashboard] = useState(0);
 
@@ -330,7 +330,7 @@ const EmployeeDashboard: React.FC = () => {
                 alignItems: 'center',
                 gap: '8px'
               }}
-              onClick={() => setShowEditModal(true)}
+              onClick={handleEditMyProfile}
             >
               <Pencil size={16} style={{ marginRight: '6px' }} /> {t('employeeDashboard.editProfile', 'Edit My Profile')}
             </button>
@@ -661,21 +661,6 @@ const EmployeeDashboard: React.FC = () => {
           employeeId={linkedEmployeeProfile.id}
           onClose={() => setShowVerificationModal(false)}
           onVerificationComplete={handleVerificationComplete}
-        />
-      )}
-
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <EditEmployeeModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          onProfileUpdated={async () => {
-            // 🔄 v10.2 FIX: Refresh profile data from AuthContext before refreshing stats
-            if (refreshLinkedProfile) {
-              await refreshLinkedProfile(true); // skipCheck=true to bypass user state check
-            }
-            triggerDashboardRefresh(); // Refresh stats after profile update
-          }}
         />
       )}
 
