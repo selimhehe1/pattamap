@@ -96,10 +96,12 @@ export const useSecureFetch = () => {
     }
 
     // For modifying requests, ensure we have fresh CSRF token by refreshing if needed
-    // ENHANCED: Always refresh token for critical operations like establishment creation/update and user ratings
+    // ENHANCED: Always refresh token for critical operations like establishment creation/update, user ratings, and favorites
     const isCriticalOperation = (
       (url.includes('/establishments') && (fetchOptions.method === 'POST' || fetchOptions.method === 'PUT')) ||
-      (url.includes('/comments/user-rating') && fetchOptions.method === 'PUT')
+      (url.includes('/comments/user-rating') && fetchOptions.method === 'PUT') ||
+      (url.includes('/favorites') && (fetchOptions.method === 'POST' || fetchOptions.method === 'DELETE')) ||
+      (url.includes('/validation') && fetchOptions.method === 'POST')
     );
 
     // Track fresh token from refresh (React state updates are async, so getCSRFHeaders() might be stale)
