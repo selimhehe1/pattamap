@@ -17,6 +17,28 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const COOKIES_SECURE = NODE_ENV === 'production' ||
     process.env.COOKIES_SECURE === 'true' ||
     process.env.HTTPS_ENABLED === 'true';
+// 🔧 FIX: Cookie domain for cross-subdomain sharing (www.pattamap.com <-> api.pattamap.com)
+const COOKIE_DOMAIN = (() => {
+    if (process.env.COOKIE_DOMAIN) {
+        return process.env.COOKIE_DOMAIN;
+    }
+    // Auto-derive from CORS_ORIGIN in production
+    if (NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
+        try {
+            const url = new URL(process.env.CORS_ORIGIN);
+            const parts = url.hostname.split('.');
+            if (parts.length >= 2) {
+                return '.' + parts.slice(-2).join('.');
+            }
+        }
+        catch {
+            // Ignore parsing errors
+        }
+    }
+    return undefined;
+})();
+// 🔧 FIX: sameSite must be 'none' for cross-subdomain, 'lax' for same-origin dev
+const COOKIE_SAME_SITE = COOKIES_SECURE ? 'none' : 'lax';
 // Input validation helpers
 const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -275,30 +297,27 @@ const register = async (req, res) => {
             res.cookie('auth-token', token, {
                 httpOnly: true,
                 secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
-                sameSite: 'strict',
+                sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-                path: '/'
+                path: '/',
+                domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
             });
             // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
-            // This prevents session ID mismatch between register and subsequent requests
-            req.session.csrfToken = (0, csrf_1.generateCSRFToken)();
-            // Explicitly save session before returning to ensure token is persisted
-            await new Promise((resolve, reject) => {
-                req.session.save((err) => {
-                    if (err) {
-                        logger_1.logger.error('Failed to save session after token regeneration', err);
-                        reject(err);
-                    }
-                    else {
-                        logger_1.logger.debug('CSRF token regenerated and session saved after auth', {
-                            sessionId: req.sessionID,
-                            tokenPreview: req.session.csrfToken.substring(0, 8) + '...'
-                        });
-                        resolve();
-                    }
-                });
+            // Non-blocking save - register succeeds even if session store fails
+            const freshCsrfToken = (0, csrf_1.generateCSRFToken)();
+            req.session.csrfToken = freshCsrfToken;
+            // Fire and forget - don't block register on session save
+            req.session.save((err) => {
+                if (err) {
+                    logger_1.logger.error('Failed to save session after register (non-blocking)', err);
+                }
+                else {
+                    logger_1.logger.debug('CSRF token regenerated and session saved after register', {
+                        sessionId: req.sessionID,
+                        tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+                    });
+                }
             });
-            const freshCsrfToken = req.session.csrfToken;
             res.status(201).json({
                 message: 'User registered successfully',
                 user: user,
@@ -389,29 +408,27 @@ const login = async (req, res) => {
         res.cookie('auth-token', token, {
             httpOnly: true,
             secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
-            sameSite: 'strict',
+            sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-            path: '/'
+            path: '/',
+            domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
         });
         // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
-        req.session.csrfToken = (0, csrf_1.generateCSRFToken)();
-        // Explicitly save session before returning to ensure token is persisted
-        await new Promise((resolve, reject) => {
-            req.session.save((err) => {
-                if (err) {
-                    logger_1.logger.error('Failed to save session after token regeneration', err);
-                    reject(err);
-                }
-                else {
-                    logger_1.logger.debug('CSRF token regenerated and session saved after login', {
-                        sessionId: req.sessionID,
-                        tokenPreview: req.session.csrfToken.substring(0, 8) + '...'
-                    });
-                    resolve();
-                }
-            });
+        // Non-blocking save - login succeeds even if session store fails
+        const freshCsrfToken = (0, csrf_1.generateCSRFToken)();
+        req.session.csrfToken = freshCsrfToken;
+        // Fire and forget - don't block login on session save
+        req.session.save((err) => {
+            if (err) {
+                logger_1.logger.error('Failed to save session after login (non-blocking)', err);
+            }
+            else {
+                logger_1.logger.debug('CSRF token regenerated and session saved after login', {
+                    sessionId: req.sessionID,
+                    tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+                });
+            }
         });
-        const freshCsrfToken = req.session.csrfToken;
         // Remove password from response
         const { password: _, ...userWithoutPassword } = user;
         res.json({
@@ -577,8 +594,9 @@ const logout = async (req, res) => {
         res.clearCookie('auth-token', {
             httpOnly: true,
             secure: COOKIES_SECURE,
-            sameSite: 'strict',
-            path: '/'
+            sameSite: COOKIE_SAME_SITE,
+            path: '/',
+            domain: COOKIE_DOMAIN
         });
         res.json({
             message: 'Logout successful'
@@ -868,14 +886,16 @@ const logoutAll = async (req, res) => {
         res.clearCookie('auth-token', {
             httpOnly: true,
             secure: COOKIES_SECURE,
-            sameSite: 'strict',
-            path: '/'
+            sameSite: COOKIE_SAME_SITE,
+            path: '/',
+            domain: COOKIE_DOMAIN
         });
         res.clearCookie('refresh-token', {
             httpOnly: true,
             secure: COOKIES_SECURE,
-            sameSite: 'strict',
-            path: '/'
+            sameSite: COOKIE_SAME_SITE,
+            path: '/',
+            domain: COOKIE_DOMAIN
         });
         logger_1.logger.info('User logged out from all devices', {
             userId: req.user.id,

@@ -57,7 +57,8 @@ const router = (0, express_1.Router)();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', csrf_1.csrfProtection, authController_1.register);
+// No CSRF for register - users don't have a session yet
+router.post('/register', authController_1.register);
 /**
  * @swagger
  * /api/auth/login:
@@ -109,7 +110,8 @@ router.post('/register', csrf_1.csrfProtection, authController_1.register);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', csrf_1.csrfProtection, authController_1.login);
+// No CSRF for login - users don't have a session yet
+router.post('/login', authController_1.login);
 /**
  * @swagger
  * /api/auth/logout:
@@ -192,7 +194,8 @@ router.get('/profile', auth_1.authenticateToken, authController_1.getProfile);
  *       400:
  *         description: Invalid email format
  */
-router.post('/forgot-password', csrf_1.csrfProtection, authController_1.forgotPassword);
+// No CSRF for forgot-password - public endpoint
+router.post('/forgot-password', authController_1.forgotPassword);
 /**
  * @swagger
  * /api/auth/reset-password:
@@ -232,7 +235,8 @@ router.post('/forgot-password', csrf_1.csrfProtection, authController_1.forgotPa
  *       400:
  *         description: Invalid token, expired token, or weak password
  */
-router.post('/reset-password', csrf_1.csrfProtection, authController_1.resetPassword);
+// No CSRF for reset-password - uses token-based auth
+router.post('/reset-password', authController_1.resetPassword);
 /**
  * @swagger
  * /api/auth/check-availability:

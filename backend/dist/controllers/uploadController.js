@@ -1,15 +1,47 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getImageInfo = exports.uploadEstablishmentLogo = exports.deleteImage = exports.uploadSingleImage = exports.uploadImages = void 0;
-const cloudinary_1 = __importDefault(require("../config/cloudinary"));
+const cloudinary_1 = __importStar(require("../config/cloudinary"));
 const logger_1 = require("../utils/logger");
 const supabase_1 = require("../config/supabase");
 const missionTrackingService_1 = require("../services/missionTrackingService");
 const uploadImages = async (req, res) => {
     try {
+        // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+        (0, cloudinary_1.ensureConfigured)();
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             return res.status(400).json({ error: 'No images provided' });
         }
@@ -95,6 +127,8 @@ const uploadImages = async (req, res) => {
 exports.uploadImages = uploadImages;
 const uploadSingleImage = async (req, res) => {
     try {
+        // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+        (0, cloudinary_1.ensureConfigured)();
         if (!req.file) {
             return res.status(400).json({ error: 'No image provided' });
         }
@@ -146,6 +180,8 @@ const uploadSingleImage = async (req, res) => {
 exports.uploadSingleImage = uploadSingleImage;
 const deleteImage = async (req, res) => {
     try {
+        // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+        (0, cloudinary_1.ensureConfigured)();
         const { public_id } = req.body;
         if (!public_id) {
             return res.status(400).json({ error: 'Public ID is required' });
@@ -166,6 +202,8 @@ const deleteImage = async (req, res) => {
 exports.deleteImage = deleteImage;
 const uploadEstablishmentLogo = async (req, res) => {
     try {
+        // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+        (0, cloudinary_1.ensureConfigured)();
         if (!req.file) {
             return res.status(400).json({ error: 'No logo image provided' });
         }
@@ -221,6 +259,8 @@ const uploadEstablishmentLogo = async (req, res) => {
 exports.uploadEstablishmentLogo = uploadEstablishmentLogo;
 const getImageInfo = async (req, res) => {
     try {
+        // Ensure Cloudinary is configured (lazy init for Vercel serverless)
+        (0, cloudinary_1.ensureConfigured)();
         const { public_id } = req.params;
         if (!public_id) {
             return res.status(400).json({ error: 'Public ID is required' });

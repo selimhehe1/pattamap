@@ -980,7 +980,14 @@ app.use((0, sentry_1.sentryErrorMiddleware)());
 // Error handling middleware
 app.use((err, req, res, next) => {
     logger_1.logger.error('Server error', err);
-    res.status(500).json({ error: 'Something went wrong!' });
+    // Temporarily include error details for debugging
+    res.status(500).json({
+        error: 'Something went wrong!',
+        debug: {
+            message: err.message,
+            stack: err.stack?.split('\n').slice(0, 5).join('\n')
+        }
+    });
 });
 // Initialize Redis cache before starting server
 (async () => {
