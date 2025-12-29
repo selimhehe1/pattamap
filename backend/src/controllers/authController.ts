@@ -16,6 +16,7 @@ const COOKIES_SECURE = NODE_ENV === 'production' ||
   process.env.HTTPS_ENABLED === 'true';
 
 // 🔧 FIX: Cookie domain for cross-subdomain sharing (www.pattamap.com <-> api.pattamap.com)
+// Note: Modern browsers don't require leading dot, and Express cookie library may reject it
 const COOKIE_DOMAIN = (() => {
   if (process.env.COOKIE_DOMAIN) {
     return process.env.COOKIE_DOMAIN;
@@ -26,7 +27,8 @@ const COOKIE_DOMAIN = (() => {
       const url = new URL(process.env.CORS_ORIGIN);
       const parts = url.hostname.split('.');
       if (parts.length >= 2) {
-        return '.' + parts.slice(-2).join('.');
+        // Return domain without leading dot (e.g., "pattamap.com")
+        return parts.slice(-2).join('.');
       }
     } catch {
       // Ignore parsing errors

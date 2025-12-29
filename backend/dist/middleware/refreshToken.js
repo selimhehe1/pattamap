@@ -22,7 +22,8 @@ const COOKIE_DOMAIN = (() => {
             const url = new URL(process.env.CORS_ORIGIN);
             const parts = url.hostname.split('.');
             if (parts.length >= 2) {
-                return '.' + parts.slice(-2).join('.');
+                // Return domain without leading dot (e.g., "pattamap.com")
+                return parts.slice(-2).join('.');
             }
         }
         catch {
