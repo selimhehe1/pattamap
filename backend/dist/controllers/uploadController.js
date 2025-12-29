@@ -78,8 +78,18 @@ const uploadImages = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Upload error:', error);
-        res.status(500).json({ error: 'Failed to upload images' });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : '';
+        logger_1.logger.error('Upload error:', { message: errorMessage, stack: errorStack });
+        // Check if Cloudinary is configured
+        const cloudinaryConfigured = !!(process.env.CLOUDINARY_CLOUD_NAME &&
+            process.env.CLOUDINARY_API_KEY &&
+            process.env.CLOUDINARY_API_SECRET);
+        res.status(500).json({
+            error: 'Failed to upload images',
+            details: errorMessage,
+            cloudinaryConfigured
+        });
     }
 };
 exports.uploadImages = uploadImages;
