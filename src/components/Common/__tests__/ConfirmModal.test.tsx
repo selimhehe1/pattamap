@@ -115,7 +115,7 @@ describe('ConfirmModal Component', () => {
       render(<ConfirmModal {...defaultProps} variant="danger" />);
 
       expect(screen.getByText('Confirm Deletion')).toBeInTheDocument();
-      const modal = document.querySelector('.confirm-modal-danger');
+      const modal = document.querySelector('.modal-premium--danger');
       expect(modal).toBeInTheDocument();
     });
 
@@ -123,7 +123,7 @@ describe('ConfirmModal Component', () => {
       render(<ConfirmModal {...defaultProps} variant="warning" />);
 
       expect(screen.getByText('Confirm Action')).toBeInTheDocument();
-      const modal = document.querySelector('.confirm-modal-warning');
+      const modal = document.querySelector('.modal-premium--warning');
       expect(modal).toBeInTheDocument();
     });
 
@@ -132,7 +132,7 @@ describe('ConfirmModal Component', () => {
 
       // Use heading role to distinguish from button
       expect(screen.getByRole('heading', { name: 'Confirm' })).toBeInTheDocument();
-      const modal = document.querySelector('.confirm-modal-success');
+      const modal = document.querySelector('.modal-premium--success');
       expect(modal).toBeInTheDocument();
     });
 
@@ -140,7 +140,7 @@ describe('ConfirmModal Component', () => {
       render(<ConfirmModal {...defaultProps} />);
 
       expect(screen.getByText('Confirmation')).toBeInTheDocument();
-      const modal = document.querySelector('.confirm-modal-info');
+      const modal = document.querySelector('.modal-premium--info');
       expect(modal).toBeInTheDocument();
     });
   });
@@ -149,7 +149,7 @@ describe('ConfirmModal Component', () => {
     it('should call onCancel when clicking on overlay', async () => {
       render(<ConfirmModal {...defaultProps} />);
 
-      const overlay = document.querySelector('.modal-overlay');
+      const overlay = document.querySelector('.modal-premium-overlay');
       expect(overlay).toBeInTheDocument();
 
       // Simulate click on overlay directly
@@ -162,7 +162,7 @@ describe('ConfirmModal Component', () => {
     it('should not close when clicking on modal content', async () => {
       render(<ConfirmModal {...defaultProps} />);
 
-      const modal = document.querySelector('.modal.modal--dialog');
+      const modal = document.querySelector('.modal-premium.modal-premium--small');
       expect(modal).toBeInTheDocument();
 
       fireEvent.click(modal!);
@@ -190,7 +190,7 @@ describe('ConfirmModal Component', () => {
     it('should show danger icon for danger variant', () => {
       render(<ConfirmModal {...defaultProps} variant="danger" />);
 
-      const icon = document.querySelector('.dialog-icon');
+      const icon = document.querySelector('.modal-premium__icon--danger');
       expect(icon).toBeInTheDocument();
       // Lucide TriangleAlert (formerly AlertTriangle) icon is rendered as SVG
       expect(icon?.querySelector('.lucide-triangle-alert')).toBeInTheDocument();
@@ -199,7 +199,7 @@ describe('ConfirmModal Component', () => {
     it('should show warning icon for warning variant', () => {
       render(<ConfirmModal {...defaultProps} variant="warning" />);
 
-      const icon = document.querySelector('.dialog-icon');
+      const icon = document.querySelector('.modal-premium__icon--warning');
       expect(icon).toBeInTheDocument();
       // Lucide Zap icon is rendered as SVG
       expect(icon?.querySelector('.lucide-zap')).toBeInTheDocument();
@@ -208,7 +208,7 @@ describe('ConfirmModal Component', () => {
     it('should show success icon for success variant', () => {
       render(<ConfirmModal {...defaultProps} variant="success" />);
 
-      const icon = document.querySelector('.dialog-icon');
+      const icon = document.querySelector('.modal-premium__icon--success');
       expect(icon).toBeInTheDocument();
       // Lucide Check icon is rendered as SVG
       expect(icon?.querySelector('.lucide-check')).toBeInTheDocument();
@@ -217,7 +217,7 @@ describe('ConfirmModal Component', () => {
     it('should show info icon by default', () => {
       render(<ConfirmModal {...defaultProps} />);
 
-      const icon = document.querySelector('.dialog-icon');
+      const icon = document.querySelector('.modal-premium__icon--info');
       expect(icon).toBeInTheDocument();
       // Lucide Info icon is rendered as SVG
       expect(icon?.querySelector('.lucide-info')).toBeInTheDocument();

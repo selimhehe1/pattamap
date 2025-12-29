@@ -110,9 +110,9 @@ describe('VIPPurchaseModal Component', () => {
         expect(screen.getByText(/Purchase VIP Subscription/i)).toBeInTheDocument();
         // i18n interpolation may not work in tests, so check for the entity name
         expect(screen.getByText(/JD/i)).toBeInTheDocument();
-        // Check the employee-info element contains expected content
-        const employeeInfo = document.querySelector('.employee-info');
-        expect(employeeInfo).toBeInTheDocument();
+        // Check the subtitle contains the entity name (entity info is in modal-premium__subtitle)
+        const subtitle = document.querySelector('.modal-premium__subtitle');
+        expect(subtitle).toBeInTheDocument();
       });
     });
 
@@ -543,8 +543,8 @@ describe('VIPPurchaseModal Component', () => {
         expect(screen.getByText(/Purchase VIP Subscription/i)).toBeInTheDocument();
       });
 
-      // Close button now uses Lucide X icon instead of ✕ text
-      const closeButton = document.querySelector('.close-modal');
+      // Close button uses modal-premium__close class
+      const closeButton = document.querySelector('.modal-premium__close');
       expect(closeButton).toBeInTheDocument();
       fireEvent.click(closeButton!);
 
@@ -585,11 +585,10 @@ describe('VIPPurchaseModal Component', () => {
         expect(screen.getByText(/Purchase VIP Subscription/i)).toBeInTheDocument();
       });
 
-      const overlay = document.querySelector('.vip-purchase-modal-overlay');
-      if (overlay) {
-        fireEvent.click(overlay);
-        expect(mockOnClose).toHaveBeenCalled();
-      }
+      const overlay = document.querySelector('.modal-premium-overlay');
+      expect(overlay).toBeInTheDocument();
+      fireEvent.click(overlay!);
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 });
