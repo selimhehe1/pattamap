@@ -11,16 +11,25 @@ import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
 import '../../styles/components/modal-premium-base.css';
 
-interface EditMyProfileModalProps {
+interface EditEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onProfileUpdated?: () => void;
+  /** If provided, skip API fetch and use this employee directly (for Admin use) */
+  employee?: Employee | null;
+  /** Custom save handler (for Admin use). If not provided, uses default API PUT */
+  onSave?: (data: EmployeeFormData) => Promise<void>;
+  /** Show info note about profile editing (default: true for self-edit, false when employee prop is provided) */
+  showInfoNote?: boolean;
 }
 
-const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
+const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
   isOpen,
   onClose,
-  onProfileUpdated
+  onProfileUpdated,
+  employee: employeeProp,
+  onSave,
+  showInfoNote,
 }) => {
   const { t } = useTranslation();
   const [linkedProfile, setLinkedProfile] = useState<Employee | null>(null);
@@ -32,7 +41,19 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
 
   const retryFetch = () => setRetryCount(c => c + 1);
 
+  // Determine if we should show the info note (default: show for self-edit, hide for admin)
+  const shouldShowInfoNote = showInfoNote ?? !employeeProp;
+
   useEffect(() => {
+    // If employee is provided as prop, use it directly (Admin mode)
+    if (employeeProp) {
+      setLinkedProfile(employeeProp);
+      setIsLoading(false);
+      setFetchError(null);
+      return;
+    }
+
+    // Otherwise, fetch the linked profile (Self-edit mode)
     const fetchLinkedProfile = async () => {
       setIsLoading(true);
       setFetchError(null);
@@ -61,7 +82,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
     if (isOpen) {
       fetchLinkedProfile();
     }
-  }, [isOpen, secureFetch, t, retryCount]);
+  }, [isOpen, secureFetch, t, retryCount, employeeProp]);
 
   const handleSubmit = async (employeeData: EmployeeFormData) => {
     if (!linkedProfile) {
@@ -71,6 +92,16 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
 
     setIsSubmitting(true);
     try {
+      // If custom onSave is provided (Admin mode), use it
+      if (onSave) {
+        await onSave(employeeData);
+        toastService.success(t('editMyProfileModal.successUpdate'));
+        onProfileUpdated?.();
+        onClose();
+        return;
+      }
+
+      // Default behavior: API PUT (Self-edit mode)
       const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/${linkedProfile.id}`, {
         method: 'PUT',
         body: JSON.stringify(employeeData)
@@ -223,26 +254,28 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
                 </motion.div>
               ) : linkedProfile ? (
                 <>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25 }}
-                    style={{
-                      padding: '16px',
-                      background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05))',
-                      border: '1px solid rgba(0, 229, 255, 0.3)',
-                      borderRadius: '12px',
-                      marginBottom: '20px',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px'
-                    }}
-                  >
-                    <Info size={20} style={{ color: '#00E5FF', flexShrink: 0, marginTop: '2px' }} />
-                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
-                      <strong style={{ color: '#00E5FF' }}>{t('editMyProfileModal.noteTitle')}</strong> {t('editMyProfileModal.noteText')}
-                    </p>
-                  </motion.div>
+                  {shouldShowInfoNote && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.25 }}
+                      style={{
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05))',
+                        border: '1px solid rgba(0, 229, 255, 0.3)',
+                        borderRadius: '12px',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px'
+                      }}
+                    >
+                      <Info size={20} style={{ color: '#00E5FF', flexShrink: 0, marginTop: '2px' }} />
+                      <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
+                        <strong style={{ color: '#00E5FF' }}>{t('editMyProfileModal.noteTitle')}</strong> {t('editMyProfileModal.noteText')}
+                      </p>
+                    </motion.div>
+                  )}
 
                   <EmployeeForm
                     onSubmit={handleSubmit}
@@ -280,4 +313,4 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   return createPortal(modalContent, document.body);
 };
 
-export default EditMyProfileModal;
+export default EditEmployeeModal;

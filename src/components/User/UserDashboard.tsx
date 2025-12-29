@@ -9,7 +9,7 @@ import { useFavorites, useRemoveFavorite } from '../../hooks/useFavorites';
 import StarRating from '../Common/StarRating';
 import { GirlProfile } from '../../routes/lazyComponents';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
-import EditMyProfileModal from '../Employee/EditMyProfileModal';
+import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import { logger } from '../../utils/logger';
 import LazyImage from '../Common/LazyImage';
 import { generateEstablishmentUrl } from '../../utils/slugify';
@@ -264,7 +264,7 @@ const UserDashboard: React.FC = () => {
       )}
 
       {/* Edit My Profile Modal */}
-      <EditMyProfileModal
+      <EditEmployeeModal
         isOpen={isEditProfileModalOpen}
         onClose={() => setIsEditProfileModalOpen(false)}
         onProfileUpdated={() => {

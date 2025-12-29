@@ -135,7 +135,7 @@ vi.mock('../../Common/PhotoGalleryModal', () => ({
   ),
 }));
 
-vi.mock('../../Employee/EditMyProfileModal', () => ({
+vi.mock('../../Employee/EditEmployeeModal', () => ({
   default: ({ isOpen, onClose }: any) => isOpen ? (
     <div data-testid="edit-profile-modal">
       <button onClick={onClose}>Close Edit</button>

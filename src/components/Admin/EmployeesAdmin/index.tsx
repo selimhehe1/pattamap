@@ -14,7 +14,7 @@ import { EmployeesFilterTabs } from './EmployeesFilterTabs';
 import { EmployeeCard } from './EmployeeCard';
 import { EditProposalCard } from './EditProposalCard';
 import { EmployeeDetailModal } from './EmployeeDetailModal';
-import { EditEmployeeModal } from './EditEmployeeModal';
+import EditEmployeeModal from '../../Employee/EditEmployeeModal';
 import { logger } from '../../../utils/logger';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/components/social-icons.css';

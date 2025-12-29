@@ -24,7 +24,7 @@ import toast from '../utils/toast';
 const LoginForm = lazy(() => import('../components/Auth/LoginForm'));
 const MultiStepRegisterForm = lazy(() => import('../components/Auth/MultiStepRegisterForm'));
 const EmployeeProfileWizard = lazy(() => import('../components/Employee/EmployeeProfileWizard'));
-const EditMyProfileModal = lazy(() => import('../components/Employee/EditMyProfileModal'));
+const EditMyProfileModal = lazy(() => import('../components/Employee/EditEmployeeModal'));
 const UserInfoModal = lazy(() => import('../components/User/UserInfoModal'));
 const EmployeeForm = lazy(() => import('../components/Forms/EmployeeForm'));
 const EstablishmentForm = lazy(() => import('../components/Forms/EstablishmentForm'));

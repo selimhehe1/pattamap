@@ -6,7 +6,7 @@ import LoadingFallback from '../Common/LoadingFallback';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
-import EditMyProfileModal from './EditMyProfileModal';
+import EditEmployeeModal from './EditEmployeeModal';
 import VIPPurchaseModal from '../Owner/VIPPurchaseModal';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import {
@@ -666,7 +666,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Edit Profile Modal */}
       {showEditModal && (
-        <EditMyProfileModal
+        <EditEmployeeModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           onProfileUpdated={async () => {
