@@ -170,6 +170,14 @@
   border: 2px solid var(--color-primary);
   box-shadow: 0 0 15px rgba(232, 121, 249, 0.4);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-v2-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .profile-v2-header-info {
