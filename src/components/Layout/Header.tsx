@@ -289,7 +289,6 @@ const Header: React.FC = () => {
                               <span className="menu-xp-level">Level {userProgress.current_level}</span>
                               <span className="menu-xp-amount">{userProgress.total_xp.toLocaleString()} XP</span>
                             </button>
-                            <NotificationBell />
                           </div>
                         </div>
                       )}
@@ -361,6 +360,9 @@ const Header: React.FC = () => {
                           <span className="menu-item-icon"><MapPin size={18} /></span>
                           <span className="menu-item-text">{t('header.myVisits')}</span>
                         </AnimatedButton>
+
+                        {/* Notifications - Full menu item with dropdown */}
+                        <NotificationBell variant="menu-item" />
                       </div>
 
                       {/* Actions Section */}

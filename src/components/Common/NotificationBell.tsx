@@ -121,7 +121,11 @@ interface Notification {
 const BASE_POLL_INTERVAL_MS = 30000; // 30 seconds base
 const MAX_POLL_INTERVAL_MS = 300000; // 5 minutes max
 
-const NotificationBell: React.FC = () => {
+interface NotificationBellProps {
+  variant?: 'default' | 'menu-item';
+}
+
+const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default' }) => {
   const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
   const navigate = useNavigateWithTransition();
@@ -716,21 +720,41 @@ const NotificationBell: React.FC = () => {
   }
 
   return (
-    <div className="notification-bell-container" ref={dropdownRef}>
-      {/* Bell Button */}
-      <button
-        ref={buttonRef}
-        className="notification-bell-button"
-        onClick={handleToggleDropdown}
-        aria-label={`Notifications. ${unreadCount} unread`}
-      >
-        <span className="notification-bell-icon"><Bell size={20} /></span>
-        {unreadCount > 0 && (
-          <span className="notification-bell-badge" aria-label={`${unreadCount} unread notifications`}>
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
-      </button>
+    <div className={`notification-bell-container ${variant === 'menu-item' ? 'menu-item-variant' : ''}`} ref={dropdownRef}>
+      {/* Render based on variant */}
+      {variant === 'menu-item' ? (
+        /* Menu Item Variant - Full width menu item style */
+        <button
+          ref={buttonRef}
+          className="menu-item-modern notification-menu-item"
+          onClick={handleToggleDropdown}
+          aria-label={`${t('notifications.title')}. ${unreadCount} ${t('notifications.unread')}`}
+          aria-expanded={showDropdown}
+        >
+          <span className="menu-item-icon"><Bell size={18} /></span>
+          <span className="menu-item-text">{t('notifications.title')}</span>
+          {unreadCount > 0 && (
+            <span className="notification-menu-badge" aria-label={`${unreadCount} ${t('notifications.unread')}`}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      ) : (
+        /* Default Variant - Compact bell button */
+        <button
+          ref={buttonRef}
+          className="notification-bell-button"
+          onClick={handleToggleDropdown}
+          aria-label={`Notifications. ${unreadCount} unread`}
+        >
+          <span className="notification-bell-icon"><Bell size={20} /></span>
+          {unreadCount > 0 && (
+            <span className="notification-bell-badge" aria-label={`${unreadCount} unread notifications`}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Dropdown - Uses fixed positioning to escape parent overflow */}
       {showDropdown && (

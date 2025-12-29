@@ -570,6 +570,122 @@
   }
 }
 
+/* ==========================================
+   MENU ITEM VARIANT - Full width menu item style
+   ========================================== */
+
+.notification-bell-container.menu-item-variant {
+  width: 100%;
+}
+
+/* Menu item button - inherits from .menu-item-modern in header.css */
+.notification-menu-item {
+  position: relative;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+
+/* Hover indicator line */
+.notification-menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.8), rgba(232, 121, 249, 0.4));
+  border-radius: 0 2px 2px 0;
+  transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-menu-item:hover::before {
+  height: 70%;
+}
+
+.notification-menu-item:hover {
+  background: rgba(232, 121, 249, 0.12);
+  color: white;
+  transform: translateX(4px);
+}
+
+.notification-menu-item:active {
+  transform: translateX(4px) scale(0.98);
+}
+
+/* Icon inside menu item */
+.notification-menu-item .menu-item-icon {
+  font-size: 1.125rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-menu-item:hover .menu-item-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 4px rgba(232, 121, 249, 0.4));
+}
+
+/* Text inside menu item */
+.notification-menu-item .menu-item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge for menu item variant */
+.notification-menu-badge {
+  margin-left: auto;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  animation: menuBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes menuBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Light mode for menu item variant */
+body[data-theme="light"] .notification-menu-item {
+  color: var(--text-secondary);
+}
+
+body[data-theme="light"] .notification-menu-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .notification-dropdown {
