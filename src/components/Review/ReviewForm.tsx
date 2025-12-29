@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSecureFetch } from '../../hooks/useSecureFetch';
 import ImageUploadPreview from '../Common/ImageUploadPreview';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
@@ -27,38 +28,31 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { secureFetch } = useSecureFetch();
   const [comment, setComment] = useState<string>('');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [photos, setPhotos] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Upload photos to Cloudinary
-  const uploadPhotosToCloudinary = async (files: File[]): Promise<string[]> => {
-    const uploadPromises = files.map(async (file) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '');
-      formData.append('folder', 'review_photos');
-
-      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
-        throw new Error(errorData.error?.message || `Upload failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.secure_url;
+  // Upload photos via backend API (same as EmployeeForm)
+  const uploadPhotosViaBackend = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
     });
 
-    return Promise.all(uploadPromises);
+    const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.images.map((img: { url: string }) => img.url);
   };
 
   const handleFilesChange = (files: File[]) => {
@@ -95,7 +89,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       setIsUploading(true);
       try {
         toast.info(t('reviews.photoUploading', 'Uploading photos...'));
-        photoUrls = await uploadPhotosToCloudinary(photos);
+        photoUrls = await uploadPhotosViaBackend(photos);
         logger.info(`Uploaded ${photoUrls.length} photos for review`);
       } catch (error: unknown) {
         logger.error('Photo upload error:', error);
