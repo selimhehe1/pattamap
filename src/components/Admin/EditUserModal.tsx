@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { User } from '../../types';
 import { logger } from '../../utils/logger';
@@ -14,9 +16,11 @@ import {
   FileText,
   Loader2,
   Save,
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
-import '../../styles/components/modals.css';
+import { premiumBackdropVariants, premiumModalVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 interface AdminUser extends User {
   is_active: boolean;
@@ -110,51 +114,88 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     });
   };
 
-  if (!isOpen) return null;
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--medium">
-        {/* Header */}
-        <div style={{
-          padding: '30px 30px 20px 30px',
-          borderBottom: '1px solid rgba(193, 154, 107,0.3)'
-        }}>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="modal-close-btn"
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--large"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-user-modal-title"
           >
-            ×
-          </button>
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={onClose}
+              aria-label={t('common.close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
 
-          <h2 style={{
-            color: '#C19A6B',
-            fontSize: '28px',
-            fontWeight: 'bold',
-            margin: '0 0 10px 0',
-            fontFamily: '"Orbitron", monospace'
-          }}>
-            <UserIcon size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            {t('admin.editUserProfile')}
-          </h2>
-          <p style={{
-            color: '#cccccc',
-            fontSize: '16px',
-            margin: 0
-          }}>
-            {t('admin.modifyUserDetails')}
-          </p>
-        </div>
+            {/* Header */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className="modal-premium__icon modal-premium__icon--info"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <UserIcon size={32} />
+              </motion.div>
+              <motion.h2
+                id="edit-user-modal-title"
+                className="modal-premium__title modal-premium__title--info"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {t('admin.editUserProfile')}
+              </motion.h2>
+              <motion.p
+                className="modal-premium__subtitle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {t('admin.modifyUserDetails')}
+              </motion.p>
+            </div>
 
-        {/* Form Content */}
-        <div style={{ padding: '30px' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '150px 1fr',
-            gap: '30px',
-            color: 'white'
-          }}>
+            {/* Form Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+              style={{ maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '150px 1fr',
+                gap: '30px',
+                color: 'white'
+              }}>
             {/* User Avatar */}
             <div style={{
               display: 'flex',
@@ -523,76 +564,50 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div style={{
-            display: 'flex',
-            gap: '15px',
-            marginTop: '30px',
-            paddingTop: '20px',
-            borderTop: '1px solid rgba(193, 154, 107,0.3)'
-          }}>
-            <button
-              onClick={onClose}
-              style={{
-                flex: 1,
-                padding: '15px',
-                borderRadius: '12px',
-                border: '2px solid rgba(193, 154, 107,0.5)',
-                background: 'transparent',
-                color: '#C19A6B',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(193, 154, 107,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              {t('common.cancel')}
-            </button>
+              {/* Action Buttons */}
+              <div className="modal-premium__footer">
+                <motion.button
+                  className="modal-premium__btn-secondary"
+                  onClick={onClose}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {t('common.cancel')}
+                </motion.button>
 
-            <button
-              onClick={handleSave}
-              disabled={isSaving || !formData.pseudonym || !formData.email}
-              style={{
-                flex: 2,
-                padding: '15px',
-                borderRadius: '12px',
-                border: 'none',
-                background: isSaving || !formData.pseudonym || !formData.email
-                  ? 'linear-gradient(45deg, #666666, #888888)'
-                  : 'linear-gradient(45deg, #00FF7F, #00CC65)',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: isSaving || !formData.pseudonym || !formData.email ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                opacity: isSaving || !formData.pseudonym || !formData.email ? 0.7 : 1
-              }}
-              onMouseEnter={(e) => {
-                if (!isSaving && formData.pseudonym && formData.email) {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,255,127,0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSaving && formData.pseudonym && formData.email) {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }
-              }}
-            >
-              {isSaving ? <><Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.saving')}</> : <><Save size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.saveChanges')}</>}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+                <motion.button
+                  className="modal-premium__btn-primary"
+                  onClick={handleSave}
+                  disabled={isSaving || !formData.pseudonym || !formData.email}
+                  whileHover={{ scale: isSaving || !formData.pseudonym || !formData.email ? 1 : 1.02 }}
+                  whileTap={{ scale: isSaving || !formData.pseudonym || !formData.email ? 1 : 0.98 }}
+                  style={{
+                    flex: 2,
+                    opacity: isSaving || !formData.pseudonym || !formData.email ? 0.6 : 1,
+                    cursor: isSaving || !formData.pseudonym || !formData.email ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" style={{ marginRight: '8px' }} />
+                      {t('admin.saving')}
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} style={{ marginRight: '8px' }} />
+                      {t('admin.saveChanges')}
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default EditUserModal;

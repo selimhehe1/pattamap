@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
@@ -12,26 +14,27 @@ import {
   MessageSquare,
   Camera,
   Rocket,
-  Info
+  Info,
+  X,
+  Plus,
+  Loader2
 } from 'lucide-react';
-import '../../styles/components/modals.css';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 interface ClaimEmployeeModalProps {
   onClose: () => void;
   onClaimSubmitted?: () => void;
-  preselectedEmployee?: Employee; // 🆕 v10.0.2 - Allow pre-filling modal with specific employee
+  preselectedEmployee?: Employee;
+  isOpen?: boolean;
 }
 
-/**
- * ClaimEmployeeModal
- * Modal allowing users to claim an existing employee profile
- * Features:
- * - Autocomplete search for employee profiles
- * - Message input (justification)
- * - Optional verification proof (URLs to images/documents)
- * - Submit claim request for admin approval
- */
-const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClaimSubmitted, preselectedEmployee }) => {
+const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
+  onClose,
+  onClaimSubmitted,
+  preselectedEmployee,
+  isOpen = true
+}) => {
   const { t } = useTranslation();
   const { claimEmployeeProfile } = useAuth();
   const { secureFetch } = useSecureFetch();
@@ -48,7 +51,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounced search for employee name suggestions
+  const MAX_PROOF_URLS = 5;
+
   useEffect(() => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
@@ -66,9 +70,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/employees/suggestions/names?q=${encodeURIComponent(searchQuery)}`,
-          {
-            credentials: 'include',
-          }
+          { credentials: 'include' }
         );
 
         if (response.ok) {
@@ -90,7 +92,6 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     };
   }, [searchQuery]);
 
-  // 🆕 v10.0.2 - Pre-fill if employee is preselected (from wizard or gallery)
   useEffect(() => {
     if (preselectedEmployee) {
       setSelectedEmployee(preselectedEmployee);
@@ -99,7 +100,6 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     }
   }, [preselectedEmployee]);
 
-  // Search full employee details by name
   const searchEmployeeByName = async (name: string) => {
     try {
       const response = await secureFetch(
@@ -110,7 +110,6 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
       if (response.ok) {
         const data = await response.json();
         if (data.data && data.data.length > 0) {
-          // Find exact match or take first result
           const exactMatch = data.data.find(
             (emp: Employee) => emp.name.toLowerCase() === name.toLowerCase()
           );
@@ -131,13 +130,8 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     searchEmployeeByName(suggestion);
   };
 
-  // 🔧 FIX C7: Limit proof URLs to 5 max
-  const MAX_PROOF_URLS = 5;
-
   const addProofField = () => {
-    if (verificationProofs.length >= MAX_PROOF_URLS) {
-      return; // Don't add more than 5
-    }
+    if (verificationProofs.length >= MAX_PROOF_URLS) return;
     setVerificationProofs([...verificationProofs, '']);
   };
 
@@ -167,9 +161,7 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     setIsLoading(true);
 
     try {
-      // Filter out empty proof URLs
       const proofs = verificationProofs.filter((p) => p.trim().length > 0);
-
       await claimEmployeeProfile!(selectedEmployee.id, message.trim(), proofs);
 
       toast.success(t('claimEmployeeModal.successClaimSubmitted'));
@@ -183,327 +175,377 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({ onClose, onClai
     }
   };
 
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--medium">
-        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
-          ×
-        </button>
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-        <div className="modal-header">
-          <h2 className="header-title-nightlife"><Link size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.title')}</h2>
-          <p className="modal-subtitle">
-            {t('claimEmployeeModal.subtitle')}
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="form-layout">
-          {/* Step 1: Search Employee - Hidden if preselected */}
-          {!preselectedEmployee && (
-          <div style={{ marginBottom: '24px' }}>
-            <label
-              style={{
-                display: 'block',
-                color: '#00E5FF',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-              }}
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--medium"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="claim-employee-modal-title"
+          >
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={onClose}
+              aria-label={t('common.close', 'Close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Search size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-              {t('claimEmployeeModal.searchLabel')}
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('claimEmployeeModal.searchPlaceholder')}
-                style={{
-                  width: '100%',
-                  padding: '12px 40px 12px 16px',
-                  background: 'rgba(0,0,0,0.4)',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  transition: 'all 0.3s ease',
-                }}
-                onFocus={() => searchQuery.length >= 2 && setShowSuggestions(true)}
-              />
-              {isSearching && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                  }}
-                >
-                  <span className="loading-spinner-small-nightlife" />
-                </div>
-              )}
+              <X size={18} />
+            </motion.button>
 
-              {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    marginTop: '4px',
-                    background: 'rgba(0,0,0,0.95)',
-                    border: '2px solid #00E5FF',
-                    borderRadius: '12px',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    zIndex: 10,
-                  }}
-                >
-                  {suggestions.map((suggestion, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleSuggestionClick(suggestion.name)}
+            {/* Header */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className="modal-premium__icon modal-premium__icon--info"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <Link size={32} />
+              </motion.div>
+              <motion.h2
+                id="claim-employee-modal-title"
+                className="modal-premium__title modal-premium__title--info"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {t('claimEmployeeModal.title')}
+              </motion.h2>
+              <motion.p
+                className="modal-premium__subtitle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {t('claimEmployeeModal.subtitle')}
+              </motion.p>
+            </div>
+
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              style={{ maxHeight: '60vh', overflowY: 'auto' }}
+            >
+              <form onSubmit={handleSubmit}>
+                {/* Step 1: Search Employee */}
+                {!preselectedEmployee && (
+                  <motion.div
+                    className="modal-premium__field"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                  >
+                    <label className="modal-premium__label">
+                      <Search size={14} />
+                      {t('claimEmployeeModal.searchLabel')}
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={t('claimEmployeeModal.searchPlaceholder')}
+                        className="modal-premium__input"
+                        onFocus={() => searchQuery.length >= 2 && setShowSuggestions(true)}
+                      />
+                      {isSearching && (
+                        <motion.div
+                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#00E5FF' }}
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <Loader2 size={18} />
+                        </motion.div>
+                      )}
+
+                      {/* Suggestions Dropdown */}
+                      <AnimatePresence>
+                        {showSuggestions && suggestions.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              right: 0,
+                              marginTop: '4px',
+                              background: 'rgba(0,0,0,0.95)',
+                              border: '2px solid rgba(0, 229, 255, 0.5)',
+                              borderRadius: '12px',
+                              maxHeight: '200px',
+                              overflowY: 'auto',
+                              zIndex: 10,
+                              backdropFilter: 'blur(10px)',
+                            }}
+                          >
+                            {suggestions.map((suggestion, idx) => (
+                              <motion.div
+                                key={idx}
+                                onClick={() => handleSuggestionClick(suggestion.name)}
+                                style={{
+                                  padding: '12px 16px',
+                                  cursor: 'pointer',
+                                  borderBottom: idx < suggestions.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                                }}
+                                whileHover={{ background: 'rgba(0,229,255,0.1)' }}
+                              >
+                                <div style={{ color: '#ffffff', fontWeight: 'bold' }}>
+                                  {suggestion.name}
+                                  {suggestion.nickname && (
+                                    <span style={{ color: '#cccccc', marginLeft: '8px' }}>({suggestion.nickname})</span>
+                                  )}
+                                </div>
+                              </motion.div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <span className="modal-premium__hint">{t('claimEmployeeModal.searchHint')}</span>
+                  </motion.div>
+                )}
+
+                {/* Selected Employee Preview */}
+                <AnimatePresence>
+                  {selectedEmployee && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       style={{
-                        padding: '12px 16px',
-                        cursor: 'pointer',
-                        borderBottom: idx < suggestions.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                        transition: 'background 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(0,229,255,0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(232, 121, 249,0.1))',
+                        border: '2px solid rgba(0, 229, 255, 0.5)',
+                        borderRadius: '12px',
+                        marginBottom: '20px',
                       }}
                     >
-                      <div style={{ color: '#ffffff', fontWeight: 'bold' }}>
-                        {suggestion.name}
-                        {suggestion.nickname && <span style={{ color: '#cccccc', marginLeft: '8px' }}>({suggestion.nickname})</span>}
+                      <div style={{ fontWeight: 'bold', marginBottom: '12px', color: '#00E5FF', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <CheckCircle size={16} />
+                        {t('claimEmployeeModal.selectedProfileLabel')}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        {selectedEmployee.photos && selectedEmployee.photos[0] && (
+                          <img
+                            src={selectedEmployee.photos[0]}
+                            alt={selectedEmployee.name}
+                            style={{
+                              width: '60px',
+                              height: '60px',
+                              objectFit: 'cover',
+                              borderRadius: '8px',
+                              border: '2px solid rgba(0, 229, 255, 0.3)',
+                            }}
+                          />
+                        )}
+                        <div>
+                          <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '16px' }}>
+                            {selectedEmployee.name}
+                          </div>
+                          {selectedEmployee.nickname && (
+                            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>
+                              {t('claimEmployeeModal.nicknamePrefix')} "{selectedEmployee.nickname}"
+                            </div>
+                          )}
+                          {selectedEmployee.age && selectedEmployee.nationality && (
+                            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', marginTop: '4px' }}>
+                              {t('claimEmployeeModal.yearsOld', { age: selectedEmployee.age })} {t('claimEmployeeModal.ageSeparator')} {selectedEmployee.nationality}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-            <div style={{ fontSize: '12px', color: '#cccccc', marginTop: '6px' }}>
-              {t('claimEmployeeModal.searchHint')}
-            </div>
-          </div>
-          )}
-
-          {/* Selected Employee Preview */}
-          {selectedEmployee && (
-            <div
-              style={{
-                padding: '16px',
-                background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.2))',
-                border: '2px solid #00E5FF',
-                borderRadius: '12px',
-                marginBottom: '24px',
-              }}
-            >
-              <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#00E5FF' }}>
-                <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                {t('claimEmployeeModal.selectedProfileLabel')}
-              </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                {selectedEmployee.photos && selectedEmployee.photos[0] && (
-                  <img
-                    src={selectedEmployee.photos[0]}
-                    alt={selectedEmployee.name}
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                    }}
+                {/* Step 2: Justification Message */}
+                <motion.div
+                  className="modal-premium__field"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <label className="modal-premium__label" style={{ color: '#E879F9' }}>
+                    <MessageSquare size={14} />
+                    {t('claimEmployeeModal.messageLabelRequired')} *
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder={t('claimEmployeeModal.messagePlaceholder')}
+                    rows={4}
+                    required
+                    minLength={10}
+                    className="modal-premium__textarea"
                   />
-                )}
-                <div>
-                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '16px' }}>
-                    {selectedEmployee.name}
-                  </div>
-                  {selectedEmployee.nickname && (
-                    <div style={{ color: '#cccccc', fontSize: '13px' }}>
-                      {t('claimEmployeeModal.nicknamePrefix')} "{selectedEmployee.nickname}"
-                    </div>
-                  )}
-                  {selectedEmployee.age && selectedEmployee.nationality && (
-                    <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                      {t('claimEmployeeModal.yearsOld', { age: selectedEmployee.age })} {t('claimEmployeeModal.ageSeparator')} {selectedEmployee.nationality}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+                  <span className={`modal-premium__char-counter ${message.length >= 10 ? 'modal-premium__char-counter--success' : ''}`}>
+                    {t('claimEmployeeModal.characterCount', { count: message.length })}
+                  </span>
+                </motion.div>
 
-          {/* Step 2: Justification Message */}
-          <div style={{ marginBottom: '24px' }}>
-            <label
-              style={{
-                display: 'block',
-                color: '#C19A6B',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-              }}
-            >
-              <MessageSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-              {t('claimEmployeeModal.messageLabelRequired')} *
-            </label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={t('claimEmployeeModal.messagePlaceholder')}
-              rows={4}
-              required
-              minLength={10}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'rgba(0,0,0,0.4)',
-                border: '2px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
-                color: '#ffffff',
-                fontSize: '14px',
-                resize: 'vertical',
-              }}
-            />
-            <div
-              style={{
-                fontSize: '12px',
-                color: message.length >= 10 ? '#00E5FF' : '#cccccc',
-                marginTop: '4px',
-              }}
-            >
-              {t('claimEmployeeModal.characterCount', { count: message.length })}
-            </div>
-          </div>
+                {/* Step 3: Verification Proof */}
+                <motion.div
+                  className="modal-premium__field"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  <label className="modal-premium__label">
+                    <Camera size={14} />
+                    {t('claimEmployeeModal.verificationProofLabel')}
+                  </label>
+                  <span className="modal-premium__hint" style={{ marginBottom: '12px', display: 'block' }}>
+                    {t('claimEmployeeModal.verificationProofHint')}
+                  </span>
 
-          {/* Step 3: Verification Proof (Optional) */}
-          <div style={{ marginBottom: '24px' }}>
-            <label
-              style={{
-                display: 'block',
-                color: '#00E5FF',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-              }}
-            >
-              <Camera size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-              {t('claimEmployeeModal.verificationProofLabel')}
-            </label>
-            <div style={{ fontSize: '12px', color: '#cccccc', marginBottom: '12px' }}>
-              {t('claimEmployeeModal.verificationProofHint')}
-            </div>
+                  {verificationProofs.map((proof, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}
+                    >
+                      <input
+                        type="url"
+                        value={proof}
+                        onChange={(e) => updateProofField(index, e.target.value)}
+                        placeholder={t('claimEmployeeModal.verificationProofPlaceholder')}
+                        className="modal-premium__input"
+                        style={{ flex: 1 }}
+                      />
+                      {verificationProofs.length > 1 && (
+                        <motion.button
+                          type="button"
+                          onClick={() => removeProofField(index)}
+                          className="modal-premium__btn-secondary"
+                          style={{ padding: '10px 16px', minWidth: 'auto' }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <X size={16} />
+                        </motion.button>
+                      )}
+                    </motion.div>
+                  ))}
 
-            {verificationProofs.map((proof, index) => (
-              <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                <input
-                  type="url"
-                  value={proof}
-                  onChange={(e) => updateProofField(index, e.target.value)}
-                  placeholder={t('claimEmployeeModal.verificationProofPlaceholder')}
-                  style={{
-                    flex: 1,
-                    padding: '10px 12px',
-                    background: 'rgba(0,0,0,0.4)',
-                    border: '2px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                  }}
-                />
-                {verificationProofs.length > 1 && (
-                  <button
+                  <motion.button
                     type="button"
-                    onClick={() => removeProofField(index)}
-                    style={{
-                      padding: '10px 16px',
-                      background: 'rgba(193, 154, 107,0.2)',
-                      border: '1px solid #C19A6B',
-                      borderRadius: '8px',
-                      color: '#C19A6B',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                    }}
+                    onClick={addProofField}
+                    disabled={verificationProofs.length >= MAX_PROOF_URLS}
+                    className="modal-premium__btn-secondary"
+                    style={{ marginTop: '8px', opacity: verificationProofs.length >= MAX_PROOF_URLS ? 0.5 : 1 }}
+                    whileHover={{ scale: verificationProofs.length >= MAX_PROOF_URLS ? 1 : 1.02 }}
+                    whileTap={{ scale: verificationProofs.length >= MAX_PROOF_URLS ? 1 : 0.98 }}
                   >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
+                    <Plus size={14} />
+                    {t('claimEmployeeModal.addProofButton')} ({verificationProofs.length}/{MAX_PROOF_URLS})
+                  </motion.button>
+                </motion.div>
 
-            {/* 🔧 FIX C7: Disable button when at max proof URLs */}
-            <button
-              type="button"
-              onClick={addProofField}
-              disabled={verificationProofs.length >= MAX_PROOF_URLS}
-              style={{
-                padding: '8px 16px',
-                background: verificationProofs.length >= MAX_PROOF_URLS ? 'rgba(128,128,128,0.1)' : 'rgba(0,229,255,0.1)',
-                border: `1px solid ${verificationProofs.length >= MAX_PROOF_URLS ? '#666' : '#00E5FF'}`,
-                borderRadius: '8px',
-                color: verificationProofs.length >= MAX_PROOF_URLS ? '#666' : '#00E5FF',
-                cursor: verificationProofs.length >= MAX_PROOF_URLS ? 'not-allowed' : 'pointer',
-                fontSize: '13px',
-                marginTop: '8px',
-              }}
-            >
-              + {t('claimEmployeeModal.addProofButton')} ({verificationProofs.length}/{MAX_PROOF_URLS})
-            </button>
-          </div>
+                {/* Info Box */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  style={{
+                    padding: '16px',
+                    background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.05))',
+                    border: '1px solid rgba(0,229,255,0.3)',
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <div style={{ fontWeight: 'bold', color: '#00E5FF', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Info size={16} />
+                    {t('claimEmployeeModal.whatHappensNextTitle')}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '20px', color: 'rgba(255,255,255,0.7)', fontSize: '13px', lineHeight: '1.6' }}>
+                    <li>{t('claimEmployeeModal.whatHappensNextStep1')}</li>
+                    <li>{t('claimEmployeeModal.whatHappensNextStep2')}</li>
+                    <li>{t('claimEmployeeModal.whatHappensNextStep3')}</li>
+                  </ul>
+                </motion.div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !selectedEmployee || message.trim().length < 10}
-            className={`btn btn--success ${isLoading ? 'btn-loading' : ''}`}
-            style={{
-              width: '100%',
-              opacity: !selectedEmployee || message.trim().length < 10 ? 0.5 : 1,
-            }}
-          >
-            {isLoading ? (
-              <span className="loading-flex">
-                <span className="loading-spinner-small-nightlife" />
-                {t('claimEmployeeModal.buttonSubmitting')}
-              </span>
-            ) : (
-              <><Rocket size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.buttonSubmitClaim')}</>
-
-            )}
-          </button>
-
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '12px',
-              background: 'rgba(0,229,255,0.1)',
-              border: '1px solid rgba(0,229,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              color: '#cccccc',
-            }}
-          >
-            <strong style={{ color: '#00E5FF' }}><Info size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('claimEmployeeModal.whatHappensNextTitle')}</strong>
-            <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-              <li>{t('claimEmployeeModal.whatHappensNextStep1')}</li>
-              <li>{t('claimEmployeeModal.whatHappensNextStep2')}</li>
-              <li>{t('claimEmployeeModal.whatHappensNextStep3')}</li>
-            </ul>
-          </div>
-        </form>
-      </div>
-    </div>
+                {/* Footer */}
+                <motion.div
+                  className="modal-premium__footer"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45 }}
+                >
+                  <motion.button
+                    type="button"
+                    className="modal-premium__btn-secondary"
+                    onClick={onClose}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <X size={16} />
+                    {t('common.cancel', 'Cancel')}
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    className="modal-premium__btn-primary modal-premium__btn-success"
+                    disabled={isLoading || !selectedEmployee || message.trim().length < 10}
+                    style={{ opacity: !selectedEmployee || message.trim().length < 10 ? 0.5 : 1 }}
+                    whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                  >
+                    {isLoading ? (
+                      <>
+                        <motion.span
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <Loader2 size={16} />
+                        </motion.span>
+                        {t('claimEmployeeModal.buttonSubmitting')}
+                      </>
+                    ) : (
+                      <>
+                        <Rocket size={16} />
+                        {t('claimEmployeeModal.buttonSubmitClaim')}
+                      </>
+                    )}
+                  </motion.button>
+                </motion.div>
+              </form>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ClaimEmployeeModal;

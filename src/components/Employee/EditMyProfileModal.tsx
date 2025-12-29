@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { XCircle, RefreshCw } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { XCircle, RefreshCw, X, UserCog, Loader2, Info } from 'lucide-react';
 import toastService from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee, EmployeeFormData } from '../../types';
 import { logger } from '../../utils/logger';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 interface EditMyProfileModalProps {
   isOpen: boolean;
@@ -13,21 +17,11 @@ interface EditMyProfileModalProps {
   onProfileUpdated?: () => void;
 }
 
-/**
- * Modal for claimed employees to edit their own profile
- *
- * Features:
- * - Fetches linked employee profile via GET /api/employees/my-linked-profile
- * - Reuses EmployeeForm with initialData prop
- * - Calls PUT /api/employees/:id to update profile
- * - Backend checks user_id permission (added in v10.0)
- */
 const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   isOpen,
   onClose,
   onProfileUpdated
 }) => {
-  logger.debug('EditMyProfileModal RENDER - isOpen:', isOpen);
   const { t } = useTranslation();
   const [linkedProfile, setLinkedProfile] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,31 +30,24 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
   const { secureFetch } = useSecureFetch();
   const [retryCount, setRetryCount] = useState(0);
 
-  // Helper function to trigger retry
   const retryFetch = () => setRetryCount(c => c + 1);
 
-  // Fetch linked profile when modal opens
   useEffect(() => {
     const fetchLinkedProfile = async () => {
       setIsLoading(true);
       setFetchError(null);
       try {
-        logger.debug('Fetching /api/employees/my-linked-profile...');
         const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/employees/my-linked-profile`, {
           method: 'GET'
         });
 
-        logger.debug('Response status:', { status: response.status, statusText: response.statusText });
-
         if (!response.ok) {
           const errorData = await response.json();
-          logger.error('API Error:', errorData);
           throw new Error(errorData.error || t('editMyProfileModal.errorFetchProfile', { status: response.status }));
         }
 
         const data = await response.json();
-        logger.debug('Profile data received:', data);
-        setLinkedProfile(data); // Backend returns employee directly (no wrapper)
+        setLinkedProfile(data);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
         logger.error('Fetch error:', error);
@@ -71,9 +58,7 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
       }
     };
 
-    logger.debug('EditMyProfileModal useEffect - isOpen:', isOpen);
     if (isOpen) {
-      logger.debug('Modal is open, fetching linked profile...');
       fetchLinkedProfile();
     }
   }, [isOpen, secureFetch, t, retryCount]);
@@ -107,92 +92,192 @@ const EditMyProfileModal: React.FC<EditMyProfileModalProps> = ({
     }
   };
 
-  const handleCancel = () => {
-    onClose();
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
   };
 
-  if (!isOpen) return null;
-
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--large">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="modal-close-btn"
-          aria-label={t('editMyProfileModal.ariaCloseModal')}
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
         >
-          ×
-        </button>
+          <motion.div
+            className="modal-premium modal-premium--large"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-my-profile-modal-title"
+          >
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={onClose}
+              aria-label={t('editMyProfileModal.ariaCloseModal')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
 
-        {/* Header */}
-        <div style={{ padding: '20px 25px', borderBottom: '1px solid rgba(193, 154, 107, 0.3)' }}>
-          <h2 className="header-title-nightlife">
-            {t('editMyProfileModal.title')}
-          </h2>
-        </div>
-
-        {/* Content */}
-        <div style={{ padding: '25px', flex: 1, overflow: 'auto' }}>
-          {isLoading ? (
-            <div className="edit-profile-loading-state">
-              <span className="loading-spinner-nightlife"></span>
-              <p className="loading-text">{t('editMyProfileModal.loadingProfile')}</p>
-            </div>
-          ) : fetchError ? (
-            <div className="edit-profile-error-state">
-              <div className="form-error-zone">
-                <p className="error-title">
-                  <strong><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('editMyProfileModal.errorLoadingTitle')}</strong>
-                </p>
-                <p className="error-message">{fetchError}</p>
-              </div>
-              <div className="edit-profile-buttons-row">
-                <button
-                  onClick={retryFetch}
-                  className="btn btn--primary"
-                >
-                  <RefreshCw size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                  {t('editMyProfileModal.buttonRetry')}
-                </button>
-                <button
-                  onClick={onClose}
-                  className="btn btn--secondary"
-                >
-                  {t('editMyProfileModal.buttonClose')}
-                </button>
-              </div>
-            </div>
-          ) : linkedProfile ? (
-            <>
-              <div className="edit-profile-info-note">
-                <p>
-                  <strong>{t('editMyProfileModal.noteTitle')}</strong> {t('editMyProfileModal.noteText')}
-                </p>
-              </div>
-
-              <EmployeeForm
-                onSubmit={handleSubmit}
-                onCancel={handleCancel}
-                isLoading={isSubmitting}
-                initialData={linkedProfile}
-              />
-            </>
-          ) : (
-            <div className="edit-profile-empty-state">
-              <p className="empty-state-text">{t('editMyProfileModal.noLinkedProfile')}</p>
-              <button
-                onClick={onClose}
-                className="btn btn--secondary"
+            {/* Header */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className="modal-premium__icon modal-premium__icon--info"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {t('editMyProfileModal.buttonClose')}
-              </button>
+                <UserCog size={32} />
+              </motion.div>
+              <motion.h2
+                id="edit-my-profile-modal-title"
+                className="modal-premium__title modal-premium__title--info"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {t('editMyProfileModal.title')}
+              </motion.h2>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              style={{ maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              {isLoading ? (
+                <div className="modal-premium__loading">
+                  <motion.div
+                    className="modal-premium__loading-spinner"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <Loader2 size={48} />
+                  </motion.div>
+                  <p>{t('editMyProfileModal.loadingProfile')}</p>
+                </div>
+              ) : fetchError ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ textAlign: 'center', padding: '40px 20px' }}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring' }}
+                    style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      background: 'rgba(239, 68, 68, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 20px',
+                      color: '#EF4444'
+                    }}
+                  >
+                    <XCircle size={40} />
+                  </motion.div>
+                  <h3 style={{ color: '#EF4444', marginBottom: '12px' }}>
+                    {t('editMyProfileModal.errorLoadingTitle')}
+                  </h3>
+                  <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '24px' }}>
+                    {fetchError}
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <motion.button
+                      className="modal-premium__btn-primary"
+                      onClick={retryFetch}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <RefreshCw size={16} />
+                      {t('editMyProfileModal.buttonRetry')}
+                    </motion.button>
+                    <motion.button
+                      className="modal-premium__btn-secondary"
+                      onClick={onClose}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {t('editMyProfileModal.buttonClose')}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ) : linkedProfile ? (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    style={{
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05))',
+                      border: '1px solid rgba(0, 229, 255, 0.3)',
+                      borderRadius: '12px',
+                      marginBottom: '20px',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px'
+                    }}
+                  >
+                    <Info size={20} style={{ color: '#00E5FF', flexShrink: 0, marginTop: '2px' }} />
+                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
+                      <strong style={{ color: '#00E5FF' }}>{t('editMyProfileModal.noteTitle')}</strong> {t('editMyProfileModal.noteText')}
+                    </p>
+                  </motion.div>
+
+                  <EmployeeForm
+                    onSubmit={handleSubmit}
+                    onCancel={onClose}
+                    isLoading={isSubmitting}
+                    initialData={linkedProfile}
+                  />
+                </>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ textAlign: 'center', padding: '40px 20px' }}
+                >
+                  <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
+                    {t('editMyProfileModal.noLinkedProfile')}
+                  </p>
+                  <motion.button
+                    className="modal-premium__btn-secondary"
+                    onClick={onClose}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {t('editMyProfileModal.buttonClose')}
+                  </motion.button>
+                </motion.div>
+              )}
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default EditMyProfileModal;

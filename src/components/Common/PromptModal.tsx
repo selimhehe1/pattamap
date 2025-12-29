@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Zap, Pencil, X } from 'lucide-react';
-import '../../styles/components/dialog-modals.css';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, Zap, Pencil, X, Send } from 'lucide-react';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 export interface PromptModalProps {
   title?: string;
@@ -17,6 +20,7 @@ export interface PromptModalProps {
   onSubmit: (value: string) => void;
   onCancel: () => void;
   onClose?: () => void;
+  isOpen?: boolean;
 }
 
 const PromptModal: React.FC<PromptModalProps> = ({
@@ -32,7 +36,8 @@ const PromptModal: React.FC<PromptModalProps> = ({
   cancelText,
   onSubmit,
   onCancel,
-  onClose
+  onClose,
+  isOpen = true
 }) => {
   const { t } = useTranslation();
   const [value, setValue] = useState(defaultValue);
@@ -114,91 +119,177 @@ const PromptModal: React.FC<PromptModalProps> = ({
 
   // Icon based on variant
   const getIcon = (): React.ReactNode => {
-    const iconSize = 24;
+    const iconSize = 32;
     switch (variant) {
       case 'danger':
-        return <AlertTriangle size={iconSize} className="text-error" />;
+        return <AlertTriangle size={iconSize} />;
       case 'warning':
-        return <Zap size={iconSize} className="text-warning" />;
+        return <Zap size={iconSize} />;
       case 'info':
       default:
-        return <Pencil size={iconSize} className="text-primary" />;
+        return <Pencil size={iconSize} />;
     }
   };
 
-  return (
-    <div className="modal-overlay modal-overlay--dialog view-transition-modal-backdrop" onClick={handleOverlayClick}>
-      <div className={`modal modal--dialog prompt-modal prompt-modal-${variant} view-transition-modal`} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="modal__header">
-          <span className="dialog-icon">{getIcon()}</span>
-          <h2>{title || t('dialog.promptTitle', 'Input Required')}</h2>
-          <button className="modal__close" onClick={handleCancel} aria-label="Close">
-            <X size={20} />
-          </button>
-        </div>
+  // Get character counter class
+  const getCharCounterClass = () => {
+    const ratio = value.length / maxLength;
+    if (ratio >= 1) return 'modal-premium__char-counter--error';
+    if (ratio >= 0.9) return 'modal-premium__char-counter--warning';
+    return '';
+  };
 
-        {/* Body */}
-        <div className="modal__body">
-          {message && <p className="dialog-message">{message}</p>}
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className={`modal-premium modal-premium--small modal-premium--${variant}`}
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="prompt-modal-title"
+          >
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={handleCancel}
+              aria-label={t('common.close', 'Close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
 
-          <div className="prompt-input-container">
-            <textarea
-              ref={textareaRef}
-              className={`prompt-textarea ${error ? 'error' : ''}`}
-              value={value}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-              placeholder={placeholder || t('dialog.promptPlaceholder', 'Enter your text here...')}
-              rows={4}
-              maxLength={maxLength}
-              aria-label={title || t('dialog.promptTitle', 'Input Required')}
-              aria-invalid={!!error}
-              aria-describedby={error ? 'prompt-error' : undefined}
-            />
-
-            <div className="prompt-meta">
-              <span className="char-count">
-                {value.length}/{maxLength}
-              </span>
-              {minLength > 0 && (
-                <span className="min-length-hint">
-                  {t('dialog.minLengthHint', `Min: ${minLength} chars`, { minLength })}
-                </span>
+            {/* Header with icon */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className={`modal-premium__icon modal-premium__icon--${variant === 'info' ? 'info' : variant}`}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                {getIcon()}
+              </motion.div>
+              <motion.h2
+                id="prompt-modal-title"
+                className={`modal-premium__title modal-premium__title--${variant === 'info' ? 'info' : variant}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {title || t('dialog.promptTitle', 'Input Required')}
+              </motion.h2>
+              {message && (
+                <motion.p
+                  className="modal-premium__subtitle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {message}
+                </motion.p>
               )}
             </div>
 
-            {error && (
-              <div className="prompt-error" id="prompt-error" role="alert">
-                {error}
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="modal-premium__field">
+                <textarea
+                  ref={textareaRef}
+                  className={`modal-premium__textarea ${error ? 'modal-premium__textarea--error' : ''}`}
+                  value={value}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder={placeholder || t('dialog.promptPlaceholder', 'Enter your text here...')}
+                  rows={4}
+                  maxLength={maxLength}
+                  aria-label={title || t('dialog.promptTitle', 'Input Required')}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'prompt-error' : undefined}
+                />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+                  <span className={`modal-premium__char-counter ${getCharCounterClass()}`}>
+                    {value.length}/{maxLength}
+                  </span>
+                  {minLength > 0 && (
+                    <span className="modal-premium__char-counter">
+                      {t('dialog.minLengthHint', `Min: ${minLength}`, { minLength })}
+                    </span>
+                  )}
+                </div>
+
+                {error && (
+                  <motion.div
+                    className="modal-premium__error-text"
+                    id="prompt-error"
+                    role="alert"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <AlertTriangle size={14} />
+                    {error}
+                  </motion.div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="prompt-hint">
-            {t('dialog.promptHint', 'Tip: Press Ctrl+Enter to submit')}
-          </div>
-        </div>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '12px' }}>
+                {t('dialog.promptHint', 'Tip: Press Ctrl+Enter to submit')}
+              </p>
+            </motion.div>
 
-        {/* Footer */}
-        <div className="modal__footer">
-          <button
-            className="btn-dialog btn-cancel"
-            onClick={handleCancel}
-          >
-            {cancelText || t('dialog.cancel', 'Cancel')}
-          </button>
-          <button
-            className={`btn-dialog btn-submit btn-submit-${variant}`}
-            onClick={handleSubmit}
-            disabled={required && value.trim().length === 0}
-          >
-            {submitText || t('dialog.submit', 'Submit')}
-          </button>
-        </div>
-      </div>
-    </div>
+            {/* Footer */}
+            <motion.div
+              className="modal-premium__footer"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <motion.button
+                className="modal-premium__btn-secondary"
+                onClick={handleCancel}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <X size={16} />
+                {cancelText || t('dialog.cancel', 'Cancel')}
+              </motion.button>
+              <motion.button
+                className={`modal-premium__btn-primary ${variant === 'danger' ? 'modal-premium__btn-danger' : variant === 'warning' ? 'modal-premium__btn-warning' : ''}`}
+                onClick={handleSubmit}
+                disabled={required && value.trim().length === 0}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Send size={16} />
+                {submitText || t('dialog.submit', 'Submit')}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  // Use portal to render at body level
+  return createPortal(modalContent, document.body);
 };
 
 export default PromptModal;

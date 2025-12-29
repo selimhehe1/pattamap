@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Eye } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, Eye, Camera, Upload, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import '../../styles/components/modals.css';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 interface RequestVerificationModalProps {
   employeeId: string;
   onClose: () => void;
   onVerificationComplete: () => void;
+  isOpen?: boolean;
 }
 
 interface VerificationResult {
@@ -22,7 +26,8 @@ interface VerificationResult {
 const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
   employeeId,
   onClose,
-  onVerificationComplete
+  onVerificationComplete,
+  isOpen = true
 }) => {
   const { secureFetch } = useSecureFetch();
   const { t } = useTranslation();
@@ -32,18 +37,15 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
 
-  // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('File size must be less than 5MB');
       return;
@@ -53,7 +55,6 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // Upload to Cloudinary
   const uploadToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -61,31 +62,21 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     formData.append('folder', 'verifications');
 
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-    // Debug log
-    logger.info('Uploading to Cloudinary', { cloudName, uploadPreset });
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: 'POST',
-        body: formData
-      }
+      { method: 'POST', body: formData }
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
-      logger.error('Cloudinary upload failed', { status: response.status, error: errorData });
-      throw new Error(errorData.error?.message || `Upload failed: ${response.status} ${response.statusText}`);
+      throw new Error(errorData.error?.message || `Upload failed: ${response.status}`);
     }
 
     const data = await response.json();
-    logger.info('Cloudinary upload successful', { url: data.secure_url });
     return data.secure_url;
   };
 
-  // Submit verification
   const handleSubmitVerification = async () => {
     if (!selectedFile) {
       toast.error('Please select a selfie photo');
@@ -95,19 +86,15 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     setIsUploading(true);
 
     try {
-      // 1. Upload to Cloudinary
       toast.info('Uploading photo...');
       const selfieUrl = await uploadToCloudinary(selectedFile);
 
-      // 2. Submit to verification API
       toast.info('Analyzing face...');
       const response = await secureFetch(
         `${import.meta.env.VITE_API_URL}/api/verifications/${employeeId}/verify`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ selfie_url: selfieUrl })
         }
       );
@@ -122,7 +109,6 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
 
       setVerificationResult(data.verification);
 
-      // Show success message based on status
       if (data.verification.status === 'approved') {
         toast.success(data.message || 'Verification successful!');
       } else if (data.verification.status === 'manual_review') {
@@ -131,7 +117,6 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
         toast.error(data.message || 'Verification failed');
       }
 
-      // Call completion callback after a short delay to show result
       setTimeout(() => {
         onVerificationComplete();
       }, 2000);
@@ -144,7 +129,6 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     }
   };
 
-  // Close and cleanup
   const handleClose = () => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -152,152 +136,330 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     onClose();
   };
 
-  return (
-    <div className="verification-modal-overlay" onClick={handleClose}>
-      <div className="verification-modal" onClick={(e) => e.stopPropagation()}>
-        {!verificationResult ? (
-          <>
-            {/* Header */}
-            <div className="modal-header">
-              <h2>{t('verificationModal.title', 'Verify Your Profile')}</h2>
-              <button className="close-button" onClick={handleClose} disabled={isUploading}>
-                ×
-              </button>
-            </div>
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isUploading) {
+      handleClose();
+    }
+  };
 
-            {/* Body */}
-            <div className="modal-body">
-              {/* Pose Instructions */}
-              <div className="pose-instructions">
-                <h3>{t('verificationModal.poseTitle', 'Required Pose')}</h3>
-                <div className="pose-emoji">🫰</div>
-                <p className="pose-description">
-                  {t('verificationModal.poseDescription', 'Make a mini heart with your thumb and index finger next to your face')}
-                </p>
-                <ul className="pose-steps">
-                  <li>{t('verificationModal.step1', 'Touch your thumb and index finger together')}</li>
-                  <li>{t('verificationModal.step2', 'Make a small heart shape')}</li>
-                  <li>{t('verificationModal.step3', 'Hold it next to your face')}</li>
-                  <li>{t('verificationModal.step4', 'Look at the camera')}</li>
-                  <li>{t('verificationModal.step5', 'Ensure good lighting')}</li>
-                </ul>
-                <p className="pose-note">
-                  {t('verificationModal.poseNote', 'Korean "Finger Heart" gesture - popular in Asian K-pop culture')}
-                </p>
-              </div>
-
-              {/* File Input */}
-              <div className="file-input-section">
-                <label htmlFor="selfie-input" className="file-input-label">
-                  {selectedFile
-                    ? t('verificationModal.changePhoto', 'Change Photo')
-                    : t('verificationModal.selectPhoto', 'Take Selfie / Select Photo')}
-                </label>
-                <input
-                  id="selfie-input"
-                  type="file"
-                  accept="image/*"
-                  capture="user"
-                  onChange={handleFileSelect}
-                  disabled={isUploading}
-                  style={{ display: 'none' }}
-                />
-              </div>
-
-              {/* Preview */}
-              {previewUrl && (
-                <div className="photo-preview">
-                  <img src={previewUrl} alt="Verification selfie preview" />
-                </div>
-              )}
-
-              {/* Important Notes */}
-              <div className="verification-notes">
-                <h4>{t('verificationModal.importantNotes', 'Important Notes')}</h4>
-                <ul>
-                  <li>{t('verificationModal.note1', 'Your face must match your profile photos')}</li>
-                  <li>{t('verificationModal.note2', 'Use good lighting for best results')}</li>
-                  <li>{t('verificationModal.note3', 'Face must be clearly visible')}</li>
-                  <li>{t('verificationModal.note4', 'Maximum 3 attempts per 24 hours')}</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="modal-footer">
-              <button
-                className="btn-cancel"
-                onClick={handleClose}
-                disabled={isUploading}
-              >
-                {t('common.cancel', 'Cancel')}
-              </button>
-              <button
-                className="btn-submit"
-                onClick={handleSubmitVerification}
-                disabled={!selectedFile || isUploading}
-              >
-                {isUploading
-                  ? t('verificationModal.submitting', 'Submitting...')
-                  : t('verificationModal.submit', 'Submit Verification')}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Verification Result */}
-            <div className="modal-header">
-              <h2>{t('verificationModal.resultTitle', 'Verification Result')}</h2>
-              <button className="close-button" onClick={handleClose}>×</button>
-            </div>
-
-            <div className="modal-body">
-              <div className={`verification-result verification-result-${verificationResult.status}`}>
-                {verificationResult.status === 'approved' && (
-                  <>
-                    <div className="result-icon success"><Check size={32} /></div>
-                    <h3>{t('verificationModal.approved', 'Verification Approved!')}</h3>
-                    <p>{t('verificationModal.approvedMessage', 'Your profile now has a verified badge.')}</p>
-                    <p className="match-score">
-                      {t('verificationModal.matchScore', 'Match score')}: {verificationResult.face_match_score}%
-                    </p>
-                  </>
-                )}
-
-                {verificationResult.status === 'manual_review' && (
-                  <>
-                    <div className="result-icon review"><Eye size={32} /></div>
-                    <h3>{t('verificationModal.underReview', 'Under Manual Review')}</h3>
-                    <p>{t('verificationModal.reviewMessage', 'An admin will review your submission within 24 hours.')}</p>
-                    <p className="match-score">
-                      {t('verificationModal.matchScore', 'Match score')}: {verificationResult.face_match_score}%
-                    </p>
-                  </>
-                )}
-
-                {verificationResult.status === 'rejected' && (
-                  <>
-                    <div className="result-icon rejected"><X size={32} /></div>
-                    <h3>{t('verificationModal.rejected', 'Verification Failed')}</h3>
-                    <p>{t('verificationModal.rejectedMessage', 'The photo did not match your profile photos. Please try again with a clearer selfie.')}</p>
-                    <p className="match-score">
-                      {t('verificationModal.matchScore', 'Match score')}: {verificationResult.face_match_score}%
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn-close" onClick={handleClose}>
-                {t('common.close', 'Close')}
-              </button>
-            </div>
-          </>
-        )}
+  const renderVerificationForm = () => (
+    <>
+      {/* Header */}
+      <div className="modal-premium__header modal-premium__header--with-icon">
+        <motion.div
+          className="modal-premium__icon modal-premium__icon--info"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          <ShieldCheck size={32} />
+        </motion.div>
+        <motion.h2
+          className="modal-premium__title modal-premium__title--info"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          {t('verificationModal.title', 'Verify Your Profile')}
+        </motion.h2>
       </div>
-    </div>
+
+      {/* Content */}
+      <motion.div
+        className="modal-premium__content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        style={{ maxHeight: '60vh', overflowY: 'auto' }}
+      >
+        {/* Pose Instructions */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          style={{
+            textAlign: 'center',
+            padding: '20px',
+            background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(232, 121, 249, 0.1))',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 229, 255, 0.3)',
+            marginBottom: '20px'
+          }}
+        >
+          <h3 style={{ color: '#00E5FF', marginBottom: '12px' }}>
+            {t('verificationModal.poseTitle', 'Required Pose')}
+          </h3>
+          <motion.div
+            style={{ fontSize: '64px', marginBottom: '12px' }}
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            🫰
+          </motion.div>
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '16px' }}>
+            {t('verificationModal.poseDescription', 'Make a mini heart with your thumb and index finger next to your face')}
+          </p>
+          <ul style={{ textAlign: 'left', color: 'rgba(255,255,255,0.7)', fontSize: '13px', paddingLeft: '20px' }}>
+            <li>{t('verificationModal.step1', 'Touch your thumb and index finger together')}</li>
+            <li>{t('verificationModal.step2', 'Make a small heart shape')}</li>
+            <li>{t('verificationModal.step3', 'Hold it next to your face')}</li>
+            <li>{t('verificationModal.step4', 'Look at the camera')}</li>
+            <li>{t('verificationModal.step5', 'Ensure good lighting')}</li>
+          </ul>
+        </motion.div>
+
+        {/* File Input */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ marginBottom: '20px' }}
+        >
+          <label
+            htmlFor="selfie-input"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '16px',
+              background: 'linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(232, 121, 249, 0.1))',
+              border: '2px dashed rgba(232, 121, 249, 0.5)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              color: '#E879F9',
+              fontWeight: 'bold',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {selectedFile ? <Camera size={20} /> : <Upload size={20} />}
+            {selectedFile
+              ? t('verificationModal.changePhoto', 'Change Photo')
+              : t('verificationModal.selectPhoto', 'Take Selfie / Select Photo')}
+          </label>
+          <input
+            id="selfie-input"
+            type="file"
+            accept="image/*"
+            capture="user"
+            onChange={handleFileSelect}
+            disabled={isUploading}
+            style={{ display: 'none' }}
+          />
+        </motion.div>
+
+        {/* Preview */}
+        <AnimatePresence>
+          {previewUrl && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                marginBottom: '20px',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: '2px solid rgba(0, 229, 255, 0.5)'
+              }}
+            >
+              <img
+                src={previewUrl}
+                alt="Verification selfie preview"
+                style={{ width: '100%', display: 'block' }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Important Notes */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          style={{
+            padding: '16px',
+            background: 'rgba(255, 193, 7, 0.1)',
+            border: '1px solid rgba(255, 193, 7, 0.3)',
+            borderRadius: '12px'
+          }}
+        >
+          <h4 style={{ color: '#FFC107', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertTriangle size={16} />
+            {t('verificationModal.importantNotes', 'Important Notes')}
+          </h4>
+          <ul style={{ margin: 0, paddingLeft: '20px', color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
+            <li>{t('verificationModal.note1', 'Your face must match your profile photos')}</li>
+            <li>{t('verificationModal.note2', 'Use good lighting for best results')}</li>
+            <li>{t('verificationModal.note3', 'Face must be clearly visible')}</li>
+            <li>{t('verificationModal.note4', 'Maximum 3 attempts per 24 hours')}</li>
+          </ul>
+        </motion.div>
+      </motion.div>
+
+      {/* Footer */}
+      <motion.div
+        className="modal-premium__footer"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <motion.button
+          className="modal-premium__btn-secondary"
+          onClick={handleClose}
+          disabled={isUploading}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <X size={16} />
+          {t('common.cancel', 'Cancel')}
+        </motion.button>
+        <motion.button
+          className="modal-premium__btn-primary modal-premium__btn-success"
+          onClick={handleSubmitVerification}
+          disabled={!selectedFile || isUploading}
+          style={{ opacity: !selectedFile ? 0.5 : 1 }}
+          whileHover={{ scale: isUploading ? 1 : 1.02 }}
+          whileTap={{ scale: isUploading ? 1 : 0.98 }}
+        >
+          {isUploading ? (
+            <>
+              <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                <Loader2 size={16} />
+              </motion.span>
+              {t('verificationModal.submitting', 'Submitting...')}
+            </>
+          ) : (
+            <>
+              <ShieldCheck size={16} />
+              {t('verificationModal.submit', 'Submit Verification')}
+            </>
+          )}
+        </motion.button>
+      </motion.div>
+    </>
   );
+
+  const renderVerificationResult = () => {
+    if (!verificationResult) return null;
+
+    const statusConfig = {
+      approved: { icon: <Check size={48} />, color: '#22C55E', iconBg: 'rgba(34, 197, 94, 0.2)' },
+      manual_review: { icon: <Eye size={48} />, color: '#F59E0B', iconBg: 'rgba(245, 158, 11, 0.2)' },
+      rejected: { icon: <X size={48} />, color: '#EF4444', iconBg: 'rgba(239, 68, 68, 0.2)' }
+    };
+
+    const config = statusConfig[verificationResult.status];
+
+    return (
+      <>
+        <div className="modal-premium__header modal-premium__header--with-icon">
+          <motion.div
+            className="modal-premium__icon"
+            style={{ background: config.iconBg, color: config.color }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          >
+            {config.icon}
+          </motion.div>
+          <motion.h2
+            className="modal-premium__title"
+            style={{ color: config.color }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            {verificationResult.status === 'approved' && t('verificationModal.approved', 'Verification Approved!')}
+            {verificationResult.status === 'manual_review' && t('verificationModal.underReview', 'Under Manual Review')}
+            {verificationResult.status === 'rejected' && t('verificationModal.rejected', 'Verification Failed')}
+          </motion.h2>
+        </div>
+
+        <motion.div
+          className="modal-premium__content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          style={{ textAlign: 'center', padding: '20px' }}
+        >
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '16px' }}>
+            {verificationResult.status === 'approved' && t('verificationModal.approvedMessage', 'Your profile now has a verified badge.')}
+            {verificationResult.status === 'manual_review' && t('verificationModal.reviewMessage', 'An admin will review your submission within 24 hours.')}
+            {verificationResult.status === 'rejected' && t('verificationModal.rejectedMessage', 'The photo did not match your profile photos. Please try again with a clearer selfie.')}
+          </p>
+          <div style={{
+            display: 'inline-block',
+            padding: '12px 24px',
+            background: config.iconBg,
+            borderRadius: '8px',
+            color: config.color,
+            fontWeight: 'bold'
+          }}>
+            {t('verificationModal.matchScore', 'Match score')}: {verificationResult.face_match_score}%
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="modal-premium__footer"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          style={{ justifyContent: 'center' }}
+        >
+          <motion.button
+            className="modal-premium__btn-primary"
+            onClick={handleClose}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {t('common.close', 'Close')}
+          </motion.button>
+        </motion.div>
+      </>
+    );
+  };
+
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--medium"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={handleClose}
+              disabled={isUploading}
+              aria-label={t('common.close', 'Close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
+
+            {!verificationResult ? renderVerificationForm() : renderVerificationResult()}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default RequestVerificationModal;

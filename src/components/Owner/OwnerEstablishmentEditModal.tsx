@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
@@ -19,7 +21,8 @@ import {
   Loader2,
   Save
 } from 'lucide-react';
-import '../../styles/components/modals.css';
+import { premiumBackdropVariants, premiumModalVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
@@ -370,31 +373,75 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
   // Permission check message
   const hasAnyEditPermission = permissions.can_edit_info || permissions.can_edit_pricing || permissions.can_edit_photos;
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isLoading) {
+      onClose();
+    }
+  };
+
   if (!hasAnyEditPermission) {
-    return (
-      <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-        <div className="modal-content-unified modal--medium" style={{ textAlign: 'center' }}>
-          <button onClick={onClose} className="modal-close-btn" aria-label="Close">×</button>
-          <div className="modal-header">
-            <h2 className="header-title-nightlife"><Lock size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('ownerEstablishmentModal.noPermissionsTitle')}</h2>
-            <p className="modal-subtitle">
-              {t('ownerEstablishmentModal.noPermissionsMessage')}
-            </p>
-          </div>
-          <div className="button-group-center" style={{ marginTop: '2rem' }}>
-            <button onClick={onClose} className="btn btn--primary">
-              {t('ownerEstablishmentModal.buttonClose')}
-            </button>
-          </div>
-        </div>
-      </div>
+    return createPortal(
+      <AnimatePresence mode="wait">
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--medium"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            style={{ textAlign: 'center' }}
+          >
+            <motion.button className="modal-premium__close" onClick={onClose} whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.95 }}>
+              <X size={18} />
+            </motion.button>
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div className="modal-premium__icon modal-premium__icon--warning" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
+                <Lock size={32} />
+              </motion.div>
+              <h2 className="modal-premium__title modal-premium__title--warning">{t('ownerEstablishmentModal.noPermissionsTitle')}</h2>
+              <p className="modal-premium__subtitle">{t('ownerEstablishmentModal.noPermissionsMessage')}</p>
+            </div>
+            <div className="modal-premium__footer" style={{ justifyContent: 'center', marginTop: '2rem' }}>
+              <motion.button className="modal-premium__btn-primary" onClick={onClose} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                {t('ownerEstablishmentModal.buttonClose')}
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>,
+      document.body
     );
   }
 
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--large">
-        <button onClick={onClose} className="modal-close-btn" aria-label="Close">×</button>
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="modal-premium-overlay"
+        variants={premiumBackdropVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={handleOverlayClick}
+      >
+        <motion.div
+          className="modal-premium modal-premium--large"
+          variants={premiumModalVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <motion.button className="modal-premium__close" onClick={onClose} whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.95 }}>
+            <X size={18} />
+          </motion.button>
 
         <div className="modal-header">
           <h2 className="header-title-nightlife">
@@ -537,16 +584,12 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
             </button>
           </div>
         </form>
-
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}</style>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default OwnerEstablishmentEditModal;

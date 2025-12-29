@@ -1,0 +1,940 @@
+/**
+ * ============================================
+ * MODAL PREMIUM BASE - Neo-Nightlife 2025
+ * ============================================
+ *
+ * Styles réutilisables pour tous les modals premium
+ * Theme: Glassmorphism + Neon Magenta/Cyan
+ *
+ * Usage:
+ * - Importer ce fichier dans le composant modal
+ * - Utiliser les classes .modal-premium, .modal-premium--{size}, etc.
+ * - Combiner avec React Portal + Framer Motion
+ */
+
+/* ============================================
+   1. OVERLAY - Backdrop avec Blur
+   ============================================ */
+
+.modal-premium-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100001;
+  padding: 20px;
+}
+
+/* ============================================
+   2. MODAL CONTAINER - Glassmorphism
+   ============================================ */
+
+.modal-premium {
+  background: rgba(13, 13, 15, 0.97);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 2px solid rgba(232, 121, 249, 0.25);
+  border-radius: 20px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 50px rgba(232, 121, 249, 0.12),
+    0 0 100px rgba(0, 229, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Size variants */
+.modal-premium--small {
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal-premium--medium {
+  width: 100%;
+  max-width: 600px;
+}
+
+.modal-premium--large {
+  width: 100%;
+  max-width: 900px;
+}
+
+.modal-premium--fullscreen {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: 0;
+}
+
+/* Gradient overlay subtil en haut */
+.modal-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 121, 249, 0.06) 0%,
+    rgba(0, 229, 255, 0.03) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bordure animée subtile */
+.modal-premium::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.3) 0%,
+    rgba(0, 229, 255, 0.15) 50%,
+    rgba(232, 121, 249, 0.3) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Custom scrollbar */
+.modal-premium::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-premium::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-premium::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.4), rgba(0, 229, 255, 0.3));
+  border-radius: 4px;
+}
+
+.modal-premium::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.6), rgba(0, 229, 255, 0.5));
+}
+
+/* ============================================
+   3. VARIANT COLORS (for dialogs)
+   ============================================ */
+
+.modal-premium--danger {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.modal-premium--danger::before {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 113, 113, 0.08) 0%,
+    transparent 100%
+  );
+}
+
+.modal-premium--warning {
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.modal-premium--warning::before {
+  background: linear-gradient(
+    180deg,
+    rgba(251, 191, 36, 0.08) 0%,
+    transparent 100%
+  );
+}
+
+.modal-premium--success {
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+.modal-premium--success::before {
+  background: linear-gradient(
+    180deg,
+    rgba(74, 222, 128, 0.08) 0%,
+    transparent 100%
+  );
+}
+
+.modal-premium--info {
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.modal-premium--info::before {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 229, 255, 0.08) 0%,
+    transparent 100%
+  );
+}
+
+/* ============================================
+   4. CLOSE BUTTON
+   ============================================ */
+
+.modal-premium__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(232, 121, 249, 0.1);
+  border: 2px solid rgba(232, 121, 249, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.modal-premium__close:hover {
+  background: rgba(232, 121, 249, 0.25);
+  border-color: rgba(232, 121, 249, 0.6);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 0 25px rgba(232, 121, 249, 0.4);
+  color: #fff;
+}
+
+.modal-premium__close:focus-visible {
+  outline: 2px solid #E879F9;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   5. HEADER
+   ============================================ */
+
+.modal-premium__header {
+  text-align: center;
+  padding: 32px 24px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-premium__header--with-icon {
+  padding-top: 40px;
+}
+
+/* ============================================
+   6. ICON (for dialogs)
+   ============================================ */
+
+.modal-premium__icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  position: relative;
+}
+
+.modal-premium__icon::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: iconGlowPulse 2.5s ease-in-out infinite;
+}
+
+.modal-premium__icon--danger {
+  background: rgba(248, 113, 113, 0.15);
+  border: 2px solid rgba(248, 113, 113, 0.4);
+  color: #F87171;
+}
+
+.modal-premium__icon--danger::before {
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.4) 0%, transparent 70%);
+}
+
+.modal-premium__icon--warning {
+  background: rgba(251, 191, 36, 0.15);
+  border: 2px solid rgba(251, 191, 36, 0.4);
+  color: #FBBF24;
+}
+
+.modal-premium__icon--warning::before {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
+}
+
+.modal-premium__icon--success {
+  background: rgba(74, 222, 128, 0.15);
+  border: 2px solid rgba(74, 222, 128, 0.4);
+  color: #4ADE80;
+}
+
+.modal-premium__icon--success::before {
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.4) 0%, transparent 70%);
+}
+
+.modal-premium__icon--info {
+  background: rgba(0, 229, 255, 0.15);
+  border: 2px solid rgba(0, 229, 255, 0.4);
+  color: #00E5FF;
+}
+
+.modal-premium__icon--info::before {
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%);
+}
+
+@keyframes iconGlowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+/* ============================================
+   7. TITLE & SUBTITLE
+   ============================================ */
+
+.modal-premium__title {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #E879F9 0%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: -0.3px;
+}
+
+.modal-premium__title--danger {
+  background: linear-gradient(135deg, #F87171 0%, #FB923C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.modal-premium__title--warning {
+  background: linear-gradient(135deg, #FBBF24 0%, #FB923C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.modal-premium__title--success {
+  background: linear-gradient(135deg, #4ADE80 0%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.modal-premium__title--info {
+  background: linear-gradient(135deg, #00E5FF 0%, #E879F9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.modal-premium__subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 350px;
+  margin-inline: auto;
+}
+
+/* ============================================
+   8. CONTENT AREA
+   ============================================ */
+
+.modal-premium__content {
+  padding: 0 24px 24px;
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 121, 249, 0.4) transparent;
+}
+
+.modal-premium__content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-premium__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-premium__content::-webkit-scrollbar-thumb {
+  background: rgba(232, 121, 249, 0.4);
+  border-radius: 3px;
+}
+
+/* Message text */
+.modal-premium__message {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ============================================
+   9. FORM INPUTS
+   ============================================ */
+
+.modal-premium__field {
+  margin-bottom: 16px;
+}
+
+.modal-premium__field:last-child {
+  margin-bottom: 0;
+}
+
+.modal-premium__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.modal-premium__label--required::after {
+  content: ' *';
+  color: #F87171;
+}
+
+.modal-premium__input,
+.modal-premium__textarea,
+.modal-premium__select {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.modal-premium__input::placeholder,
+.modal-premium__textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-premium__input:hover,
+.modal-premium__textarea:hover,
+.modal-premium__select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-premium__input:focus,
+.modal-premium__textarea:focus,
+.modal-premium__select:focus {
+  outline: none;
+  border-color: #E879F9;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 0 0 4px rgba(232, 121, 249, 0.12),
+    0 0 30px rgba(232, 121, 249, 0.15);
+}
+
+.modal-premium__textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Select arrow */
+.modal-premium__select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E879F9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 44px;
+}
+
+/* Error state */
+.modal-premium__input--error,
+.modal-premium__textarea--error {
+  border-color: #F87171;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.15);
+}
+
+.modal-premium__error-text {
+  font-size: 12px;
+  color: #F87171;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Character counter */
+.modal-premium__char-counter {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: right;
+  margin-top: 6px;
+}
+
+.modal-premium__char-counter--warning {
+  color: #FBBF24;
+}
+
+.modal-premium__char-counter--error {
+  color: #F87171;
+}
+
+/* ============================================
+   10. FOOTER / BUTTONS
+   ============================================ */
+
+.modal-premium__footer {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 20px 24px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-premium__footer--stacked {
+  flex-direction: column;
+}
+
+/* Primary button (gradient) */
+.modal-premium__btn-primary {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #E879F9 0%, #00E5FF 100%);
+  border: none;
+  border-radius: 12px;
+  color: #0D0D0F;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+  box-shadow:
+    0 4px 20px rgba(232, 121, 249, 0.35),
+    0 0 40px rgba(232, 121, 249, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-premium__btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.modal-premium__btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.modal-premium__btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 30px rgba(232, 121, 249, 0.45),
+    0 0 60px rgba(232, 121, 249, 0.25);
+}
+
+.modal-premium__btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.modal-premium__btn-primary:disabled {
+  background: rgba(100, 100, 100, 0.3);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Variant buttons */
+.modal-premium__btn-danger {
+  background: linear-gradient(135deg, #F87171 0%, #FB923C 100%);
+  box-shadow: 0 4px 20px rgba(248, 113, 113, 0.35);
+}
+
+.modal-premium__btn-danger:hover:not(:disabled) {
+  box-shadow: 0 8px 30px rgba(248, 113, 113, 0.45);
+}
+
+.modal-premium__btn-warning {
+  background: linear-gradient(135deg, #FBBF24 0%, #FB923C 100%);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.35);
+}
+
+.modal-premium__btn-success {
+  background: linear-gradient(135deg, #4ADE80 0%, #00E5FF 100%);
+  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.35);
+}
+
+/* Secondary button (outline) */
+.modal-premium__btn-secondary {
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.modal-premium__btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.modal-premium__btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   11. SECTION (for forms)
+   ============================================ */
+
+.modal-premium__section {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-premium__section:last-child {
+  margin-bottom: 0;
+}
+
+.modal-premium__section:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-premium__section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #00E5FF;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+/* ============================================
+   12. GRID LAYOUTS
+   ============================================ */
+
+.modal-premium__grid {
+  display: grid;
+  gap: 16px;
+}
+
+.modal-premium__grid--2cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.modal-premium__grid--3cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ============================================
+   13. AVATAR / PROFILE ELEMENTS
+   ============================================ */
+
+.modal-premium__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(232, 121, 249, 0.5);
+  box-shadow:
+    0 0 20px rgba(232, 121, 249, 0.3),
+    0 0 40px rgba(232, 121, 249, 0.15);
+}
+
+.modal-premium__avatar-wrapper {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto 16px;
+}
+
+.modal-premium__avatar-glow {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 121, 249, 0.35) 0%,
+    transparent 70%
+  );
+  animation: iconGlowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ============================================
+   14. STATS / BADGES
+   ============================================ */
+
+.modal-premium__stat {
+  text-align: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+.modal-premium__stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #E879F9, #00E5FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modal-premium__stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.modal-premium__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(232, 121, 249, 0.15);
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #E879F9;
+}
+
+/* ============================================
+   15. LOADING STATE
+   ============================================ */
+
+.modal-premium__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+}
+
+.modal-premium__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(232, 121, 249, 0.2);
+  border-top-color: #E879F9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.modal-premium__loading-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================
+   16. RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .modal-premium-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-premium {
+    border-radius: 20px 20px 0 0;
+    max-height: 95vh;
+  }
+
+  .modal-premium--small,
+  .modal-premium--medium,
+  .modal-premium--large {
+    max-width: 100%;
+  }
+
+  .modal-premium__header {
+    padding: 28px 20px 16px;
+  }
+
+  .modal-premium__title {
+    font-size: 20px;
+  }
+
+  .modal-premium__content {
+    padding: 0 20px 20px;
+  }
+
+  .modal-premium__footer {
+    flex-direction: column;
+    padding: 16px 20px 24px;
+  }
+
+  .modal-premium__btn-primary,
+  .modal-premium__btn-secondary {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .modal-premium__grid--2cols,
+  .modal-premium__grid--3cols {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-premium__icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}
+
+/* ============================================
+   17. REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-premium__icon::before,
+  .modal-premium__avatar-glow {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .modal-premium__spinner {
+    animation: none;
+    border-top-color: transparent;
+    border-left-color: #E879F9;
+  }
+
+  .modal-premium__close,
+  .modal-premium__btn-primary,
+  .modal-premium__btn-secondary,
+  .modal-premium__input,
+  .modal-premium__textarea {
+    transition: none;
+  }
+
+  .modal-premium__btn-primary::before {
+    display: none;
+  }
+}
+
+/* ============================================
+   18. HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .modal-premium {
+    border-width: 3px;
+  }
+
+  .modal-premium__input,
+  .modal-premium__textarea,
+  .modal-premium__select {
+    border-width: 3px;
+  }
+}
+
+/* ============================================
+   19. ANIMATION KEYFRAMES
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation helper classes */
+.modal-premium__animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal-premium__animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.modal-premium__animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}

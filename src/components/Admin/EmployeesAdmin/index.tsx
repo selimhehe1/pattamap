@@ -271,6 +271,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       {selectedEmployee && (
         <EmployeeDetailModal
           employee={selectedEmployee}
+          isOpen={!!selectedEmployee}
           onClose={() => setSelectedEmployee(null)}
           onApprove={handleApprove}
           onReject={handleReject}

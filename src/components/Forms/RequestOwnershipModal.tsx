@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,7 +9,8 @@ import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import EstablishmentAutocomplete from '../Common/EstablishmentAutocomplete';
 import { Trophy, X, Search, Building2, Plus, FolderOpen, CheckCircle, AlertTriangle, Rocket, Loader2, Camera, Check } from 'lucide-react';
-import '../../styles/components/modals.css';
+import { premiumBackdropVariants, premiumModalVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
 
@@ -331,46 +334,43 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
     };
   }, [documents]);
 
-  return (
-    <>
-      {/* Keyframe Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isSubmitting) {
+      onClose?.();
+    }
+  };
 
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-
-      <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--large" style={{ padding: '30px' }}>
-        {/* Close Button */}
-        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
-          ×
-        </button>
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="modal-premium-overlay"
+        variants={premiumBackdropVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={handleOverlayClick}
+      >
+        <motion.div
+          className="modal-premium modal-premium--large"
+          variants={premiumModalVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          style={{ padding: '30px' }}
+        >
+          {/* Close Button */}
+          <motion.button
+            className="modal-premium__close"
+            onClick={onClose}
+            aria-label="Close"
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <X size={18} />
+          </motion.button>
 
         {/* Header */}
         <div style={{
@@ -1461,11 +1461,13 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
             )}
           </button>
         )}
-      </div>
-    </div>
-  </div>
-    </>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default RequestOwnershipModal;

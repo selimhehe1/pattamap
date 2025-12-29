@@ -1,7 +1,10 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Zap, Check, Info, X } from 'lucide-react';
-import '../../styles/components/dialog-modals.css';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import '../../styles/components/modal-premium-base.css';
 
 export type ConfirmVariant = 'danger' | 'warning' | 'info' | 'success';
 
@@ -14,6 +17,7 @@ export interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   onClose?: () => void;
+  isOpen?: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -24,7 +28,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   cancelText,
   onConfirm,
   onCancel,
-  onClose
+  onClose,
+  isOpen = true
 }) => {
   const { t } = useTranslation();
 
@@ -46,17 +51,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   // Icon based on variant
   const getIcon = (): React.ReactNode => {
-    const iconSize = 24;
+    const iconSize = 32;
     switch (variant) {
       case 'danger':
-        return <AlertTriangle size={iconSize} className="text-error" />;
+        return <AlertTriangle size={iconSize} />;
       case 'warning':
-        return <Zap size={iconSize} className="text-warning" />;
+        return <Zap size={iconSize} />;
       case 'success':
-        return <Check size={iconSize} className="text-success" />;
+        return <Check size={iconSize} />;
       case 'info':
       default:
-        return <Info size={iconSize} className="text-info" />;
+        return <Info size={iconSize} />;
     }
   };
 
@@ -75,41 +80,107 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     }
   };
 
-  return (
-    <div className="modal-overlay modal-overlay--dialog view-transition-modal-backdrop" onClick={handleOverlayClick}>
-      <div className={`modal modal--dialog confirm-modal confirm-modal-${variant} view-transition-modal`} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="modal__header">
-          <span className="dialog-icon">{getIcon()}</span>
-          <h2>{title || getDefaultTitle()}</h2>
-          <button className="modal__close" onClick={handleCancel} aria-label="Close">
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="modal__body">
-          <p className="dialog-message">{message}</p>
-        </div>
-
-        {/* Footer */}
-        <div className="modal__footer">
-          <button
-            className="btn-dialog btn-cancel"
-            onClick={handleCancel}
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className={`modal-premium modal-premium--small modal-premium--${variant}`}
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-modal-title"
+            aria-describedby="confirm-modal-message"
           >
-            {cancelText || t('dialog.cancel', 'Cancel')}
-          </button>
-          <button
-            className={`btn-dialog btn-confirm btn-confirm-${variant}`}
-            onClick={handleConfirm}
-          >
-            {confirmText || t('dialog.confirm', 'Confirm')}
-          </button>
-        </div>
-      </div>
-    </div>
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={handleCancel}
+              aria-label={t('common.close', 'Close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
+
+            {/* Header with icon */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className={`modal-premium__icon modal-premium__icon--${variant}`}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                {getIcon()}
+              </motion.div>
+              <motion.h2
+                id="confirm-modal-title"
+                className={`modal-premium__title modal-premium__title--${variant}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {title || getDefaultTitle()}
+              </motion.h2>
+            </div>
+
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <p id="confirm-modal-message" className="modal-premium__message">
+                {message}
+              </p>
+            </motion.div>
+
+            {/* Footer */}
+            <motion.div
+              className="modal-premium__footer"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <motion.button
+                className="modal-premium__btn-secondary"
+                onClick={handleCancel}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <X size={16} />
+                {cancelText || t('dialog.cancel', 'Cancel')}
+              </motion.button>
+              <motion.button
+                className={`modal-premium__btn-primary modal-premium__btn-${variant}`}
+                onClick={handleConfirm}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Check size={16} />
+                {confirmText || t('dialog.confirm', 'Confirm')}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  // Use portal to render at body level
+  return createPortal(modalContent, document.body);
 };
 
 export default ConfirmModal;

@@ -1,8 +1,11 @@
 import React from 'react';
-import { MessageSquare, Lightbulb, BarChart3 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageSquare, Lightbulb, BarChart3, X } from 'lucide-react';
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
 import ReviewsList from './ReviewsList';
-import '../../styles/components/modals.css';
+import '../../styles/components/modal-premium-base.css';
 
 interface Review {
   id: string;
@@ -53,120 +56,168 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  if (!isOpen) return null;
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-  return (
-    <div className="modal-overlay-unified" onClick={onClose} role="dialog" aria-modal="true">
-      <div
-        className="modal-content-unified modal--large"
-        style={{ display: 'flex', flexDirection: 'column' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button */}
-        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
-          ×
-        </button>
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--large"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reviews-modal-title"
+          >
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={onClose}
+              aria-label={t('common.close', 'Close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
 
-        {/* Header */}
-        <div style={{
-          padding: '20px 25px',
-          borderBottom: '1px solid rgba(193, 154, 107,0.3)',
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.2), rgba(0,0,0,0.4))',
-          borderRadius: '15px 15px 0 0'
-        }}>
-          <h2 style={{
-            color: '#C19A6B',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            margin: '0',
-            textShadow: '0 0 10px rgba(193, 154, 107,0.5)',
-            textAlign: 'center'
-          }}>
-            <MessageSquare size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('reviewsModal.title', { employeeName })}
-          </h2>
-        </div>
-
-        {/* Content */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '25px',
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(193, 154, 107,0.05))',
-          borderRadius: '0 0 15px 15px'
-        }}>
-          {reviews.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '60px 20px',
-              color: '#cccccc'
-            }}>
-              <div style={{
-                fontSize: '48px',
-                marginBottom: '20px'
-              }}>
-                <MessageSquare size={48} />
-              </div>
-              <h3 style={{
-                color: '#C19A6B',
-                fontSize: '20px',
-                marginBottom: '10px'
-              }}>
-                {t('reviewsModal.noReviewsTitle')}
-              </h3>
-              <p>{t('reviewsModal.noReviewsText', { employeeName })}</p>
+            {/* Header */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className="modal-premium__icon modal-premium__icon--info"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <MessageSquare size={32} />
+              </motion.div>
+              <motion.h2
+                id="reviews-modal-title"
+                className="modal-premium__title modal-premium__title--info"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {t('reviewsModal.title', { employeeName })}
+              </motion.h2>
             </div>
-          ) : (
-            <div>
-              {/* Reviews Count */}
-              <div style={{
-                marginBottom: '30px',
-                textAlign: 'center',
-                padding: '15px',
-                background: 'rgba(193, 154, 107,0.1)',
-                borderRadius: '10px',
-                border: '1px solid rgba(193, 154, 107,0.3)'
+
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              style={{ maxHeight: '60vh', overflowY: 'auto' }}
+            >
+              {reviews.length === 0 ? (
+                <div className="modal-premium__empty-state">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.25, type: 'spring' }}
+                    style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.3)' }}
+                  >
+                    <MessageSquare size={64} />
+                  </motion.div>
+                  <h3 style={{
+                    color: '#E879F9',
+                    fontSize: '20px',
+                    marginBottom: '10px',
+                    textShadow: '0 0 15px rgba(232, 121, 249, 0.5)'
+                  }}>
+                    {t('reviewsModal.noReviewsTitle')}
+                  </h3>
+                  <p style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    {t('reviewsModal.noReviewsText', { employeeName })}
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {/* Reviews Count */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    style={{
+                      marginBottom: '24px',
+                      textAlign: 'center',
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(232, 121, 249, 0.1))',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(0, 229, 255, 0.3)'
+                    }}
+                  >
+                    <span style={{
+                      color: '#00E5FF',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      textShadow: '0 0 10px rgba(0, 229, 255, 0.5)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}>
+                      <BarChart3 size={20} />
+                      {t(reviews.length === 1 ? 'reviewsModal.reviewsCountSingular' : 'reviewsModal.reviewsCountPlural', { count: reviews.length })}
+                    </span>
+                  </motion.div>
+
+                  {/* Reviews List */}
+                  <ReviewsList
+                    reviews={reviews}
+                    onReply={onReply}
+                    onReport={onReport}
+                    isLoading={isLoading}
+                    showTitle={false}
+                    autoExpandReplies={true}
+                  />
+                </div>
+              )}
+            </motion.div>
+
+            {/* Footer */}
+            <motion.div
+              className="modal-premium__footer"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              style={{ justifyContent: 'center' }}
+            >
+              <p style={{
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '12px',
+                margin: '0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                <span style={{
-                  color: '#00E5FF',
-                  fontSize: '18px',
-                  fontWeight: 'bold'
-                }}>
-                  <BarChart3 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t(reviews.length === 1 ? 'reviewsModal.reviewsCountSingular' : 'reviewsModal.reviewsCountPlural', { count: reviews.length })}
-                </span>
-              </div>
-
-              {/* Reviews List */}
-              <ReviewsList
-                reviews={reviews}
-                onReply={onReply}
-                onReport={onReport}
-                isLoading={isLoading}
-                showTitle={false}
-                autoExpandReplies={true}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          padding: '15px 25px',
-          textAlign: 'center',
-          borderTop: '1px solid rgba(193, 154, 107,0.3)',
-          background: 'rgba(0,0,0,0.3)',
-          borderRadius: '0 0 15px 15px'
-        }}>
-          <p style={{
-            color: '#666666',
-            fontSize: '12px',
-            margin: '0'
-          }}>
-            <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('reviewsModal.footerTip')}
-          </p>
-        </div>
-      </div>
-    </div>
+                <Lightbulb size={14} />
+                {t('reviewsModal.footerTip')}
+              </p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  // Use portal to render at body level
+  return createPortal(modalContent, document.body);
 };
 
 export default ReviewsModal;

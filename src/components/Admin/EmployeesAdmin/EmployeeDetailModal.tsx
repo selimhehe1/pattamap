@@ -4,15 +4,34 @@
  */
 
 import React from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Instagram, MessageSquare, Send, Smartphone, Users, Link, Briefcase, Calendar, FileText, CheckCircle, XCircle, Building2 } from 'lucide-react';
+import {
+  Instagram,
+  MessageSquare,
+  Send,
+  Smartphone,
+  Users,
+  Link,
+  Briefcase,
+  Calendar,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Building2,
+  User,
+  X
+} from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
 import SanitizedText from '../../Common/SanitizedText';
 import type { AdminEmployee } from './types';
-import '../../../styles/components/modals.css';
+import { premiumBackdropVariants, premiumModalVariants } from '../../../animations/variants';
+import '../../../styles/components/modal-premium-base.css';
 
 interface EmployeeDetailModalProps {
   employee: AdminEmployee;
+  isOpen: boolean;
   onClose: () => void;
   onApprove: (employeeId: string) => void;
   onReject: (employeeId: string) => void;
@@ -32,6 +51,7 @@ const getSocialMediaIcon = (platform: string): React.ReactNode => {
 
 export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
   employee,
+  isOpen,
   onClose,
   onApprove,
   onReject,
@@ -40,40 +60,87 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
 
   const currentJob = employee.employment_history?.find((job) => job.is_current);
 
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-      <div className="modal-content-unified modal--large">
-        {/* Close Button */}
-        <button onClick={onClose} className="modal-close-btn" aria-label="Close">
-          ×
-        </button>
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-        <div style={{ padding: '30px' }}>
-          {/* Header */}
-          <h2
-            style={{
-              color: '#C19A6B',
-              fontSize: '28px',
-              fontWeight: 'bold',
-              margin: '0 0 20px 0',
-            }}
+  const modalContent = (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="modal-premium-overlay"
+          variants={premiumBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleOverlayClick}
+        >
+          <motion.div
+            className="modal-premium modal-premium--large"
+            variants={premiumModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="employee-detail-modal-title"
           >
-            {employee.name}
-            {employee.nickname && (
-              <span style={{ color: '#FFD700', fontSize: '20px', marginLeft: '10px' }}>
-                "{employee.nickname}"
-              </span>
-            )}
-          </h2>
+            {/* Close button */}
+            <motion.button
+              className="modal-premium__close"
+              onClick={onClose}
+              aria-label={t('common.close')}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={18} />
+            </motion.button>
 
-          {/* Content Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '300px 1fr',
-              gap: '30px',
-            }}
-          >
+            {/* Header */}
+            <div className="modal-premium__header modal-premium__header--with-icon">
+              <motion.div
+                className="modal-premium__icon modal-premium__icon--info"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <User size={32} />
+              </motion.div>
+              <motion.h2
+                id="employee-detail-modal-title"
+                className="modal-premium__title modal-premium__title--info"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {employee.name}
+                {employee.nickname && (
+                  <span style={{ color: '#FFD700', fontSize: '0.7em', marginLeft: '10px' }}>
+                    "{employee.nickname}"
+                  </span>
+                )}
+              </motion.h2>
+            </div>
+
+            {/* Content */}
+            <motion.div
+              className="modal-premium__content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              style={{ maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              {/* Content Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '300px 1fr',
+                  gap: '30px',
+                }}
+              >
             {/* Photos */}
             <div>
               {employee.photos.map((photo, index) => (
@@ -186,55 +253,50 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                 </div>
               )}
 
-              {/* Action Buttons for Pending */}
-              {employee.status === 'pending' && (
-                <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
-                  <button
-                    onClick={() => {
-                      onApprove(employee.id);
-                      onClose();
-                    }}
-                    style={{
-                      flex: 1,
-                      padding: '15px',
-                      background: 'linear-gradient(45deg, #00FF7F, #00CC65)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.approve')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      onReject(employee.id);
-                      onClose();
-                    }}
-                    style={{
-                      flex: 1,
-                      padding: '15px',
-                      background: 'linear-gradient(45deg, #FF4757, #FF3742)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reject')}
-                  </button>
-                </div>
-              )}
+                {/* Action Buttons for Pending */}
+                {employee.status === 'pending' && (
+                  <div className="modal-premium__footer" style={{ marginTop: '30px' }}>
+                    <motion.button
+                      className="modal-premium__btn-primary"
+                      onClick={() => {
+                        onApprove(employee.id);
+                        onClose();
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{ background: 'linear-gradient(135deg, #00FF7F, #00CC65)' }}
+                    >
+                      <CheckCircle size={16} style={{ marginRight: '8px' }} />
+                      {t('admin.approve')}
+                    </motion.button>
+                    <motion.button
+                      className="modal-premium__btn-secondary"
+                      onClick={() => {
+                        onReject(employee.id);
+                        onClose();
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{
+                        borderColor: 'rgba(255, 71, 87, 0.5)',
+                        color: '#FF4757'
+                      }}
+                    >
+                      <XCircle size={16} style={{ marginRight: '8px' }} />
+                      {t('admin.reject')}
+                    </motion.button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default EmployeeDetailModal;
