@@ -6,11 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const favoriteController_1 = require("../controllers/favoriteController");
 const auth_1 = require("../middleware/auth");
-const csrf_1 = require("../middleware/csrf");
+// Note: csrfProtection is applied at app.use level in server.ts
 const router = express_1.default.Router();
 router.get('/', auth_1.authenticateToken, favoriteController_1.getFavorites);
-router.post('/', auth_1.authenticateToken, csrf_1.csrfProtection, favoriteController_1.addFavorite);
-router.delete('/:employee_id', auth_1.authenticateToken, csrf_1.csrfProtection, favoriteController_1.removeFavorite);
+// CSRF protection already applied at app.use('/api/favorites', csrfProtection, ...) in server.ts
+router.post('/', auth_1.authenticateToken, favoriteController_1.addFavorite);
+router.delete('/:employee_id', auth_1.authenticateToken, favoriteController_1.removeFavorite);
 router.get('/check/:employee_id', auth_1.authenticateToken, favoriteController_1.checkFavorite);
 exports.default = router;
 //# sourceMappingURL=favorites.js.map

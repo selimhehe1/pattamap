@@ -6,15 +6,16 @@ import {
   checkFavorite
 } from '../controllers/favoriteController';
 import { authenticateToken } from '../middleware/auth';
-import { csrfProtection } from '../middleware/csrf';
+// Note: csrfProtection is applied at app.use level in server.ts
 
 const router = express.Router();
 
 router.get('/', authenticateToken, getFavorites);
 
-router.post('/', authenticateToken, csrfProtection, addFavorite);
+// CSRF protection already applied at app.use('/api/favorites', csrfProtection, ...) in server.ts
+router.post('/', authenticateToken, addFavorite);
 
-router.delete('/:employee_id', authenticateToken, csrfProtection, removeFavorite);
+router.delete('/:employee_id', authenticateToken, removeFavorite);
 
 router.get('/check/:employee_id', authenticateToken, checkFavorite);
 
