@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -248,10 +249,15 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDropdown]); // Only re-run when dropdown state changes
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (Portal-aware)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      // Check if click is inside dropdown OR button (both need to be excluded)
+      const isInsideDropdown = dropdownRef.current && dropdownRef.current.contains(target);
+      const isInsideButton = buttonRef.current && buttonRef.current.contains(target);
+
+      if (!isInsideDropdown && !isInsideButton) {
         setShowDropdown(false);
       }
     };
@@ -740,7 +746,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
   }
 
   return (
-    <div className={`notification-bell-container ${variant === 'menu-item' ? 'menu-item-variant' : ''}`} ref={dropdownRef}>
+    <div className={`notification-bell-container ${variant === 'menu-item' ? 'menu-item-variant' : ''}`}>
       {/* Render based on variant */}
       {variant === 'menu-item' ? (
         /* Menu Item Variant - Full width menu item style */
@@ -776,10 +782,11 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
         </button>
       )}
 
-      {/* Dropdown - Uses fixed positioning to escape parent overflow */}
-      {showDropdown && (
+      {/* Dropdown - Uses Portal to render outside menu + fixed positioning */}
+      {showDropdown && createPortal(
         <div
           className="notification-dropdown"
+          ref={dropdownRef}
           style={{
             top: `${dropdownPosition.top}px`,
             ...(dropdownPosition.left !== undefined
@@ -1036,7 +1043,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
               </button>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
