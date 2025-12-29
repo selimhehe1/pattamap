@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -509,7 +510,8 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
     { id: 'hours', label: t('establishment.editModal.tabs.hours'), icon: tabIcons.hours }
   ] as const;
 
-  return (
+  // Use createPortal to render modal at body level (fixes z-index stacking with header)
+  return createPortal(
     <motion.div
       className="modal-overlay-unified"
       style={{ zIndex: 100001 }}
@@ -812,7 +814,8 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
           </div>
         </form>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };
 
