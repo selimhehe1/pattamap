@@ -140,6 +140,181 @@ export const backdropVariants: Variants = {
 };
 
 // ============================================
+// PREMIUM MODAL ANIMATIONS (Neo-Nightlife 2025)
+// ============================================
+
+/**
+ * Premium modal with blur effect
+ */
+export const premiumModalVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.92,
+    filter: 'blur(10px)',
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      type: 'spring',
+      stiffness: 280,
+      damping: 24,
+      staggerChildren: 0.05,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    filter: 'blur(8px)',
+    transition: { duration: 0.2, ease: 'easeOut' },
+  },
+};
+
+/**
+ * Premium backdrop with stronger blur
+ */
+export const premiumBackdropVariants: Variants = {
+  hidden: { opacity: 0, backdropFilter: 'blur(0px)' },
+  visible: {
+    opacity: 1,
+    backdropFilter: 'blur(12px)',
+    transition: { duration: 0.25 },
+  },
+  exit: {
+    opacity: 0,
+    backdropFilter: 'blur(0px)',
+    transition: { duration: 0.2 },
+  },
+};
+
+/**
+ * Tab indicator with glow animation
+ */
+export const tabIndicatorVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scaleX: 0,
+  },
+  visible: {
+    opacity: 1,
+    scaleX: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 30,
+    },
+  },
+};
+
+/**
+ * Form section transition
+ */
+export const sectionTransitionVariants: Variants = {
+  hidden: { opacity: 0, x: 30 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 28,
+    },
+  },
+  exit: {
+    opacity: 0,
+    x: -30,
+    transition: { duration: 0.2, ease: 'easeIn' },
+  },
+};
+
+/**
+ * Staggered form fields
+ */
+export const formFieldsContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+export const formFieldVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 350,
+      damping: 25,
+    },
+  },
+};
+
+/**
+ * Neon button hover with glow
+ */
+export const neonButtonHover = {
+  scale: 1.02,
+  boxShadow: '0 0 30px rgba(232, 121, 249, 0.5), 0 0 60px rgba(0, 229, 255, 0.25)',
+  transition: {
+    type: 'spring' as const,
+    stiffness: 400,
+    damping: 20,
+  },
+};
+
+export const neonButtonTap = {
+  scale: 0.98,
+  transition: { duration: 0.1 },
+};
+
+/**
+ * Logo float animation
+ */
+export const logoFloatVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.8, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 250,
+      damping: 20,
+      delay: 0.15,
+    },
+  },
+};
+
+/**
+ * Header elements stagger
+ */
+export const headerStaggerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+export const headerItemVariants: Variants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: smooth,
+  },
+};
+
+// ============================================
 // BUTTON INTERACTIONS
 // ============================================
 
@@ -380,6 +555,19 @@ const animationVariants = {
   // Modals
   modalVariants,
   backdropVariants,
+
+  // Premium Modals (Neo-Nightlife 2025)
+  premiumModalVariants,
+  premiumBackdropVariants,
+  tabIndicatorVariants,
+  sectionTransitionVariants,
+  formFieldsContainerVariants,
+  formFieldVariants,
+  logoFloatVariants,
+  headerStaggerVariants,
+  headerItemVariants,
+  neonButtonHover,
+  neonButtonTap,
 
   // Buttons
   buttonHover,

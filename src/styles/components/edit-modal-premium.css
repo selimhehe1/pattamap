@@ -1,0 +1,791 @@
+/**
+ * ============================================
+ * EDIT MODAL PREMIUM - Neo-Nightlife 2025
+ * ============================================
+ *
+ * Design premium pour EstablishmentEditModal
+ * Theme: Glassmorphism + Neon Magenta/Cyan
+ *
+ * @dependencies
+ * - design-system.css (variables)
+ * - framer-motion (animations)
+ */
+
+/* ============================================
+   0. OVERLAY - Z-INDEX FIX
+   ============================================ */
+
+/* Ensure modal overlay is above header (header z-index is 65) */
+.modal-overlay-unified:has(.edit-modal-premium) {
+  z-index: 100001 !important;
+}
+
+/* ============================================
+   1. MODAL CONTAINER - Glassmorphism Effect
+   ============================================ */
+
+.edit-modal-premium {
+  background: rgba(13, 13, 15, 0.97);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 2px solid rgba(232, 121, 249, 0.25);
+  border-radius: var(--border-radius-2xl, 20px);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 50px rgba(232, 121, 249, 0.12),
+    0 0 100px rgba(0, 229, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  max-height: 85vh;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 121, 249, 0.4) transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+.edit-modal-premium::-webkit-scrollbar {
+  width: 8px;
+}
+
+.edit-modal-premium::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.edit-modal-premium::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.4), rgba(0, 229, 255, 0.3));
+  border-radius: 4px;
+}
+
+.edit-modal-premium::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(232, 121, 249, 0.6), rgba(0, 229, 255, 0.5));
+}
+
+/* Gradient overlay subtil en haut */
+.edit-modal-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 250px;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 121, 249, 0.06) 0%,
+    rgba(0, 229, 255, 0.03) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bordure animee subtile */
+.edit-modal-premium::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.3) 0%,
+    rgba(0, 229, 255, 0.15) 50%,
+    rgba(232, 121, 249, 0.3) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   2. CLOSE BUTTON - Neon Style
+   ============================================ */
+
+.edit-modal__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(232, 121, 249, 0.1);
+  border: 2px solid rgba(232, 121, 249, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 20px;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.edit-modal__close:hover {
+  background: rgba(232, 121, 249, 0.25);
+  border-color: rgba(232, 121, 249, 0.6);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 0 25px rgba(232, 121, 249, 0.4);
+  color: #fff;
+}
+
+.edit-modal__close:focus-visible {
+  outline: 2px solid #E879F9;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   3. HEADER - Logo Flottant & Titre Gradient
+   ============================================ */
+
+.edit-modal__header {
+  text-align: center;
+  padding: 40px 32px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Container logo avec effet glow */
+.edit-modal__logo-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 20px;
+}
+
+/* Glow pulse derriere le logo */
+.edit-modal__logo-glow {
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 121, 249, 0.35) 0%,
+    rgba(0, 229, 255, 0.15) 40%,
+    transparent 70%
+  );
+  animation: logoGlowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes logoGlowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+    filter: blur(8px);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+    filter: blur(12px);
+  }
+}
+
+/* Image logo */
+.edit-modal__logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(232, 121, 249, 0.5);
+  box-shadow:
+    0 0 20px rgba(232, 121, 249, 0.3),
+    0 0 40px rgba(232, 121, 249, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+/* Titre avec gradient */
+.edit-modal__title {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #E879F9 0%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  letter-spacing: -0.5px;
+}
+
+.edit-modal__title svg {
+  color: #E879F9;
+  filter: drop-shadow(0 0 8px rgba(232, 121, 249, 0.5));
+}
+
+/* Sous-titre */
+.edit-modal__subtitle {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* ============================================
+   4. AUTO-SAVE INDICATOR
+   ============================================ */
+
+.edit-modal__autosave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.edit-modal__autosave--saving {
+  color: #00E5FF;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.edit-modal__autosave--saving svg {
+  animation: spin 1s linear infinite;
+}
+
+.edit-modal__autosave--saved {
+  color: #4ADE80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.edit-modal__autosave--idle {
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   5. TAB NAVIGATION - Premium Style
+   ============================================ */
+
+.edit-modal__tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 32px;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.edit-modal__tab {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-modal__tab svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.edit-modal__tab:hover:not(.edit-modal__tab--active) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Tab actif */
+.edit-modal__tab--active {
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.15) 0%,
+    rgba(0, 229, 255, 0.08) 100%
+  );
+  border-color: rgba(232, 121, 249, 0.4);
+  color: #E879F9;
+  font-weight: 600;
+  box-shadow:
+    0 0 20px rgba(232, 121, 249, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.edit-modal__tab--active svg {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(232, 121, 249, 0.5));
+}
+
+/* Indicateur anime sous l'onglet actif */
+.edit-modal__tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, #E879F9, #00E5FF);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(232, 121, 249, 0.6);
+}
+
+/* ============================================
+   6. FORM CONTENT AREA
+   ============================================ */
+
+.edit-modal__content {
+  padding: 0 32px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Section container */
+.edit-modal__section {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.edit-modal__section:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Section title */
+.edit-modal__section-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #00E5FF;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.edit-modal__section-title svg {
+  opacity: 0.9;
+}
+
+/* ============================================
+   7. FORM INPUTS - Neon Glow Focus
+   ============================================ */
+
+.edit-modal__field {
+  margin-bottom: 20px;
+}
+
+.edit-modal__field:last-child {
+  margin-bottom: 0;
+}
+
+.edit-modal__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.edit-modal__label--required::after {
+  content: ' *';
+  color: #F87171;
+}
+
+.edit-modal__input,
+.edit-modal__textarea,
+.edit-modal__select {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.edit-modal__input::placeholder,
+.edit-modal__textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.edit-modal__input:hover,
+.edit-modal__textarea:hover,
+.edit-modal__select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.edit-modal__input:focus,
+.edit-modal__textarea:focus,
+.edit-modal__select:focus {
+  outline: none;
+  border-color: #E879F9;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 0 0 4px rgba(232, 121, 249, 0.12),
+    0 0 30px rgba(232, 121, 249, 0.15);
+}
+
+/* Select arrow */
+.edit-modal__select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E879F9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 48px;
+}
+
+/* Textarea */
+.edit-modal__textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Error state */
+.edit-modal__input--error,
+.edit-modal__textarea--error,
+.edit-modal__select--error {
+  border-color: #F87171;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.15);
+}
+
+.edit-modal__input--error:focus,
+.edit-modal__textarea--error:focus,
+.edit-modal__select--error:focus {
+  border-color: #F87171;
+  box-shadow:
+    0 0 0 4px rgba(248, 113, 113, 0.12),
+    0 0 20px rgba(248, 113, 113, 0.15);
+}
+
+.edit-modal__error {
+  font-size: 12px;
+  color: #F87171;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================
+   8. BUTTONS - Gradient & Glow
+   ============================================ */
+
+.edit-modal__footer {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 24px 32px 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Bouton principal gradient */
+.edit-modal__btn-primary {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #E879F9 0%, #00E5FF 100%);
+  border: none;
+  border-radius: 14px;
+  color: #0D0D0F;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 180px;
+  box-shadow:
+    0 4px 20px rgba(232, 121, 249, 0.35),
+    0 0 40px rgba(232, 121, 249, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet shimmer au hover */
+.edit-modal__btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.edit-modal__btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.edit-modal__btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 30px rgba(232, 121, 249, 0.45),
+    0 0 60px rgba(232, 121, 249, 0.25),
+    0 0 80px rgba(0, 229, 255, 0.15);
+}
+
+.edit-modal__btn-primary:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.edit-modal__btn-primary:disabled {
+  background: rgba(100, 100, 100, 0.3);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.edit-modal__btn-primary:disabled::before {
+  display: none;
+}
+
+/* Bouton secondaire */
+.edit-modal__btn-secondary {
+  padding: 16px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.edit-modal__btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.edit-modal__btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   9. ERROR BANNER
+   ============================================ */
+
+.edit-modal__error-banner {
+  margin: 0 32px 20px;
+  padding: 16px 20px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 2px solid rgba(248, 113, 113, 0.3);
+  border-radius: 12px;
+  color: #F87171;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.edit-modal__error-banner svg {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   10. RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .edit-modal-premium {
+    border-radius: 20px 20px 0 0;
+    max-height: 95vh;
+  }
+
+  .edit-modal__header {
+    padding: 32px 20px 20px;
+  }
+
+  .edit-modal__logo-wrapper {
+    width: 90px;
+    height: 90px;
+  }
+
+  .edit-modal__title {
+    font-size: 22px;
+  }
+
+  .edit-modal__tabs {
+    padding: 0 20px;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .edit-modal__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .edit-modal__tab {
+    padding: 12px 10px;
+    font-size: 11px;
+    min-width: 70px;
+    flex: none;
+  }
+
+  .edit-modal__tab span:not(:first-child) {
+    display: none;
+  }
+
+  .edit-modal__content {
+    padding: 0 20px 20px;
+  }
+
+  .edit-modal__section {
+    padding: 20px 16px;
+  }
+
+  .edit-modal__footer {
+    flex-direction: column;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .edit-modal__btn-primary,
+  .edit-modal__btn-secondary {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .edit-modal__close {
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ============================================
+   11. REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .edit-modal__logo-glow {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .edit-modal__autosave--saving svg {
+    animation: none;
+  }
+
+  .edit-modal__tab,
+  .edit-modal__input,
+  .edit-modal__btn-primary,
+  .edit-modal__btn-secondary,
+  .edit-modal__close {
+    transition: none;
+  }
+
+  .edit-modal__btn-primary::before {
+    display: none;
+  }
+}
+
+/* ============================================
+   12. HIGH CONTRAST MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  .edit-modal-premium {
+    border-width: 3px;
+  }
+
+  .edit-modal__input,
+  .edit-modal__textarea,
+  .edit-modal__select {
+    border-width: 3px;
+  }
+
+  .edit-modal__tab--active {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   13. ANIMATIONS KEYFRAMES
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation classes pour usage manuel */
+.edit-modal__animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.edit-modal__animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+/* Stagger delays */
+.edit-modal__stagger-1 { animation-delay: 0.05s; }
+.edit-modal__stagger-2 { animation-delay: 0.1s; }
+.edit-modal__stagger-3 { animation-delay: 0.15s; }
+.edit-modal__stagger-4 { animation-delay: 0.2s; }
+.edit-modal__stagger-5 { animation-delay: 0.25s; }

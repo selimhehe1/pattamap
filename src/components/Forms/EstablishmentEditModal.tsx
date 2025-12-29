@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useCSRF } from '../../contexts/CSRFContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -10,7 +11,17 @@ import SocialMediaForm from './EstablishmentFormSections/SocialMediaForm';
 import PricingForm from './EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
 import { FileText, DollarSign, Phone, Clock, Pencil, Pen, Landmark, Loader2, Check, Save, X, Sparkles } from 'lucide-react';
+import {
+  premiumModalVariants,
+  premiumBackdropVariants,
+  sectionTransitionVariants,
+  logoFloatVariants,
+  headerItemVariants,
+  neonButtonHover,
+  neonButtonTap,
+} from '../../animations/variants';
 import '../../styles/components/modals.css';
+import '../../styles/components/edit-modal-premium.css';
 import '../../styles/components/photos.css';
 import '../../styles/utilities/layout-utilities.css';
 import '../../styles/components/form-components.css';
@@ -483,9 +494,6 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
     }
   };
 
-  // Icon style helper
-  const iconStyle = { marginRight: '6px', verticalAlign: 'middle' as const };
-
   // Tab configuration with Lucide icons
   const tabIcons = {
     basic: <FileText size={16} />,
@@ -502,393 +510,308 @@ const EstablishmentEditModal: React.FC<EstablishmentEditModalProps> = ({
   ] as const;
 
   return (
-    <div className="modal-overlay-unified">
-      <div className="modal-content-unified modal--large">
+    <motion.div
+      className="modal-overlay-unified"
+      variants={premiumBackdropVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <motion.div
+        className="modal-content-unified modal--large edit-modal-premium"
+        variants={premiumModalVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
         {/* Close Button */}
-        <button
+        <motion.button
           onClick={onCancel}
-          className="modal-close-btn"
+          className="edit-modal__close"
           aria-label="Close"
+          whileHover={{ scale: 1.1, rotate: 90 }}
+          whileTap={{ scale: 0.9 }}
         >
-          ×
-        </button>
+          <X size={20} />
+        </motion.button>
 
         {/* Header Section */}
-        <div className="modal-header" style={{ marginBottom: '30px', textAlign: 'center' }}>
-          {/* Logo Preview */}
+        <div className="edit-modal__header">
+          {/* Logo Preview with Glow */}
           {formData.logo_url && (
-            <div style={{
-              width: '88px',
-              height: '88px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              margin: '0 auto 16px',
-              border: '3px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-            }}>
+            <motion.div
+              className="edit-modal__logo-wrapper"
+              variants={logoFloatVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="edit-modal__logo-glow" />
               <img
                 src={formData.logo_url}
                 alt={formData.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
+                className="edit-modal__logo"
               />
-            </div>
+            </motion.div>
           )}
 
-          <h2 className="header-title-nightlife" style={{ fontSize: '28px', marginBottom: '12px' }}>
-            {isSuggestion ? <><Pen size={24} style={iconStyle} /> {t('establishment.editModal.suggestEditTitle')}</> : initialData ? <><Pencil size={24} style={iconStyle} /> {t('establishment.editTitle')}</> : <><Landmark size={24} style={iconStyle} /> {t('establishment.addTitle')}</>}
-          </h2>
-          <p className="modal-subtitle" style={{ fontSize: '15px' }}>
+          <motion.h2
+            className="edit-modal__title"
+            variants={headerItemVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {isSuggestion ? (
+              <><Pen size={24} /> {t('establishment.editModal.suggestEditTitle')}</>
+            ) : initialData ? (
+              <><Pencil size={24} /> {t('establishment.editTitle')}</>
+            ) : (
+              <><Landmark size={24} /> {t('establishment.addTitle')}</>
+            )}
+          </motion.h2>
+
+          <motion.p
+            className="edit-modal__subtitle"
+            variants={headerItemVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {isSuggestion
               ? t('establishment.editModal.suggestEditSubtitle')
               : initialData
               ? t('establishment.editSubtitle')
               : t('establishment.createSubtitle')
             }
-          </p>
+          </motion.p>
 
           {/* Auto-save indicator */}
           {!initialData && !isSuggestion && (
-            <div style={{
-              fontSize: '12px',
-              color: isSaving ? '#00E5FF' : isDraft ? '#4ADE80' : '#6B7280',
-              marginTop: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px'
-            }}>
+            <motion.div
+              className={`edit-modal__autosave edit-modal__autosave--${isSaving ? 'saving' : isDraft ? 'saved' : 'idle'}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               {isSaving ? (
-                <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('establishment.savingDraft')}</>
+                <><Loader2 size={14} /> {t('establishment.savingDraft')}</>
               ) : isDraft && lastSaved ? (
                 <><Check size={14} /> {t('establishment.draftSavedAt', { time: new Date(lastSaved).toLocaleTimeString() })}</>
               ) : (
                 <><Save size={14} /> {t('establishment.autoSaveEnabled')}</>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
 
         {/* Tabs Navigation */}
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '30px',
-          overflowX: 'auto',
-          padding: '4px'
-        }}>
-          {tabs.map((tab) => (
-            <button
+        <div className="edit-modal__tabs">
+          {tabs.map((tab, index) => (
+            <motion.button
               key={tab.id}
               onClick={() => setActiveSection(tab.id)}
-              style={{
-                flex: '1',
-                minWidth: '120px',
-                padding: '12px 20px',
-                background: activeSection === tab.id
-                  ? 'linear-gradient(135deg, rgba(193, 154, 107,0.3), rgba(193, 154, 107,0.2))'
-                  : 'rgba(0,0,0,0.3)',
-                border: activeSection === tab.id
-                  ? '2px solid #C19A6B'
-                  : '2px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: activeSection === tab.id ? '#C19A6B' : 'rgba(255,255,255,0.7)',
-                fontSize: '14px',
-                fontWeight: activeSection === tab.id ? 'bold' : 'normal',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                if (activeSection !== tab.id) {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeSection !== tab.id) {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
-                }
-              }}
+              className={`edit-modal__tab ${activeSection === tab.id ? 'edit-modal__tab--active' : ''}`}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 + 0.2 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               {tab.icon}
               <span>{tab.label}</span>
-            </button>
+              {activeSection === tab.id && (
+                <motion.div
+                  className="edit-modal__tab-indicator"
+                  layoutId="tab-indicator"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+            </motion.button>
           ))}
         </div>
 
         {/* Form Content */}
         <form onSubmit={handleSubmit}>
-          {/* Basic Info Section */}
-          {activeSection === 'basic' && (
-            <div style={{
-              animation: 'fadeIn 0.3s ease-out',
-              marginBottom: '30px'
-            }}>
-              <BasicInfoForm
-                formData={formData}
-                categories={categories}
-                errors={errors}
-                onChange={handleInputChange}
-                logoFile={logoFile}
-                onLogoChange={handleLogoChange}
-                uploadingLogo={uploadingLogo}
-              />
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {/* Basic Info Section */}
+            {activeSection === 'basic' && (
+              <motion.div
+                key="basic"
+                className="edit-modal__content"
+                variants={sectionTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <BasicInfoForm
+                  formData={formData}
+                  categories={categories}
+                  errors={errors}
+                  onChange={handleInputChange}
+                  logoFile={logoFile}
+                  onLogoChange={handleLogoChange}
+                  uploadingLogo={uploadingLogo}
+                />
+              </motion.div>
+            )}
 
-          {/* Pricing Section */}
-          {activeSection === 'pricing' && (
-            <div style={{
-              animation: 'fadeIn 0.3s ease-out',
-              marginBottom: '30px'
-            }}>
-              <PricingForm
-                formData={formData}
-                consumableTemplates={consumableTemplates}
-                selectedConsumable={selectedConsumable}
-                onSelectedConsumableChange={handleSelectedConsumableChange}
-                onAddConsumable={addConsumable}
-                onRemoveConsumable={removeConsumable}
-                onEditConsumable={editConsumable}
-                onChange={handleInputChange}
-                getConsumableTemplate={getConsumableTemplate}
-                selectedCategoryName={categories.find(cat => cat.id.toString() === formData.category_id.toString())?.name || ''}
-              />
-            </div>
-          )}
+            {/* Pricing Section */}
+            {activeSection === 'pricing' && (
+              <motion.div
+                key="pricing"
+                className="edit-modal__content"
+                variants={sectionTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <PricingForm
+                  formData={formData}
+                  consumableTemplates={consumableTemplates}
+                  selectedConsumable={selectedConsumable}
+                  onSelectedConsumableChange={handleSelectedConsumableChange}
+                  onAddConsumable={addConsumable}
+                  onRemoveConsumable={removeConsumable}
+                  onEditConsumable={editConsumable}
+                  onChange={handleInputChange}
+                  getConsumableTemplate={getConsumableTemplate}
+                  selectedCategoryName={categories.find(cat => cat.id.toString() === formData.category_id.toString())?.name || ''}
+                />
+              </motion.div>
+            )}
 
-          {/* Contact Section */}
-          {activeSection === 'contact' && (
-            <div style={{
-              animation: 'fadeIn 0.3s ease-out',
-              marginBottom: '30px'
-            }}>
-              <div style={{
-                background: 'rgba(0,0,0,0.3)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '24px'
-              }}>
-                <h3 style={{
-                  color: '#00E5FF',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  marginBottom: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Phone size={18} />
-                  <span>{t('establishment.editModal.contact.sectionTitle')}</span>
-                </h3>
+            {/* Contact Section */}
+            {activeSection === 'contact' && (
+              <motion.div
+                key="contact"
+                className="edit-modal__content"
+                variants={sectionTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <div className="edit-modal__section">
+                  <h3 className="edit-modal__section-title">
+                    <Phone size={18} />
+                    <span>{t('establishment.editModal.contact.sectionTitle')}</span>
+                  </h3>
 
-                {/* Phone */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{
-                    display: 'block',
-                    color: 'rgba(255,255,255,0.85)',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    marginBottom: '8px'
-                  }}>
-                    {t('establishment.editModal.contact.phoneLabel')}
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder={t('establishment.editModal.contact.phonePlaceholder')}
-                    className="input-field-nightlife"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(0,0,0,0.4)',
-                      border: '2px solid rgba(255,255,255,0.2)',
-                      borderRadius: '10px',
-                      color: '#ffffff',
-                      fontSize: '15px'
-                    }}
-                  />
-                </div>
+                  {/* Phone */}
+                  <div className="edit-modal__field">
+                    <label className="edit-modal__label">
+                      {t('establishment.editModal.contact.phoneLabel')}
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder={t('establishment.editModal.contact.phonePlaceholder')}
+                      className="edit-modal__input"
+                    />
+                  </div>
 
-                {/* Website */}
-                <div style={{ marginBottom: '0' }}>
-                  <label style={{
-                    display: 'block',
-                    color: 'rgba(255,255,255,0.85)',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    marginBottom: '8px'
-                  }}>
-                    {t('establishment.editModal.contact.websiteLabel')}
-                  </label>
-                  <input
-                    type="url"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleInputChange}
-                    placeholder={t('establishment.editModal.contact.websitePlaceholder')}
-                    className="input-field-nightlife"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(0,0,0,0.4)',
-                      border: '2px solid rgba(255,255,255,0.2)',
-                      borderRadius: '10px',
-                      color: '#ffffff',
-                      fontSize: '15px'
-                    }}
-                  />
-                </div>
+                  {/* Website */}
+                  <div className="edit-modal__field">
+                    <label className="edit-modal__label">
+                      {t('establishment.editModal.contact.websiteLabel')}
+                    </label>
+                    <input
+                      type="url"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleInputChange}
+                      placeholder={t('establishment.editModal.contact.websitePlaceholder')}
+                      className="edit-modal__input"
+                    />
+                  </div>
 
-                {/* Social Media (v10.1 - replaces Services) */}
-                <div style={{ marginTop: '20px' }}>
+                  {/* Social Media */}
                   <SocialMediaForm
                     formData={formData}
                     onSocialMediaChange={handleSocialMediaChange}
                   />
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
 
-          {/* Opening Hours Section */}
-          {activeSection === 'hours' && (
-            <div style={{
-              animation: 'fadeIn 0.3s ease-out',
-              marginBottom: '30px'
-            }}>
-              <OpeningHoursForm
-                formData={formData}
-                onChange={handleInputChange}
-              />
-            </div>
-          )}
+            {/* Opening Hours Section */}
+            {activeSection === 'hours' && (
+              <motion.div
+                key="hours"
+                className="edit-modal__content"
+                variants={sectionTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <OpeningHoursForm
+                  formData={formData}
+                  onChange={handleInputChange}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Submit Error */}
-          {errors.submit && (
-            <div style={{
-              padding: '16px',
-              background: 'rgba(255,71,87,0.1)',
-              border: '2px solid rgba(255,71,87,0.3)',
-              borderRadius: '12px',
-              color: '#FF4757',
-              fontSize: '14px',
-              marginBottom: '20px'
-            }}>
-              {errors.submit}
-            </div>
-          )}
+          <AnimatePresence>
+            {errors.submit && (
+              <motion.div
+                className="edit-modal__error-banner"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <X size={18} />
+                {errors.submit}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Footer Buttons */}
-          <div style={{
-            display: 'flex',
-            gap: '16px',
-            justifyContent: 'center',
-            marginTop: '30px'
-          }}>
-            <button
+          <div className="edit-modal__footer">
+            <motion.button
               type="button"
               onClick={onCancel}
-              style={{
-                padding: '14px 28px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
-                color: '#ffffff',
-                fontSize: '15px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                minWidth: '140px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-              }}
+              className="edit-modal__btn-secondary"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <X size={16} style={iconStyle} /> {t('establishment.buttonCancel')}
-            </button>
+              <X size={16} />
+              {t('establishment.buttonCancel')}
+            </motion.button>
 
-            <button
+            <motion.button
               type="submit"
               disabled={isLoading || uploadingLogo}
-              style={{
-                padding: '14px 28px',
-                background: isLoading || uploadingLogo
-                  ? 'rgba(100,100,100,0.3)'
-                  : 'linear-gradient(135deg, rgba(193, 154, 107,0.9), rgba(193, 154, 107,0.7))',
-                border: '2px solid',
-                borderColor: isLoading || uploadingLogo ? 'rgba(255,255,255,0.1)' : '#C19A6B',
-                borderRadius: '12px',
-                color: isLoading || uploadingLogo ? 'rgba(255,255,255,0.5)' : '#ffffff',
-                fontSize: '15px',
-                fontWeight: 'bold',
-                cursor: isLoading || uploadingLogo ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                minWidth: '140px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading && !uploadingLogo) {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(193, 154, 107,1), rgba(193, 154, 107,0.8))';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(193, 154, 107,0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading && !uploadingLogo) {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(193, 154, 107,0.9), rgba(193, 154, 107,0.7))';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }
-              }}
+              className="edit-modal__btn-primary"
+              whileHover={!isLoading && !uploadingLogo ? neonButtonHover : undefined}
+              whileTap={!isLoading && !uploadingLogo ? neonButtonTap : undefined}
             >
               {isLoading || uploadingLogo ? (
                 <>
-                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  <Loader2 size={18} className="animate-spin" />
                   <span>{uploadingLogo ? t('establishment.editModal.uploading') : t('establishment.buttonSubmitting')}</span>
+                </>
+              ) : isSuggestion ? (
+                <>
+                  <Pen size={18} />
+                  {t('establishment.editModal.submitSuggestionButton')}
+                </>
+              ) : initialData ? (
+                <>
+                  <Save size={18} />
+                  {t('establishment.buttonSaveChanges')}
                 </>
               ) : (
                 <>
-                  {isSuggestion ? <><Pen size={16} /> {t('establishment.editModal.submitSuggestionButton')}</> : initialData ? <><Save size={16} /> {t('establishment.buttonSaveChanges')}</> : <><Sparkles size={16} /> {t('establishment.buttonAddEstablishment')}</>}
+                  <Sparkles size={18} />
+                  {t('establishment.buttonAddEstablishment')}
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
         </form>
-      </div>
-
-      {/* Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
