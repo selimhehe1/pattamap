@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight, Shield, Cake, Share2 } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -8,7 +9,7 @@ import ReviewsModalContent from '../Review/ReviewsModalContent';
 import UserRating from '../Review/UserRating';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
-import EmployeeFormContent from '../Forms/EmployeeFormContent';
+import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import ClaimEmployeeModal from '../Employee/ClaimEmployeeModal';
 import EmployeeVerificationStatusCard from '../Employee/EmployeeVerificationStatusCard';
 import ValidationBadge from '../Employee/ValidationBadge';
@@ -16,6 +17,7 @@ import ValidationVoteButtons from '../Employee/ValidationVoteButtons';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useToggleFavorite } from '../../hooks/useFavorites';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
+import LazyImage from '../Common/LazyImage';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +25,6 @@ import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/components/employee-profile.css';
 import '../../styles/components/photos.css';
 import '../../styles/components/photo-gallery-modal.css';
-// profile-modal.css removed - now using unified modals.css from App.tsx
 import '../../styles/pages/user-dashboard.css';
 
 // Feature flag check
@@ -46,6 +47,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // 🆕 Phase 5.3: Use centralized favorite hook with React Query optimistic updates
   const { isFavorite, toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite(girl.id);
@@ -291,288 +293,413 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   };
 
 
+  // Check if employee is VIP
+  const isVIP = VIP_ENABLED && girl.is_vip && girl.vip_expires_at && new Date(girl.vip_expires_at) > new Date();
+
+  // Handle share functionality
+  const handleShare = useCallback(async () => {
+    const shareUrl = `${window.location.origin}/employee/${girl.id}`;
+    const shareData = {
+      title: `${girl.name} - PattaMap`,
+      text: girl.description || `Check out ${girl.name}'s profile on PattaMap`,
+      url: shareUrl
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled or share failed, fallback to clipboard
+        navigator.clipboard.writeText(shareUrl);
+        toast.success(t('common.linkCopied', 'Link copied to clipboard!'));
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success(t('common.linkCopied', 'Link copied to clipboard!'));
+    }
+  }, [girl.id, girl.name, girl.description, t]);
+
+  // Navigation handlers
+  const goToPrevPhoto = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentPhotoIndex(prev => prev === 0 ? girl.photos.length - 1 : prev - 1);
+  }, [girl.photos.length]);
+
+  const goToNextPhoto = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentPhotoIndex(prev => prev === girl.photos.length - 1 ? 0 : prev + 1);
+  }, [girl.photos.length]);
+
+  // Nationality display
+  const nationalityDisplay = useMemo(() => {
+    if (!girl.nationality) return null;
+    return Array.isArray(girl.nationality) ? girl.nationality.join(' / ') : girl.nationality;
+  }, [girl.nationality]);
+
   return (
-    <div className="profile-container-vertical-nightlife">
-        {/* Scroll Progress Bar */}
-        <div className="scroll-progress-bar-gradient" aria-hidden="true" />
-
-        {/* Sticky Header avec boutons d'action */}
-        <div className="profile-sticky-header">
-          {/* Left: Info only (minimalist) */}
-          <div className="profile-header-left">
-            <div className="profile-header-info">
-              <div className="profile-header-title">
-                {girl.name}
-              </div>
-              <div className="profile-header-meta">
-                <span>{girl.age} years</span>
-                <span className="profile-meta-separator">•</span>
-                <span>{girl.nationality}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Action Buttons */}
-          <div className="profile-header-actions">
-            {/* Bouton Favorite - Icon only */}
-            <button
-              onClick={handleToggleFavorite}
-              disabled={isTogglingFavorite}
-              className={`profile-header-btn profile-header-favorite ${isFavorite ? 'favorited' : ''} ${isTogglingFavorite ? 'loading' : ''}`}
-              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            >
-              {isTogglingFavorite ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />}
-            </button>
-
-            {/* Bouton Edit - Icon only */}
-            {user && (
-              <button
-                className="profile-header-btn profile-header-edit"
-                title={user.role === 'admin' || user.role === 'moderator' ? 'Edit Profile' : 'Suggest Edit'}
-                aria-label={user.role === 'admin' || user.role === 'moderator' ? 'Edit Profile' : 'Suggest Edit'}
-                onClick={() => openModal('edit-employee', EmployeeFormContent, {
-                  initialData: {
-                    ...girl,
-                    current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
-                  },
-                  onSubmit: async (employeeData: EmployeeFormData) => {
-                    const API_URL = import.meta.env.VITE_API_URL || '';
-
-                    const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
-                      method: 'POST',
-                      body: JSON.stringify({
-                        item_type: 'employee',
-                        item_id: girl.id,
-                        proposed_changes: employeeData,
-                        current_values: girl
-                      })
-                    });
-
-                    if (response.ok) {
-                      const data = await response.json();
-                      if (data.auto_approved) {
-                        toast.success(t('editProposal.autoApproved', 'Modifications applied immediately!'));
-                      } else {
-                        toast.success(t('editProposal.created', 'Proposal created! It will be reviewed by a moderator.'));
-                      }
-                      closeModal('edit-employee');
-                      window.location.reload();
-                    } else {
-                      toast.error(t('editProposal.error', 'Error creating proposal'));
-                    }
-                  }
-                }, {
-                  size: 'large',
-                  closeOnOverlayClick: false
-                })}
-              >
-                <Pencil size={18} />
-              </button>
+    <div className={`profile-v2 ${isVIP ? 'profile-v2--vip' : ''}`}>
+      {/* ====== COMPACT HEADER ====== */}
+      <motion.header
+        className="profile-v2-header"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="profile-v2-header-left">
+          {/* Mini Avatar */}
+          <div className="profile-v2-header-avatar">
+            {girl.photos?.[0] ? (
+              <img src={girl.photos[0]} alt={girl.name} />
+            ) : (
+              <span>{girl.name?.charAt(0)?.toUpperCase()}</span>
             )}
-
-            {/* Bouton Claim - Icon only */}
-            {user &&
-             user.account_type === 'employee' &&
-             !user.linked_employee_id &&
-             !girl.user_id && (
-              <button
-                className="profile-header-btn profile-header-claim"
-                title="Claim This Profile"
-                aria-label="Claim This Profile"
-                onClick={() => setShowClaimModal(true)}
-              >
-                <Link2 size={18} />
-              </button>
-            )}
-
-            {/* Bouton Close - Icon only */}
-            <button
-              onClick={onClose}
-              className="profile-header-btn profile-header-close"
-              title="Close profile"
-              aria-label="Close profile"
-            >
-              <X size={18} />
-            </button>
           </div>
+          <span className="profile-v2-header-name">{girl.name}</span>
         </div>
 
-        {/* Section photos */}
-        <div className="profile-photo-section-vertical">
-
-          {/* Photo principale */}
-          <div
-            className="profile-photo-main-vertical"
-            style={{
-              backgroundImage: `url(${girl.photos[currentPhotoIndex] || '/placeholder-avatar.png'})`,
-              cursor: girl.photos && girl.photos.length > 0 ? 'pointer' : 'default'
-            }}
-            onClick={handlePhotoClick}
-            title="Click to view full gallery"
+        <div className="profile-v2-header-actions">
+          {/* Favorite Button */}
+          <button
+            onClick={handleToggleFavorite}
+            disabled={isTogglingFavorite}
+            className={`profile-v2-header-btn ${isFavorite ? 'profile-v2-header-btn--active' : ''}`}
+            aria-label={isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
           >
-              {/* Navigation photos */}
-              {girl.photos.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentPhotoIndex(prev =>
-                        prev === 0 ? girl.photos.length - 1 : prev - 1
-                      );
-                    }}
-                    className="profile-photo-nav profile-photo-nav-left"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
+            {isTogglingFavorite ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+            )}
+          </button>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentPhotoIndex(prev =>
-                        prev === girl.photos.length - 1 ? 0 : prev + 1
-                      );
-                    }}
-                    className="profile-photo-nav profile-photo-nav-right"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="profile-v2-header-btn"
+            aria-label={t('common.share', 'Share')}
+          >
+            <Share2 size={18} />
+          </button>
 
-                  {/* Indicateurs photos */}
-                  <div className="profile-photo-indicators">
-                    {girl.photos.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentPhotoIndex(index);
-                        }}
-                        className={`profile-photo-dot ${index === currentPhotoIndex ? 'active' : ''}`}
-                      />
-                    ))}
+          {/* Edit Button */}
+          {user && (
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="profile-v2-header-btn"
+              aria-label={user.role === 'admin' || user.role === 'moderator' ? t('common.edit') : t('common.suggestEdit')}
+            >
+              <Pencil size={18} />
+            </button>
+          )}
+
+          {/* Claim Button */}
+          {user && user.account_type === 'employee' && !user.linked_employee_id && !girl.user_id && (
+            <button
+              onClick={() => setShowClaimModal(true)}
+              className="profile-v2-header-btn profile-v2-header-btn--claim"
+              aria-label={t('common.claimProfile', 'Claim Profile')}
+            >
+              <Link2 size={18} />
+            </button>
+          )}
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="profile-v2-header-btn profile-v2-header-btn--close"
+            aria-label={t('common.close', 'Close')}
+          >
+            <X size={18} />
+          </button>
+        </div>
+      </motion.header>
+
+      {/* ====== MAIN LAYOUT ====== */}
+      <div className="profile-v2-layout">
+        {/* ====== HERO PHOTO SECTION ====== */}
+        <motion.section
+          className="profile-v2-hero"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Instagram-style Story Dots */}
+          {girl.photos && girl.photos.length > 1 && (
+            <div className="profile-v2-story-dots">
+              {girl.photos.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPhotoIndex(index);
+                  }}
+                  className={`profile-v2-story-dot ${index === currentPhotoIndex ? 'profile-v2-story-dot--active' : ''} ${index < currentPhotoIndex ? 'profile-v2-story-dot--viewed' : ''}`}
+                  aria-label={`Photo ${index + 1}`}
+                >
+                  {index === currentPhotoIndex && (
+                    <motion.div
+                      className="profile-v2-story-progress"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 5, ease: 'linear' }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Main Photo */}
+          <div
+            className="profile-v2-photo"
+            onClick={handlePhotoClick}
+            role="button"
+            tabIndex={0}
+            aria-label={t('profile.viewGallery', 'View photo gallery')}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentPhotoIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="profile-v2-photo-wrapper"
+              >
+                {girl.photos?.[currentPhotoIndex] ? (
+                  <LazyImage
+                    src={girl.photos[currentPhotoIndex]}
+                    alt={`${girl.name} - Photo ${currentPhotoIndex + 1}`}
+                    cloudinaryPreset="galleryLarge"
+                    objectFit="cover"
+                    className="profile-v2-photo-img"
+                  />
+                ) : (
+                  <div className="profile-v2-photo-placeholder">
+                    <span>{girl.name?.charAt(0)?.toUpperCase() || '?'}</span>
                   </div>
-                </>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation Arrows */}
+            {girl.photos && girl.photos.length > 1 && (
+              <>
+                <button
+                  onClick={goToPrevPhoto}
+                  className="profile-v2-nav profile-v2-nav--prev"
+                  aria-label={t('common.previousPhoto', 'Previous photo')}
+                >
+                  <ChevronLeft size={28} />
+                </button>
+                <button
+                  onClick={goToNextPhoto}
+                  className="profile-v2-nav profile-v2-nav--next"
+                  aria-label={t('common.nextPhoto', 'Next photo')}
+                >
+                  <ChevronRight size={28} />
+                </button>
+              </>
+            )}
+
+            {/* Floating Badges */}
+            <div className="profile-v2-badges">
+              {/* VIP Badge */}
+              {isVIP && (
+                <motion.div
+                  className="profile-v2-badge profile-v2-badge--vip"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: 'spring' }}
+                >
+                  <Crown size={14} />
+                  <span>VIP</span>
+                </motion.div>
               )}
 
+              {/* Verified Badge */}
+              {girl.is_verified && (
+                <motion.div
+                  className="profile-v2-badge profile-v2-badge--verified"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: 'spring' }}
+                  title={girl.verified_at ? `Verified on ${new Date(girl.verified_at).toLocaleDateString()}` : 'Verified Profile'}
+                >
+                  <Shield size={14} />
+                  <span>{t('common.verified', 'Verified')}</span>
+                </motion.div>
+              )}
             </div>
-        </div>
 
-        {/* Contenu principal */}
-        <div className="profile-content-vertical">
-          {/* Informations principales - Nom/metadata déplacés dans sticky header */}
-          <div className="profile-main-info">
-            {girl.description && (
-              <p className="profile-description">
-                {girl.description}
-              </p>
+            {/* Photo Counter */}
+            {girl.photos && girl.photos.length > 1 && (
+              <div className="profile-v2-photo-counter">
+                {currentPhotoIndex + 1} / {girl.photos.length}
+              </div>
+            )}
+          </div>
+        </motion.section>
+
+        {/* ====== EDITORIAL CONTENT PANEL ====== */}
+        <motion.section
+          className="profile-v2-content"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          {/* Magazine-style Name */}
+          <div className="profile-v2-name-section">
+            <h1 className="profile-v2-name">{girl.name}</h1>
+            {girl.nickname && (
+              <p className="profile-v2-nickname">"{girl.nickname}"</p>
             )}
           </div>
 
-          {/* VIP Status Section - v10.3 Phase 4 (only if VIP feature enabled) */}
-          {VIP_ENABLED && girl.is_vip && girl.vip_expires_at && (
-            <div className={`profile-vip-status ${new Date(girl.vip_expires_at) > new Date() ? 'active' : 'expired'}`}>
-              <div className="vip-status-header">
-                <span className="vip-status-icon"><Crown size={20} /></span>
-                <h3 className="vip-status-title">
-                  {new Date(girl.vip_expires_at) > new Date()
-                    ? t('vipStatus.activeTitle', 'VIP Member')
-                    : t('vipStatus.expiredTitle', 'VIP Expired')}
-                </h3>
-              </div>
+          {/* Quick Stats Grid */}
+          <div className="profile-v2-stats">
+            {girl.age && (
+              <motion.div
+                className="profile-v2-stat"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <span className="profile-v2-stat-value">{girl.age}</span>
+                <span className="profile-v2-stat-label">
+                  <Cake size={12} />
+                  {t('profile.age', 'Age')}
+                </span>
+              </motion.div>
+            )}
 
-              <div className="vip-status-details">
-                <div className="vip-status-expiry">
-                  {new Date(girl.vip_expires_at) > new Date() ? (
-                    <>
-                      <span className="vip-status-label">{t('vipStatus.expiresOn', 'Expires on')}:</span>
-                      <span className="vip-status-date">{new Date(girl.vip_expires_at).toLocaleDateString()}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="vip-status-label">{t('vipStatus.expiredOn', 'Expired on')}:</span>
-                      <span className="vip-status-date">{new Date(girl.vip_expires_at).toLocaleDateString()}</span>
-                    </>
-                  )}
-                </div>
+            {nationalityDisplay && (
+              <motion.div
+                className="profile-v2-stat"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+              >
+                <span className="profile-v2-stat-value">{nationalityDisplay}</span>
+                <span className="profile-v2-stat-label">
+                  <Globe size={12} />
+                  {t('profile.nationality', 'Nationality')}
+                </span>
+              </motion.div>
+            )}
 
-                {new Date(girl.vip_expires_at) > new Date() && (
-                  <ul className="vip-features-list-profile">
-                    <li><Sparkles size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature1', 'Priority in search results')}</li>
-                    <li><Star size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature2', 'Featured profile with gold border')}</li>
-                    <li><Crown size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature3', 'VIP badge on profile')}</li>
-                    <li><BarChart3 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('vipStatus.feature4', 'Enhanced visibility')}</li>
-                  </ul>
-                )}
-              </div>
-            </div>
+            {girl.average_rating !== undefined && girl.average_rating > 0 && (
+              <motion.div
+                className="profile-v2-stat profile-v2-stat--rating"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className="profile-v2-stat-value">
+                  <Star size={16} fill="#FFD700" color="#FFD700" />
+                  {girl.average_rating.toFixed(1)}
+                </span>
+                <span className="profile-v2-stat-label">
+                  {t('profile.rating', 'Rating')}
+                </span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Pull-Quote Description */}
+          {girl.description && (
+            <motion.div
+              className="profile-v2-description"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              <p>{girl.description}</p>
+            </motion.div>
           )}
 
-          {/* Verification Status Card - Only for profile owner */}
-          {user && user.linked_employee_id === girl.id && (
-            <EmployeeVerificationStatusCard
-              employeeId={girl.id}
-              employeeName={girl.name}
-              isVerified={girl.is_verified || false}
-            />
-          )}
-
-          {/* Community Validation Section - ONLY if profile is NOT CLAIMED and NOT VERIFIED */}
-          {!girl.user_id && !girl.is_self_profile && !girl.is_verified && (
-            <div className="profile-community-validation">
-              <h3 className="profile-section-title">
-                <Search size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Community Validation
+          {/* ====== SOCIAL CONNECT SECTION ====== */}
+          {girl.social_media && Object.keys(girl.social_media).some(key => girl.social_media?.[key as keyof typeof girl.social_media]) && (
+            <motion.div
+              className="profile-v2-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h3 className="profile-v2-section-title">
+                <MessageSquare size={16} />
+                {t('profile.contact', 'Contact')} {girl.nickname || girl.name}
               </h3>
 
-              <ValidationBadge employeeId={girl.id} />
-              <ValidationVoteButtons employeeId={girl.id} />
-            </div>
+              <div className="profile-v2-social-links">
+                {Object.entries(girl.social_media).map(([platform, username]) => {
+                  if (!username) return null;
+                  return (
+                    <a
+                      key={platform}
+                      href={getSocialMediaUrl(platform, username)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`profile-v2-social-link profile-v2-social-link--${platform}`}
+                    >
+                      <span className="profile-v2-social-icon">
+                        {getSocialMediaIcon(platform)}
+                      </span>
+                      <span className="profile-v2-social-name">{platform}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </motion.div>
           )}
 
-          {/* Message if profile is CLAIMED or VERIFIED */}
-          {(girl.user_id || girl.is_self_profile || girl.is_verified) && (
-            <div className="verified-owner-badge">
-              <CheckCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{girl.is_verified ? 'Verified Profile' : 'Verified by Owner'}
-            </div>
-          )}
-
-          {/* Current Workplace */}
+          {/* ====== WORKPLACE SECTION ====== */}
           {girl.current_employment && girl.current_employment.length > 0 && (
-            <div className="profile-workplace-section">
-              <h3 className="profile-section-title">
-                <Building2 size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Currently Working At
+            <motion.div
+              className="profile-v2-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+            >
+              <h3 className="profile-v2-section-title">
+                <Building2 size={16} />
+                {t('profile.currentlyWorkingAt', 'Currently Working At')}
               </h3>
 
-              <div className="workplace-info-container">
+              <div className="profile-v2-workplaces">
                 {girl.current_employment.map((employment) => (
-                  <div key={employment.id} className="workplace-card-nightlife">
-                    <div className="workplace-main-info">
-                      <h4 className="workplace-name">
+                  <div key={employment.id} className="profile-v2-workplace">
+                    <div className="profile-v2-workplace-info">
+                      <h4 className="profile-v2-workplace-name">
                         {employment.establishment?.name}
                       </h4>
 
-                      <div className="workplace-details">
+                      <div className="profile-v2-workplace-meta">
                         {employment.establishment?.category?.name && (
-                          <span className="workplace-category">
-                            <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employment.establishment.category.name}
+                          <span>
+                            <MapPin size={12} />
+                            {employment.establishment.category.name}
                           </span>
                         )}
-
                         {employment.establishment?.zone && (
-                          <span className="workplace-zone">
-                            <Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{employment.establishment.zone}
+                          <span>
+                            <Globe size={12} />
+                            {employment.establishment.zone}
                           </span>
                         )}
                       </div>
 
                       {employment.position && (
-                        <div className="workplace-position">
-                          <Briefcase size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Position: {employment.position}
+                        <div className="profile-v2-workplace-position">
+                          <Briefcase size={12} />
+                          {employment.position}
                         </div>
                       )}
 
                       {employment.start_date && (
-                        <div className="workplace-start-date">
-                          <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Since: {new Date(employment.start_date).toLocaleDateString('en-US', {
+                        <div className="profile-v2-workplace-date">
+                          <Calendar size={12} />
+                          {t('profile.since', 'Since')} {new Date(employment.start_date).toLocaleDateString('en-US', {
                             month: 'short',
                             year: 'numeric'
                           })}
@@ -582,88 +709,148 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
                     {employment.establishment?.id && (
                       <button
-                        className="workplace-visit-button"
+                        className="profile-v2-workplace-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onClose(); // Close the profile modal first
+                          onClose();
                           navigate(`/bar/${employment.establishment?.id}`);
                         }}
                       >
-                        <ExternalLink size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Visit Bar Page
+                        <ExternalLink size={14} />
+                        {t('profile.visitBar', 'Visit Bar')}
                       </button>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
-          {/* Social Media */}
-          {girl.social_media && Object.keys(girl.social_media).some(key => girl.social_media?.[key as keyof typeof girl.social_media]) && (
-            <div className="profile-social-section">
-              <h3 className="profile-section-title">
-                <MessageSquare size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Contact {girl.nickname || girl.name}
+          {/* ====== VIP STATUS (if applicable) ====== */}
+          {isVIP && (
+            <motion.div
+              className="profile-v2-section profile-v2-section--vip"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <h3 className="profile-v2-section-title profile-v2-section-title--vip">
+                <Crown size={16} />
+                {t('vipStatus.activeTitle', 'VIP Member')}
               </h3>
-
-              <div className="social-badges-container">
-                {Object.entries(girl.social_media).map(([platform, username]) => {
-                  if (!username) return null;
-
-                  return (
-                    <a
-                      key={platform}
-                      href={getSocialMediaUrl(platform, username)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`social-badge-nightlife social-badge-${platform}`}
-                    >
-                      <span className="social-badge-icon">
-                        {getSocialMediaIcon(platform)}
-                      </span>
-                      <span className="social-badge-text">
-                        {platform}
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
+              <p className="profile-v2-vip-expiry">
+                {t('vipStatus.expiresOn', 'Expires on')}: {new Date(girl.vip_expires_at!).toLocaleDateString()}
+              </p>
+            </motion.div>
           )}
 
-          {/* Rating Section - EN PREMIER comme demandé */}
-          <div className="profile-rating-section">
-            <UserRating
-              employeeId={girl.id}
-              onRatingUpdate={() => loadReviews()} // Refresh reviews when rating changes
-            />
-          </div>
+          {/* ====== VERIFICATION STATUS ====== */}
+          {user && user.linked_employee_id === girl.id && (
+            <motion.div
+              className="profile-v2-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <EmployeeVerificationStatusCard
+                employeeId={girl.id}
+                employeeName={girl.name}
+                isVerified={girl.is_verified || false}
+              />
+            </motion.div>
+          )}
 
-          {/* Actions */}
-          <div className="profile-actions-section">
+          {/* ====== COMMUNITY VALIDATION ====== */}
+          {!girl.user_id && !girl.is_self_profile && !girl.is_verified && (
+            <motion.div
+              className="profile-v2-section profile-v2-section--validation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <h3 className="profile-v2-section-title">
+                <Search size={16} />
+                {t('profile.communityValidation', 'Community Validation')}
+              </h3>
+              <ValidationBadge employeeId={girl.id} />
+              <ValidationVoteButtons employeeId={girl.id} />
+            </motion.div>
+          )}
+
+          {/* Verified Owner Badge */}
+          {(girl.user_id || girl.is_self_profile || girl.is_verified) && (
+            <motion.div
+              className="profile-v2-verified-badge"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <CheckCircle size={16} />
+              {girl.is_verified ? t('profile.verifiedProfile', 'Verified Profile') : t('profile.verifiedByOwner', 'Verified by Owner')}
+            </motion.div>
+          )}
+
+          {/* ====== RATING & REVIEWS SECTION ====== */}
+          <motion.div
+            className="profile-v2-section profile-v2-section--reviews"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <h3 className="profile-v2-section-title">
+              <Star size={16} />
+              {t('profile.ratingsReviews', 'Ratings & Reviews')}
+            </h3>
+
+            {/* Rating Component */}
+            <div className="profile-v2-rating">
+              <UserRating
+                employeeId={girl.id}
+                onRatingUpdate={() => loadReviews()}
+              />
+            </div>
+
+            {/* Add Review Button */}
             <button
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className={`profile-action-button profile-action-review ${showReviewForm ? 'active' : ''}`}
+              className={`profile-v2-review-btn ${showReviewForm ? 'profile-v2-review-btn--active' : ''}`}
             >
-              {showReviewForm ? <><XCircle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Cancel Comment</> : <><MessageSquare size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />Add Comment</>}
+              {showReviewForm ? (
+                <>
+                  <XCircle size={16} />
+                  {t('profile.cancelComment', 'Cancel')}
+                </>
+              ) : (
+                <>
+                  <MessageSquare size={16} />
+                  {t('profile.addComment', 'Add Comment')}
+                </>
+              )}
             </button>
-          </div>
 
-          {/* Comments Section - Après rating et actions */}
-          <div className="profile-comments-section">
-            {/* Review Form with auto-focus */}
-            {showReviewForm && (
-              <div className="profile-review-form" ref={reviewFormRef}>
-                <ReviewForm
-                  employeeId={girl.id}
-                  onSubmit={handleReviewSubmit}
-                  onCancel={() => setShowReviewForm(false)}
-                  isLoading={isSubmittingReview}
-                />
-              </div>
-            )}
+            {/* Review Form */}
+            <AnimatePresence>
+              {showReviewForm && (
+                <motion.div
+                  className="profile-v2-review-form"
+                  ref={reviewFormRef}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ReviewForm
+                    employeeId={girl.id}
+                    onSubmit={handleReviewSubmit}
+                    onCancel={() => setShowReviewForm(false)}
+                    isLoading={isSubmittingReview}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Reviews List */}
-            <div className="profile-reviews-list">
+            <div className="profile-v2-reviews-list">
               <ReviewsList
                 reviews={reviews}
                 onReply={handleReplySubmit}
@@ -682,14 +869,53 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                 maxReviews={3}
               />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.section>
+      </div>
 
         {/* Claim Employee Modal */}
         {showClaimModal && (
           <ClaimEmployeeModal
             preselectedEmployee={girl}
             onClose={() => setShowClaimModal(false)}
+          />
+        )}
+
+        {/* Edit Employee Modal */}
+        {showEditModal && (
+          <EditEmployeeModal
+            isOpen={showEditModal}
+            onClose={() => setShowEditModal(false)}
+            employee={{
+              ...girl,
+              current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
+            } as Employee}
+            showInfoNote={false}
+            onSave={async (employeeData: EmployeeFormData) => {
+              const API_URL = import.meta.env.VITE_API_URL || '';
+              const response = await secureFetch(`${API_URL}/api/edit-proposals`, {
+                method: 'POST',
+                body: JSON.stringify({
+                  item_type: 'employee',
+                  item_id: girl.id,
+                  proposed_changes: employeeData,
+                  current_values: girl
+                })
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                if (data.auto_approved) {
+                  toast.success(t('editProposal.autoApproved', 'Modifications applied immediately!'));
+                } else {
+                  toast.success(t('editProposal.created', 'Proposal created! It will be reviewed by a moderator.'));
+                }
+                window.location.reload();
+              } else {
+                throw new Error(t('editProposal.error', 'Error creating proposal'));
+              }
+            }}
+            onProfileUpdated={() => window.location.reload()}
           />
         )}
       </div>

@@ -1,22 +1,955 @@
 /**
  * EMPLOYEE PROFILE COMPONENT STYLES
- * Version: 1.0.0
- * Migration: Phase 2B - Extraction depuis nightlife-theme.css
+ * Version: 2.0.0 - "Editorial Nightlife" Redesign
  *
- * NOTES IMPORTANTES:
- * - Consolidation de 3 sections (660 lignes totales)
- * - Section 1: Horizontal Layout (L2549-2943, 395 lignes) - Layout classique modal
- * - Section 2: Vertical Layout (L4339-4547, 209 lignes) - Layout vertical pour GirlProfile
- * - Section 3: Overlay Buttons (L5580-5635, 56 lignes) - Boutons favorite/close sur photos
- * - Utilise design-system.css pour toutes les variables
- * - Accessibility: Tap targets 44x44px min, focus-visible states
- * - Responsive: Optimisé pour mobile, tablet, desktop
+ * DESIGN CONCEPT:
+ * Magazine-inspired layout with hero photo, editorial typography,
+ * Instagram-style story dots, and premium glassmorphism effects.
+ *
+ * LAYOUT STRUCTURE:
+ * - Desktop (>=1024px): 2-column grid (55% photo | 45% content)
+ * - Mobile (<768px): Stacked with accordion sections
  *
  * COMPOSANTS UTILISANT CES STYLES:
- * - GirlProfile.tsx (Vertical Layout + Overlay Buttons)
- * - EmployeesAdmin.tsx (Horizontal Layout)
- * - BarDetailPage.tsx (Horizontal Layout)
+ * - GirlProfile.tsx (Unified profile modal)
  */
+
+/* ========================================
+   V2 CSS CUSTOM PROPERTIES
+   Profile-specific design tokens
+   ======================================== */
+
+:root {
+  /* Layout dimensions */
+  --profile-v2-hero-width: 55%;
+  --profile-v2-content-width: 45%;
+  --profile-v2-hero-height-mobile: 45vh;
+  --profile-v2-header-height: 56px;
+  --profile-v2-section-gap: 1.5rem;
+
+  /* Editorial typography */
+  --profile-v2-name-size: clamp(2rem, 5vw, 3.5rem);
+  --profile-v2-nickname-size: clamp(1rem, 2vw, 1.25rem);
+  --profile-v2-quote-size: 1.125rem;
+
+  /* Story dots */
+  --profile-v2-story-dot-height: 3px;
+  --profile-v2-story-dot-gap: 4px;
+
+  /* Animation timings */
+  --profile-v2-entrance-duration: 0.6s;
+  --profile-v2-stagger-delay: 0.1s;
+  --profile-v2-gradient-duration: 8s;
+  --profile-v2-float-duration: 3s;
+
+  /* Z-index layers */
+  --profile-v2-z-photo: 1;
+  --profile-v2-z-overlay: 2;
+  --profile-v2-z-badges: 3;
+  --profile-v2-z-nav: 4;
+  --profile-v2-z-header: 10;
+}
+
+/* ========================================
+   V2 ANIMATIONS
+   ======================================== */
+
+@keyframes profileV2GradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes profileV2StoryProgress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes profileV2Float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes profileV2FadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes profileV2SlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes profileV2PulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(232, 121, 249, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(232, 121, 249, 0.7);
+  }
+}
+
+/* ========================================
+   V2 MAIN CONTAINER
+   Editorial Nightlife Layout
+   ======================================== */
+
+.profile-v2 {
+  display: grid;
+  grid-template-columns: var(--profile-v2-hero-width) var(--profile-v2-content-width);
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  max-width: 100vw;
+  height: 100%;
+  max-height: 95vh;
+  background: linear-gradient(135deg, #0D0D0F 0%, #16161A 50%, #0D0D0F 100%);
+  border-radius: var(--border-radius-2xl);
+  overflow: hidden;
+  position: relative;
+  animation: profileV2FadeInUp var(--profile-v2-entrance-duration) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========================================
+   V2 STICKY HEADER
+   Compact header with actions
+   ======================================== */
+
+.profile-v2-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(180deg, rgba(13, 13, 15, 0.98) 0%, rgba(13, 13, 15, 0.9) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(232, 121, 249, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: var(--profile-v2-z-header);
+  animation: profileV2SlideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-v2-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-v2-header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 15px rgba(232, 121, 249, 0.4);
+  flex-shrink: 0;
+}
+
+.profile-v2-header-info {
+  min-width: 0;
+}
+
+.profile-v2-header-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.profile-v2-header-meta {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-v2-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.profile-v2-header-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-v2-header-btn:hover {
+  background: rgba(232, 121, 249, 0.2);
+  color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.profile-v2-header-btn:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.profile-v2-header-btn--favorite.active {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+}
+
+.profile-v2-header-btn--close:hover {
+  background: rgba(255, 68, 68, 0.2);
+  color: #FF4444;
+}
+
+/* ========================================
+   V2 HERO PHOTO SECTION
+   Magazine cover style with story dots
+   ======================================== */
+
+.profile-v2-hero {
+  position: relative;
+  grid-row: 2;
+  grid-column: 1;
+  overflow: hidden;
+  background: #0D0D0F;
+}
+
+.profile-v2-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.profile-v2-hero-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.1), rgba(0, 229, 255, 0.1));
+}
+
+.profile-v2-hero-placeholder-initial {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  box-shadow: 0 0 40px rgba(232, 121, 249, 0.5);
+}
+
+/* Story Dots - Instagram Style */
+.profile-v2-story-dots {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: var(--profile-v2-story-dot-gap);
+  z-index: var(--profile-v2-z-nav);
+}
+
+.profile-v2-story-dot {
+  flex: 1;
+  height: var(--profile-v2-story-dot-height);
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-v2-story-dot:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.profile-v2-story-dot--active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.profile-v2-story-dot--active::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  animation: profileV2StoryProgress 5s linear;
+}
+
+.profile-v2-story-dot--viewed {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Photo Navigation Arrows */
+.profile-v2-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--profile-v2-z-nav);
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.profile-v2-hero:hover .profile-v2-nav {
+  opacity: 1;
+}
+
+.profile-v2-nav:hover {
+  background: rgba(232, 121, 249, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.profile-v2-nav--prev {
+  left: 1rem;
+}
+
+.profile-v2-nav--next {
+  right: 1rem;
+}
+
+/* Floating Badges on Photo */
+.profile-v2-floating-badges {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: var(--profile-v2-z-badges);
+}
+
+.profile-v2-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(10px);
+  animation: profileV2Float var(--profile-v2-float-duration) ease-in-out infinite;
+}
+
+.profile-v2-badge--vip {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.95));
+  color: #000;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.profile-v2-badge--verified {
+  background: linear-gradient(135deg, rgba(29, 161, 242, 0.95), rgba(0, 136, 204, 0.95));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(29, 161, 242, 0.5);
+}
+
+.profile-v2-badge--hot {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.95), rgba(239, 68, 68, 0.95));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+}
+
+.profile-v2-badge--new {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* ========================================
+   V2 CONTENT PANEL
+   Editorial info sections
+   ======================================== */
+
+.profile-v2-content {
+  grid-row: 2;
+  grid-column: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--profile-v2-section-gap);
+  scroll-behavior: smooth;
+}
+
+/* Editorial Name Section */
+.profile-v2-name-section {
+  animation: profileV2FadeInUp var(--profile-v2-entrance-duration) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-v2-name {
+  font-size: var(--profile-v2-name-size);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-secondary) 50%,
+    var(--color-primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: profileV2GradientShift var(--profile-v2-gradient-duration) ease infinite;
+}
+
+.profile-v2-nickname {
+  font-size: var(--profile-v2-nickname-size);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* Quick Stats Grid */
+.profile-v2-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  animation: profileV2FadeInUp var(--profile-v2-entrance-duration) cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: calc(var(--profile-v2-stagger-delay) * 1);
+  animation-fill-mode: backwards;
+}
+
+.profile-v2-stat {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.profile-v2-stat:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(232, 121, 249, 0.2);
+}
+
+.profile-v2-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.profile-v2-stat-label {
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.25rem;
+}
+
+/* Pull-Quote Description */
+.profile-v2-description {
+  position: relative;
+  padding-left: 1.5rem;
+  border-left: 3px solid var(--color-primary);
+  font-size: var(--profile-v2-quote-size);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  animation: profileV2FadeInUp var(--profile-v2-entrance-duration) cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: calc(var(--profile-v2-stagger-delay) * 2);
+  animation-fill-mode: backwards;
+}
+
+.profile-v2-description::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: -0.25rem;
+  font-size: 4rem;
+  font-family: Georgia, serif;
+  color: var(--color-primary);
+  opacity: 0.2;
+  line-height: 1;
+}
+
+/* Section Cards */
+.profile-v2-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  animation: profileV2FadeInUp var(--profile-v2-entrance-duration) cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: backwards;
+}
+
+.profile-v2-section:nth-child(3) { animation-delay: calc(var(--profile-v2-stagger-delay) * 3); }
+.profile-v2-section:nth-child(4) { animation-delay: calc(var(--profile-v2-stagger-delay) * 4); }
+.profile-v2-section:nth-child(5) { animation-delay: calc(var(--profile-v2-stagger-delay) * 5); }
+.profile-v2-section:nth-child(6) { animation-delay: calc(var(--profile-v2-stagger-delay) * 6); }
+.profile-v2-section:nth-child(7) { animation-delay: calc(var(--profile-v2-stagger-delay) * 7); }
+
+.profile-v2-section:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(232, 121, 249, 0.2);
+  transform: translateY(-2px);
+}
+
+.profile-v2-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+/* Social Connect Pills */
+.profile-v2-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-v2-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.profile-v2-social-link:hover {
+  transform: scale(1.05);
+}
+
+.profile-v2-social-link--instagram {
+  background: linear-gradient(45deg, rgba(225, 48, 108, 0.2), rgba(225, 48, 108, 0.1));
+  border: 1px solid rgba(225, 48, 108, 0.4);
+  color: #E1306C;
+}
+
+.profile-v2-social-link--instagram:hover {
+  background: linear-gradient(45deg, rgba(225, 48, 108, 0.4), rgba(225, 48, 108, 0.2));
+  box-shadow: 0 0 20px rgba(225, 48, 108, 0.4);
+}
+
+.profile-v2-social-link--line {
+  background: linear-gradient(45deg, rgba(0, 195, 0, 0.2), rgba(0, 195, 0, 0.1));
+  border: 1px solid rgba(0, 195, 0, 0.4);
+  color: #00C300;
+}
+
+.profile-v2-social-link--line:hover {
+  background: linear-gradient(45deg, rgba(0, 195, 0, 0.4), rgba(0, 195, 0, 0.2));
+  box-shadow: 0 0 20px rgba(0, 195, 0, 0.4);
+}
+
+.profile-v2-social-link--telegram {
+  background: linear-gradient(45deg, rgba(0, 136, 204, 0.2), rgba(0, 136, 204, 0.1));
+  border: 1px solid rgba(0, 136, 204, 0.4);
+  color: #0088CC;
+}
+
+.profile-v2-social-link--telegram:hover {
+  background: linear-gradient(45deg, rgba(0, 136, 204, 0.4), rgba(0, 136, 204, 0.2));
+  box-shadow: 0 0 20px rgba(0, 136, 204, 0.4);
+}
+
+.profile-v2-social-link--whatsapp {
+  background: linear-gradient(45deg, rgba(37, 211, 102, 0.2), rgba(37, 211, 102, 0.1));
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #25D366;
+}
+
+.profile-v2-social-link--whatsapp:hover {
+  background: linear-gradient(45deg, rgba(37, 211, 102, 0.4), rgba(37, 211, 102, 0.2));
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
+}
+
+.profile-v2-social-link--facebook {
+  background: linear-gradient(45deg, rgba(24, 119, 242, 0.2), rgba(24, 119, 242, 0.1));
+  border: 1px solid rgba(24, 119, 242, 0.4);
+  color: #1877F2;
+}
+
+.profile-v2-social-link--facebook:hover {
+  background: linear-gradient(45deg, rgba(24, 119, 242, 0.4), rgba(24, 119, 242, 0.2));
+  box-shadow: 0 0 20px rgba(24, 119, 242, 0.4);
+}
+
+/* Workplace Card - Offset Design */
+.profile-v2-workplace {
+  position: relative;
+  margin-left: 0.5rem;
+  padding-left: 1.25rem;
+  border-left: 3px solid var(--color-secondary);
+}
+
+.profile-v2-workplace-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin: 0 0 0.5rem 0;
+}
+
+.profile-v2-workplace-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.75rem;
+}
+
+.profile-v2-workplace-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.profile-v2-workplace-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.1));
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  color: var(--color-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-v2-workplace-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.2));
+  transform: translateX(4px);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+/* Quick Actions Bar (Mobile) */
+.profile-v2-quick-actions {
+  display: none;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(13, 13, 15, 0.95) 30%);
+  backdrop-filter: blur(10px);
+  z-index: var(--profile-v2-z-header);
+}
+
+.profile-v2-quick-actions-inner {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.profile-v2-quick-btn {
+  flex: 1;
+  max-width: 120px;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.profile-v2-quick-btn:hover {
+  background: rgba(232, 121, 249, 0.2);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.profile-v2-quick-btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), #D946EF);
+  border: none;
+}
+
+.profile-v2-quick-btn--primary:hover {
+  box-shadow: 0 0 25px rgba(232, 121, 249, 0.5);
+}
+
+/* ========================================
+   V2 RESPONSIVE - TABLET
+   ======================================== */
+
+@media (max-width: 1023px) {
+  .profile-v2 {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 35vh 1fr;
+  }
+
+  .profile-v2-hero {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .profile-v2-content {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .profile-v2-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========================================
+   V2 RESPONSIVE - MOBILE
+   ======================================== */
+
+@media (max-width: 767px) {
+  :root {
+    --profile-v2-hero-height-mobile: 40vh;
+  }
+
+  .profile-v2 {
+    grid-template-rows: auto 40vh 1fr auto;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .profile-v2-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .profile-v2-header-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-v2-header-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-v2-hero {
+    grid-row: 2;
+  }
+
+  .profile-v2-content {
+    grid-row: 3;
+    padding: 1rem;
+    gap: 1rem;
+    /* Reduce blur on mobile for performance */
+    backdrop-filter: none;
+  }
+
+  .profile-v2-name {
+    font-size: 2rem;
+  }
+
+  .profile-v2-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .profile-v2-stat {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .profile-v2-stat-value {
+    font-size: 1.25rem;
+  }
+
+  .profile-v2-section {
+    padding: 1rem;
+  }
+
+  .profile-v2-quick-actions {
+    display: block;
+    grid-row: 4;
+  }
+
+  /* Accordion Sections */
+  .profile-v2-accordion {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .profile-v2-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .profile-v2-accordion-header:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .profile-v2-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .profile-v2-accordion.open .profile-v2-accordion-content {
+    max-height: 500px;
+  }
+
+  .profile-v2-accordion-chevron {
+    transition: transform 0.3s ease;
+  }
+
+  .profile-v2-accordion.open .profile-v2-accordion-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+/* ========================================
+   V2 RESPONSIVE - SMALL MOBILE
+   ======================================== */
+
+@media (max-width: 479px) {
+  .profile-v2 {
+    grid-template-rows: auto 35vh 1fr auto;
+  }
+
+  .profile-v2-header-name {
+    font-size: 0.875rem;
+  }
+
+  .profile-v2-header-meta {
+    display: none;
+  }
+
+  .profile-v2-name {
+    font-size: 1.75rem;
+  }
+
+  .profile-v2-description {
+    font-size: 1rem;
+    padding-left: 1rem;
+  }
+
+  .profile-v2-description::before {
+    font-size: 3rem;
+  }
+
+  .profile-v2-social {
+    gap: 0.375rem;
+  }
+
+  .profile-v2-social-link {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* ========================================
+   V2 ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-v2,
+  .profile-v2-header,
+  .profile-v2-name,
+  .profile-v2-badge,
+  .profile-v2-section,
+  .profile-v2-stat,
+  .profile-v2-story-dot--active::after {
+    animation: none;
+  }
+
+  .profile-v2-nav,
+  .profile-v2-header-btn,
+  .profile-v2-stat,
+  .profile-v2-section,
+  .profile-v2-social-link,
+  .profile-v2-workplace-btn,
+  .profile-v2-quick-btn {
+    transition: none;
+  }
+}
+
+/* Focus visible states */
+.profile-v2 *:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   LEGACY STYLES BELOW
+   Keep for backward compatibility during migration
+   ======================================== */
 
 /* ========================================
    SECTION 1: HORIZONTAL LAYOUT (MODAL)
