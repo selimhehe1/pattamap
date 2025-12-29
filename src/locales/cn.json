@@ -1068,6 +1068,7 @@
     "removePhoto": "删除照片",
     "mainPhoto": "主图",
     "errorPhotosRequired": "至少需要一张照片",
+    "errorRateLimitExceeded": "请求过多，请稍等几分钟后重试。",
     "nicknameLabel": "昵称",
     "nicknamePlaceholder": "昵称或艺名",
     "ageLabel": "年龄",

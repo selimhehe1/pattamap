@@ -182,6 +182,10 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle rate limit error with user-friendly message
+        if (response.status === 429) {
+          throw new Error(t('employee.errorRateLimitExceeded', 'Too many requests. Please wait a few minutes and try again.'));
+        }
         throw new Error(data.error || 'Failed to upload photos');
       }
 

@@ -581,6 +581,7 @@
     "removePhoto": "Remove photo",
     "mainPhoto": "Main",
     "errorPhotosRequired": "At least one photo is required",
+    "errorRateLimitExceeded": "Too many requests. Please wait a few minutes and try again.",
     "nicknameLabel": "Nickname",
     "nicknamePlaceholder": "Nickname or stage name",
     "ageLabel": "Age",

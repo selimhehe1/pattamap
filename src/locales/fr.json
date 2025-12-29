@@ -1123,6 +1123,7 @@
     "removePhoto": "Supprimer la photo",
     "mainPhoto": "Principale",
     "errorPhotosRequired": "Au moins une photo est requise",
+    "errorRateLimitExceeded": "Trop de requêtes. Veuillez patienter quelques minutes et réessayer.",
     "nicknameLabel": "Surnom",
     "nicknamePlaceholder": "Surnom ou nom de scène",
     "ageLabel": "Âge",

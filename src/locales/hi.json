@@ -1068,6 +1068,7 @@
     "removePhoto": "फ़ोटो हटाएं",
     "mainPhoto": "मुख्य",
     "errorPhotosRequired": "कम से कम एक फ़ोटो आवश्यक है",
+    "errorRateLimitExceeded": "बहुत सारे अनुरोध। कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।",
     "nicknameLabel": "उपनाम",
     "nicknamePlaceholder": "उपनाम या मंच नाम",
     "ageLabel": "आयु",

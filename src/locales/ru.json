@@ -1069,6 +1069,7 @@
     "removePhoto": "Удалить фото",
     "mainPhoto": "Главная",
     "errorPhotosRequired": "Требуется хотя бы одна фотография",
+    "errorRateLimitExceeded": "Слишком много запросов. Подождите несколько минут и попробуйте снова.",
     "nicknameLabel": "Прозвище",
     "nicknamePlaceholder": "Прозвище или сценический псевдоним",
     "ageLabel": "Возраст",

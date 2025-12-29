@@ -1067,6 +1067,7 @@
     "removePhoto": "ลบรูปภาพ",
     "mainPhoto": "หลัก",
     "errorPhotosRequired": "ต้องมีอย่างน้อยหนึ่งรูป",
+    "errorRateLimitExceeded": "คำขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่",
     "nicknameLabel": "ชื่อเล่น",
     "nicknamePlaceholder": "ชื่อเล่นหรือชื่อเวที",
     "ageLabel": "อายุ",
