@@ -136,7 +136,9 @@ const NotificationBell: React.FC = () => {
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('type');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const notificationItemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // 🔧 FIX N6: Exponential backoff state
@@ -342,6 +344,29 @@ const NotificationBell: React.FC = () => {
     // Fetch is now handled by useEffect when showDropdown changes
     setShowDropdown(!showDropdown);
   };
+
+  // 🔧 FIX: Calculate dropdown position for fixed positioning
+  // This allows dropdown to escape parent overflow:hidden/auto
+  useEffect(() => {
+    if (showDropdown && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const dropdownWidth = 380; // Width from CSS
+
+      // Calculate right position - ensure dropdown stays in viewport
+      let rightPos = viewportWidth - rect.right;
+
+      // If dropdown would overflow left edge, adjust
+      if (rect.right - dropdownWidth < 0) {
+        rightPos = viewportWidth - dropdownWidth - 10; // 10px margin
+      }
+
+      setDropdownPosition({
+        top: rect.bottom + 10, // 10px below button
+        right: Math.max(10, rightPos) // At least 10px from right edge
+      });
+    }
+  }, [showDropdown]);
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -694,6 +719,7 @@ const NotificationBell: React.FC = () => {
     <div className="notification-bell-container" ref={dropdownRef}>
       {/* Bell Button */}
       <button
+        ref={buttonRef}
         className="notification-bell-button"
         onClick={handleToggleDropdown}
         aria-label={`Notifications. ${unreadCount} unread`}
@@ -706,9 +732,15 @@ const NotificationBell: React.FC = () => {
         )}
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown - Uses fixed positioning to escape parent overflow */}
       {showDropdown && (
-        <div className="notification-dropdown">
+        <div
+          className="notification-dropdown"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            right: `${dropdownPosition.right}px`
+          }}
+        >
           {/* Header */}
           <div className="notification-dropdown-header">
             <h3 className="notification-dropdown-title">{t('notifications.title')}</h3>
