@@ -75,8 +75,14 @@
   padding-right: 22rem; /* Space for fixed sidebar on RIGHT (320px + 32px margin) */
   padding-left: var(--spacing-5); /* Normal left padding */
   width: 100%; /* Full-width responsive */
+  box-sizing: border-box; /* Ensure padding is included in width */
   /* max-width supprimé pour full-width */
   margin: 0 auto;
+}
+
+/* Results Header Bar - Sort bar fix (v11.1.1) */
+.results-header-bar {
+  max-width: calc(100vw - 24rem); /* Account for sidebar (320px) + margins */
 }
 
 /* ===== RESPONSIVE TABLET ===== */
@@ -90,6 +96,10 @@
   .search-results-container-nightlife {
     padding-right: 18.5rem; /* Adjusted for smaller sidebar on RIGHT (272px + 24px) */
     padding-left: var(--spacing-4); /* Slightly reduced left padding */
+  }
+
+  .results-header-bar {
+    max-width: calc(100vw - 20rem); /* Tablet sidebar adjustment */
   }
 }
 
@@ -108,7 +118,12 @@
   }
 
   .search-results-container-nightlife {
+    padding-right: var(--spacing-5); /* Reset to normal on mobile */
     padding-left: var(--spacing-5); /* 1.25rem - Same as right padding */
+  }
+
+  .results-header-bar {
+    max-width: 100%; /* Full width on mobile */
   }
 }
 
