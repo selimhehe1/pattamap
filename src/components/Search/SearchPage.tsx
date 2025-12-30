@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, BarChart3, XCircle } from 'lucide-react';
+import { XCircle, X } from 'lucide-react';
 import SearchFilters from './SearchFilters';
 import SearchResults from './SearchResults';
+import SearchHero from './SearchHero';
+import MobileFilterDrawer, { MobileFilterFAB } from './MobileFilterDrawer';
 import { Employee } from '../../types';
 import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
@@ -34,11 +36,18 @@ const SearchPage: React.FC = () => {
     age_max: urlParams.get('age_max') || '',
     is_verified: urlParams.get('is_verified') || '', // 🆕 v10.2 - Verified filter
     sort_by: urlParams.get('sort_by') || 'relevance',
-    sort_order: urlParams.get('sort_order') || 'desc'
+    sort_order: urlParams.get('sort_order') || 'desc',
+    // 🆕 v11.0 - Advanced filters
+    languages: urlParams.get('languages') || '',
+    min_rating: urlParams.get('min_rating') || '',
+    has_photos: urlParams.get('has_photos') || '',
+    social_media: urlParams.get('social_media') || ''
   });
 
   const [isTyping, setIsTyping] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // 🆕 Pagination state
+  const [isMobile, setIsMobile] = useState(false); // 🆕 v11.0 - Mobile detection
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🆕 v11.0 - Mobile drawer state
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup debounce timeout on unmount
@@ -72,6 +81,25 @@ const SearchPage: React.FC = () => {
     // Also scroll window to top (for better UX)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage, filters.type, filters.nationality, filters.zone, filters.establishment_id, filters.category_id, filters.age_min, filters.age_max, filters.is_verified, filters.sort_by, filters.sort_order]);
+
+  // 🆕 v11.0 - Mobile detection
+  useEffect(() => {
+    const mobileMediaQuery = window.matchMedia('(max-width: 48rem)'); // 768px
+
+    const handleMobileChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(e.matches);
+    };
+
+    // Initial check
+    handleMobileChange(mobileMediaQuery);
+
+    // Add listener for changes
+    mobileMediaQuery.addEventListener('change', handleMobileChange);
+
+    return () => {
+      mobileMediaQuery.removeEventListener('change', handleMobileChange);
+    };
+  }, []);
 
   // ⚡ React Query hook with pagination - Retourne une seule page
   const {
@@ -190,7 +218,12 @@ const SearchPage: React.FC = () => {
       age_max: '',
       is_verified: '', // 🆕 v10.2 - Reset verified filter
       sort_by: 'relevance',
-      sort_order: 'desc'
+      sort_order: 'desc',
+      // 🆕 v11.0 - Reset advanced filters
+      languages: '',
+      min_rating: '',
+      has_photos: '',
+      social_media: ''
     });
   }, []);
 
@@ -212,42 +245,56 @@ const SearchPage: React.FC = () => {
     });
   }, [openModal, closeModal]);
 
+  // Calculate verified count from results (approximate)
+  const verifiedCount = useMemo(() => {
+    return searchResults.filter(emp => emp.is_verified).length;
+  }, [searchResults]);
+
+  // 🆕 v11.0 - Active filters count and list for chips
+  const activeFilters = useMemo(() => {
+    const active: Array<{ key: string; label: string; value: string }> = [];
+
+    if (filters.q) active.push({ key: 'q', label: t('search.searchName', 'Name'), value: filters.q });
+    if (filters.nationality) active.push({ key: 'nationality', label: t('search.nationality', 'Nationality'), value: filters.nationality });
+    if (filters.zone) active.push({ key: 'zone', label: t('search.zone', 'Zone'), value: filters.zone });
+    if (filters.category_id) active.push({ key: 'category_id', label: t('search.category', 'Type'), value: availableFilters.categories.find(c => String(c.id) === filters.category_id)?.name || filters.category_id });
+    if (filters.establishment_id) active.push({ key: 'establishment_id', label: t('search.establishment', 'Establishment'), value: availableFilters.establishments.find(e => e.id === filters.establishment_id)?.name || filters.establishment_id });
+    if (filters.age_min || filters.age_max) {
+      const ageLabel = filters.age_min && filters.age_max
+        ? `${filters.age_min}-${filters.age_max}`
+        : filters.age_min
+          ? `${filters.age_min}+`
+          : `≤${filters.age_max}`;
+      active.push({ key: 'age', label: t('search.ageRange', 'Age'), value: ageLabel });
+    }
+    if (filters.is_verified === 'true') active.push({ key: 'is_verified', label: t('search.verified', 'Verified'), value: '✓' });
+    if (filters.languages) active.push({ key: 'languages', label: t('search.languages', 'Languages'), value: filters.languages.split(',').join(', ') });
+    if (filters.min_rating) active.push({ key: 'min_rating', label: t('search.rating', 'Rating'), value: `${filters.min_rating}+★` });
+    if (filters.has_photos === 'true') active.push({ key: 'has_photos', label: t('search.photos', 'Photos'), value: '✓' });
+    if (filters.social_media) active.push({ key: 'social_media', label: t('search.socialMedia', 'Social'), value: filters.social_media.split(',').length.toString() });
+
+    return active;
+  }, [filters, availableFilters, t]);
+
+  const activeFiltersCount = activeFilters.length;
+
+  // Remove a specific filter
+  const handleRemoveFilter = useCallback((key: string) => {
+    if (key === 'age') {
+      setFilters(prev => ({ ...prev, age_min: '', age_max: '' }));
+    } else {
+      setFilters(prev => ({ ...prev, [key]: '' }));
+    }
+  }, []);
+
   return (
     <div id="main-content" className="bg-nightlife-gradient-main page-content-with-header-nightlife" tabIndex={-1} data-testid="search-page">
-      {/* Header Section - AVANT search-results-container pour éviter d'être caché par le padding-left de la sidebar */}
-      <div className="header-centered-nightlife" style={{
-        padding: '30px 20px',
-        marginBottom: '20px',
-        textAlign: 'center'
-      }}>
-        <h1 className="header-title-nightlife" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-          <Search size={28} color="var(--color-primary)" /> {t('search.title')}
-        </h1>
-        <p className="header-subtitle-nightlife">
-          {t('search.subtitle')}
-        </p>
-
-        {/* Results Summary */}
-        {!isFetching && totalResults > 0 && (
-          <div style={{
-            marginTop: '20px',
-            padding: '10px 20px',
-            background: 'rgba(232, 121, 249, 0.1)',
-            border: '1px solid rgba(232, 121, 249, 0.3)',
-            borderRadius: '25px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#E879F9'
-          }}>
-            <BarChart3 size={16} /> {filters.q
-              ? t('search.foundResultsFor', { count: totalResults, query: filters.q })
-              : t('search.foundResults', { count: totalResults })}
-          </div>
-        )}
-      </div>
+      {/* Hero Section - Neo-Nightlife v11.0 */}
+      <SearchHero
+        totalResults={totalResults}
+        verifiedCount={verifiedCount}
+        isLoading={isFetching}
+      />
 
       <div className="search-results-container-nightlife" data-testid="search-results-container">
         {/* Fixed Filters Sidebar */}
@@ -266,6 +313,34 @@ const SearchPage: React.FC = () => {
         <div style={{
           minHeight: 'calc(100vh - 200px)'
         }}>
+          {/* 🆕 v11.0 - Active Filters Bar */}
+          {activeFiltersCount > 0 && (
+            <div className="active-filters-bar">
+              {activeFilters.map((filter) => (
+                <button
+                  key={filter.key}
+                  className="active-filter-chip"
+                  onClick={() => handleRemoveFilter(filter.key)}
+                  title={`${t('search.removeFilter', 'Remove')}: ${filter.label}`}
+                >
+                  <span className="active-filter-chip-label">{filter.label}:</span>
+                  <span className="active-filter-chip-value">{filter.value}</span>
+                  <span className="active-filter-chip-remove">
+                    <X size={10} />
+                  </span>
+                </button>
+              ))}
+              {activeFiltersCount > 1 && (
+                <button
+                  className="clear-all-filters-link"
+                  onClick={handleClearFilters}
+                >
+                  {t('search.clearAll', 'Clear All')}
+                </button>
+              )}
+            </div>
+          )}
+
           {error && (
             <div style={{
               padding: '20px',
@@ -299,6 +374,33 @@ const SearchPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 🆕 v11.0 - Mobile Filter FAB */}
+      {isMobile && (
+        <MobileFilterFAB
+          onClick={() => setIsDrawerOpen(true)}
+          activeFiltersCount={activeFiltersCount}
+        />
+      )}
+
+      {/* 🆕 v11.0 - Mobile Filter Drawer */}
+      <MobileFilterDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onClear={handleClearFilters}
+        activeFiltersCount={activeFiltersCount}
+      >
+        <SearchFilters
+          filters={filters}
+          availableFilters={availableFilters}
+          onFilterChange={handleFilterChange}
+          onZoneChange={handleZoneChange}
+          onQueryChange={handleQueryChange}
+          onClearFilters={handleClearFilters}
+          loading={isFetching}
+          isTyping={isTyping}
+        />
+      </MobileFilterDrawer>
     </div>
   );
 };

@@ -582,3 +582,571 @@ body[data-theme="light"] .autocomplete-item-nightlife {
 body[data-theme="light"] .autocomplete-item-nightlife:hover {
   background: rgba(167, 139, 250, 0.1);
 }
+
+/* ============================================
+   SEARCH HERO SECTION - Neo-Nightlife v11.0
+   ============================================ */
+
+.search-hero {
+  position: relative;
+  padding: 3rem 1.5rem 2rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Animated gradient background */
+.search-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.15) 0%,
+    rgba(13, 13, 15, 0.98) 30%,
+    rgba(13, 13, 15, 0.98) 70%,
+    rgba(0, 229, 255, 0.1) 100%
+  );
+  z-index: 0;
+}
+
+/* Radial glow effect */
+.search-hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 121, 249, 0.2) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: searchHeroGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes searchHeroGlowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.search-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  animation: searchHeroEntrance 0.8s ease-out;
+}
+
+@keyframes searchHeroEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Search Icon Container */
+.search-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.2) 0%,
+    rgba(0, 229, 255, 0.1) 100%
+  );
+  border-radius: 50%;
+  border: 2px solid rgba(232, 121, 249, 0.5);
+  box-shadow:
+    0 0 30px rgba(232, 121, 249, 0.3),
+    inset 0 0 20px rgba(232, 121, 249, 0.1);
+  animation: searchIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes searchIconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.search-hero-icon {
+  color: #e879f9;
+  filter: drop-shadow(0 0 8px rgba(232, 121, 249, 0.5));
+}
+
+.search-sparkle {
+  position: absolute;
+  color: #ffd700;
+  opacity: 0.8;
+  animation: searchSparkleGlow 2s ease-in-out infinite;
+}
+
+.search-sparkle-1 {
+  top: -5px;
+  right: -5px;
+}
+
+.search-sparkle-2 {
+  bottom: 5px;
+  left: -8px;
+  animation-delay: 0.5s;
+}
+
+@keyframes searchSparkleGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Search Hero Title */
+.search-hero-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #e879f9;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow:
+    0 0 20px rgba(232, 121, 249, 0.5),
+    0 0 40px rgba(232, 121, 249, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.5);
+  animation: searchTitleGlow 3s ease-in-out infinite;
+}
+
+@keyframes searchTitleGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 20px rgba(232, 121, 249, 0.5),
+      0 0 40px rgba(232, 121, 249, 0.3),
+      0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 30px rgba(232, 121, 249, 0.7),
+      0 0 60px rgba(232, 121, 249, 0.4),
+      0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Search Hero Tagline */
+.search-hero-tagline {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #00e5ff;
+  margin: 0 0 1.5rem;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  font-style: italic;
+}
+
+/* Search Stats Cards */
+.search-hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem 1.5rem;
+  background: rgba(30, 30, 36, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  min-width: 100px;
+  transition: all 0.3s ease;
+}
+
+.search-stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232, 121, 249, 0.6);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(232, 121, 249, 0.2);
+}
+
+.search-stat-card-cyan {
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.search-stat-card-cyan:hover {
+  border-color: rgba(0, 229, 255, 0.6);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.search-stat-icon {
+  color: #e879f9;
+}
+
+.search-stat-card-cyan .search-stat-icon {
+  color: #00e5ff;
+}
+
+.search-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.search-stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== SEARCH HERO RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .search-hero {
+    padding: 2rem 1rem 1.5rem;
+  }
+
+  .search-icon-container {
+    width: 64px;
+    height: 64px;
+  }
+
+  .search-hero-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .search-hero-title {
+    font-size: 1.75rem;
+  }
+
+  .search-hero-tagline {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-hero-stats {
+    gap: 0.5rem;
+  }
+
+  .search-stat-card {
+    padding: 0.625rem 1rem;
+    min-width: 80px;
+  }
+
+  .search-stat-value {
+    font-size: 1.25rem;
+  }
+
+  .search-stat-label {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-hero {
+    padding: 1.5rem 1rem;
+  }
+
+  .search-icon-container {
+    width: 56px;
+    height: 56px;
+  }
+
+  .search-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .search-hero-tagline {
+    font-size: 0.875rem;
+  }
+
+  .search-stat-card {
+    padding: 0.5rem 0.75rem;
+    min-width: 70px;
+  }
+
+  .search-stat-value {
+    font-size: 1.125rem;
+  }
+}
+
+/* ===== SEARCH HERO LIGHT MODE ===== */
+
+body[data-theme="light"] .search-hero-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.1) 0%,
+    rgba(255, 255, 255, 0.98) 30%,
+    rgba(255, 255, 255, 0.98) 70%,
+    rgba(0, 229, 255, 0.08) 100%
+  );
+}
+
+body[data-theme="light"] .search-hero-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(167, 139, 250, 0.15) 0%,
+    transparent 60%
+  );
+}
+
+body[data-theme="light"] .search-hero-title {
+  color: #9333ea;
+  text-shadow:
+    0 0 20px rgba(147, 51, 234, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .search-hero-tagline {
+  color: #0891b2;
+}
+
+body[data-theme="light"] .search-icon-container {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.15) 0%,
+    rgba(0, 229, 255, 0.1) 100%
+  );
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+}
+
+body[data-theme="light"] .search-hero-icon {
+  color: #9333ea;
+}
+
+body[data-theme="light"] .search-stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(167, 139, 250, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .search-stat-icon {
+  color: #9333ea;
+}
+
+body[data-theme="light"] .search-stat-card-cyan .search-stat-icon {
+  color: #0891b2;
+}
+
+body[data-theme="light"] .search-stat-value {
+  color: #1e1e1e;
+}
+
+body[data-theme="light"] .search-stat-label {
+  color: rgba(30, 30, 30, 0.6);
+}
+
+/* ===== REDUCED MOTION SUPPORT ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .search-hero-glow,
+  .search-icon-container,
+  .search-hero-title,
+  .search-sparkle {
+    animation: none;
+  }
+
+  .search-hero-content {
+    animation: none;
+  }
+
+  .search-stat-card:hover {
+    transform: none;
+  }
+}
+
+/* =============================================
+   MOBILE FILTER DRAWER & FAB
+   Neo-Nightlife 2025 v11.0
+   ============================================= */
+
+/* Pulse Glow Animation for FAB */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(232, 121, 249, 0.5), 0 0 40px rgba(232, 121, 249, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(232, 121, 249, 0.7), 0 0 60px rgba(232, 121, 249, 0.3);
+  }
+}
+
+/* Mobile Filter FAB */
+.mobile-filter-fab {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.mobile-filter-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(232, 121, 249, 0.6), 0 0 50px rgba(232, 121, 249, 0.3);
+}
+
+.mobile-filter-fab:active {
+  transform: scale(0.95);
+}
+
+/* Hide FAB on Desktop */
+@media (min-width: 48rem) {
+  .mobile-filter-fab {
+    display: none !important;
+  }
+}
+
+/* Mobile Filter Drawer Panel Scrollbar */
+.mobile-filter-drawer-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mobile-filter-drawer-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-filter-drawer-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #E879F9 0%, #A855F7 100%);
+  border-radius: 3px;
+}
+
+/* Active Filters Bar */
+.active-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 16px;
+}
+
+.active-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2) 0%, rgba(0, 229, 255, 0.15) 100%);
+  border: 1px solid rgba(232, 121, 249, 0.4);
+  border-radius: 20px;
+  color: #E879F9;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.active-filter-chip:hover {
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.3) 0%, rgba(0, 229, 255, 0.2) 100%);
+  border-color: #E879F9;
+  box-shadow: 0 2px 10px rgba(232, 121, 249, 0.3);
+}
+
+.active-filter-chip-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.active-filter-chip-value {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.active-filter-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 4px;
+  transition: all 0.2s ease;
+}
+
+.active-filter-chip:hover .active-filter-chip-remove {
+  background: rgba(255, 71, 87, 0.3);
+  color: #FF4757;
+}
+
+/* Clear All Filters Link */
+.clear-all-filters-link {
+  color: #FF4757;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.clear-all-filters-link:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+/* Light Mode Support for Drawer */
+body[data-theme="light"] .mobile-filter-drawer-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme="light"] .mobile-filter-drawer-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.2);
+  border-left: 1px solid rgba(232, 121, 249, 0.3);
+}
+
+body[data-theme="light"] .active-filters-bar {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .active-filter-chip {
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.1) 0%, rgba(0, 229, 255, 0.08) 100%);
+  border-color: rgba(232, 121, 249, 0.3);
+}
+
+body[data-theme="light"] .active-filter-chip-value {
+  color: #1e1e1e;
+}
+
+/* Reduced Motion for Drawer */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-filter-fab {
+    animation: none;
+  }
+
+  .mobile-filter-drawer-overlay,
+  .mobile-filter-drawer-panel {
+    transition: none;
+  }
+}

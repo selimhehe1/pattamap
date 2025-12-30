@@ -3,10 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   Search, ChevronDown, Trash2, Check, Building2,
   Cake, Globe, MapPin, Tag, ArrowUpDown,
-  Loader2, Pencil, Lightbulb, AlertTriangle
+  Loader2, Pencil, Lightbulb, AlertTriangle,
+  // v11.0 - New filter icons
+  Languages, Star, Image, MessageCircle, User, Sparkles
 } from 'lucide-react';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
+import FilterSection from './FilterSection';
 import '../../styles/layout/search-layout.css';
 
 // Development logging helper
@@ -27,6 +30,11 @@ export interface FilterValues {
   is_verified: string; // 🆕 v10.2 - Verified filter
   sort_by: string;
   sort_order: string;
+  // 🆕 v11.0 - Advanced filters
+  languages: string;      // Comma-separated: "Thai,English,Chinese"
+  min_rating: string;     // "1"-"5" minimum average rating
+  has_photos: string;     // "true" | "" - filter employees with photos
+  social_media: string;   // Comma-separated: "instagram,line,whatsapp"
 }
 
 interface SearchFiltersProps {
@@ -482,6 +490,19 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     [filters]
   );
 
+  // 🆕 v11.0 - Count active filters per section for badges
+  const sectionFilterCounts = React.useMemo(() => ({
+    search: [filters.q, filters.zone, filters.establishment_id, filters.category_id].filter(Boolean).length,
+    profile: [filters.age_min, filters.age_max, filters.nationality, filters.languages].filter(Boolean).length,
+    quality: [
+      filters.is_verified,
+      filters.min_rating,
+      filters.has_photos,
+      filters.social_media
+    ].filter(Boolean).length,
+    sort: filters.sort_by !== 'relevance' ? 1 : 0
+  }), [filters]);
+
   // ✅ Handle zone change with immediate establishment reset (fixes visual desync)
   const handleZoneChangeInternal = React.useCallback((zoneValue: string) => {
     // Reset establishment search state immediately (before parent update)
@@ -541,24 +562,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           )}
       </div>
 
-      {/* Verified Filter - PRIORITAIRE - v10.3 Enhanced */}
-      <div className="filter-section--large">
-        <button
-          type="button"
-          onClick={() => onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true')}
-          disabled={loading}
-          className={`verified-filter-nightlife ${filters.is_verified === 'true' ? 'verified-filter-active' : ''} ${loading ? 'verified-filter-disabled' : ''}`}
-          data-testid="verified-filter"
-        >
-          <span className={`verified-badge-icon-nightlife ${filters.is_verified === 'true' ? 'verified-badge-icon-active' : 'verified-badge-icon-inactive'}`}>
-            <Check size={16} />
-          </span>
-          <span className={`verified-filter-text-nightlife ${filters.is_verified === 'true' ? 'verified-filter-text-active' : ''}`}>
-            {t('search.verifiedOnly', 'Verified Profiles Only')}
-          </span>
-        </button>
-      </div>
-
+      {/* ============================================
+         SECTION 1: RECHERCHE (Search)
+         ============================================ */}
+      <FilterSection
+        title={t('search.sections.search', 'Search')}
+        icon={<Search size={18} />}
+        defaultExpanded={true}
+        activeCount={sectionFilterCounts.search}
+      >
       {/* Search Query with Autocomplete */}
       <div className="filter-section" style={{ position: 'relative' }}>
         <div className="filter-label-with-icon">
@@ -634,7 +646,17 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           </div>
         )}
       </div>
+      </FilterSection>
 
+      {/* ============================================
+         SECTION 2: PROFIL (Profile)
+         ============================================ */}
+      <FilterSection
+        title={t('search.sections.profile', 'Profile')}
+        icon={<User size={18} />}
+        defaultExpanded={true}
+        activeCount={sectionFilterCounts.profile}
+      >
       {/* Age Range */}
       <div className="filter-group">
         <label className="label-nightlife filter-label-with-icon">
@@ -725,7 +747,17 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           ))}
         </select>
       </div>
+      </FilterSection>
 
+      {/* ============================================
+         SECTION 3: LOCALISATION (Location)
+         ============================================ */}
+      <FilterSection
+        title={t('search.sections.location', 'Location')}
+        icon={<MapPin size={18} />}
+        defaultExpanded={true}
+        activeCount={[filters.zone, filters.establishment_id, filters.category_id].filter(Boolean).length}
+      >
       {/* Zone */}
       <div className="filter-section">
         <label className="label-nightlife filter-label-with-icon">
@@ -913,6 +945,259 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         </div>
       </div>
 
+      </FilterSection>
+
+      {/* ============================================
+         SECTION 4: QUALITÉ (Quality & Preferences)
+         ============================================ */}
+      <FilterSection
+        title={t('search.sections.quality', 'Quality')}
+        icon={<Sparkles size={18} />}
+        defaultExpanded={true}
+        activeCount={sectionFilterCounts.quality}
+      >
+      {/* Languages Filter - Multi-select chips */}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <Languages size={20} /> {t('search.languages', 'Languages')}
+        </label>
+        <div className="language-chips-container" style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginTop: '8px'
+        }}>
+          {[
+            { code: 'Thai', flag: '🇹🇭' },
+            { code: 'English', flag: '🇬🇧' },
+            { code: 'Chinese', flag: '🇨🇳' },
+            { code: 'Russian', flag: '🇷🇺' },
+            { code: 'Korean', flag: '🇰🇷' },
+            { code: 'Japanese', flag: '🇯🇵' },
+            { code: 'German', flag: '🇩🇪' }
+          ].map(lang => {
+            const selectedLanguages = filters.languages ? filters.languages.split(',') : [];
+            const isSelected = selectedLanguages.includes(lang.code);
+
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => {
+                  let newLanguages: string[];
+                  if (isSelected) {
+                    newLanguages = selectedLanguages.filter(l => l !== lang.code);
+                  } else {
+                    newLanguages = [...selectedLanguages, lang.code];
+                  }
+                  onFilterChange('languages', newLanguages.filter(Boolean).join(','));
+                }}
+                disabled={loading}
+                className={`language-chip ${isSelected ? 'language-chip-active' : ''}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: isSelected
+                    ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(0, 229, 255, 0.2))'
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: isSelected
+                    ? '2px solid #E879F9'
+                    : '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '20px',
+                  color: isSelected ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
+                  fontSize: '13px',
+                  fontWeight: isSelected ? '600' : '500',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? '0 0 15px rgba(232, 121, 249, 0.3)' : 'none'
+                }}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.code}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Rating Filter - Star slider */}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <Star size={20} /> {t('search.minRating', 'Minimum Rating')}
+        </label>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginTop: '8px'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '4px'
+          }}>
+            {[1, 2, 3, 4, 5].map(star => {
+              const currentRating = filters.min_rating ? Number(filters.min_rating) : 0;
+              const isActive = star <= currentRating;
+
+              return (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => {
+                    // Toggle: if clicking on current rating, clear it
+                    if (currentRating === star) {
+                      onFilterChange('min_rating', '');
+                    } else {
+                      onFilterChange('min_rating', String(star));
+                    }
+                  }}
+                  disabled={loading}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    padding: '4px',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  title={`${star} ${t('search.starsOrMore', 'stars or more')}`}
+                >
+                  <Star
+                    size={24}
+                    fill={isActive ? '#FFD700' : 'transparent'}
+                    color={isActive ? '#FFD700' : 'rgba(255, 255, 255, 0.3)'}
+                    style={{
+                      filter: isActive ? 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.5))' : 'none',
+                      transition: 'all 0.2s ease'
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          {filters.min_rating && (
+            <span style={{
+              fontSize: '13px',
+              color: '#FFD700',
+              fontWeight: '600'
+            }}>
+              {filters.min_rating}+ {t('search.stars', 'stars')}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Has Photos Filter - Toggle */}
+      <div className="filter-section">
+        <button
+          type="button"
+          onClick={() => onFilterChange('has_photos', filters.has_photos === 'true' ? '' : 'true')}
+          disabled={loading}
+          className={`photos-filter-toggle ${filters.has_photos === 'true' ? 'photos-filter-active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            width: '100%',
+            padding: '12px 16px',
+            background: filters.has_photos === 'true'
+              ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.1))'
+              : 'rgba(255, 255, 255, 0.05)',
+            border: filters.has_photos === 'true'
+              ? '2px solid #00E5FF'
+              : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            color: filters.has_photos === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: filters.has_photos === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
+          }}
+        >
+          <Image size={20} />
+          <span>{t('search.hasPhotos', 'With Photos Only')}</span>
+          {filters.has_photos === 'true' && (
+            <Check size={16} style={{ marginLeft: 'auto' }} />
+          )}
+        </button>
+      </div>
+
+      {/* Social Media Filter - Checkboxes */}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <MessageCircle size={20} /> {t('search.socialMedia', 'Social Media')}
+        </label>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginTop: '8px'
+        }}>
+          {[
+            { id: 'instagram', label: 'Instagram', icon: '📸', color: '#E1306C' },
+            { id: 'line', label: 'LINE', icon: '💬', color: '#00B900' },
+            { id: 'whatsapp', label: 'WhatsApp', icon: '📱', color: '#25D366' },
+            { id: 'telegram', label: 'Telegram', icon: '✈️', color: '#0088CC' },
+            { id: 'facebook', label: 'Facebook', icon: '👤', color: '#1877F2' }
+          ].map(platform => {
+            const selectedPlatforms = filters.social_media ? filters.social_media.split(',') : [];
+            const isSelected = selectedPlatforms.includes(platform.id);
+
+            return (
+              <button
+                key={platform.id}
+                type="button"
+                onClick={() => {
+                  let newPlatforms: string[];
+                  if (isSelected) {
+                    newPlatforms = selectedPlatforms.filter(p => p !== platform.id);
+                  } else {
+                    newPlatforms = [...selectedPlatforms, platform.id];
+                  }
+                  onFilterChange('social_media', newPlatforms.filter(Boolean).join(','));
+                }}
+                disabled={loading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  background: isSelected
+                    ? `linear-gradient(135deg, ${platform.color}33, ${platform.color}22)`
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: isSelected
+                    ? `2px solid ${platform.color}`
+                    : '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '10px',
+                  color: isSelected ? platform.color : 'rgba(255, 255, 255, 0.8)',
+                  fontSize: '12px',
+                  fontWeight: isSelected ? '600' : '500',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? `0 0 12px ${platform.color}44` : 'none'
+                }}
+              >
+                <span>{platform.icon}</span>
+                <span>{platform.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      </FilterSection>
+
+      {/* ============================================
+         SECTION 5: TRI (Sort Options)
+         ============================================ */}
+      <FilterSection
+        title={t('search.sections.sort', 'Sort')}
+        icon={<ArrowUpDown size={18} />}
+        defaultExpanded={false}
+        activeCount={sectionFilterCounts.sort}
+      >
       {/* Sort Options */}
       <div className="filter-section">
         <label className="label-nightlife filter-label-with-icon">
@@ -932,6 +1217,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           ))}
         </select>
       </div>
+      </FilterSection>
 
         {/* Loading Indicator */}
         {loading && (
