@@ -775,7 +775,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             boxShadow: '0 0 10px rgba(232, 121, 249, 0.5)'
           }} />
 
-          {/* Min slider */}
+          {/* Min slider - Phase 3.1: pointer-events gérés par CSS */}
           <input
             ref={ageMinRef}
             type="range"
@@ -800,13 +800,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               background: 'transparent',
               appearance: 'none',
               WebkitAppearance: 'none',
-              pointerEvents: 'auto',
               cursor: loading ? 'not-allowed' : 'pointer',
-              zIndex: 2
+              zIndex: 3
             }}
           />
 
-          {/* Max slider */}
+          {/* Max slider - Phase 3.1: pointer-events gérés par CSS */}
           <input
             ref={ageMaxRef}
             type="range"
@@ -831,9 +830,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               background: 'transparent',
               appearance: 'none',
               WebkitAppearance: 'none',
-              pointerEvents: 'auto',
               cursor: loading ? 'not-allowed' : 'pointer',
-              zIndex: 3
+              zIndex: 2
             }}
           />
         </div>

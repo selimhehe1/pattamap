@@ -25,12 +25,12 @@
 
 /* ===== SEARCH FILTERS FIXED SIDEBAR ===== */
 
-/* Fixed Sidebar - EDGE-ANCHORED Design (v11.2 Phase 3) */
+/* Fixed Sidebar - EDGE-ANCHORED Design (v11.2 Phase 3.1 - LEFT SIDE) */
 .search-filters-fixed-nightlife {
   position: fixed;
   top: 6.25rem; /* Header height */
-  right: 0; /* EDGE-ANCHORED: collé au bord droit */
-  left: auto;
+  left: 0; /* EDGE-ANCHORED: collé au bord GAUCHE */
+  right: auto;
   width: 20rem; /* 320px */
   height: calc(100vh - 6.25rem); /* Full height from header to bottom */
   overflow-y: auto;
@@ -44,20 +44,21 @@
     rgba(15, 5, 30, 0.98) 100%
   );
   border-radius: 0; /* Pas de border-radius - ancré */
-  border-left: 1px solid rgba(232, 121, 249, 0.25);
+  border-right: 1px solid rgba(232, 121, 249, 0.25);
   border-top: none;
-  border-right: none;
+  border-left: none;
   border-bottom: none;
   padding: var(--spacing-5);
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.6);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(16px);
 }
 
-/* Glow subtil sur le bord gauche */
+/* Glow subtil sur le bord droit (Phase 3.1 - sidebar à gauche) */
 .search-filters-fixed-nightlife::before {
   content: '';
   position: absolute;
-  left: 0;
+  right: 0;
+  left: auto;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -92,11 +93,11 @@
 
 /* ===== SEARCH RESULTS CONTAINER ===== */
 
-/* Results Container - Edge-anchored sidebar (v11.2 Phase 3) */
+/* Results Container - Edge-anchored sidebar LEFT (v11.2 Phase 3.1) */
 .search-results-container-nightlife {
   padding: var(--spacing-7) var(--spacing-5);
-  padding-right: 21.5rem; /* 320px sidebar + 24px margin */
-  padding-left: var(--spacing-5);
+  padding-left: 21.5rem; /* 320px sidebar + 24px margin */
+  padding-right: var(--spacing-5);
   width: 100%;
   max-width: 100vw; /* Fix #4: prevent overflow */
   box-sizing: border-box;
@@ -111,15 +112,15 @@
 
 /* ===== RESPONSIVE TABLET ===== */
 
-/* Tablet: Edge-anchored sidebar (v11.2) */
+/* Tablet: Edge-anchored sidebar LEFT (v11.2 Phase 3.1) */
 @media (max-width: 64rem) and (min-width: 48.0625rem) {
   .search-filters-fixed-nightlife {
     width: 17rem; /* 272px - narrower on tablet */
   }
 
   .search-results-container-nightlife {
-    padding-right: 18rem; /* Sidebar (272px) + margin */
-    padding-left: var(--spacing-4);
+    padding-left: 18rem; /* Sidebar (272px) + margin */
+    padding-right: var(--spacing-4);
   }
 
   .results-header-bar {
@@ -291,6 +292,11 @@
 .filters-content {
   overflow: visible; /* Changed from 'hidden' to allow autocomplete dropdowns to extend outside */
   transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+/* Ensure filter sections can show dropdowns (Phase 3.1) */
+.filter-section {
+  position: relative; /* Ensure dropdown positioning context */
 }
 
 /* Desktop - Always visible */
