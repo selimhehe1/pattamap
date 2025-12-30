@@ -5,7 +5,9 @@ import {
   Cake, Globe, MapPin, Tag, ArrowUpDown,
   Loader2, Pencil, Lightbulb, AlertTriangle,
   // v11.0 - New filter icons
-  Languages, Star, Image, MessageCircle, User, Sparkles
+  Languages, Star, Image, MessageCircle, User, Sparkles,
+  // v11.1 - Freelance toggle
+  Briefcase
 } from 'lucide-react';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
@@ -563,31 +565,26 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
 
       {/* ============================================
-         SECTION 1: RECHERCHE (Search)
+         SEARCH NAME - Direct (v11.1 fix #1)
+         Placed outside FilterSection for cleaner UX
          ============================================ */}
-      <FilterSection
-        title={t('search.sections.search', 'Search')}
-        icon={<Search size={18} />}
-        defaultExpanded={true}
-        activeCount={sectionFilterCounts.search}
-      >
-      {/* Search Query with Autocomplete */}
-      <div className="filter-section" style={{ position: 'relative' }}>
-        <div className="filter-label-with-icon">
+      <div className="filter-section search-name-standalone" style={{ position: 'relative', marginBottom: '1.25rem' }}>
+        <div className="filter-label-with-icon" style={{ marginBottom: '0.5rem' }}>
           <label className="label-nightlife filter-label-with-icon">
-            <Search size={20} /> {t('search.searchName')}
+            <Search size={18} /> {t('search.searchName')}
           </label>
           {isTyping && (
             <span style={{
-              fontSize: '12px',
+              fontSize: '11px',
               color: '#00E5FF',
               background: 'rgba(0,255,255,0.1)',
               padding: '2px 6px',
               borderRadius: '8px',
               border: '1px solid rgba(0,255,255,0.3)',
-              animation: 'pulse 1.5s ease-in-out infinite'
+              animation: 'pulse 1.5s ease-in-out infinite',
+              marginLeft: '8px'
             }}>
-              <Pencil size={12} /> {t('search.typing')}
+              <Pencil size={10} /> {t('search.typing')}
             </span>
           )}
         </div>
@@ -600,27 +597,23 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           disabled={loading}
           className="input-nightlife"
           data-testid="search-input"
+          style={{
+            background: 'linear-gradient(135deg, rgba(232, 121, 249, 0.08), rgba(0, 229, 255, 0.05))',
+            borderColor: 'rgba(232, 121, 249, 0.4)'
+          }}
           onFocus={() => {
-            // Réafficher suggestions si disponibles
             if (autocompleteState.suggestions.length > 0) {
-              setAutocompleteState(prev => ({
-                ...prev,
-                visible: true
-              }));
+              setAutocompleteState(prev => ({ ...prev, visible: true }));
             }
           }}
           onBlur={() => {
-            // 🎯 Délai réduit pour meilleure UX
             setTimeout(() => {
-              setAutocompleteState(prev => ({
-                ...prev,
-                visible: false
-              }));
-            }, 150); // 150ms vs 200ms
+              setAutocompleteState(prev => ({ ...prev, visible: false }));
+            }, 150);
           }}
         />
 
-        {/* 🚀 Autocomplete Suggestions Optimisées */}
+        {/* Autocomplete Suggestions */}
         {autocompleteState.visible && autocompleteState.suggestions.length > 0 && (
           <div className="autocomplete-dropdown-nightlife">
             {autocompleteState.suggestions.map((suggestion, index) => (
@@ -628,7 +621,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                 key={index}
                 className="autocomplete-item-nightlife"
                 onMouseDown={(e) => {
-                  // 🎯 onMouseDown vs onClick pour éviter conflit avec onBlur
                   e.preventDefault();
                   handleSuggestionClick(suggestion);
                 }}
@@ -639,14 +631,84 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           </div>
         )}
 
-        {/* Loading indicator optimisé */}
         {autocompleteState.loading && (
           <div className="autocomplete-loading-nightlife">
             <span className="loading-spinner"><Loader2 size={16} className="spin" /></span>
           </div>
         )}
       </div>
-      </FilterSection>
+
+      {/* Divider line after search */}
+      <div style={{
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(232, 121, 249, 0.3), transparent)',
+        marginBottom: '1rem'
+      }} />
+
+      {/* ============================================
+         FREELANCE TOGGLE - Separate (v11.1 fix #3)
+         Business logic: Freelancers can only work in
+         nightclubs or nowhere (no establishment)
+         ============================================ */}
+      <div className="freelance-toggle-container" style={{ marginBottom: '1rem' }}>
+        <button
+          type="button"
+          onClick={() => {
+            const newType = filters.type === 'freelance' ? 'all' : 'freelance';
+            onFilterChange('type', newType);
+            // Reset establishment when switching to freelance
+            if (newType === 'freelance') {
+              onFilterChange('establishment_id', '');
+            }
+          }}
+          disabled={loading}
+          className={`freelance-toggle ${filters.type === 'freelance' ? 'freelance-toggle-active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            width: '100%',
+            padding: '12px 16px',
+            background: filters.type === 'freelance'
+              ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(168, 85, 247, 0.2))'
+              : 'rgba(255, 255, 255, 0.05)',
+            border: filters.type === 'freelance'
+              ? '2px solid #E879F9'
+              : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            color: filters.type === 'freelance' ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: filters.type === 'freelance' ? '0 0 20px rgba(232, 121, 249, 0.3)' : 'none'
+          }}
+        >
+          <Briefcase size={18} />
+          <span>{t('search.freelanceOnly', 'Freelance Only')}</span>
+          {filters.type === 'freelance' && (
+            <Check size={16} style={{ marginLeft: 'auto' }} />
+          )}
+        </button>
+        {filters.type === 'freelance' && (
+          <div style={{
+            marginTop: '8px',
+            padding: '8px 12px',
+            background: 'rgba(232, 121, 249, 0.1)',
+            border: '1px solid rgba(232, 121, 249, 0.2)',
+            borderRadius: '8px',
+            fontSize: '11px',
+            color: 'rgba(255, 255, 255, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <Lightbulb size={12} color="#E879F9" />
+            {t('search.freelanceInfo', 'Freelancers work independently or in nightclubs')}
+          </div>
+        )}
+      </div>
 
       {/* ============================================
          SECTION 2: PROFIL (Profile)
@@ -657,36 +719,135 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         defaultExpanded={true}
         activeCount={sectionFilterCounts.profile}
       >
-      {/* Age Range */}
+      {/* Age Range - Dual Slider (v11.1 fix #2) */}
       <div className="filter-group">
-        <label className="label-nightlife filter-label-with-icon">
-          <Cake size={20} /> {t('search.ageRange')}
+        <label className="label-nightlife filter-label-with-icon" style={{ marginBottom: '12px' }}>
+          <Cake size={18} /> {t('search.ageRange')}
         </label>
-        <div className="age-range-inputs">
+
+        {/* Age value display */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px',
+          padding: '8px 12px',
+          background: 'rgba(232, 121, 249, 0.1)',
+          borderRadius: '10px',
+          border: '1px solid rgba(232, 121, 249, 0.2)'
+        }}>
+          <span style={{ color: '#E879F9', fontSize: '14px', fontWeight: '600' }}>
+            {localAgeMin || '18'}
+          </span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>
+            {t('search.yearsOld', 'years')}
+          </span>
+          <span style={{ color: '#00E5FF', fontSize: '14px', fontWeight: '600' }}>
+            {localAgeMax || '60'}
+          </span>
+        </div>
+
+        {/* Dual Range Slider Container */}
+        <div className="age-range-slider" style={{
+          position: 'relative',
+          height: '40px',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          {/* Track background */}
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            height: '6px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '3px'
+          }} />
+
+          {/* Active track (colored portion between thumbs) */}
+          <div style={{
+            position: 'absolute',
+            height: '6px',
+            background: 'linear-gradient(90deg, #E879F9, #00E5FF)',
+            borderRadius: '3px',
+            left: `${((Number(localAgeMin || 18) - 18) / (60 - 18)) * 100}%`,
+            right: `${100 - ((Number(localAgeMax || 60) - 18) / (60 - 18)) * 100}%`,
+            boxShadow: '0 0 10px rgba(232, 121, 249, 0.5)'
+          }} />
+
+          {/* Min slider */}
           <input
             ref={ageMinRef}
-            type="number"
-            value={localAgeMin}
-            onChange={(e) => handleAgeMinChange(e.target.value)}
-            placeholder={t('search.ageMin')}
+            type="range"
             min="18"
             max="60"
+            value={localAgeMin || '18'}
+            onChange={(e) => {
+              const newMin = e.target.value;
+              const currentMax = Number(localAgeMax || 60);
+              // Prevent min from exceeding max
+              if (Number(newMin) <= currentMax) {
+                handleAgeMinChange(newMin);
+              }
+            }}
             disabled={loading}
-            className="input-nightlife"
+            className="age-range-input age-range-min"
             data-testid="age-min-input"
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '6px',
+              background: 'transparent',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              pointerEvents: 'auto',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              zIndex: 2
+            }}
           />
+
+          {/* Max slider */}
           <input
             ref={ageMaxRef}
-            type="number"
-            value={localAgeMax}
-            onChange={(e) => handleAgeMaxChange(e.target.value)}
-            placeholder={t('search.ageMax')}
+            type="range"
             min="18"
             max="60"
+            value={localAgeMax || '60'}
+            onChange={(e) => {
+              const newMax = e.target.value;
+              const currentMin = Number(localAgeMin || 18);
+              // Prevent max from going below min
+              if (Number(newMax) >= currentMin) {
+                handleAgeMaxChange(newMax);
+              }
+            }}
             disabled={loading}
-            className="input-nightlife"
+            className="age-range-input age-range-max"
             data-testid="age-max-input"
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '6px',
+              background: 'transparent',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              pointerEvents: 'auto',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              zIndex: 3
+            }}
           />
+        </div>
+
+        {/* Min/Max labels */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '11px',
+          color: 'rgba(255, 255, 255, 0.4)',
+          marginTop: '4px'
+        }}>
+          <span>18</span>
+          <span>60</span>
         </div>
 
         {/* ⚠️ Age validation error message */}
@@ -708,23 +869,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             <span>{ageError}</span>
           </div>
         )}
-
-        {/* 💡 Age range info (always visible) */}
-        <div style={{
-          marginTop: '8px',
-          padding: '8px 12px',
-          background: 'rgba(232, 121, 249, 0.1)',
-          border: '1px solid rgba(232, 121, 249, 0.3)',
-          borderRadius: 'var(--border-radius-lg)',
-          color: '#E879F9',
-          fontSize: 'var(--font-xs)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <Lightbulb size={14} />
-          <span>{t('search.ageValidation.minimum')} - {t('search.ageValidation.maximum')}</span>
-        </div>
       </div>
 
       {/* Nationality */}
@@ -800,10 +944,32 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         </select>
       </div>
 
-      {/* Establishment */}
-      <div className="filter-section" style={{ position: 'relative' }}>
-        <label className="label-nightlife filter-label-with-icon">
-          <Building2 size={20} /> {t('search.establishment')}
+      {/* Establishment - Disabled when Freelance is ON (v11.1 fix #3 & #4) */}
+      <div className="filter-section" style={{
+        position: 'relative',
+        opacity: filters.type === 'freelance' ? 0.5 : 1,
+        pointerEvents: filters.type === 'freelance' ? 'none' : 'auto',
+        transition: 'opacity 0.2s ease'
+      }}>
+        <label className="label-nightlife filter-label-with-icon" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Building2 size={18} /> {t('search.establishment')}
+          </span>
+          {filters.type === 'freelance' && (
+            <span style={{
+              fontSize: '10px',
+              color: '#E879F9',
+              background: 'rgba(232, 121, 249, 0.15)',
+              padding: '2px 8px',
+              borderRadius: '10px'
+            }}>
+              {t('search.freelanceMode', 'Freelance')}
+            </span>
+          )}
         </label>
         <div style={{ position: 'relative' }}>
           <input
@@ -818,8 +984,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             onBlur={() => {
               setTimeout(() => setShowEstablishmentSuggestions(false), 200);
             }}
-            placeholder={t('search.allEstablishments')}
-            disabled={loading}
+            placeholder={filters.type === 'freelance' ? t('search.freelanceNoEstablishment', 'N/A - Freelance mode') : t('search.allEstablishments')}
+            disabled={loading || filters.type === 'freelance'}
             className="input-nightlife"
             data-testid="establishment-filter"
             style={{
@@ -1189,35 +1355,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       </div>
       </FilterSection>
 
-      {/* ============================================
-         SECTION 5: TRI (Sort Options)
-         ============================================ */}
-      <FilterSection
-        title={t('search.sections.sort', 'Sort')}
-        icon={<ArrowUpDown size={18} />}
-        defaultExpanded={false}
-        activeCount={sectionFilterCounts.sort}
-      >
-      {/* Sort Options */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <ArrowUpDown size={20} /> {t('search.sortBy')}
-        </label>
-        <select
-          value={filters.sort_by}
-          onChange={(e) => onFilterChange('sort_by', e.target.value)}
-          disabled={loading}
-          className="select-nightlife"
-          data-testid="sort-filter"
-        >
-          {sortOptions.map(option => (
-            <option key={option.value} value={option.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      </FilterSection>
+      {/* Sort removed from filters - now in SearchPage near cards (v11.1 fix #5) */}
 
         {/* Loading Indicator */}
         {loading && (

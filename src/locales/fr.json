@@ -208,7 +208,20 @@
       "maximum": "Âge maximum : 60 ans",
       "invalid": "Veuillez entrer un âge entre 18 et 60 ans",
       "outOfRange": "L'âge doit être entre 18 et 60 ans"
-    }
+    },
+    "freelanceOnly": "Freelances uniquement",
+    "freelanceInfo": "Les freelances travaillent indépendamment ou en nightclub",
+    "freelanceMode": "Freelance",
+    "freelanceNoEstablishment": "N/A - Mode freelance",
+    "yearsOld": "ans",
+    "sections": {
+      "search": "Recherche",
+      "profile": "Profil",
+      "location": "Localisation",
+      "quality": "Qualité",
+      "sort": "Tri"
+    },
+    "removeFilter": "Supprimer"
   },
 
   "pagination": {

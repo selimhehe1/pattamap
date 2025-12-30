@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { XCircle, X } from 'lucide-react';
+import { XCircle, X, ArrowUpDown, ChevronDown } from 'lucide-react';
 import SearchFilters from './SearchFilters';
 import SearchResults from './SearchResults';
 import SearchHero from './SearchHero';
@@ -313,7 +313,63 @@ const SearchPage: React.FC = () => {
         <div style={{
           minHeight: 'calc(100vh - 200px)'
         }}>
-          {/* 🆕 v11.0 - Active Filters Bar */}
+          {/* 🆕 v11.1 - Sort Bar + Active Filters (fix #5) */}
+          <div className="results-header-bar" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            {/* Results count */}
+            <div style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.7)'
+            }}>
+              {totalResults > 0 && (
+                <span>{totalResults} {t('search.results', 'results')}</span>
+              )}
+            </div>
+
+            {/* Sort dropdown - compact */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <ArrowUpDown size={14} color="#E879F9" />
+              <select
+                value={filters.sort_by}
+                onChange={(e) => handleFilterChange('sort_by', e.target.value)}
+                disabled={isFetching}
+                className="sort-select-compact"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  border: '1px solid rgba(232, 121, 249, 0.3)',
+                  borderRadius: '8px',
+                  padding: '6px 28px 6px 10px',
+                  color: '#E879F9',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23E879F9' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 8px center'
+                }}
+              >
+                <option value="relevance" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.relevance', 'Relevance')}</option>
+                <option value="vip" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.vip', 'VIP')}</option>
+                <option value="popularity" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.popular', 'Popular')}</option>
+                <option value="newest" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.newest', 'Newest')}</option>
+                <option value="oldest" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.oldest', 'Oldest')}</option>
+                <option value="name" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.name', 'Name')}</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Active Filters Bar */}
           {activeFiltersCount > 0 && (
             <div className="active-filters-bar">
               {activeFilters.map((filter) => (
