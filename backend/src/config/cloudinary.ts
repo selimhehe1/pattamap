@@ -27,6 +27,15 @@ export const ensureConfigured = (): void => {
     throw new Error(`Cloudinary configuration missing: ${missing.join(', ')}`);
   }
 
+  // Debug: log the config values (masked for security)
+  console.log('[Cloudinary] Configuring with:', {
+    cloud_name,
+    api_key: api_key.substring(0, 4) + '...',
+    api_secret: api_secret.substring(0, 4) + '...',
+    cloud_name_length: cloud_name.length,
+    api_key_length: api_key.length
+  });
+
   cloudinary.config({ cloud_name, api_key, api_secret });
   isConfigured = true;
 };
