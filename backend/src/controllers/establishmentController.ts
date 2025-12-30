@@ -267,6 +267,23 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // 🆕 v10.x - Query has_owner for filtering establishments without owner
+    const establishmentOwnerMap: { [key: string]: boolean } = {};
+    if (establishments && establishments.length > 0) {
+      const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
+
+      const { data: ownerData } = await supabase
+        .from('establishment_owners')
+        .select('establishment_id')
+        .in('establishment_id', establishmentIds);
+
+      if (ownerData) {
+        ownerData.forEach((owner: { establishment_id: string }) => {
+          establishmentOwnerMap[owner.establishment_id] = true;
+        });
+      }
+    }
+
     // ========================================
     // BUG #3 FIX - Keep category_id as INTEGER (no transformation)
     // ========================================
@@ -294,7 +311,8 @@ export const getEstablishments = async (req: AuthRequest, res: Response) => {
         latitude,
         longitude,
         employee_count: employeeCounts[est.id] || 0, // Total employee count
-        approved_employee_count: approvedEmployeeCounts[est.id] || 0 // Approved employee count (for sorting)
+        approved_employee_count: approvedEmployeeCounts[est.id] || 0, // Approved employee count (for sorting)
+        has_owner: !!establishmentOwnerMap[est.id] // 🆕 v10.x - True if establishment has verified owner
       };
     }) || [];
 

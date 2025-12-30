@@ -200,6 +200,7 @@ export interface AuthContextType {
   claimEmployeeProfile?: (employeeId: string, message: string, verificationProof?: string[], explicitToken?: string) => Promise<void>; // 🔧 Accepts explicit token
   linkedEmployeeProfile?: Employee | null; // 🆕 v10.0 - Full employee profile for linked accounts
   refreshLinkedProfile?: (skipCheck?: boolean) => Promise<void>; // 🆕 v10.0 - Refresh linked profile data (skipCheck bypasses user state check)
+  submitOwnershipRequest?: (establishmentId: string, documentUrls: string[], requestMessage?: string, contactMe?: boolean, explicitToken?: string) => Promise<void>; // 🆕 v10.x - Submit ownership request during registration
 }
 
 // 🚀 PHASE 2: Interfaces strictes pour éliminer tous les types 'any'

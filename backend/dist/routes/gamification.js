@@ -307,63 +307,6 @@ router.get('/leaderboard-weekly', auth_1.authenticateToken, gamificationControll
  */
 router.get('/leaderboard-category/:category', auth_1.authenticateToken, gamificationController.getCategoryLeaderboard);
 // ========================================
-// CHECK-INS (Protected, CSRF)
-// ========================================
-/**
- * @swagger
- * /api/gamification/check-in:
- *   post:
- *     summary: Create a check-in at an establishment (geolocation)
- *     tags: [Gamification]
- *     security:
- *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - establishmentId
- *               - latitude
- *               - longitude
- *             properties:
- *               establishmentId:
- *                 type: string
- *                 format: uuid
- *               latitude:
- *                 type: number
- *                 example: 12.9305
- *               longitude:
- *                 type: number
- *                 example: 100.8830
- *     responses:
- *       200:
- *         description: Check-in created (verified if within 100m)
- *       400:
- *         description: Missing required fields
- */
-router.post('/check-in', auth_1.authenticateToken, csrf_1.csrfProtection, gamificationController.checkIn);
-/**
- * @swagger
- * /api/gamification/my-check-ins:
- *   get:
- *     summary: Get current user's check-in history
- *     tags: [Gamification]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 50
- *     responses:
- *       200:
- *         description: Check-ins retrieved
- */
-router.get('/my-check-ins', auth_1.authenticateToken, gamificationController.getMyCheckIns);
-// ========================================
 // MISSIONS (Protected)
 // ========================================
 /**

@@ -494,6 +494,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // ==========================================
+  // 🆕 OWNERSHIP REQUEST SYSTEM (v10.x)
+  // ==========================================
+
+  /**
+   * Submit an ownership request for an establishment during registration
+   * Similar to employee claim but for establishment owners
+   */
+  const submitOwnershipRequest = async (
+    establishmentId: string,
+    documentUrls: string[],
+    requestMessage?: string,
+    contactMe?: boolean,
+    explicitToken?: string
+  ) => {
+    try {
+      // Use explicit token if provided, otherwise fall back to context token
+      const tokenToUse = explicitToken || csrfToken;
+
+      logger.debug('🔐 Submitting ownership request', {
+        establishmentId,
+        documentCount: documentUrls.length,
+        hasMessage: !!requestMessage,
+        contactMe,
+        usingExplicitToken: !!explicitToken,
+        hasCsrfToken: !!tokenToUse,
+        csrfTokenPreview: tokenToUse ? `${tokenToUse.substring(0, 8)}...` : 'EMPTY'
+      });
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/ownership-requests`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': tokenToUse,
+          },
+          body: JSON.stringify({
+            establishment_id: establishmentId,
+            documents_urls: documentUrls,
+            request_message: contactMe
+              ? `[CONTACT ME] ${requestMessage || 'Please contact me by email - I don\'t have documents yet'}`
+              : requestMessage,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit ownership request');
+      }
+
+      logger.info('Ownership request submitted successfully', { request_id: data.id });
+    } catch (error) {
+      logger.error('Submit ownership request error:', error);
+      throw error;
+    }
+  };
+
+  // ==========================================
   // 🔧 FIX: useEffect to fetch linked profile when user changes
   // ==========================================
   // This replaces the fragile setTimeout pattern with a proper React effect
@@ -516,6 +577,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     claimEmployeeProfile, // 🆕 v10.0
     linkedEmployeeProfile, // 🆕 v10.0
     refreshLinkedProfile: getMyLinkedProfile, // 🆕 v10.0
+    submitOwnershipRequest, // 🆕 v10.x - Owner claim during registration
   };
 
   return (

@@ -888,7 +888,13 @@ exports.getEmployeeNameSuggestions = getEmployeeNameSuggestions;
 const searchEmployees = async (req, res) => {
     try {
         const { q: searchQuery, type, // 🆕 v10.3 - Employee type filter (all/freelance/regular)
-        nationality, age_min, age_max, zone, establishment_id, category_id, is_verified, sort_by = 'relevance', sort_order = 'desc', page: rawPage = 1, limit: rawLimit = 20 } = req.query;
+        nationality, age_min, age_max, zone, establishment_id, category_id, is_verified, sort_by = 'relevance', sort_order = 'desc', page: rawPage = 1, limit: rawLimit = 20, 
+        // 🆕 v11.0 - Advanced filters
+        languages, // Comma-separated: "Thai,English"
+        min_rating, // "1"-"5" minimum average rating
+        has_photos, // "true" - filter employees with photos
+        social_media // Comma-separated: "instagram,line,whatsapp"
+         } = req.query;
         // 🔧 FIX S3: Validate and sanitize pagination parameters
         const page = Math.max(1, Number(rawPage) || 1);
         const limit = Math.min(100, Math.max(1, Number(rawLimit) || 20));
@@ -1027,13 +1033,77 @@ const searchEmployees = async (req, res) => {
                     return false;
                 }
             }
+            // 🆕 v11.0 - Languages filter (check if employee speaks any of the requested languages)
+            if (languages && String(languages).trim()) {
+                const requestedLanguages = String(languages).split(',').map(l => l.trim().toLowerCase());
+                const employeeLanguages = Array.isArray(emp.languages_spoken)
+                    ? emp.languages_spoken.map((l) => l.toLowerCase())
+                    : [];
+                // Employee must speak at least one of the requested languages
+                const speaksAnyLanguage = requestedLanguages.some(lang => employeeLanguages.some((empLang) => empLang.includes(lang) || lang.includes(empLang)));
+                if (!speaksAnyLanguage) {
+                    return false;
+                }
+            }
+            // 🆕 v11.0 - Has photos filter
+            if (has_photos === 'true') {
+                const hasPhotos = Array.isArray(emp.photos) && emp.photos.length > 0;
+                if (!hasPhotos) {
+                    return false;
+                }
+            }
+            // 🆕 v11.0 - Social media filter (check if employee has any of the requested platforms)
+            if (social_media && String(social_media).trim()) {
+                const requestedPlatforms = String(social_media).split(',').map(p => p.trim().toLowerCase());
+                const employeeSocials = emp.social_media || {};
+                // Employee must have at least one of the requested social platforms
+                const hasAnySocial = requestedPlatforms.some(platform => {
+                    const value = employeeSocials[platform];
+                    return value && String(value).trim() !== '';
+                });
+                if (!hasAnySocial) {
+                    return false;
+                }
+            }
             return true; // ✅ Accept by default - all approved employees are shown
         });
         logger_1.logger.debug(`📊 Filtered ${filteredEmployees.length} employees from ${allEmployees?.length || 0} total`);
-        // Manual pagination
-        const totalFiltered = filteredEmployees.length;
-        const employees = filteredEmployees.slice(offset, offset + Number(limit));
-        // Get ratings for popularity sorting and enrichment
+        // 🆕 v11.0 - Min rating filter requires pre-calculating ALL ratings before pagination
+        let employeesToProcess = filteredEmployees;
+        let totalFiltered = filteredEmployees.length;
+        // If min_rating filter is set, we need to calculate ratings for ALL employees first
+        if (min_rating && Number(min_rating) > 0) {
+            const allEmployeeIds = filteredEmployees.map(emp => emp.id);
+            // Get ALL ratings to filter by min_rating
+            const { data: allRatings } = await supabase_1.supabase
+                .from('comments')
+                .select('employee_id, rating')
+                .in('employee_id', allEmployeeIds)
+                .eq('status', 'approved')
+                .not('rating', 'is', null);
+            // Calculate average ratings for each employee
+            const ratingsByEmployee = new Map();
+            (allRatings || []).forEach(r => {
+                if (!ratingsByEmployee.has(r.employee_id)) {
+                    ratingsByEmployee.set(r.employee_id, []);
+                }
+                ratingsByEmployee.get(r.employee_id).push(r.rating);
+            });
+            // Filter by min_rating
+            const minRatingValue = Number(min_rating);
+            employeesToProcess = filteredEmployees.filter(emp => {
+                const ratings = ratingsByEmployee.get(emp.id) || [];
+                if (ratings.length === 0)
+                    return false; // No ratings = doesn't meet minimum
+                const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+                return avgRating >= minRatingValue;
+            });
+            totalFiltered = employeesToProcess.length;
+            logger_1.logger.debug(`📊 After min_rating filter (>=${minRatingValue}): ${totalFiltered} employees`);
+        }
+        // Manual pagination (after min_rating filter if applied)
+        const employees = employeesToProcess.slice(offset, offset + limit);
+        // Get ratings for popularity sorting and enrichment (for current page only)
         const employeeIds = employees?.map(emp => emp.id) || [];
         let ratingsData = [];
         let votesData = [];

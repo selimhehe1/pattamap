@@ -54,6 +54,10 @@ const defaultKeyGenerator = (req) => {
 const createRateLimit = (options) => {
     const { windowMs, maxRequests, message = 'Too many requests', skipSuccessfulRequests = false, skipFailedRequests = false, keyGenerator = defaultKeyGenerator } = options;
     return async (req, res, next) => {
+        // Rate limiting disabled for early launch - few active users contributing heavily
+        // Re-enable when user base grows to prevent abuse
+        // Force cache bust: 2025-12-30T18:45
+        return next();
         try {
             const key = keyGenerator(req);
             const current = store.increment(key, windowMs);

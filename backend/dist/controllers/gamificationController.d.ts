@@ -40,18 +40,6 @@ export declare const getMyBadges: (req: AuthRequest, res: Response) => Promise<R
  */
 export declare const getLeaderboard: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 /**
- * Create a check-in (geolocation)
- * POST /api/gamification/check-in
- * Body: { establishmentId, latitude, longitude }
- */
-export declare const checkIn: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
-/**
- * Get user's check-in history
- * GET /api/gamification/my-check-ins
- * Query params: ?limit=20
- */
-export declare const getMyCheckIns: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
-/**
  * Get available missions
  * GET /api/gamification/missions
  * Query params: ?type=daily&is_active=true

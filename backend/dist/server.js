@@ -94,6 +94,7 @@ const gamification_1 = __importDefault(require("./routes/gamification"));
 const employeeValidation_1 = __importDefault(require("./routes/employeeValidation"));
 const ownershipRequests_1 = __importDefault(require("./routes/ownershipRequests"));
 const export_1 = __importDefault(require("./routes/export"));
+const public_1 = __importDefault(require("./routes/public"));
 const rateLimit_1 = require("./middleware/rateLimit");
 const redis_2 = require("./config/redis");
 const missionResetJobs_1 = require("./jobs/missionResetJobs");
@@ -104,6 +105,50 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 app.set('trust proxy', 1);
 // Sentry request handler - captures request context
 app.use((0, sentry_1.sentryRequestMiddleware)());
+// CORS configuration - Strict whitelist
+// 🔒 MUST run BEFORE Helmet to properly set Access-Control-Allow-Origin
+// 🔒 SECURITY FIX: Fail fast in production if CORS_ORIGIN not configured
+if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+    console.error('❌ FATAL ERROR: CORS_ORIGIN must be set in production');
+    console.error('💡 Set CORS_ORIGIN environment variable with your production domain(s)');
+    console.error('💡 Example: CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com');
+    process.exit(1);
+}
+const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://localhost:3004',
+    'http://localhost:3005',
+    'http://localhost:3006',
+    'http://localhost:3007',
+    'http://localhost:3008',
+    'http://localhost:5173'
+];
+const corsOptions = {
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, Postman)
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        // In development, log blocked origins for debugging
+        if (NODE_ENV === 'development') {
+            console.log(`🚫 CORS blocked origin: ${origin}`);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Accept', 'Origin'],
+    exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'X-CSRF-Token'],
+    maxAge: 86400 // 24 hours preflight cache
+};
+app.use((0, cors_1.default)(corsOptions));
 // Security middleware - Helmet.js for HTTP headers
 // 🔒 SECURITY: Conditional CSP - Strict by default, relaxed only for Swagger UI
 app.use((req, res, next) => {
@@ -124,6 +169,7 @@ app.use((req, res, next) => {
                 }
             },
             crossOriginEmbedderPolicy: false,
+            crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow CORS requests
             hsts: {
                 maxAge: 31536000,
                 includeSubDomains: true,
@@ -153,6 +199,7 @@ app.use((req, res, next) => {
                 }
             },
             crossOriginEmbedderPolicy: false,
+            crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow CORS requests
             hsts: {
                 maxAge: 31536000,
                 includeSubDomains: true,
@@ -183,29 +230,6 @@ app.use((0, compression_1.default)({
         return compression_1.default.filter(req, res);
     }
 }));
-// CORS configuration - Strict whitelist
-// 🔒 SECURITY FIX: Fail fast in production if CORS_ORIGIN not configured
-if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
-    console.error('❌ FATAL ERROR: CORS_ORIGIN must be set in production');
-    console.error('💡 Set CORS_ORIGIN environment variable with your production domain(s)');
-    console.error('💡 Example: CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com');
-    process.exit(1);
-}
-const corsOptions = {
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://localhost:5173'
-    ],
-    credentials: true,
-    optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Accept', 'Origin'],
-    exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'X-CSRF-Token'],
-    maxAge: 86400 // 24 hours preflight cache
-};
-app.use((0, cors_1.default)(corsOptions));
 // Cookie parser middleware
 app.use((0, cookie_parser_1.default)());
 // Determine if cookies should be secure
@@ -410,16 +434,10 @@ app.use(express_1.default.urlencoded({
     limit: '10mb',
     parameterLimit: 100
 }));
-// Global rate limiting - disabled in development, skip for admin routes (they have auth protection)
+// Global rate limiting - DISABLED for testing
+// TODO: Re-enable in production after testing is complete
 app.use('/api', (req, res, next) => {
-    // Skip rate limiting for admin routes in production (admins are authenticated)
-    if (req.path.startsWith('/admin')) {
-        return next();
-    }
-    // Apply rate limit only in production for non-admin routes
-    if (process.env.NODE_ENV === 'production') {
-        return (0, rateLimit_1.apiRateLimit)(req, res, next);
-    }
+    // Rate limiting disabled - just pass through
     next();
 });
 // Security headers middleware
@@ -942,9 +960,9 @@ app.post('/api/grid-move-workaround', auth_1.authenticateToken, async (req, res)
 app.use('/api/auth', rateLimit_1.authRateLimit, auth_2.default);
 app.use('/api/establishments', csrf_1.csrfProtection, establishments_1.default);
 app.use('/api/employees', csrf_1.csrfProtection, employees_1.default);
-app.use('/api/comments', process.env.NODE_ENV === 'production' ? rateLimit_1.commentRateLimit : (req, res, next) => next(), csrf_1.csrfProtection, comments_1.default);
+app.use('/api/comments', csrf_1.csrfProtection, comments_1.default); // Rate limit disabled for testing
 app.use('/api/consumables', csrf_1.csrfProtection, consumables_1.default);
-app.use('/api/upload', rateLimit_1.uploadRateLimit, upload_1.default); // CSRF handled internally by upload routes
+app.use('/api/upload', upload_1.default); // CSRF handled internally by upload routes - rate limit disabled for testing
 app.use('/api/favorites', csrf_1.csrfProtection, favorites_1.default);
 app.use('/api/edit-proposals', csrf_1.csrfProtection, editProposals_1.default);
 app.use('/api/freelances', freelances_1.default); // No CSRF protection for GET-only routes
@@ -958,6 +976,7 @@ app.use('/api/moderation', process.env.NODE_ENV === 'production' ? rateLimit_1.a
 app.use('/api/admin', process.env.NODE_ENV === 'production' ? rateLimit_1.adminRateLimit : (req, res, next) => next(), csrf_1.csrfProtection, admin_1.default);
 app.use('/api/ownership-requests', csrf_1.csrfProtection, ownershipRequests_1.default);
 app.use('/api/export', export_1.default); // Export data to CSV (auth handled in routes)
+app.use('/api/public', public_1.default); // Public stats (no auth required)
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {
     Promise.resolve().then(() => __importStar(require('swagger-ui-express'))).then((swaggerUi) => {

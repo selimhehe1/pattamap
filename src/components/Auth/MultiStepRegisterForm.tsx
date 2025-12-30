@@ -11,10 +11,10 @@ import { useCSRF } from '../../contexts/CSRFContext';
 import FormField from '../Common/FormField';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from '../Forms/NationalityTagsInput';
-import { Employee } from '../../types';
+import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
-import { getZoneLabel } from '../../utils/constants';
+import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 
@@ -34,7 +34,25 @@ interface FormData {
   employeePath: 'claim' | 'create' | null;
   selectedEmployee: Employee | null;
   claimMessage: string;
-  // Step 3
+  // Step 3 (owner only) - 🆕 v10.x REORDERED: credentials before claim/create
+  ownerPath: 'claim' | 'create' | null;
+  selectedEstablishmentToClaim: Establishment | null;
+  ownershipDocuments: File[];
+  ownershipRequestMessage: string;
+  ownershipContactMe: boolean;
+  // Step 4 (owner create only) - 🆕 v10.x Establishment Creation
+  newEstablishmentName: string;
+  newEstablishmentAddress: string;
+  newEstablishmentZone: string;
+  newEstablishmentCategoryId: number | null;
+  newEstablishmentDescription: string;
+  newEstablishmentPhone: string;
+  newEstablishmentWebsite: string;
+  newEstablishmentInstagram: string;
+  newEstablishmentTwitter: string;
+  newEstablishmentTiktok: string;
+  newEstablishmentLogo: File | null;
+  // Credentials (Step 2 for owner, Step 3 for others)
   pseudonym: string;
   email: string;
   password: string;
@@ -75,7 +93,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   embedded = false
 }) => {
   const { t } = useTranslation();
-  const { register, claimEmployeeProfile } = useAuth();
+  const { register, claimEmployeeProfile, submitOwnershipRequest } = useAuth();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
 
@@ -88,6 +106,24 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     employeePath: null,
     selectedEmployee: null,
     claimMessage: '',
+    // 🆕 v10.x - Owner path fields
+    ownerPath: null,
+    selectedEstablishmentToClaim: null,
+    ownershipDocuments: [],
+    ownershipRequestMessage: '',
+    ownershipContactMe: false,
+    // 🆕 v10.x - Owner establishment creation fields
+    newEstablishmentName: '',
+    newEstablishmentAddress: '',
+    newEstablishmentZone: '',
+    newEstablishmentCategoryId: null,
+    newEstablishmentDescription: '',
+    newEstablishmentPhone: '',
+    newEstablishmentWebsite: '',
+    newEstablishmentInstagram: '',
+    newEstablishmentTwitter: '',
+    newEstablishmentTiktok: '',
+    newEstablishmentLogo: null,
     pseudonym: '',
     email: '',
     password: '',
@@ -118,10 +154,19 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Establishment autocomplete state (Step 2)
+  // Establishment autocomplete state (Step 2 - Employee)
   const [establishmentSearchStep2, setEstablishmentSearchStep2] = useState('');
   const [showSuggestionsStep2, setShowSuggestionsStep2] = useState(false);
   const establishmentInputRefStep2 = useRef<HTMLInputElement>(null);
+
+  // 🆕 v10.x - Owner establishment claim state (Step 2 - Owner)
+  const [ownerEstablishmentSearch, setOwnerEstablishmentSearch] = useState('');
+  const [showOwnerEstablishmentSuggestions, setShowOwnerEstablishmentSuggestions] = useState(false);
+  const ownerEstablishmentInputRef = useRef<HTMLInputElement>(null);
+  const [ownershipDocumentPreviews, setOwnershipDocumentPreviews] = useState<{ file: File; url: string; name: string }[]>([]);
+  const [_uploadingOwnershipDocs, setUploadingOwnershipDocs] = useState(false);
+  const [ownershipDocErrors, setOwnershipDocErrors] = useState<string>('');
+  const [isDraggingOwnerDocs, setIsDraggingOwnerDocs] = useState(false);
 
   // Establishment autocomplete state (Step 4)
   const [establishmentSearchStep4, setEstablishmentSearchStep4] = useState('');
@@ -132,9 +177,15 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const { data: establishments = [] } = useEstablishments();
 
   // Filter establishments by search query and group by zone
-  const filterEstablishmentsByQuery = (query: string) => {
+  // 🆕 v10.x: excludeWithOwner = true for owner claim (only show establishments without owner)
+  const filterEstablishmentsByQuery = (query: string, excludeWithOwner: boolean = false) => {
     // Filter establishments with zone only
     let filtered = establishments.filter(est => est.zone);
+
+    // 🆕 v10.x: Exclude establishments that already have an owner (for owner claim)
+    if (excludeWithOwner) {
+      filtered = filtered.filter(est => !est.has_owner);
+    }
 
     // Apply search filter if query exists
     if (query.trim().length > 0) {
@@ -177,6 +228,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // 🆕 v10.x - Owner establishment creation states
+  const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
+  const [_ownerLogoPreview, _setOwnerLogoPreview] = useState<string | null>(null);
+  const [_uploadingOwnerLogo, _setUploadingOwnerLogo] = useState(false);
 
   // Validation rules for Step 3
   const validationRules: ValidationRules<FormData> = {
@@ -268,6 +324,25 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 🆕 v10.x - Fetch categories for owner establishment creation
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/establishments/categories`);
+        const data = await response.json();
+        if (data.categories) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        logger.error('Error fetching categories:', error);
+      }
+    };
+    // Only fetch if owner account type is selected
+    if (formData.accountType === 'establishment_owner') {
+      fetchCategories();
+    }
+  }, [formData.accountType]);
 
   // Handle employee selection from grid
   const handleEmployeeSelect = (employee: Employee) => {
@@ -390,32 +465,73 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   };
 
   const handleNext = () => {
-    // Step 1 → Step 2 or 3
+    // Step 1 → Step 2
     if (currentStep === 1) {
       if (formData.accountType === 'employee') {
+        // Employee: Step 2 = claim/create path selection
+        setCurrentStep(2);
+      } else if (formData.accountType === 'establishment_owner') {
+        // 🆕 v10.x NEW FLOW: Owner Step 2 = CREDENTIALS FIRST
         setCurrentStep(2);
       } else {
+        // Regular: Skip to credentials (Step 3 internally, displayed as Step 2)
         setCurrentStep(3);
       }
     }
     // Step 2 → Step 3
     else if (currentStep === 2) {
-      if (!formData.employeePath) {
-        toast.error(t('register.selectPathFirst'));
-        return;
+      // Employee path validation (Step 2 = path selection for employees)
+      if (formData.accountType === 'employee') {
+        if (!formData.employeePath) {
+          toast.error(t('register.selectPathFirst'));
+          return;
+        }
+        if (formData.employeePath === 'claim' && !formData.selectedEmployee) {
+          toast.error(t('register.selectEmployeeFirst'));
+          return;
+        }
+        setCurrentStep(3);
       }
-      if (formData.employeePath === 'claim' && !formData.selectedEmployee) {
-        toast.error(t('register.selectEmployeeFirst'));
-        return;
+      // 🆕 v10.x NEW FLOW: Owner Step 2 = CREDENTIALS → validate then go to Step 3
+      else if (formData.accountType === 'establishment_owner') {
+        // Validate credentials before proceeding
+        if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
+          toast.error(t('register.fillAllFields'));
+          return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+          toast.error(t('register.passwordsDoNotMatch'));
+          return;
+        }
+        if (formData.password.length < 8) {
+          toast.error(t('register.passwordTooShort'));
+          return;
+        }
+        setCurrentStep(3);
       }
-      setCurrentStep(3);
     }
-    // Step 3 → Step 4 (if employee create) or submit (if claim/regular)
+    // Step 3 → Step 4 or submit
     else if (currentStep === 3) {
       if (formData.accountType === 'employee' && formData.employeePath === 'create') {
         setCurrentStep(4);
       }
-      // For claim/regular, submit is handled by form onSubmit
+      // 🆕 v10.x NEW FLOW: Owner Step 3 = claim/create path selection
+      else if (formData.accountType === 'establishment_owner') {
+        if (!formData.ownerPath) {
+          toast.error(t('register.selectPathFirst'));
+          return;
+        }
+        if (formData.ownerPath === 'claim' && !formData.selectedEstablishmentToClaim) {
+          toast.error(t('register.selectEstablishmentFirst'));
+          return;
+        }
+        if (formData.ownerPath === 'create') {
+          // Go to Step 4 for establishment creation form
+          setCurrentStep(4);
+        }
+        // If claim → submit is handled by form onSubmit
+      }
+      // For claim/regular/owner, submit is handled by form onSubmit
     }
     // Step 4 → Submit (handled by form onSubmit)
   };
@@ -424,7 +540,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     if (currentStep === 4) {
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      if (formData.accountType === 'employee') {
+      if (formData.accountType === 'employee' || formData.accountType === 'establishment_owner') {
+        // 🆕 v10.x - Both employees and owners have Step 2
         setCurrentStep(2);
       } else {
         setCurrentStep(1);
@@ -467,9 +584,106 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       if (formData.accountType === 'regular') {
         toast.success(t('register.accountCreated'));
         onClose();
-      } else if (formData.accountType === 'establishment_owner') { // 🆕 v10.1
-        toast.success(t('register.ownerAccountCreated'));
-        onClose();
+      } else if (formData.accountType === 'establishment_owner') {
+        // 🆕 v10.x - Handle owner claim or create paths
+        if (formData.ownerPath === 'claim' && formData.selectedEstablishmentToClaim) {
+          // Upload documents if any
+          let documentUrls: string[] = [];
+          if (formData.ownershipDocuments.length > 0) {
+            setUploadingOwnershipDocs(true);
+            try {
+              const uploadFormData = new FormData();
+              formData.ownershipDocuments.forEach(doc => {
+                uploadFormData.append('images', doc);
+              });
+
+              const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                  'X-CSRF-Token': freshToken || ''
+                },
+                body: uploadFormData
+              });
+
+              if (uploadResponse.ok) {
+                const uploadData = await uploadResponse.json();
+                documentUrls = uploadData.images.map((img: { url: string }) => img.url);
+              }
+            } catch (uploadError) {
+              logger.warn('Document upload failed, continuing without documents:', uploadError);
+            } finally {
+              setUploadingOwnershipDocs(false);
+            }
+          }
+
+          // Submit ownership request
+          await submitOwnershipRequest!(
+            formData.selectedEstablishmentToClaim.id,
+            documentUrls,
+            formData.ownershipRequestMessage || undefined,
+            formData.ownershipContactMe,
+            freshToken || undefined
+          );
+
+          toast.success(t('register.ownerClaimSubmitted'));
+          onClose();
+        } else if (formData.ownerPath === 'create') {
+          // 🆕 v10.x - Create new establishment
+          try {
+            const establishmentData = {
+              name: formData.newEstablishmentName.trim(),
+              address: formData.newEstablishmentAddress.trim(),
+              zone: formData.newEstablishmentZone,
+              category_id: formData.newEstablishmentCategoryId,
+              description: formData.newEstablishmentDescription.trim() || undefined,
+              phone: formData.newEstablishmentPhone.trim() || undefined,
+              website: formData.newEstablishmentWebsite.trim() || undefined,
+              instagram: formData.newEstablishmentInstagram.trim() || undefined,
+              twitter: formData.newEstablishmentTwitter.trim() || undefined,
+              tiktok: formData.newEstablishmentTiktok.trim() || undefined
+            };
+
+            const createResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': freshToken || ''
+              },
+              body: JSON.stringify(establishmentData)
+            });
+
+            if (!createResponse.ok) {
+              const errorData = await createResponse.json();
+              throw new Error(errorData.error || t('register.establishmentCreationFailed'));
+            }
+
+            const createData = await createResponse.json();
+            const newEstablishmentId = createData.establishment?.id;
+
+            // Auto-submit ownership request for the new establishment
+            if (newEstablishmentId) {
+              await submitOwnershipRequest!(
+                newEstablishmentId,
+                [], // No documents needed for self-created establishment
+                t('register.selfCreatedEstablishmentMessage'),
+                false,
+                freshToken || undefined
+              );
+            }
+
+            toast.success(t('register.establishmentCreatedPending'));
+            onClose();
+          } catch (createError) {
+            logger.error('Establishment creation failed:', createError);
+            throw createError;
+          }
+        } else {
+          // No path selected - just created account (shouldn't happen normally)
+          toast.success(t('register.ownerAccountCreated'));
+          onClose();
+        }
       } else if (formData.employeePath === 'claim') {
         // 🔧 CSRF FIX: Use the fresh token directly (no delay needed!)
         // Claim existing profile with explicit fresh token
@@ -536,15 +750,18 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   };
 
   // Calculate total steps dynamically
+  // 🆕 v10.x NEW FLOW for Owners: type → credentials → claim/create → [establishment form if create]
   const totalSteps =
     formData.accountType === 'employee' && formData.employeePath === 'create' ? 4 :
     formData.accountType === 'employee' && formData.employeePath === 'claim' ? 3 :
     formData.accountType === 'employee' ? 3 : // Not yet selected path
-    2; // regular or establishment_owner
+    formData.accountType === 'establishment_owner' && formData.ownerPath === 'create' ? 4 : // 🆕 Owner create = 4 steps
+    formData.accountType === 'establishment_owner' ? 3 : // Owner claim or not yet selected = 3 steps
+    2; // regular only
 
   // Calculate display step for progress indicator (FIX BUG-001: "Step 3 of 2")
-  // For non-employees, internal currentStep 3 should display as Step 2
-  const displayStep = formData.accountType === 'employee'
+  // For employees and owners, show actual step. For regular users, map step 3 to step 2.
+  const displayStep = (formData.accountType === 'employee' || formData.accountType === 'establishment_owner')
     ? currentStep
     : (currentStep === 1 ? 1 : 2);
 
@@ -728,6 +945,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   employeePath: null,
                   selectedEmployee: null,
                   claimMessage: '',
+                  // 🆕 v10.x - Owner path fields
+                  ownerPath: null,
+                  selectedEstablishmentToClaim: null,
+                  ownershipDocuments: [],
+                  ownershipRequestMessage: '',
+                  ownershipContactMe: false,
                   pseudonym: '',
                   email: '',
                   password: '',
@@ -991,7 +1214,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           )}
 
           {/* STEP 2: Employee Path Selection (Claim or Create) */}
-          {currentStep === 2 && (
+          {currentStep === 2 && formData.accountType === 'employee' && (
             <div style={{ marginBottom: '20px' }}>
               <label style={{
                 display: 'block',
@@ -1426,8 +1649,551 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             </div>
           )}
 
-          {/* STEP 3: Registration Form */}
-          {currentStep === 3 && (
+          {/* STEP 2: Owner Credentials - 🆕 v10.x NEW FLOW: credentials FIRST */}
+          {currentStep === 2 && formData.accountType === 'establishment_owner' && (
+            <>
+              <FormField
+                label={<><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.pseudonymLabel')}</>}
+                name="pseudonym"
+                value={formData.pseudonym}
+                error={errors.pseudonym}
+                status={fieldStatus.pseudonym}
+                onChange={(e) => handleInputChange('pseudonym', e.target.value)}
+                onBlur={(e) => handleInputBlur('pseudonym', e.target.value)}
+                placeholder={t('register.pseudonymPlaceholder')}
+                required
+                maxLength={50}
+                showCounter
+              />
+              <FormField
+                label={<><Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.emailLabel')}</>}
+                name="email"
+                type="email"
+                value={formData.email}
+                error={errors.email}
+                status={fieldStatus.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                onBlur={(e) => handleInputBlur('email', e.target.value)}
+                placeholder={t('register.emailPlaceholder')}
+                required
+              />
+              <FormField
+                label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                error={errors.password}
+                status={fieldStatus.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                onBlur={(e) => handleInputBlur('password', e.target.value)}
+                placeholder={t('register.passwordPlaceholder')}
+                required
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ background: 'transparent', border: 'none', color: '#C19A6B', cursor: 'pointer' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                }
+              />
+              <FormField
+                label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formData.confirmPassword}
+                error={errors.confirmPassword}
+                status={fieldStatus.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
+                placeholder={t('register.confirmPasswordPlaceholder')}
+                required
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{ background: 'transparent', border: 'none', color: '#C19A6B', cursor: 'pointer' }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                }
+              />
+
+              {/* Navigation Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className="btn btn--secondary"
+                  style={{ flex: 1 }}
+                >
+                  ← {t('register.previousButton')}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword}
+                  className="btn btn--success"
+                  style={{ flex: 2 }}
+                >
+                  {t('register.nextButton')} →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* STEP 3: Owner Path Selection (Claim or Create) - 🆕 v10.x REORDERED */}
+          {currentStep === 3 && formData.accountType === 'establishment_owner' && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                color: '#C19A6B',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                marginBottom: '10px'
+              }}>
+                <Crown size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.ownerPathTitle')}
+              </label>
+
+              {/* Option: Claim Existing Establishment */}
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '16px',
+                border: `2px solid ${formData.ownerPath === 'claim' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
+                borderRadius: '12px',
+                background: formData.ownerPath === 'claim'
+                  ? 'linear-gradient(135deg, rgba(193,154,107,0.1), rgba(193,154,107,0.2))'
+                  : 'rgba(0,0,0,0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                marginBottom: '12px'
+              }}>
+                <input
+                  type="radio"
+                  name="ownerPath"
+                  value="claim"
+                  checked={formData.ownerPath === 'claim'}
+                  onChange={() => handleInputChange('ownerPath', 'claim')}
+                  style={{ accentColor: '#C19A6B' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
+                    <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.claimExistingEstablishment')}
+                  </div>
+                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
+                    {t('register.claimExistingEstablishmentDesc')}
+                  </div>
+                </div>
+              </label>
+
+              {/* Claim Establishment Section */}
+              {formData.ownerPath === 'claim' && (
+                <div style={{ marginBottom: '16px', paddingLeft: '16px' }}>
+                  {/* Establishment Search */}
+                  <div style={{ marginBottom: '12px', position: 'relative' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#C19A6B',
+                      fontSize: '13px',
+                      fontWeight: 'bold',
+                      marginBottom: '8px'
+                    }}>
+                      <Search size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.searchYourEstablishment')}
+                    </label>
+                    <input
+                      ref={ownerEstablishmentInputRef}
+                      type="text"
+                      value={ownerEstablishmentSearch}
+                      onChange={(e) => {
+                        setOwnerEstablishmentSearch(e.target.value);
+                        setShowOwnerEstablishmentSuggestions(true);
+                        if (formData.selectedEstablishmentToClaim) {
+                          handleInputChange('selectedEstablishmentToClaim', null);
+                        }
+                      }}
+                      onFocus={() => setShowOwnerEstablishmentSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowOwnerEstablishmentSuggestions(false), 200)}
+                      placeholder={t('register.searchEstablishments')}
+                      className="input-nightlife"
+                    />
+
+                    {/* Clear button */}
+                    {(ownerEstablishmentSearch || formData.selectedEstablishmentToClaim) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOwnerEstablishmentSearch('');
+                          handleInputChange('selectedEstablishmentToClaim', null);
+                          setShowOwnerEstablishmentSuggestions(false);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          top: '38px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#C19A6B',
+                          fontSize: '18px',
+                          cursor: 'pointer',
+                          padding: '0'
+                        }}
+                      >
+                        ×
+                      </button>
+                    )}
+
+                    {/* Suggestions Dropdown - 🆕 v10.x: Only show establishments WITHOUT owner */}
+                    {showOwnerEstablishmentSuggestions && (() => {
+                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(ownerEstablishmentSearch, true);
+                      const hasResults = sortedZones.length > 0;
+
+                      return hasResults ? (
+                        <div className="autocomplete-dropdown-nightlife">
+                          {sortedZones.map(zone => (
+                            <div key={zone}>
+                              <div style={{
+                                padding: '8px 16px',
+                                background: 'rgba(255,255,255,0.05)',
+                                color: '#cccccc',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                              }}>
+                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
+                              </div>
+                              {groupedByZone[zone].map(est => (
+                                <div
+                                  key={est.id}
+                                  className="autocomplete-item-nightlife"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleInputChange('selectedEstablishmentToClaim', est);
+                                    setOwnerEstablishmentSearch(est.name);
+                                    setShowOwnerEstablishmentSuggestions(false);
+                                  }}
+                                >
+                                  {est.name}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      ) : ownerEstablishmentSearch.trim().length > 0 ? (
+                        <div className="autocomplete-dropdown-nightlife" style={{ textAlign: 'center', color: '#999999' }}>
+                          {t('register.noEstablishmentsFound')}
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+
+                  {/* Selected Establishment Preview */}
+                  {formData.selectedEstablishmentToClaim && (
+                    <div style={{
+                      padding: '12px',
+                      background: 'rgba(193,154,107,0.1)',
+                      border: '1px solid rgba(193,154,107,0.3)',
+                      borderRadius: '8px',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CheckCircle size={16} style={{ color: '#C19A6B' }} />
+                        <span style={{ color: '#ffffff', fontWeight: 'bold' }}>
+                          {formData.selectedEstablishmentToClaim.name}
+                        </span>
+                      </div>
+                      {formData.selectedEstablishmentToClaim.zone && (
+                        <div style={{ color: '#999999', fontSize: '12px', marginTop: '4px', marginLeft: '24px' }}>
+                          <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                          {getZoneLabel(formData.selectedEstablishmentToClaim.zone)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Document Upload Section (Optional) */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#C19A6B',
+                      fontSize: '13px',
+                      fontWeight: 'bold',
+                      marginBottom: '8px'
+                    }}>
+                      <Upload size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.uploadOwnershipDocuments')}
+                      <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
+                        ({t('register.optional')})
+                      </span>
+                    </label>
+                    <p style={{ color: '#999999', fontSize: '12px', marginBottom: '12px' }}>
+                      {t('register.uploadOwnershipDocumentsDesc')}
+                    </p>
+
+                    {/* Drop Zone */}
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); setIsDraggingOwnerDocs(true); }}
+                      onDragLeave={() => setIsDraggingOwnerDocs(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingOwnerDocs(false);
+                        const files = Array.from(e.dataTransfer.files);
+                        const validFiles = files.filter(file => {
+                          if (file.size > 10 * 1024 * 1024) {
+                            setOwnershipDocErrors(t('register.fileSizeError'));
+                            return false;
+                          }
+                          return true;
+                        });
+                        if (validFiles.length > 0) {
+                          const newPreviews = validFiles.map(file => ({
+                            file,
+                            url: URL.createObjectURL(file),
+                            name: file.name
+                          }));
+                          setOwnershipDocumentPreviews(prev => [...prev, ...newPreviews]);
+                          handleInputChange('ownershipDocuments', [...formData.ownershipDocuments, ...validFiles]);
+                          setOwnershipDocErrors('');
+                        }
+                      }}
+                      style={{
+                        padding: '24px',
+                        border: `2px dashed ${isDraggingOwnerDocs ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
+                        borderRadius: '12px',
+                        background: isDraggingOwnerDocs ? 'rgba(193,154,107,0.1)' : 'rgba(0,0,0,0.2)',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onClick={() => document.getElementById('owner-doc-input')?.click()}
+                    >
+                      <FolderOpen size={32} style={{ color: '#C19A6B', marginBottom: '8px' }} />
+                      <p style={{ color: '#cccccc', fontSize: '14px' }}>
+                        {t('register.dragDropDocuments')}
+                      </p>
+                      <p style={{ color: '#999999', fontSize: '12px', marginTop: '4px' }}>
+                        {t('register.acceptedFormats')}
+                      </p>
+                      <input
+                        id="owner-doc-input"
+                        type="file"
+                        multiple
+                        accept="image/*,.pdf,.doc,.docx"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          const validFiles = files.filter(file => {
+                            if (file.size > 10 * 1024 * 1024) {
+                              setOwnershipDocErrors(t('register.fileSizeError'));
+                              return false;
+                            }
+                            return true;
+                          });
+                          if (validFiles.length > 0) {
+                            const newPreviews = validFiles.map(file => ({
+                              file,
+                              url: URL.createObjectURL(file),
+                              name: file.name
+                            }));
+                            setOwnershipDocumentPreviews(prev => [...prev, ...newPreviews]);
+                            handleInputChange('ownershipDocuments', [...formData.ownershipDocuments, ...validFiles]);
+                            setOwnershipDocErrors('');
+                          }
+                        }}
+                      />
+                    </div>
+
+                    {/* Error Message */}
+                    {ownershipDocErrors && (
+                      <p style={{ color: '#ff6b6b', fontSize: '12px', marginTop: '8px' }}>
+                        <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                        {ownershipDocErrors}
+                      </p>
+                    )}
+
+                    {/* Document Previews */}
+                    {ownershipDocumentPreviews.length > 0 && (
+                      <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {ownershipDocumentPreviews.map((doc, index) => (
+                          <div key={index} style={{
+                            position: 'relative',
+                            padding: '8px 12px',
+                            background: 'rgba(193,154,107,0.1)',
+                            border: '1px solid rgba(193,154,107,0.3)',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <FileText size={14} style={{ color: '#C19A6B' }} />
+                            <span style={{ color: '#ffffff', fontSize: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {doc.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                URL.revokeObjectURL(doc.url);
+                                setOwnershipDocumentPreviews(prev => prev.filter((_, i) => i !== index));
+                                handleInputChange('ownershipDocuments', formData.ownershipDocuments.filter((_, i) => i !== index));
+                              }}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#ff6b6b',
+                                cursor: 'pointer',
+                                padding: '0',
+                                fontSize: '16px'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contact Me Checkbox */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      cursor: 'pointer',
+                      padding: '12px',
+                      background: formData.ownershipContactMe ? 'rgba(193,154,107,0.1)' : 'transparent',
+                      border: `1px solid ${formData.ownershipContactMe ? 'rgba(193,154,107,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                      borderRadius: '8px',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.ownershipContactMe}
+                        onChange={(e) => handleInputChange('ownershipContactMe', e.target.checked)}
+                        style={{ accentColor: '#C19A6B' }}
+                      />
+                      <div>
+                        <div style={{ color: '#ffffff', fontSize: '14px' }}>
+                          <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                          {t('register.ownershipContactMe')}
+                        </div>
+                        <div style={{ color: '#999999', fontSize: '12px', marginTop: '2px' }}>
+                          {t('register.ownershipContactMeDesc')}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Message Textarea */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'block',
+                      color: '#C19A6B',
+                      fontSize: '13px',
+                      fontWeight: 'bold',
+                      marginBottom: '8px'
+                    }}>
+                      <MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.ownershipMessage')}
+                      <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
+                        ({t('register.optional')})
+                      </span>
+                    </label>
+                    <textarea
+                      value={formData.ownershipRequestMessage}
+                      onChange={(e) => handleInputChange('ownershipRequestMessage', e.target.value)}
+                      placeholder={t('register.ownershipMessagePlaceholder')}
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: 'rgba(0,0,0,0.4)',
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        borderRadius: '12px',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        resize: 'vertical',
+                        minHeight: '80px'
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Option: Create New Establishment */}
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '16px',
+                border: `2px solid ${formData.ownerPath === 'create' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
+                borderRadius: '12px',
+                background: formData.ownerPath === 'create'
+                  ? 'linear-gradient(135deg, rgba(193,154,107,0.1), rgba(193,154,107,0.2))'
+                  : 'rgba(0,0,0,0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                marginBottom: '12px'
+              }}>
+                <input
+                  type="radio"
+                  name="ownerPath"
+                  value="create"
+                  checked={formData.ownerPath === 'create'}
+                  onChange={() => handleInputChange('ownerPath', 'create')}
+                  style={{ accentColor: '#C19A6B' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
+                    <Rocket size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createNewEstablishment')}
+                  </div>
+                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
+                    {t('register.createNewEstablishmentDesc')}
+                  </div>
+                </div>
+              </label>
+
+              {/* Navigation Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className="btn btn--secondary"
+                  style={{ flex: 1 }}
+                >
+                  ← {t('register.previousButton')}
+                </button>
+                {/* Claim → Submit, Create → Next to Step 4 */}
+                {formData.ownerPath === 'claim' ? (
+                  <button
+                    type="submit"
+                    disabled={!formData.selectedEstablishmentToClaim || isLoading}
+                    className="btn btn--success"
+                    style={{ flex: 2 }}
+                  >
+                    {isLoading ? (
+                      <><Loader2 size={16} className="spin" style={{ marginRight: '8px' }} /> {t('register.submittingButton')}</>
+                    ) : (
+                      <>{t('register.registerButton')} <Send size={16} style={{ marginLeft: '8px' }} /></>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!formData.ownerPath}
+                    onClick={handleNext}
+                    className="btn btn--success"
+                    style={{ flex: 2 }}
+                  >
+                    {t('register.nextButton')} →
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Registration Form (Employees and Regular users only - Owners have credentials at Step 2) */}
+          {currentStep === 3 && formData.accountType !== 'establishment_owner' && (
             <>
               <FormField
                 label={<><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.pseudonymLabel')}</>}
@@ -1649,8 +2415,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             </>
           )}
 
-          {/* STEP 4: Complete Profile (Photos + Info + Employment + Social) */}
-          {currentStep === 4 && (
+          {/* STEP 4: Complete Profile - Employee Only (Photos + Info + Employment + Social) */}
+          {currentStep === 4 && formData.accountType === 'employee' && (
             <div style={{
               maxHeight: '500px',
               overflowY: 'auto',
@@ -2173,6 +2939,211 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     </span>
                   ) : (
                     <><Sparkles size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createAccount')}</>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: Owner Establishment Creation - 🆕 v10.x */}
+          {currentStep === 4 && formData.accountType === 'establishment_owner' && (
+            <div style={{
+              maxHeight: '500px',
+              overflowY: 'auto',
+              marginBottom: '20px',
+              paddingRight: '8px'
+            }}>
+              <h3 style={{
+                color: '#C19A6B',
+                fontSize: '16px',
+                fontWeight: '600',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Building2 size={18} /> {t('register.createEstablishmentTitle')}
+              </h3>
+
+              {/* Establishment Name */}
+              <FormField
+                label={<><Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentName')}</>}
+                name="newEstablishmentName"
+                value={formData.newEstablishmentName}
+                onChange={(e) => handleInputChange('newEstablishmentName', e.target.value)}
+                placeholder={t('register.establishmentNamePlaceholder')}
+                required
+                maxLength={100}
+              />
+
+              {/* Establishment Address */}
+              <FormField
+                label={<><MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentAddress')}</>}
+                name="newEstablishmentAddress"
+                value={formData.newEstablishmentAddress}
+                onChange={(e) => handleInputChange('newEstablishmentAddress', e.target.value)}
+                placeholder={t('register.establishmentAddressPlaceholder')}
+                required
+              />
+
+              {/* Zone Selection */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#C19A6B',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  marginBottom: '8px'
+                }}>
+                  <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentZone')} *
+                </label>
+                <select
+                  value={formData.newEstablishmentZone}
+                  onChange={(e) => handleInputChange('newEstablishmentZone', e.target.value)}
+                  className="input-nightlife"
+                  style={{ width: '100%', cursor: 'pointer' }}
+                >
+                  <option value="">{t('register.selectZone')}</option>
+                  {ZONE_OPTIONS.filter(z => z.value !== 'freelance').map(zone => (
+                    <option key={zone.value} value={zone.value}>{zone.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category Selection */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#C19A6B',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  marginBottom: '8px'
+                }}>
+                  <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentCategory')} *
+                </label>
+                <select
+                  value={formData.newEstablishmentCategoryId || ''}
+                  onChange={(e) => handleInputChange('newEstablishmentCategoryId', e.target.value ? Number(e.target.value) : null)}
+                  className="input-nightlife"
+                  style={{ width: '100%', cursor: 'pointer' }}
+                >
+                  <option value="">{t('register.selectCategory')}</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Description (Optional) */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#C19A6B',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  marginBottom: '8px'
+                }}>
+                  <BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentDescription')}
+                  <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
+                    ({t('register.optional')})
+                  </span>
+                </label>
+                <textarea
+                  value={formData.newEstablishmentDescription}
+                  onChange={(e) => handleInputChange('newEstablishmentDescription', e.target.value)}
+                  placeholder={t('register.establishmentDescriptionPlaceholder')}
+                  rows={3}
+                  className="input-nightlife"
+                  style={{ resize: 'vertical', minHeight: '80px' }}
+                />
+              </div>
+
+              {/* Phone (Optional) */}
+              <FormField
+                label={<><Phone size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentPhone')} <span style={{ color: '#999999', fontWeight: 'normal' }}>({t('register.optional')})</span></>}
+                name="newEstablishmentPhone"
+                value={formData.newEstablishmentPhone}
+                onChange={(e) => handleInputChange('newEstablishmentPhone', e.target.value)}
+                placeholder={t('register.establishmentPhonePlaceholder')}
+              />
+
+              {/* Website (Optional) */}
+              <FormField
+                label={<><Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentWebsite')} <span style={{ color: '#999999', fontWeight: 'normal' }}>({t('register.optional')})</span></>}
+                name="newEstablishmentWebsite"
+                value={formData.newEstablishmentWebsite}
+                onChange={(e) => handleInputChange('newEstablishmentWebsite', e.target.value)}
+                placeholder="https://..."
+              />
+
+              {/* Social Media Section */}
+              <div style={{
+                marginTop: '20px',
+                padding: '16px',
+                background: 'rgba(193,154,107,0.05)',
+                borderRadius: '12px',
+                border: '1px solid rgba(193,154,107,0.2)'
+              }}>
+                <h4 style={{ color: '#C19A6B', fontSize: '14px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Users size={14} /> {t('register.socialMediaOptional')}
+                </h4>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <FormField
+                    label="Instagram"
+                    name="newEstablishmentInstagram"
+                    value={formData.newEstablishmentInstagram}
+                    onChange={(e) => handleInputChange('newEstablishmentInstagram', e.target.value)}
+                    placeholder="@username"
+                  />
+                  <FormField
+                    label="Twitter/X"
+                    name="newEstablishmentTwitter"
+                    value={formData.newEstablishmentTwitter}
+                    onChange={(e) => handleInputChange('newEstablishmentTwitter', e.target.value)}
+                    placeholder="@username"
+                  />
+                  <FormField
+                    label="TikTok"
+                    name="newEstablishmentTiktok"
+                    value={formData.newEstablishmentTiktok}
+                    onChange={(e) => handleInputChange('newEstablishmentTiktok', e.target.value)}
+                    placeholder="@username"
+                  />
+                </div>
+              </div>
+
+              {submitError && (
+                <div className="error-message-nightlife error-shake" style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <AlertTriangle size={16} /> {submitError}
+                </div>
+              )}
+
+              {/* Navigation Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className="btn btn--secondary"
+                  style={{ flex: 1 }}
+                >
+                  ← {t('register.previousButton')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    !formData.newEstablishmentName.trim() ||
+                    !formData.newEstablishmentAddress.trim() ||
+                    !formData.newEstablishmentZone ||
+                    !formData.newEstablishmentCategoryId ||
+                    isLoading
+                  }
+                  className="btn btn--success"
+                  style={{ flex: 2 }}
+                >
+                  {isLoading ? (
+                    <><Loader2 size={16} className="spin" style={{ marginRight: '8px' }} /> {t('register.submittingButton')}</>
+                  ) : (
+                    <><Sparkles size={16} style={{ marginRight: '8px' }} /> {t('register.createAccountAndEstablishment')}</>
                   )}
                 </button>
               </div>
