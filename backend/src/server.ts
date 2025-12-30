@@ -412,6 +412,10 @@ app.use('/api', (req, res, next) => {
   if (req.path.startsWith('/admin')) {
     return next();
   }
+  // Skip global rate limit for upload routes (they have their own uploadRateLimit)
+  if (req.path.startsWith('/upload')) {
+    return next();
+  }
   // Apply rate limit only in production for non-admin routes
   if (process.env.NODE_ENV === 'production') {
     return apiRateLimit(req, res, next);
