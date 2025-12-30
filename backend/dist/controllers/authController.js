@@ -309,27 +309,33 @@ const register = async (req, res) => {
             //   registerCookieOptions.domain = COOKIE_DOMAIN.trim();
             // }
             res.cookie('auth-token', token, registerCookieOptions);
-            // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
-            // Non-blocking save - register succeeds even if session store fails
+            // 🔧 CSRF FIX v3: Regenerate CSRF token and WAIT for session save
+            // Previous bug: response was sent before session was saved, causing CSRF mismatch
             const freshCsrfToken = (0, csrf_1.generateCSRFToken)();
             req.session.csrfToken = freshCsrfToken;
-            // Fire and forget - don't block register on session save
+            // 🔧 BLOCKING save - response sent only AFTER session is persisted
             req.session.save((err) => {
                 if (err) {
-                    logger_1.logger.error('Failed to save session after register (non-blocking)', err);
-                }
-                else {
-                    logger_1.logger.debug('CSRF token regenerated and session saved after register', {
-                        sessionId: req.sessionID,
-                        tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+                    logger_1.logger.error('Failed to save session after register', err);
+                    // Still return success since auth cookie is set, but warn about CSRF
+                    return res.status(201).json({
+                        message: 'User registered successfully',
+                        user: user,
+                        csrfToken: freshCsrfToken,
+                        passwordBreached: isBreached,
+                        warning: 'Session save failed - CSRF may be unreliable'
                     });
                 }
-            });
-            res.status(201).json({
-                message: 'User registered successfully',
-                user: user,
-                csrfToken: freshCsrfToken, // 🔧 Token synchronized with active session
-                passwordBreached: isBreached // ⚠️ Warning flag for frontend to display
+                logger_1.logger.debug('CSRF token regenerated and session saved after register', {
+                    sessionId: req.sessionID,
+                    tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+                });
+                res.status(201).json({
+                    message: 'User registered successfully',
+                    user: user,
+                    csrfToken: freshCsrfToken,
+                    passwordBreached: isBreached
+                });
             });
         }
         catch (postCreationError) {
@@ -426,28 +432,33 @@ const login = async (req, res) => {
         //   cookieOptions.domain = COOKIE_DOMAIN.trim();
         // }
         res.cookie('auth-token', token, cookieOptions);
-        // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
-        // Non-blocking save - login succeeds even if session store fails
+        // 🔧 CSRF FIX v3: Regenerate CSRF token and WAIT for session save
+        // Previous bug: response was sent before session was saved, causing CSRF mismatch
         const freshCsrfToken = (0, csrf_1.generateCSRFToken)();
         req.session.csrfToken = freshCsrfToken;
-        // Fire and forget - don't block login on session save
-        req.session.save((err) => {
-            if (err) {
-                logger_1.logger.error('Failed to save session after login (non-blocking)', err);
-            }
-            else {
-                logger_1.logger.debug('CSRF token regenerated and session saved after login', {
-                    sessionId: req.sessionID,
-                    tokenPreview: freshCsrfToken.substring(0, 8) + '...'
-                });
-            }
-        });
         // Remove password from response
         const { password: _, ...userWithoutPassword } = user;
-        res.json({
-            message: 'Login successful',
-            user: userWithoutPassword,
-            csrfToken: freshCsrfToken // 🔧 Token synchronized with active session
+        // 🔧 BLOCKING save - response sent only AFTER session is persisted
+        req.session.save((err) => {
+            if (err) {
+                logger_1.logger.error('Failed to save session after login', err);
+                // Still return success since auth cookie is set, but warn about CSRF
+                return res.json({
+                    message: 'Login successful',
+                    user: userWithoutPassword,
+                    csrfToken: freshCsrfToken,
+                    warning: 'Session save failed - CSRF may be unreliable'
+                });
+            }
+            logger_1.logger.debug('CSRF token regenerated and session saved after login', {
+                sessionId: req.sessionID,
+                tokenPreview: freshCsrfToken.substring(0, 8) + '...'
+            });
+            res.json({
+                message: 'Login successful',
+                user: userWithoutPassword,
+                csrfToken: freshCsrfToken
+            });
         });
     }
     catch (error) {
