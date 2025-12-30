@@ -14,14 +14,18 @@ const generateCSRFToken = () => {
 exports.generateCSRFToken = generateCSRFToken;
 // Middleware pour générer le token CSRF
 const csrfTokenGenerator = (req, res, next) => {
+    // 🔧 FIX: Force token regeneration when explicitly requesting /api/csrf-token
+    // This fixes stale/corrupted tokens from sessions created before session.save() fix
+    const isExplicitTokenRequest = req.originalUrl === '/api/csrf-token' || req.path === '/csrf-token';
     logger_1.logger.debug('CSRF token generator', {
         method: req.method,
         url: req.originalUrl,
         hasSession: !!req.session,
-        hasExistingToken: !!req.session.csrfToken
+        hasExistingToken: !!req.session.csrfToken,
+        forceRegenerate: isExplicitTokenRequest
     });
-    // Générer un nouveau token si pas déjà présent en session
-    if (!req.session.csrfToken) {
+    // Générer un nouveau token si pas déjà présent en session OR if explicitly requesting token
+    if (!req.session.csrfToken || isExplicitTokenRequest) {
         req.session.csrfToken = (0, exports.generateCSRFToken)();
         // Explicitly save the session to ensure token persistence BEFORE proceeding
         req.session.save((err) => {
