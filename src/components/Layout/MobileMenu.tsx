@@ -16,9 +16,7 @@ import {
   FileEdit,
   ClipboardList,
   Building,
-  MapPin,
-  X,
-  Users
+  X
 } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useAuth } from '../../contexts/AuthContext';
@@ -205,12 +203,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <span className="mobile-menu-item-arrow">›</span>
             </button>
 
-            <button className="mobile-menu-item" onClick={() => handleNavigate('/search?zone=freelance')}>
-              <span className="mobile-menu-item-icon"><Users size={20} /></span>
-              <span className="mobile-menu-item-text">{t('header.freelances', 'Freelances')}</span>
-              <span className="mobile-menu-item-arrow">›</span>
-            </button>
-
             {user && (
               <>
                 <button className="mobile-menu-item" onClick={() => handleNavigate('/dashboard')}>
@@ -222,12 +214,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <button className="mobile-menu-item" onClick={() => handleNavigate('/achievements')}>
                   <span className="mobile-menu-item-icon"><Trophy size={20} /></span>
                   <span className="mobile-menu-item-text">{t('header.achievements', 'Achievements')}</span>
-                  <span className="mobile-menu-item-arrow">›</span>
-                </button>
-
-                <button className="mobile-menu-item" onClick={() => handleNavigate('/my-visits')}>
-                  <span className="mobile-menu-item-icon"><MapPin size={20} /></span>
-                  <span className="mobile-menu-item-text">{t('header.myVisits', 'My Visits')}</span>
                   <span className="mobile-menu-item-arrow">›</span>
                 </button>
               </>

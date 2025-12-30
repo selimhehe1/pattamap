@@ -63,7 +63,6 @@ import {
   EmployeeDashboard,
   MyOwnershipRequests,
   MyAchievementsPage,
-  VisitHistoryPage,
   NotFoundPage,
   EstablishmentsPage
 } from './routes/lazyComponents';
@@ -223,12 +222,6 @@ const AppContent: React.FC = () => {
               <Route path="/achievements" element={
                 <ProtectedRoute>
                   <MyAchievementsPage />
-                </ProtectedRoute>
-              } />
-
-              <Route path="/my-visits" element={
-                <ProtectedRoute>
-                  <VisitHistoryPage />
                 </ProtectedRoute>
               } />
 

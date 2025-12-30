@@ -15,8 +15,7 @@ import {
   BarChart3,
   FileEdit,
   ClipboardList,
-  Building,
-  MapPin
+  Building
 } from 'lucide-react';
 import { createPreloadHandler } from '../../utils/routePreloader';
 import {
@@ -26,8 +25,7 @@ import {
   importMyEstablishmentsPage,
   importMyOwnershipRequests,
   importEmployeeDashboard,
-  importMyAchievementsPage,
-  importVisitHistoryPage
+  importMyAchievementsPage
 } from '../../routes/lazyComponents';
 import AnimatedButton from '../Common/AnimatedButton';
 import ThemeToggle from '../Common/ThemeToggle';
@@ -164,14 +162,6 @@ export const NavigationSection: React.FC<NavigationSectionProps> = ({
             ariaLabel="View my achievements and progress"
             onMouseEnter={createPreloadHandler(importMyAchievementsPage, 'MyAchievementsPage')}
             onClick={() => onNavigate('/achievements')}
-          />
-
-          <MenuItem
-            icon={<MapPin size={18} />}
-            text={t('header.myVisits')}
-            ariaLabel="View my visit history"
-            onMouseEnter={createPreloadHandler(importVisitHistoryPage, 'VisitHistoryPage')}
-            onClick={() => onNavigate('/my-visits')}
           />
         </>
       )}

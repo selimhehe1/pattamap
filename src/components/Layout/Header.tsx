@@ -16,10 +16,8 @@ import {
   FileEdit,
   ClipboardList,
   Building,
-  MapPin, // 🆕 v10.3 - Visit History icon
   List,
   Map,
-  Users,
   ChevronLeft, // 🆕 Header redesign - Back button icon
   Menu, // 🆕 Header redesign - Menu icon
   X // 🆕 Header redesign - Close icon
@@ -36,15 +34,13 @@ import {
   importMyEstablishmentsPage, // 🆕 v10.1 - Owner Dashboard preload
   importMyOwnershipRequests, // 🆕 v10.2 - Ownership Requests preload
   importEmployeeDashboard, // 🆕 v10.2 - Employee Dashboard preload
-  importMyAchievementsPage, // 🆕 v10.3 - Gamification preload
-  importVisitHistoryPage // 🆕 v10.3 - Visit History preload
+  importMyAchievementsPage // 🆕 v10.3 - Gamification preload
 } from '../../routes/lazyComponents';
 import ThemeToggle from '../Common/ThemeToggle';
 import AnimatedButton from '../Common/AnimatedButton';
 import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
-import { useUnreadNotificationCount } from '../../hooks/useUnreadNotificationCount'; // 🆕 Header redesign - Notification dot
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
 import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
@@ -80,9 +76,6 @@ const Header: React.FC = () => {
 
   // Phase 3: Detect mobile for hamburger menu
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  // 🆕 Header redesign: Get notification count for dot indicator
-  const { hasUnread } = useUnreadNotificationCount();
 
   // Memoized navigation handlers to prevent unnecessary re-renders
   const handleNavigate = useCallback((path: string) => {
@@ -212,12 +205,15 @@ const Header: React.FC = () => {
           {/* Sync Indicator - shows pending offline actions */}
           <SyncIndicator compact />
 
-          {/* Menu Button with Notification Dot */}
+          {/* Notifications Bell - in header */}
+          {user && <NotificationBell variant="default" />}
+
+          {/* Menu Button */}
           <div className="header-menu-wrapper">
             <AnimatedButton
               ref={menuButtonRef}
               onClick={() => setShowUserMenu(!showUserMenu)}
-              ariaLabel={user ? `User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu${hasUnread ? '. You have unread notifications' : ''}` : showUserMenu ? 'Close menu' : 'Open menu'}
+              ariaLabel={user ? `User menu for ${user.pseudonym}. ${showUserMenu ? 'Close' : 'Open'} menu` : showUserMenu ? 'Close menu' : 'Open menu'}
               tabIndex={0}
               enableHaptic
               hapticLevel="light"
@@ -228,10 +224,6 @@ const Header: React.FC = () => {
                 {showUserMenu ? <X size={20} /> : <Menu size={20} />}
               </span>
             </AnimatedButton>
-            {/* Notification dot - shows when user has unread notifications */}
-            {user && hasUnread && (
-              <span className="header-notification-dot" aria-hidden="true" />
-            )}
           </div>
 
           {/* Desktop Dropdown - Hidden on mobile (MobileMenu used instead) */}
@@ -309,19 +301,6 @@ const Header: React.FC = () => {
                         </AnimatedButton>
 
                         <AnimatedButton
-                          ariaLabel="Browse freelances"
-                          tabIndex={0}
-                          enableHaptic
-                          hapticLevel="light"
-                          className="menu-item-modern"
-                          onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
-                          onClick={() => handleNavigate('/search?zone=freelance')}
-                        >
-                          <span className="menu-item-icon"><Users size={18} /></span>
-                          <span className="menu-item-text">{t('header.freelances', 'Freelances')}</span>
-                        </AnimatedButton>
-
-                        <AnimatedButton
                           ariaLabel="My favorites"
                           tabIndex={0}
                           enableHaptic
@@ -346,22 +325,6 @@ const Header: React.FC = () => {
                           <span className="menu-item-icon"><Trophy size={18} /></span>
                           <span className="menu-item-text">{t('header.achievements')}</span>
                         </AnimatedButton>
-
-                        <AnimatedButton
-                          ariaLabel="View my visit history"
-                          tabIndex={0}
-                          enableHaptic
-                          hapticLevel="light"
-                          className="menu-item-modern"
-                          onMouseEnter={createPreloadHandler(importVisitHistoryPage, 'VisitHistoryPage')}
-                          onClick={() => handleNavigate('/my-visits')}
-                        >
-                          <span className="menu-item-icon"><MapPin size={18} /></span>
-                          <span className="menu-item-text">{t('header.myVisits')}</span>
-                        </AnimatedButton>
-
-                        {/* Notifications - Full menu item with dropdown */}
-                        <NotificationBell variant="menu-item" />
                       </div>
 
                       {/* Actions Section */}
@@ -529,22 +492,6 @@ const Header: React.FC = () => {
                   >
                     <span className="menu-item-icon"><Search size={18} /></span>
                     <span className="menu-item-text">{t('header.search')}</span>
-                  </AnimatedButton>
-
-                  <AnimatedButton
-                    ariaLabel="Browse freelances"
-                    tabIndex={0}
-                    enableHaptic
-                    hapticLevel="light"
-                    className="menu-item-modern"
-                    onMouseEnter={createPreloadHandler(importSearchPage, 'SearchPage')}
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      navigate('/search?zone=freelance');
-                    }}
-                  >
-                    <span className="menu-item-icon"><Users size={18} /></span>
-                    <span className="menu-item-text">{t('header.freelances', 'Freelances')}</span>
                   </AnimatedButton>
                 </div>
 
