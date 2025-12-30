@@ -155,10 +155,9 @@ export const apiRateLimit = createRateLimit({
 // Strict rate limit for authentication endpoints
 // Note: Uses X-Forwarded-For for real IP behind proxy (Railway/Vercel)
 // 🛡️ SECURITY FIX: Reduced from 100 to 5 attempts to prevent brute-force attacks
-// ⚠️ TEMP: Increased to 1000 for testing - REVERT AFTER TEST
 export const authRateLimit = createRateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  maxRequests: 1000, // ⚠️ TEMP: Was 10 - REVERT AFTER TEST
+  maxRequests: 10, // 10 attempts per 10 minutes (balanced security/UX)
   message: 'Too many authentication attempts. Please wait 10 minutes before trying again.',
   skipSuccessfulRequests: true, // Don't count successful logins
   keyGenerator: (req: Request) => {
