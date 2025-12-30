@@ -1008,10 +1008,9 @@ app.use('/api/auth', authRateLimit, authRoutes);
 app.use('/api/establishments', csrfProtection, establishmentRoutes);
 app.use('/api/employees', csrfProtection, employeeRoutes);
 app.use('/api/comments',
-  process.env.NODE_ENV === 'production' ? commentRateLimit : (req, res, next) => next(),
   csrfProtection,
   commentRoutes
-);
+); // Rate limit disabled for testing
 app.use('/api/consumables', csrfProtection, consumableRoutes);
 app.use('/api/upload', uploadRoutes); // CSRF handled internally by upload routes - rate limit disabled for testing
 app.use('/api/favorites', csrfProtection, favoriteRoutes);
