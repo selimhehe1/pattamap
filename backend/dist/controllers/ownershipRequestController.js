@@ -301,6 +301,7 @@ const approveOwnershipRequest = async (req, res) => {
         const { admin_notes, permissions, owner_role } = req.body;
         const adminId = req.user.id;
         // Get request details
+        // Note: Using explicit FK hints to avoid Supabase 300 Multiple Choices error
         const { data: request, error: fetchError } = await supabase_1.supabase
             .from('establishment_ownership_requests')
             .select(`
@@ -308,8 +309,8 @@ const approveOwnershipRequest = async (req, res) => {
         user_id,
         establishment_id,
         status,
-        user:users(id, pseudonym, email, account_type),
-        establishment:establishments(id, name)
+        user:users!establishment_ownership_requests_user_id_fkey(id, pseudonym, email, account_type),
+        establishment:establishments!establishment_ownership_requests_establishment_id_fkey(id, name)
       `)
             .eq('id', id)
             .single();
@@ -421,6 +422,7 @@ const rejectOwnershipRequest = async (req, res) => {
             });
         }
         // Get request details
+        // Note: Using explicit FK hints to avoid Supabase 300 Multiple Choices error
         const { data: request, error: fetchError } = await supabase_1.supabase
             .from('establishment_ownership_requests')
             .select(`
@@ -428,7 +430,7 @@ const rejectOwnershipRequest = async (req, res) => {
         user_id,
         establishment_id,
         status,
-        establishment:establishments(id, name)
+        establishment:establishments!establishment_ownership_requests_establishment_id_fkey(id, name)
       `)
             .eq('id', id)
             .single();

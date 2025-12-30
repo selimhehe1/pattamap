@@ -33,7 +33,7 @@ const getEstablishmentOwners = async (req, res) => {
         assigned_at,
         created_at,
         updated_at,
-        user:users(id, pseudonym, email, account_type),
+        user:users!establishment_owners_user_id_fkey(id, pseudonym, email, account_type),
         assigner:users!establishment_owners_assigned_by_fkey(id, pseudonym)
       `)
             .eq('establishment_id', id)
@@ -188,7 +188,7 @@ const assignEstablishmentOwner = async (req, res) => {
         assigned_at,
         created_at,
         updated_at,
-        user:users(id, pseudonym, email),
+        user:users!establishment_owners_user_id_fkey(id, pseudonym, email),
         establishment:establishments(id, name)
       `)
             .single();
@@ -265,7 +265,7 @@ const removeEstablishmentOwner = async (req, res) => {
             .from('establishment_owners')
             .select(`
         id,
-        user:users(pseudonym),
+        user:users!establishment_owners_user_id_fkey(pseudonym),
         establishment:establishments(name)
       `)
             .eq('establishment_id', id)
@@ -345,7 +345,7 @@ const updateEstablishmentOwnerPermissions = async (req, res) => {
         assigned_at,
         created_at,
         updated_at,
-        user:users(id, pseudonym, email),
+        user:users!establishment_owners_user_id_fkey(id, pseudonym, email),
         establishment:establishments(id, name)
       `)
             .single();
