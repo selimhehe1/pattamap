@@ -36,7 +36,18 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
           },
           (error, result) => {
             if (error) {
-              reject(error);
+              // Log detailed Cloudinary error for debugging
+              logger.error('Cloudinary upload callback error:', {
+                message: error.message,
+                name: error.name,
+                http_code: (error as any).http_code,
+                error_obj: JSON.stringify(error, Object.getOwnPropertyNames(error))
+              });
+              // Wrap in Error for consistent handling
+              const uploadError = new Error(
+                error.message || (error as any).error?.message || `Cloudinary error: ${JSON.stringify(error)}`
+              );
+              reject(uploadError);
             } else {
               resolve({
                 url: result!.secure_url,
