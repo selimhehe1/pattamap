@@ -406,20 +406,10 @@ app.use(express.urlencoded({
   parameterLimit: 100
 }));
 
-// Global rate limiting - disabled in development, skip for admin routes (they have auth protection)
+// Global rate limiting - DISABLED for testing
+// TODO: Re-enable in production after testing is complete
 app.use('/api', (req, res, next) => {
-  // Skip rate limiting for admin routes in production (admins are authenticated)
-  if (req.path.startsWith('/admin')) {
-    return next();
-  }
-  // Skip global rate limit for upload routes (they have their own uploadRateLimit)
-  if (req.path.startsWith('/upload')) {
-    return next();
-  }
-  // Apply rate limit only in production for non-admin routes
-  if (process.env.NODE_ENV === 'production') {
-    return apiRateLimit(req, res, next);
-  }
+  // Rate limiting disabled - just pass through
   next();
 });
 
