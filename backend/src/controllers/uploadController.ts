@@ -92,9 +92,22 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
       images: uploadResults
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : '';
-    logger.error('Upload error:', { message: errorMessage, stack: errorStack });
+    // Handle both Error instances and Cloudinary error objects
+    let errorMessage = 'Unknown error';
+    let errorStack = '';
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorStack = error.stack || '';
+    } else if (typeof error === 'object' && error !== null) {
+      // Cloudinary returns error objects with message/error properties
+      const cloudinaryError = error as { message?: string; error?: { message?: string }; http_code?: number };
+      errorMessage = cloudinaryError.message || cloudinaryError.error?.message || JSON.stringify(error);
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+
+    logger.error('Upload error:', { message: errorMessage, stack: errorStack, rawError: error });
 
     // Check if Cloudinary is configured
     const cloudinaryConfigured = !!(
