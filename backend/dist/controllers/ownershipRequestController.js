@@ -242,6 +242,9 @@ exports.getMyOwnershipRequests = getMyOwnershipRequests;
 const getAllOwnershipRequests = async (req, res) => {
     try {
         const { status } = req.query;
+        // Note: Removed reviewer join as it causes Supabase 300 Multiple Choices error
+        // when reviewed_by is NULL for pending requests. Reviewer info can be fetched
+        // separately if needed.
         let query = supabase_1.supabase
             .from('establishment_ownership_requests')
             .select(`
@@ -257,9 +260,8 @@ const getAllOwnershipRequests = async (req, res) => {
         reviewed_at,
         created_at,
         updated_at,
-        user:users(id, pseudonym, email, account_type),
-        establishment:establishments(id, name, address, zone, logo_url),
-        reviewer:users!establishment_ownership_requests_reviewed_by_fkey(id, pseudonym)
+        user:users!establishment_ownership_requests_user_id_fkey(id, pseudonym, email, account_type),
+        establishment:establishments!establishment_ownership_requests_establishment_id_fkey(id, name, address, zone, logo_url)
       `)
             .order('created_at', { ascending: false });
         // Filter by status if provided
