@@ -24,7 +24,7 @@
  * @created 2025-01-08 - Phase 5.3
  */
 
-import { useOptimistic, useTransition, useCallback, useState } from 'react';
+import { useOptimistic, useTransition, useCallback, useState, useEffect } from 'react';
 
 export interface UseOptimisticRatingOptions {
   /**
@@ -89,6 +89,11 @@ export function useOptimisticRating(
   // Track the confirmed server state
   const [confirmedRating, setConfirmedRating] = useState<number | null>(initialRating);
   const [error, setError] = useState<Error | null>(null);
+
+  // Sync confirmedRating when initialRating changes (e.g., after async fetch)
+  useEffect(() => {
+    setConfirmedRating(initialRating);
+  }, [initialRating]);
 
   // React 19 useOptimistic for instant UI updates
   const [optimisticRating, setOptimisticRating] = useOptimistic(

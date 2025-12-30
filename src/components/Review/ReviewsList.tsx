@@ -228,7 +228,10 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
             <div className="review-actions-nightlife">
               {user && onReply && (
                 <button
-                  onClick={() => setReplyingTo(replyingTo === review.id ? null : review.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setReplyingTo(replyingTo === review.id ? null : review.id);
+                  }}
                   className="review-reply-btn-nightlife"
                   aria-label={t('reviewsList.ariaReplyToReview', { author: review.user?.pseudonym || t('reviewsList.anonymous') })}
                 >
