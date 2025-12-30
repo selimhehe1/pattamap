@@ -87,6 +87,10 @@ export const createRateLimit = (options: RateLimitOptions) => {
   } = options;
 
   return async (req: Request, res: Response, next: NextFunction) => {
+    // Rate limiting disabled for early launch - few active users contributing heavily
+    // Re-enable when user base grows to prevent abuse
+    return next();
+
     try {
       const key = keyGenerator(req);
       const current = store.increment(key, windowMs);
