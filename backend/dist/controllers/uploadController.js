@@ -62,7 +62,16 @@ const uploadImages = async (req, res) => {
                     ]
                 }, (error, result) => {
                     if (error) {
-                        reject(error);
+                        // Log detailed Cloudinary error for debugging
+                        logger_1.logger.error('Cloudinary upload callback error:', {
+                            message: error.message,
+                            name: error.name,
+                            http_code: error.http_code,
+                            error_obj: JSON.stringify(error, Object.getOwnPropertyNames(error))
+                        });
+                        // Wrap in Error for consistent handling
+                        const uploadError = new Error(error.message || error.error?.message || `Cloudinary error: ${JSON.stringify(error)}`);
+                        reject(uploadError);
                     }
                     else {
                         resolve({
@@ -110,9 +119,22 @@ const uploadImages = async (req, res) => {
         });
     }
     catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        const errorStack = error instanceof Error ? error.stack : '';
-        logger_1.logger.error('Upload error:', { message: errorMessage, stack: errorStack });
+        // Handle both Error instances and Cloudinary error objects
+        let errorMessage = 'Unknown error';
+        let errorStack = '';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+            errorStack = error.stack || '';
+        }
+        else if (typeof error === 'object' && error !== null) {
+            // Cloudinary returns error objects with message/error properties
+            const cloudinaryError = error;
+            errorMessage = cloudinaryError.message || cloudinaryError.error?.message || JSON.stringify(error);
+        }
+        else if (typeof error === 'string') {
+            errorMessage = error;
+        }
+        logger_1.logger.error('Upload error:', { message: errorMessage, stack: errorStack, rawError: error });
         // Check if Cloudinary is configured
         const cloudinaryConfigured = !!(process.env.CLOUDINARY_CLOUD_NAME &&
             process.env.CLOUDINARY_API_KEY &&
