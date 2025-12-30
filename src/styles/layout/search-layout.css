@@ -93,10 +93,10 @@
 
 /* ===== SEARCH RESULTS CONTAINER ===== */
 
-/* Results Container - Edge-anchored sidebar LEFT (v11.2 Phase 3.1) */
+/* Results Container - Edge-anchored sidebar LEFT (v11.2 Phase 3.2) */
 .search-results-container-nightlife {
   padding: var(--spacing-7) var(--spacing-5);
-  padding-left: 21.5rem; /* 320px sidebar + 24px margin */
+  padding-left: 23.5rem; /* 376px = Sidebar (361px real width) + 15px margin */
   padding-right: var(--spacing-5);
   width: 100%;
   max-width: 100vw; /* Fix #4: prevent overflow */
@@ -105,26 +105,26 @@
   margin: 0 auto;
 }
 
-/* Results Header Bar - Sort & filters (v11.2) */
+/* Results Header Bar - Sort & filters (v11.2 Phase 3.2) */
 .results-header-bar {
-  max-width: calc(100vw - 23rem); /* Sidebar (320px) + margins */
+  max-width: calc(100vw - 25rem); /* Sidebar (376px padding) + margins */
 }
 
 /* ===== RESPONSIVE TABLET ===== */
 
-/* Tablet: Edge-anchored sidebar LEFT (v11.2 Phase 3.1) */
+/* Tablet: Edge-anchored sidebar LEFT (v11.2 Phase 3.2) */
 @media (max-width: 64rem) and (min-width: 48.0625rem) {
   .search-filters-fixed-nightlife {
     width: 17rem; /* 272px - narrower on tablet */
   }
 
   .search-results-container-nightlife {
-    padding-left: 18rem; /* Sidebar (272px) + margin */
+    padding-left: 19.5rem; /* 312px = Sidebar (272px + padding/border ~32px) + 8px margin */
     padding-right: var(--spacing-4);
   }
 
   .results-header-bar {
-    max-width: calc(100vw - 19rem);
+    max-width: calc(100vw - 21rem);
   }
 }
 
