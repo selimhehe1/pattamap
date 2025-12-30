@@ -25,27 +25,50 @@
 
 /* ===== SEARCH FILTERS FIXED SIDEBAR ===== */
 
-/* Fixed Sidebar - Desktop only - RIGHT SIDE (v11.1 fix #6) */
+/* Fixed Sidebar - EDGE-ANCHORED Design (v11.2 Phase 3) */
 .search-filters-fixed-nightlife {
   position: fixed;
-  top: 6.25rem; /* Header height + margin */
-  right: var(--spacing-5); /* 1.25rem - MOVED TO RIGHT */
-  left: auto; /* Override any left positioning */
-  width: 20rem; /* 320px - slightly narrower for better card visibility */
-  max-height: calc(100vh - 7.5rem); /* Full height minus header */
-  overflow-y: auto; /* Scrollable si contenu dépasse */
-  overflow-x: visible; /* Allow autocomplete dropdowns to extend horizontally beyond sidebar */
-  z-index: var(--z-sidebar); /* 10 - Sidebar z-index */
+  top: 6.25rem; /* Header height */
+  right: 0; /* EDGE-ANCHORED: collé au bord droit */
+  left: auto;
+  width: 20rem; /* 320px */
+  height: calc(100vh - 6.25rem); /* Full height from header to bottom */
+  overflow-y: auto;
+  overflow-x: hidden; /* Fix #4: prevent horizontal overflow */
+  z-index: var(--z-sidebar);
+
+  /* Design épuré - intégré au bord */
   background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.8),
-    rgba(26, 0, 51, 0.8)
-  ); /* Dark gradient */
-  border-radius: var(--border-radius-xl); /* 20px */
-  padding: var(--spacing-4); /* 1.5625rem */
-  border: var(--border-width-normal) solid rgba(232, 121, 249, 0.3); /* 2px, pink neon */
-  box-shadow: 0 var(--spacing-2) var(--spacing-8) rgba(0, 0, 0, 0.4); /* 0 8px 32px */
-  backdrop-filter: var(--backdrop-blur-md); /* blur(20px) */
+    180deg,
+    rgba(10, 0, 20, 0.95) 0%,
+    rgba(15, 5, 30, 0.98) 100%
+  );
+  border-radius: 0; /* Pas de border-radius - ancré */
+  border-left: 1px solid rgba(232, 121, 249, 0.25);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  padding: var(--spacing-5);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+}
+
+/* Glow subtil sur le bord gauche */
+.search-filters-fixed-nightlife::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 121, 249, 0.7) 0%,
+    rgba(168, 85, 247, 0.4) 30%,
+    rgba(232, 121, 249, 0.5) 70%,
+    rgba(168, 85, 247, 0.3) 100%
+  );
+  pointer-events: none;
 }
 
 /* Custom Scrollbar pour Sidebar */
@@ -69,37 +92,38 @@
 
 /* ===== SEARCH RESULTS CONTAINER ===== */
 
-/* Results Container - Padding pour fixed sidebar RIGHT (v11.1 fix #6) */
+/* Results Container - Edge-anchored sidebar (v11.2 Phase 3) */
 .search-results-container-nightlife {
-  padding: var(--spacing-7) var(--spacing-5); /* 1.875rem 1.25rem */
-  padding-right: 22rem; /* Space for fixed sidebar on RIGHT (320px + 32px margin) */
-  padding-left: var(--spacing-5); /* Normal left padding */
-  width: 100%; /* Full-width responsive */
-  box-sizing: border-box; /* Ensure padding is included in width */
-  /* max-width supprimé pour full-width */
+  padding: var(--spacing-7) var(--spacing-5);
+  padding-right: 21.5rem; /* 320px sidebar + 24px margin */
+  padding-left: var(--spacing-5);
+  width: 100%;
+  max-width: 100vw; /* Fix #4: prevent overflow */
+  box-sizing: border-box;
+  overflow-x: hidden; /* Fix #4: no horizontal scroll */
   margin: 0 auto;
 }
 
-/* Results Header Bar - Sort bar fix (v11.1.1) */
+/* Results Header Bar - Sort & filters (v11.2) */
 .results-header-bar {
-  max-width: calc(100vw - 24rem); /* Account for sidebar (320px) + margins */
+  max-width: calc(100vw - 23rem); /* Sidebar (320px) + margins */
 }
 
 /* ===== RESPONSIVE TABLET ===== */
 
-/* Tablet: Sidebar width réduite - RIGHT SIDE (v11.1 fix #6) */
+/* Tablet: Edge-anchored sidebar (v11.2) */
 @media (max-width: 64rem) and (min-width: 48.0625rem) {
   .search-filters-fixed-nightlife {
     width: 17rem; /* 272px - narrower on tablet */
   }
 
   .search-results-container-nightlife {
-    padding-right: 18.5rem; /* Adjusted for smaller sidebar on RIGHT (272px + 24px) */
-    padding-left: var(--spacing-4); /* Slightly reduced left padding */
+    padding-right: 18rem; /* Sidebar (272px) + margin */
+    padding-left: var(--spacing-4);
   }
 
   .results-header-bar {
-    max-width: calc(100vw - 20rem); /* Tablet sidebar adjustment */
+    max-width: calc(100vw - 19rem);
   }
 }
 
@@ -1179,6 +1203,26 @@ body[data-theme="light"] .active-filter-chip-value {
   appearance: none;
   background: transparent;
   cursor: pointer;
+}
+
+/* Fix #2 Phase 3: Z-index pour permettre de grab le min slider */
+.age-range-min {
+  pointer-events: none; /* Désactive le body du slider */
+}
+
+.age-range-min::-webkit-slider-thumb {
+  pointer-events: auto; /* Active uniquement le thumb */
+}
+
+.age-range-min::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+/* Hover/active state: le slider survolé passe au-dessus */
+.age-range-input:hover,
+.age-range-input:active,
+.age-range-input:focus {
+  z-index: 10 !important;
 }
 
 /* Webkit (Chrome, Safari, Edge) thumb styles */

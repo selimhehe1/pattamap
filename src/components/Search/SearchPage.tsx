@@ -48,6 +48,8 @@ const SearchPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1); // 🆕 Pagination state
   const [isMobile, setIsMobile] = useState(false); // 🆕 v11.0 - Mobile detection
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🆕 v11.0 - Mobile drawer state
+  const [isSortOpen, setIsSortOpen] = useState(false); // 🆕 v11.2 - Custom sort dropdown
+  const sortDropdownRef = useRef<HTMLDivElement>(null); // 🆕 v11.2 - Click outside handler
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup debounce timeout on unmount
@@ -100,6 +102,23 @@ const SearchPage: React.FC = () => {
       mobileMediaQuery.removeEventListener('change', handleMobileChange);
     };
   }, []);
+
+  // 🆕 v11.2 - Close sort dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    if (isSortOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSortOpen]);
 
   // ⚡ React Query hook with pagination - Retourne une seule page
   const {
@@ -332,40 +351,116 @@ const SearchPage: React.FC = () => {
               )}
             </div>
 
-            {/* Sort dropdown - compact */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <ArrowUpDown size={14} color="#E879F9" />
-              <select
-                value={filters.sort_by}
-                onChange={(e) => handleFilterChange('sort_by', e.target.value)}
+            {/* 🆕 v11.2 - Custom Sort Dropdown (sans VIP) */}
+            <div
+              ref={sortDropdownRef}
+              style={{ position: 'relative' }}
+            >
+              <button
+                onClick={() => !isFetching && setIsSortOpen(!isSortOpen)}
                 disabled={isFetching}
-                className="sort-select-compact"
                 style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  border: '1px solid rgba(232, 121, 249, 0.3)',
-                  borderRadius: '8px',
-                  padding: '6px 28px 6px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: isSortOpen
+                    ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(168, 85, 247, 0.15))'
+                    : 'rgba(10, 0, 20, 0.6)',
+                  border: `1px solid ${isSortOpen ? 'rgba(232, 121, 249, 0.5)' : 'rgba(232, 121, 249, 0.25)'}`,
+                  borderRadius: '10px',
+                  padding: '8px 14px',
                   color: '#E879F9',
                   fontSize: '13px',
                   fontWeight: '500',
-                  cursor: 'pointer',
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23E879F9' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 8px center'
+                  cursor: isFetching ? 'not-allowed' : 'pointer',
+                  opacity: isFetching ? 0.5 : 1,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSortOpen ? '0 0 16px rgba(232, 121, 249, 0.2)' : 'none'
                 }}
               >
-                <option value="relevance" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.relevance', 'Relevance')}</option>
-                <option value="vip" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.vip', 'VIP')}</option>
-                <option value="popularity" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.popular', 'Popular')}</option>
-                <option value="newest" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.newest', 'Newest')}</option>
-                <option value="oldest" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.oldest', 'Oldest')}</option>
-                <option value="name" style={{ background: '#1a1a2e' }}>{t('search.sortOptions.name', 'Name')}</option>
-              </select>
+                <ArrowUpDown size={14} />
+                <span>
+                  {filters.sort_by === 'relevance' && t('search.sortOptions.relevance', 'Relevance')}
+                  {filters.sort_by === 'popularity' && t('search.sortOptions.popular', 'Popular')}
+                  {filters.sort_by === 'newest' && t('search.sortOptions.newest', 'Newest')}
+                  {filters.sort_by === 'oldest' && t('search.sortOptions.oldest', 'Oldest')}
+                  {filters.sort_by === 'name' && t('search.sortOptions.name', 'Name A-Z')}
+                  {!['relevance', 'popularity', 'newest', 'oldest', 'name'].includes(filters.sort_by) && t('search.sortOptions.relevance', 'Relevance')}
+                </span>
+                <ChevronDown
+                  size={14}
+                  style={{
+                    transform: isSortOpen ? 'rotate(180deg)' : 'rotate(0)',
+                    transition: 'transform 0.2s ease'
+                  }}
+                />
+              </button>
+
+              {/* Dropdown menu */}
+              {isSortOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 8px)',
+                    right: 0,
+                    minWidth: '160px',
+                    background: 'linear-gradient(180deg, rgba(15, 5, 30, 0.98), rgba(10, 0, 20, 0.98))',
+                    border: '1px solid rgba(232, 121, 249, 0.3)',
+                    borderRadius: '12px',
+                    padding: '6px',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(232, 121, 249, 0.15)',
+                    zIndex: 100,
+                    backdropFilter: 'blur(16px)'
+                  }}
+                >
+                  {[
+                    { value: 'relevance', label: t('search.sortOptions.relevance', 'Relevance') },
+                    { value: 'popularity', label: t('search.sortOptions.popular', 'Popular') },
+                    { value: 'newest', label: t('search.sortOptions.newest', 'Newest') },
+                    { value: 'oldest', label: t('search.sortOptions.oldest', 'Oldest') },
+                    { value: 'name', label: t('search.sortOptions.name', 'Name A-Z') }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        handleFilterChange('sort_by', option.value);
+                        setIsSortOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                        padding: '10px 12px',
+                        background: filters.sort_by === option.value
+                          ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(168, 85, 247, 0.15))'
+                          : 'transparent',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: filters.sort_by === option.value ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '13px',
+                        fontWeight: filters.sort_by === option.value ? '600' : '400',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        textAlign: 'left'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (filters.sort_by !== option.value) {
+                          e.currentTarget.style.background = 'rgba(232, 121, 249, 0.1)';
+                          e.currentTarget.style.color = '#E879F9';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (filters.sort_by !== option.value) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)';
+                        }
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
