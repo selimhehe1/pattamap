@@ -90,6 +90,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   const [isFreelanceMode, setIsFreelanceMode] = useState(false);
   const [selectedNightclubs, setSelectedNightclubs] = useState<string[]>([]);
 
+  // Freelance warning dialog state (v10.4: UX improvement)
+  const [showFreelanceWarning, setShowFreelanceWarning] = useState(false);
+  const [warningEstablishment, setWarningEstablishment] = useState<Establishment | null>(null);
+
   useEffect(() => {
     const fetchEstablishments = async () => {
       try {
@@ -199,6 +203,46 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
   const restoreExistingPhoto = (photoUrl: string) => {
     setPhotosToRemove(prev => prev.filter(url => url !== photoUrl));
+  };
+
+  // v10.4: Handle freelance mode switch with warning for non-nightclub establishments
+  const handleFreelanceModeChange = (checked: boolean) => {
+    if (checked && formData.current_establishment_id) {
+      const currentEst = establishments.find(e => e.id === formData.current_establishment_id);
+
+      if (currentEst) {
+        if (currentEst.category?.name === 'Nightclub') {
+          // CAS 1: Nightclub → garder comme premier nightclub freelance (pas de warning)
+          setIsFreelanceMode(true);
+          setSelectedNightclubs([currentEst.id]);
+          setFormData(prev => ({ ...prev, current_establishment_id: '' }));
+          return;
+        } else {
+          // CAS 2: Non-Nightclub (Bar, etc.) → demander confirmation
+          setWarningEstablishment(currentEst);
+          setShowFreelanceWarning(true);
+          return;
+        }
+      }
+    }
+
+    // CAS 3: Pas d'établissement ou désactivation → basculer directement
+    setIsFreelanceMode(checked);
+    if (!checked) {
+      setSelectedNightclubs([]);
+    }
+  };
+
+  const handleConfirmFreelanceSwitch = () => {
+    setIsFreelanceMode(true);
+    setFormData(prev => ({ ...prev, current_establishment_id: '' }));
+    setShowFreelanceWarning(false);
+    setWarningEstablishment(null);
+  };
+
+  const handleCancelFreelanceSwitch = () => {
+    setShowFreelanceWarning(false);
+    setWarningEstablishment(null);
   };
 
   const uploadPhotos = async () => {
@@ -542,14 +586,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
               <input
                 type="checkbox"
                 checked={isFreelanceMode}
-                onChange={(e) => {
-                  setIsFreelanceMode(e.target.checked);
-                  if (e.target.checked) {
-                    setFormData(prev => ({ ...prev, current_establishment_id: '' }));
-                  } else {
-                    setSelectedNightclubs([]);
-                  }
-                }}
+                onChange={(e) => handleFreelanceModeChange(e.target.checked)}
               />
               <span><Users size={14} style={iconStyle} /> Freelance Mode</span>
             </label>
@@ -750,6 +787,100 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             )}
           </button>
         </div>
+
+        {/* v10.4: Freelance Mode Warning Dialog */}
+        {showFreelanceWarning && warningEstablishment && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+              border: '2px solid rgba(157, 78, 221, 0.5)',
+              borderRadius: '16px',
+              padding: '24px',
+              maxWidth: '450px',
+              width: '90%',
+              boxShadow: '0 20px 60px rgba(157, 78, 221, 0.3)'
+            }}>
+              <h3 style={{
+                margin: '0 0 16px 0',
+                color: '#FFD700',
+                fontSize: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <AlertTriangle size={20} /> Changement vers mode Freelance
+              </h3>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                margin: '0 0 12px 0'
+              }}>
+                Un freelance ne peut travailler <strong style={{ color: '#C77DFF' }}>qu'en Nightclub</strong>.
+              </p>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                margin: '0 0 20px 0'
+              }}>
+                L'association avec <strong style={{ color: '#00E5FF' }}>{warningEstablishment.name}</strong>{' '}
+                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>({warningEstablishment.category?.name})</span>{' '}
+                sera supprimée.
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  type="button"
+                  onClick={handleCancelFreelanceSwitch}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'transparent',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <X size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmFreelanceSwitch}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'linear-gradient(45deg, #9D4EDD, #C77DFF)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Check size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Confirmer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );
