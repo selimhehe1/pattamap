@@ -87,9 +87,6 @@ export const createRateLimit = (options: RateLimitOptions) => {
   } = options;
 
   return async (req: Request, res: Response, next: NextFunction) => {
-    // TEMPORARY: Global rate limit bypass for testing - remove after debugging
-    return next();
-
     try {
       const key = keyGenerator(req);
       const current = store.increment(key, windowMs);
