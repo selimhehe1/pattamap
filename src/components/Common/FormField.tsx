@@ -65,6 +65,8 @@ interface FormFieldProps {
   autoComplete?: string;
   /** Test ID for E2E testing */
   testId?: string;
+  /** Right icon element (e.g., password visibility toggle) */
+  rightIcon?: React.ReactNode;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -86,7 +88,8 @@ const FormField: React.FC<FormFieldProps> = ({
   className = '',
   helpText,
   autoComplete,
-  testId
+  testId,
+  rightIcon
 }) => {
   const hasError = !!error;
   const isValid = status === 'valid' && !hasError;
@@ -173,6 +176,11 @@ const FormField: React.FC<FormFieldProps> = ({
 
       <div className="form-field-input-wrapper">
         {renderInput()}
+        {rightIcon && (
+          <div className="form-field-right-icon">
+            {rightIcon}
+          </div>
+        )}
         <div className="form-field-status-icon">
           {getStatusIcon()}
         </div>
@@ -241,6 +249,17 @@ const FormField: React.FC<FormFieldProps> = ({
         /* Input Wrapper (for status icon positioning) */
         .form-field-input-wrapper {
           position: relative;
+        }
+
+        /* Right Icon (e.g., password toggle) */
+        .form-field-right-icon {
+          position: absolute;
+          right: 40px;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          z-index: 1;
         }
 
         /* Status Icons */
