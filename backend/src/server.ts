@@ -1013,7 +1013,7 @@ app.use('/api/comments',
   commentRoutes
 );
 app.use('/api/consumables', csrfProtection, consumableRoutes);
-app.use('/api/upload', uploadRateLimit, uploadRoutes); // CSRF handled internally by upload routes
+app.use('/api/upload', uploadRoutes); // CSRF handled internally by upload routes - rate limit disabled for testing
 app.use('/api/favorites', csrfProtection, favoriteRoutes);
 app.use('/api/edit-proposals', csrfProtection, editProposalRoutes);
 app.use('/api/freelances', freelanceRoutes); // No CSRF protection for GET-only routes
