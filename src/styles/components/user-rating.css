@@ -76,29 +76,32 @@
 }
 
 .edit-rating-btn-nightlife {
-  background: rgba(232, 121, 249, 0.15);
-  border: 2px solid rgba(232, 121, 249, 0.5);
-  color: #D4AF37;
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--border-radius-md);
+  background: transparent;
+  border: 1.5px solid var(--color-gold, #D4AF37);
+  color: var(--color-gold, #D4AF37);
+  padding: 8px 16px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   font-weight: 600;
-  transition: var(--transition-base);
+  transition: all 0.3s ease;
   min-height: var(--tap-target-min);
-  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .edit-rating-btn-nightlife:hover {
-  background: rgba(232, 121, 249, 0.25);
-  border-color: #D4AF37;
-  color: var(--color-gold);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(232, 121, 249, 0.4);
+  background: var(--color-gold, #D4AF37);
+  color: #1a1a2e;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  transform: translateY(-1px);
 }
 
 .edit-rating-btn-nightlife:focus-visible {
-  outline: 2px solid var(--color-secondary);
+  outline: 2px solid var(--color-gold, #D4AF37);
   outline-offset: 2px;
 }
 

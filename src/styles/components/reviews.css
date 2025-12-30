@@ -212,23 +212,30 @@
 /* ===== ACTION BUTTONS ===== */
 
 .review-reply-btn-nightlife {
-  background: none;
-  border: none;
-  color: var(--color-secondary);
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--color-secondary, #00E5FF);
+  padding: 6px 12px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  transition: var(--transition-base);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s ease;
   min-height: var(--tap-target-min);
-  padding: var(--spacing-2) var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .review-reply-btn-nightlife:hover {
-  color: var(--color-text);
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--color-secondary, #00E5FF);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .review-reply-btn-nightlife:focus-visible {
-  outline: 2px solid var(--color-secondary);
+  outline: 2px solid var(--color-secondary, #00E5FF);
   outline-offset: 2px;
 }
 
