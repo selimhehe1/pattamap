@@ -113,10 +113,19 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
 
   // Vérifier que les tokens existent
   if (!sessionToken) {
-    logger.warn('CSRF validation failed', { reason: 'session_token_missing' });
+    logger.warn('CSRF validation failed', {
+      reason: 'session_token_missing',
+      sessionId: req.sessionID,
+      hasSession: !!req.session,
+      sessionKeys: req.session ? Object.keys(req.session) : []
+    });
     return res.status(403).json({
       error: 'CSRF session token missing',
-      code: 'CSRF_SESSION_MISSING'
+      code: 'CSRF_SESSION_MISSING',
+      debug: {
+        sessionId: req.sessionID?.substring(0, 8) + '...',
+        hint: 'Session may have expired or cookies not sent'
+      }
     });
   }
 
@@ -142,10 +151,20 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
 
     const isValid = crypto.timingSafeEqual(Buffer.from(sessionToken), Buffer.from(requestToken as string));
     if (!isValid) {
-      logger.warn('CSRF validation failed', { reason: 'token_content_mismatch' });
+      logger.warn('CSRF validation failed', {
+        reason: 'token_content_mismatch',
+        sessionId: req.sessionID,
+        sessionTokenPreview: sessionToken.substring(0, 8) + '...',
+        requestTokenPreview: String(requestToken).substring(0, 8) + '...'
+      });
       return res.status(403).json({
         error: 'CSRF token mismatch',
-        code: 'CSRF_TOKEN_INVALID'
+        code: 'CSRF_TOKEN_INVALID',
+        debug: {
+          sessionId: req.sessionID?.substring(0, 8) + '...',
+          expected: sessionToken.substring(0, 8) + '...',
+          received: String(requestToken).substring(0, 8) + '...'
+        }
       });
     }
   } catch (error) {

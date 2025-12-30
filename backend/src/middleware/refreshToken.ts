@@ -188,25 +188,41 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
       .eq('token_hash', tokenHash);
 
     // Set new cookies with cross-subdomain support
-    // Access token cookie (short-lived)
-    res.cookie('auth-token', accessToken, {
+    // 🔧 FIX: Only set domain when COOKIE_DOMAIN is a valid non-empty string
+    const authCookieOptions: {
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite: 'none' | 'lax' | 'strict';
+      maxAge: number;
+      path: string;
+      domain?: string;
+    } = {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
       maxAge: 15 * 60 * 1000, // 15 minutes
-      path: '/',
-      domain: COOKIE_DOMAIN
-    });
+      path: '/'
+    };
 
-    // Refresh token cookie (long-lived)
-    res.cookie('refresh-token', newRefreshToken, {
+    const refreshCookieOptions: typeof authCookieOptions = {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-      domain: COOKIE_DOMAIN
-    });
+      path: '/'
+    };
+
+    // 🔧 FIX: Temporarily disable domain setting - causes "option domain is invalid" errors
+    // if (COOKIE_DOMAIN && typeof COOKIE_DOMAIN === 'string' && COOKIE_DOMAIN.trim().length > 0) {
+    //   authCookieOptions.domain = COOKIE_DOMAIN.trim();
+    //   refreshCookieOptions.domain = COOKIE_DOMAIN.trim();
+    // }
+
+    // Access token cookie (short-lived)
+    res.cookie('auth-token', accessToken, authCookieOptions);
+
+    // Refresh token cookie (long-lived)
+    res.cookie('refresh-token', newRefreshToken, refreshCookieOptions);
 
     res.json({
       message: 'Token refreshed successfully',

@@ -20,12 +20,12 @@ export const getComments = async (req: AuthRequest, res: Response) => {
 
     // 🔧 Get ALL comments (parents + replies) but exclude ratings
     // Comments have rating = null, ratings have rating != null
+    // Note: comment_photos table may not exist in all environments, so we query separately
     const { data: comments, error } = await supabase
       .from('comments')
       .select(`
         *,
-        user:users(pseudonym),
-        photos:comment_photos(id, photo_url, cloudinary_public_id, display_order)
+        user:users(pseudonym)
       `)
       .eq('employee_id', employee_id)
       .eq('status', status)
@@ -38,11 +38,10 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     }
 
     // 🔧 Map parent_comment_id → parent_id for frontend compatibility
-    // Also sort photos by display_order
     const mappedComments = comments?.map(comment => ({
       ...comment,
       parent_id: comment.parent_comment_id,
-      photos: (comment.photos || []).sort((a: any, b: any) => a.display_order - b.display_order)
+      photos: [] // Photos feature disabled until comment_photos table is created
     })) || [];
 
     logger.debug('🔧 BACKEND - getComments result:');

@@ -335,14 +335,28 @@ export const register = async (req: Request, res: Response) => {
       );
 
       // Set secure httpOnly cookie
-      res.cookie('auth-token', token, {
+      // 🔧 FIX: Only set domain when COOKIE_DOMAIN is a valid non-empty string
+      const registerCookieOptions: {
+        httpOnly: boolean;
+        secure: boolean;
+        sameSite: 'none' | 'lax' | 'strict';
+        maxAge: number;
+        path: string;
+        domain?: string;
+      } = {
         httpOnly: true,
         secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
         sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        path: '/',
-        domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
-      });
+        path: '/'
+      };
+
+      // 🔧 FIX: Temporarily disable domain setting - causes "option domain is invalid" errors
+      // if (COOKIE_DOMAIN && typeof COOKIE_DOMAIN === 'string' && COOKIE_DOMAIN.trim().length > 0) {
+      //   registerCookieOptions.domain = COOKIE_DOMAIN.trim();
+      // }
+
+      res.cookie('auth-token', token, registerCookieOptions);
 
       // 🔧 CSRF FIX v2: Regenerate CSRF token AFTER auth to ensure session synchronization
       // Non-blocking save - register succeeds even if session store fails
@@ -463,14 +477,29 @@ export const login = async (req: Request, res: Response) => {
     );
 
     // Set secure httpOnly cookie
-    res.cookie('auth-token', token, {
+    // 🔧 FIX: Only set domain when COOKIE_DOMAIN is a valid non-empty string
+    const cookieOptions: {
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite: 'none' | 'lax' | 'strict';
+      maxAge: number;
+      path: string;
+      domain?: string;
+    } = {
       httpOnly: true,
       secure: COOKIES_SECURE, // HTTPS required (production or COOKIES_SECURE=true in dev)
       sameSite: COOKIE_SAME_SITE, // 🔧 FIX: 'none' for cross-subdomain in production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      path: '/',
-      domain: COOKIE_DOMAIN // 🔧 FIX: Share across subdomains (.pattamap.com)
-    });
+      path: '/'
+    };
+
+    // 🔧 FIX: Temporarily disable domain setting - causes "option domain is invalid" errors
+    // Cross-subdomain cookies will be handled by browser (sameSite=none + secure)
+    // if (COOKIE_DOMAIN && typeof COOKIE_DOMAIN === 'string' && COOKIE_DOMAIN.trim().length > 0) {
+    //   cookieOptions.domain = COOKIE_DOMAIN.trim();
+    // }
+
+    res.cookie('auth-token', token, cookieOptions);
 
     // 🔧 CSRF FIX: Regenerate CSRF token AFTER auth (same as register)
     // Non-blocking save - login succeeds even if session store fails
@@ -502,11 +531,7 @@ export const login = async (req: Request, res: Response) => {
     logger.error('Login error:', error);
     return res.status(500).json({
       error: 'Login failed',
-      code: 'INTERNAL_ERROR',
-      debug: {
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : undefined
-      }
+      code: 'INTERNAL_ERROR'
     });
   }
 };
@@ -675,8 +700,8 @@ export const logout = async (req: AuthRequest, res: Response) => {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
-      path: '/',
-      domain: COOKIE_DOMAIN
+      path: '/'
+      // domain temporarily disabled - see login fix
     });
 
     res.json({
@@ -1004,16 +1029,16 @@ export const logoutAll = async (req: AuthRequest, res: Response) => {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
-      path: '/',
-      domain: COOKIE_DOMAIN
+      path: '/'
+      // domain temporarily disabled - see login fix
     });
 
     res.clearCookie('refresh-token', {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
-      path: '/',
-      domain: COOKIE_DOMAIN
+      path: '/'
+      // domain temporarily disabled - see login fix
     });
 
     logger.info('User logged out from all devices', {
