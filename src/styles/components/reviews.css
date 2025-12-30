@@ -355,22 +355,22 @@
 }
 
 .reply-submit-btn {
-  padding: var(--spacing-2) var(--spacing-4);
-  background: linear-gradient(45deg, var(--color-primary), var(--color-primary-light));
-  color: var(--color-text-inverse);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--color-secondary, #00E5FF), #00B8D4);
+  color: #1a1a2e;
   border: none;
-  border-radius: var(--border-radius-md);
+  border-radius: 20px;
   cursor: pointer;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: 600;
   transition: var(--transition-base);
   min-height: var(--tap-target-min);
-  opacity: 1;
+  box-shadow: 0 3px 12px rgba(0, 229, 255, 0.3);
 }
 
 .reply-submit-btn:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 5px 20px rgba(0, 229, 255, 0.5);
 }
 
 .reply-submit-btn:focus-visible:not(.disabled) {
