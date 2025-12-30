@@ -7,8 +7,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../../../hooks/useSecureFetch';
 import { useCSRF } from '../../../../contexts/CSRFContext';
+import { useEstablishments } from '../../../../hooks';
 import { logger } from '../../../../utils/logger';
-import type { Employee, CloudinaryUploadResponse } from '../../../../types';
+import type { Employee, CloudinaryUploadResponse, Establishment } from '../../../../types';
 import type {
   InternalFormData,
   FormSocialMedia,
@@ -26,6 +27,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   const { t } = useTranslation();
   const { secureFetch } = useSecureFetch();
   const { refreshToken } = useCSRF();
+  const { data: establishments = [] } = useEstablishments();
 
   // Form data
   const [formData, setFormData] = useState<InternalFormData>(INITIAL_FORM_DATA);
@@ -39,6 +41,10 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   const [errors, setErrors] = useState<FormErrors>(INITIAL_ERRORS);
   const [isFreelanceMode, setIsFreelanceMode] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+
+  // Freelance warning state
+  const [showFreelanceWarning, setShowFreelanceWarning] = useState(false);
+  const [warningEstablishment, setWarningEstablishment] = useState<Establishment | null>(null);
 
   // Initialize form with existing data
   useEffect(() => {
@@ -105,10 +111,42 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   }, []);
 
   const handleFreelanceModeChange = useCallback((isFreelance: boolean) => {
+    // When switching TO freelance mode, check if current establishment is a non-Nightclub
+    if (isFreelance && formData.current_establishment_id) {
+      const currentEst = establishments.find((e: Establishment) => e.id === formData.current_establishment_id);
+
+      if (currentEst) {
+        if (currentEst.category?.name === 'Nightclub') {
+          // Nightclub OK → keep association and switch to freelance
+          setIsFreelanceMode(true);
+          return;
+        } else {
+          // Non-Nightclub (Bar, etc.) → show warning dialog
+          setWarningEstablishment(currentEst);
+          setShowFreelanceWarning(true);
+          return;
+        }
+      }
+    }
+
+    // Default: just toggle the mode
     setIsFreelanceMode(isFreelance);
     if (!isFreelance) {
       setFormData(prev => ({ ...prev, current_establishment_id: '' }));
     }
+  }, [formData.current_establishment_id, establishments]);
+
+  // Freelance warning handlers
+  const handleConfirmFreelanceSwitch = useCallback(() => {
+    setIsFreelanceMode(true);
+    setFormData(prev => ({ ...prev, current_establishment_id: '' }));
+    setShowFreelanceWarning(false);
+    setWarningEstablishment(null);
+  }, []);
+
+  const handleCancelFreelanceSwitch = useCallback(() => {
+    setShowFreelanceWarning(false);
+    setWarningEstablishment(null);
   }, []);
 
   // Photo handlers
@@ -284,6 +322,12 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     errors,
     isFreelanceMode,
     uploadingPhotos,
+    // Freelance warning
+    showFreelanceWarning,
+    warningEstablishment,
+    handleConfirmFreelanceSwitch,
+    handleCancelFreelanceSwitch,
+    // Handlers
     handleInputChange,
     handleNationalityChange,
     handleLanguagesChange,
