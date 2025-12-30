@@ -434,6 +434,22 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
       return res.status(500).json({ error: 'Failed to create ownership' });
     }
 
+    // BUG FIX: Update establishment status to 'approved' if it was pending
+    // This ensures newly created establishments become visible after approval
+    const { error: estUpdateError } = await supabase
+      .from('establishments')
+      .update({
+        status: 'approved',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', request.establishment_id)
+      .eq('status', 'pending'); // Only update if currently pending (claim won't change already approved)
+
+    if (estUpdateError) {
+      logger.warn('Failed to update establishment status:', estUpdateError);
+      // Don't fail the request - ownership was already created successfully
+    }
+
     // Update request status
     const { data: updatedRequest, error: updateError } = await supabase
       .from('establishment_ownership_requests')
