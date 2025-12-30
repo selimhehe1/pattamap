@@ -3,6 +3,8 @@
  * Common utility functions for Admin components
  */
 
+import { getZoneLabel } from '../../../utils/constants';
+
 /**
  * Debounce utility function for search optimization
  * @param func - Function to debounce
@@ -51,18 +53,10 @@ export const formatDateShort = (dateString: string): string => {
 /**
  * Get zone display name
  * @param zone - Zone code
- * @returns Human-readable zone name
+ * @returns Human-readable zone name (uses centralized getZoneLabel)
  */
 export const getZoneDisplayName = (zone?: string): string => {
-  const zoneNames: Record<string, string> = {
-    soi6: 'Soi 6',
-    walkingstreet: 'Walking Street',
-    beachroad: 'Beach Road',
-    lkmetro: 'LK Metro',
-    treetown: 'Tree Town',
-    soibuakhao: 'Soi Buakhao'
-  };
-  return zone ? zoneNames[zone] || zone : 'N/A';
+  return zone ? getZoneLabel(zone) : 'N/A';
 };
 
 /**

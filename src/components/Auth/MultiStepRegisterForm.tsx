@@ -14,12 +14,15 @@ import NationalityTagsInput from '../Forms/NationalityTagsInput';
 import { Employee } from '../../types';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
+import { getZoneLabel } from '../../utils/constants';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 
 interface MultiStepRegisterFormProps {
   onClose: () => void;
   onSwitchToLogin: () => void;
+  /** When true, renders without modal overlay (for use in split-screen layout) */
+  embedded?: boolean;
 }
 
 interface FormData {
@@ -68,7 +71,8 @@ interface FormData {
  */
 const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   onClose,
-  onSwitchToLogin
+  onSwitchToLogin,
+  embedded = false
 }) => {
   const { t } = useTranslation();
   const { register, claimEmployeeProfile } = useAuth();
@@ -129,15 +133,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // Filter establishments by search query and group by zone
   const filterEstablishmentsByQuery = (query: string) => {
-    const zoneNames: Record<string, string> = {
-      soi6: 'Soi 6',
-      walkingstreet: 'Walking Street',
-      beachroad: 'Beach Road',
-      lkmetro: 'LK Metro',
-      treetown: 'Tree Town',
-      soibuakhao: 'Soi Buakhao'
-    };
-
     // Filter establishments with zone only
     let filtered = establishments.filter(est => est.zone);
 
@@ -162,12 +157,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
     });
 
-    // Sort zones alphabetically
+    // Sort zones alphabetically (using centralized getZoneLabel)
     const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-      (zoneNames[a] || a).localeCompare(zoneNames[b] || b)
+      getZoneLabel(a).localeCompare(getZoneLabel(b))
     );
 
-    return { groupedByZone, sortedZones, zoneNames };
+    return { groupedByZone, sortedZones };
   };
   const { data: employeeSearchResults, isLoading: isLoadingEmployees } = useEmployeeSearch({
     q: searchQuery || undefined,
@@ -560,9 +555,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     ? (currentStep / 3) * 100
     : currentStep === 1 ? 50 : 100;
 
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="multistep-register-modal">
-      <div className="modal-content-unified modal--large">
+  // Form content (shared between embedded and standalone modes)
+  const formContent = (
+    <div className={embedded ? "auth-form-register-content" : "modal-content-unified modal--large"}>
+      {/* Close button only shown in standalone mode */}
+      {!embedded && (
         <button
           onClick={handleClose}
           className="modal-close-btn"
@@ -571,6 +568,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         >
           ×
         </button>
+      )}
 
         {/* Header */}
         <div className="modal-header">
@@ -1105,7 +1103,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
                     {/* Suggestions Dropdown */}
                     {showSuggestionsStep2 && (() => {
-                      const { groupedByZone, sortedZones, zoneNames } = filterEstablishmentsByQuery(establishmentSearchStep2);
+                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(establishmentSearchStep2);
                       const hasResults = sortedZones.length > 0;
 
                       return hasResults ? (
@@ -1121,7 +1119,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 fontWeight: 'bold',
                                 borderBottom: '1px solid rgba(255,255,255,0.1)'
                               }}>
-                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{zoneNames[zone] || zone}
+                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
                               </div>
                               {/* Establishments in Zone */}
                               {groupedByZone[zone].map(est => (
@@ -2001,7 +1999,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
                     {/* Suggestions Dropdown */}
                     {showSuggestionsStep4 && (() => {
-                      const { groupedByZone, sortedZones, zoneNames } = filterEstablishmentsByQuery(establishmentSearchStep4);
+                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(establishmentSearchStep4);
                       const hasResults = sortedZones.length > 0;
 
                       return hasResults ? (
@@ -2017,7 +2015,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 fontWeight: 'bold',
                                 borderBottom: '1px solid rgba(255,255,255,0.1)'
                               }}>
-                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{zoneNames[zone] || zone}
+                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
                               </div>
                               {/* Establishments in Zone */}
                               {groupedByZone[zone].map(est => (
@@ -2196,6 +2194,17 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           </div>
         </form>
       </div>
+  );
+
+  // If embedded (used in split-screen layout), return just the form content
+  if (embedded) {
+    return formContent;
+  }
+
+  // Standalone mode: wrap in overlay
+  return (
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="multistep-register-modal">
+      {formContent}
     </div>
   );
 };

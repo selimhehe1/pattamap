@@ -99,15 +99,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
   // 🏢 Filter establishments by search query and group by zone
   const filterEstablishmentsByQuery = React.useCallback((query: string) => {
-    const zoneNames: Record<string, string> = {
-      soi6: 'Soi 6',
-      walkingstreet: 'Walking Street',
-      beachroad: 'Beach Road',
-      lkmetro: 'LK Metro',
-      treetown: 'Tree Town',
-      soibuakhao: 'Soi Buakhao'
-    };
-
     // Filter establishments by selected zone if any
     let filtered = filters.zone
       ? availableFilters.establishments.filter(est => est.zone === filters.zone)
@@ -134,12 +125,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
     });
 
-    // Sort zones alphabetically
+    // Sort zones alphabetically (using centralized getZoneLabel)
     const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-      (zoneNames[a] || a).localeCompare(zoneNames[b] || b)
+      getZoneLabel(a).localeCompare(getZoneLabel(b))
     );
 
-    return { groupedByZone, sortedZones, zoneNames };
+    return { groupedByZone, sortedZones };
   }, [filters.zone, availableFilters.establishments]);
 
   // Sort options - Using translations (labels only, icons rendered separately)
@@ -854,7 +845,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               }}
             >
               {(() => {
-                const { groupedByZone, sortedZones, zoneNames } = filteredEstablishments;
+                const { groupedByZone, sortedZones } = filteredEstablishments;
 
                 if (sortedZones.length === 0) {
                   return (
@@ -883,7 +874,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                         borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
                       }}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> {zoneNames[zone] || zone}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> {getZoneLabel(zone)}</span>
                     </div>
 
                     {/* Establishments in Zone */}

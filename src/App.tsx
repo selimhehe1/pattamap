@@ -127,6 +127,35 @@ const PageTracker: React.FC = () => {
  * REFACTORED: Modal management moved to useAppModals hook
  * Modals are now rendered via ModalRenderer automatically
  */
+/**
+ * AppLayout - Inner component that handles conditional header rendering
+ * Must be inside Router to use useLocation
+ */
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+
+  // Hide header on full-page auth routes (login/register have their own layout)
+  const isAuthPage = location.pathname === '/login';
+
+  return (
+    <>
+      {/* Skip to Content - Accessibility */}
+      <SkipToContent />
+
+      {/* Offline Banner - PWA v10.3 */}
+      <OfflineBanner />
+
+      {/* Header global - Hidden on auth pages which have their own layout */}
+      {!isAuthPage && <Header />}
+
+      {/* XP Toast Notifications - Gamification v10.3 */}
+      <XPToastNotifications />
+
+      {children}
+    </>
+  );
+};
+
 const AppContent: React.FC = () => {
   const { user: _user } = useAuth();
 
@@ -148,18 +177,7 @@ const AppContent: React.FC = () => {
       {/* GA4 Page Tracking */}
       <PageTracker />
 
-      {/* Skip to Content - Accessibility */}
-      <SkipToContent />
-
-      {/* Offline Banner - PWA v10.3 */}
-      <OfflineBanner />
-
-      {/* Header global présent sur toutes les pages */}
-      {/* Phase 4.4: Header now uses useAppModals hook directly - no props drilling */}
-      <Header />
-
-      {/* XP Toast Notifications - Gamification v10.3 */}
-      <XPToastNotifications />
+      <AppLayout>
 
       <ErrorBoundary boundaryName="MainRoutes">
         <Suspense fallback={<LoadingFallback message="Loading page..." variant="page" />}>
@@ -231,6 +249,7 @@ const AppContent: React.FC = () => {
           </PageTransition>
         </Suspense>
       </ErrorBoundary>
+      </AppLayout>
 
       {/* 🎯 All modals rendered via ModalRenderer (using ModalContext) */}
       <ModalRenderer />

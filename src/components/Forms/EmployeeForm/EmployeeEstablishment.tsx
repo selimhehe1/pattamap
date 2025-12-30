@@ -7,6 +7,7 @@ import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Store, MapPin, Moon, Building2 } from 'lucide-react';
 import { useEstablishments } from '../../../hooks';
+import { getZoneLabel } from '../../../utils/constants';
 import type { Establishment } from '../../../types';
 
 interface EmployeeEstablishmentProps {
@@ -38,15 +39,6 @@ export function EmployeeEstablishment({
   }, [currentEstablishmentId, establishments]);
 
   const filterEstablishmentsByQuery = useCallback((query: string) => {
-    const zoneNamesMap: Record<string, string> = {
-      soi6: 'Soi 6',
-      walkingstreet: 'Walking Street',
-      beachroad: 'Beach Road',
-      lkmetro: 'LK Metro',
-      treetown: 'Tree Town',
-      soibuakhao: 'Soi Buakhao'
-    };
-
     // Filter establishments with zone
     let filtered = establishments.filter((est: Establishment) => est.zone);
 
@@ -75,13 +67,12 @@ export function EmployeeEstablishment({
       groupedByZone[zone].push(est);
     });
 
-    const sortedZones = Object.keys(groupedByZone).sort((a, b) => {
-      const nameA = zoneNamesMap[a] || a;
-      const nameB = zoneNamesMap[b] || b;
-      return nameA.localeCompare(nameB);
-    });
+    // Sort zones alphabetically (using centralized getZoneLabel)
+    const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
+      getZoneLabel(a).localeCompare(getZoneLabel(b))
+    );
 
-    return { groupedByZone, sortedZones, zoneNames: zoneNamesMap };
+    return { groupedByZone, sortedZones };
   }, [establishments, isFreelanceMode]);
 
   const results = useMemo(
@@ -212,7 +203,7 @@ export function EmployeeEstablishment({
                         borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
                       }}
                     >
-                      <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {results.zoneNames[zone] || zone}
+                      <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {getZoneLabel(zone)}
                     </div>
 
                     {/* Establishments in Zone */}

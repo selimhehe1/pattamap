@@ -69,7 +69,6 @@ const Header: React.FC = () => {
 
   // 🆕 Phase 4.4: Direct modal access via hook (replaces props drilling)
   const {
-    openLoginForm,
     openEmployeeForm,
     openEstablishmentForm,
     handleEditMyProfile,
@@ -569,7 +568,7 @@ const Header: React.FC = () => {
                   <AnimatedButton
                     onClick={() => {
                       setShowUserMenu(false);
-                      openLoginForm();
+                      navigate('/login');
                     }}
                     ariaLabel="Login to your account"
                     tabIndex={0}

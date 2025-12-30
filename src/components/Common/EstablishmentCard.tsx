@@ -4,6 +4,7 @@ import { Building2, MapPin, Users } from 'lucide-react';
 import { use3DTilt } from '../../hooks/use3DTilt';
 import LazyImage from './LazyImage';
 import { Establishment } from '../../types';
+import { getZoneLabel } from '../../utils/constants';
 import '../../styles/components/establishment-card.css';
 
 interface EstablishmentCardProps {
@@ -14,18 +15,6 @@ interface EstablishmentCardProps {
   className?: string;
   variant?: 'default' | 'compact' | 'featured';
 }
-
-// Zone display names
-const zoneNames: Record<string, string> = {
-  soi6: 'Soi 6',
-  walkingstreet: 'Walking Street',
-  lkmetro: 'LK Metro',
-  beachroad: 'Beach Road',
-  thirdroad: 'Third Road',
-  treetown: 'Tree Town',
-  soi7: 'Soi 7',
-  soibuakhao: 'Soi Buakhao',
-};
 
 // Category icons/emojis
 const categoryIcons: Record<string, string> = {
@@ -76,9 +65,9 @@ export const EstablishmentCard = memo<EstablishmentCardProps>(
       categoryIcons[establishment.category_id?.toString() || ''] ||
       '🏢';
 
-    // Get zone display name
+    // Get zone display name (using centralized getZoneLabel)
     const zoneName = establishment.zone
-      ? zoneNames[establishment.zone] || establishment.zone
+      ? getZoneLabel(establishment.zone)
       : '';
 
     // Handle click

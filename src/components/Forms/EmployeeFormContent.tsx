@@ -3,6 +3,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
+import { getZoneLabel } from '../../utils/constants';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from './NationalityTagsInput';
 import { Pencil, Sparkles, Users, FileText, User, AlertTriangle, UserCog, Cake, Globe, Camera, FolderOpen, Music, Building2, MapPin, Check, Lightbulb, Store, Smartphone, X, Upload, Loader2, Save } from 'lucide-react';
@@ -642,16 +643,6 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
             >
               <option value="">Select establishment</option>
               {(() => {
-                // Zone name mapping
-                const zoneNames: Record<string, string> = {
-                  soi6: 'Soi 6',
-                  walkingstreet: 'Walking Street',
-                  beachroad: 'Beach Road',
-                  lkmetro: 'LK Metro',
-                  treetown: 'Tree Town',
-                  soibuakhao: 'Soi Buakhao'
-                };
-
                 // Filter establishments with zone only
                 const establishmentsWithZone = establishments.filter(est => est.zone);
 
@@ -668,15 +659,15 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
                   groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
                 });
 
-                // Sort zones alphabetically
+                // Sort zones alphabetically (using centralized getZoneLabel)
                 const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-                  (zoneNames[a] || a).localeCompare(zoneNames[b] || b)
+                  getZoneLabel(a).localeCompare(getZoneLabel(b))
                 );
 
                 return sortedZones.map(zone => (
                   <optgroup
                     key={zone}
-                    label={zoneNames[zone] || zone}
+                    label={getZoneLabel(zone)}
                   >
                     {groupedByZone[zone].map(est => (
                       <option

@@ -47,7 +47,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigateWithTransition();
   const { user, logout, linkedEmployeeProfile } = useAuth();
   const { userProgress } = useGamification();
-  const { openLoginForm, openEmployeeForm, openEstablishmentForm, handleEditMyProfile, openUserInfoModal } = useAppModals();
+  const { openEmployeeForm, openEstablishmentForm, handleEditMyProfile, openUserInfoModal } = useAppModals();
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -113,8 +113,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
   const handleLogin = useCallback(() => {
     onClose();
-    openLoginForm();
-  }, [openLoginForm, onClose]);
+    navigate('/login');
+  }, [navigate, onClose]);
 
   return (
     <>

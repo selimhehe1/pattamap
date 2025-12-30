@@ -175,7 +175,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
   // Form content (shared between embedded and standalone modes)
   const formContent = (
-    <div className={embedded ? "modal-form-container-embedded" : "modal-content-unified modal--medium"} style={embedded ? {} : lightModeStyles.container}>
+    <div className={embedded ? "auth-form-login-content" : "modal-content-unified modal--medium"} style={embedded ? {} : lightModeStyles.container}>
       {/* Close button only shown in standalone mode (not embedded) */}
       {!embedded && (
         <button

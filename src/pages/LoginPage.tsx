@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useNavigateWithTransition } from '../hooks/useNavigateWithTransition';
 import { Helmet } from '@dr.pogodin/react-helmet';
+import { ArrowLeft } from 'lucide-react';
 import LoginForm from '../components/Auth/LoginForm';
 import MultiStepRegisterForm from '../components/Auth/MultiStepRegisterForm';
+import AuthHero from '../components/Auth/AuthHero';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/auth-pages.css';
+import '../styles/components/auth-hero.css';
 
 /**
  * LoginPage Component
  *
- * Dedicated login page for direct navigation and E2E testing.
- * Provides a full-page login experience with:
- * - LoginForm modal embedded in page
- * - Switch to register functionality
- * - Redirect after successful login
- * - Responsive design
+ * Modern split-screen authentication page with:
+ * - Desktop: Hero section (left) + Form (right)
+ * - Tablet: Stacked layout (hero on top, form below)
+ * - Mobile: Full-screen immersive form with compact branding
+ *
+ * Features:
+ * - Animated hero with branding and feature highlights
+ * - Smooth transitions between login and register forms
+ * - Responsive design with mobile-first approach
+ * - Light/dark mode support
+ * - Accessibility compliant (WCAG 2.1 AA)
  *
  * @example
  * // Route configuration
@@ -31,7 +39,7 @@ const LoginPage: React.FC = () => {
   const [showRegister, setShowRegister] = useState(false);
 
   // Get the redirect path from location state or default to appropriate page
-  const from = (location.state as any)?.from || null;
+  const from = (location.state as { from?: string })?.from || null;
 
   // Redirect if already logged in OR after successful login
   React.useEffect(() => {
@@ -49,8 +57,7 @@ const LoginPage: React.FC = () => {
   }, [user, navigate, from]);
 
   const handleClose = () => {
-    // Navigate back to previous page (or home) when user explicitly closes the form
-    // Note: After successful login, useEffect will redirect before this takes effect
+    // Navigate back to home when user explicitly closes the form
     navigate('/');
   };
 
@@ -68,36 +75,63 @@ const LoginPage: React.FC = () => {
     setShowRegister(false);
   };
 
+  const currentMode = showRegister ? 'register' : 'login';
+
   return (
     <>
       <Helmet>
-        <title>Login - PattaMap</title>
-        <meta name="description" content="Login to access your PattaMap account" />
+        <title>{showRegister ? 'Register' : 'Login'} - PattaMap</title>
+        <meta
+          name="description"
+          content={showRegister
+            ? 'Create your PattaMap account to discover the best Pattaya nightlife venues'
+            : 'Login to access your PattaMap account'
+          }
+        />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="auth-page">
-        <div className="auth-page-background">
-          <div className="auth-page-overlay" />
+      <div className={`auth-layout auth-layout--${currentMode}`}>
+        {/* Back to Home Link */}
+        <Link to="/" className="auth-back-link">
+          <ArrowLeft size={16} />
+          <span>Home</span>
+        </Link>
+
+        {/* Hero Section (Desktop & Tablet only) */}
+        <div className="auth-layout__hero">
+          <AuthHero mode={currentMode} />
         </div>
 
-        <div className="auth-page-content">
-          {!showRegister ? (
-            <div className="auth-page-form-wrapper">
+        {/* Form Section */}
+        <div className="auth-layout__form">
+          {/* Mobile Header (visible only on mobile) */}
+          <div className="auth-mobile-header">
+            <img
+              src="/logo.svg"
+              alt="PattaMap"
+              className="auth-mobile-header__logo"
+            />
+            <span className="auth-mobile-header__title">PattaMap</span>
+          </div>
+
+          {/* Form Container */}
+          <div className="auth-form-container">
+            {!showRegister ? (
               <LoginForm
+                embedded
                 onClose={handleClose}
                 onSwitchToRegister={handleSwitchToRegister}
                 onLoginSuccess={handleLoginSuccess}
               />
-            </div>
-          ) : (
-            <div className="auth-page-form-wrapper">
+            ) : (
               <MultiStepRegisterForm
+                embedded
                 onClose={handleClose}
                 onSwitchToLogin={handleSwitchToLogin}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>

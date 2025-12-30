@@ -17,6 +17,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Establishment } from '../../types';
+import { getZoneLabel } from '../../utils/constants';
 import '../../styles/layout/search-layout.css'; // For .input-nightlife and .autocomplete-dropdown-nightlife
 
 // Custom hook for debounced value
@@ -72,16 +73,6 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     }
   }, [showSuggestions]);
 
-  // Zone names mapping - memoized to prevent dependency issues
-  const zoneNames = useMemo<Record<string, string>>(() => ({
-    soi6: 'Soi 6',
-    walkingstreet: 'Walking Street',
-    beachroad: 'Beach Road',
-    lkmetro: 'LK Metro',
-    treetown: 'Tree Town',
-    soibuakhao: 'Soi Buakhao'
-  }), []);
-
   // Sync input value with selected establishment
   useEffect(() => {
     if (value) {
@@ -117,13 +108,13 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
       groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
     });
 
-    // Sort zones alphabetically
+    // Sort zones alphabetically (using centralized getZoneLabel)
     const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-      (zoneNames[a] || a).localeCompare(zoneNames[b] || b)
+      getZoneLabel(a).localeCompare(getZoneLabel(b))
     );
 
     return { groupedByZone, sortedZones };
-  }, [establishments, debouncedSearchQuery, value, zoneNames]);
+  }, [establishments, debouncedSearchQuery, value]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,7 +238,7 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
                     zIndex: 1
                   }}
                 >
-                  📍 {zoneNames[zone] || zone}
+                  📍 {getZoneLabel(zone)}
                 </div>
 
                 {/* Establishments in this zone */}

@@ -63,6 +63,7 @@ import gamificationRoutes from './routes/gamification';
 import employeeValidationRoutes from './routes/employeeValidation';
 import ownershipRequestRoutes from './routes/ownershipRequests';
 import exportRoutes from './routes/export';
+import publicRoutes from './routes/public';
 import {
   apiRateLimit,
   authRateLimit,
@@ -84,6 +85,54 @@ app.set('trust proxy', 1);
 // Sentry request handler - captures request context
 app.use(sentryRequestMiddleware());
 
+// CORS configuration - Strict whitelist
+// 🔒 MUST run BEFORE Helmet to properly set Access-Control-Allow-Origin
+// 🔒 SECURITY FIX: Fail fast in production if CORS_ORIGIN not configured
+if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+  console.error('❌ FATAL ERROR: CORS_ORIGIN must be set in production');
+  console.error('💡 Set CORS_ORIGIN environment variable with your production domain(s)');
+  console.error('💡 Example: CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com');
+  process.exit(1);
+}
+
+const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'http://localhost:3004',
+  'http://localhost:3005',
+  'http://localhost:3006',
+  'http://localhost:3007',
+  'http://localhost:3008',
+  'http://localhost:5173'
+];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // In development, log blocked origins for debugging
+    if (NODE_ENV === 'development') {
+      console.log(`🚫 CORS blocked origin: ${origin}`);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Accept', 'Origin'],
+  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'X-CSRF-Token'],
+  maxAge: 86400 // 24 hours preflight cache
+};
+
+app.use(cors(corsOptions));
+
 // Security middleware - Helmet.js for HTTP headers
 // 🔒 SECURITY: Conditional CSP - Strict by default, relaxed only for Swagger UI
 app.use((req, res, next) => {
@@ -104,6 +153,7 @@ app.use((req, res, next) => {
         }
       },
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow CORS requests
       hsts: {
         maxAge: 31536000,
         includeSubDomains: true,
@@ -132,6 +182,7 @@ app.use((req, res, next) => {
         }
       },
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow CORS requests
       hsts: {
         maxAge: 31536000,
         includeSubDomains: true,
@@ -164,32 +215,6 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-
-// CORS configuration - Strict whitelist
-// 🔒 SECURITY FIX: Fail fast in production if CORS_ORIGIN not configured
-if (NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
-  console.error('❌ FATAL ERROR: CORS_ORIGIN must be set in production');
-  console.error('💡 Set CORS_ORIGIN environment variable with your production domain(s)');
-  console.error('💡 Example: CORS_ORIGIN=https://pattamap.com,https://www.pattamap.com');
-  process.exit(1);
-}
-
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://localhost:5173'
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'Accept', 'Origin'],
-  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'X-CSRF-Token'],
-  maxAge: 86400 // 24 hours preflight cache
-};
-
-app.use(cors(corsOptions));
 
 // Cookie parser middleware
 app.use(cookieParser());
@@ -1034,6 +1059,7 @@ app.use('/api/admin',
 );
 app.use('/api/ownership-requests', csrfProtection, ownershipRequestRoutes);
 app.use('/api/export', exportRoutes); // Export data to CSV (auth handled in routes)
+app.use('/api/public', publicRoutes); // Public stats (no auth required)
 
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {
