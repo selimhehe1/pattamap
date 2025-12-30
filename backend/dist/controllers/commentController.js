@@ -17,12 +17,13 @@ const getComments = async (req, res) => {
         }
         // 🔧 Get ALL comments (parents + replies) but exclude ratings
         // Comments have rating = null, ratings have rating != null
-        // Note: comment_photos table may not exist in all environments, so we query separately
+        // Include photos from comment_photos table
         const { data: comments, error } = await supabase_1.supabase
             .from('comments')
             .select(`
         *,
-        user:users(pseudonym)
+        user:users(pseudonym),
+        photos:comment_photos(id, photo_url, cloudinary_public_id, display_order)
       `)
             .eq('employee_id', employee_id)
             .eq('status', status)
@@ -33,10 +34,10 @@ const getComments = async (req, res) => {
             return res.status(400).json({ error: (0, validation_1.sanitizeErrorForClient)(error, 'fetch') });
         }
         // 🔧 Map parent_comment_id → parent_id for frontend compatibility
+        // Photos are now included from the Supabase query (comment_photos join)
         const mappedComments = comments?.map(comment => ({
             ...comment,
-            parent_id: comment.parent_comment_id,
-            photos: [] // Photos feature disabled until comment_photos table is created
+            parent_id: comment.parent_comment_id
         })) || [];
         logger_1.logger.debug('🔧 BACKEND - getComments result:');
         logger_1.logger.debug('Total comments:', mappedComments.length);
