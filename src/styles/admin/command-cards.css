@@ -958,8 +958,14 @@
 .cmd-form--inline {
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: stretch;
   gap: var(--spacing-md, 16px) var(--spacing-lg, 24px);
+}
+
+.cmd-form--inline .cmd-form__group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .cmd-form__group {
