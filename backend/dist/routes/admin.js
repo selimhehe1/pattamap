@@ -6,9 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const supabase_1 = require("../config/supabase");
 const auth_1 = require("../middleware/auth");
+const csrf_1 = require("../middleware/csrf");
 const logger_1 = require("../utils/logger");
 const notificationHelper_1 = require("../utils/notificationHelper");
 const gamificationService_1 = require("../services/gamificationService");
+const establishmentOwnerController_1 = require("../controllers/establishmentOwnerController");
 // Type-safe error message extraction
 const getErrorMessage = (error) => {
     if (error instanceof Error)
@@ -571,6 +573,17 @@ router.delete('/establishments/:id', async (req, res) => {
     }
 });
 // ========================================
+// ESTABLISHMENT OWNERS MANAGEMENT
+// ========================================
+// GET /api/admin/establishments/:id/owners - Get all owners of an establishment
+router.get('/establishments/:id/owners', establishmentOwnerController_1.getEstablishmentOwners);
+// POST /api/admin/establishments/:id/owners - Assign owner to establishment
+router.post('/establishments/:id/owners', csrf_1.csrfProtection, establishmentOwnerController_1.assignEstablishmentOwner);
+// DELETE /api/admin/establishments/:id/owners/:userId - Remove owner from establishment
+router.delete('/establishments/:id/owners/:userId', csrf_1.csrfProtection, establishmentOwnerController_1.removeEstablishmentOwner);
+// PATCH /api/admin/establishments/:id/owners/:userId - Update owner permissions
+router.patch('/establishments/:id/owners/:userId', csrf_1.csrfProtection, establishmentOwnerController_1.updateEstablishmentOwnerPermissions);
+// ========================================
 // EMPLOYEES MANAGEMENT
 // ========================================
 // GET /api/admin/employees - Liste des employées pour admin
@@ -653,7 +666,11 @@ router.put('/employees/:id', async (req, res) => {
         logger_1.logger.debug('Employee ID received:', id);
         logger_1.logger.debug('Request Body:', JSON.stringify(req.body, null, 2));
         // Define allowed fields for employee updates
-        const allowedFields = ['name', 'nickname', 'age', 'nationality', 'description', 'photos', 'social_media', 'status', 'self_removal_requested'];
+        const allowedFields = [
+            'name', 'nickname', 'age', 'nationality', 'languages_spoken',
+            'description', 'photos', 'social_media', 'status', 'self_removal_requested',
+            'current_establishment_id', 'is_freelance'
+        ];
         // Check for invalid fields
         const receivedFields = Object.keys(updateData);
         const invalidFields = receivedFields.filter(field => !allowedFields.includes(field));

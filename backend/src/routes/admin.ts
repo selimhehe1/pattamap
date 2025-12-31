@@ -1,11 +1,18 @@
 import express, { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
 import { getVIPTransactions } from '../controllers/vipController';
 import { awardXP } from '../services/gamificationService';
 import { User, EstablishmentCategory } from '../types';
+import {
+  getEstablishmentOwners,
+  assignEstablishmentOwner,
+  removeEstablishmentOwner,
+  updateEstablishmentOwnerPermissions
+} from '../controllers/establishmentOwnerController';
 
 // Type-safe error message extraction
 const getErrorMessage = (error: unknown): string => {
@@ -722,6 +729,22 @@ router.delete('/establishments/:id', async (req, res) => {
 });
 
 // ========================================
+// ESTABLISHMENT OWNERS MANAGEMENT
+// ========================================
+
+// GET /api/admin/establishments/:id/owners - Get all owners of an establishment
+router.get('/establishments/:id/owners', getEstablishmentOwners);
+
+// POST /api/admin/establishments/:id/owners - Assign owner to establishment
+router.post('/establishments/:id/owners', csrfProtection, assignEstablishmentOwner);
+
+// DELETE /api/admin/establishments/:id/owners/:userId - Remove owner from establishment
+router.delete('/establishments/:id/owners/:userId', csrfProtection, removeEstablishmentOwner);
+
+// PATCH /api/admin/establishments/:id/owners/:userId - Update owner permissions
+router.patch('/establishments/:id/owners/:userId', csrfProtection, updateEstablishmentOwnerPermissions);
+
+// ========================================
 // EMPLOYEES MANAGEMENT
 // ========================================
 
@@ -813,7 +836,11 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
     logger.debug('Request Body:', JSON.stringify(req.body, null, 2));
 
     // Define allowed fields for employee updates
-    const allowedFields = ['name', 'nickname', 'age', 'nationality', 'description', 'photos', 'social_media', 'status', 'self_removal_requested'];
+    const allowedFields = [
+      'name', 'nickname', 'age', 'nationality', 'languages_spoken',
+      'description', 'photos', 'social_media', 'status', 'self_removal_requested',
+      'current_establishment_id', 'is_freelance'
+    ];
 
     // Check for invalid fields
     const receivedFields = Object.keys(updateData);
