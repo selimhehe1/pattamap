@@ -350,8 +350,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   };
 
-  // 🚀 OPTIMIZED: Single debounce (in SearchPage) - NO double debouncing
-  // Local state updates immediately, parent handles the debounce
+  // 🚀 Phase 3.5: Search on Enter/Blur only - NO freeze while typing
+  // Local state updates immediately, API call only on Enter or Blur
   const handleSearchInputChange = React.useCallback((value: string) => {
     // ✅ Update local state IMMEDIATELY (0ms lag - instant visual feedback)
     setLocalQuery(value);
@@ -359,9 +359,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     // 🎯 Marquer que l'utilisateur est en train de taper
     wasTypingRef.current = true;
 
-    // ✅ DIRECT call to parent - SearchPage handles the debounce (150ms)
-    // NO additional debounce here to avoid double debouncing
-    onQueryChange(value);
+    // ❌ REMOVED: No longer calling onQueryChange on every keystroke
+    // This was causing 1-second freezes due to API calls
 
     // Cancel previous autocomplete fetch
     if (abortControllerRef.current) {
@@ -383,12 +382,31 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       return;
     }
 
-    // 🎯 REDUCED from 300ms to 200ms - suggestions appear faster
-    // This is independent of search, just for autocomplete dropdown
+    // 🎯 Autocomplete suggestions still work (independent of search)
     debounceTimeoutRef.current = window.setTimeout(() => {
       fetchSuggestions(value);
     }, 200);
-  }, [onQueryChange]);
+  }, []);
+
+  // 🚀 Phase 3.5: Search on Enter key
+  const handleSearchKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onQueryChange(localQuery);
+    }
+  }, [onQueryChange, localQuery]);
+
+  // 🚀 Phase 3.5: Search on blur (only if value changed)
+  const handleSearchBlur = React.useCallback(() => {
+    // Trigger search if query changed
+    if (localQuery !== filters.q) {
+      onQueryChange(localQuery);
+    }
+    // Hide autocomplete after a small delay (for click events)
+    setTimeout(() => {
+      setAutocompleteState(prev => ({ ...prev, visible: false }));
+    }, 150);
+  }, [localQuery, filters.q, onQueryChange]);
 
   // 🎯 Gestion optimisée de sélection - Scheduler optimized
   const handleSuggestionClick = React.useCallback((suggestion: string) => {
@@ -647,6 +665,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           type="text"
           value={localQuery}
           onChange={(e) => handleSearchInputChange(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          onBlur={handleSearchBlur}
           placeholder={t('search.enterName')}
           disabled={loading}
           className="input-nightlife"
@@ -659,11 +679,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             if (autocompleteState.suggestions.length > 0) {
               setAutocompleteState(prev => ({ ...prev, visible: true }));
             }
-          }}
-          onBlur={() => {
-            setTimeout(() => {
-              setAutocompleteState(prev => ({ ...prev, visible: false }));
-            }, 150);
           }}
         />
 
