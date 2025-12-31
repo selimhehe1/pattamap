@@ -23,10 +23,17 @@
 
 .cmd-filters {
   display: flex;
-  gap: var(--spacing-md, 16px);
+  flex-direction: column;
+  gap: var(--spacing-lg, 24px);
   margin-bottom: var(--spacing-xl, 32px);
+}
+
+/* Row layout for search + filters */
+.cmd-filters--row {
+  flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
+  gap: var(--spacing-md, 16px);
 }
 
 .cmd-filters--scroll {

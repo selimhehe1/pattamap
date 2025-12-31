@@ -1575,3 +1575,524 @@ body[data-theme="light"] .arc-reported-overlay {
     font-size: 0.75rem;
   }
 }
+
+/* ==========================================================================
+   USER ADMIN CARD STYLES (.uac-*)
+   Premium fullbleed design with role-based colors
+   ========================================================================== */
+
+/* Base Card Modifier */
+.uac-card {
+  position: relative;
+}
+
+/* Role-based Background Gradients */
+.uac-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.uac-background--admin {
+  background: linear-gradient(
+    135deg,
+    rgba(248, 113, 113, 0.25) 0%,
+    rgba(13, 13, 15, 0.95) 50%,
+    rgba(239, 68, 68, 0.15) 100%
+  );
+}
+
+.uac-background--moderator {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.25) 0%,
+    rgba(13, 13, 15, 0.95) 50%,
+    rgba(245, 158, 11, 0.15) 100%
+  );
+}
+
+.uac-background--user {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.2) 0%,
+    rgba(13, 13, 15, 0.95) 50%,
+    rgba(6, 182, 212, 0.1) 100%
+  );
+}
+
+/* Inactive State */
+.uac-card--inactive {
+  filter: grayscale(40%);
+}
+
+.uac-card--inactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+.uac-inactive-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.uac-inactive-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(107, 114, 128, 0.9);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Current User Highlight */
+.uac-card--current {
+  border: 2px solid var(--color-primary, #E879F9);
+}
+
+.uac-card--current::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.5) 0%,
+    rgba(0, 229, 255, 0.3) 50%,
+    rgba(232, 121, 249, 0.5) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 4px;
+  z-index: -1;
+  animation: currentUserPulse 2s ease-in-out infinite;
+}
+
+@keyframes currentUserPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Avatar Styling (Large Centered Initial) */
+.uac-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -65%);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  z-index: 5;
+  transition: all 0.4s cubic-bezier(0.03, 0.98, 0.52, 0.99);
+}
+
+.uac-avatar--admin {
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.15);
+  box-shadow: 0 0 30px rgba(248, 113, 113, 0.3);
+}
+
+.uac-avatar--moderator {
+  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.15);
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+}
+
+.uac-avatar--user {
+  border-color: rgba(0, 229, 255, 0.5);
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+}
+
+.uac-card:hover .uac-avatar {
+  transform: translate(-50%, -65%) scale(1.1);
+}
+
+.uac-avatar__initial {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 30px currentColor;
+}
+
+.uac-avatar--admin .uac-avatar__initial {
+  color: #F87171;
+}
+
+.uac-avatar--moderator .uac-avatar__initial {
+  color: #FBBF24;
+}
+
+.uac-avatar--user .uac-avatar__initial {
+  color: #00E5FF;
+}
+
+/* Role Badge Colors */
+.uac-role-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 10px;
+  left: auto;
+  right: 12px;
+  top: 12px;
+}
+
+.uac-role-badge--admin {
+  background: rgba(248, 113, 113, 0.9);
+  border-color: #F87171;
+  color: #fff;
+}
+
+.uac-role-badge--moderator {
+  background: rgba(251, 191, 36, 0.9);
+  border-color: #FBBF24;
+  color: #1a1a2e;
+}
+
+.uac-role-badge--user {
+  background: rgba(0, 229, 255, 0.9);
+  border-color: #00E5FF;
+  color: #1a1a2e;
+}
+
+/* User Info Overlay */
+.uac-info-overlay {
+  position: absolute;
+  bottom: 60px;
+  left: 1rem;
+  right: 1rem;
+  text-align: center;
+  z-index: 5;
+}
+
+.uac-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  transition: color 0.3s ease;
+}
+
+.uac-card:hover .uac-name {
+  color: var(--color-primary, #E879F9);
+}
+
+.uac-card--admin:hover .uac-name {
+  color: #F87171;
+}
+
+.uac-card--moderator:hover .uac-name {
+  color: #FBBF24;
+}
+
+.uac-card--user:hover .uac-name {
+  color: #00E5FF;
+}
+
+.uac-email {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uac-joined {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 12px;
+}
+
+/* Stats Row */
+.uac-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.uac-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+}
+
+.uac-stat svg {
+  color: var(--color-gold, #FFD700);
+}
+
+.uac-stat__value {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Footer Styling */
+.uac-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.uac-footer--current {
+  justify-content: center;
+}
+
+/* Role Selector Buttons */
+.uac-role-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.uac-role-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uac-role-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.uac-role-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.uac-role-btn--user:hover:not(:disabled),
+.uac-role-btn--user.uac-role-btn--active {
+  background: rgba(0, 229, 255, 0.3);
+  border-color: #00E5FF;
+  color: #00E5FF;
+}
+
+.uac-role-btn--moderator:hover:not(:disabled),
+.uac-role-btn--moderator.uac-role-btn--active {
+  background: rgba(251, 191, 36, 0.3);
+  border-color: #FBBF24;
+  color: #FBBF24;
+}
+
+.uac-role-btn--admin:hover:not(:disabled),
+.uac-role-btn--admin.uac-role-btn--active {
+  background: rgba(248, 113, 113, 0.3);
+  border-color: #F87171;
+  color: #F87171;
+}
+
+/* Toggle Active Button */
+.uac-toggle-btn {
+  width: 36px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.uac-toggle-btn--danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+.uac-toggle-btn--success {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.uac-toggle-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.uac-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Current User Badge */
+.uac-current-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary, #E879F9);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Neon Border Colors by Role */
+.uac-neon--admin {
+  background: linear-gradient(90deg, #F87171, #EF4444, #F87171) !important;
+}
+
+.uac-neon--moderator {
+  background: linear-gradient(90deg, #FBBF24, #F59E0B, #FBBF24) !important;
+}
+
+.uac-neon--user {
+  background: linear-gradient(90deg, #00E5FF, #06B6D4, #00E5FF) !important;
+}
+
+.uac-neon--inactive {
+  background: linear-gradient(90deg, #6B7280, #4B5563, #6B7280) !important;
+}
+
+/* Light Mode Overrides */
+body[data-theme="light"] .uac-background--admin {
+  background: linear-gradient(
+    135deg,
+    rgba(248, 113, 113, 0.2) 0%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(239, 68, 68, 0.1) 100%
+  );
+}
+
+body[data-theme="light"] .uac-background--moderator {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.2) 0%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(245, 158, 11, 0.1) 100%
+  );
+}
+
+body[data-theme="light"] .uac-background--user {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(6, 182, 212, 0.1) 100%
+  );
+}
+
+body[data-theme="light"] .uac-name {
+  color: #1e1e1e;
+  text-shadow: none;
+}
+
+body[data-theme="light"] .uac-email {
+  color: rgba(30, 30, 30, 0.7);
+}
+
+body[data-theme="light"] .uac-joined {
+  color: rgba(30, 30, 30, 0.5);
+}
+
+body[data-theme="light"] .uac-stat {
+  color: rgba(30, 30, 30, 0.85);
+}
+
+body[data-theme="light"] .uac-stat__value {
+  color: #1e1e1e;
+}
+
+body[data-theme="light"] .uac-role-btn {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme="light"] .uac-avatar {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .uac-avatar__initial {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+body[data-theme="light"] .uac-inactive-badge {
+  background: rgba(107, 114, 128, 0.85);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .uac-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .uac-avatar__initial {
+    font-size: 2.2rem;
+  }
+
+  .uac-name {
+    font-size: 1rem;
+  }
+
+  .uac-info-overlay {
+    bottom: 55px;
+  }
+
+  .uac-stats {
+    gap: 1rem;
+  }
+
+  .uac-stat {
+    font-size: 0.7rem;
+  }
+
+  .uac-role-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .uac-toggle-btn {
+    width: 32px;
+    height: 28px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .uac-avatar,
+  .uac-role-btn,
+  .uac-toggle-btn,
+  .uac-name,
+  .uac-card--current::before {
+    transition: none;
+    animation: none;
+  }
+
+  .uac-card:hover .uac-avatar {
+    transform: translate(-50%, -65%);
+  }
+}

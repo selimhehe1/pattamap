@@ -132,7 +132,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           onClick={handleOverlayClick}
         >
           <motion.div
-            className="modal-premium modal-premium--medium"
+            className="modal-premium modal-premium--large"
             variants={premiumModalVariants}
             initial="hidden"
             animate="visible"
@@ -192,7 +192,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             >
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '150px 1fr',
+                gridTemplateColumns: '140px 1fr',
                 gap: '30px',
                 color: 'white'
               }}>
@@ -418,6 +418,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     onChange={(e) => handleInputChange('pseudonym', e.target.value)}
                     style={{
                       width: '100%',
+                      boxSizing: 'border-box',
                       padding: '10px 15px',
                       borderRadius: '8px',
                       border: '2px solid rgba(0,255,255,0.3)',
@@ -453,6 +454,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     style={{
                       width: '100%',
+                      boxSizing: 'border-box',
                       padding: '10px 15px',
                       borderRadius: '8px',
                       border: '2px solid rgba(0,255,255,0.3)',
@@ -487,6 +489,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     onChange={(e) => handleInputChange('role', e.target.value)}
                     style={{
                       width: '100%',
+                      boxSizing: 'border-box',
                       padding: '10px 15px',
                       borderRadius: '8px',
                       border: '2px solid rgba(0,255,255,0.3)',
@@ -550,6 +553,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     placeholder={t('admin.adminNotesPlaceholder')}
                     style={{
                       width: '100%',
+                      boxSizing: 'border-box',
                       padding: '10px 15px',
                       borderRadius: '8px',
                       border: '2px solid rgba(0,255,255,0.3)',

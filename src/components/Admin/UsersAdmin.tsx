@@ -4,23 +4,21 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import UserAdminCard from './UserAdminCard';
 import { logger } from '../../utils/logger';
 import {
   Crown,
   Shield,
   User,
-  HelpCircle,
   Ban,
   ClipboardList,
   MailX,
-  Loader2,
-  CheckCircle,
-  Pencil,
-  Eye,
   Building2,
   Users,
   MessageSquare,
-  Search
+  Search,
+  CheckCircle,
+  Pencil
 } from 'lucide-react';
 
 // Lazy load EditUserModal for better performance
@@ -169,21 +167,23 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
     });
   };
 
-  const getRoleClass = (role: string) => {
+  // Helper to get role icon
+  const getRoleIcon = (role: string, size: number = 14) => {
     switch (role) {
-      case 'admin': return 'cmd-card__status--rejected';
-      case 'moderator': return 'cmd-card__status--vip';
-      case 'user': return 'cmd-card__status--approved';
-      default: return 'cmd-card__status--pending';
+      case 'admin': return <Crown size={size} />;
+      case 'moderator': return <Shield size={size} />;
+      case 'user': return <User size={size} />;
+      default: return <User size={size} />;
     }
   };
 
-  const getRoleIcon = (role: string) => {
+  // Helper to get role badge class
+  const getRoleBadgeClass = (role: string) => {
     switch (role) {
-      case 'admin': return <Crown size={12} />;
-      case 'moderator': return <Shield size={12} />;
-      case 'user': return <User size={12} />;
-      default: return <HelpCircle size={12} />;
+      case 'admin': return 'uac-role-badge--admin';
+      case 'moderator': return 'uac-role-badge--moderator';
+      case 'user': return 'uac-role-badge--user';
+      default: return '';
     }
   };
 
@@ -268,122 +268,18 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
           <p>{t('admin.noUsersMatch')}</p>
         </div>
       ) : (
-        <div className="cmd-card-grid">
+        <div className="aec-grid">
           {filteredUsers.map((userData) => (
-            <div
+            <UserAdminCard
               key={userData.id}
-              className={`cmd-card ${!userData.is_active ? 'cmd-card--inactive' : ''}`}
-            >
-              {/* Role Badge */}
-              <span className={`cmd-card__status ${getRoleClass(userData.role)}`}>
-                {getRoleIcon(userData.role)} {userData.role.toUpperCase()}
-              </span>
-
-              {/* Inactive Badge */}
-              {!userData.is_active && (
-                <span className="cmd-card__badge cmd-card__badge--error">
-                  INACTIVE
-                </span>
-              )}
-
-              {/* User Avatar */}
-              <div className={`cmd-card__avatar cmd-card__avatar--${userData.role}`}>
-                {userData.pseudonym.charAt(0).toUpperCase()}
-              </div>
-
-              {/* User Info */}
-              <div className="cmd-card__content">
-                <h3 className="cmd-card__title">{userData.pseudonym}</h3>
-                <p className="cmd-card__subtitle">{userData.email}</p>
-
-                <div className="cmd-card__meta">
-                  <span>{t('admin.joined')} {formatDate(userData.created_at)}</span>
-                  {userData.last_login && (
-                    <span>{t('admin.lastLogin')} {formatDate(userData.last_login)}</span>
-                  )}
-                </div>
-
-                {/* User Stats */}
-                {userData.stats && (
-                  <div className="cmd-card__stats">
-                    <div className="cmd-card__stat">
-                      <span className="cmd-card__stat-value cmd-card__stat-value--primary">
-                        {userData.stats.establishments_submitted}
-                      </span>
-                      <span className="cmd-card__stat-label">{t('admin.bars')}</span>
-                    </div>
-                    <div className="cmd-card__stat">
-                      <span className="cmd-card__stat-value cmd-card__stat-value--cyan">
-                        {userData.stats.employees_submitted}
-                      </span>
-                      <span className="cmd-card__stat-label">{t('admin.profiles')}</span>
-                    </div>
-                    <div className="cmd-card__stat">
-                      <span className="cmd-card__stat-value cmd-card__stat-value--gold">
-                        {userData.stats.comments_made}
-                      </span>
-                      <span className="cmd-card__stat-label">{t('admin.reviews')}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              {userData.id !== user.id ? (
-                <div className="cmd-card__footer">
-                  {/* Role Selection */}
-                  <div className="cmd-card__role-buttons">
-                    {['user', 'moderator', 'admin'].map((role) => (
-                      <button
-                        key={role}
-                        onClick={() => handleRoleChange(userData.id, role)}
-                        disabled={processingIds.has(userData.id) || userData.role === role}
-                        className={`cmd-card__role-btn ${userData.role === role ? 'cmd-card__role-btn--active' : ''} cmd-card__role-btn--${role}`}
-                      >
-                        {getRoleIcon(role)} {role}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Active Toggle */}
-                  <button
-                    onClick={() => handleToggleActive(userData.id, userData.is_active)}
-                    disabled={processingIds.has(userData.id)}
-                    className={`cmd-card__action cmd-card__action--full ${userData.is_active ? 'cmd-card__action--danger' : 'cmd-card__action--success'}`}
-                  >
-                    {processingIds.has(userData.id) ? (
-                      <><Loader2 size={14} className="cmd-spin" /> {t('admin.processing')}</>
-                    ) : userData.is_active ? (
-                      <><Ban size={14} /> {t('admin.deactivate')}</>
-                    ) : (
-                      <><CheckCircle size={14} /> {t('admin.activate')}</>
-                    )}
-                  </button>
-
-                  {/* Edit and View */}
-                  <div className="cmd-card__actions">
-                    <button
-                      onClick={() => setEditingUser(userData)}
-                      className="cmd-card__action cmd-card__action--warning"
-                    >
-                      <Pencil size={14} /> {t('common.edit')}
-                    </button>
-                    <button
-                      onClick={() => setSelectedUser(userData)}
-                      className="cmd-card__action cmd-card__action--info"
-                    >
-                      <Eye size={14} /> {t('admin.view')}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="cmd-card__footer cmd-card__footer--centered">
-                  <span className="cmd-card__current-user">
-                    <User size={14} /> {t('admin.thisIsYou')}
-                  </span>
-                </div>
-              )}
-            </div>
+              user={userData}
+              isCurrentUser={userData.id === user.id}
+              isProcessing={processingIds.has(userData.id)}
+              onViewDetails={() => setSelectedUser(userData)}
+              onEdit={() => setEditingUser(userData)}
+              onChangeRole={(role) => handleRoleChange(userData.id, role)}
+              onToggleActive={() => handleToggleActive(userData.id, userData.is_active)}
+            />
           ))}
         </div>
       )}
@@ -427,8 +323,8 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                 <div className="cmd-modal__info-row">
                   <span className="cmd-modal__info-label">{t('admin.role')}</span>
                   <span className="cmd-modal__info-value">
-                    <span className={`cmd-card__status ${getRoleClass(selectedUser.role)}`} style={{ position: 'static' }}>
-                      {getRoleIcon(selectedUser.role)} {selectedUser.role}
+                    <span className={`uac-role-badge ${getRoleBadgeClass(selectedUser.role)}`} style={{ position: 'static', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '12px' }}>
+                      {getRoleIcon(selectedUser.role, 12)} {selectedUser.role.toUpperCase()}
                     </span>
                   </span>
                 </div>
