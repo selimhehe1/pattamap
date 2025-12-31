@@ -206,16 +206,14 @@
    * Utiliser largeur disponible (812px)
    */
   .establishments-grid,
-  .employees-grid,
-  .favorite-cards-grid {
+  .employees-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: var(--spacing-4);
   }
 
   /* Cards plus compactes */
   .establishment-card,
-  .employee-card,
-  .favorite-card-nightlife {
+  .employee-card {
     padding: var(--spacing-3);
   }
 
