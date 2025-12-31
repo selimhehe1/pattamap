@@ -28,9 +28,15 @@ export function EmployeeEstablishment({
 
   const { data: establishments = [] } = useEstablishments();
 
-  // Initialize search with establishment name
+  // Initialize search with establishment name (or clear when empty)
   useEffect(() => {
-    if (currentEstablishmentId && establishments.length > 0) {
+    // Clear search query when establishment is removed
+    if (!currentEstablishmentId) {
+      setSearchQuery('');
+      return;
+    }
+    // Set search query to establishment name when selected
+    if (establishments.length > 0) {
       const est = establishments.find((e: Establishment) => e.id === currentEstablishmentId);
       if (est) {
         setSearchQuery(est.name);
