@@ -30,7 +30,7 @@ export const getFavorites = async (req: Request, res: Response) => {
     }
 
     const employeeIds = (favorites || []).map((fav: FavoriteRecord) => fav.employee_id);
-    logger.warn(`DEBUG: employeeIds to fetch: ${JSON.stringify(employeeIds)}`);
+    console.log('🔍 DEBUG: employeeIds to fetch:', employeeIds);
 
     // Step 2: Batch fetch all employees data
     interface EmployeeData {
@@ -49,9 +49,11 @@ export const getFavorites = async (req: Request, res: Response) => {
       .select('id, name, nickname, age, nationality, photos, description, social_media')
       .in('id', employeeIds.length > 0 ? employeeIds : ['none']);
 
-    logger.warn(`DEBUG: allEmployees fetched: ${allEmployees?.length}, error: ${JSON.stringify(empError)}`);
+    console.log('🔍 DEBUG: allEmployees fetched:', allEmployees?.length, 'error:', empError);
     if (allEmployees && allEmployees.length > 0) {
-      logger.warn(`DEBUG: first employee: ${JSON.stringify(allEmployees[0])}`);
+      console.log('🔍 DEBUG: first employee:', JSON.stringify(allEmployees[0]));
+    } else {
+      console.log('🔍 DEBUG: NO EMPLOYEES FOUND!');
     }
 
     // Create employee lookup map
