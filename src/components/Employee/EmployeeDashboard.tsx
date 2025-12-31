@@ -7,6 +7,7 @@ import LoadingFallback from '../Common/LoadingFallback';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
+import RequestSelfRemovalModal from './RequestSelfRemovalModal';
 import VIPPurchaseModal from '../Owner/VIPPurchaseModal';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import {
@@ -21,7 +22,8 @@ import {
   Star,
   Heart,
   Crown,
-  CheckCircle
+  CheckCircle,
+  Trash2
 } from 'lucide-react';
 import '../../styles/components/employee-dashboard.css';
 
@@ -84,6 +86,7 @@ const EmployeeDashboard: React.FC = () => {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showVIPModal, setShowVIPModal] = useState(false);
+  const [showRemovalModal, setShowRemovalModal] = useState(false);
   const [refreshDashboard, setRefreshDashboard] = useState(0);
 
   // Helper function to trigger dashboard refresh
@@ -194,6 +197,14 @@ const EmployeeDashboard: React.FC = () => {
       await refreshLinkedProfile(true);
     }
     triggerDashboardRefresh();
+  };
+
+  const handleRemovalRequestSuccess = () => {
+    setShowRemovalModal(false);
+    // Refresh profile to reflect the removal request status
+    if (refreshLinkedProfile) {
+      refreshLinkedProfile(true);
+    }
   };
 
   if (!user || user.account_type !== 'employee') {
@@ -653,6 +664,80 @@ const EmployeeDashboard: React.FC = () => {
             </>
           )}
         </section>
+
+        {/* Danger Zone Section */}
+        <section className="danger-zone-section" style={{ marginTop: '40px' }}>
+          <h2 style={{
+            color: '#F87171',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <AlertTriangle size={24} />
+            {t('employeeDashboard.dangerZone', 'Danger Zone')}
+          </h2>
+          <div style={{
+            background: 'rgba(248, 113, 113, 0.05)',
+            border: '1px solid rgba(248, 113, 113, 0.3)',
+            borderRadius: '12px',
+            padding: '24px'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '16px'
+            }}>
+              <div>
+                <h3 style={{
+                  color: '#ffffff',
+                  margin: '0 0 8px 0',
+                  fontSize: '16px'
+                }}>
+                  {t('employeeDashboard.requestRemoval', 'Request Profile Removal')}
+                </h3>
+                <p style={{
+                  color: 'rgba(255,255,255,0.6)',
+                  margin: 0,
+                  fontSize: '14px',
+                  maxWidth: '400px'
+                }}>
+                  {t('employeeDashboard.removalDescription', 'Once your removal request is approved, your profile will no longer be visible to visitors.')}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowRemovalModal(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  background: 'rgba(248, 113, 113, 0.15)',
+                  border: '1px solid rgba(248, 113, 113, 0.5)',
+                  borderRadius: '8px',
+                  color: '#F87171',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.25)';
+                  e.currentTarget.style.borderColor = '#F87171';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.5)';
+                }}
+              >
+                <Trash2 size={16} />
+                {t('employeeDashboard.requestRemovalBtn', 'Request Removal')}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Verification Modal */}
@@ -671,6 +756,16 @@ const EmployeeDashboard: React.FC = () => {
           entity={linkedEmployeeProfile}
           onClose={() => setShowVIPModal(false)}
           onSuccess={handleVIPPurchaseSuccess}
+        />
+      )}
+
+      {/* Self Removal Modal */}
+      {showRemovalModal && linkedEmployeeProfile && (
+        <RequestSelfRemovalModal
+          employeeId={linkedEmployeeProfile.id}
+          employeeName={linkedEmployeeProfile.name}
+          onClose={() => setShowRemovalModal(false)}
+          onSuccess={handleRemovalRequestSuccess}
         />
       )}
     </div>
