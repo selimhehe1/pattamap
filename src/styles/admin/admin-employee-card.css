@@ -964,7 +964,7 @@ body[data-theme="light"] .aec-btn--premium:hover:not(:disabled) {
 .aec-card--fullbleed .aec-status-badge {
   top: 12px;
   left: auto;
-  right: 100px;
+  right: 45px;
   z-index: 15;
 }
 
