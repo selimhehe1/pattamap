@@ -11,23 +11,10 @@ export const getFavorites = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // Step 1: Get favorites (just IDs)
     const { data: favorites, error } = await supabase
       .from('user_favorites')
-      .select(`
-        id,
-        employee_id,
-        created_at,
-        employee:employees!employee_id(
-          id,
-          name,
-          nickname,
-          age,
-          nationality,
-          photos,
-          description,
-          social_media
-        )
-      `)
+      .select('id, employee_id, created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -36,25 +23,36 @@ export const getFavorites = async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Failed to fetch favorites' });
     }
 
-    // Optimized: Batch fetch all employment and comments data (N+1 → 2 queries)
-    // Note: Supabase returns nested relations as arrays
     interface FavoriteRecord {
       id: string;
       employee_id: string;
       created_at: string;
-      employee: {
-        id: string;
-        name: string;
-        nickname?: string;
-        age?: number;
-        nationality?: string[];
-        photos?: string[];
-        description?: string;
-        social_media?: Record<string, string>;
-      }[];
     }
 
     const employeeIds = (favorites || []).map((fav: FavoriteRecord) => fav.employee_id);
+
+    // Step 2: Batch fetch all employees data
+    interface EmployeeData {
+      id: string;
+      name: string;
+      nickname?: string;
+      age?: number;
+      nationality?: string[];
+      photos?: string[];
+      description?: string;
+      social_media?: Record<string, string>;
+    }
+
+    const { data: allEmployees } = await supabase
+      .from('employees')
+      .select('id, name, nickname, age, nationality, photos, description, social_media')
+      .in('id', employeeIds.length > 0 ? employeeIds : ['none']);
+
+    // Create employee lookup map
+    const employeeMap = new Map<string, EmployeeData>();
+    (allEmployees || []).forEach((emp: EmployeeData) => {
+      employeeMap.set(emp.id, emp);
+    });
 
     // Batch fetch employment history for all employees
     const { data: allEmployment } = await supabase
@@ -107,8 +105,8 @@ export const getFavorites = async (req: Request, res: Response) => {
         ? ratingData.total / ratingData.count
         : 0;
       const establishment = employmentMap.get(fav.employee_id);
-      // Supabase returns nested relations as arrays
-      const emp = fav.employee[0];
+      // Get employee from our lookup map
+      const emp = employeeMap.get(fav.employee_id);
 
       return {
         id: fav.id,
