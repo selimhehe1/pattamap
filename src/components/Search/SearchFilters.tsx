@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Search, ChevronDown, Trash2, Check, Building2,
@@ -533,48 +534,41 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   }, []);
 
-  // 🎯 Phase 3.3 fix: Update dropdown position IMMEDIATELY when visible and on scroll
-  // Using useLayoutEffect ensures position is calculated before paint
+  // 🎯 Phase 3.3 fix: Continuously update dropdown position while visible
+  // Uses requestAnimationFrame loop for smooth tracking
   React.useLayoutEffect(() => {
     if (!showEstablishmentSuggestions || !establishmentInputRef.current) return;
 
-    // Calculate position immediately when dropdown becomes visible
-    const calculateAndSetPosition = () => {
-      if (establishmentInputRef.current) {
-        const rect = establishmentInputRef.current.getBoundingClientRect();
-        setDropdownPosition({
-          top: rect.bottom + 4,
-          left: rect.left,
-          width: rect.width
-        });
-      }
-    };
-
-    // Initial position calculation
-    calculateAndSetPosition();
-
-    const sidebar = document.querySelector('.search-filters-fixed-nightlife');
-
-    // Use requestAnimationFrame for smooth position updates during scroll
     let rafId: number | null = null;
-    const handleScroll = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(calculateAndSetPosition);
+    let isRunning = true;
+
+    // Continuously update position while dropdown is visible
+    const updatePosition = () => {
+      if (!isRunning || !establishmentInputRef.current) return;
+
+      const rect = establishmentInputRef.current.getBoundingClientRect();
+      setDropdownPosition(prev => {
+        // Only update if position actually changed (avoid unnecessary re-renders)
+        const newTop = rect.bottom + 4;
+        const newLeft = rect.left;
+        const newWidth = rect.width;
+
+        if (prev.top !== newTop || prev.left !== newLeft || prev.width !== newWidth) {
+          return { top: newTop, left: newLeft, width: newWidth };
+        }
+        return prev;
+      });
+
+      // Continue the loop
+      rafId = requestAnimationFrame(updatePosition);
     };
 
-    if (sidebar) {
-      sidebar.addEventListener('scroll', handleScroll, { passive: true });
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    // Start the animation loop
+    rafId = requestAnimationFrame(updatePosition);
 
     return () => {
+      isRunning = false;
       if (rafId) cancelAnimationFrame(rafId);
-      if (sidebar) {
-        sidebar.removeEventListener('scroll', handleScroll);
-      }
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
     };
   }, [showEstablishmentSuggestions]);
 
@@ -1086,20 +1080,20 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             </button>
           )}
 
-          {/* Autocomplete Dropdown - Phase 3.3: Fixed positioning to escape sidebar overflow */}
-          {showEstablishmentSuggestions && (
+          {/* Autocomplete Dropdown - Phase 3.3: Portal to escape sidebar overflow */}
+          {showEstablishmentSuggestions && ReactDOM.createPortal(
             <div
               style={{
                 position: 'fixed',
                 top: dropdownPosition.top,
                 left: dropdownPosition.left,
-                width: dropdownPosition.width,
+                width: dropdownPosition.width || 278,
                 background: 'rgba(0, 0, 0, 0.95)',
                 border: '2px solid rgba(232, 121, 249, 0.4)',
                 borderRadius: '12px',
                 maxHeight: '300px',
                 overflowY: 'auto',
-                zIndex: 9999, // High z-index to appear above sidebar
+                zIndex: 9999,
                 backdropFilter: 'blur(10px)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
               }}
@@ -1168,7 +1162,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                   </div>
                 ));
               })()}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </div>
