@@ -51,6 +51,15 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     if (initialData) {
       const socialMedia = initialData.social_media as FormSocialMedia | undefined;
 
+      // FIX: Derive current_establishment_id from current_employment array
+      // Backend returns current_employment[] but form expects current_establishment_id string
+      let derivedEstablishmentId = '';
+      if (initialData.current_employment && initialData.current_employment.length > 0) {
+        derivedEstablishmentId = initialData.current_employment[0].establishment_id;
+      } else if (initialData.current_establishment_id) {
+        derivedEstablishmentId = initialData.current_establishment_id;  // Fallback if provided directly
+      }
+
       setFormData({
         name: initialData.name || '',
         nickname: initialData.nickname || '',
@@ -65,7 +74,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
           tg: socialMedia?.tg || '',
           wa: socialMedia?.wa || ''
         },
-        current_establishment_id: initialData.current_establishment_id || ''
+        current_establishment_id: derivedEstablishmentId
       });
 
       if (initialData.photos?.length) {
