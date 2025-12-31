@@ -24,7 +24,7 @@ interface AdminComment {
   user_id: number;
   employee_id: number;
   rating: number;
-  comment: string;
+  content: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
@@ -372,7 +372,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
                 <h3 className="cmd-modal__section-title">{t('admin.comment')}</h3>
                 <div className="cmd-modal__section-content" style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <p className="cmd-card__text">
-                    {selectedComment.comment || <em style={{ opacity: 0.6 }}>{t('admin.noCommentProvided', 'No comment provided')}</em>}
+                    {selectedComment.content || <em style={{ opacity: 0.6 }}>{t('admin.noCommentProvided', 'No comment provided')}</em>}
                   </p>
                 </div>
               </div>

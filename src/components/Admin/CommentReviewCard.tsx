@@ -26,7 +26,7 @@ interface CommentReviewCardProps {
   comment: {
     id: number;
     rating: number;
-    comment: string;
+    content: string;
     status: 'pending' | 'approved' | 'rejected';
     created_at: string;
     user?: {
@@ -110,7 +110,7 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
   const employeeInitial = (comment.employee?.name || 'E').charAt(0).toUpperCase();
 
   // Truncate comment text (handle null/undefined)
-  const commentText = comment.comment || '';
+  const commentText = comment.content || '';
   const truncatedComment = commentText.length > 120
     ? commentText.substring(0, 120) + '...'
     : commentText;
