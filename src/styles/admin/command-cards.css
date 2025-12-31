@@ -959,7 +959,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--spacing-md, 16px);
+  gap: var(--spacing-md, 16px) var(--spacing-lg, 24px);
 }
 
 .cmd-form__group {
@@ -1009,6 +1009,7 @@
 .cmd-form__input,
 .cmd-form__select {
   width: 100%;
+  box-sizing: border-box;
   padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
   background: rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(232, 121, 249, 0.2);
@@ -1036,6 +1037,8 @@
 }
 
 .cmd-form__preview {
+  width: 100%;
+  box-sizing: border-box;
   padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
   background: rgba(232, 121, 249, 0.1);
   border: 2px solid rgba(232, 121, 249, 0.2);
@@ -1047,7 +1050,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs, 4px);
+  gap: 6px;
 }
 
 /* ================================================================
