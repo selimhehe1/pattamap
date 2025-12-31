@@ -30,7 +30,9 @@ export const getFavorites = async (req: Request, res: Response) => {
     }
 
     const employeeIds = (favorites || []).map((fav: FavoriteRecord) => fav.employee_id);
-    console.log('🔍 DEBUG: employeeIds to fetch:', employeeIds);
+    console.log('🔍 FAVDEBUG: employeeIds to fetch:', JSON.stringify(employeeIds));
+    console.log('🔍 FAVDEBUG: employeeIds count:', employeeIds.length);
+    console.log('🔍 FAVDEBUG: first employeeId type:', typeof employeeIds[0]);
 
     // Step 2: Batch fetch all employees data
     interface EmployeeData {
@@ -44,23 +46,42 @@ export const getFavorites = async (req: Request, res: Response) => {
       social_media?: Record<string, string>;
     }
 
-    const { data: allEmployees, error: empError } = await supabase
+    // Try a simpler query first to test
+    const testQuery = supabase
       .from('employees')
-      .select('id, name, nickname, age, nationality, photos, description, social_media')
-      .in('id', employeeIds.length > 0 ? employeeIds : ['none']);
+      .select('id, name, photos')
+      .in('id', employeeIds.length > 0 ? employeeIds : ['00000000-0000-0000-0000-000000000000']);
 
-    console.log('🔍 DEBUG: allEmployees fetched:', allEmployees?.length, 'error:', empError);
+    console.log('🔍 FAVDEBUG: Query being executed for IDs:', employeeIds.length > 0 ? employeeIds : 'using placeholder');
+
+    const { data: allEmployees, error: empError } = await testQuery;
+
+    console.log('🔍 FAVDEBUG: Query result - allEmployees:', allEmployees);
+    console.log('🔍 FAVDEBUG: Query result - empError:', empError);
+    console.log('🔍 FAVDEBUG: allEmployees length:', allEmployees?.length);
+    console.log('🔍 FAVDEBUG: allEmployees type:', typeof allEmployees);
+
     if (allEmployees && allEmployees.length > 0) {
-      console.log('🔍 DEBUG: first employee:', JSON.stringify(allEmployees[0]));
+      console.log('🔍 FAVDEBUG: first employee full:', JSON.stringify(allEmployees[0]));
     } else {
-      console.log('🔍 DEBUG: NO EMPLOYEES FOUND!');
+      console.log('🔍 FAVDEBUG: NO EMPLOYEES FOUND! empError details:', JSON.stringify(empError));
     }
 
-    // Create employee lookup map
+    // Now do the full query
+    const { data: fullEmployees, error: fullEmpError } = await supabase
+      .from('employees')
+      .select('id, name, nickname, age, nationality, photos, description, social_media')
+      .in('id', employeeIds.length > 0 ? employeeIds : ['00000000-0000-0000-0000-000000000000']);
+
+    console.log('🔍 FAVDEBUG: fullEmployees result:', fullEmployees?.length, 'error:', fullEmpError);
+
+    // Create employee lookup map - USE fullEmployees, not allEmployees!
     const employeeMap = new Map<string, EmployeeData>();
-    (allEmployees || []).forEach((emp: EmployeeData) => {
+    (fullEmployees || []).forEach((emp: EmployeeData) => {
       employeeMap.set(emp.id, emp);
     });
+
+    console.log('🔍 FAVDEBUG: employeeMap size:', employeeMap.size);
 
     // Batch fetch employment history for all employees
     const { data: allEmployment } = await supabase
