@@ -106,6 +106,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   const [establishmentSearch, setEstablishmentSearch] = React.useState('');
   const [showEstablishmentSuggestions, setShowEstablishmentSuggestions] = React.useState(false);
   const establishmentInputRef = React.useRef<HTMLInputElement>(null);
+  // 🎯 Phase 3.3: Dropdown position state for fixed positioning (escapes sidebar overflow)
+  const [dropdownPosition, setDropdownPosition] = React.useState({ top: 0, left: 0, width: 0 });
 
   // 🏢 Filter establishments by search query and group by zone
   const filterEstablishmentsByQuery = React.useCallback((query: string) => {
@@ -519,6 +521,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     return filterEstablishmentsByQuery(establishmentSearch);
   }, [establishmentSearch, filterEstablishmentsByQuery]);
 
+  // 🎯 Phase 3.3: Calculate dropdown position for fixed positioning
+  const updateDropdownPosition = React.useCallback(() => {
+    if (establishmentInputRef.current) {
+      const rect = establishmentInputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4, // 4px margin below input
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  }, []);
+
   return (
     <div className="search-filters-fixed-nightlife" data-testid="search-filters">
       {/* Mobile Toggle Button */}
@@ -913,7 +927,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           data-testid="zone-filter"
         >
           <option value="">{t('search.allZones')}</option>
-          {ZONE_OPTIONS.map(zone => (
+          {ZONE_OPTIONS.filter(z => z.value !== 'freelance').map(zone => (
             <option key={zone.value} value={zone.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>
               {zone.label}
             </option>
@@ -945,6 +959,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       {/* Establishment - Disabled when Freelance is ON (v11.1 fix #3 & #4) */}
       <div className="filter-section" style={{
         position: 'relative',
+        overflow: 'visible', /* Phase 3.3: Allow dropdown to extend outside sidebar */
         opacity: filters.type === 'freelance' ? 0.5 : 1,
         pointerEvents: filters.type === 'freelance' ? 'none' : 'auto',
         transition: 'opacity 0.2s ease'
@@ -976,9 +991,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             value={establishmentSearch}
             onChange={(e) => {
               setEstablishmentSearch(e.target.value);
+              updateDropdownPosition();
               setShowEstablishmentSuggestions(true);
             }}
-            onFocus={() => setShowEstablishmentSuggestions(true)}
+            onFocus={() => {
+              updateDropdownPosition();
+              setShowEstablishmentSuggestions(true);
+            }}
             onBlur={() => {
               setTimeout(() => setShowEstablishmentSuggestions(false), 200);
             }}
@@ -1022,22 +1041,22 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             </button>
           )}
 
-          {/* Autocomplete Dropdown */}
+          {/* Autocomplete Dropdown - Phase 3.3: Fixed positioning to escape sidebar overflow */}
           {showEstablishmentSuggestions && (
             <div
               style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
+                position: 'fixed',
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
                 background: 'rgba(0, 0, 0, 0.95)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
+                border: '2px solid rgba(232, 121, 249, 0.4)',
                 borderRadius: '12px',
-                marginTop: '4px',
                 maxHeight: '300px',
                 overflowY: 'auto',
-                zIndex: 1000, // ✅ Increased from 10 to 1000 (standard for dropdowns)
-                backdropFilter: 'blur(10px)'
+                zIndex: 9999, // High z-index to appear above sidebar
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
               }}
             >
               {(() => {
