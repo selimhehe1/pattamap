@@ -190,8 +190,8 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
           <X size={20} />
         </button>
 
-        {/* Logo Section */}
-        <div className="command-sidebar__logo">
+        {/* Logo Section - Clickable link to home */}
+        <Link to="/" className="command-sidebar__logo command-sidebar__logo--link">
           <div className="command-sidebar__logo-icon">
             <Shield size={28} />
           </div>
@@ -199,7 +199,7 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
             <span className="command-sidebar__logo-title">PATTAMAP</span>
             <span className="command-sidebar__logo-subtitle">Command Center</span>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation */}
         <nav className="command-sidebar__nav">

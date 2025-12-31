@@ -72,6 +72,27 @@
   gap: var(--spacing-md, 16px);
 }
 
+/* Clickable logo link */
+.command-sidebar__logo--link {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.command-sidebar__logo--link:hover {
+  background: rgba(232, 121, 249, 0.05);
+}
+
+.command-sidebar__logo--link:hover .command-sidebar__logo-icon {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(232, 121, 249, 0.4);
+}
+
+.command-sidebar__logo--link:hover .command-sidebar__logo-title {
+  text-shadow: 0 0 15px rgba(232, 121, 249, 0.6);
+}
+
 .command-sidebar__logo-icon {
   width: 48px;
   height: 48px;
