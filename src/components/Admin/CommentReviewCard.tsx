@@ -153,26 +153,23 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
         </div>
       )}
 
-      {/* 4. Top row: Checkbox + Rating aligned */}
-      <div className="arc-top-row">
-        {/* Checkbox */}
-        {onToggleSelection && (
-          <div
-            onClick={handleCheckboxClick}
-            className={`aec-checkbox aec-checkbox--inline ${isSelected ? 'aec-checkbox--selected' : ''}`}
-            role="checkbox"
-            aria-checked={isSelected}
-            aria-label={t('admin.selectComment', 'Select comment')}
-          >
-            {isSelected && <Check size={14} color="#fff" strokeWidth={3} />}
-          </div>
-        )}
-
-        {/* Rating */}
-        <div className="arc-rating arc-rating--inline">
-          <StarRating rating={comment.rating || 0} readonly size="small" />
-          <span className="arc-rating-value">{(comment.rating || 0).toFixed(1)}</span>
+      {/* 4. Ligne 1: Checkbox seul */}
+      {onToggleSelection && (
+        <div
+          onClick={handleCheckboxClick}
+          className={`aec-checkbox ${isSelected ? 'aec-checkbox--selected' : ''}`}
+          role="checkbox"
+          aria-checked={isSelected}
+          aria-label={t('admin.selectComment', 'Select comment')}
+        >
+          {isSelected && <Check size={14} color="#fff" strokeWidth={3} />}
         </div>
+      )}
+
+      {/* 5. Ligne 2: Rating */}
+      <div className="arc-rating">
+        <StarRating rating={comment.rating || 0} readonly size="small" />
+        <span className="arc-rating-value">{(comment.rating || 0).toFixed(1)}</span>
       </div>
 
       {/* 5. Status badge */}

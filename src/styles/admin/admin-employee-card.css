@@ -960,9 +960,9 @@ body[data-theme="light"] .aec-btn--premium:hover:not(:disabled) {
   z-index: 15;
 }
 
-/* Status Badge for Fullbleed - positioned at right before action icons */
+/* Status Badge for Fullbleed - Line 2, same as rating */
 .aec-card--fullbleed .aec-status-badge {
-  top: 12px;
+  top: 44px;
   left: auto;
   right: 45px;
   z-index: 15;
@@ -1323,10 +1323,10 @@ body[data-theme="light"] .aec-card--fullbleed:hover {
   user-select: none;
 }
 
-/* Rating with Glow Effect */
+/* Rating with Glow Effect - Line 2 (below checkbox) */
 .arc-rating {
   position: absolute;
-  top: 12px;
+  top: 44px;
   left: 12px;
   display: flex;
   align-items: center;
@@ -1347,29 +1347,9 @@ body[data-theme="light"] .aec-card--fullbleed:hover {
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-/* Top Row Container - Checkbox + Rating aligned horizontally */
-.arc-top-row {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 15;
-}
-
-/* Inline variants (not absolute positioned) */
-.aec-checkbox--inline {
-  position: relative;
-  top: auto;
-  left: auto;
-}
-
-.arc-rating--inline {
-  position: relative;
-  top: auto;
-  left: auto;
-}
+/* 2-Line Layout: Checkbox on line 1, Rating on line 2 */
+/* Checkbox stays at top: 12px (from base .aec-checkbox) */
+/* Rating moved to top: 44px (below checkbox) */
 
 /* Quote Style Comment */
 .arc-quote {
