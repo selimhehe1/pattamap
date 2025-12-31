@@ -965,7 +965,12 @@
 .cmd-form--inline .cmd-form__group {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+}
+
+.cmd-form--inline .cmd-form__input,
+.cmd-form--inline .cmd-form__select,
+.cmd-form--inline .cmd-form__preview {
+  margin-top: auto;
 }
 
 .cmd-form__group {
