@@ -109,11 +109,13 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
 
       if (response.ok) {
         const data = await response.json();
-        if (data.data && data.data.length > 0) {
-          const exactMatch = data.data.find(
+        // API returns { employees: [...] } format
+        const employees = data.employees || [];
+        if (employees.length > 0) {
+          const exactMatch = employees.find(
             (emp: Employee) => emp.name.toLowerCase() === name.toLowerCase()
           );
-          setSelectedEmployee(exactMatch || data.data[0]);
+          setSelectedEmployee(exactMatch || employees[0]);
           setShowSuggestions(false);
         } else {
           toast.error(t('claimEmployeeModal.errorEmployeeNotFound'));

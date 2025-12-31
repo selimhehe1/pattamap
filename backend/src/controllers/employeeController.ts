@@ -796,13 +796,39 @@ export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { verification_info } = req.body;
 
+    // Validate verification_info
     if (!verification_info) {
       return res.status(400).json({ error: 'Verification information required for self-removal' });
     }
+    if (typeof verification_info !== 'string') {
+      return res.status(400).json({ error: 'Verification information must be a string' });
+    }
+    if (verification_info.length > 1000) {
+      return res.status(400).json({ error: 'Verification information too long (max 1000 characters)' });
+    }
 
+    // First, fetch the employee to check authorization
+    const { data: existingEmployee, error: fetchError } = await supabase
+      .from('employees')
+      .select('id, name, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingEmployee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    // Security check: Only the linked user can request self-removal
+    if (!existingEmployee.user_id || existingEmployee.user_id !== req.user!.id) {
+      return res.status(403).json({
+        error: 'You can only request removal of your own profile'
+      });
+    }
+
+    // Update the employee with self-removal request
     const { data: employee, error } = await supabase
       .from('employees')
-      .update({ 
+      .update({
         self_removal_requested: true,
         updated_at: new Date().toISOString()
       })
@@ -814,8 +840,31 @@ export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: error.message });
     }
 
-    // TODO: Send notification to admins about self-removal request
-    // This could be implemented with email notifications or admin dashboard alerts
+    // Send notification to admins about self-removal request
+    try {
+      const { data: admins } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'admin');
+
+      if (admins && admins.length > 0) {
+        await supabase.from('notifications').insert(
+          admins.map(admin => ({
+            user_id: admin.id,
+            type: 'self_removal_request',
+            title: 'Employee Self-Removal Request',
+            message: `Employee "${existingEmployee.name}" has requested profile removal.`,
+            data: {
+              employee_id: id,
+              verification_info: verification_info.substring(0, 200) // Store first 200 chars
+            }
+          }))
+        );
+      }
+    } catch (notifyError) {
+      // Don't fail the request if notification fails, but log it
+      logger.error('Failed to send admin notifications for self-removal:', notifyError);
+    }
 
     res.json({
       message: 'Self-removal request submitted. Administrators will review your request.',

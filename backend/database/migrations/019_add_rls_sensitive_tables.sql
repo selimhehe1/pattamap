@@ -151,28 +151,28 @@ CREATE POLICY "comments_delete_own"
   USING (user_id = auth.uid());
 
 -- =====================================================
--- 4. FAVORITES TABLE RLS
+-- 4. USER_FAVORITES TABLE RLS (formerly favorites)
 -- =====================================================
-ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_favorites ENABLE ROW LEVEL SECURITY;
 
 -- Users can only view their own favorites
-CREATE POLICY "favorites_read_own"
-  ON public.favorites FOR SELECT
+CREATE POLICY "user_favorites_read_own"
+  ON public.user_favorites FOR SELECT
   USING (user_id = auth.uid());
 
 -- Users can add to their own favorites
-CREATE POLICY "favorites_insert_own"
-  ON public.favorites FOR INSERT
+CREATE POLICY "user_favorites_insert_own"
+  ON public.user_favorites FOR INSERT
   WITH CHECK (user_id = auth.uid());
 
 -- Users can remove from their own favorites
-CREATE POLICY "favorites_delete_own"
-  ON public.favorites FOR DELETE
+CREATE POLICY "user_favorites_delete_own"
+  ON public.user_favorites FOR DELETE
   USING (user_id = auth.uid());
 
 -- Admins can view all favorites (analytics)
-CREATE POLICY "favorites_admin_read_all"
-  ON public.favorites FOR SELECT
+CREATE POLICY "user_favorites_admin_read_all"
+  ON public.user_favorites FOR SELECT
   USING (
     EXISTS (
       SELECT 1 FROM public.users u
@@ -203,7 +203,6 @@ CREATE POLICY "establishments_owner_read"
       SELECT 1 FROM public.establishment_owners eo
       WHERE eo.establishment_id = establishments.id
       AND eo.user_id = auth.uid()
-      AND eo.status = 'approved'
     )
   );
 
@@ -230,7 +229,6 @@ CREATE POLICY "establishments_owner_update"
       SELECT 1 FROM public.establishment_owners eo
       WHERE eo.establishment_id = establishments.id
       AND eo.user_id = auth.uid()
-      AND eo.status = 'approved'
     )
   );
 
@@ -258,18 +256,18 @@ CREATE POLICY "user_badges_read_public"
 -- No insert policy for regular users
 
 -- =====================================================
--- 7. USER_MISSIONS TABLE RLS
+-- 7. USER_MISSION_PROGRESS TABLE RLS (formerly user_missions)
 -- =====================================================
-ALTER TABLE public.user_missions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_mission_progress ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own missions
-CREATE POLICY "user_missions_read_own"
-  ON public.user_missions FOR SELECT
+-- Users can view their own mission progress
+CREATE POLICY "user_mission_progress_read_own"
+  ON public.user_mission_progress FOR SELECT
   USING (user_id = auth.uid());
 
--- Admins can view all missions
-CREATE POLICY "user_missions_admin_read"
-  ON public.user_missions FOR SELECT
+-- Admins can view all mission progress
+CREATE POLICY "user_mission_progress_admin_read"
+  ON public.user_mission_progress FOR SELECT
   USING (
     EXISTS (
       SELECT 1 FROM public.users u
