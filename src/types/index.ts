@@ -231,6 +231,8 @@ export interface EmployeeFormData {
     telegram?: string;
     whatsapp?: string;
   };
+  current_establishment_id?: string | null; // v10.6: Current establishment (null = clear)
+  is_freelance?: boolean; // v10.6: Freelance mode
 }
 
 export interface EstablishmentFormData {
