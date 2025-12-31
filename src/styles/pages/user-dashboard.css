@@ -344,9 +344,9 @@
 
 .favorites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-5);
-  padding: var(--spacing-4) 0;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
 }
 
 .favorite-card-wrapper {
@@ -382,19 +382,27 @@
   outline-offset: 2px;
 }
 
-/* Responsive: Tablet */
-@media (max-width: 48rem) {
+/* Desktop: Optimal spacing (same as SearchResults) */
+@media (min-width: 1024px) {
   .favorites-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: var(--spacing-4);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
+    gap: 25px;
   }
 }
 
-/* Responsive: Mobile */
-@media (max-width: 30rem) {
+/* Tablet */
+@media (max-width: 768px) {
+  .favorites-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
   .favorites-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-3);
+    gap: 12px;
   }
 
   .favorite-remove-button {
