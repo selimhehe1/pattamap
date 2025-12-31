@@ -17,8 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Menu,
-  Trophy
+  Menu
 } from 'lucide-react';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/admin/command-sidebar.css';
@@ -254,26 +253,6 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
             })}
           </div>
         </nav>
-
-        {/* User Section */}
-        <div className="command-sidebar__footer">
-          <button
-            className="command-sidebar__user"
-            onClick={onUserClick}
-            title={t('admin.viewYourProfile')}
-          >
-            <div className="command-sidebar__user-avatar">
-              {user.pseudonym.charAt(0).toUpperCase()}
-            </div>
-            <div className="command-sidebar__user-info">
-              <span className="command-sidebar__user-name">{user.pseudonym}</span>
-              <span className="command-sidebar__user-role">
-                <Trophy size={12} />
-                {user.role}
-              </span>
-            </div>
-          </button>
-        </div>
 
         {/* Collapse Toggle (Desktop only) */}
         <button

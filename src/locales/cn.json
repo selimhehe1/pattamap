@@ -661,6 +661,7 @@
     "filterApproved": "已批准",
     "filterRejected": "已拒绝",
     "filterAll": "全部",
+    "filterPending": "待处理",
     "addNewEstablishment": "添加新场所",
     "loadingEstablishments": "正在加载场所...",
     "noPendingEdits": "没有待处理编辑",

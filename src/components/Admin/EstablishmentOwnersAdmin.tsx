@@ -48,6 +48,7 @@ import {
   FilterMode,
   OwnerRole
 } from './types/ownershipTypes';
+import EstablishmentOwnerCard from './EstablishmentOwnerCard';
 import { debounce } from './utils/adminUtils';
 
 interface EstablishmentOwnersAdminProps {
@@ -601,122 +602,13 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
           </p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-          gap: '20px'
-        }}>
+        <div className="aec-grid">
           {establishments.map((establishment) => (
-            <div
+            <EstablishmentOwnerCard
               key={establishment.id}
-              style={{
-                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-                borderRadius: '20px',
-                border: '2px solid rgba(193, 154, 107,0.3)',
-                padding: '20px',
-                position: 'relative',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
+              establishment={establishment}
               onClick={() => openEstablishmentModal(establishment)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              {/* Owners Count Badge */}
-              <div style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                padding: '6px 12px',
-                borderRadius: '15px',
-                background: (establishment.ownersCount || 0) > 0 ? 'rgba(0,255,127,0.2)' : 'rgba(255,71,87,0.2)',
-                border: (establishment.ownersCount || 0) > 0 ? '2px solid #00FF7F' : '2px solid #FF4757',
-                color: (establishment.ownersCount || 0) > 0 ? '#00FF7F' : '#FF4757',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <Users size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                {establishment.ownersCount || 0} Owner{(establishment.ownersCount || 0) !== 1 ? 's' : ''}
-              </div>
-
-              {/* Establishment Icon */}
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '24px',
-                marginBottom: '15px'
-              }}>
-                <Building2 size={24} />
-              </div>
-
-              {/* Establishment Info */}
-              <div style={{ marginBottom: '15px', paddingRight: '80px' }}>
-                <h3 style={{
-                  color: '#ffffff',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  margin: '0 0 5px 0'
-                }}>
-                  {establishment.name}
-                </h3>
-
-                <div style={{
-                  color: '#cccccc',
-                  fontSize: '14px',
-                  marginBottom: '10px'
-                }}>
-                  {establishment.address}
-                </div>
-
-                {establishment.zone && (
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '4px 10px',
-                    borderRadius: '10px',
-                    background: 'rgba(0,229,255,0.2)',
-                    border: '1px solid #00E5FF',
-                    color: '#00E5FF',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
-                    <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                    {establishment.zone}
-                  </div>
-                )}
-              </div>
-
-              {/* View Details Button */}
-              <div style={{
-                paddingTop: '15px',
-                borderTop: '1px solid rgba(193, 154, 107,0.3)',
-                textAlign: 'center'
-              }}>
-                <span style={{
-                  color: '#C19A6B',
-                  fontSize: '12px',
-                  fontWeight: 'bold'
-                }}>
-                  <Eye size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                  Click to manage owners
-                </span>
-              </div>
-            </div>
+            />
           ))}
         </div>
       )}
@@ -1378,38 +1270,18 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   }}>
                     Owner Role
                   </label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div className="cmd-role-toggle">
                     <button
                       onClick={() => handleRoleChange('owner')}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: ownerRole === 'owner' ? 'rgba(255,215,0,0.3)' : 'rgba(0,0,0,0.3)',
-                        color: ownerRole === 'owner' ? '#FFD700' : '#ffffff',
-                        border: ownerRole === 'owner' ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}
+                      className={`cmd-role-toggle__btn cmd-role-toggle__btn--owner ${ownerRole === 'owner' ? 'cmd-role-toggle__btn--active' : ''}`}
                     >
-                      <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Owner (Full Control)
+                      <Crown size={14} />Owner
                     </button>
                     <button
                       onClick={() => handleRoleChange('manager')}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: ownerRole === 'manager' ? 'rgba(0,229,255,0.3)' : 'rgba(0,0,0,0.3)',
-                        color: ownerRole === 'manager' ? '#00E5FF' : '#ffffff',
-                        border: ownerRole === 'manager' ? '2px solid #00E5FF' : '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}
+                      className={`cmd-role-toggle__btn cmd-role-toggle__btn--manager ${ownerRole === 'manager' ? 'cmd-role-toggle__btn--active' : ''}`}
                     >
-                      <Key size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Manager (Limited)
+                      <Key size={14} />Manager
                     </button>
                   </div>
 
@@ -1579,38 +1451,18 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                   }}>
                     Owner Role
                   </label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div className="cmd-role-toggle">
                     <button
                       onClick={() => setEditingOwner(prev => prev ? { ...prev, owner_role: 'owner' } : null)}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: editingOwner.owner_role === 'owner' ? 'rgba(255,215,0,0.3)' : 'rgba(0,0,0,0.3)',
-                        color: editingOwner.owner_role === 'owner' ? '#FFD700' : '#ffffff',
-                        border: editingOwner.owner_role === 'owner' ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}
+                      className={`cmd-role-toggle__btn cmd-role-toggle__btn--owner ${editingOwner.owner_role === 'owner' ? 'cmd-role-toggle__btn--active' : ''}`}
                     >
-                      <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Owner
+                      <Crown size={14} />Owner
                     </button>
                     <button
                       onClick={() => setEditingOwner(prev => prev ? { ...prev, owner_role: 'manager' } : null)}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: editingOwner.owner_role === 'manager' ? 'rgba(0,229,255,0.3)' : 'rgba(0,0,0,0.3)',
-                        color: editingOwner.owner_role === 'manager' ? '#00E5FF' : '#ffffff',
-                        border: editingOwner.owner_role === 'manager' ? '2px solid #00E5FF' : '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}
+                      className={`cmd-role-toggle__btn cmd-role-toggle__btn--manager ${editingOwner.owner_role === 'manager' ? 'cmd-role-toggle__btn--active' : ''}`}
                     >
-                      <Key size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />Manager
+                      <Key size={14} />Manager
                     </button>
                   </div>
                 </div>

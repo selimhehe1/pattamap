@@ -837,6 +837,7 @@
     "filterApproved": "Approved",
     "filterRejected": "Rejected",
     "filterAll": "All",
+    "filterPending": "Pending",
     "addNewEstablishment": "Add New Establishment",
     "loadingEstablishments": "Loading establishments...",
     "noPendingEdits": "No Pending Edits",

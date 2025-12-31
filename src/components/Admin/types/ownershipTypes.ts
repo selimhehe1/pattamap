@@ -45,6 +45,7 @@ export interface AdminEstablishment {
   address: string;
   zone?: string;
   category_id?: string;
+  logo_url?: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;

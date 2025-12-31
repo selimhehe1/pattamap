@@ -1,5 +1,5 @@
 /**
- * Employee card component for EmployeesAdmin grid view
+ * Employee Claim card component for EmployeeClaimsAdmin grid view
  * Premium full-bleed design with 3D tilt, neon border, and floating actions
  *
  * Uses CSS classes from:
@@ -8,35 +8,27 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { use3DTilt } from '../../../hooks/use3DTilt';
+import { use3DTilt } from '../../hooks/use3DTilt';
 import {
   User,
-  Calendar,
-  MapPin,
   Eye,
-  Trash2,
   CheckCircle,
   XCircle,
   Loader2,
   Clock,
-  Check,
-  BadgeCheck
+  Check
 } from 'lucide-react';
-import LazyImage from '../../Common/LazyImage';
-import type { AdminEmployee } from './types';
+import LazyImage from '../Common/LazyImage';
+import { EmployeeClaimRequest } from '../../types';
 
-interface EmployeeCardProps {
-  employee: AdminEmployee;
+interface EmployeeClaimCardProps {
+  claim: EmployeeClaimRequest;
   isProcessing: boolean;
   isSelected?: boolean;
   onToggleSelection?: (id: string) => void;
-  onViewProfile: (employee: AdminEmployee) => void;
-  onEdit: (employee: AdminEmployee) => void;
-  onApprove: (employeeId: string) => void;
-  onReject: (employeeId: string) => void;
-  onVerify: (employeeId: string, employeeName: string) => void;
-  onRevokeVerification: (employeeId: string, employeeName: string) => void;
-  onDelete: (employeeId: string, employeeName: string) => void;
+  onViewDetails: (claim: EmployeeClaimRequest) => void;
+  onApprove: (claimId: string) => void;
+  onReject: (claimId: string) => void;
 }
 
 const getStatusIcon = (status: string): React.ReactNode => {
@@ -57,22 +49,14 @@ const getStatusModifier = (status: string): string => {
   }
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  });
-};
-
-export const EmployeeCard: React.FC<EmployeeCardProps> = ({
-  employee,
+export const EmployeeClaimCard: React.FC<EmployeeClaimCardProps> = ({
+  claim,
   isProcessing,
   isSelected = false,
   onToggleSelection,
-  onViewProfile,
+  onViewDetails,
   onApprove,
   onReject,
-  onDelete,
 }) => {
   const { t } = useTranslation();
 
@@ -84,21 +68,19 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   });
 
   const handleCardClick = () => {
-    onViewProfile(employee);
+    onViewDetails(claim);
   };
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onToggleSelection?.(employee.id);
+    onToggleSelection?.(claim.id);
   };
 
-  const isPending = employee.status === 'pending';
+  const isPending = claim.status === 'pending';
 
-  // Get current job for display
-  const currentJob = employee.employment_history?.find((job) => job.is_current);
-
-  // Display name: prefer nickname, fallback to name
-  const displayName = employee.nickname || employee.name;
+  // Display name for employee
+  const employeeName = claim.employee?.nickname || claim.employee?.name || t('admin.claims.unknownEmployee');
+  const employeePhoto = claim.employee?.photos?.[0];
 
   return (
     <div
@@ -111,10 +93,10 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
     >
       {/* 1. Full-bleed image */}
       <div className="aec-image">
-        {employee.photos && employee.photos.length > 0 ? (
+        {employeePhoto ? (
           <LazyImage
-            src={employee.photos[0]}
-            alt={displayName}
+            src={employeePhoto}
+            alt={employeeName}
             className="aec-image-inner"
             objectFit="cover"
           />
@@ -129,23 +111,23 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       <div className="aec-overlay" />
 
       {/* 3. Status badge */}
-      <div className={`aec-status-badge aec-status-badge--animated ${getStatusModifier(employee.status)}`}>
-        {getStatusIcon(employee.status)}{' '}
-        {employee.status === 'approved'
+      <div className={`aec-status-badge aec-status-badge--animated ${getStatusModifier(claim.status)}`}>
+        {getStatusIcon(claim.status)}{' '}
+        {claim.status === 'approved'
           ? 'OK'
-          : employee.status === 'pending'
+          : claim.status === 'pending'
           ? 'NEW'
           : 'NO'}
       </div>
 
       {/* 4. Selection checkbox */}
-      {onToggleSelection && (
+      {onToggleSelection && isPending && (
         <div
           onClick={handleCheckboxClick}
           className={`aec-checkbox ${isSelected ? 'aec-checkbox--selected' : ''}`}
           role="checkbox"
           aria-checked={isSelected}
-          aria-label={t('admin.selectEmployee', 'Select employee')}
+          aria-label={t('admin.selectClaim', 'Select claim')}
         >
           {isSelected && <Check size={14} color="#fff" strokeWidth={3} />}
         </div>
@@ -156,57 +138,26 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onViewProfile(employee);
+            onViewDetails(claim);
           }}
           className="aec-action-icon"
-          aria-label={t('admin.viewProfile', 'View Profile')}
+          aria-label={t('admin.viewDetails', 'View Details')}
         >
           <Eye size={16} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(employee.id, employee.name);
-          }}
-          disabled={isProcessing}
-          className="aec-action-icon aec-action-icon--danger"
-          aria-label={t('admin.delete', 'Delete')}
-        >
-          {isProcessing ? <Loader2 size={16} className="aec-icon--spin" /> : <Trash2 size={16} />}
         </button>
       </div>
 
       {/* 6. Info overlay */}
       <div className="aec-info-overlay">
-        <h3 className="aec-title">
-          {displayName}
-          {employee.is_verified && (
-            <BadgeCheck size={18} className="aec-verified-icon" />
-          )}
-        </h3>
+        <h3 className="aec-title">{employeeName}</h3>
         <div className="aec-meta">
-          <span>
-            🌍 {employee.nationality}
-          </span>
-          <span>
-            {employee.age} {t('admin.years')}
-          </span>
+          {claim.employee?.name && claim.employee?.nickname && (
+            <span>{claim.employee.name}</span>
+          )}
         </div>
         <div className="aec-info-submitter">
-          {currentJob ? (
-            <>
-              <MapPin size={12} />
-              {currentJob.establishment_name}
-            </>
-          ) : (
-            <>
-              <User size={12} />
-              {employee.user?.pseudonym || t('admin.unknown')}
-              <span style={{ margin: '0 4px' }}>•</span>
-              <Calendar size={12} />
-              {formatDate(employee.created_at)}
-            </>
-          )}
+          <User size={12} />
+          {t('admin.claims.claimBy', 'Claimed by')}: {claim.submitted_by_user?.pseudonym || t('admin.unknown')}
         </div>
       </div>
 
@@ -216,7 +167,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onApprove(employee.id);
+              onApprove(claim.id);
             }}
             disabled={isProcessing}
             className="aec-footer-btn aec-footer-btn--approve"
@@ -233,7 +184,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onReject(employee.id);
+              onReject(claim.id);
             }}
             disabled={isProcessing}
             className="aec-footer-btn aec-footer-btn--reject"
@@ -256,4 +207,4 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   );
 };
 
-export default EmployeeCard;
+export default EmployeeClaimCard;

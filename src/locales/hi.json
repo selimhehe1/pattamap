@@ -661,6 +661,7 @@
     "filterApproved": "स्वीकृत",
     "filterRejected": "अस्वीकृत",
     "filterAll": "सभी",
+    "filterPending": "लंबित",
     "addNewEstablishment": "नया प्रतिष्ठान जोड़ें",
     "loadingEstablishments": "प्रतिष्ठान लोड हो रहे हैं...",
     "noPendingEdits": "कोई लंबित संपादन नहीं",

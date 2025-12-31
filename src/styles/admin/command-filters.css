@@ -23,7 +23,7 @@
 
 .cmd-filters {
   display: flex;
-  gap: var(--spacing-sm, 8px);
+  gap: var(--spacing-md, 16px);
   margin-bottom: var(--spacing-xl, 32px);
   flex-wrap: wrap;
   align-items: center;
@@ -371,9 +371,9 @@
 
 .cmd-search {
   position: relative;
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
+  flex: 0 1 auto;
+  min-width: 200px;
+  max-width: 280px;
 }
 
 .cmd-search__icon {
@@ -596,6 +596,17 @@
 [data-theme="light"] .cmd-search__input {
   background: rgba(255, 255, 255, 0.8);
   color: #1E293B;
+}
+
+/* ================================================================
+ * FILTER PILLS CONTAINER
+ * ================================================================ */
+
+.cmd-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm, 8px);
+  align-items: center;
 }
 
 [data-theme="light"] .cmd-filter-tab {

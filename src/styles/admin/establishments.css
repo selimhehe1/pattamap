@@ -42,10 +42,8 @@
 
 /* Main container for establishments admin */
 .admin-establishments-container-nightlife {
-  background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(13, 0, 25, 0.95));
-  min-height: 100vh;
-  padding: var(--spacing-8);
-  padding-top: calc(var(--height-header-desktop) + var(--spacing-8)); /* Compense header fixe */
+  /* Removed min-height: 100vh to fix double scrollbar issue */
+  /* Parent .command-content-section handles the scroll */
   color: var(--color-text-primary);
 }
 
@@ -1155,8 +1153,7 @@
 /* Mobile - 1 colonne optimisée */
 @media (max-width: 48rem) {  /* 768px - Mobile */
   .admin-establishments-container-nightlife {
-    padding: 1rem;
-    padding-top: calc(var(--height-header-mobile) + 1rem); /* Compense header mobile */
+    /* No special padding - parent handles layout */
   }
 
   .admin-establishments-grid-nightlife {

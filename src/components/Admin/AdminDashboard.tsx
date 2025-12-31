@@ -40,12 +40,19 @@ import {
   XCircle,
   BarChart3,
   ShieldOff,
-  Shield
+  Shield,
+  Zap,
+  User as UserIcon,
+  X
 } from 'lucide-react';
+
+// Animation variants for premium modal
+import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
 
 // Import styles
 import '../../styles/admin/command-center.css';
 import '../../styles/admin/command-sidebar.css';
+import '../../styles/components/modal-premium-base.css';
 
 const VIP_ENABLED = isFeatureEnabled(FEATURES.VIP_SYSTEM);
 
@@ -551,156 +558,291 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
         </div>
       </main>
 
-      {/* Admin Profile Modal */}
-      <AnimatePresence>
-        {selectedUser && (
-          <motion.div
-            className="admin-profile-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedUser(null)}
-          >
+      {/* Admin Profile Modal - Premium Design */}
+      <AnimatePresence mode="wait">
+        {selectedUser && (() => {
+          // Role-based colors
+          const getRoleColor = (role: string) => {
+            switch (role) {
+              case 'admin': return '#FFD700';
+              case 'moderator': return '#00E5FF';
+              default: return '#E879F9';
+            }
+          };
+          const getRoleIcon = (role: string, size = 32) => {
+            switch (role) {
+              case 'admin': return <Crown size={size} />;
+              case 'moderator': return <Zap size={size} />;
+              default: return <UserIcon size={size} />;
+            }
+          };
+          const roleColor = getRoleColor(selectedUser.role);
+
+          return (
             <motion.div
-              className="admin-profile-modal-container"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={e => e.stopPropagation()}
+              className="modal-premium-overlay"
+              variants={premiumBackdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={() => setSelectedUser(null)}
             >
-              {/* Header with Avatar */}
-              <div className="admin-profile-header">
-                <button
+              <motion.div
+                className="modal-premium modal-premium--small"
+                variants={premiumModalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="admin-profile-modal-title"
+              >
+                {/* Close Button */}
+                <motion.button
+                  className="modal-premium__close"
                   onClick={() => setSelectedUser(null)}
-                  className="admin-profile-close-btn"
+                  aria-label={t('common.close')}
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  ×
-                </button>
+                  <X size={18} />
+                </motion.button>
 
-                <div className="admin-profile-avatar">
-                  <Shield size={32} />
+                {/* Header with Icon - Inline style */}
+                <div className="modal-premium__header modal-premium__header--form">
+                  <motion.div
+                    className="modal-premium__icon modal-premium__icon--admin"
+                    style={{
+                      background: `rgba(255, 215, 0, 0.15)`,
+                      border: `2px solid ${roleColor}`,
+                      color: roleColor,
+                      boxShadow: `0 0 20px ${roleColor}30`
+                    }}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 15 }}
+                  >
+                    <Shield size={24} />
+                  </motion.div>
+                  <motion.h2
+                    id="admin-profile-modal-title"
+                    className="modal-premium__title"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 }}
+                  >
+                    {t('admin.adminProfile')}
+                  </motion.h2>
                 </div>
 
-                <h1 className="admin-profile-name">
-                  {selectedUser.pseudonym || 'Administrator'}
-                </h1>
+                {/* Content */}
+                <motion.div
+                  className="modal-premium__content"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {/* Avatar Section */}
+                  <motion.div
+                    className="modal-premium__avatar-section"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                  >
+                    <motion.div
+                      className="modal-premium__avatar"
+                      style={{
+                        borderColor: roleColor,
+                        boxShadow: `0 0 30px ${roleColor}40, 0 0 60px ${roleColor}20`
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {getRoleIcon(selectedUser.role, 48)}
+                    </motion.div>
+                    <h3 className="modal-premium__user-name">{selectedUser.pseudonym || 'Administrator'}</h3>
+                    <p className="modal-premium__user-email">{selectedUser.email}</p>
+                    <motion.span
+                      className="modal-premium__role-badge"
+                      style={{
+                        borderColor: roleColor,
+                        color: roleColor,
+                        background: `linear-gradient(135deg, ${roleColor}20, ${roleColor}10)`,
+                        boxShadow: `0 0 15px ${roleColor}40`
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {getRoleIcon(selectedUser.role, 16)} {selectedUser.role?.toUpperCase() || 'USER'}
+                    </motion.span>
+                  </motion.div>
 
-                <div className={`admin-profile-role-badge ${
-                  selectedUser.role === 'admin' ? 'admin-profile-role-admin' :
-                  selectedUser.role === 'moderator' ? 'admin-profile-role-moderator' :
-                  'admin-profile-role-user'
-                }`}>
-                  {selectedUser.role?.toUpperCase() || 'USER'}
-                </div>
-              </div>
+                  {/* Separator */}
+                  <div className="modal-premium__separator" />
 
-              {/* Content Sections */}
-              <div className="admin-profile-content">
-                {/* Personal Information */}
-                <div className="admin-profile-section">
-                  <h3 className="admin-profile-section-title">
-                    <Mail size={16} style={{ marginRight: '8px' }} /> {t('admin.personalInformation')}
-                  </h3>
-                  <div className="admin-profile-info-grid">
-                    <div className="admin-profile-info-item">
-                      <div className="admin-profile-info-label">{t('admin.emailAddress')}</div>
-                      <div className="admin-profile-info-value">
-                        {selectedUser.email || t('admin.notProvided')}
+                  {/* Personal Information */}
+                  <motion.div
+                    className="modal-premium__section"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <h4 className="modal-premium__section-title">
+                      <Mail size={18} />
+                      {t('admin.personalInformation')}
+                    </h4>
+                    <div className="modal-premium__info-grid">
+                      <div className="modal-premium__info-item">
+                        <span className="modal-premium__info-label">{t('admin.memberSince')}:</span>
+                        <span className="modal-premium__info-value">
+                          {selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          }) : t('admin.unknown')}
+                        </span>
+                      </div>
+                      <div className="modal-premium__info-item">
+                        <span className="modal-premium__info-label">{t('admin.accountStatus')}:</span>
+                        <span className="modal-premium__info-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {selectedUser.is_active ? (
+                            <><CheckCircle size={14} style={{ color: '#10B981' }} /> {t('admin.active')}</>
+                          ) : (
+                            <><XCircle size={14} style={{ color: '#F87171' }} /> {t('admin.inactive')}</>
+                          )}
+                        </span>
                       </div>
                     </div>
-                    <div className="admin-profile-info-item">
-                      <div className="admin-profile-info-label">{t('admin.memberSince')}</div>
-                      <div className="admin-profile-info-value">
-                        {selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        }) : t('admin.unknown')}
-                      </div>
-                    </div>
-                    <div className="admin-profile-info-item">
-                      <div className="admin-profile-info-label">{t('admin.accountStatus')}</div>
-                      <div className={`admin-profile-info-value ${
-                        selectedUser.is_active ? 'admin-profile-status-active' : 'admin-profile-status-inactive'
-                      }`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {selectedUser.is_active ? (
-                          <><CheckCircle size={14} style={{ color: 'var(--color-success)' }} /> {t('admin.active')}</>
-                        ) : (
-                          <><XCircle size={14} style={{ color: 'var(--color-error)' }} /> {t('admin.inactive')}</>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </motion.div>
 
-                {/* Role & Permissions */}
-                <div className="admin-profile-section">
-                  <h3 className="admin-profile-section-title">
-                    <Lock size={16} style={{ marginRight: '8px' }} /> {t('admin.rolePermissions')}
-                  </h3>
-                  <div className="admin-profile-info-grid">
-                    <div className="admin-profile-info-item">
-                      <div className="admin-profile-info-label">{t('admin.accessLevel')}</div>
-                      <div className="admin-profile-info-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {selectedUser.role === 'admin' ? (
-                          <><Unlock size={14} style={{ color: 'var(--color-success)' }} /> {t('admin.fullAccess')}</>
-                        ) : selectedUser.role === 'moderator' ? (
-                          <><Lock size={14} style={{ color: 'var(--color-primary)' }} /> {t('admin.moderationAccess')}</>
-                        ) : (
-                          <><Lock size={14} style={{ color: 'var(--color-accent)' }} /> {t('admin.userAccess')}</>
-                        )}
-                      </div>
-                    </div>
-                    <div className="admin-profile-info-item">
-                      <div className="admin-profile-info-label">{t('admin.permissions')}</div>
-                      <div className="admin-profile-info-value">
-                        {selectedUser.role === 'admin' ? t('admin.allOperations') :
-                         selectedUser.role === 'moderator' ? t('admin.contentModeration') :
-                         t('admin.readOnly')}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  {/* Separator */}
+                  <div className="modal-premium__separator" />
 
-                {/* Activity Statistics */}
-                {selectedUser.stats && (
-                  <div className="admin-profile-section">
-                    <h3 className="admin-profile-section-title">
-                      <BarChart3 size={16} style={{ marginRight: '8px' }} /> {t('admin.activityStatistics')}
-                    </h3>
-                    <div className="admin-profile-stats-grid">
-                      <div className="admin-profile-stat-card">
-                        <div className="admin-profile-stat-number">
-                          {selectedUser.stats.establishments_submitted || 0}
-                        </div>
-                        <div className="admin-profile-stat-label">
-                          {t('admin.establishmentsSubmitted')}
-                        </div>
+                  {/* Role & Permissions */}
+                  <motion.div
+                    className="modal-premium__section"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                  >
+                    <h4 className="modal-premium__section-title">
+                      <Lock size={18} />
+                      {t('admin.rolePermissions')}
+                    </h4>
+                    <div className="modal-premium__info-grid">
+                      <div className="modal-premium__info-item">
+                        <span className="modal-premium__info-label">{t('admin.accessLevel')}:</span>
+                        <span className="modal-premium__info-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {selectedUser.role === 'admin' ? (
+                            <><Unlock size={14} style={{ color: '#10B981' }} /> {t('admin.fullAccess')}</>
+                          ) : selectedUser.role === 'moderator' ? (
+                            <><Lock size={14} style={{ color: '#00E5FF' }} /> {t('admin.moderationAccess')}</>
+                          ) : (
+                            <><Lock size={14} style={{ color: '#E879F9' }} /> {t('admin.userAccess')}</>
+                          )}
+                        </span>
                       </div>
-                      <div className="admin-profile-stat-card">
-                        <div className="admin-profile-stat-number">
-                          {selectedUser.stats.employees_submitted || 0}
-                        </div>
-                        <div className="admin-profile-stat-label">
-                          {t('admin.employeesSubmitted')}
-                        </div>
-                      </div>
-                      <div className="admin-profile-stat-card">
-                        <div className="admin-profile-stat-number">
-                          {selectedUser.stats.comments_made || 0}
-                        </div>
-                        <div className="admin-profile-stat-label">
-                          {t('admin.commentsMade')}
-                        </div>
+                      <div className="modal-premium__info-item">
+                        <span className="modal-premium__info-label">{t('admin.permissions')}:</span>
+                        <span className="modal-premium__info-value">
+                          {selectedUser.role === 'admin' ? t('admin.allOperations') :
+                           selectedUser.role === 'moderator' ? t('admin.contentModeration') :
+                           t('admin.readOnly')}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  </motion.div>
+
+                  {/* Separator */}
+                  <div className="modal-premium__separator" />
+
+                  {/* Activity Statistics */}
+                  {selectedUser.stats && (
+                    <motion.div
+                      className="modal-premium__section"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <h4 className="modal-premium__section-title">
+                        <BarChart3 size={18} />
+                        {t('admin.activityStatistics')}
+                      </h4>
+                      <div className="modal-premium__stats-grid">
+                        <motion.div
+                          className="modal-premium__stat-card"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.45 }}
+                          whileHover={{ scale: 1.05, y: -4 }}
+                          style={{ borderColor: '#E879F930' }}
+                        >
+                          <div className="modal-premium__stat-icon" style={{ color: '#E879F9' }}>
+                            <Building2 size={24} />
+                          </div>
+                          <div className="modal-premium__stat-value" style={{ color: '#E879F9' }}>
+                            {selectedUser.stats.establishments_submitted || 0}
+                          </div>
+                          <div className="modal-premium__stat-label">{t('admin.establishments')}</div>
+                        </motion.div>
+                        <motion.div
+                          className="modal-premium__stat-card"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.5 }}
+                          whileHover={{ scale: 1.05, y: -4 }}
+                          style={{ borderColor: '#00E5FF30' }}
+                        >
+                          <div className="modal-premium__stat-icon" style={{ color: '#00E5FF' }}>
+                            <Users size={24} />
+                          </div>
+                          <div className="modal-premium__stat-value" style={{ color: '#00E5FF' }}>
+                            {selectedUser.stats.employees_submitted || 0}
+                          </div>
+                          <div className="modal-premium__stat-label">{t('admin.employees')}</div>
+                        </motion.div>
+                        <motion.div
+                          className="modal-premium__stat-card"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.55 }}
+                          whileHover={{ scale: 1.05, y: -4 }}
+                          style={{ borderColor: '#FFD70030' }}
+                        >
+                          <div className="modal-premium__stat-icon" style={{ color: '#FFD700' }}>
+                            <MessageSquare size={24} />
+                          </div>
+                          <div className="modal-premium__stat-value" style={{ color: '#FFD700' }}>
+                            {selectedUser.stats.comments_made || 0}
+                          </div>
+                          <div className="modal-premium__stat-label">{t('admin.comments')}</div>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+
+                {/* Footer */}
+                <motion.div
+                  className="modal-premium__footer"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  style={{ justifyContent: 'center' }}
+                >
+                  <motion.button
+                    className="modal-premium__btn-primary"
+                    onClick={() => setSelectedUser(null)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ width: '100%', maxWidth: '200px' }}
+                  >
+                    {t('common.close')}
+                  </motion.button>
+                </motion.div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          );
+        })()}
       </AnimatePresence>
     </div>
   );

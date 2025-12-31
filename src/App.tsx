@@ -139,6 +139,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Hide header on full-page auth routes (login/register have their own layout)
   const isAuthPage = location.pathname === '/login';
+  // Hide header on admin routes (admin has its own CommandHeader)
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -148,8 +150,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* Offline Banner - PWA v10.3 */}
       <OfflineBanner />
 
-      {/* Header global - Hidden on auth pages which have their own layout */}
-      {!isAuthPage && <Header />}
+      {/* Header global - Hidden on auth pages and admin pages which have their own layout */}
+      {!isAuthPage && !isAdminPage && <Header />}
 
       {/* XP Toast Notifications - Gamification v10.3 */}
       <XPToastNotifications />

@@ -28,8 +28,12 @@ const AlertsTicker: React.FC<AlertsTickerProps> = ({ alerts, isCollapsed }) => {
   // Filter out alerts with 0 count
   const activeAlerts = alerts.filter(alert => alert.count > 0);
 
-  // Duplicate alerts for infinite scroll effect
-  const duplicatedAlerts = [...activeAlerts, ...activeAlerts, ...activeAlerts];
+  // Only duplicate if we have enough alerts to warrant scrolling
+  // With few alerts, just show them once (no scrolling needed)
+  const shouldAnimate = activeAlerts.length >= 3;
+  const duplicatedAlerts = shouldAnimate
+    ? [...activeAlerts, ...activeAlerts, ...activeAlerts]
+    : activeAlerts;
 
   if (activeAlerts.length === 0) {
     return (
@@ -64,15 +68,17 @@ const AlertsTicker: React.FC<AlertsTickerProps> = ({ alerts, isCollapsed }) => {
       <div className="alerts-ticker__track">
         <motion.div
           className="alerts-ticker__content"
-          animate={{ x: ['0%', '-33.33%'] }}
-          transition={{
+          initial={{ x: '0%' }}
+          animate={shouldAnimate ? { x: '-33.33%' } : { x: '0%' }}
+          transition={shouldAnimate ? {
             x: {
               repeat: Infinity,
               repeatType: 'loop',
-              duration: 30,
+              duration: 20,
               ease: 'linear'
             }
-          }}
+          } : undefined}
+          style={{ width: 'max-content' }}
         >
           {duplicatedAlerts.map((alert, index) => (
             <button

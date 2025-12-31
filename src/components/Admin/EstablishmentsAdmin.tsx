@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Check,
@@ -6,34 +6,29 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
-  Clock,
   Pencil,
-  Trash2,
-  Tag,
-  User,
   BarChart3,
   ShieldOff,
   Building2,
   Plus,
   List,
   Sparkles,
-  Inbox,
-  MapPin,
-  Globe,
-  Calendar
+  Inbox
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../../contexts/AuthContext';
+import { useModal } from '../../contexts/ModalContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import AdminEstablishmentCard from './AdminEstablishmentCard';
 import { logger } from '../../utils/logger';
-import LazyImage from '../Common/LazyImage';
 import toast from '../../utils/toast';
 import { Establishment } from '../../types';
 import '../../styles/admin/establishments.css';
 import '../../styles/admin/admin-components.css';
+import '../../styles/admin/admin-employee-card.css';
 
 // Lazy load EstablishmentForm for better performance
 const EstablishmentForm = lazy(() => import('../Forms/EstablishmentForm'));
@@ -106,15 +101,14 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
   const { t } = useTranslation();
   const { user } = useAuth();
   const { secureFetch } = useSecureFetch();
+  const { openModal, closeModal } = useModal();
   const dialog = useDialog();
   const [establishments, setEstablishments] = useState<AdminEstablishment[]>([]);
   const [editProposals, setEditProposals] = useState<EditProposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'pending-edits'>('pending');
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
-  const [editingEstablishment, setEditingEstablishment] = useState<AdminEstablishment | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<EditProposal | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
   // Bulk selection state
@@ -361,45 +355,65 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
     }
   };
 
-  const handleSaveEstablishment = async (establishmentData: Partial<Establishment>) => {
+  // Create establishment (for Add modal)
+  const handleCreateEstablishment = async (establishmentData: Partial<Establishment>) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
-
-      // Determine if we're adding or editing
-      const isEditing = !!editingEstablishment;
-      const url = isEditing
-        ? `${API_URL}/api/admin/establishments/${editingEstablishment.id}`
-        : `${API_URL}/api/admin/establishments`;
-      const method = isEditing ? 'PUT' : 'POST';
-
-      // DEBUG: Log the data being sent
-      logger.debug('🏢 EstablishmentsAdmin - Saving establishment:', {
-        method,
-        url,
-        establishmentData,
-        logo_url: establishmentData.logo_url
-      });
-
-      const response = await secureFetch(url, {
-        method,
+      const response = await secureFetch(`${API_URL}/api/admin/establishments`, {
+        method: 'POST',
         body: JSON.stringify(establishmentData)
       });
 
       if (response.ok) {
         refreshEstablishments();
-        // Close the appropriate modal
-        if (isEditing) {
-          setEditingEstablishment(null);
-        } else {
-          setShowAddModal(false);
-        }
+        closeModal('establishment-add');
+        toast.success(t('admin.establishmentCreated', 'Establishment created successfully'));
       } else {
-        throw new Error(`Failed to ${isEditing ? 'update' : 'create'} establishment`);
+        throw new Error('Failed to create establishment');
       }
     } catch (error) {
-      logger.error(`Failed to ${editingEstablishment ? 'save' : 'create'} establishment:`, error);
+      logger.error('Failed to create establishment:', error);
       throw error;
     }
+  };
+
+  // Update establishment (for Edit modal)
+  const handleUpdateEstablishment = async (establishmentId: string, establishmentData: Partial<Establishment>) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await secureFetch(`${API_URL}/api/admin/establishments/${establishmentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(establishmentData)
+      });
+
+      if (response.ok) {
+        refreshEstablishments();
+        closeModal('establishment-edit');
+        toast.success(t('admin.establishmentUpdated', 'Establishment updated successfully'));
+      } else {
+        throw new Error('Failed to update establishment');
+      }
+    } catch (error) {
+      logger.error('Failed to update establishment:', error);
+      throw error;
+    }
+  };
+
+  // Open Add modal
+  const handleOpenAddModal = () => {
+    openModal('establishment-add', EstablishmentForm, {
+      onSubmit: handleCreateEstablishment,
+      onCancel: () => closeModal('establishment-add')
+    }, { size: 'large' });
+  };
+
+  // Open Edit modal
+  const handleOpenEditModal = (establishment: AdminEstablishment) => {
+    openModal('establishment-edit', EstablishmentForm, {
+      initialData: establishment as unknown as Partial<Establishment>,
+      onSubmit: (data: Partial<Establishment>) => handleUpdateEstablishment(establishment.id, data),
+      onCancel: () => closeModal('establishment-edit')
+    }, { size: 'large' });
   };
 
   const handleApproveProposal = async (proposalId: string) => {
@@ -458,34 +472,6 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
         newSet.delete(proposalId);
         return newSet;
       });
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return '#FFD700';
-      case 'approved': return '#00FF7F';
-      case 'rejected': return '#FF4757';
-      default: return '#cccccc';
-    }
-  };
-
-  const getStatusIcon = (status: string): React.ReactNode => {
-    switch (status) {
-      case 'pending': return <Clock size={14} style={{ color: 'var(--color-warning)' }} />;
-      case 'approved': return <CheckCircle size={14} style={{ color: 'var(--color-success)' }} />;
-      case 'rejected': return <XCircle size={14} style={{ color: 'var(--color-error)' }} />;
-      default: return <Clock size={14} />;
     }
   };
 
@@ -660,7 +646,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
           <p className="cmd-section-subtitle">{t('admin.reviewApproveSubmissions')}</p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={handleOpenAddModal}
           className="cmd-modal-btn cmd-modal-btn--success"
         >
           <Plus size={18} /> <Building2 size={18} /> {t('admin.addNewEstablishment')}
@@ -952,195 +938,26 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
             )}
           </div>
 
-          {/* Establishments Grid */}
+          {/* Establishments Grid - Using AdminEstablishmentCard */}
           <div className="admin-establishments-grid-nightlife">
             {establishments.map((establishment) => (
-              <div
+              <AdminEstablishmentCard
                 key={establishment.id}
-                className="admin-establishment-card-nightlife"
-              >
-                {/* Selection Checkbox */}
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleSelection(establishment.id);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '6px',
-                    border: selectedIds.has(establishment.id) ? '2px solid #C19A6B' : '2px solid rgba(255,255,255,0.3)',
-                    background: selectedIds.has(establishment.id) ? '#C19A6B' : 'rgba(0,0,0,0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 15,
-                    transition: 'all 0.2s ease',
-                  }}
-                  role="checkbox"
-                  aria-checked={selectedIds.has(establishment.id)}
-                  aria-label={t('admin.selectEstablishment', 'Select establishment')}
-                >
-                  {selectedIds.has(establishment.id) && (
-                    <Check size={14} color="#fff" strokeWidth={3} />
-                  )}
-                </div>
-              {/* Status Badge - Small Circular Icon Only */}
-              <div
-                className="admin-establishment-status-badge-nightlife"
-                style={{
-                  background: getStatusColor(establishment.status),
-                  boxShadow: `0 0 12px ${getStatusColor(establishment.status)}80`
-                }}
-                title={establishment.status.toUpperCase()}
-              >
-                {getStatusIcon(establishment.status)}
-              </div>
-
-              {/* Content Area - Flex 1 to push buttons to bottom */}
-              <div className="admin-establishment-content-nightlife">
-                {/* Main Establishment Info - Horizontal Layout */}
-                <div className="admin-establishment-main-info-nightlife">
-                  {/* Logo with Status-Colored Border */}
-                  <div className="admin-establishment-logo-container-nightlife">
-                    {establishment.logo_url ? (
-                      <LazyImage
-                        src={establishment.logo_url}
-                        alt={`${establishment.name} logo`}
-                        cloudinaryPreset="establishmentLogo"
-                        className="admin-establishment-logo-image-nightlife"
-                        objectFit="contain"
-                      />
-                    ) : (
-                      <div className="admin-establishment-logo-placeholder-nightlife">
-                        {establishment.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info Section */}
-                  <div className="admin-establishment-info-nightlife">
-                    <div>
-                      <h3 className="admin-establishment-name-nightlife">
-                        {establishment.name}
-                      </h3>
-
-                      <div className="admin-establishment-details-nightlife">
-                        <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife"><MapPin size={12} /></span>
-                          <span className="admin-establishment-detail-text-nightlife">{establishment.address}</span>
-                        </div>
-
-                        <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife"><Globe size={12} /></span>
-                          <span className="admin-establishment-detail-text-nightlife">{establishment.zone}</span>
-                        </div>
-
-                        <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife"><Tag size={12} /></span>
-                          <span className="admin-establishment-detail-text-nightlife">{establishment.category?.name || t('admin.unknown')}</span>
-                        </div>
-
-                        <div className="admin-establishment-detail-row-nightlife">
-                          <span className="admin-establishment-detail-icon-nightlife"><User size={12} /></span>
-                          <span className="admin-establishment-detail-text-nightlife">{establishment.user?.pseudonym || t('admin.unknown')}</span>
-                        </div>
-                      </div>
-
-                      {/* Submission Info */}
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: '11px',
-                        color: '#888888',
-                        marginTop: '8px',
-                        alignItems: 'center'
-                      }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={11} /> {formatDate(establishment.created_at)}</span>
-                        <span style={{ color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><Tag size={11} /> {establishment.category?.name || t('admin.unknown')}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="admin-establishment-timestamps-nightlife">
-                  {t('admin.submitted')} {formatDate(establishment.created_at)}
-                  {establishment.updated_at !== establishment.created_at && (
-                    <span> • {t('admin.updated')} {formatDate(establishment.updated_at)}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className={`admin-establishment-actions-nightlife ${establishment.status === 'pending' ? 'admin-establishment-actions-pending-nightlife' : 'admin-establishment-actions-approved-nightlife'}`}>
-                {/* Edit & Delete Buttons Row - Always available */}
-                <div className="admin-establishment-edit-delete-row-nightlife">
-                  <button
-                    onClick={() => setEditingEstablishment(establishment)}
-                    className="admin-establishment-edit-button-nightlife"
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <Pencil size={14} /><span className="edit-text-desktop"> {t('common.edit')}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(establishment.id, establishment.name)}
-                    disabled={processingIds.has(establishment.id)}
-                    className="admin-establishment-delete-button-nightlife"
-                    title={t('admin.deleteEstablishment') || 'Delete'}
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    {processingIds.has(establishment.id) ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}<span className="delete-text-desktop"> {t('admin.deleteEstablishment') || 'Delete'}</span>
-                  </button>
-                </div>
-
-                {/* Approval Buttons - Only for pending */}
-                {establishment.status === 'pending' && (
-                  <div className="admin-establishment-approval-buttons-nightlife">
-                    <button
-                      onClick={() => handleApprove(establishment.id)}
-                      disabled={processingIds.has(establishment.id)}
-                      className="admin-establishment-approve-button-nightlife"
-                    >
-                      {processingIds.has(establishment.id) ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
-                    </button>
-
-                    <button
-                      onClick={() => handleReject(establishment.id)}
-                      disabled={processingIds.has(establishment.id)}
-                      className="admin-establishment-reject-button-nightlife"
-                    >
-                      {processingIds.has(establishment.id) ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+                establishment={establishment}
+                isProcessing={processingIds.has(establishment.id)}
+                isSelected={selectedIds.has(establishment.id)}
+                onToggleSelection={toggleSelection}
+                onEdit={handleOpenEditModal}
+                onApprove={handleApprove}
+                onReject={(id) => handleReject(id)}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
         </>
       )}
 
-      {/* Establishment Modal (Add/Edit) */}
-      {(showAddModal || editingEstablishment) && (
-        <div className="admin-establishments-modal-overlay-nightlife">
-          <Suspense fallback={<LoadingFallback />}>
-            <EstablishmentForm
-              initialData={editingEstablishment as unknown as Partial<Establishment> | undefined}
-              onCancel={() => {
-                setShowAddModal(false);
-                setEditingEstablishment(null);
-              }}
-              onSubmit={handleSaveEstablishment}
-            />
-          </Suspense>
-        </div>
-      )}
-
+      {/* Modal is now handled by ModalContext/ModalRenderer */}
     </div>
   );
 };

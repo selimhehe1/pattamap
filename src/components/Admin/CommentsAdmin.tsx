@@ -5,19 +5,18 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import CommentReviewCard from './CommentReviewCard';
 import { logger } from '../../utils/logger';
 import {
   Ban,
   MessageSquare,
   AlertTriangle,
   Loader2,
-  CheckCircle,
-  XCircle,
   ClipboardList,
   BellOff,
   MailX,
-  FileEdit,
-  Eye
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 
 interface AdminComment {
@@ -198,25 +197,6 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     });
   };
 
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'pending': return 'cmd-card__status--pending';
-      case 'approved': return 'cmd-card__status--approved';
-      case 'rejected': return 'cmd-card__status--rejected';
-      default: return '';
-    }
-  };
-
-  const getCardClass = (comment: AdminComment) => {
-    let base = 'cmd-card';
-    if (selectedIds.has(comment.id)) base += ' cmd-card--selected';
-    if (comment.reports && comment.reports.length > 0) base += ' cmd-card--reported';
-    else if (comment.status === 'pending') base += ' cmd-card--pending';
-    else if (comment.status === 'approved') base += ' cmd-card--approved';
-    else if (comment.status === 'rejected') base += ' cmd-card--rejected';
-    return base;
-  };
-
   if (!user || !['admin', 'moderator'].includes(user.role)) {
     return (
       <div className="cmd-modal-overlay">
@@ -331,107 +311,19 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
           <p className="cmd-table__empty-text">{t('admin.noCommentsMatch')}</p>
         </div>
       ) : (
-        <div className="cmd-card-grid">
+        <div className="aec-grid">
           {comments.map((comment) => (
-            <div key={comment.id} className={getCardClass(comment)}>
-              {/* Checkbox */}
-              <input
-                type="checkbox"
-                checked={selectedIds.has(comment.id)}
-                onChange={() => toggleSelect(comment.id)}
-                className="cmd-card__checkbox"
-                aria-label={`Select comment by ${comment.user?.pseudonym || 'anonymous'}`}
-              />
-
-              {/* Status Badge */}
-              <div className={`cmd-card__status ${getStatusClass(comment.status)}`}>
-                <span className="cmd-card__status-dot" />
-                {comment.status.toUpperCase()}
-              </div>
-
-              {/* Header */}
-              <div className="cmd-card__header" style={{ paddingLeft: '32px' }}>
-                <div className="cmd-card__header-left">
-                  <div className="cmd-card__avatar">
-                    {comment.user?.pseudonym?.charAt(0).toUpperCase() || '?'}
-                  </div>
-                  <div className="cmd-card__title-group">
-                    <h3 className="cmd-card__title">{comment.user?.pseudonym || t('admin.anonymous')}</h3>
-                    <p className="cmd-card__subtitle" style={{ color: 'var(--color-secondary)' }}>
-                      {t('admin.reviewFor')} {comment.employee?.name}
-                      {comment.employee?.nickname && ` "${comment.employee.nickname}"`}
-                    </p>
-                    <span className="cmd-card__meta">{formatDate(comment.created_at)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rating */}
-              <div className="cmd-card__rating">
-                <StarRating rating={comment.rating} readonly size="medium" />
-                <span className="cmd-card__rating-value">{(comment.rating || 0).toFixed(1)}/5</span>
-              </div>
-
-              {/* Comment Text */}
-              <div className="cmd-card__content">
-                <p className="cmd-card__text">{comment.comment}</p>
-              </div>
-
-              {/* Reports Section */}
-              {comment.reports && comment.reports.length > 0 && (
-                <div className="cmd-card__reports">
-                  <div className="cmd-card__reports-header">
-                    <AlertTriangle size={14} />
-                    {t('admin.reports')} ({comment.reports.length})
-                  </div>
-                  <div className="cmd-card__reports-list">
-                    {comment.reports.map((report) => (
-                      <div key={report.id} className="cmd-card__report">
-                        <div className="cmd-card__report-meta">
-                          <span className="cmd-card__report-author">{report.user?.pseudonym || t('admin.anonymous')}</span>
-                          <span className="cmd-card__report-date">{formatDate(report.created_at)}</span>
-                        </div>
-                        <p className="cmd-card__report-reason">{report.reason}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="cmd-card__footer">
-                {comment.status === 'pending' && (
-                  <>
-                    <button
-                      onClick={() => handleApprove(comment.id)}
-                      disabled={processingIds.has(comment.id)}
-                      className={`cmd-card__action cmd-card__action--success ${processingIds.has(comment.id) ? 'cmd-card__action--loading' : ''}`}
-                    >
-                      <CheckCircle size={14} /> {t('admin.approve')}
-                    </button>
-                    <button
-                      onClick={() => handleReject(comment.id)}
-                      disabled={processingIds.has(comment.id)}
-                      className={`cmd-card__action cmd-card__action--danger ${processingIds.has(comment.id) ? 'cmd-card__action--loading' : ''}`}
-                    >
-                      <XCircle size={14} /> {t('admin.reject')}
-                    </button>
-                  </>
-                )}
-                {comment.reports && comment.reports.length > 0 && (
-                  <button
-                    onClick={() => handleDismissReports(comment.id)}
-                    disabled={processingIds.has(comment.id)}
-                    className={`cmd-card__action cmd-card__action--warning ${processingIds.has(comment.id) ? 'cmd-card__action--loading' : ''}`}
-                  >
-                    <FileEdit size={14} /> {t('admin.dismissReports')}
-                  </button>
-                )}
-                <button onClick={() => setSelectedComment(comment)} className="cmd-card__action cmd-card__action--primary">
-                  <Eye size={14} /> {t('admin.viewDetails')}
-                </button>
-              </div>
-            </div>
+            <CommentReviewCard
+              key={comment.id}
+              comment={comment}
+              isProcessing={processingIds.has(comment.id)}
+              isSelected={selectedIds.has(comment.id)}
+              onToggleSelection={toggleSelect}
+              onViewDetails={() => setSelectedComment(comment)}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onDismissReports={handleDismissReports}
+            />
           ))}
         </div>
       )}
@@ -462,7 +354,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
               </div>
               <div className="cmd-modal__info-row">
                 <span className="cmd-modal__info-label">{t('admin.rating')}</span>
-                <span className="cmd-modal__info-value">{selectedComment.rating}/5 {t('admin.stars')}</span>
+                <span className="cmd-modal__info-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <StarRating rating={selectedComment.rating} readonly size="small" />
+                  {selectedComment.rating}/5
+                </span>
               </div>
               <div className="cmd-modal__info-row">
                 <span className="cmd-modal__info-label">{t('admin.status')}</span>

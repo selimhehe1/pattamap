@@ -658,6 +658,7 @@
     "filterApproved": "Одобренные",
     "filterRejected": "Отклоненные",
     "filterAll": "Все",
+    "filterPending": "Ожидающие",
     "addNewEstablishment": "Добавить новое заведение",
     "loadingEstablishments": "Загрузка заведений...",
     "noPendingEdits": "Нет ожидающих правок",

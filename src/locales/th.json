@@ -656,6 +656,7 @@
     "filterApproved": "อนุมัติแล้ว",
     "filterRejected": "ปฏิเสธแล้ว",
     "filterAll": "ทั้งหมด",
+    "filterPending": "รอดำเนินการ",
     "addNewEstablishment": "เพิ่มสถานประกอบการใหม่",
     "loadingEstablishments": "กำลังโหลดสถานประกอบการ...",
     "noPendingEdits": "ไม่มีการแก้ไขที่รอดำเนินการ",
