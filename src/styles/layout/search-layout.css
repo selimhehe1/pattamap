@@ -638,7 +638,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 .search-hero {
   position: relative;
   padding: 3rem 1.5rem 2rem;
-  overflow: hidden;
+  overflow: visible; /* Phase 3.6: Allow sparkles to display outside container */
   text-align: center;
 }
 
