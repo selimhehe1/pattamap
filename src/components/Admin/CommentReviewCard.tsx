@@ -195,7 +195,9 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
       {/* 8. Quote-style comment */}
       <div className="arc-quote">
         <span className="arc-quote-mark arc-quote-mark--open">"</span>
-        <p className="arc-quote-text">{truncatedComment}</p>
+        <p className="arc-quote-text">
+          {truncatedComment || <em style={{ opacity: 0.6 }}>{t('admin.noCommentProvided', 'No comment provided')}</em>}
+        </p>
         <span className="arc-quote-mark arc-quote-mark--close">"</span>
       </div>
 
