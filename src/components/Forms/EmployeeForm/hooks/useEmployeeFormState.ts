@@ -51,11 +51,19 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     if (initialData) {
       const socialMedia = initialData.social_media as FormSocialMedia | undefined;
 
-      // FIX: Derive current_establishment_id from current_employment array
-      // Backend returns current_employment[] but form expects current_establishment_id string
+      // FIX: Derive current_establishment_id from various sources
+      // - current_employment[] (from regular employee API)
+      // - employment_history[] with is_current=true (from admin API)
+      // - current_establishment_id directly (fallback)
       let derivedEstablishmentId = '';
       if (initialData.current_employment && initialData.current_employment.length > 0) {
         derivedEstablishmentId = initialData.current_employment[0].establishment_id;
+      } else if (initialData.employment_history && initialData.employment_history.length > 0) {
+        // Admin API returns employment_history - find the current one
+        const currentEmployment = initialData.employment_history.find(eh => eh.is_current);
+        if (currentEmployment) {
+          derivedEstablishmentId = currentEmployment.establishment_id;
+        }
       } else if (initialData.current_establishment_id) {
         derivedEstablishmentId = initialData.current_establishment_id;  // Fallback if provided directly
       }

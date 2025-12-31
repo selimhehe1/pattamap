@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
-import { Edit, Star, MailX, Search, Cake, Globe, MapPin, AlertTriangle } from 'lucide-react';
+import { Edit, Star, MailX, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import { useFavorites, useRemoveFavorite } from '../../hooks/useFavorites';
-import StarRating from '../Common/StarRating';
+import { useFavorites, useRemoveFavorite, Favorite } from '../../hooks/useFavorites';
 import { GirlProfile } from '../../routes/lazyComponents';
-import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import EditEmployeeModal from '../Employee/EditEmployeeModal';
+import EmployeeCard from '../Common/EmployeeCard';
+import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
-import LazyImage from '../Common/LazyImage';
-import { generateEstablishmentUrl } from '../../utils/slugify';
 import { SkeletonGallery } from '../Common/Skeleton';
-import '../../styles/components/favorite-cards.css';
 import '../../styles/pages/user-dashboard.css';
 import '../../styles/layout/page-layout.css';
 
@@ -29,8 +26,36 @@ const UserDashboard: React.FC = () => {
   const { data: favorites = [], isLoading } = useFavorites();
   const removeFavoriteMutation = useRemoveFavorite();
 
-  const [photoGallery, setPhotoGallery] = useState<{ photos: string[]; employeeName: string } | null>(null);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+
+  // Fonction de mapping Favorite → Employee pour EmployeeCard
+  const favoriteToEmployee = (favorite: Favorite): Employee => ({
+    id: favorite.employee_id,
+    name: favorite.employee_name,
+    nickname: favorite.employee_nickname,
+    photos: favorite.employee_photos || [],
+    age: favorite.employee_age,
+    nationality: favorite.employee_nationality ? [favorite.employee_nationality] : [],
+    average_rating: favorite.employee_rating ?? favorite.average_rating,
+    current_employment: favorite.current_establishment
+      ? [{
+          id: `emp-${favorite.employee_id}`,
+          employee_id: favorite.employee_id,
+          establishment_id: favorite.current_establishment.id,
+          establishment: favorite.current_establishment,
+          is_current: true,
+          start_date: favorite.created_at,
+          created_by: favorite.user_id,
+          created_at: favorite.created_at,
+          updated_at: favorite.created_at,
+        }]
+      : [],
+    created_at: favorite.created_at,
+    status: 'approved',
+    self_removal_requested: false,
+    created_by: favorite.user_id,
+    updated_at: favorite.created_at,
+  });
 
   useEffect(() => {
     if (!user) {
@@ -132,136 +157,32 @@ const UserDashboard: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid-enhanced-nightlife scroll-reveal-stagger">
+        <div className="favorites-grid">
           {favorites.map((favorite) => (
-            <div
-              key={favorite.id}
-              className="favorite-card-nightlife"
-              role="button" tabIndex={0} onClick={() => handleOpenProfile(favorite.employee_id)}
-              style={{ cursor: 'pointer' }}
-            >
-              {/* Photo Container with Badge */}
-              <div
-                className="favorite-card-photo-container-nightlife"
-                role="button" tabIndex={0} onClick={(e) => {
+            <div key={favorite.id} className="favorite-card-wrapper">
+              <EmployeeCard
+                employee={favoriteToEmployee(favorite)}
+                onClick={() => handleOpenProfile(favorite.employee_id)}
+                showEstablishment={true}
+                showRatingBadge={true}
+              />
+              {/* Bouton remove favorite en overlay */}
+              <button
+                className="favorite-remove-button"
+                onClick={(e) => {
                   e.stopPropagation();
-                  if (favorite.employee_photos && favorite.employee_photos.length > 0) {
-                    setPhotoGallery({
-                      photos: favorite.employee_photos,
-                      employeeName: favorite.employee_name
-                    });
-                  }
+                  handleRemoveFavorite(favorite.employee_id);
                 }}
+                aria-label={t('userDashboard.ariaRemoveFavorite', { name: favorite.employee_name })}
+                title={t('userDashboard.titleRemoveFavorite')}
               >
-                {favorite.employee_photos && favorite.employee_photos.length > 0 ? (
-                  <>
-                    <LazyImage
-                      src={favorite.employee_photos[0]}
-                      alt={favorite.employee_name}
-                      className="favorite-card-photo-nightlife"
-                      objectFit="cover"
-                    />
-                    {favorite.employee_photos.length > 1 && (
-                      <div className="favorite-photo-count-badge-nightlife">
-                        <Search size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                        {t('userDashboard.photoCountBadge', { count: favorite.employee_photos.length - 1 })}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="favorite-card-photo-placeholder-nightlife">
-                    {favorite.employee_name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                {/* Badge étoile interactive pour retirer des favoris */}
-                <button
-                  className="favorite-badge-nightlife"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveFavorite(favorite.employee_id);
-                  }}
-                  aria-label={t('userDashboard.ariaRemoveFavorite', { name: favorite.employee_name })}
-                  title={t('userDashboard.titleRemoveFavorite')}
-                >
-                  <Star size={16} />
-                </button>
-                <div className="favorite-card-photo-overlay-nightlife"></div>
-              </div>
-
-              {/* Header - Name and Info */}
-              <div className="favorite-card-header-nightlife">
-                <h3 className="favorite-card-name-nightlife">
-                  {favorite.employee_name}
-                  {favorite.employee_nickname && (
-                    <span className="favorite-card-nickname-nightlife">
-                      "{favorite.employee_nickname}"
-                    </span>
-                  )}
-                </h3>
-
-                {(favorite.employee_age || favorite.employee_nationality) && (
-                  <div className="favorite-card-meta-nightlife">
-                    {favorite.employee_age && <span><Cake size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('userDashboard.ageLabel', { age: favorite.employee_age })}</span>}
-                    {favorite.employee_nationality && <span><Globe size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{favorite.employee_nationality}</span>}
-                  </div>
-                )}
-
-                {/* Rating */}
-                <div className="favorite-card-rating-nightlife">
-                  <StarRating
-                    rating={favorite.employee_rating || 0}
-                    readonly={true}
-                    size="small"
-                  />
-                  <span className="favorite-card-rating-score-nightlife">
-                    {favorite.employee_rating?.toFixed(1) || '0.0'} ({favorite.employee_comment_count || 0})
-                  </span>
-                </div>
-              </div>
-
-              {/* Body - Establishment and Social */}
-              <div className="favorite-card-body-nightlife">
-                {/* Establishment Info */}
-                {favorite.current_establishment ? (
-                  <div
-                    className="favorite-establishment-card-nightlife"
-                    role="button" tabIndex={0} onClick={(e) => {
-                      e.stopPropagation();
-                      const est = favorite.current_establishment!;
-                      navigate(generateEstablishmentUrl(est.id, est.name, est.zone || 'other'));
-                    }}
-                  >
-                    <div className="favorite-establishment-label-nightlife">
-                      <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                      {t('userDashboard.establishmentLabel')}
-                    </div>
-                    <div className="favorite-establishment-name-nightlife">
-                      {favorite.current_establishment.name}
-                    </div>
-                    <div className="favorite-establishment-zone-nightlife">
-                      {favorite.current_establishment.zone?.toUpperCase()}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="favorite-unemployed-card-nightlife">
-                    <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                    {t('userDashboard.notEmployed')}
-                  </div>
-                )}
-              </div>
+                <Star size={16} fill="gold" color="gold" />
+              </button>
             </div>
           ))}
         </div>
       )}
       </div>
-
-      {photoGallery && (
-        <PhotoGalleryModal
-          photos={photoGallery.photos}
-          employeeName={photoGallery.employeeName}
-          onClose={() => setPhotoGallery(null)}
-        />
-      )}
 
       {/* Edit My Profile Modal */}
       <EditEmployeeModal
