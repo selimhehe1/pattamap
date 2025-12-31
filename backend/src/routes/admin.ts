@@ -937,7 +937,7 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
             start_date: new Date().toISOString(),
             is_current: true,
             notes: 'Updated via admin panel',
-            created_by: '8aae5ac5-dd17-4a2f-8f12-043310eb314f'  // Use known admin user ID
+            created_by: req.user?.id || realUuid  // Use actual admin user ID
           })
           .select('id, establishment_id, is_current, start_date');
 
