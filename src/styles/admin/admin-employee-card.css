@@ -1347,6 +1347,30 @@ body[data-theme="light"] .aec-card--fullbleed:hover {
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+/* Top Row Container - Checkbox + Rating aligned horizontally */
+.arc-top-row {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 15;
+}
+
+/* Inline variants (not absolute positioned) */
+.aec-checkbox--inline {
+  position: relative;
+  top: auto;
+  left: auto;
+}
+
+.arc-rating--inline {
+  position: relative;
+  top: auto;
+  left: auto;
+}
+
 /* Quote Style Comment */
 .arc-quote {
   position: absolute;
