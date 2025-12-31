@@ -17,7 +17,7 @@ export const getFavorites = async (req: Request, res: Response) => {
         id,
         employee_id,
         created_at,
-        employee:employees(
+        employee:employees!employee_id(
           id,
           name,
           nickname,
