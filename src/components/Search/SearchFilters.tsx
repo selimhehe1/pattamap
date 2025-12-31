@@ -13,6 +13,7 @@ import {
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import FilterSection from './FilterSection';
+import CustomSelect from '../Common/CustomSelect';
 import '../../styles/layout/search-layout.css';
 
 // Development logging helper
@@ -922,25 +923,25 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         )}
       </div>
 
-      {/* Nationality */}
+      {/* Nationality - Phase 3.4: Custom styled dropdown */}
       <div className="filter-section">
         <label className="label-nightlife filter-label-with-icon">
           <Globe size={20} /> {t('search.nationality')}
         </label>
-        <select
+        <CustomSelect
           value={filters.nationality}
-          onChange={(e) => onFilterChange('nationality', e.target.value)}
+          onChange={(value) => onFilterChange('nationality', value)}
           disabled={loading}
-          className="select-nightlife"
-          data-testid="nationality-filter"
-        >
-          <option value="">{t('search.allNationalities')}</option>
-          {availableFilters.nationalities.map(nationality => (
-            <option key={nationality} value={nationality} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-              {nationality}
-            </option>
-          ))}
-        </select>
+          placeholder={t('search.allNationalities')}
+          testId="nationality-filter"
+          options={[
+            { value: '', label: t('search.allNationalities') },
+            ...availableFilters.nationalities.map(nationality => ({
+              value: nationality,
+              label: nationality
+            }))
+          ]}
+        />
       </div>
       </FilterSection>
 
@@ -953,46 +954,46 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         defaultExpanded={true}
         activeCount={[filters.zone, filters.establishment_id, filters.category_id].filter(Boolean).length}
       >
-      {/* Zone */}
+      {/* Zone - Phase 3.4: Custom styled dropdown */}
       <div className="filter-section">
         <label className="label-nightlife filter-label-with-icon">
           <MapPin size={20} /> {t('search.zone')}
         </label>
-        <select
+        <CustomSelect
           value={filters.zone}
-          onChange={(e) => handleZoneChangeInternal(e.target.value)}
+          onChange={(value) => handleZoneChangeInternal(value)}
           disabled={loading}
-          className="select-nightlife"
-          data-testid="zone-filter"
-        >
-          <option value="">{t('search.allZones')}</option>
-          {ZONE_OPTIONS.filter(z => z.value !== 'freelance').map(zone => (
-            <option key={zone.value} value={zone.value} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-              {zone.label}
-            </option>
-          ))}
-        </select>
+          placeholder={t('search.allZones')}
+          testId="zone-filter"
+          options={[
+            { value: '', label: t('search.allZones') },
+            ...ZONE_OPTIONS.filter(z => z.value !== 'freelance').map(zone => ({
+              value: zone.value,
+              label: zone.label
+            }))
+          ]}
+        />
       </div>
 
-      {/* Establishment Type */}
+      {/* Establishment Type - Phase 3.4: Custom styled dropdown */}
       <div className="filter-section">
         <label className="label-nightlife filter-label-with-icon">
           <Tag size={20} /> {t('search.establishmentType')}
         </label>
-        <select
+        <CustomSelect
           value={filters.category_id}
-          onChange={(e) => onFilterChange('category_id', e.target.value)}
+          onChange={(value) => onFilterChange('category_id', value)}
           disabled={loading}
-          className="select-nightlife"
-          data-testid="category-filter"
-        >
-          <option value="">{t('search.allTypes')}</option>
-          {availableFilters.categories.map(category => (
-            <option key={category.id} value={category.id} style={{ background: '#1a1a2e', color: '#ffffff' }}>
-              {category.icon} {category.name}
-            </option>
-          ))}
-        </select>
+          placeholder={t('search.allTypes')}
+          testId="category-filter"
+          options={[
+            { value: '', label: t('search.allTypes') },
+            ...availableFilters.categories.map(category => ({
+              value: String(category.id),
+              label: `${category.icon} ${category.name}`
+            }))
+          ]}
+        />
       </div>
 
       {/* Establishment - Disabled when Freelance is ON (v11.1 fix #3 & #4) */}
