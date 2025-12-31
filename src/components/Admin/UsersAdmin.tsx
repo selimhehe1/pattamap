@@ -19,7 +19,8 @@ import {
   Eye,
   Building2,
   Users,
-  MessageSquare
+  MessageSquare,
+  Search
 } from 'lucide-react';
 
 // Lazy load EditUserModal for better performance
@@ -100,9 +101,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
         method: 'POST',
         body: JSON.stringify({ role: newRole })
       });
-      
+
       if (response.ok) {
-        refreshUsers(); // Reload list
+        refreshUsers();
       }
     } catch (error) {
       logger.error('Failed to change user role:', error);
@@ -122,9 +123,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
         method: 'POST',
         body: JSON.stringify({ is_active: !isActive })
       });
-      
+
       if (response.ok) {
-        refreshUsers(); // Reload list
+        refreshUsers();
       }
     } catch (error) {
       logger.error('Failed to toggle user status:', error);
@@ -139,15 +140,15 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
   const handleSaveUser = async (updatedData: Partial<AdminUser>) => {
     if (!editingUser) return;
-    
+
     try {
       const response = await secureFetch(`${API_URL}/api/admin/users/${editingUser.id}`, {
         method: 'PUT',
         body: JSON.stringify(updatedData)
       });
-      
+
       if (response.ok) {
-        refreshUsers(); // Reload list
+        refreshUsers();
         setEditingUser(null);
       } else {
         throw new Error('Failed to update user');
@@ -168,69 +169,44 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
     });
   };
 
-  const getRoleColor = (role: string) => {
+  const getRoleClass = (role: string) => {
     switch (role) {
-      case 'admin': return '#FF4757';
-      case 'moderator': return '#FFD700';
-      case 'user': return '#00E5FF';
-      default: return '#cccccc';
+      case 'admin': return 'cmd-card__status--rejected';
+      case 'moderator': return 'cmd-card__status--vip';
+      case 'user': return 'cmd-card__status--approved';
+      default: return 'cmd-card__status--pending';
     }
   };
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return <Crown size={12} style={{ verticalAlign: 'middle' }} />;
-      case 'moderator': return <Shield size={12} style={{ verticalAlign: 'middle' }} />;
-      case 'user': return <User size={12} style={{ verticalAlign: 'middle' }} />;
-      default: return <HelpCircle size={12} style={{ verticalAlign: 'middle' }} />;
+      case 'admin': return <Crown size={12} />;
+      case 'moderator': return <Shield size={12} />;
+      case 'user': return <User size={12} />;
+      default: return <HelpCircle size={12} />;
     }
   };
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter(u =>
     u.pseudonym.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Access denied view
   if (!user || user.role !== 'admin') {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        padding: '30px'
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h2 style={{
-            color: '#C19A6B',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            margin: '0 0 15px 0'
-          }}>
-            <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            {t('admin.accessDenied')}
-          </h2>
-          <p style={{ color: '#cccccc', fontSize: '16px' }}>
-            {t('admin.accessDeniedArea')}
-          </p>
+      <div className="command-content-section">
+        <div className="cmd-card" style={{ textAlign: 'center', padding: '60px 40px' }}>
+          <Ban size={48} className="cmd-card__icon" style={{ marginBottom: '20px', opacity: 0.5 }} />
+          <h2 className="cmd-card__title">{t('admin.accessDenied')}</h2>
+          <p className="cmd-card__subtitle">{t('admin.accessDeniedArea')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-      minHeight: '100vh',
-      padding: '30px',
-      color: 'white'
-    }}>
+    <div className="command-content-section">
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
         currentSection={t('admin.usersManagement')}
@@ -239,346 +215,130 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       />
 
       {/* Header */}
-      <div style={{ marginBottom: '30px' }}>
-
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: '900',
-          margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
-          fontFamily: '"Orbitron", monospace'
-        }}>
-          <User size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+      <div className="cmd-section-header">
+        <h1 className="cmd-section-title">
+          <User size={28} />
           {t('admin.usersManagement')}
         </h1>
-        <p style={{
-          fontSize: '16px',
-          color: '#cccccc',
-          margin: 0
-        }}>
-          {t('admin.manageUserAccounts')}
-        </p>
+        <p className="cmd-section-subtitle">{t('admin.manageUserAccounts')}</p>
       </div>
 
-      {/* Search and Filter */}
-      <div style={{
-        display: 'flex',
-        gap: '20px',
-        marginBottom: '30px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
+      {/* Search and Filters */}
+      <div className="cmd-filters">
         {/* Search Input */}
-        <input
-          type="text"
-          placeholder={t('admin.searchUsers')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            flex: 1,
-            minWidth: '300px',
-            padding: '12px 20px',
-            borderRadius: '12px',
-            border: '2px solid rgba(193, 154, 107,0.3)',
-            background: 'rgba(0,0,0,0.3)',
-            color: '#ffffff',
-            fontSize: '14px',
-            transition: 'border-color 0.3s ease'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#C19A6B';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(193, 154, 107,0.3)';
-          }}
-        />
+        <div className="cmd-search">
+          <Search size={18} className="cmd-search__icon" />
+          <input
+            type="text"
+            className="cmd-search__input"
+            placeholder={t('admin.searchUsers')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-        {/* Filter Tabs */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Filter Pills */}
+        <div className="cmd-filter-pills">
           {[
-            { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={12} /> },
-            { key: 'admin', label: t('admin.filterAdmins'), icon: <Crown size={12} /> },
-            { key: 'moderator', label: t('admin.filterModerators'), icon: <Shield size={12} /> },
-            { key: 'user', label: t('admin.filterUsers'), icon: <User size={12} /> },
-            { key: 'inactive', label: t('admin.filterInactive'), icon: <Ban size={12} /> }
+            { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={14} /> },
+            { key: 'admin', label: t('admin.filterAdmins'), icon: <Crown size={14} /> },
+            { key: 'moderator', label: t('admin.filterModerators'), icon: <Shield size={14} /> },
+            { key: 'user', label: t('admin.filterUsers'), icon: <User size={14} /> },
+            { key: 'inactive', label: t('admin.filterInactive'), icon: <Ban size={14} /> }
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setFilter(tab.key as any)}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '10px',
-                border: filter === tab.key ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
-                background: filter === tab.key 
-                  ? 'linear-gradient(45deg, rgba(193, 154, 107,0.2), rgba(255,215,0,0.1))'
-                  : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-                color: filter === tab.key ? '#C19A6B' : '#ffffff',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap'
-              }}
+              onClick={() => setFilter(tab.key as typeof filter)}
+              className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
             >
-              {tab.icon} {tab.label}
+              {tab.icon}
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Users List */}
+      {/* Users Grid */}
       {isLoading ? (
         <LoadingFallback message={t('admin.loadingUsers')} variant="inline" />
       ) : filteredUsers.length === 0 ? (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{
-            color: '#C19A6B',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            margin: '0 0 10px 0'
-          }}>
-            <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            {t('admin.noUsersFound')}
-          </h3>
-          <p style={{
-            color: '#cccccc',
-            fontSize: '16px'
-          }}>
-            {t('admin.noUsersMatch')}
-          </p>
+        <div className="cmd-table__empty">
+          <MailX size={48} />
+          <h3>{t('admin.noUsersFound')}</h3>
+          <p>{t('admin.noUsersMatch')}</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-          gap: '20px'
-        }}>
+        <div className="cmd-card-grid">
           {filteredUsers.map((userData) => (
             <div
               key={userData.id}
-              style={{
-                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-                borderRadius: '20px',
-                border: userData.is_active 
-                  ? '2px solid rgba(193, 154, 107,0.3)' 
-                  : '2px solid rgba(255,71,87,0.5)',
-                padding: '20px',
-                position: 'relative',
-                opacity: userData.is_active ? 1 : 0.7,
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(193, 154, 107,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className={`cmd-card ${!userData.is_active ? 'cmd-card--inactive' : ''}`}
             >
               {/* Role Badge */}
-              <div style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                padding: '6px 12px',
-                borderRadius: '15px',
-                background: `${getRoleColor(userData.role)}20`,
-                border: `2px solid ${getRoleColor(userData.role)}`,
-                color: getRoleColor(userData.role),
-                fontSize: '11px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
+              <span className={`cmd-card__status ${getRoleClass(userData.role)}`}>
                 {getRoleIcon(userData.role)} {userData.role.toUpperCase()}
-              </div>
+              </span>
 
-              {/* Status Badge */}
+              {/* Inactive Badge */}
               {!userData.is_active && (
-                <div style={{
-                  position: 'absolute',
-                  top: '50px',
-                  right: '15px',
-                  padding: '4px 8px',
-                  borderRadius: '10px',
-                  background: 'rgba(255,71,87,0.2)',
-                  border: '1px solid #FF4757',
-                  color: '#FF4757',
-                  fontSize: '10px',
-                  fontWeight: 'bold'
-                }}>
+                <span className="cmd-card__badge cmd-card__badge--error">
                   INACTIVE
-                </div>
+                </span>
               )}
 
               {/* User Avatar */}
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: `linear-gradient(45deg, ${getRoleColor(userData.role)}, #FFD700)`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '24px',
-                marginBottom: '15px'
-              }}>
+              <div className={`cmd-card__avatar cmd-card__avatar--${userData.role}`}>
                 {userData.pseudonym.charAt(0).toUpperCase()}
               </div>
 
               {/* User Info */}
-              <div style={{ marginBottom: '15px', paddingRight: '80px' }}>
-                <h3 style={{
-                  color: '#ffffff',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  margin: '0 0 5px 0'
-                }}>
-                  {userData.pseudonym}
-                </h3>
-                
-                <div style={{
-                  color: '#cccccc',
-                  fontSize: '14px',
-                  marginBottom: '10px'
-                }}>
-                  {userData.email}
-                </div>
+              <div className="cmd-card__content">
+                <h3 className="cmd-card__title">{userData.pseudonym}</h3>
+                <p className="cmd-card__subtitle">{userData.email}</p>
 
-                <div style={{
-                  fontSize: '12px',
-                  color: '#888888',
-                  marginBottom: '10px'
-                }}>
-                  {t('admin.joined')} {formatDate(userData.created_at)}
+                <div className="cmd-card__meta">
+                  <span>{t('admin.joined')} {formatDate(userData.created_at)}</span>
                   {userData.last_login && (
-                    <div>{t('admin.lastLogin')} {formatDate(userData.last_login)}</div>
+                    <span>{t('admin.lastLogin')} {formatDate(userData.last_login)}</span>
                   )}
                 </div>
 
                 {/* User Stats */}
                 {userData.stats && (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '8px',
-                    marginTop: '12px'
-                  }}>
-                    <div style={{
-                      background: 'rgba(0,0,0,0.3)',
-                      borderRadius: '8px',
-                      padding: '8px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        color: '#C19A6B',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}>
+                  <div className="cmd-card__stats">
+                    <div className="cmd-card__stat">
+                      <span className="cmd-card__stat-value cmd-card__stat-value--primary">
                         {userData.stats.establishments_submitted}
-                      </div>
-                      <div style={{
-                        color: '#cccccc',
-                        fontSize: '10px'
-                      }}>
-                        {t('admin.bars')}
-                      </div>
+                      </span>
+                      <span className="cmd-card__stat-label">{t('admin.bars')}</span>
                     </div>
-
-                    <div style={{
-                      background: 'rgba(0,0,0,0.3)',
-                      borderRadius: '8px',
-                      padding: '8px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        color: '#00E5FF',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}>
+                    <div className="cmd-card__stat">
+                      <span className="cmd-card__stat-value cmd-card__stat-value--cyan">
                         {userData.stats.employees_submitted}
-                      </div>
-                      <div style={{
-                        color: '#cccccc',
-                        fontSize: '10px'
-                      }}>
-                        {t('admin.profiles')}
-                      </div>
+                      </span>
+                      <span className="cmd-card__stat-label">{t('admin.profiles')}</span>
                     </div>
-
-                    <div style={{
-                      background: 'rgba(0,0,0,0.3)',
-                      borderRadius: '8px',
-                      padding: '8px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        color: '#FFD700',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}>
+                    <div className="cmd-card__stat">
+                      <span className="cmd-card__stat-value cmd-card__stat-value--gold">
                         {userData.stats.comments_made}
-                      </div>
-                      <div style={{
-                        color: '#cccccc',
-                        fontSize: '10px'
-                      }}>
-                        {t('admin.reviews')}
-                      </div>
+                      </span>
+                      <span className="cmd-card__stat-label">{t('admin.reviews')}</span>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Action Buttons */}
-              {userData.id !== user.id && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  paddingTop: '15px',
-                  borderTop: '1px solid rgba(193, 154, 107,0.3)'
-                }}>
+              {userData.id !== user.id ? (
+                <div className="cmd-card__footer">
                   {/* Role Selection */}
-                  <div style={{
-                    display: 'flex',
-                    gap: '6px'
-                  }}>
+                  <div className="cmd-card__role-buttons">
                     {['user', 'moderator', 'admin'].map((role) => (
                       <button
                         key={role}
                         onClick={() => handleRoleChange(userData.id, role)}
                         disabled={processingIds.has(userData.id) || userData.role === role}
-                        style={{
-                          flex: 1,
-                          padding: '8px',
-                          background: userData.role === role
-                            ? `${getRoleColor(role)}40`
-                            : processingIds.has(userData.id)
-                            ? 'linear-gradient(45deg, #666666, #888888)'
-                            : 'rgba(0,0,0,0.3)',
-                          color: userData.role === role ? getRoleColor(role) : '#ffffff',
-                          border: userData.role === role ? `2px solid ${getRoleColor(role)}` : '1px solid rgba(255,255,255,0.2)',
-                          borderRadius: '8px',
-                          cursor: (processingIds.has(userData.id) || userData.role === role) ? 'not-allowed' : 'pointer',
-                          fontSize: '11px',
-                          fontWeight: 'bold',
-                          transition: 'all 0.3s ease',
-                          opacity: (processingIds.has(userData.id) || userData.role === role) ? 0.5 : 1
-                        }}
+                        className={`cmd-card__role-btn ${userData.role === role ? 'cmd-card__role-btn--active' : ''} cmd-card__role-btn--${role}`}
                       >
                         {getRoleIcon(role)} {role}
                       </button>
@@ -589,89 +349,37 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
                   <button
                     onClick={() => handleToggleActive(userData.id, userData.is_active)}
                     disabled={processingIds.has(userData.id)}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      background: processingIds.has(userData.id)
-                        ? 'linear-gradient(45deg, #666666, #888888)'
-                        : userData.is_active
-                        ? 'linear-gradient(45deg, #FF4757, #FF3742)'
-                        : 'linear-gradient(45deg, #00FF7F, #00CC65)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: processingIds.has(userData.id) ? 'not-allowed' : 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      transition: 'all 0.3s ease',
-                      opacity: processingIds.has(userData.id) ? 0.7 : 1
-                    }}
+                    className={`cmd-card__action cmd-card__action--full ${userData.is_active ? 'cmd-card__action--danger' : 'cmd-card__action--success'}`}
                   >
-                    {processingIds.has(userData.id)
-                      ? <><Loader2 size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.processing')}</>
-                      : userData.is_active
-                      ? <><Ban size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.deactivate')}</>
-                      : <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.activate')}</>
-                    }
+                    {processingIds.has(userData.id) ? (
+                      <><Loader2 size={14} className="cmd-spin" /> {t('admin.processing')}</>
+                    ) : userData.is_active ? (
+                      <><Ban size={14} /> {t('admin.deactivate')}</>
+                    ) : (
+                      <><CheckCircle size={14} /> {t('admin.activate')}</>
+                    )}
                   </button>
 
-                  {/* Edit and View Details */}
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  {/* Edit and View */}
+                  <div className="cmd-card__actions">
                     <button
                       onClick={() => setEditingUser(userData)}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        background: 'linear-gradient(45deg, #FFD700, #FFA500)',
-                        color: '#000',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                        transition: 'all 0.3s ease'
-                      }}
+                      className="cmd-card__action cmd-card__action--warning"
                     >
-                      <Pencil size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.edit')}
+                      <Pencil size={14} /> {t('common.edit')}
                     </button>
                     <button
                       onClick={() => setSelectedUser(userData)}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        background: 'linear-gradient(45deg, #00E5FF, #0080FF)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                        transition: 'all 0.3s ease'
-                      }}
+                      className="cmd-card__action cmd-card__action--info"
                     >
-                      <Eye size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.view')}
+                      <Eye size={14} /> {t('admin.view')}
                     </button>
                   </div>
                 </div>
-              )}
-
-              {/* Current User Badge */}
-              {userData.id === user.id && (
-                <div style={{
-                  paddingTop: '15px',
-                  borderTop: '1px solid rgba(193, 154, 107,0.3)',
-                  textAlign: 'center'
-                }}>
-                  <span style={{
-                    color: '#FFD700',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    background: 'rgba(255,215,0,0.2)',
-                    padding: '6px 12px',
-                    borderRadius: '15px',
-                    border: '1px solid #FFD700'
-                  }}>
-                    <User size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.thisIsYou')}
+              ) : (
+                <div className="cmd-card__footer cmd-card__footer--centered">
+                  <span className="cmd-card__current-user">
+                    <User size={14} /> {t('admin.thisIsYou')}
                   </span>
                 </div>
               )}
@@ -682,102 +390,114 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       {/* User Detail Modal */}
       {selectedUser && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.9)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          backdropFilter: 'blur(10px)'
-        }} role="dialog" aria-modal="true">
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-            borderRadius: '25px',
-            border: '2px solid #C19A6B',
-            boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
-            maxWidth: '500px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            position: 'relative',
-            padding: '30px'
-          }}>
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedUser(null)}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(193, 154, 107,0.2)',
-                border: '2px solid #C19A6B',
-                color: '#C19A6B',
-                fontSize: '20px',
-                cursor: 'pointer',
-                zIndex: 10
-              }}
-            >
-              ×
-            </button>
+        <div className="cmd-modal-overlay" onClick={() => setSelectedUser(null)}>
+          <div
+            className="cmd-modal cmd-modal--md"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="cmd-modal__header">
+              <h2 className="cmd-modal__title">
+                <User size={20} /> {t('admin.userDetails')}
+              </h2>
+              <button
+                className="cmd-modal__close"
+                onClick={() => setSelectedUser(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
 
-            <h2 style={{
-              color: '#C19A6B',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              margin: '0 0 20px 0'
-            }}>
-              {t('admin.userDetails')}
-            </h2>
-
-            <div style={{ color: 'white' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.id')}</strong> {selectedUser.id}
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.pseudonym')}</strong> {selectedUser.pseudonym}
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.email')}</strong> {selectedUser.email}
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.role')}</strong> {getRoleIcon(selectedUser.role)} {selectedUser.role}
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.status')}</strong> {selectedUser.is_active ? <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle', color: '#00FF7F' }} />{t('admin.active')}</> : <><Ban size={14} style={{ marginRight: '4px', verticalAlign: 'middle', color: '#FF4757' }} />{t('admin.inactive')}</>}
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#C19A6B' }}>{t('admin.memberSince')}</strong> {formatDate(selectedUser.created_at)}
-              </div>
-              {selectedUser.last_login && (
-                <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#C19A6B' }}>{t('admin.lastLogin')}</strong> {formatDate(selectedUser.last_login)}
+            <div className="cmd-modal__body">
+              <div className="cmd-modal__info-grid">
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.id')}</span>
+                  <span className="cmd-modal__info-value cmd-modal__info-value--mono">{selectedUser.id}</span>
                 </div>
-              )}
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.pseudonym')}</span>
+                  <span className="cmd-modal__info-value">{selectedUser.pseudonym}</span>
+                </div>
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.email')}</span>
+                  <span className="cmd-modal__info-value">{selectedUser.email}</span>
+                </div>
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.role')}</span>
+                  <span className="cmd-modal__info-value">
+                    <span className={`cmd-card__status ${getRoleClass(selectedUser.role)}`} style={{ position: 'static' }}>
+                      {getRoleIcon(selectedUser.role)} {selectedUser.role}
+                    </span>
+                  </span>
+                </div>
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.status')}</span>
+                  <span className="cmd-modal__info-value">
+                    {selectedUser.is_active ? (
+                      <span className="cmd-modal__status cmd-modal__status--success">
+                        <CheckCircle size={14} /> {t('admin.active')}
+                      </span>
+                    ) : (
+                      <span className="cmd-modal__status cmd-modal__status--error">
+                        <Ban size={14} /> {t('admin.inactive')}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="cmd-modal__info-row">
+                  <span className="cmd-modal__info-label">{t('admin.memberSince')}</span>
+                  <span className="cmd-modal__info-value">{formatDate(selectedUser.created_at)}</span>
+                </div>
+                {selectedUser.last_login && (
+                  <div className="cmd-modal__info-row">
+                    <span className="cmd-modal__info-label">{t('admin.lastLogin')}</span>
+                    <span className="cmd-modal__info-value">{formatDate(selectedUser.last_login)}</span>
+                  </div>
+                )}
+              </div>
 
               {selectedUser.stats && (
-                <div style={{ marginTop: '20px' }}>
-                  <strong style={{ color: '#C19A6B' }}>{t('admin.activityStatistics')}</strong>
-                  <div style={{
-                    background: 'rgba(0,0,0,0.3)',
-                    borderRadius: '10px',
-                    padding: '15px',
-                    marginTop: '10px'
-                  }}>
-                    <div><Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.establishmentsSubmitted')}: {selectedUser.stats.establishments_submitted}</div>
-                    <div><Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.employeeProfilesSubmitted')} {selectedUser.stats.employees_submitted}</div>
-                    <div><MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.reviews')}: {selectedUser.stats.comments_made}</div>
+                <div className="cmd-modal__section">
+                  <h3 className="cmd-modal__section-title">{t('admin.activityStatistics')}</h3>
+                  <div className="cmd-modal__stats-grid">
+                    <div className="cmd-modal__stat">
+                      <Building2 size={20} />
+                      <span className="cmd-modal__stat-value">{selectedUser.stats.establishments_submitted}</span>
+                      <span className="cmd-modal__stat-label">{t('admin.establishmentsSubmitted')}</span>
+                    </div>
+                    <div className="cmd-modal__stat">
+                      <Users size={20} />
+                      <span className="cmd-modal__stat-value">{selectedUser.stats.employees_submitted}</span>
+                      <span className="cmd-modal__stat-label">{t('admin.employeeProfilesSubmitted')}</span>
+                    </div>
+                    <div className="cmd-modal__stat">
+                      <MessageSquare size={20} />
+                      <span className="cmd-modal__stat-value">{selectedUser.stats.comments_made}</span>
+                      <span className="cmd-modal__stat-label">{t('admin.reviews')}</span>
+                    </div>
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="cmd-modal__footer">
+              <button
+                className="cmd-modal-btn cmd-modal-btn--secondary"
+                onClick={() => setSelectedUser(null)}
+              >
+                {t('common.close')}
+              </button>
+              <button
+                className="cmd-modal-btn cmd-modal-btn--primary"
+                onClick={() => {
+                  setEditingUser(selectedUser);
+                  setSelectedUser(null);
+                }}
+              >
+                <Pencil size={14} /> {t('common.edit')}
+              </button>
             </div>
           </div>
         </div>
@@ -794,14 +514,6 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
           />
         </Suspense>
       )}
-
-      {/* Loading Animation CSS */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };

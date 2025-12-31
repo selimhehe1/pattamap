@@ -500,30 +500,13 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   // Permission check
   if (!user || user.role !== 'admin') {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        padding: '30px'
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h2 style={{
-            color: '#C19A6B',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            margin: '0 0 15px 0'
-          }}>
+      <div className="command-content-section" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div className="cmd-card cmd-card--alert" style={{ textAlign: 'center', maxWidth: '400px' }}>
+          <h2 className="cmd-card__title" style={{ color: 'var(--color-gold)' }}>
             <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
             {t('admin.accessDenied')}
           </h2>
-          <p style={{ color: '#cccccc', fontSize: '16px' }}>
+          <p className="cmd-card__description">
             {t('admin.accessDeniedArea')}
           </p>
         </div>
@@ -532,12 +515,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
   }
 
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-      minHeight: '100vh',
-      padding: '30px',
-      color: 'white'
-    }}>
+    <div className="command-content-section">
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
         currentSection="Establishment Owners"
@@ -546,25 +524,12 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       />
 
       {/* Header */}
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: '900',
-          margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
-          fontFamily: '"Orbitron", monospace'
-        }}>
+      <div className="cmd-section-header">
+        <h1 className="cmd-section-title">
           <Building2 size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Establishment Owners Management
         </h1>
-        <p style={{
-          fontSize: '16px',
-          color: '#cccccc',
-          margin: 0
-        }}>
+        <p className="cmd-section-subtitle">
           {viewMode === 'owners'
             ? 'Assign and manage establishment owners to give them control over their listings'
             : 'Review pending ownership requests from establishment owners'}
@@ -572,112 +537,49 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       </div>
 
       {/* View Mode Toggle */}
-      <div style={{
-        display: 'flex',
-        gap: '15px',
-        marginBottom: '30px',
-        padding: '15px',
-        background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-        borderRadius: '15px',
-        border: '2px solid rgba(193, 154, 107,0.3)'
-      }}>
-        <button
-          onClick={() => setViewMode('owners')}
-          style={{
-            flex: 1,
-            padding: '15px 20px',
-            borderRadius: '12px',
-            border: viewMode === 'owners' ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
-            background: viewMode === 'owners'
-              ? 'linear-gradient(45deg, rgba(193, 154, 107,0.3), rgba(255,215,0,0.2))'
-              : 'transparent',
-            color: viewMode === 'owners' ? '#C19A6B' : '#ffffff',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}
-        >
-          <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Manage Owners
-        </button>
-        <button
-          onClick={() => setViewMode('requests')}
-          style={{
-            flex: 1,
-            padding: '15px 20px',
-            borderRadius: '12px',
-            border: viewMode === 'requests' ? '2px solid #FFD700' : '2px solid rgba(255,215,0,0.3)',
-            background: viewMode === 'requests'
-              ? 'linear-gradient(45deg, rgba(255,215,0,0.3), rgba(193, 154, 107,0.2))'
-              : 'transparent',
-            color: viewMode === 'requests' ? '#FFD700' : '#ffffff',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            position: 'relative'
-          }}
-        >
-          <ClipboardList size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Pending Requests
-          {ownershipRequests.length > 0 && viewMode !== 'requests' && (
-            <span style={{
-              position: 'absolute',
-              top: '-8px',
-              right: '-8px',
-              background: '#FFD700',
-              color: '#000',
-              borderRadius: '50%',
-              width: '24px',
-              height: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              border: '2px solid rgba(26,0,51,0.95)'
-            }}>
-              {ownershipRequests.length}
-            </span>
-          )}
-        </button>
+      <div className="cmd-filters cmd-filters--toggle" style={{ marginBottom: '24px' }}>
+        <div className="cmd-filter-pills" style={{ display: 'flex', gap: '12px', flex: 1 }}>
+          <button
+            onClick={() => setViewMode('owners')}
+            className={`cmd-filter cmd-filter--lg ${viewMode === 'owners' ? 'cmd-filter--active' : ''}`}
+            style={{ flex: 1 }}
+          >
+            <Users size={16} />
+            <span>Manage Owners</span>
+          </button>
+          <button
+            onClick={() => setViewMode('requests')}
+            className={`cmd-filter cmd-filter--lg ${viewMode === 'requests' ? 'cmd-filter--active cmd-filter--gold' : ''}`}
+            style={{ flex: 1, position: 'relative' }}
+          >
+            <ClipboardList size={16} />
+            <span>Pending Requests</span>
+            {ownershipRequests.length > 0 && viewMode !== 'requests' && (
+              <span className="cmd-filter__badge">{ownershipRequests.length}</span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs - Only shown in owners mode */}
       {viewMode === 'owners' && (
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          marginBottom: '30px',
-          flexWrap: 'wrap'
-        }}>
-          {[
-            { key: 'all', label: 'All Establishments', icon: <ClipboardList size={12} /> },
-            { key: 'with_owners', label: 'With Owners', icon: <Users size={12} /> },
-            { key: 'without_owners', label: 'Without Owners', icon: <MailX size={12} /> }
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key as any)}
-              style={{
-                padding: '12px 20px',
-                borderRadius: '12px',
-                border: filter === tab.key ? '2px solid #C19A6B' : '2px solid rgba(193, 154, 107,0.3)',
-                background: filter === tab.key
-                  ? 'linear-gradient(45deg, rgba(193, 154, 107,0.2), rgba(255,215,0,0.1))'
-                  : 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-                color: filter === tab.key ? '#C19A6B' : '#ffffff',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          ))}
+        <div className="cmd-filters" style={{ marginBottom: '24px' }}>
+          <div className="cmd-filter-pills">
+            {[
+              { key: 'all', label: 'All Establishments', icon: <ClipboardList size={14} /> },
+              { key: 'with_owners', label: 'With Owners', icon: <Users size={14} /> },
+              { key: 'without_owners', label: 'Without Owners', icon: <MailX size={14} /> }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key as any)}
+                className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -687,26 +589,12 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
           {isLoading ? (
             <LoadingFallback message="Loading establishments..." variant="inline" />
           ) : establishments.length === 0 ? (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{
-            color: '#C19A6B',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            margin: '0 0 10px 0'
-          }}>
+        <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
+          <h3 className="cmd-card__title" style={{ color: 'var(--color-gold)', marginBottom: '10px' }}>
             <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
             No establishments found
           </h3>
-          <p style={{
-            color: '#cccccc',
-            fontSize: '16px'
-          }}>
+          <p className="cmd-card__description">
             {filter === 'with_owners' && 'No establishments have assigned owners yet.'}
             {filter === 'without_owners' && 'All establishments have assigned owners!'}
             {filter === 'all' && 'No approved establishments found in the database.'}
@@ -841,26 +729,12 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
           {isLoading ? (
             <LoadingFallback message="Loading ownership requests..." variant="inline" />
           ) : ownershipRequests.length === 0 ? (
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-              borderRadius: '20px',
-              border: '2px solid rgba(193, 154, 107,0.3)',
-              padding: '40px',
-              textAlign: 'center'
-            }}>
-              <h3 style={{
-                color: '#FFD700',
-                fontSize: '20px',
-                fontWeight: 'bold',
-                margin: '0 0 10px 0'
-              }}>
+            <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
+              <h3 className="cmd-card__title" style={{ color: 'var(--color-gold)', marginBottom: '10px' }}>
                 <CheckCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
                 No Pending Ownership Requests
               </h3>
-              <p style={{
-                color: '#cccccc',
-                fontSize: '16px'
-              }}>
+              <p className="cmd-card__description">
                 All ownership requests have been reviewed. Check back later for new submissions.
               </p>
             </div>
@@ -1283,32 +1157,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
 
       {/* Establishment Owners Detail Modal */}
       {selectedEstablishment && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.9)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          backdropFilter: 'blur(10px)'
-        }} role="dialog" aria-modal="true">
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-            borderRadius: '25px',
-            border: '2px solid #C19A6B',
-            boxShadow: '0 20px 60px rgba(193, 154, 107,0.3)',
-            maxWidth: '800px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            position: 'relative',
-            padding: '30px'
-          }}>
+        <div className="cmd-modal-overlay" role="dialog" aria-modal="true">
+          <div className="cmd-modal cmd-modal--gold" style={{ maxWidth: '800px' }}>
             {/* Close Button */}
             <button
               onClick={() => {
@@ -1317,47 +1167,15 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
                 setShowAssignModal(false);
                 setEditingOwner(null);
               }}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(193, 154, 107,0.2)',
-                border: '2px solid #C19A6B',
-                color: '#C19A6B',
-                fontSize: '20px',
-                cursor: 'pointer',
-                zIndex: 10,
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(193, 154, 107,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(193, 154, 107,0.2)';
-              }}
+              className="cmd-modal__close"
             >
               ×
             </button>
 
-            <h2 style={{
-              color: '#C19A6B',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              margin: '0 0 10px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <h2 className="cmd-modal__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Building2 size={24} /> {selectedEstablishment.name}
             </h2>
-            <p style={{
-              color: '#cccccc',
-              fontSize: '14px',
-              marginBottom: '30px'
-            }}>
+            <p className="cmd-modal__description" style={{ marginBottom: '24px' }}>
               Manage owners who can control this establishment
             </p>
 

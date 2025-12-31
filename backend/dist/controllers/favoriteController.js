@@ -106,7 +106,14 @@ const getFavorites = async (req, res) => {
         });
         res.json({
             favorites: favoritesWithEstablishment,
-            count: favoritesWithEstablishment.length
+            count: favoritesWithEstablishment.length,
+            _debug: {
+                version: 'v3-promise-all',
+                employeeIdsCount: employeeIds.length,
+                validEmployeesCount: validEmployees.length,
+                firstEmployeeId: employeeIds[0]?.substring(0, 8),
+                firstValidEmployee: validEmployees[0] ? { id: validEmployees[0].id?.substring(0, 8), name: validEmployees[0].name } : null
+            }
         });
     }
     catch (error) {

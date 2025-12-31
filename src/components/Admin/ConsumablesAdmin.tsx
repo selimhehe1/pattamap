@@ -35,7 +35,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   });
   const [refreshCounter, setRefreshCounter] = useState(0);
 
-  // Helper function to trigger refresh
   const refreshConsumables = () => setRefreshCounter(c => c + 1);
 
   useEffect(() => {
@@ -47,7 +46,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
           const data = await response.json();
           setConsumables(data.consumables || []);
         } else {
-          // Fallback to mock data if API not available
           const mockConsumables: ConsumableTemplate[] = [
             { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
             { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
@@ -60,7 +58,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
         }
       } catch (error) {
         logger.error('Failed to load consumables:', error);
-        // Fallback to mock data
         const mockConsumables: ConsumableTemplate[] = [
           { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
           { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
@@ -79,27 +76,26 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const consumableData = {
       ...formData,
       icon: getCategoryIcon(formData.category),
       default_price: formData.default_price ? parseInt(formData.default_price) : undefined
     };
-    
+
     try {
       const url = editingConsumable
         ? `${API_URL}/api/admin/consumables/${editingConsumable.id}`
         : `${API_URL}/api/admin/consumables`;
-      
+
       const method = editingConsumable ? 'PUT' : 'POST';
-      
+
       const response = await secureFetch(url, {
         method,
         body: JSON.stringify(consumableData)
       });
-      
+
       if (response.ok) {
-        // Reset form
         setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
         setShowAddForm(false);
         setEditingConsumable(null);
@@ -109,7 +105,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       }
     } catch (error) {
       logger.error('Error saving consumable:', error);
-      // For demo purposes, still reset form
       setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
       setShowAddForm(false);
       setEditingConsumable(null);
@@ -136,7 +131,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
         method: 'PUT',
         body: JSON.stringify({ status: newStatus })
       });
-      
+
       if (response.ok) {
         refreshConsumables();
       } else {
@@ -144,7 +139,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       }
     } catch (error) {
       logger.error('Error toggling status:', error);
-      // For demo purposes, still reload
       refreshConsumables();
     }
   };
@@ -158,7 +152,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       const response = await secureFetch(`${API_URL}/api/admin/consumables/${consumable.id}`, {
         method: 'DELETE'
       });
-      
+
       if (response.ok) {
         refreshConsumables();
       } else {
@@ -166,7 +160,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       }
     } catch (error) {
       logger.error('Error deleting consumable:', error);
-      // For demo purposes, still reload
       refreshConsumables();
     }
   };
@@ -176,24 +169,18 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   };
 
   const categories = [
-    { key: 'beer', label: `🍺 ${t('admin.beers')}`, color: '#FFD700' },
-    { key: 'shot', label: `🥃 ${t('admin.shots')}`, color: '#FF6B6B' },
-    { key: 'cocktail', label: `🍹 ${t('admin.cocktails')}`, color: '#4ECDC4' },
-    { key: 'spirit', label: `🥂 ${t('admin.spirits')}`, color: '#45B7D1' },
-    { key: 'wine', label: `🍷 ${t('admin.wines')}`, color: '#96CEB4' },
-    { key: 'soft', label: `🥤 ${t('admin.softs')}`, color: '#FFEAA7' }
+    { key: 'beer', label: `🍺 ${t('admin.beers')}`, color: 'gold' },
+    { key: 'shot', label: `🥃 ${t('admin.shots')}`, color: 'error' },
+    { key: 'cocktail', label: `🍹 ${t('admin.cocktails')}`, color: 'cyan' },
+    { key: 'spirit', label: `🥂 ${t('admin.spirits')}`, color: 'info' },
+    { key: 'wine', label: `🍷 ${t('admin.wines')}`, color: 'success' },
+    { key: 'soft', label: `🥤 ${t('admin.softs')}`, color: 'warning' }
   ];
 
   if (activeTab !== 'consumables') return null;
 
   return (
-    <div className="bg-nightlife-gradient-main"
-      style={{
-        minHeight: '100vh',
-        padding: '30px',
-        color: 'white'
-      }}>
-
+    <div className="command-content-section">
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
         currentSection={t('admin.consumablesManagement')}
@@ -202,325 +189,178 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       />
 
       {/* Header */}
-      <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="cmd-section-header cmd-section-header--with-action">
         <div>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '900',
-            margin: '0 0 5px 0',
-            background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontFamily: '"Orbitron", monospace'
-          }}>
-            <Beer size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          <h1 className="cmd-section-title">
+            <Beer size={28} />
             {t('admin.consumablesManagement')}
           </h1>
-          <p style={{ fontSize: '14px', color: '#cccccc', margin: 0 }}>
-            {t('admin.manageConsumablesList')}
-          </p>
+          <p className="cmd-section-subtitle">{t('admin.manageConsumablesList')}</p>
         </div>
 
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          style={{
-            padding: '12px 20px',
-            background: 'linear-gradient(45deg, #00FF7F, #FFD700)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            transition: 'all 0.3s ease'
-          }}
+          className={`cmd-modal-btn ${showAddForm ? 'cmd-modal-btn--secondary' : 'cmd-modal-btn--success'}`}
         >
-          {showAddForm ? <><X size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('common.cancel')}</> : <><Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.addConsumable')}</>}
+          {showAddForm ? (
+            <><X size={16} /> {t('common.cancel')}</>
+          ) : (
+            <><Plus size={16} /> {t('admin.addConsumable')}</>
+          )}
         </button>
       </div>
 
       {/* Add/Edit Form */}
       {showAddForm && (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '15px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '25px',
-          marginBottom: '30px'
-        }}>
-          <h3 style={{
-            color: '#C19A6B',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            margin: '0 0 20px 0'
-          }}>
-            {editingConsumable ? <><Pencil size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('admin.editConsumableTitle')}</> : <><Plus size={18} style={{ marginRight: '6px', verticalAlign: 'middle' }} />{t('admin.newConsumableTitle')}</>}
-          </h3>
+        <div className="cmd-card cmd-card--form">
+          <div className="cmd-card__header">
+            <h3 className="cmd-card__title">
+              {editingConsumable ? (
+                <><Pencil size={18} /> {t('admin.editConsumableTitle')}</>
+              ) : (
+                <><Plus size={18} /> {t('admin.newConsumableTitle')}</>
+              )}
+            </h3>
+          </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '15px', alignItems: 'end' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
-                {t('admin.consumableName')}
-              </label>
+          <form onSubmit={handleSubmit} className="cmd-form cmd-form--inline">
+            <div className="cmd-form__group">
+              <label className="cmd-form__label">{t('admin.consumableName')}</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(193, 154, 107,0.3)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  color: 'white',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                className="cmd-form__input"
                 placeholder={t('admin.consumablePlaceholder')}
               />
             </div>
-            
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
-                {t('admin.category')}
-              </label>
+
+            <div className="cmd-form__group">
+              <label className="cmd-form__label">{t('admin.category')}</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(193, 154, 107,0.3)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  color: 'white',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                className="cmd-form__select"
               >
-                <option value="beer" style={{ background: '#1a1a1a' }}>🍺 {t('admin.beer')}</option>
-                <option value="shot" style={{ background: '#1a1a1a' }}>🥃 {t('admin.shot')}</option>
-                <option value="cocktail" style={{ background: '#1a1a1a' }}>🍹 {t('admin.cocktail')}</option>
-                <option value="spirit" style={{ background: '#1a1a1a' }}>🥂 {t('admin.spirits')}</option>
-                <option value="wine" style={{ background: '#1a1a1a' }}>🍷 {t('admin.wine')}</option>
-                <option value="soft" style={{ background: '#1a1a1a' }}>🥤 {t('admin.soft')}</option>
+                <option value="beer">🍺 {t('admin.beer')}</option>
+                <option value="shot">🥃 {t('admin.shot')}</option>
+                <option value="cocktail">🍹 {t('admin.cocktail')}</option>
+                <option value="spirit">🥂 {t('admin.spirits')}</option>
+                <option value="wine">🍷 {t('admin.wine')}</option>
+                <option value="soft">🥤 {t('admin.soft')}</option>
               </select>
             </div>
-            
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
-                {t('admin.defaultPrice')}
-              </label>
+
+            <div className="cmd-form__group">
+              <label className="cmd-form__label">{t('admin.defaultPrice')}</label>
               <input
                 type="number"
                 name="default_price"
                 value={formData.default_price}
                 onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: '2px solid rgba(193, 154, 107,0.3)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  color: 'white',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                className="cmd-form__input"
                 placeholder="70"
               />
             </div>
-            
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold', color: '#00E5FF' }}>
-                {t('admin.preview')}
-              </label>
-              <div style={{
-                padding: '10px 12px',
-                background: 'rgba(193, 154, 107,0.1)',
-                border: '2px solid rgba(193, 154, 107,0.3)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: '#00E5FF',
-                textAlign: 'center'
-              }}>
+
+            <div className="cmd-form__group">
+              <label className="cmd-form__label">{t('admin.preview')}</label>
+              <div className="cmd-form__preview">
                 {getCategoryIcon(formData.category)} {formData.name || 'Nom'}
               </div>
             </div>
-            
-            <button
-              type="submit"
-              disabled={!formData.name.trim()}
-              style={{
-                padding: '10px 15px',
-                background: 'linear-gradient(45deg, #C19A6B, #9C27B0)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: formData.name.trim() ? 'pointer' : 'not-allowed',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                opacity: formData.name.trim() ? 1 : 0.5
-              }}
-            >
-              {editingConsumable ? <><Pencil size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.editConsumableButton')}</> : <><Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.addButton')}</>}
-            </button>
+
+            <div className="cmd-form__group cmd-form__group--action">
+              <button
+                type="submit"
+                disabled={!formData.name.trim()}
+                className="cmd-modal-btn cmd-modal-btn--primary"
+              >
+                {editingConsumable ? (
+                  <><Pencil size={14} /> {t('admin.editConsumableButton')}</>
+                ) : (
+                  <><Plus size={14} /> {t('admin.addButton')}</>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       )}
 
       {/* Categories Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '25px' }}>
+      <div className="cmd-card-grid cmd-card-grid--2col">
         {categories.map(category => {
           const categoryConsumables = filterByCategory(category.key);
-          
+
           return (
-            <div
-              key={category.key}
-              style={{
-                background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-                borderRadius: '15px',
-                border: `2px solid ${category.color}40`,
-                padding: '20px'
-              }}
-            >
-              <h3 style={{
-                color: category.color,
-                fontSize: '18px',
-                fontWeight: 'bold',
-                margin: '0 0 15px 0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                {category.label}
-                <span style={{
-                  background: `${category.color}20`,
-                  color: category.color,
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: 'bold'
-                }}>
+            <div key={category.key} className={`cmd-card cmd-card--category cmd-card--${category.color}`}>
+              <div className="cmd-card__header">
+                <h3 className="cmd-card__title">{category.label}</h3>
+                <span className={`cmd-card__badge cmd-card__badge--${category.color}`}>
                   {categoryConsumables.length}
                 </span>
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              </div>
+
+              <div className="cmd-card__content">
                 {categoryConsumables.length === 0 ? (
-                  <div style={{
-                    padding: '20px',
-                    textAlign: 'center',
-                    color: '#666',
-                    fontStyle: 'italic'
-                  }}>
-                    {t('admin.noConsumablesInCategory')}
+                  <div className="cmd-table__empty cmd-table__empty--sm">
+                    <p>{t('admin.noConsumablesInCategory')}</p>
                   </div>
                 ) : (
-                  categoryConsumables.map(consumable => (
-                    <div
-                      key={consumable.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 15px',
-                        background: 'rgba(0,0,0,0.2)',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '20px' }}>{consumable.icon}</span>
-                        <div>
-                          <div style={{
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            color: '#ffffff'
-                          }}>
-                            {consumable.name}
+                  <div className="cmd-consumable-list">
+                    {categoryConsumables.map(consumable => (
+                      <div key={consumable.id} className="cmd-consumable-item">
+                        <div className="cmd-consumable-item__info">
+                          <span className="cmd-consumable-item__icon">{consumable.icon}</span>
+                          <div className="cmd-consumable-item__details">
+                            <span className="cmd-consumable-item__name">{consumable.name}</span>
+                            {consumable.default_price && (
+                              <span className="cmd-consumable-item__price">
+                                {t('admin.defaultPriceLabel')}: {consumable.default_price}฿
+                              </span>
+                            )}
                           </div>
-                          {consumable.default_price && (
-                            <div style={{
-                              fontSize: '12px',
-                              color: category.color
-                            }}>
-                              {t('admin.defaultPriceLabel')}: {consumable.default_price}฿
-                            </div>
-                          )}
+                        </div>
+
+                        <div className="cmd-consumable-item__actions">
+                          <span className={`cmd-consumable-item__status cmd-consumable-item__status--${consumable.status}`}>
+                            {consumable.status === 'active' ? (
+                              <><CheckCircle size={12} /> {t('admin.active')}</>
+                            ) : (
+                              <><X size={12} /> {t('admin.inactive')}</>
+                            )}
+                          </span>
+
+                          <button
+                            onClick={() => handleEdit(consumable)}
+                            className="cmd-card__action cmd-card__action--icon cmd-card__action--info"
+                            title={t('common.edit')}
+                          >
+                            <Pencil size={14} />
+                          </button>
+
+                          <button
+                            onClick={() => handleToggleStatus(consumable)}
+                            className={`cmd-card__action cmd-card__action--icon ${consumable.status === 'active' ? 'cmd-card__action--warning' : 'cmd-card__action--success'}`}
+                            title={consumable.status === 'active' ? t('admin.deactivate') : t('admin.activate')}
+                          >
+                            {consumable.status === 'active' ? <Ban size={14} /> : <CheckCircle size={14} />}
+                          </button>
+
+                          <button
+                            onClick={() => handleDelete(consumable)}
+                            className="cmd-card__action cmd-card__action--icon cmd-card__action--danger"
+                            title={t('common.delete')}
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </div>
-                      
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '10px',
-                          fontWeight: 'bold',
-                          background: consumable.status === 'active' ? '#4CAF5020' : '#FF475720',
-                          color: consumable.status === 'active' ? '#4CAF50' : '#FF4757'
-                        }}>
-                          {consumable.status === 'active' ? <><CheckCircle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.active')}</> : <><X size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.inactive')}</>}
-                        </div>
-                        
-                        <button
-                          onClick={() => handleEdit(consumable)}
-                          style={{
-                            padding: '6px 10px',
-                            background: 'linear-gradient(45deg, #00E5FF, #0080FF)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleToggleStatus(consumable)}
-                          style={{
-                            padding: '6px 10px',
-                            background: consumable.status === 'active' 
-                              ? 'linear-gradient(45deg, #FF4757, #C19A6B)'
-                              : 'linear-gradient(45deg, #4CAF50, #00FF7F)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {consumable.status === 'active' ? <Ban size={14} /> : <CheckCircle size={14} />}
-                        </button>
-                        
-                        <button
-                          onClick={() => handleDelete(consumable)}
-                          style={{
-                            padding: '6px 10px',
-                            background: 'linear-gradient(45deg, #8B0000, #FF0000)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
-                          title="Supprimer définitivement"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

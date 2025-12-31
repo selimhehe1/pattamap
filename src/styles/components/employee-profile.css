@@ -1109,6 +1109,93 @@
 }
 
 /* ========================================
+   V2 EMPLOYMENT HISTORY STYLES
+   ======================================== */
+
+/* Current employment - accent styling (green/cyan) */
+.profile-v2-workplaces--current .profile-v2-workplace {
+  border-left-color: #00FF7F;
+  background: linear-gradient(135deg, rgba(0, 255, 127, 0.08), rgba(0, 255, 127, 0.02));
+}
+
+.profile-v2-workplaces--current .profile-v2-workplace-name {
+  color: #00FF7F;
+}
+
+/* Past employment - muted styling */
+.profile-v2-workplaces--past {
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.profile-v2-workplaces--past .profile-v2-workplace {
+  border-left-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.85;
+}
+
+.profile-v2-workplaces--past .profile-v2-workplace-name {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* History toggle button */
+.profile-v2-history-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.profile-v2-history-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.profile-v2-history-toggle svg:first-child {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.profile-v2-history-toggle span {
+  flex: 1;
+  text-align: left;
+}
+
+/* Chevron animation */
+.profile-v2-history-chevron {
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.profile-v2-history-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Muted Visit Bar button for past employment */
+.profile-v2-workplace-btn--muted {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-v2-workplace-btn--muted:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========================================
    V2 VIP SECTION STYLES
    ======================================== */
 

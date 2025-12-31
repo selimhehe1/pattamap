@@ -17,7 +17,7 @@ interface RequestSelfRemovalModalProps {
   isOpen?: boolean;
 }
 
-const MIN_EXPLANATION_LENGTH = 20;
+const MIN_EXPLANATION_LENGTH = 10;
 const MAX_EXPLANATION_LENGTH = 1000;
 
 const RequestSelfRemovalModal: React.FC<RequestSelfRemovalModalProps> = ({

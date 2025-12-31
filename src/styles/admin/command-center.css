@@ -466,18 +466,8 @@
 .alerts-ticker__content {
   display: flex;
   gap: var(--spacing-2xl, 48px);
-  animation: tickerScroll 30s linear infinite;
-  padding-left: 100%;
+  /* Animation handled by Framer Motion - removed CSS animation to avoid conflict */
   will-change: transform;
-}
-
-.alerts-ticker__content:hover {
-  animation-play-state: paused;
-}
-
-@keyframes tickerScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
 }
 
 .alert-item {

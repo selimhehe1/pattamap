@@ -229,29 +229,12 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
   if (!user || !['admin', 'moderator'].includes(user.role)) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        padding: '30px'
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(193, 154, 107,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h2 style={{
-            color: '#C19A6B',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            margin: '0 0 15px 0'
-          }}>
+      <div className="command-content-section" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div className="cmd-card cmd-card--alert" style={{ textAlign: 'center', maxWidth: '400px' }}>
+          <h2 className="cmd-card__title" style={{ color: 'var(--color-gold)' }}>
             <Ban size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.accessDenied')}
           </h2>
-          <p style={{ color: '#cccccc', fontSize: '16px' }}>
+          <p className="cmd-card__description">
             {t('admin.claims.accessDeniedMessage')}
           </p>
         </div>
@@ -260,11 +243,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      padding: '30px',
-      color: 'white'
-    }}>
+    <div className="command-content-section">
       {/* Breadcrumb Navigation */}
       <AdminBreadcrumb
         currentSection={t('admin.claims.title')}
@@ -273,111 +252,52 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       />
 
       {/* Header */}
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: '900',
-          margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #C19A6B, #FFD700)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(193, 154, 107,0.5)',
-          fontFamily: '"Orbitron", monospace'
-        }}>
+      <div className="cmd-section-header">
+        <h1 className="cmd-section-title">
           <Link size={28} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.title')}
         </h1>
-        <p style={{
-          fontSize: '16px',
-          color: '#cccccc',
-          margin: 0
-        }}>
+        <p className="cmd-section-subtitle">
           {t('admin.claims.subtitle')}
         </p>
       </div>
 
       {/* Filter Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: '10px',
-        marginBottom: '30px',
-        overflowX: 'auto'
-      }}>
-        {[
-          { key: 'pending', label: t('admin.claims.filterPending'), icon: <Loader2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
-          { key: 'approved', label: t('admin.claims.filterApproved'), icon: <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
-          { key: 'rejected', label: t('admin.claims.filterRejected'), icon: <XCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> },
-          { key: 'all', label: t('admin.claims.filterAll'), icon: <ClipboardList size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key as any)}
-            style={{
-              padding: '12px 20px',
-              borderRadius: '12px',
-              border: filter === tab.key ? '2px solid #00E5FF' : '2px solid rgba(0,229,255,0.3)',
-              background: filter === tab.key
-                ? 'linear-gradient(45deg, rgba(0,229,255,0.2), rgba(255,215,0,0.1))'
-                : 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,0,0,0.3))',
-              color: filter === tab.key ? '#00E5FF' : '#ffffff',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {tab.icon}{tab.label}
-          </button>
-        ))}
+      <div className="cmd-filters" style={{ marginBottom: '24px' }}>
+        <div className="cmd-filter-pills">
+          {[
+            { key: 'pending', label: t('admin.claims.filterPending'), icon: <Loader2 size={14} /> },
+            { key: 'approved', label: t('admin.claims.filterApproved'), icon: <CheckCircle size={14} /> },
+            { key: 'rejected', label: t('admin.claims.filterRejected'), icon: <XCircle size={14} /> },
+            { key: 'all', label: t('admin.claims.filterAll'), icon: <ClipboardList size={14} /> }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key as any)}
+              className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Bulk Action Bar - Phase 3 */}
       {selectedIds.size > 0 && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '20px',
-          padding: '16px 20px',
-          background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(255, 215, 0, 0.1))',
-          border: '2px solid rgba(0, 229, 255, 0.5)',
-          borderRadius: '12px',
-          flexWrap: 'wrap'
-        }}>
-          <span style={{ color: '#00E5FF', fontWeight: 'bold', marginRight: 'auto' }}>
+        <div className="cmd-table__bulk-bar">
+          <span className="cmd-table__bulk-count">
             {selectedIds.size} {t('admin.claims.itemsSelected', 'claim(s) selected')}
           </span>
           <button
             onClick={handleBulkApprove}
             disabled={isBulkProcessing}
-            style={{
-              padding: '10px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #10B981, #059669)',
-              color: 'white',
-              cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
-              fontWeight: 'bold',
-              fontSize: '13px',
-              opacity: isBulkProcessing ? 0.6 : 1,
-              transition: 'all 0.2s ease'
-            }}
+            className="cmd-table__bulk-action cmd-table__bulk-action--success"
           >
-            {isBulkProcessing ? '...' : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.approveAll', 'Approve All')}</>}
+            {isBulkProcessing ? '...' : <><CheckCircle size={14} />{t('admin.claims.approveAll', 'Approve All')}</>}
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
-            style={{
-              padding: '10px 16px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              background: 'transparent',
-              color: '#cccccc',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '13px',
-              transition: 'all 0.2s ease'
-            }}
+            className="cmd-table__bulk-action cmd-table__bulk-action--secondary"
           >
             {t('admin.claims.clearSelection', 'Clear')}
           </button>
@@ -386,33 +306,13 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
       {/* Select All Header - Phase 3 */}
       {!isLoading && claims.filter(c => c.status === 'pending').length > 0 && filter === 'pending' && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '16px',
-          padding: '12px 16px',
-          background: 'rgba(0, 229, 255, 0.05)',
-          borderRadius: '8px'
-        }}>
-          <label style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            color: '#cccccc',
-            fontSize: '14px'
-          }}>
+        <div className="cmd-table__select-all">
+          <label className="cmd-table__select-label">
             <input
               type="checkbox"
               checked={selectedIds.size === claims.filter(c => c.status === 'pending').length && claims.filter(c => c.status === 'pending').length > 0}
               onChange={toggleSelectAll}
-              style={{
-                width: '18px',
-                height: '18px',
-                accentColor: '#00E5FF',
-                cursor: 'pointer'
-              }}
+              className="cmd-table__checkbox"
             />
             {t('admin.claims.selectAll', 'Select All Pending')} ({claims.filter(c => c.status === 'pending').length})
           </label>
@@ -423,25 +323,11 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       {isLoading ? (
         <LoadingFallback message={t('admin.claims.loadingClaims')} variant="inline" />
       ) : claims.length === 0 ? (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(0,229,255,0.3)',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{
-            color: '#00E5FF',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            margin: '0 0 10px 0'
-          }}>
+        <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
+          <h3 className="cmd-card__title" style={{ color: 'var(--color-cyan)', marginBottom: '10px' }}>
             <MailX size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.noClaimsFound')}
           </h3>
-          <p style={{
-            color: '#cccccc',
-            fontSize: '16px'
-          }}>
+          <p className="cmd-card__description">
             {t('admin.claims.noClaimsMatch')}
           </p>
         </div>
@@ -823,30 +709,8 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
       {/* Reject Reason Modal */}
       {rejectModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.9)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          backdropFilter: 'blur(10px)'
-        }} role="dialog" aria-modal="true">
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-            borderRadius: '25px',
-            border: '2px solid #FF4757',
-            boxShadow: '0 20px 60px rgba(255,71,87,0.3)',
-            maxWidth: '500px',
-            width: '100%',
-            position: 'relative',
-            padding: '30px'
-          }}>
+        <div className="cmd-modal-overlay" role="dialog" aria-modal="true">
+          <div className="cmd-modal cmd-modal--danger" style={{ maxWidth: '500px' }}>
             {/* Close Button */}
             <button
               onClick={() => {
@@ -854,39 +718,16 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
                 setClaimToReject(null);
                 setRejectReason('');
               }}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(255,71,87,0.2)',
-                border: '2px solid #FF4757',
-                color: '#FF4757',
-                fontSize: '20px',
-                cursor: 'pointer',
-                zIndex: 10
-              }}
+              className="cmd-modal__close"
             >
               ×
             </button>
 
-            <h2 style={{
-              color: '#FF4757',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              margin: '0 0 20px 0'
-            }}>
+            <h2 className="cmd-modal__title" style={{ color: 'var(--color-danger, #FF4757)' }}>
               <XCircle size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.claims.rejectModalTitle')}
             </h2>
 
-            <p style={{
-              color: '#cccccc',
-              fontSize: '15px',
-              marginBottom: '20px',
-              lineHeight: '1.6'
-            }}>
+            <p className="cmd-modal__description">
               {t('admin.claims.rejectModalMessage')}
             </p>
 
@@ -895,49 +736,22 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder={t('admin.claims.rejectModalPlaceholder')}
               rows={6}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'rgba(0,0,0,0.4)',
-                border: '2px solid rgba(255,71,87,0.3)',
-                borderRadius: '12px',
-                color: '#ffffff',
-                fontSize: '14px',
-                resize: 'vertical',
-                marginBottom: '20px'
-              }}
+              className="cmd-form__textarea"
+              style={{ marginBottom: '16px' }}
             />
 
-            <div style={{
-              fontSize: '12px',
-              color: rejectReason.length >= 10 ? '#00FF7F' : '#cccccc',
-              marginBottom: '20px'
-            }}>
+            <div className="cmd-form__hint" style={{ color: rejectReason.length >= 10 ? 'var(--color-success, #00FF7F)' : undefined }}>
               {t('admin.claims.rejectModalCharCount', { count: rejectReason.length })}
             </div>
 
-            <div style={{
-              display: 'flex',
-              gap: '12px'
-            }}>
+            <div className="cmd-modal__actions">
               <button
                 onClick={() => {
                   setRejectModalOpen(false);
                   setClaimToReject(null);
                   setRejectReason('');
                 }}
-                style={{
-                  flex: 1,
-                  padding: '12px 20px',
-                  background: 'transparent',
-                  border: '2px solid #cccccc',
-                  color: '#cccccc',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'all 0.3s ease'
-                }}
+                className="cmd-modal__btn cmd-modal__btn--secondary"
               >
                 {t('admin.claims.rejectModalCancel')}
               </button>
@@ -945,21 +759,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
               <button
                 onClick={handleRejectConfirm}
                 disabled={rejectReason.trim().length < 10}
-                style={{
-                  flex: 1,
-                  padding: '12px 20px',
-                  background: rejectReason.trim().length < 10
-                    ? 'rgba(255,71,87,0.3)'
-                    : 'linear-gradient(45deg, #FF4757, #FF3742)',
-                  border: 'none',
-                  color: 'white',
-                  borderRadius: '12px',
-                  cursor: rejectReason.trim().length < 10 ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'all 0.3s ease',
-                  opacity: rejectReason.trim().length < 10 ? 0.5 : 1
-                }}
+                className="cmd-modal__btn cmd-modal__btn--danger"
               >
                 {t('admin.claims.rejectModalConfirm')}
               </button>
@@ -970,138 +770,81 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
       {/* Detail Modal */}
       {selectedClaim && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.9)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          backdropFilter: 'blur(10px)',
-          overflowY: 'auto'
-        }} role="dialog" aria-modal="true">
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(26,0,51,0.95), rgba(13,0,25,0.95))',
-            borderRadius: '25px',
-            border: '2px solid #00E5FF',
-            boxShadow: '0 20px 60px rgba(0,229,255,0.3)',
-            maxWidth: '700px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            position: 'relative',
-            padding: '30px'
-          }}>
+        <div className="cmd-modal-overlay" role="dialog" aria-modal="true">
+          <div className="cmd-modal" style={{ maxWidth: '700px' }}>
             {/* Close Button */}
             <button
               onClick={() => setSelectedClaim(null)}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'rgba(0,229,255,0.2)',
-                border: '2px solid #00E5FF',
-                color: '#00E5FF',
-                fontSize: '20px',
-                cursor: 'pointer',
-                zIndex: 10
-              }}
+              className="cmd-modal__close"
             >
               ×
             </button>
 
-            <h2 style={{
-              color: '#00E5FF',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              margin: '0 0 20px 0'
-            }}>
+            <h2 className="cmd-modal__title">
               {t('admin.claims.detailModalTitle')}
             </h2>
 
             {/* Full claim details */}
-            <div style={{ color: 'white' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailClaimId')}</strong> {selectedClaim.id}
+            <div className="cmd-modal__body">
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailClaimId')}</strong>
+                <span className="cmd-modal__value">{selectedClaim.id}</span>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailStatus')}</strong>{' '}
-                <span style={{ color: getStatusColor(selectedClaim.status) }}>
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailStatus')}</strong>
+                <span className="cmd-card__status" data-status={selectedClaim.status}>
                   {getStatusIcon(selectedClaim.status)} {selectedClaim.status.toUpperCase()}
                 </span>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailClaimant')}</strong> {selectedClaim.submitted_by_user?.pseudonym} ({selectedClaim.submitted_by_user?.email})
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailClaimant')}</strong>
+                <span className="cmd-modal__value">{selectedClaim.submitted_by_user?.pseudonym} ({selectedClaim.submitted_by_user?.email})</span>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailEmployee')}</strong> {selectedClaim.employee?.name}
-                {selectedClaim.employee?.nickname && ` "${selectedClaim.employee.nickname}"`}
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailEmployee')}</strong>
+                <span className="cmd-modal__value">
+                  {selectedClaim.employee?.name}
+                  {selectedClaim.employee?.nickname && ` "${selectedClaim.employee.nickname}"`}
+                </span>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailSubmitted')}</strong> {formatDate(selectedClaim.created_at)}
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailSubmitted')}</strong>
+                <span className="cmd-modal__value">{formatDate(selectedClaim.created_at)}</span>
               </div>
               {selectedClaim.reviewed_at && (
-                <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailReviewed')}</strong> {formatDate(selectedClaim.reviewed_at)} {t('admin.claims.detailReviewedBy')} {selectedClaim.moderator_user?.pseudonym}
+                <div className="cmd-modal__field">
+                  <strong className="cmd-modal__label">{t('admin.claims.detailReviewed')}</strong>
+                  <span className="cmd-modal__value">{formatDate(selectedClaim.reviewed_at)} {t('admin.claims.detailReviewedBy')} {selectedClaim.moderator_user?.pseudonym}</span>
                 </div>
               )}
-              <div style={{ marginBottom: '20px' }}>
-                <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailMessage')}</strong>
-                <div style={{
-                  marginTop: '10px',
-                  padding: '15px',
-                  background: 'rgba(0,0,0,0.3)',
-                  borderRadius: '10px',
-                  lineHeight: '1.6'
-                }}>
+              <div className="cmd-modal__field">
+                <strong className="cmd-modal__label">{t('admin.claims.detailMessage')}</strong>
+                <div className="cmd-modal__content-box">
                   {selectedClaim.request_metadata?.message || t('admin.claims.noMessage')}
                 </div>
               </div>
               {selectedClaim.verification_proof && selectedClaim.verification_proof.length > 0 && (
-                <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailVerificationProofs')}</strong>
-                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="cmd-modal__field">
+                  <strong className="cmd-modal__label">{t('admin.claims.detailVerificationProofs')}</strong>
+                  <div className="cmd-modal__links">
                     {selectedClaim.verification_proof.map((url, index) => (
                       <a
                         key={url}
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{
-                          color: '#C19A6B',
-                          textDecoration: 'none',
-                          padding: '8px',
-                          background: 'rgba(193, 154, 107,0.1)',
-                          borderRadius: '8px',
-                          wordBreak: 'break-all'
-                        }}
+                        className="cmd-modal__link"
                       >
-                        <Link size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('admin.claims.detailProofLabel', { index: index + 1 })} {url}
+                        <Link size={14} />{t('admin.claims.detailProofLabel', { index: index + 1 })} {url}
                       </a>
                     ))}
                   </div>
                 </div>
               )}
               {selectedClaim.moderator_notes && (
-                <div style={{ marginBottom: '20px' }}>
-                  <strong style={{ color: '#00E5FF' }}>{t('admin.claims.detailModeratorNotes')}</strong>
-                  <div style={{
-                    marginTop: '10px',
-                    padding: '15px',
-                    background: 'rgba(255,71,87,0.1)',
-                    border: '1px solid #FF4757',
-                    borderRadius: '10px',
-                    lineHeight: '1.6',
-                    color: '#FF4757'
-                  }}>
+                <div className="cmd-modal__field">
+                  <strong className="cmd-modal__label">{t('admin.claims.detailModeratorNotes')}</strong>
+                  <div className="cmd-modal__content-box cmd-modal__content-box--danger">
                     {selectedClaim.moderator_notes}
                   </div>
                 </div>

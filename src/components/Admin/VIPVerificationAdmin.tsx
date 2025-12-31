@@ -371,55 +371,59 @@ const VIPVerificationAdmin: React.FC = () => {
   }
 
   return (
-    <div className="vip-verification-admin">
-      <div className="verification-header">
-        <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
-        <p className="subtitle">{t('vipVerification.subtitle', 'Verify cash payments for VIP subscriptions')}</p>
+    <div className="vip-verification-admin command-content-section">
+      <div className="cmd-section-header">
+        <h2 className="cmd-section-title">{t('vipVerification.title', 'VIP Payment Verification')}</h2>
+        <p className="cmd-section-subtitle">{t('vipVerification.subtitle', 'Verify cash payments for VIP subscriptions')}</p>
       </div>
 
       {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
-          onClick={() => setFilter('pending')}
-        >
-          {t('vipVerification.filterPending', 'Pending')}
-          {transactions.filter(t => t.payment_status === 'pending').length > 0 && (
-            <span className="count-badge">
-              {transactions.filter(t => t.payment_status === 'pending').length}
-            </span>
-          )}
-        </button>
-        <button
-          className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
-          onClick={() => setFilter('completed')}
-        >
-          {t('vipVerification.filterCompleted', 'Completed')}
-        </button>
-        <button
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          {t('vipVerification.filterAll', 'All')}
-        </button>
+      <div className="cmd-filters" style={{ marginBottom: '24px' }}>
+        <div className="cmd-filter-pills">
+          <button
+            className={`cmd-filter ${filter === 'pending' ? 'cmd-filter--active' : ''}`}
+            onClick={() => setFilter('pending')}
+          >
+            <Clock size={14} />
+            <span>{t('vipVerification.filterPending', 'Pending')}</span>
+            {transactions.filter(t => t.payment_status === 'pending').length > 0 && (
+              <span className="cmd-filter__badge">
+                {transactions.filter(t => t.payment_status === 'pending').length}
+              </span>
+            )}
+          </button>
+          <button
+            className={`cmd-filter ${filter === 'completed' ? 'cmd-filter--active' : ''}`}
+            onClick={() => setFilter('completed')}
+          >
+            <CheckCircle size={14} />
+            <span>{t('vipVerification.filterCompleted', 'Completed')}</span>
+          </button>
+          <button
+            className={`cmd-filter ${filter === 'all' ? 'cmd-filter--active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            <span>{t('vipVerification.filterAll', 'All')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Bulk Action Bar - Phase 3 */}
       {selectedIds.size > 0 && (
-        <div className="bulk-action-bar">
-          <span className="bulk-count">
+        <div className="cmd-table__bulk-bar">
+          <span className="cmd-table__bulk-count">
             {selectedIds.size} {t('vipVerification.itemsSelected', 'payment(s) selected')}
           </span>
           <button
             onClick={handleBulkVerify}
             disabled={isBulkProcessing}
-            className="bulk-verify-button"
+            className="cmd-table__bulk-action cmd-table__bulk-action--success"
           >
-            {isBulkProcessing ? '...' : <><CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('vipVerification.verifyAll', 'Verify All')}</>}
+            {isBulkProcessing ? '...' : <><CheckCircle size={14} />{t('vipVerification.verifyAll', 'Verify All')}</>}
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="bulk-clear-button"
+            className="cmd-table__bulk-action cmd-table__bulk-action--secondary"
           >
             {t('vipVerification.clearSelection', 'Clear')}
           </button>
@@ -428,13 +432,13 @@ const VIPVerificationAdmin: React.FC = () => {
 
       {/* Select All Header - Phase 3 */}
       {!loading && transactions.filter(t => t.payment_status === 'pending').length > 0 && filter === 'pending' && (
-        <div className="select-all-header">
-          <label className="select-all-label">
+        <div className="cmd-table__select-all">
+          <label className="cmd-table__select-label">
             <input
               type="checkbox"
               checked={selectedIds.size === transactions.filter(t => t.payment_status === 'pending').length && transactions.filter(t => t.payment_status === 'pending').length > 0}
               onChange={toggleSelectAll}
-              className="select-all-checkbox"
+              className="cmd-table__checkbox"
             />
             {t('vipVerification.selectAll', 'Select All Pending')} ({transactions.filter(t => t.payment_status === 'pending').length})
           </label>
@@ -453,9 +457,9 @@ const VIPVerificationAdmin: React.FC = () => {
 
       {/* Transactions List */}
       {transactions.length === 0 ? (
-        <div className="empty-state">
-          <p className="empty-icon"><MailOpen size={48} /></p>
-          <p className="empty-message">
+        <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '60px 40px' }}>
+          <div style={{ marginBottom: '20px' }}><MailOpen size={48} style={{ color: 'var(--color-cyan, rgba(0,229,255,0.5))' }} /></div>
+          <p className="cmd-card__description">
             {filter === 'pending'
               ? t('vipVerification.noPending', 'No pending verifications')
               : t('vipVerification.noTransactions', 'No transactions found')}

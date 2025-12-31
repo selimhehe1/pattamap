@@ -353,11 +353,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
   }
 
   return (
-    <div className="bg-nightlife-gradient-main" style={{
-      minHeight: '100vh',
-      padding: '30px',
-      color: 'white'
-    }}>
+    <div className="command-content-section">
       {/* Breadcrumb */}
       <AdminBreadcrumb
         currentSection="Profile Verifications"
@@ -366,65 +362,34 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       />
 
       {/* Header */}
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: '900',
-          margin: '0 0 10px 0',
-          background: 'linear-gradient(45deg, #00FF88, #00E5FF)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 0 20px rgba(0,255,136,0.5)',
-          fontFamily: '"Orbitron", monospace',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
+      <div className="cmd-section-header">
+        <h1 className="cmd-section-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <BadgeCheck size={32} style={{ color: 'var(--color-success)' }} /> Profile Verifications
         </h1>
-        <p style={{
-          fontSize: '16px',
-          color: '#cccccc',
-          margin: 0
-        }}>
+        <p className="cmd-section-subtitle">
           Manage employee verification requests and review authenticity
         </p>
       </div>
 
       {/* Filter Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: '10px',
-        marginBottom: '30px',
-        overflowX: 'auto'
-      }}>
-        {[
-          { key: 'all', label: 'All', icon: <List size={14} />, count: stats.total },
-          { key: 'manual_review', label: 'Manual Review', icon: <Eye size={14} />, count: stats.manualReview },
-          { key: 'approved', label: 'Approved', icon: <CheckCircle size={14} />, count: stats.approved },
-          { key: 'rejected', label: 'Rejected', icon: <XCircle size={14} />, count: stats.rejected }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key as FilterType)}
-            style={{
-              padding: '12px 20px',
-              borderRadius: '12px',
-              border: filter === tab.key ? '2px solid #00E5FF' : '2px solid rgba(0,229,255,0.3)',
-              background: filter === tab.key
-                ? 'linear-gradient(45deg, rgba(0,229,255,0.2), rgba(0,255,136,0.1))'
-                : 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,0,0,0.3))',
-              color: filter === tab.key ? '#00E5FF' : '#ffffff',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {tab.icon} {tab.label} ({tab.count})
-          </button>
-        ))}
+      <div className="cmd-filters" style={{ marginBottom: '24px' }}>
+        <div className="cmd-filter-pills">
+          {[
+            { key: 'all', label: 'All', icon: <List size={14} />, count: stats.total },
+            { key: 'manual_review', label: 'Manual Review', icon: <Eye size={14} />, count: stats.manualReview },
+            { key: 'approved', label: 'Approved', icon: <CheckCircle size={14} />, count: stats.approved },
+            { key: 'rejected', label: 'Rejected', icon: <XCircle size={14} />, count: stats.rejected }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key as FilterType)}
+              className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
+            >
+              {tab.icon}
+              <span>{tab.label} ({tab.count})</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -467,27 +432,12 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
 
       {/* Verifications Grid */}
       {groupedVerifications.length === 0 ? (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,0,0,0.3))',
-          borderRadius: '20px',
-          border: '2px solid rgba(0,229,255,0.3)',
-          padding: '60px 40px',
-          textAlign: 'center'
-        }}>
-          <div style={{ marginBottom: '20px' }}><Inbox size={64} style={{ color: 'rgba(0,229,255,0.5)' }} /></div>
-          <h3 style={{
-            color: '#00E5FF',
-            fontSize: '22px',
-            fontWeight: 'bold',
-            margin: '0 0 12px 0'
-          }}>
+        <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '60px 40px' }}>
+          <div style={{ marginBottom: '20px' }}><Inbox size={64} style={{ color: 'var(--color-cyan, rgba(0,229,255,0.5))' }} /></div>
+          <h3 className="cmd-card__title" style={{ color: 'var(--color-cyan)', marginBottom: '12px' }}>
             No verifications found
           </h3>
-          <p style={{
-            color: '#cccccc',
-            fontSize: '16px',
-            margin: 0
-          }}>
+          <p className="cmd-card__description">
             No verifications match the selected filter
           </p>
         </div>

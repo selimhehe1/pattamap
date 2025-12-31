@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight, Shield, Cake, Share2 } from 'lucide-react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight, ChevronDown, Shield, Cake, Share2, History } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -48,6 +48,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
 
   // 🆕 Phase 5.3: Use centralized favorite hook with React Query optimistic updates
   const { isFavorite, toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite(girl.id);
@@ -654,77 +655,186 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           )}
 
           {/* ====== WORKPLACE SECTION ====== */}
-          {girl.current_employment && girl.current_employment.length > 0 && (
-            <motion.div
-              className="profile-v2-section"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-            >
-              <h3 className="profile-v2-section-title">
-                <Building2 size={16} />
-                {t('profile.currentlyWorkingAt', 'Currently Working At')}
-              </h3>
+          {(() => {
+            // Separate current employment from past employment
+            const currentEmployment = girl.current_employment?.filter(e => e.is_current) || [];
+            const pastEmployment = girl.employment_history?.filter(e => !e.is_current) || [];
 
-              <div className="profile-v2-workplaces">
-                {girl.current_employment.map((employment) => (
-                  <div key={employment.id} className="profile-v2-workplace">
-                    <div className="profile-v2-workplace-info">
-                      <h4 className="profile-v2-workplace-name">
-                        {employment.establishment?.name}
-                      </h4>
+            return (
+              <>
+                {/* Current Employment - Always visible with accent styling */}
+                {currentEmployment.length > 0 && (
+                  <motion.div
+                    className="profile-v2-section"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45 }}
+                  >
+                    <h3 className="profile-v2-section-title">
+                      <Building2 size={16} />
+                      {t('profile.currentlyWorkingAt', 'Currently Working At')}
+                    </h3>
 
-                      <div className="profile-v2-workplace-meta">
-                        {employment.establishment?.category?.name && (
-                          <span>
-                            <MapPin size={12} />
-                            {employment.establishment.category.name}
-                          </span>
-                        )}
-                        {employment.establishment?.zone && (
-                          <span>
-                            <Globe size={12} />
-                            {employment.establishment.zone}
-                          </span>
-                        )}
-                      </div>
+                    <div className="profile-v2-workplaces profile-v2-workplaces--current">
+                      {currentEmployment.map((employment) => (
+                        <div key={employment.id} className="profile-v2-workplace">
+                          <div className="profile-v2-workplace-info">
+                            <h4 className="profile-v2-workplace-name">
+                              {employment.establishment?.name}
+                            </h4>
 
-                      {employment.position && (
-                        <div className="profile-v2-workplace-position">
-                          <Briefcase size={12} />
-                          {employment.position}
+                            <div className="profile-v2-workplace-meta">
+                              {employment.establishment?.category?.name && (
+                                <span>
+                                  <MapPin size={12} />
+                                  {employment.establishment.category.name}
+                                </span>
+                              )}
+                              {employment.establishment?.zone && (
+                                <span>
+                                  <Globe size={12} />
+                                  {employment.establishment.zone}
+                                </span>
+                              )}
+                            </div>
+
+                            {employment.position && (
+                              <div className="profile-v2-workplace-position">
+                                <Briefcase size={12} />
+                                {employment.position}
+                              </div>
+                            )}
+
+                            {employment.start_date && (
+                              <div className="profile-v2-workplace-date">
+                                <Calendar size={12} />
+                                {t('profile.since', 'Since')} {new Date(employment.start_date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {employment.establishment?.id && (
+                            <button
+                              className="profile-v2-workplace-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onClose();
+                                navigate(`/bar/${employment.establishment?.id}`);
+                              }}
+                            >
+                              <ExternalLink size={14} />
+                              {t('profile.visitBar', 'Visit Bar')}
+                            </button>
+                          )}
                         </div>
-                      )}
-
-                      {employment.start_date && (
-                        <div className="profile-v2-workplace-date">
-                          <Calendar size={12} />
-                          {t('profile.since', 'Since')} {new Date(employment.start_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </div>
-                      )}
+                      ))}
                     </div>
+                  </motion.div>
+                )}
 
-                    {employment.establishment?.id && (
-                      <button
-                        className="profile-v2-workplace-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onClose();
-                          navigate(`/bar/${employment.establishment?.id}`);
-                        }}
-                      >
-                        <ExternalLink size={14} />
-                        {t('profile.visitBar', 'Visit Bar')}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
+                {/* Past Employment - Collapsible section with muted styling */}
+                {pastEmployment.length > 0 && (
+                  <motion.div
+                    className="profile-v2-section"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <button
+                      className="profile-v2-history-toggle"
+                      onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
+                      aria-expanded={showEmploymentHistory}
+                    >
+                      <History size={16} />
+                      <span>{t('profile.employmentHistory', 'Employment History')} ({pastEmployment.length})</span>
+                      <ChevronDown
+                        size={16}
+                        className={`profile-v2-history-chevron ${showEmploymentHistory ? 'profile-v2-history-chevron--open' : ''}`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {showEmploymentHistory && (
+                        <motion.div
+                          className="profile-v2-workplaces profile-v2-workplaces--past"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {pastEmployment.map((employment) => (
+                            <div key={employment.id} className="profile-v2-workplace">
+                              <div className="profile-v2-workplace-info">
+                                <h4 className="profile-v2-workplace-name">
+                                  {employment.establishment?.name}
+                                </h4>
+
+                                <div className="profile-v2-workplace-meta">
+                                  {employment.establishment?.category?.name && (
+                                    <span>
+                                      <MapPin size={12} />
+                                      {employment.establishment.category.name}
+                                    </span>
+                                  )}
+                                  {employment.establishment?.zone && (
+                                    <span>
+                                      <Globe size={12} />
+                                      {employment.establishment.zone}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {employment.position && (
+                                  <div className="profile-v2-workplace-position">
+                                    <Briefcase size={12} />
+                                    {employment.position}
+                                  </div>
+                                )}
+
+                                {/* Show date range for past employment */}
+                                {employment.start_date && (
+                                  <div className="profile-v2-workplace-date">
+                                    <Calendar size={12} />
+                                    {new Date(employment.start_date).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      year: 'numeric'
+                                    })}
+                                    {employment.end_date && (
+                                      <> – {new Date(employment.end_date).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        year: 'numeric'
+                                      })}</>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {employment.establishment?.id && (
+                                <button
+                                  className="profile-v2-workplace-btn profile-v2-workplace-btn--muted"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onClose();
+                                    navigate(`/bar/${employment.establishment?.id}`);
+                                  }}
+                                >
+                                  <ExternalLink size={14} />
+                                  {t('profile.visitBar', 'Visit Bar')}
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </>
+            );
+          })()}
 
           {/* ====== VIP STATUS (if applicable) ====== */}
           {isVIP && (

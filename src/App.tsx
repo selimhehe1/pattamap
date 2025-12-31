@@ -41,6 +41,10 @@ import './styles/components/EmptyState.css';
 import './styles/components/mobile-menu.css'; // Phase 3 - Mobile hamburger menu
 import './styles/admin/admin-employee-card.css'; // Phase 1 - Admin employee card styles
 import './styles/admin/admin-light-mode.css'; // Phase 2 - Admin light mode overrides
+import './styles/admin/command-tables.css'; // Phase 2 - Command Center tables
+import './styles/admin/command-filters.css'; // Phase 2 - Command Center filters
+import './styles/admin/command-modals.css'; // Phase 2 - Command Center modals
+import './styles/admin/command-cards.css'; // Phase 2 - Command Center cards
 import './App.css';
 // REMOVED: import './styles/nightlife-theme.css'; - Legacy 9,145 line file deprecated
 import './styles/responsive/large-desktop.css';

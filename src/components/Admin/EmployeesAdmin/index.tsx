@@ -65,27 +65,30 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
   // Access denied view
   if (!hasAccess) {
     return (
-      <div className="access-denied-container">
-        <div className="access-denied-card">
-          <h2><Ban size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('admin.accessDenied')}</h2>
-          <p>{t('admin.accessDeniedArea')}</p>
+      <div className="command-content-section">
+        <div className="cmd-card" style={{ textAlign: 'center', padding: '60px 40px' }}>
+          <Ban size={48} style={{ marginBottom: '20px', opacity: 0.5, color: 'var(--color-error)' }} />
+          <h2 className="cmd-card__title">{t('admin.accessDenied')}</h2>
+          <p className="cmd-card__subtitle">{t('admin.accessDeniedArea')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-page-container">
+    <div className="command-content-section">
       <AdminBreadcrumb
         currentSection={t('admin.employeesManagement')}
         onBackToDashboard={() => onTabChange('overview')}
-        icon={<Users size={20} style={{ verticalAlign: 'middle' }} />}
+        icon={<Users size={20} />}
       />
 
       {/* Header */}
-      <div className="admin-page-header">
-        <h1 className="admin-page-title"><UsersRound size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> {t('admin.employeesManagement')}</h1>
-        <p className="admin-page-subtitle">{t('admin.reviewApproveEmployees')}</p>
+      <div className="cmd-section-header">
+        <h1 className="cmd-section-title">
+          <UsersRound size={28} /> {t('admin.employeesManagement')}
+        </h1>
+        <p className="cmd-section-subtitle">{t('admin.reviewApproveEmployees')}</p>
       </div>
 
       {/* Filter Tabs */}
@@ -126,72 +129,33 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
       ) : (
         <>
           {/* Bulk Action Bar */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px 16px',
-              marginBottom: '16px',
-              background: 'rgba(193, 154, 107, 0.1)',
-              borderRadius: '12px',
-              border: '1px solid rgba(193, 154, 107, 0.2)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  color: '#C19A6B',
-                  fontWeight: 500,
-                }}
-              >
+          <div className={`cmd-table__bulk-bar ${selectedIds.size > 0 ? 'cmd-table__bulk-bar--visible' : ''}`}>
+            <div className="cmd-table__bulk-left">
+              <label className="cmd-table__checkbox-label">
                 <input
                   type="checkbox"
+                  className="cmd-table__checkbox"
                   checked={selectedIds.size === employees.length && employees.length > 0}
                   onChange={toggleSelectAll}
-                  style={{
-                    width: '18px',
-                    height: '18px',
-                    accentColor: '#C19A6B',
-                    cursor: 'pointer',
-                  }}
                 />
                 {t('admin.selectAll', 'Select All')}
               </label>
               {selectedIds.size > 0 && (
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                <span className="cmd-table__bulk-count">
                   ({selectedIds.size} {t('admin.selected', 'selected')})
                 </span>
               )}
             </div>
 
             {selectedIds.size > 0 && (
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="cmd-table__bulk-actions">
                 <button
                   onClick={handleBulkApprove}
                   disabled={isBulkProcessing}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #10B981, #059669)',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '14px',
-                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
-                    opacity: isBulkProcessing ? 0.7 : 1,
-                    transition: 'all 0.2s ease',
-                  }}
+                  className="cmd-modal-btn cmd-modal-btn--success cmd-modal-btn--sm"
                 >
                   {isBulkProcessing ? (
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={16} className="cmd-spin" />
                   ) : (
                     <Check size={16} />
                   )}
@@ -200,24 +164,10 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 <button
                   onClick={handleBulkReject}
                   disabled={isBulkProcessing}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #EF4444, #DC2626)',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '14px',
-                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
-                    opacity: isBulkProcessing ? 0.7 : 1,
-                    transition: 'all 0.2s ease',
-                  }}
+                  className="cmd-modal-btn cmd-modal-btn--danger cmd-modal-btn--sm"
                 >
                   {isBulkProcessing ? (
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={16} className="cmd-spin" />
                   ) : (
                     <X size={16} />
                   )}
@@ -226,16 +176,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 <button
                   onClick={clearSelection}
                   disabled={isBulkProcessing}
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    background: 'transparent',
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '14px',
-                    cursor: isBulkProcessing ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
+                  className="cmd-modal-btn cmd-modal-btn--ghost cmd-modal-btn--sm"
                 >
                   {t('admin.clearSelection', 'Clear')}
                 </button>
