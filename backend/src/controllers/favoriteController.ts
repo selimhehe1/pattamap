@@ -30,6 +30,7 @@ export const getFavorites = async (req: Request, res: Response) => {
     }
 
     const employeeIds = (favorites || []).map((fav: FavoriteRecord) => fav.employee_id);
+    logger.info('DEBUG: employeeIds to fetch:', employeeIds);
 
     // Step 2: Batch fetch all employees data
     interface EmployeeData {
@@ -43,10 +44,15 @@ export const getFavorites = async (req: Request, res: Response) => {
       social_media?: Record<string, string>;
     }
 
-    const { data: allEmployees } = await supabase
+    const { data: allEmployees, error: empError } = await supabase
       .from('employees')
       .select('id, name, nickname, age, nationality, photos, description, social_media')
       .in('id', employeeIds.length > 0 ? employeeIds : ['none']);
+
+    logger.info('DEBUG: allEmployees fetched:', allEmployees?.length, 'error:', empError);
+    if (allEmployees && allEmployees.length > 0) {
+      logger.info('DEBUG: first employee:', JSON.stringify(allEmployees[0]));
+    }
 
     // Create employee lookup map
     const employeeMap = new Map<string, EmployeeData>();
