@@ -33,7 +33,7 @@ export interface EmployeeSubmitData {
   description?: string;
   photos: string[];
   social_media?: Record<string, string>;
-  current_establishment_id?: string;
+  current_establishment_id?: string | null;  // null = clear association
   is_freelance?: boolean;
 }
 

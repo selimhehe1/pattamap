@@ -300,7 +300,8 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         description: formData.description.trim() || undefined,
         photos: finalPhotoUrls,
         social_media: Object.keys(mappedSocialMedia).length > 0 ? mappedSocialMedia : undefined,
-        current_establishment_id: formData.current_establishment_id || undefined,
+        // Send null explicitly when empty to tell backend to clear association
+        current_establishment_id: formData.current_establishment_id || null,
         is_freelance: isFreelanceMode
       };
 
