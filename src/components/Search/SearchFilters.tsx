@@ -533,26 +533,50 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   }, []);
 
-  // 🎯 Phase 3.3 fix: Update dropdown position on sidebar scroll
-  React.useEffect(() => {
-    if (!showEstablishmentSuggestions) return;
+  // 🎯 Phase 3.3 fix: Update dropdown position IMMEDIATELY when visible and on scroll
+  // Using useLayoutEffect ensures position is calculated before paint
+  React.useLayoutEffect(() => {
+    if (!showEstablishmentSuggestions || !establishmentInputRef.current) return;
+
+    // Calculate position immediately when dropdown becomes visible
+    const calculateAndSetPosition = () => {
+      if (establishmentInputRef.current) {
+        const rect = establishmentInputRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width
+        });
+      }
+    };
+
+    // Initial position calculation
+    calculateAndSetPosition();
 
     const sidebar = document.querySelector('.search-filters-fixed-nightlife');
-    if (!sidebar) return;
 
+    // Use requestAnimationFrame for smooth position updates during scroll
+    let rafId: number | null = null;
     const handleScroll = () => {
-      updateDropdownPosition();
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(calculateAndSetPosition);
     };
 
-    sidebar.addEventListener('scroll', handleScroll, { passive: true });
-    // Also listen to window scroll in case page scrolls
+    if (sidebar) {
+      sidebar.addEventListener('scroll', handleScroll, { passive: true });
+    }
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
 
     return () => {
-      sidebar.removeEventListener('scroll', handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (sidebar) {
+        sidebar.removeEventListener('scroll', handleScroll);
+      }
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
     };
-  }, [showEstablishmentSuggestions, updateDropdownPosition]);
+  }, [showEstablishmentSuggestions]);
 
   return (
     <div className="search-filters-fixed-nightlife" data-testid="search-filters">
