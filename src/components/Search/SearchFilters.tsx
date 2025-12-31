@@ -533,6 +533,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   }, []);
 
+  // 🎯 Phase 3.3 fix: Update dropdown position on sidebar scroll
+  React.useEffect(() => {
+    if (!showEstablishmentSuggestions) return;
+
+    const sidebar = document.querySelector('.search-filters-fixed-nightlife');
+    if (!sidebar) return;
+
+    const handleScroll = () => {
+      updateDropdownPosition();
+    };
+
+    sidebar.addEventListener('scroll', handleScroll, { passive: true });
+    // Also listen to window scroll in case page scrolls
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      sidebar.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showEstablishmentSuggestions, updateDropdownPosition]);
+
   return (
     <div className="search-filters-fixed-nightlife" data-testid="search-filters">
       {/* Mobile Toggle Button */}
