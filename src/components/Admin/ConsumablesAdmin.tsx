@@ -269,7 +269,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             <div className="cmd-form__group">
               <label className="cmd-form__label">{t('admin.preview')}</label>
               <div className="cmd-form__preview">
-                {getCategoryIcon(formData.category)} {formData.name || 'Nom'}
+                {getCategoryIcon(formData.category)}{' '}{formData.name || 'Nom'}
               </div>
             </div>
 
