@@ -692,8 +692,16 @@ router.put('/employees/:id', async (req, res) => {
             });
         }
         logger_1.logger.debug('✅ Using UUID:', realUuid);
-        // Retirer les champs calculés/non modifiables
-        const { id: _, created_at, updated_at, user, employment_history, current_establishment_id, ...cleanData } = updateData;
+        // Retirer les champs calculés/non modifiables (garder current_establishment_id pour l'update)
+        const { id: _, created_at, updated_at, user, employment_history, ...cleanData } = updateData;
+        // Convert current_establishment_id to UUID if it's a numeric ID
+        if (cleanData.current_establishment_id) {
+            const estId = cleanData.current_establishment_id;
+            if (typeof estId === 'number' || /^\d+$/.test(estId)) {
+                cleanData.current_establishment_id = await findUuidByNumber('establishments', estId.toString());
+                logger_1.logger.debug('🏢 Converted establishment ID:', { from: estId, to: cleanData.current_establishment_id });
+            }
+        }
         logger_1.logger.debug('Clean Data:', JSON.stringify(cleanData, null, 2));
         const { data, error } = await supabase_1.supabase
             .from('employees')
@@ -759,7 +767,17 @@ router.put('/employees/:id', async (req, res) => {
                 }
                 // Verify the operation was successful
                 if (newEmployment && !empError) {
-                    logger_1.logger.debug(`✅ Employment updated successfully for employee ${realUuid}`);
+                    // Update the current_establishment_id in the employees table
+                    const { error: updateEstError } = await supabase_1.supabase
+                        .from('employees')
+                        .update({ current_establishment_id: establishmentUuid })
+                        .eq('id', realUuid);
+                    if (updateEstError) {
+                        logger_1.logger.error('❌ Error updating current_establishment_id:', updateEstError);
+                    }
+                    else {
+                        logger_1.logger.debug(`✅ Employee ${realUuid} establishment updated to ${establishmentUuid}`);
+                    }
                 }
             }
         }

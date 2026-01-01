@@ -867,8 +867,17 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
 
     logger.debug('✅ Using UUID:', realUuid);
 
-    // Retirer les champs calculés/non modifiables
-    const { id: _, created_at, updated_at, user, employment_history, current_establishment_id, ...cleanData } = updateData;
+    // Retirer les champs calculés/non modifiables (garder current_establishment_id pour l'update)
+    const { id: _, created_at, updated_at, user, employment_history, ...cleanData } = updateData;
+
+    // Convert current_establishment_id to UUID if it's a numeric ID
+    if (cleanData.current_establishment_id) {
+      const estId = cleanData.current_establishment_id;
+      if (typeof estId === 'number' || /^\d+$/.test(estId)) {
+        cleanData.current_establishment_id = await findUuidByNumber('establishments', estId.toString());
+        logger.debug('🏢 Converted establishment ID:', { from: estId, to: cleanData.current_establishment_id });
+      }
+    }
 
     logger.debug('Clean Data:', JSON.stringify(cleanData, null, 2));
 
