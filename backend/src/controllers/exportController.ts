@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { asyncHandler, UnauthorizedError , InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Export Controller
@@ -37,10 +38,9 @@ const toCSV = (data: Record<string, unknown>[], columns: string[]): string => {
  * Export user's favorites to CSV
  * GET /api/export/favorites
  */
-export const exportFavorites = async (req: AuthRequest, res: Response) => {
-  try {
+export const exportFavorites = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: favorites, error } = await supabase
@@ -60,7 +60,7 @@ export const exportFavorites = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Export favorites error:', error);
-      return res.status(500).json({ error: 'Failed to export favorites' });
+      throw InternalServerError('Failed to export favorites');
     }
 
     // Flatten data for CSV
@@ -78,21 +78,15 @@ export const exportFavorites = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="pattamap-favorites-${Date.now()}.csv"`);
     res.send(csv);
-
-  } catch (error) {
-    logger.error('Export favorites error:', error);
-    return res.status(500).json({ error: 'Export failed' });
-  }
-};
+});
 
 /**
  * Export user's visit history to CSV
  * GET /api/export/visits
  */
-export const exportVisits = async (req: AuthRequest, res: Response) => {
-  try {
+export const exportVisits = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: visits, error } = await supabase
@@ -110,7 +104,7 @@ export const exportVisits = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Export visits error:', error);
-      return res.status(500).json({ error: 'Failed to export visits' });
+      throw InternalServerError('Failed to export visits');
     }
 
     const flatData = (visits || []).map(visit => ({
@@ -125,21 +119,15 @@ export const exportVisits = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="pattamap-visits-${Date.now()}.csv"`);
     res.send(csv);
-
-  } catch (error) {
-    logger.error('Export visits error:', error);
-    return res.status(500).json({ error: 'Export failed' });
-  }
-};
+});
 
 /**
  * Export user's badges to CSV
  * GET /api/export/badges
  */
-export const exportBadges = async (req: AuthRequest, res: Response) => {
-  try {
+export const exportBadges = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: userBadges, error } = await supabase
@@ -158,7 +146,7 @@ export const exportBadges = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Export badges error:', error);
-      return res.status(500).json({ error: 'Failed to export badges' });
+      throw InternalServerError('Failed to export badges');
     }
 
     const flatData = (userBadges || []).map(ub => ({
@@ -174,21 +162,15 @@ export const exportBadges = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="pattamap-badges-${Date.now()}.csv"`);
     res.send(csv);
-
-  } catch (error) {
-    logger.error('Export badges error:', error);
-    return res.status(500).json({ error: 'Export failed' });
-  }
-};
+});
 
 /**
  * Export user's comments/reviews to CSV
  * GET /api/export/reviews
  */
-export const exportReviews = async (req: AuthRequest, res: Response) => {
-  try {
+export const exportReviews = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: comments, error } = await supabase
@@ -206,7 +188,7 @@ export const exportReviews = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Export reviews error:', error);
-      return res.status(500).json({ error: 'Failed to export reviews' });
+      throw InternalServerError('Failed to export reviews');
     }
 
     const flatData = (comments || []).map(comment => ({
@@ -224,9 +206,4 @@ export const exportReviews = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="pattamap-reviews-${Date.now()}.csv"`);
     res.send(csv);
-
-  } catch (error) {
-    logger.error('Export reviews error:', error);
-    return res.status(500).json({ error: 'Export failed' });
-  }
-};
+});

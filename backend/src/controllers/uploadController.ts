@@ -4,18 +4,18 @@ import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/supabase';
 import { missionTrackingService } from '../services/missionTrackingService';
+import { asyncHandler, BadRequestError, ForbiddenError } from '../middleware/asyncHandler';
 
-export const uploadImages = async (req: AuthRequest, res: Response) => {
-  try {
+export const uploadImages = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Ensure Cloudinary is configured (lazy init for Vercel serverless)
     ensureConfigured();
 
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-      return res.status(400).json({ error: 'No images provided' });
+      throw BadRequestError('No images provided');
     }
 
     if (req.files.length > 5) {
-      return res.status(400).json({ error: 'Maximum 5 images allowed' });
+      throw BadRequestError('Maximum 5 images allowed');
     }
 
     const uploadPromises = req.files.map((file) => {
@@ -102,46 +102,14 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
       message: 'Images uploaded successfully',
       images: uploadResults
     });
-  } catch (error) {
-    // Handle both Error instances and Cloudinary error objects
-    let errorMessage = 'Unknown error';
-    let errorStack = '';
+});
 
-    if (error instanceof Error) {
-      errorMessage = error.message;
-      errorStack = error.stack || '';
-    } else if (typeof error === 'object' && error !== null) {
-      // Cloudinary returns error objects with message/error properties
-      const cloudinaryError = error as { message?: string; error?: { message?: string }; http_code?: number };
-      errorMessage = cloudinaryError.message || cloudinaryError.error?.message || JSON.stringify(error);
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    }
-
-    logger.error('Upload error:', { message: errorMessage, stack: errorStack, rawError: error });
-
-    // Check if Cloudinary is configured
-    const cloudinaryConfigured = !!(
-      process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET
-    );
-
-    res.status(500).json({
-      error: 'Failed to upload images',
-      details: errorMessage,
-      cloudinaryConfigured
-    });
-  }
-};
-
-export const uploadSingleImage = async (req: AuthRequest, res: Response) => {
-  try {
+export const uploadSingleImage = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Ensure Cloudinary is configured (lazy init for Vercel serverless)
     ensureConfigured();
 
     if (!req.file) {
-      return res.status(400).json({ error: 'No image provided' });
+      throw BadRequestError('No image provided');
     }
 
     // Convert buffer to base64
@@ -192,21 +160,16 @@ export const uploadSingleImage = async (req: AuthRequest, res: Response) => {
         height: result.height
       }
     });
-  } catch (error) {
-    logger.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to upload image' });
-  }
-};
+});
 
-export const deleteImage = async (req: AuthRequest, res: Response) => {
-  try {
+export const deleteImage = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Ensure Cloudinary is configured (lazy init for Vercel serverless)
     ensureConfigured();
 
     const { public_id } = req.body;
 
     if (!public_id) {
-      return res.status(400).json({ error: 'Public ID is required' });
+      throw BadRequestError('Public ID is required');
     }
 
     const result = await cloudinary.uploader.destroy(public_id);
@@ -214,26 +177,21 @@ export const deleteImage = async (req: AuthRequest, res: Response) => {
     if (result.result === 'ok') {
       res.json({ message: 'Image deleted successfully' });
     } else {
-      res.status(400).json({ error: 'Failed to delete image' });
+      throw BadRequestError('Failed to delete image');
     }
-  } catch (error) {
-    logger.error('Delete error:', error);
-    res.status(500).json({ error: 'Failed to delete image' });
-  }
-};
+});
 
-export const uploadEstablishmentLogo = async (req: AuthRequest, res: Response) => {
-  try {
+export const uploadEstablishmentLogo = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Ensure Cloudinary is configured (lazy init for Vercel serverless)
     ensureConfigured();
 
     if (!req.file) {
-      return res.status(400).json({ error: 'No logo image provided' });
+      throw BadRequestError('No logo image provided');
     }
 
     // Verify user is admin or moderator
     if (!req.user || !['admin', 'moderator'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Admin or moderator access required' });
+      throw ForbiddenError('Admin or moderator access required');
     }
 
     // Convert buffer to base64
@@ -284,21 +242,16 @@ export const uploadEstablishmentLogo = async (req: AuthRequest, res: Response) =
         height: result.height
       }
     });
-  } catch (error) {
-    logger.error('Logo upload error:', error);
-    res.status(500).json({ error: 'Failed to upload establishment logo' });
-  }
-};
+});
 
-export const getImageInfo = async (req: AuthRequest, res: Response) => {
-  try {
+export const getImageInfo = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Ensure Cloudinary is configured (lazy init for Vercel serverless)
     ensureConfigured();
 
     const { public_id } = req.params;
 
     if (!public_id) {
-      return res.status(400).json({ error: 'Public ID is required' });
+      throw BadRequestError('Public ID is required');
     }
 
     const result = await cloudinary.api.resource(public_id);
@@ -314,8 +267,4 @@ export const getImageInfo = async (req: AuthRequest, res: Response) => {
         created_at: result.created_at
       }
     });
-  } catch (error) {
-    logger.error('Get image info error:', error);
-    res.status(500).json({ error: 'Failed to get image information' });
-  }
-};
+});

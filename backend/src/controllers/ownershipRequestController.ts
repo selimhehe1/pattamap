@@ -11,13 +11,13 @@ import {
   notifyOwnerRequestStatusChange,
   notifyOwnershipRequestSubmitted
 } from '../utils/notificationHelper';
+import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Create a new ownership request (establishment owner only)
  * POST /api/ownership-requests
  */
-export const createOwnershipRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const createOwnershipRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const {
       establishment_id,
@@ -29,24 +29,18 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
 
     // Validate required fields
     if (!establishment_id && !establishment_data) {
-      return res.status(400).json({
-        error: 'Either establishment_id or establishment_data is required'
-      });
+      throw BadRequestError('Either establishment_id or establishment_data is required');
     }
 
     if (!documents_urls || documents_urls.length === 0) {
-      return res.status(400).json({
-        error: 'At least one document is required'
-      });
+      throw BadRequestError('At least one document is required');
     }
 
     // Validate establishment_data if provided
     if (establishment_data) {
       const { name, address, latitude, longitude, category_id } = establishment_data;
       if (!name || !address || !latitude || !longitude || !category_id) {
-        return res.status(400).json({
-          error: 'establishment_data must include: name, address, latitude, longitude, category_id'
-        });
+        throw BadRequestError('establishment_data must include: name, address, latitude, longitude, category_id');
       }
     }
 
@@ -58,14 +52,11 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (userError || !user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw NotFoundError('User not found');
     }
 
     if (user.account_type !== 'establishment_owner') {
-      return res.status(403).json({
-        error: 'Only establishment owners can request ownership',
-        current_account_type: user.account_type
-      });
+      throw ForbiddenError('Only establishment owners can request ownership');
     }
 
     // Handle establishment creation if data provided
@@ -101,7 +92,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
 
       if (createError || !newEstablishment) {
         logger.error('Create establishment error:', createError);
-        return res.status(500).json({ error: 'Failed to create establishment' });
+        throw InternalServerError('Failed to create establishment');
       }
 
       finalEstablishmentId = newEstablishment.id;
@@ -122,7 +113,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
         .single();
 
       if (estError || !establishment) {
-        return res.status(404).json({ error: 'Establishment not found' });
+        throw NotFoundError('Establishment not found');
       }
 
       establishmentName = establishment.name;
@@ -137,9 +128,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (existingOwnership) {
-      return res.status(409).json({
-        error: 'You already own this establishment'
-      });
+      throw ConflictError('You already own this establishment');
     }
 
     // Check if there's already a pending request
@@ -152,9 +141,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (existingRequest) {
-      return res.status(409).json({
-        error: 'You already have a pending request for this establishment'
-      });
+      throw ConflictError('You already have a pending request for this establishment');
     }
 
     // Create ownership request
@@ -184,7 +171,7 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
 
     if (error) {
       logger.error('Create ownership request error:', error);
-      return res.status(500).json({ error: 'Failed to create ownership request' });
+      throw InternalServerError('Failed to create ownership request');
     }
 
     logger.info('Ownership request created', {
@@ -225,18 +212,13 @@ export const createOwnershipRequest = async (req: AuthRequest, res: Response) =>
       request,
       isNewEstablishment
     });
-  } catch (error) {
-    logger.error('Create ownership request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get current user's ownership requests (establishment owner only)
  * GET /api/ownership-requests/my
  */
-export const getMyOwnershipRequests = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyOwnershipRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
 
     const { data: requests, error } = await supabase
@@ -261,7 +243,7 @@ export const getMyOwnershipRequests = async (req: AuthRequest, res: Response) =>
 
     if (error) {
       logger.error('Get my ownership requests error:', error);
-      return res.status(500).json({ error: 'Failed to fetch ownership requests' });
+      throw InternalServerError('Failed to fetch ownership requests');
     }
 
     // Parse documents_urls from JSONB
@@ -276,19 +258,14 @@ export const getMyOwnershipRequests = async (req: AuthRequest, res: Response) =>
       requests: parsedRequests,
       total: parsedRequests.length
     });
-  } catch (error) {
-    logger.error('Get my ownership requests error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get all ownership requests (admin only)
  * GET /api/admin/ownership-requests
  * Query params: ?status=pending|approved|rejected
  */
-export const getAllOwnershipRequests = async (req: AuthRequest, res: Response) => {
-  try {
+export const getAllOwnershipRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status } = req.query;
 
     // Note: Removed reviewer join as it causes Supabase 300 Multiple Choices error
@@ -323,7 +300,7 @@ export const getAllOwnershipRequests = async (req: AuthRequest, res: Response) =
 
     if (error) {
       logger.error('Get all ownership requests error:', error);
-      return res.status(500).json({ error: 'Failed to fetch ownership requests' });
+      throw InternalServerError('Failed to fetch ownership requests');
     }
 
     // Parse documents_urls from JSONB
@@ -338,18 +315,13 @@ export const getAllOwnershipRequests = async (req: AuthRequest, res: Response) =
       requests: parsedRequests,
       total: parsedRequests.length
     });
-  } catch (error) {
-    logger.error('Get all ownership requests error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Approve ownership request (admin only)
  * PATCH /api/admin/ownership-requests/:id/approve
  */
-export const approveOwnershipRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const approveOwnershipRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { admin_notes, permissions, owner_role }: ReviewOwnershipRequestRequest = req.body;
     const adminId = req.user!.id;
@@ -370,23 +342,17 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
       .single();
 
     if (fetchError || !request) {
-      return res.status(404).json({ error: 'Ownership request not found' });
+      throw NotFoundError('Ownership request not found');
     }
 
     if (request.status !== 'pending') {
-      return res.status(400).json({
-        error: `Request has already been ${request.status}`,
-        current_status: request.status
-      });
+      throw BadRequestError(`Request has already been ${request.status}`);
     }
 
     // Verify user still has establishment_owner account type
     const user: any = request.user;
     if (!user || user.account_type !== 'establishment_owner') {
-      return res.status(400).json({
-        error: 'User no longer has establishment_owner account type',
-        current_account_type: user?.account_type
-      });
+      throw BadRequestError('User no longer has establishment_owner account type');
     }
 
     // Check if ownership already exists (race condition protection)
@@ -398,9 +364,7 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
       .single();
 
     if (existingOwnership) {
-      return res.status(409).json({
-        error: 'User already owns this establishment'
-      });
+      throw ConflictError('User already owns this establishment');
     }
 
     // Create establishment ownership with custom or default permissions
@@ -431,7 +395,7 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
 
     if (ownershipError) {
       logger.error('Create ownership error:', ownershipError);
-      return res.status(500).json({ error: 'Failed to create ownership' });
+      throw InternalServerError('Failed to create ownership');
     }
 
     // BUG FIX: Update establishment status to 'approved' if it was pending
@@ -466,7 +430,7 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
 
     if (updateError) {
       logger.error('Update request error:', updateError);
-      return res.status(500).json({ error: 'Failed to update request' });
+      throw InternalServerError('Failed to update request');
     }
 
     logger.info('Ownership request approved', {
@@ -490,26 +454,19 @@ export const approveOwnershipRequest = async (req: AuthRequest, res: Response) =
       message: 'Ownership request approved successfully',
       request: updatedRequest
     });
-  } catch (error) {
-    logger.error('Approve ownership request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Reject ownership request (admin only)
  * PATCH /api/admin/ownership-requests/:id/reject
  */
-export const rejectOwnershipRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const rejectOwnershipRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { admin_notes }: ReviewOwnershipRequestRequest = req.body;
     const adminId = req.user!.id;
 
     if (!admin_notes || admin_notes.trim() === '') {
-      return res.status(400).json({
-        error: 'admin_notes is required when rejecting a request'
-      });
+      throw BadRequestError('admin_notes is required when rejecting a request');
     }
 
     // Get request details
@@ -527,14 +484,11 @@ export const rejectOwnershipRequest = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (fetchError || !request) {
-      return res.status(404).json({ error: 'Ownership request not found' });
+      throw NotFoundError('Ownership request not found');
     }
 
     if (request.status !== 'pending') {
-      return res.status(400).json({
-        error: `Request has already been ${request.status}`,
-        current_status: request.status
-      });
+      throw BadRequestError(`Request has already been ${request.status}`);
     }
 
     // Update request status
@@ -553,7 +507,7 @@ export const rejectOwnershipRequest = async (req: AuthRequest, res: Response) =>
 
     if (updateError) {
       logger.error('Update request error:', updateError);
-      return res.status(500).json({ error: 'Failed to update request' });
+      throw InternalServerError('Failed to update request');
     }
 
     logger.info('Ownership request rejected', {
@@ -578,18 +532,13 @@ export const rejectOwnershipRequest = async (req: AuthRequest, res: Response) =>
       message: 'Ownership request rejected',
       request: updatedRequest
     });
-  } catch (error) {
-    logger.error('Reject ownership request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Cancel/delete ownership request (owner only)
  * DELETE /api/ownership-requests/:id
  */
-export const cancelOwnershipRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const cancelOwnershipRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user!.id;
 
@@ -601,20 +550,15 @@ export const cancelOwnershipRequest = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (fetchError || !request) {
-      return res.status(404).json({ error: 'Ownership request not found' });
+      throw NotFoundError('Ownership request not found');
     }
 
     if (request.user_id !== userId) {
-      return res.status(403).json({
-        error: 'You can only cancel your own requests'
-      });
+      throw ForbiddenError('You can only cancel your own requests');
     }
 
     if (request.status !== 'pending') {
-      return res.status(400).json({
-        error: `Cannot cancel ${request.status} request`,
-        current_status: request.status
-      });
+      throw BadRequestError(`Cannot cancel ${request.status} request`);
     }
 
     // Delete request
@@ -625,7 +569,7 @@ export const cancelOwnershipRequest = async (req: AuthRequest, res: Response) =>
 
     if (deleteError) {
       logger.error('Delete ownership request error:', deleteError);
-      return res.status(500).json({ error: 'Failed to cancel request' });
+      throw InternalServerError('Failed to cancel request');
     }
 
     const establishment: any = request.establishment;
@@ -638,8 +582,4 @@ export const cancelOwnershipRequest = async (req: AuthRequest, res: Response) =>
     res.json({
       message: 'Ownership request cancelled successfully'
     });
-  } catch (error) {
-    logger.error('Cancel ownership request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

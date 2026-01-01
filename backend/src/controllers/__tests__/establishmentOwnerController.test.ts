@@ -372,7 +372,6 @@ describe('establishmentOwnerController', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('User must have account_type=establishment_owner');
-      expect(response.body.current_account_type).toBe('regular');
     });
 
     it('should return 409 if user is already an owner', async () => {

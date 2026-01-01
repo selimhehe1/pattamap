@@ -8,13 +8,13 @@ import {
   notifyEstablishmentOwnerRemoved,
   notifyEstablishmentOwnerPermissionsUpdated
 } from '../utils/notificationHelper';
+import { asyncHandler, BadRequestError, NotFoundError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Get all owners of a specific establishment (admin only)
  * GET /api/admin/establishments/:id/owners
  */
-export const getEstablishmentOwners = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEstablishmentOwners = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // establishment_id
 
     // Verify establishment exists
@@ -25,7 +25,7 @@ export const getEstablishmentOwners = async (req: AuthRequest, res: Response) =>
       .single();
 
     if (estError || !establishment) {
-      return res.status(404).json({ error: 'Establishment not found' });
+      throw NotFoundError('Establishment not found');
     }
 
     // Get all owners with user details
@@ -49,25 +49,20 @@ export const getEstablishmentOwners = async (req: AuthRequest, res: Response) =>
 
     if (error) {
       logger.error('Get establishment owners error:', error);
-      return res.status(500).json({ error: 'Failed to fetch owners' });
+      throw InternalServerError('Failed to fetch owners');
     }
 
     res.json({
       establishment: { id: establishment.id, name: establishment.name },
       owners: owners || []
     });
-  } catch (error) {
-    logger.error('Get establishment owners error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get all establishments owned by current user
  * GET /api/establishments/my-owned
  */
-export const getMyOwnedEstablishments = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyOwnedEstablishments = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
 
     // Get ownership records with establishment details
@@ -111,7 +106,7 @@ export const getMyOwnedEstablishments = async (req: AuthRequest, res: Response) 
 
     if (error) {
       logger.error('Get my owned establishments error:', error);
-      return res.status(500).json({ error: 'Failed to fetch owned establishments' });
+      throw InternalServerError('Failed to fetch owned establishments');
     }
 
     // Extract establishments from ownership records
@@ -126,24 +121,19 @@ export const getMyOwnedEstablishments = async (req: AuthRequest, res: Response) 
       establishments,
       total: establishments.length
     });
-  } catch (error) {
-    logger.error('Get my owned establishments error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Assign a user as owner of an establishment (admin only)
  * POST /api/admin/establishments/:id/owners
  */
-export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) => {
-  try {
+export const assignEstablishmentOwner = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // establishment_id
     const { user_id, owner_role = 'owner', permissions }: CreateEstablishmentOwnerRequest = req.body;
 
     // Validate required fields
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      throw BadRequestError('user_id is required');
     }
 
     // Verify establishment exists
@@ -154,7 +144,7 @@ export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) 
       .single();
 
     if (estError || !establishment) {
-      return res.status(404).json({ error: 'Establishment not found' });
+      throw NotFoundError('Establishment not found');
     }
 
     // Verify user exists and has establishment_owner account type
@@ -165,14 +155,11 @@ export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) 
       .single();
 
     if (userError || !targetUser) {
-      return res.status(404).json({ error: 'User not found' });
+      throw NotFoundError('User not found');
     }
 
     if (targetUser.account_type !== 'establishment_owner') {
-      return res.status(400).json({
-        error: 'User must have account_type=establishment_owner',
-        current_account_type: targetUser.account_type
-      });
+      throw BadRequestError('User must have account_type=establishment_owner');
     }
 
     // Check if ownership already exists
@@ -184,9 +171,7 @@ export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) 
       .single();
 
     if (existing) {
-      return res.status(409).json({
-        error: 'User is already an owner of this establishment'
-      });
+      throw ConflictError('User is already an owner of this establishment');
     }
 
     // Create ownership record
@@ -216,7 +201,7 @@ export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) 
 
     if (error) {
       logger.error('Assign establishment owner error:', error);
-      return res.status(500).json({ error: 'Failed to assign owner' });
+      throw InternalServerError('Failed to assign owner');
     }
 
     // BUG FIX: Auto-resolve any pending ownership requests for this user+establishment
@@ -278,18 +263,13 @@ export const assignEstablishmentOwner = async (req: AuthRequest, res: Response) 
       message: 'Owner assigned successfully',
       ownership
     });
-  } catch (error) {
-    logger.error('Assign establishment owner error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Remove an owner from an establishment (admin only)
  * DELETE /api/admin/establishments/:id/owners/:userId
  */
-export const removeEstablishmentOwner = async (req: AuthRequest, res: Response) => {
-  try {
+export const removeEstablishmentOwner = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id, userId } = req.params; // establishment_id, user_id
 
     // Verify ownership exists
@@ -305,7 +285,7 @@ export const removeEstablishmentOwner = async (req: AuthRequest, res: Response) 
       .single();
 
     if (fetchError || !ownership) {
-      return res.status(404).json({ error: 'Ownership record not found' });
+      throw NotFoundError('Ownership record not found');
     }
 
     // Delete ownership
@@ -317,7 +297,7 @@ export const removeEstablishmentOwner = async (req: AuthRequest, res: Response) 
 
     if (error) {
       logger.error('Remove establishment owner error:', error);
-      return res.status(500).json({ error: 'Failed to remove owner' });
+      throw InternalServerError('Failed to remove owner');
     }
 
     logger.info('Establishment owner removed', {
@@ -338,23 +318,18 @@ export const removeEstablishmentOwner = async (req: AuthRequest, res: Response) 
     res.json({
       message: 'Owner removed successfully'
     });
-  } catch (error) {
-    logger.error('Remove establishment owner error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Update owner permissions (admin only)
  * PATCH /api/admin/establishments/:id/owners/:userId
  */
-export const updateEstablishmentOwnerPermissions = async (req: AuthRequest, res: Response) => {
-  try {
+export const updateEstablishmentOwnerPermissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id, userId } = req.params; // establishment_id, user_id
     const { permissions, owner_role } = req.body;
 
     if (!permissions && !owner_role) {
-      return res.status(400).json({ error: 'permissions or owner_role is required' });
+      throw BadRequestError('permissions or owner_role is required');
     }
 
     // Verify ownership exists
@@ -366,7 +341,7 @@ export const updateEstablishmentOwnerPermissions = async (req: AuthRequest, res:
       .single();
 
     if (fetchError || !existing) {
-      return res.status(404).json({ error: 'Ownership record not found' });
+      throw NotFoundError('Ownership record not found');
     }
 
     // Update ownership
@@ -396,7 +371,7 @@ export const updateEstablishmentOwnerPermissions = async (req: AuthRequest, res:
 
     if (error) {
       logger.error('Update establishment owner permissions error:', error);
-      return res.status(500).json({ error: 'Failed to update permissions' });
+      throw InternalServerError('Failed to update permissions');
     }
 
     logger.info('Establishment owner permissions updated', {
@@ -419,8 +394,4 @@ export const updateEstablishmentOwnerPermissions = async (req: AuthRequest, res:
       message: 'Permissions updated successfully',
       ownership: updated
     });
-  } catch (error) {
-    logger.error('Update establishment owner permissions error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

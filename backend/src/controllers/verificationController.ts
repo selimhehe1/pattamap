@@ -13,20 +13,20 @@ import {
   notifyEmployeeVerificationRevoked,
   notifyAdminsNewVerificationRequest
 } from '../utils/notificationHelper';
+import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError , InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Submit verification request
  * POST /api/employees/:id/verify
  * Requires: Employee account linked to the employee profile
  */
-export const submitVerification = async (req: AuthRequest, res: Response) => {
-  try {
+export const submitVerification = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // employee_id
     const { selfie_url } = req.body;
 
     // Validate input
     if (!selfie_url) {
-      return res.status(400).json({ error: 'selfie_url is required' });
+      throw BadRequestError('selfie_url is required');
     }
 
     // Verify employee exists
@@ -37,7 +37,7 @@ export const submitVerification = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (empError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Cast to include new verification fields (types will be updated after Supabase type regeneration)
@@ -46,15 +46,12 @@ export const submitVerification = async (req: AuthRequest, res: Response) => {
     // Authorization check: Only the employee themselves can request verification
     // (user_id must match the logged-in user)
     if (employeeData.user_id !== req.user!.id) {
-      return res.status(403).json({ error: 'You can only verify your own profile' });
+      throw ForbiddenError('You can only verify your own profile');
     }
 
     // Check if already verified
     if (employeeData.is_verified) {
-      return res.status(400).json({
-        error: 'Profile is already verified',
-        verified_at: employeeData.verified_at
-      });
+      throw BadRequestError('Profile is already verified');
     }
 
     // Check rate limiting - max 3 attempts per 24h
@@ -71,10 +68,11 @@ export const submitVerification = async (req: AuthRequest, res: Response) => {
     }
 
     if (recentAttempts && recentAttempts.length >= VERIFICATION_RATE_LIMIT.MAX_ATTEMPTS) {
-      return res.status(429).json({
+      res.status(429).json({
         error: `Maximum ${VERIFICATION_RATE_LIMIT.MAX_ATTEMPTS} verification attempts per ${VERIFICATION_RATE_LIMIT.WINDOW_HOURS} hours`,
         retry_after: recentAttempts[0].submitted_at
       });
+      return;
     }
 
     // 🔧 NEW WORKFLOW: Full manual review (no AI)
@@ -98,7 +96,7 @@ export const submitVerification = async (req: AuthRequest, res: Response) => {
 
     if (verifyError) {
       logger.error('Create verification record error:', verifyError);
-      return res.status(500).json({ error: 'Failed to create verification record' });
+      throw InternalServerError('Failed to create verification record');
     }
 
     // Update employee record with verified status
@@ -142,20 +140,14 @@ export const submitVerification = async (req: AuthRequest, res: Response) => {
         submitted_at: verification.submitted_at
       }
     });
-
-  } catch (error) {
-    logger.error('Submit verification error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get verification status for an employee
  * GET /api/employees/:id/verification-status
  * Public endpoint (any authenticated user)
  */
-export const getVerificationStatus = async (req: AuthRequest, res: Response) => {
-  try {
+export const getVerificationStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // employee_id
 
     // Get employee verification status
@@ -166,7 +158,7 @@ export const getVerificationStatus = async (req: AuthRequest, res: Response) => 
       .single();
 
     if (empError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Get latest verification record (if any)
@@ -192,19 +184,13 @@ export const getVerificationStatus = async (req: AuthRequest, res: Response) => 
       },
       latest_verification: verification || null
     });
-
-  } catch (error) {
-    logger.error('Get verification status error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get manual review queue (admin only)
  * GET /api/admin/verifications/manual-review
  */
-export const getManualReviewQueue = async (req: AuthRequest, res: Response) => {
-  try {
+export const getManualReviewQueue = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Get all verifications pending manual review
     const { data: verifications, error } = await supabase
       .from('employee_verifications')
@@ -227,32 +213,26 @@ export const getManualReviewQueue = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get manual review queue error:', error);
-      return res.status(500).json({ error: 'Failed to fetch manual review queue' });
+      throw InternalServerError('Failed to fetch manual review queue');
     }
 
     res.json({
       verifications: verifications || [],
       total: verifications?.length || 0
     });
-
-  } catch (error) {
-    logger.error('Get manual review queue error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Review verification (admin only)
  * PATCH /api/admin/verifications/:id/review
  */
-export const reviewVerification = async (req: AuthRequest, res: Response) => {
-  try {
+export const reviewVerification = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // verification_id
     const { action, admin_notes } = req.body; // action: 'approve' | 'reject'
 
     // Validate input
     if (!action || !['approve', 'reject'].includes(action)) {
-      return res.status(400).json({ error: 'action must be "approve" or "reject"' });
+      throw BadRequestError('action must be "approve" or "reject"');
     }
 
     // Get verification record
@@ -263,15 +243,12 @@ export const reviewVerification = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (fetchError || !verification) {
-      return res.status(404).json({ error: 'Verification not found' });
+      throw NotFoundError('Verification not found');
     }
 
     // Check if already reviewed
     if (verification.status !== VERIFICATION_STATUS.MANUAL_REVIEW) {
-      return res.status(400).json({
-        error: 'Verification is not in manual_review status',
-        current_status: verification.status
-      });
+      throw BadRequestError('Verification is not in manual_review status');
     }
 
     const newStatus = action === 'approve' ? VERIFICATION_STATUS.APPROVED : VERIFICATION_STATUS.REJECTED;
@@ -289,7 +266,7 @@ export const reviewVerification = async (req: AuthRequest, res: Response) => {
 
     if (updateError) {
       logger.error('Update verification review error:', updateError);
-      return res.status(500).json({ error: 'Failed to update verification' });
+      throw InternalServerError('Failed to update verification');
     }
 
     // If approved, update employee record
@@ -350,20 +327,14 @@ export const reviewVerification = async (req: AuthRequest, res: Response) => {
         admin_notes
       }
     });
-
-  } catch (error) {
-    logger.error('Review verification error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get recent verifications (admin only)
  * GET /api/admin/verifications/recent (legacy)
  * GET /api/admin/verifications?status=<filter> (new)
  */
-export const getRecentVerifications = async (req: AuthRequest, res: Response) => {
-  try {
+export const getRecentVerifications = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status } = req.query;
     const limit = parseInt(req.query.limit as string) || 50;
 
@@ -396,32 +367,26 @@ export const getRecentVerifications = async (req: AuthRequest, res: Response) =>
 
     if (error) {
       logger.error('Get recent verifications error:', error);
-      return res.status(500).json({ error: 'Failed to fetch recent verifications' });
+      throw InternalServerError('Failed to fetch recent verifications');
     }
 
     res.json({
       verifications: verifications || [],
       total: verifications?.length || 0
     });
-
-  } catch (error) {
-    logger.error('Get recent verifications error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Revoke verification (admin only)
  * DELETE /api/admin/employees/:id/verification
  */
-export const revokeVerification = async (req: AuthRequest, res: Response) => {
-  try {
+export const revokeVerification = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // employee_id
     const { reason } = req.body; // Admin reason for revocation
 
     // Validate input
     if (!reason || reason.trim().length === 0) {
-      return res.status(400).json({ error: 'reason is required' });
+      throw BadRequestError('reason is required');
     }
 
     // Get employee
@@ -432,12 +397,12 @@ export const revokeVerification = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (empError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Check if currently verified
     if (!employee.is_verified) {
-      return res.status(400).json({ error: 'Employee is not currently verified' });
+      throw BadRequestError('Employee is not currently verified');
     }
 
     // Update employee - remove verification
@@ -451,7 +416,7 @@ export const revokeVerification = async (req: AuthRequest, res: Response) => {
 
     if (removeError) {
       logger.error('Remove employee verification error:', removeError);
-      return res.status(500).json({ error: 'Failed to revoke verification' });
+      throw InternalServerError('Failed to revoke verification');
     }
 
     // 🔧 Create rejection record (no longer using "revoked" status - merged with rejected)
@@ -496,9 +461,4 @@ export const revokeVerification = async (req: AuthRequest, res: Response) => {
         rejected_at: new Date().toISOString()
       }
     });
-
-  } catch (error) {
-    logger.error('Revoke verification error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

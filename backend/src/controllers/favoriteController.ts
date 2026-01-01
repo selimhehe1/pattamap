@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
 import { notifyNewFavorite } from '../utils/notificationHelper';
-import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError } from '../middleware/asyncHandler';
+import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
 export const getFavorites = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as any).user?.id;
@@ -20,7 +20,7 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
 
     if (error) {
       logger.error('Error fetching favorites:', error);
-      throw new Error('Failed to fetch favorites');
+      throw InternalServerError('Failed to fetch favorites');
     }
 
     interface FavoriteRecord {
@@ -190,7 +190,7 @@ export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
 
   if (error) {
     logger.error('Error adding favorite:', error);
-    throw new Error('Failed to add favorite');
+    throw InternalServerError('Failed to add favorite');
   }
 
     // Notify employee if they have a linked account
@@ -253,7 +253,7 @@ export const removeFavorite = asyncHandler(async (req: Request, res: Response) =
 
   if (error) {
     logger.error('Error removing favorite:', error);
-    throw new Error('Failed to remove favorite');
+    throw InternalServerError('Failed to remove favorite');
   }
 
   res.json({
@@ -279,7 +279,7 @@ export const checkFavorite = asyncHandler(async (req: Request, res: Response) =>
 
   if (error && error.code !== 'PGRST116') {
     logger.error('Error checking favorite:', error);
-    throw new Error('Failed to check favorite status');
+    throw InternalServerError('Failed to check favorite status');
   }
 
   res.json({

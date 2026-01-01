@@ -3,6 +3,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { missionTrackingService } from '../services/missionTrackingService';
+import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError , InternalServerError } from '../middleware/asyncHandler';
 
 // ========================================
 // TYPES
@@ -86,12 +87,11 @@ interface FallbackLeaderboardEntry {
  * POST /api/gamification/award-xp
  * Body: { userId, xpAmount, reason, entityType?, entityId?, metadata? }
  */
-export const awardXP = async (req: AuthRequest, res: Response) => {
-  try {
+export const awardXP = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { userId, xpAmount, reason, entityType, entityId, metadata }: XPAwardRequest = req.body;
 
     if (!userId || !xpAmount || !reason) {
-      return res.status(400).json({ error: 'Missing required fields: userId, xpAmount, reason' });
+      throw BadRequestError('Missing required fields: userId, xpAmount, reason');
     }
 
     // Call PostgreSQL function to award XP
@@ -105,7 +105,7 @@ export const awardXP = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Award XP error:', error);
-      return res.status(500).json({ error: 'Failed to award XP' });
+      throw InternalServerError('Failed to award XP');
     }
 
     // Get updated user progress
@@ -125,18 +125,13 @@ export const awardXP = async (req: AuthRequest, res: Response) => {
       xpAwarded: xpAmount,
       newProgress: userProgress || null
     });
-  } catch (error) {
-    logger.error('Award XP error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get user's gamification progress
  * GET /api/gamification/user-progress/:userId
  */
-export const getUserProgress = async (req: AuthRequest, res: Response) => {
-  try {
+export const getUserProgress = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { userId } = req.params;
 
     // Get user points
@@ -148,7 +143,7 @@ export const getUserProgress = async (req: AuthRequest, res: Response) => {
 
     if (pointsError && pointsError.code !== 'PGRST116') { // PGRST116 = no rows
       logger.error('Get user progress error:', pointsError);
-      return res.status(500).json({ error: 'Failed to fetch user progress' });
+      throw InternalServerError('Failed to fetch user progress');
     }
 
     // If no points record exists, create one
@@ -161,33 +156,25 @@ export const getUserProgress = async (req: AuthRequest, res: Response) => {
 
       if (createError) {
         logger.error('Create user points error:', createError);
-        return res.status(500).json({ error: 'Failed to initialize user points' });
+        throw InternalServerError('Failed to initialize user points');
       }
 
-      return res.json(newPoints);
+      res.json(newPoints);
+      return;
     }
 
     res.json(userPoints);
-  } catch (error) {
-    logger.error('Get user progress error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get current user's progress
  * GET /api/gamification/my-progress
  */
-export const getMyProgress = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyProgress = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     req.params.userId = userId;
-    return getUserProgress(req, res);
-  } catch (error) {
-    logger.error('Get my progress error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+    return getUserProgress(req, res, () => {});
+});
 
 // ========================================
 // BADGES
@@ -198,8 +185,7 @@ export const getMyProgress = async (req: AuthRequest, res: Response) => {
  * GET /api/gamification/badges
  * Query params: ?category=exploration&rarity=rare
  */
-export const getBadges = async (req: AuthRequest, res: Response) => {
-  try {
+export const getBadges = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { category, rarity, is_active } = req.query;
 
     let query = supabase
@@ -222,22 +208,17 @@ export const getBadges = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get badges error:', error);
-      return res.status(500).json({ error: 'Failed to fetch badges' });
+      throw InternalServerError('Failed to fetch badges');
     }
 
     res.json({ badges });
-  } catch (error) {
-    logger.error('Get badges error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get user's earned badges
  * GET /api/gamification/badges/user/:userId
  */
-export const getUserBadges = async (req: AuthRequest, res: Response) => {
-  try {
+export const getUserBadges = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { userId } = req.params;
 
     const { data: userBadges, error } = await supabase
@@ -251,30 +232,21 @@ export const getUserBadges = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get user badges error:', error);
-      return res.status(500).json({ error: 'Failed to fetch user badges' });
+      throw InternalServerError('Failed to fetch user badges');
     }
 
     res.json({ userBadges });
-  } catch (error) {
-    logger.error('Get user badges error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get current user's badges
  * GET /api/gamification/my-badges
  */
-export const getMyBadges = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyBadges = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     req.params.userId = userId;
-    return getUserBadges(req, res);
-  } catch (error) {
-    logger.error('Get my badges error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+    return getUserBadges(req, res, () => {});
+});
 
 // ========================================
 // LEADERBOARDS
@@ -286,8 +258,7 @@ export const getMyBadges = async (req: AuthRequest, res: Response) => {
  * Types: global, monthly, zone
  * Query params: ?zone=Soi 6&limit=50
  */
-export const getLeaderboard = async (req: AuthRequest, res: Response) => {
-  try {
+export const getLeaderboard = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { type } = req.params;
     const { zone, limit = '50' } = req.query;
 
@@ -300,7 +271,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 
       if (error) {
         logger.error('Get global leaderboard error:', error);
-        return res.status(500).json({ error: 'Failed to fetch leaderboard' });
+        throw InternalServerError('Failed to fetch leaderboard');
       }
 
       // Join with users to get usernames
@@ -320,7 +291,8 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
         username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
-      return res.json({ leaderboard: enrichedLeaderboard, type: 'global' });
+      res.json({ leaderboard: enrichedLeaderboard, type: 'global' });
+      return;
     }
 
     if (type === 'monthly') {
@@ -332,7 +304,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 
       if (error) {
         logger.error('Get monthly leaderboard error:', error);
-        return res.status(500).json({ error: 'Failed to fetch leaderboard' });
+        throw InternalServerError('Failed to fetch leaderboard');
       }
 
       // Join with users
@@ -351,7 +323,8 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
         username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
-      return res.json({ leaderboard: enrichedLeaderboard, type: 'monthly' });
+      res.json({ leaderboard: enrichedLeaderboard, type: 'monthly' });
+      return;
     }
 
     if (type === 'zone' && zone) {
@@ -368,7 +341,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
 
       if (error) {
         logger.error('Get zone leaderboard error:', error);
-        return res.status(500).json({ error: 'Failed to fetch zone leaderboard' });
+        throw InternalServerError('Failed to fetch zone leaderboard');
       }
 
       // Count check-ins per user
@@ -399,15 +372,12 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
         username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
       }));
 
-      return res.json({ leaderboard: enrichedLeaderboard, type: 'zone', zone });
+      res.json({ leaderboard: enrichedLeaderboard, type: 'zone', zone });
+      return;
     }
 
-    res.status(400).json({ error: 'Invalid leaderboard type or missing zone parameter' });
-  } catch (error) {
-    logger.error('Get leaderboard error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+    throw BadRequestError('Invalid leaderboard type or missing zone parameter');
+});
 
 // ========================================
 // MISSIONS
@@ -418,8 +388,7 @@ export const getLeaderboard = async (req: AuthRequest, res: Response) => {
  * GET /api/gamification/missions
  * Query params: ?type=daily&is_active=true
  */
-export const getMissions = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { type, is_active } = req.query;
 
     let query = supabase
@@ -438,22 +407,17 @@ export const getMissions = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get missions error:', error);
-      return res.status(500).json({ error: 'Failed to fetch missions' });
+      throw InternalServerError('Failed to fetch missions');
     }
 
     res.json({ missions });
-  } catch (error) {
-    logger.error('Get missions error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get user's mission progress
  * GET /api/gamification/my-missions
  */
-export const getMyMissions = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyMissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
 
     const { data: missionProgress, error } = await supabase
@@ -467,15 +431,11 @@ export const getMyMissions = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get my missions error:', error);
-      return res.status(500).json({ error: 'Failed to fetch mission progress' });
+      throw InternalServerError('Failed to fetch mission progress');
     }
 
     res.json({ missionProgress });
-  } catch (error) {
-    logger.error('Get my missions error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ========================================
 // SOCIAL
@@ -485,13 +445,12 @@ export const getMyMissions = async (req: AuthRequest, res: Response) => {
  * Follow a user
  * POST /api/gamification/follow/:userId
  */
-export const followUser = async (req: AuthRequest, res: Response) => {
-  try {
+export const followUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     const followerId = req.user!.id;
     const { userId: followingId } = req.params;
 
     if (followerId === followingId) {
-      return res.status(400).json({ error: 'You cannot follow yourself' });
+      throw BadRequestError('You cannot follow yourself');
     }
 
     // Check if already following
@@ -503,7 +462,7 @@ export const followUser = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (existing) {
-      return res.status(400).json({ error: 'You are already following this user' });
+      throw BadRequestError('You are already following this user');
     }
 
     // Insert follow relationship
@@ -515,25 +474,20 @@ export const followUser = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Follow user error:', error);
-      return res.status(500).json({ error: 'Failed to follow user' });
+      throw InternalServerError('Failed to follow user');
     }
 
     // Track mission progress (follow missions for both users)
     await missionTrackingService.onFollowAction(followerId, followingId);
 
     res.json({ message: 'User followed successfully', follow });
-  } catch (error) {
-    logger.error('Follow user error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Unfollow a user
  * DELETE /api/gamification/follow/:userId
  */
-export const unfollowUser = async (req: AuthRequest, res: Response) => {
-  try {
+export const unfollowUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     const followerId = req.user!.id;
     const { userId: followingId } = req.params;
 
@@ -545,23 +499,18 @@ export const unfollowUser = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Unfollow user error:', error);
-      return res.status(500).json({ error: 'Failed to unfollow user' });
+      throw InternalServerError('Failed to unfollow user');
     }
 
     res.json({ message: 'User unfollowed successfully' });
-  } catch (error) {
-    logger.error('Unfollow user error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Vote on a review (helpful)
  * POST /api/gamification/reviews/:reviewId/vote
  * Body: { voteType: 'helpful' | 'not_helpful' }
  */
-export const voteOnReview = async (req: AuthRequest, res: Response) => {
-  try {
+export const voteOnReview = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const { reviewId } = req.params;
     const { voteType = 'helpful' } = req.body;
@@ -583,10 +532,11 @@ export const voteOnReview = async (req: AuthRequest, res: Response) => {
 
       if (updateError) {
         logger.error('Update review vote error:', updateError);
-        return res.status(500).json({ error: 'Failed to update vote' });
+        throw InternalServerError('Failed to update vote');
       }
 
-      return res.json({ message: 'Vote updated successfully' });
+      res.json({ message: 'Vote updated successfully' });
+      return;
     }
 
     // Insert new vote
@@ -598,7 +548,7 @@ export const voteOnReview = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Vote on review error:', error);
-      return res.status(500).json({ error: 'Failed to vote on review' });
+      throw InternalServerError('Failed to vote on review');
     }
 
     // Award XP to review author if helpful vote
@@ -627,11 +577,7 @@ export const voteOnReview = async (req: AuthRequest, res: Response) => {
     await missionTrackingService.onVoteCast(userId, reviewId, voteType);
 
     res.json({ message: 'Vote recorded successfully', vote });
-  } catch (error) {
-    logger.error('Vote on review error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ========================================
 // XP HISTORY (NEW)
@@ -642,18 +588,17 @@ export const voteOnReview = async (req: AuthRequest, res: Response) => {
  * GET /api/gamification/xp-history
  * Query: ?period=7|30|90 (days, default 30)
  */
-export const getXPHistory = async (req: AuthRequest, res: Response) => {
-  try {
+export const getXPHistory = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const period = parseInt(req.query.period as string) || 30;
 
     // Validate period
     if (![7, 30, 90].includes(period)) {
-      return res.status(400).json({ error: 'Period must be 7, 30, or 90 days' });
+      throw BadRequestError('Period must be 7, 30, or 90 days');
     }
 
     const startDate = new Date();
@@ -669,7 +614,7 @@ export const getXPHistory = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get XP history error:', error);
-      return res.status(500).json({ error: 'Failed to fetch XP history' });
+      throw InternalServerError('Failed to fetch XP history');
     }
 
     // Group by date and calculate breakdown
@@ -725,11 +670,7 @@ export const getXPHistory = async (req: AuthRequest, res: Response) => {
       dataPoints: filledDataPoints,
       breakdown
     });
-  } catch (error) {
-    logger.error('Get XP history error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ========================================
 // ENHANCED LEADERBOARDS
@@ -740,8 +681,7 @@ export const getXPHistory = async (req: AuthRequest, res: Response) => {
  * GET /api/gamification/leaderboard/weekly
  * Query: ?week=50&year=2025 (optional, defaults to current week)
  */
-export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
-  try {
+export const getWeeklyLeaderboard = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { limit = '50' } = req.query;
 
     // Get from materialized view
@@ -765,7 +705,7 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
         .limit(parseInt(limit as string, 10));
 
       if (fallbackError) {
-        return res.status(500).json({ error: 'Failed to fetch weekly leaderboard' });
+        throw InternalServerError('Failed to fetch weekly leaderboard');
       }
 
       // Note: Supabase returns nested relations as arrays
@@ -777,7 +717,8 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
         rank: index + 1
       }));
 
-      return res.json({ leaderboard: fallbackLeaderboard, type: 'weekly' });
+      res.json({ leaderboard: fallbackLeaderboard, type: 'weekly' });
+      return;
     }
 
     // Add rank to results
@@ -787,27 +728,20 @@ export const getWeeklyLeaderboard = async (req: AuthRequest, res: Response) => {
     }));
 
     res.json({ leaderboard: enrichedLeaderboard, type: 'weekly' });
-  } catch (error) {
-    logger.error('Get weekly leaderboard error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get category leaderboard
  * GET /api/gamification/leaderboard/category/:category
  * Categories: reviewers, photographers, checkins, helpful
  */
-export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) => {
-  try {
+export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { category } = req.params;
     const { limit = '50' } = req.query;
 
     const validCategories = ['reviewers', 'photographers', 'checkins', 'helpful'];
     if (!validCategories.includes(category)) {
-      return res.status(400).json({
-        error: 'Invalid category. Must be one of: reviewers, photographers, checkins, helpful'
-      });
+      throw BadRequestError('Invalid category. Must be one of: reviewers, photographers, checkins, helpful');
     }
 
     const viewName = `leaderboard_${category}`;
@@ -911,7 +845,8 @@ export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) =>
         rank: index + 1
       }));
 
-      return res.json({ leaderboard: rankedData, type: category });
+      res.json({ leaderboard: rankedData, type: category });
+      return;
     }
 
     // Add rank to results
@@ -921,11 +856,7 @@ export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) =>
     }));
 
     res.json({ leaderboard: enrichedLeaderboard, type: category });
-  } catch (error) {
-    logger.error('Get category leaderboard error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ========================================
 // REWARDS SYSTEM
@@ -935,8 +866,7 @@ export const getCategoryLeaderboard = async (req: AuthRequest, res: Response) =>
  * Get all available rewards
  * GET /api/gamification/rewards
  */
-export const getRewards = async (req: AuthRequest, res: Response) => {
-  try {
+export const getRewards = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { data: rewards, error } = await supabase
       .from('feature_unlocks')
       .select('*')
@@ -945,25 +875,20 @@ export const getRewards = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get rewards error:', error);
-      return res.status(500).json({ error: 'Failed to fetch rewards' });
+      throw InternalServerError('Failed to fetch rewards');
     }
 
     res.json({ rewards: rewards || [] });
-  } catch (error) {
-    logger.error('Get rewards error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get current user's rewards (with unlock status)
  * GET /api/gamification/my-rewards
  */
-export const getMyRewards = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyRewards = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Get user's current level
@@ -1021,11 +946,12 @@ export const getMyRewards = async (req: AuthRequest, res: Response) => {
         claimed: unlockMap.get(reward.id)?.claimed || false
       }));
 
-      return res.json({
+      res.json({
         rewards: combinedRewards,
         currentLevel,
         totalXp
       });
+      return;
     }
 
     // Process rewards with unlock status
@@ -1051,23 +977,18 @@ export const getMyRewards = async (req: AuthRequest, res: Response) => {
       currentLevel,
       totalXp
     });
-  } catch (error) {
-    logger.error('Get my rewards error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Claim a reward (for rewards that require claiming)
  * POST /api/gamification/claim-reward/:rewardId
  */
-export const claimReward = async (req: AuthRequest, res: Response) => {
-  try {
+export const claimReward = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const { rewardId } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Check if reward exists and user is eligible
@@ -1079,7 +1000,7 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (rewardError || !reward) {
-      return res.status(404).json({ error: 'Reward not found' });
+      throw NotFoundError('Reward not found');
     }
 
     // Get user's current level
@@ -1101,17 +1022,7 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
     // Add more eligibility checks for badge/achievement types as needed
 
     if (!eligible) {
-      return res.status(403).json({
-        error: 'Not eligible for this reward',
-        required: {
-          type: reward.unlock_type,
-          value: reward.unlock_value
-        },
-        current: {
-          level: currentLevel,
-          xp: userProgress?.total_xp || 0
-        }
-      });
+      throw ForbiddenError('Not eligible for this reward');
     }
 
     // Check if already claimed
@@ -1123,7 +1034,7 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (existing?.claimed) {
-      return res.status(400).json({ error: 'Reward already claimed' });
+      throw BadRequestError('Reward already claimed');
     }
 
     // Grant or update the unlock
@@ -1136,7 +1047,7 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
 
       if (updateError) {
         logger.error('Update unlock error:', updateError);
-        return res.status(500).json({ error: 'Failed to claim reward' });
+        throw InternalServerError('Failed to claim reward');
       }
     } else {
       // Insert new unlock
@@ -1151,7 +1062,7 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
 
       if (insertError) {
         logger.error('Insert unlock error:', insertError);
-        return res.status(500).json({ error: 'Failed to claim reward' });
+        throw InternalServerError('Failed to claim reward');
       }
     }
 
@@ -1164,8 +1075,4 @@ export const claimReward = async (req: AuthRequest, res: Response) => {
         category: reward.category
       }
     });
-  } catch (error) {
-    logger.error('Claim reward error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

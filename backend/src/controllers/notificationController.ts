@@ -3,7 +3,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { getUnreadNotificationCount } from '../utils/notificationHelper';
-import { asyncHandler, NotFoundError } from '../middleware/asyncHandler';
+import { asyncHandler, NotFoundError, InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Get current user's notifications
@@ -26,7 +26,7 @@ export const getMyNotifications = asyncHandler(async (req: AuthRequest, res: Res
 
   if (error) {
     logger.error('Get notifications error:', error);
-    throw new Error('Failed to fetch notifications');
+    throw InternalServerError('Failed to fetch notifications');
   }
 
   res.json({
@@ -61,7 +61,7 @@ export const markAsRead = asyncHandler(async (req: AuthRequest, res: Response) =
 
   if (error) {
     logger.error('Mark notification as read error:', error);
-    throw new Error('Failed to mark notification as read');
+    throw InternalServerError('Failed to mark notification as read');
   }
 
   if (!success) {
@@ -85,7 +85,7 @@ export const markAllRead = asyncHandler(async (req: AuthRequest, res: Response) 
 
   if (error) {
     logger.error('Mark all notifications as read error:', error);
-    throw new Error('Failed to mark all as read');
+    throw InternalServerError('Failed to mark all as read');
   }
 
   res.json({ message: 'All notifications marked as read' });
@@ -107,7 +107,7 @@ export const deleteNotification = asyncHandler(async (req: AuthRequest, res: Res
 
   if (error) {
     logger.error('Delete notification error:', error);
-    throw new Error('Failed to delete notification');
+    throw InternalServerError('Failed to delete notification');
   }
 
   res.json({ message: 'Notification deleted' });

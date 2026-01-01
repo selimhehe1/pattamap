@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
-import { asyncHandler, BadRequestError } from '../middleware/asyncHandler';
+import { asyncHandler, BadRequestError, InternalServerError } from '../middleware/asyncHandler';
 
 export const getConsumableTemplates = asyncHandler(async (req: Request, res: Response) => {
   logger.debug('📋 Getting consumable templates...');
@@ -23,7 +23,7 @@ export const getConsumableTemplates = asyncHandler(async (req: Request, res: Res
 
   if (error) {
     logger.error('Error fetching templates:', error);
-    throw new Error('Failed to fetch consumable templates');
+    throw InternalServerError('Failed to fetch consumable templates');
   }
 
   // Organiser par catégorie pour faciliter l'utilisation frontend
@@ -86,7 +86,7 @@ export const createConsumableTemplate = asyncHandler(async (req: Request, res: R
 
   if (error) {
     logger.error('Error creating template:', error);
-    throw new Error('Failed to create consumable template');
+    throw InternalServerError('Failed to create consumable template');
   }
 
   logger.debug(`✅ Created template: ${template.name} (${template.category})`);

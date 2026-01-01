@@ -8,6 +8,7 @@
 import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/supabase';
+import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 import {
   calculateVIPPrice,
   isValidDuration,
@@ -47,34 +48,23 @@ interface PurchaseVIPRequest {
  * GET /api/vip/pricing/:type
  * Returns all pricing options for a subscription type
  */
-export const getPricingOptions = async (req: Request, res: Response) => {
-  try {
+export const getPricingOptions = asyncHandler(async (req: Request, res: Response) => {
     const { type } = req.params;
 
     // Validate subscription type
     if (!isValidSubscriptionType(type)) {
-      return res.status(400).json({
-        error: 'Invalid subscription type',
-        message: 'Type must be "employee" or "establishment"',
-      });
+      throw BadRequestError('Invalid subscription type. Type must be "employee" or "establishment"');
     }
 
     // Get all pricing options
     const pricingOptions = getAllPricingOptions(type);
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       type,
       pricing: pricingOptions,
     });
-  } catch (error) {
-    logger.error('Error fetching VIP pricing:', error);
-    return res.status(500).json({
-      error: 'Failed to fetch VIP pricing',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // PURCHASE VIP SUBSCRIPTION
@@ -84,11 +74,10 @@ export const getPricingOptions = async (req: Request, res: Response) => {
  * POST /api/vip/purchase
  * Initiates a VIP subscription purchase
  */
-export const purchaseVIP = async (req: Request, res: Response) => {
-  try {
+export const purchaseVIP = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      throw UnauthorizedError('Unauthorized');
     }
 
     const {
@@ -104,18 +93,12 @@ export const purchaseVIP = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!subscription_type || !entity_id || !duration || !payment_method) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        message: 'subscription_type, entity_id, duration, and payment_method are required',
-      });
+      throw BadRequestError('Missing required fields: subscription_type, entity_id, duration, and payment_method are required');
     }
 
     // Validate subscription type
     if (!isValidSubscriptionType(subscription_type)) {
-      return res.status(400).json({
-        error: 'Invalid subscription type',
-        message: 'Type must be "employee" or "establishment"',
-      });
+      throw BadRequestError('Invalid subscription type. Type must be "employee" or "establishment"');
     }
 
     // Auto-assign tier based on subscription type (SIMPLIFIED - no more basic/premium)
@@ -123,18 +106,12 @@ export const purchaseVIP = async (req: Request, res: Response) => {
 
     // Validate duration
     if (!isValidDuration(duration)) {
-      return res.status(400).json({
-        error: 'Invalid duration',
-        message: 'Duration must be 7, 30, 90, or 365 days',
-      });
+      throw BadRequestError('Invalid duration. Duration must be 7, 30, 90, or 365 days');
     }
 
     // Validate payment method
     if (!isValidPaymentMethod(payment_method)) {
-      return res.status(400).json({
-        error: 'Invalid payment method',
-        message: 'Payment method must be "promptpay", "cash", or "admin_grant"',
-      });
+      throw BadRequestError('Invalid payment method. Payment method must be "promptpay", "cash", or "admin_grant"');
     }
 
     // =====================================================
@@ -198,10 +175,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
     }
 
     if (!hasPermission) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to purchase VIP for this entity',
-      });
+      throw ForbiddenError('You do not have permission to purchase VIP for this entity');
     }
 
     // =====================================================
@@ -224,11 +198,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
       .maybeSingle();
 
     if (existingSubscription) {
-      return res.status(409).json({
-        error: 'Active subscription exists',
-        message: `This ${subscription_type} already has an active ${existingSubscription.tier} VIP subscription until ${existingSubscription.expires_at}`,
-        existing_subscription: existingSubscription,
-      });
+      throw ConflictError(`This ${subscription_type} already has an active ${existingSubscription.tier} VIP subscription until ${existingSubscription.expires_at}`);
     }
 
     // =====================================================
@@ -237,10 +207,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
 
     const price = calculateVIPPrice(subscription_type, duration);
     if (price === null) {
-      return res.status(400).json({
-        error: 'Invalid pricing configuration',
-        message: 'Could not calculate price for the selected options',
-      });
+      throw BadRequestError('Invalid pricing configuration. Could not calculate price for the selected options');
     }
 
     // =====================================================
@@ -280,10 +247,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
 
     if (subscriptionError || !subscription) {
       logger.error('Error creating VIP subscription:', subscriptionError);
-      return res.status(500).json({
-        error: 'Failed to create VIP subscription',
-        message: subscriptionError?.message || 'Unknown error',
-      });
+      throw InternalServerError('Failed to create VIP subscription');
     }
 
     // =====================================================
@@ -295,10 +259,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
     if (payment_method === 'promptpay') {
       if (!isPromptPayConfigured()) {
         logger.error('PromptPay not configured but payment method is promptpay');
-        return res.status(400).json({
-          error: 'PromptPay not available',
-          message: 'PromptPay payment is not configured. Please use cash or contact admin.',
-        });
+        throw BadRequestError('PromptPay not available. PromptPay payment is not configured. Please use cash or contact admin.');
       }
       // Generate QR (we'll use subscription ID as reference since transaction doesn't exist yet)
       const qrResult = await generatePromptPayQR(price, subscription.id);
@@ -331,10 +292,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
       // Rollback: delete the subscription
       await supabase.from(tableName).delete().eq('id', subscription.id);
 
-      return res.status(500).json({
-        error: 'Failed to create payment transaction',
-        message: transactionError?.message || 'Unknown error',
-      });
+      throw InternalServerError('Failed to create payment transaction');
     }
 
     // Update subscription with transaction_id
@@ -350,7 +308,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
     // Notify user of VIP purchase confirmation
     await notifyVIPPurchaseConfirmed(userId, tier, duration, price);
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
       message:
         payment_method === 'admin_grant'
@@ -382,14 +340,7 @@ export const purchaseVIP = async (req: Request, res: Response) => {
         promptpay_reference: transaction.promptpay_reference || undefined,
       },
     });
-  } catch (error) {
-    logger.error('Error purchasing VIP:', error);
-    return res.status(500).json({
-      error: 'Failed to purchase VIP',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // GET MY VIP SUBSCRIPTIONS
@@ -399,11 +350,10 @@ export const purchaseVIP = async (req: Request, res: Response) => {
  * GET /api/vip/my-subscriptions
  * Returns all VIP subscriptions for the authenticated user's entities
  */
-export const getMyVIPSubscriptions = async (req: Request, res: Response) => {
-  try {
+export const getMyVIPSubscriptions = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      throw UnauthorizedError('Unauthorized');
     }
 
     // Get all employee VIP subscriptions for user's establishments
@@ -431,21 +381,14 @@ export const getMyVIPSubscriptions = async (req: Request, res: Response) => {
       `)
       .eq('establishments.establishment_owners.user_id', userId);
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       subscriptions: {
         employees: employeeSubscriptions || [],
         establishments: establishmentSubscriptions || [],
       },
     });
-  } catch (error) {
-    logger.error('Error fetching VIP subscriptions:', error);
-    return res.status(500).json({
-      error: 'Failed to fetch VIP subscriptions',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // CANCEL VIP SUBSCRIPTION
@@ -455,11 +398,10 @@ export const getMyVIPSubscriptions = async (req: Request, res: Response) => {
  * PATCH /api/vip/subscriptions/:id/cancel
  * Cancels an active VIP subscription
  */
-export const cancelVIPSubscription = async (req: Request, res: Response) => {
-  try {
+export const cancelVIPSubscription = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      throw UnauthorizedError('Unauthorized');
     }
 
     const { id } = req.params;
@@ -467,10 +409,7 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
 
     // Validate subscription type
     if (!isValidSubscriptionType(subscription_type)) {
-      return res.status(400).json({
-        error: 'Invalid subscription type',
-        message: 'subscription_type must be "employee" or "establishment"',
-      });
+      throw BadRequestError('Invalid subscription type. subscription_type must be "employee" or "establishment"');
     }
 
     const tableName =
@@ -486,9 +425,7 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
       .single();
 
     if (fetchError || !subscription) {
-      return res.status(404).json({
-        error: 'Subscription not found',
-      });
+      throw NotFoundError('Subscription not found');
     }
 
     // Verify user has permission (must be establishment owner)
@@ -519,18 +456,12 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
     }
 
     if (!hasPermission) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to cancel this subscription',
-      });
+      throw ForbiddenError('You do not have permission to cancel this subscription');
     }
 
     // Check if subscription is active
     if (subscription.status !== 'active') {
-      return res.status(400).json({
-        error: 'Subscription not active',
-        message: `Subscription is already ${subscription.status}`,
-      });
+      throw BadRequestError(`Subscription is already ${subscription.status}`);
     }
 
     // Cancel the subscription
@@ -546,10 +477,7 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
       .single();
 
     if (updateError || !updatedSubscription) {
-      return res.status(500).json({
-        error: 'Failed to cancel subscription',
-        message: updateError?.message || 'Unknown error',
-      });
+      throw InternalServerError('Failed to cancel subscription');
     }
 
     // Notify user of subscription cancellation
@@ -559,19 +487,12 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
       'Cancelled by establishment owner'
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'VIP subscription cancelled successfully',
       subscription: updatedSubscription,
     });
-  } catch (error) {
-    logger.error('Error cancelling VIP subscription:', error);
-    return res.status(500).json({
-      error: 'Failed to cancel VIP subscription',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // ADMIN: VERIFY PAYMENT
@@ -581,21 +502,17 @@ export const cancelVIPSubscription = async (req: Request, res: Response) => {
  * POST /api/admin/vip/verify-payment/:transactionId
  * Admin verifies a cash payment and activates subscription
  */
-export const verifyPayment = async (req: Request, res: Response) => {
-  try {
+export const verifyPayment = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      throw UnauthorizedError('Unauthorized');
     }
 
     // Check if user is admin
     const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
 
     if (!user || user.role !== 'admin') {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'Only admins can verify payments',
-      });
+      throw ForbiddenError('Only admins can verify payments');
     }
 
     const { transactionId } = req.params;
@@ -609,25 +526,17 @@ export const verifyPayment = async (req: Request, res: Response) => {
       .single();
 
     if (fetchError || !transaction) {
-      return res.status(404).json({
-        error: 'Transaction not found',
-      });
+      throw NotFoundError('Transaction not found');
     }
 
     // Check if already verified
     if (transaction.payment_status === 'completed') {
-      return res.status(400).json({
-        error: 'Payment already verified',
-        message: 'This transaction has already been verified',
-      });
+      throw BadRequestError('This transaction has already been verified');
     }
 
     // Check if payment method is cash
     if (transaction.payment_method !== 'cash') {
-      return res.status(400).json({
-        error: 'Invalid payment method',
-        message: 'Only cash payments require admin verification',
-      });
+      throw BadRequestError('Only cash payments require admin verification');
     }
 
     // Update payment transaction
@@ -644,10 +553,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       .eq('id', transactionId);
 
     if (transactionUpdateError) {
-      return res.status(500).json({
-        error: 'Failed to update transaction',
-        message: transactionUpdateError.message,
-      });
+      throw InternalServerError('Failed to update transaction');
     }
 
     // Update subscription status
@@ -671,10 +577,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       .single();
 
     if (subscriptionUpdateError) {
-      return res.status(500).json({
-        error: 'Failed to activate subscription',
-        message: subscriptionUpdateError.message,
-      });
+      throw InternalServerError('Failed to activate subscription');
     }
 
     // Notify user that payment was verified and subscription is active
@@ -686,19 +589,12 @@ export const verifyPayment = async (req: Request, res: Response) => {
       );
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'Payment verified and subscription activated',
       subscription,
     });
-  } catch (error) {
-    logger.error('Error verifying payment:', error);
-    return res.status(500).json({
-      error: 'Failed to verify payment',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // GET VIP TRANSACTIONS (ADMIN)
@@ -711,8 +607,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
  *  - payment_method: 'cash' | 'promptpay' | 'admin_grant'
  *  - status: 'pending' | 'completed' | 'failed' | 'refunded' | '' (all)
  */
-export const getVIPTransactions = async (req: Request, res: Response) => {
-  try {
+export const getVIPTransactions = asyncHandler(async (req: Request, res: Response) => {
     const { payment_method, status } = req.query;
 
     // Build query
@@ -740,10 +635,7 @@ export const getVIPTransactions = async (req: Request, res: Response) => {
 
     if (transactionsError) {
       logger.error('Error fetching VIP transactions:', transactionsError);
-      return res.status(500).json({
-        error: 'Failed to fetch VIP transactions',
-        message: transactionsError.message,
-      });
+      throw InternalServerError('Failed to fetch VIP transactions');
     }
 
     // Fetch subscription details for each transaction
@@ -767,19 +659,12 @@ export const getVIPTransactions = async (req: Request, res: Response) => {
       })
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       transactions: transactionsWithSubscriptions,
       count: transactionsWithSubscriptions.length,
     });
-  } catch (error) {
-    logger.error('Error fetching VIP transactions:', error);
-    return res.status(500).json({
-      error: 'Failed to fetch VIP transactions',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});
 
 // =====================================================
 // REJECT PAYMENT (ADMIN)
@@ -789,18 +674,17 @@ export const getVIPTransactions = async (req: Request, res: Response) => {
  * POST /api/admin/vip/reject-payment/:transactionId
  * Reject a VIP payment and cancel the associated subscription
  */
-export const rejectPayment = async (req: Request, res: Response) => {
-  try {
+export const rejectPayment = asyncHandler(async (req: Request, res: Response) => {
     const { transactionId } = req.params;
     const { admin_notes } = req.body;
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      throw UnauthorizedError('Authentication required');
     }
 
     if (!admin_notes || admin_notes.trim().length === 0) {
-      return res.status(400).json({ error: 'Rejection reason (admin_notes) is required' });
+      throw BadRequestError('Rejection reason (admin_notes) is required');
     }
 
     // 1. Get transaction details
@@ -811,18 +695,12 @@ export const rejectPayment = async (req: Request, res: Response) => {
       .single();
 
     if (transactionError || !transaction) {
-      return res.status(404).json({
-        error: 'Transaction not found',
-        message: transactionError?.message,
-      });
+      throw NotFoundError('Transaction not found');
     }
 
     // 2. Check if already processed
     if (transaction.payment_status !== 'pending') {
-      return res.status(400).json({
-        error: 'Transaction already processed',
-        message: `Transaction status is ${transaction.payment_status}`,
-      });
+      throw BadRequestError(`Transaction status is ${transaction.payment_status}`);
     }
 
     const now = new Date().toISOString();
@@ -838,10 +716,7 @@ export const rejectPayment = async (req: Request, res: Response) => {
       .eq('id', transactionId);
 
     if (updateTransactionError) {
-      return res.status(500).json({
-        error: 'Failed to update transaction',
-        message: updateTransactionError.message,
-      });
+      throw InternalServerError('Failed to update transaction');
     }
 
     // 4. Cancel the associated subscription
@@ -880,15 +755,8 @@ export const rejectPayment = async (req: Request, res: Response) => {
       );
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'Payment rejected successfully',
     });
-  } catch (error) {
-    logger.error('Error rejecting payment:', error);
-    return res.status(500).json({
-      error: 'Failed to reject payment',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-};
+});

@@ -6,9 +6,9 @@ import { logger } from '../utils/logger';
 import { notifyEmployeeUpdate, notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
 import { awardXP } from '../services/gamificationService';
 import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
+import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 
-export const getEmployees = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {
       status = 'approved',
       type = 'all', // v10.3: 'all', 'freelance', 'regular'
@@ -124,7 +124,7 @@ export const getEmployees = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('❌ Supabase query error:', error);
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     // 🆕 v10.3: Filter by employee type (freelance vs regular)
@@ -212,14 +212,9 @@ export const getEmployees = async (req: AuthRequest, res: Response) => {
         hasMore: offset + Number(limit) < (count || 0)
       }
     });
-  } catch (error) {
-    logger.error('Get employees error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const getEmployee = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEmployee = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     // Get employee with current employment
@@ -233,7 +228,7 @@ export const getEmployee = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Get employment history
@@ -301,14 +296,9 @@ export const getEmployee = async (req: AuthRequest, res: Response) => {
     };
 
     res.json({ employee: enrichedEmployee });
-  } catch (error) {
-    logger.error('Get employee error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const createEmployee = async (req: AuthRequest, res: Response) => {
-  try {
+export const createEmployee = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {
       name,
       nickname,
@@ -325,7 +315,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
     }: CreateEmployeeRequest = req.body;
 
     if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+      throw BadRequestError('Name is required');
     }
 
     // ========================================
@@ -334,30 +324,18 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
     // Nationality must be an array of strings (max 2 for "half/mixed")
     if (nationality !== undefined && nationality !== null) {
       if (!Array.isArray(nationality)) {
-        return res.status(400).json({
-          error: 'Nationality must be an array',
-          code: 'INVALID_NATIONALITY_FORMAT'
-        });
+        throw BadRequestError('Nationality must be an array');
       }
       if (nationality.length === 0) {
-        return res.status(400).json({
-          error: 'Nationality array cannot be empty (omit field if no nationality)',
-          code: 'EMPTY_NATIONALITY_ARRAY'
-        });
+        throw BadRequestError('Nationality array cannot be empty (omit field if no nationality)');
       }
       if (nationality.length > 2) {
-        return res.status(400).json({
-          error: 'Maximum 2 nationalities allowed (for half/mixed heritage)',
-          code: 'TOO_MANY_NATIONALITIES'
-        });
+        throw BadRequestError('Maximum 2 nationalities allowed (for half/mixed heritage)');
       }
       // Validate each nationality is a non-empty string
       for (const nat of nationality) {
         if (typeof nat !== 'string' || nat.trim().length === 0) {
-          return res.status(400).json({
-            error: 'Each nationality must be a non-empty string',
-            code: 'INVALID_NATIONALITY_VALUE'
-          });
+          throw BadRequestError('Each nationality must be a non-empty string');
         }
       }
     }
@@ -368,10 +346,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
     // Security: Prevent malicious URLs (XSS, invalid formats)
     const photoValidation = validateImageUrls(photos || [], 0, 5);  // Photos optional
     if (!photoValidation.valid) {
-      return res.status(400).json({
-        error: photoValidation.error,
-        code: 'INVALID_PHOTO_URLS'
-      });
+      throw BadRequestError(photoValidation.error || 'Invalid photo URLs');
     }
 
     // ========================================
@@ -391,7 +366,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
     const { validateFreelanceRules } = await import('../utils/freelanceValidation');
     const validation = await validateFreelanceRules(null, is_freelance || false, establishmentIds);
     if (!validation.valid) {
-      return res.status(400).json({ error: validation.error });
+      throw BadRequestError(validation.error || 'Invalid freelance configuration');
     }
 
     // Create employee
@@ -413,7 +388,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError) {
-      return res.status(400).json({ error: employeeError.message });
+      throw BadRequestError(employeeError.message);
     }
 
     // ========================================
@@ -439,9 +414,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
         logger.error('Employment history error:', employmentError);
         // 🔧 ROLLBACK FIX: Delete employee if employment_history fails
         await supabase.from('employees').delete().eq('id', employee.id);
-        return res.status(400).json({
-          error: 'Failed to add employment history: ' + employmentError.message
-        });
+        throw BadRequestError('Failed to add employment history: ' + employmentError.message);
       }
 
       logger.info(`Created employee ${employee.id} with ${establishmentIds.length} establishment(s)`);
@@ -477,9 +450,7 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
       // Delete employee (cascades to other foreign keys)
       await supabase.from('employees').delete().eq('id', employee.id);
 
-      return res.status(400).json({
-        error: 'Failed to submit for moderation: ' + moderationError.message
-      });
+      throw BadRequestError('Failed to submit for moderation: ' + moderationError.message);
     }
 
     // 🔔 Notify admins of new pending content
@@ -534,14 +505,9 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
       message: 'Employee profile submitted for approval',
       employee
     });
-  } catch (error) {
-    logger.error('Create employee error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const updateEmployee = async (req: AuthRequest, res: Response) => {
-  try {
+export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
@@ -553,7 +519,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Allow update if: owner (created_by), linked user (user_id), or admin/moderator
@@ -562,7 +528,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
       employee.user_id !== req.user!.id &&
       !['admin', 'moderator'].includes(req.user!.role)
     ) {
-      return res.status(403).json({ error: 'Not authorized to update this employee' });
+      throw ForbiddenError('Not authorized to update this employee');
     }
 
     // ========================================
@@ -572,10 +538,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
     if (updates.photos) {
       const photoValidation = validateImageUrls(updates.photos, 0, 5);  // Photos optional
       if (!photoValidation.valid) {
-        return res.status(400).json({
-          error: photoValidation.error,
-          code: 'INVALID_PHOTO_URLS'
-        });
+        throw BadRequestError(photoValidation.error || 'Invalid photo URLs');
       }
     }
 
@@ -584,29 +547,17 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
     // ========================================
     if (updates.nationality !== undefined && updates.nationality !== null) {
       if (!Array.isArray(updates.nationality)) {
-        return res.status(400).json({
-          error: 'Nationality must be an array',
-          code: 'INVALID_NATIONALITY_FORMAT'
-        });
+        throw BadRequestError('Nationality must be an array');
       }
       if (updates.nationality.length === 0) {
-        return res.status(400).json({
-          error: 'Nationality array cannot be empty (omit field to remove nationality)',
-          code: 'EMPTY_NATIONALITY_ARRAY'
-        });
+        throw BadRequestError('Nationality array cannot be empty (omit field to remove nationality)');
       }
       if (updates.nationality.length > 2) {
-        return res.status(400).json({
-          error: 'Maximum 2 nationalities allowed (for half/mixed heritage)',
-          code: 'TOO_MANY_NATIONALITIES'
-        });
+        throw BadRequestError('Maximum 2 nationalities allowed (for half/mixed heritage)');
       }
       for (const nat of updates.nationality) {
         if (typeof nat !== 'string' || nat.trim().length === 0) {
-          return res.status(400).json({
-            error: 'Each nationality must be a non-empty string',
-            code: 'INVALID_NATIONALITY_VALUE'
-          });
+          throw BadRequestError('Each nationality must be a non-empty string');
         }
       }
     }
@@ -637,7 +588,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
       const { validateFreelanceRules } = await import('../utils/freelanceValidation');
       const validation = await validateFreelanceRules(id, isFreelance, newEstablishmentIds);
       if (!validation.valid) {
-        return res.status(400).json({ error: validation.error });
+        throw BadRequestError(validation.error || 'Invalid freelance configuration');
       }
 
       // Update employment associations
@@ -669,7 +620,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
 
         if (createError) {
           logger.error('Failed to create employment history:', createError);
-          return res.status(400).json({ error: 'Failed to update establishments: ' + createError.message });
+          throw BadRequestError('Failed to update establishments: ' + createError.message);
         }
 
         logger.info(`Employee ${id} updated with ${newEstablishmentIds.length} establishment(s)`);
@@ -700,7 +651,7 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     // Notify followers of profile updates
@@ -752,14 +703,9 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
       message: 'Employee updated successfully',
       employee: updatedEmployee
     });
-  } catch (error) {
-    logger.error('Update employee error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const deleteEmployee = async (req: AuthRequest, res: Response) => {
-  try {
+export const deleteEmployee = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     // Check permissions
@@ -770,11 +716,11 @@ export const deleteEmployee = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (!employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     if (employee.created_by !== req.user!.id && !['admin', 'moderator'].includes(req.user!.role)) {
-      return res.status(403).json({ error: 'Not authorized to delete this employee' });
+      throw ForbiddenError('Not authorized to delete this employee');
     }
 
     const { error } = await supabase
@@ -783,30 +729,25 @@ export const deleteEmployee = async (req: AuthRequest, res: Response) => {
       .eq('id', id);
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     res.json({ message: 'Employee deleted successfully' });
-  } catch (error) {
-    logger.error('Delete employee error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
-  try {
+export const requestSelfRemoval = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { verification_info } = req.body;
 
     // Validate verification_info
     if (!verification_info) {
-      return res.status(400).json({ error: 'Verification information required for self-removal' });
+      throw BadRequestError('Verification information required for self-removal');
     }
     if (typeof verification_info !== 'string') {
-      return res.status(400).json({ error: 'Verification information must be a string' });
+      throw BadRequestError('Verification information must be a string');
     }
     if (verification_info.length > 1000) {
-      return res.status(400).json({ error: 'Verification information too long (max 1000 characters)' });
+      throw BadRequestError('Verification information too long (max 1000 characters)');
     }
 
     // First, fetch the employee to check authorization
@@ -817,14 +758,12 @@ export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (fetchError || !existingEmployee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Security check: Only the linked user can request self-removal
     if (!existingEmployee.user_id || existingEmployee.user_id !== req.user!.id) {
-      return res.status(403).json({
-        error: 'You can only request removal of your own profile'
-      });
+      throw ForbiddenError('You can only request removal of your own profile');
     }
 
     // Update the employee with self-removal request
@@ -839,7 +778,7 @@ export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     // Send notification to admins about self-removal request
@@ -872,19 +811,14 @@ export const requestSelfRemoval = async (req: AuthRequest, res: Response) => {
       message: 'Self-removal request submitted. Administrators will review your request.',
       employee
     });
-  } catch (error) {
-    logger.error('Self removal request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const addEmployment = async (req: AuthRequest, res: Response) => {
-  try {
+export const addEmployment = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { establishment_id, position, start_date, end_date } = req.body;
 
     if (!establishment_id || !start_date) {
-      return res.status(400).json({ error: 'Establishment and start date are required' });
+      throw BadRequestError('Establishment and start date are required');
     }
 
     // If this is a current position, mark other positions as not current
@@ -918,18 +852,14 @@ export const addEmployment = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     res.status(201).json({
       message: 'Employment added successfully',
       employment
     });
-  } catch (error) {
-    logger.error('Add employment error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // 🚀 Cache in-memory simple pour suggestions
 interface CacheEntry {
@@ -958,13 +888,13 @@ const evictOldestCacheEntries = () => {
   logger.debug(`🧹 Cache eviction: reduced to ${suggestionCache.size} entries`);
 };
 
-export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEmployeeNameSuggestions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { q } = req.query;
     logger.debug(`🔍 Autocomplete request: "${q}"`); // Debug log
 
     if (!q || typeof q !== 'string' || q.length < 1) {
-      return res.json({ suggestions: [] });
+      res.json({ suggestions: [] });
+      return;
     }
 
     const searchTerm = q.trim().toLowerCase();
@@ -974,7 +904,8 @@ export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response
     const cached = suggestionCache.get(cacheKey);
     if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
       logger.debug(`📦 Cache HIT for "${searchTerm}"`);
-      return res.json({ suggestions: cached.suggestions });
+      res.json({ suggestions: cached.suggestions });
+      return;
     }
 
     logger.debug(`🔍 Cache MISS for "${searchTerm}" - Fetching from DB`);
@@ -1004,9 +935,7 @@ export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response
         namesError: namesQuery.error,
         nicknamesError: nicknamesQuery.error
       });
-      return res.status(400).json({
-        error: namesQuery.error?.message || nicknamesQuery.error?.message
-      });
+      throw BadRequestError(namesQuery.error?.message || nicknamesQuery.error?.message || 'Query error');
     }
 
     logger.debug(`🔍 Query results for "${searchTerm}":`, {
@@ -1058,15 +987,9 @@ export const getEmployeeNameSuggestions = async (req: AuthRequest, res: Response
 
     logger.debug(`✅ Returning ${finalSuggestions.length} suggestions for "${searchTerm}"`);
     res.json({ suggestions: finalSuggestions });
+});
 
-  } catch (error) {
-    logger.error('❌ Get name suggestions error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-export const searchEmployees = async (req: AuthRequest, res: Response) => {
-  try {
+export const searchEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {
       q: searchQuery,
       type, // 🆕 v10.3 - Employee type filter (all/freelance/regular)
@@ -1188,7 +1111,7 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
     const { data: allEmployees, error } = await query;
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     // ✅ Filter employees - Accept ALL approved employees by default (no strict position requirement)
@@ -1598,11 +1521,7 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
         ]
       }
     });
-  } catch (error) {
-    logger.error('Search employees error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ==========================================
 // 🆕 EMPLOYEE CLAIM SYSTEM (v10.0)
@@ -1613,10 +1532,9 @@ export const searchEmployees = async (req: AuthRequest, res: Response) => {
  * User creates their own employee profile, automatically linked to their account
  * Requires account_type = 'employee'
  */
-export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) => {
-  try {
+export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Check if user already has a linked employee profile
@@ -1627,11 +1545,7 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
       .single();
 
     if (existingUser?.linked_employee_id) {
-      return res.status(409).json({
-        error: 'You already have a linked employee profile',
-        code: 'ALREADY_LINKED',
-        employee_id: existingUser.linked_employee_id
-      });
+      throw ConflictError('You already have a linked employee profile');
     }
 
     const {
@@ -1649,10 +1563,10 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
 
     // Validation
     if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+      throw BadRequestError('Name is required');
     }
     if (photos && photos.length > 5) {
-      return res.status(400).json({ error: 'Maximum 5 photos allowed' });
+      throw BadRequestError('Maximum 5 photos allowed');
     }
 
     // Create employee with self-profile flag and user link
@@ -1676,7 +1590,7 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
 
     if (employeeError) {
       logger.error('Create self-profile error:', employeeError);
-      return res.status(400).json({ error: employeeError.message });
+      throw BadRequestError(employeeError.message);
     }
 
     // Update user account to link employee and set account_type
@@ -1692,7 +1606,7 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
       logger.error('Update user link error:', userUpdateError);
       // Rollback: delete employee if user update fails
       await supabase.from('employees').delete().eq('id', employee.id);
-      return res.status(500).json({ error: 'Failed to link profile to account' });
+      throw InternalServerError('Failed to link profile to account');
     }
 
     // Add employment/freelance position if provided
@@ -1713,9 +1627,7 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
         // 🔧 ROLLBACK FIX: Delete employee AND unlink user
         await supabase.from('employees').delete().eq('id', employee.id);
         await supabase.from('users').update({ linked_employee_id: null }).eq('id', req.user.id);
-        return res.status(400).json({
-          error: 'Failed to add employment history: ' + employmentError.message
-        });
+        throw BadRequestError('Failed to add employment history: ' + employmentError.message);
       }
     }
 
@@ -1738,9 +1650,7 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
       logger.error('Moderation queue error:', moderationError);
       await supabase.from('employees').delete().eq('id', employee.id);
       await supabase.from('users').update({ linked_employee_id: null }).eq('id', req.user.id);
-      return res.status(400).json({
-        error: 'Failed to submit for moderation: ' + moderationError.message
-      });
+      throw BadRequestError('Failed to submit for moderation: ' + moderationError.message);
     }
 
     logger.info(`Self-profile created by user ${req.user.id}:`, { employee_id: employee.id });
@@ -1750,39 +1660,29 @@ export const createOwnEmployeeProfile = async (req: AuthRequest, res: Response) 
       employee,
       linked: true
     });
-  } catch (error) {
-    logger.error('Create own employee profile error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Claim existing employee profile
  * User requests to link their account to an existing employee profile
  * Creates a moderation request for admin approval
  */
-export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
-  try {
+export const claimEmployeeProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { employeeId } = req.params;
     const { message, verification_proof }: { message: string; verification_proof?: string[] } = req.body;
 
     if (!message || message.trim().length < 10) {
-      return res.status(400).json({
-        error: 'Please provide a detailed message (min 10 characters) explaining why this is your profile'
-      });
+      throw BadRequestError('Please provide a detailed message (min 10 characters) explaining why this is your profile');
     }
 
     // 🔧 FIX C7: Limit proof URLs to 5 max
     const MAX_PROOF_URLS = 5;
     if (verification_proof && verification_proof.length > MAX_PROOF_URLS) {
-      return res.status(400).json({
-        error: `Maximum ${MAX_PROOF_URLS} proof URLs allowed`,
-        code: 'TOO_MANY_PROOFS'
-      });
+      throw BadRequestError(`Maximum ${MAX_PROOF_URLS} proof URLs allowed`);
     }
 
     // Check if user already has a linked profile
@@ -1793,10 +1693,7 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (existingUser?.linked_employee_id) {
-      return res.status(409).json({
-        error: 'You already have a linked employee profile',
-        code: 'ALREADY_LINKED'
-      });
+      throw ConflictError('You already have a linked employee profile');
     }
 
     // Check if employee exists and is not already linked
@@ -1807,14 +1704,11 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee profile not found' });
+      throw NotFoundError('Employee profile not found');
     }
 
     if (employee.user_id) {
-      return res.status(409).json({
-        error: 'This employee profile is already linked to another user account',
-        code: 'ALREADY_LINKED'
-      });
+      throw ConflictError('This employee profile is already linked to another user account');
     }
 
     // Check if there's already a pending claim request for this employee by this user
@@ -1828,10 +1722,7 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (existingClaim) {
-      return res.status(409).json({
-        error: 'You already have a pending claim request for this profile',
-        code: 'CLAIM_PENDING'
-      });
+      throw ConflictError('You already have a pending claim request for this profile');
     }
 
     // Create claim request using SQL helper function (from migration)
@@ -1857,9 +1748,7 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
 
     if (claimError) {
       logger.error('Create claim request error:', claimError);
-      return res.status(400).json({
-        error: claimError.message || 'Failed to create claim request'
-      });
+      throw BadRequestError(claimError.message || 'Failed to create claim request');
     }
 
     // 🔔 NOTIFICATION FIX: Create notifications for all admin users
@@ -1902,21 +1791,16 @@ export const claimEmployeeProfile = async (req: AuthRequest, res: Response) => {
       message: 'Claim request submitted successfully. An administrator will review your request.',
       claim_id: claimRequest
     });
-  } catch (error) {
-    logger.error('Claim employee profile error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get user's linked employee profile
  * Returns the employee profile linked to the authenticated user
  * 🔧 v10.2 FIX: Returns employee directly (without {employee: ...} wrapper) for frontend compatibility
  */
-export const getMyLinkedProfile = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyLinkedProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: user } = await supabase
@@ -1926,10 +1810,7 @@ export const getMyLinkedProfile = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (!user?.linked_employee_id) {
-      return res.status(404).json({
-        error: 'No linked employee profile found',
-        code: 'NOT_LINKED'
-      });
+      throw NotFoundError('No linked employee profile found');
     }
 
     const employeeId = user.linked_employee_id;
@@ -1945,7 +1826,7 @@ export const getMyLinkedProfile = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee profile not found' });
+      throw NotFoundError('Employee profile not found');
     }
 
     // Get employment history
@@ -2001,11 +1882,7 @@ export const getMyLinkedProfile = async (req: AuthRequest, res: Response) => {
 
     // 🔧 Return employee directly (no wrapper) for frontend compatibility
     res.json(enrichedEmployee);
-  } catch (error) {
-    logger.error('Get my linked profile error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get all claim requests (admin only)
@@ -2014,15 +1891,14 @@ export const getMyLinkedProfile = async (req: AuthRequest, res: Response) => {
  * 🔧 v10.2 FIX: Only returns REAL claims (claim_existing), not self-profile creations
  * Self-profiles are managed in EmployeesAdmin (via employees table directly)
  */
-export const getClaimRequests = async (req: AuthRequest, res: Response) => {
-  try {
+export const getClaimRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Only admin/moderator can view claims
     if (!['admin', 'moderator'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Admin/moderator access required', code: 'FORBIDDEN' });
+      throw ForbiddenError('Admin/moderator access required');
     }
 
     const { status = 'pending' } = req.query;
@@ -2048,7 +1924,7 @@ export const getClaimRequests = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Get claim requests error:', error);
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     // 🔧 FIX C4: Batch fetch employee data with IN query instead of N+1
@@ -2079,25 +1955,20 @@ export const getClaimRequests = async (req: AuthRequest, res: Response) => {
       claims: enrichedClaims,
       total: enrichedClaims.length
     });
-  } catch (error) {
-    logger.error('Get claim requests error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Approve claim request (admin only)
  * Creates the bidirectional user ↔ employee link
  */
-export const approveClaimRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const approveClaimRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Only admin can approve claims
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required', code: 'FORBIDDEN' });
+      throw ForbiddenError('Admin access required');
     }
 
     const { claimId } = req.params;
@@ -2114,7 +1985,7 @@ export const approveClaimRequest = async (req: AuthRequest, res: Response) => {
 
     if (claimError || !claim) {
       logger.error('Claim not found:', claimError);
-      return res.status(404).json({ error: 'Claim request not found or already processed' });
+      throw NotFoundError('Claim request not found or already processed');
     }
 
     const claimType = claim.request_metadata?.claim_type;
@@ -2132,7 +2003,7 @@ export const approveClaimRequest = async (req: AuthRequest, res: Response) => {
 
       if (employeeUpdateError) {
         logger.error('Failed to approve employee:', employeeUpdateError);
-        return res.status(500).json({ error: 'Failed to approve employee profile' });
+        throw InternalServerError('Failed to approve employee profile');
       }
 
       // Update moderation queue
@@ -2191,9 +2062,7 @@ export const approveClaimRequest = async (req: AuthRequest, res: Response) => {
 
     if (approveError) {
       logger.error('Approve claim request error:', approveError);
-      return res.status(400).json({
-        error: approveError.message || 'Failed to approve claim request'
-      });
+      throw BadRequestError(approveError.message || 'Failed to approve claim request');
     }
 
     logger.info(`Claim request ${claimId} approved by admin ${req.user.id}`);
@@ -2234,34 +2103,27 @@ export const approveClaimRequest = async (req: AuthRequest, res: Response) => {
       message: 'Claim request approved successfully. User and employee are now linked.',
       success: true
     });
-  } catch (error) {
-    logger.error('Approve claim request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Reject claim request (admin only)
  * Marks the claim as rejected without creating any links
  */
-export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
-  try {
+export const rejectClaimRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Only admin can reject claims
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required', code: 'FORBIDDEN' });
+      throw ForbiddenError('Admin access required');
     }
 
     const { claimId } = req.params;
     const { moderator_notes }: { moderator_notes?: string } = req.body;
 
     if (!moderator_notes || moderator_notes.trim().length < 10) {
-      return res.status(400).json({
-        error: 'Please provide a reason for rejection (min 10 characters)'
-      });
+      throw BadRequestError('Please provide a reason for rejection (min 10 characters)');
     }
 
     // 🔧 FIX C2: First get the claim details to send notification later
@@ -2275,7 +2137,7 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
 
     if (claimError || !claim) {
       logger.error('Claim not found:', claimError);
-      return res.status(404).json({ error: 'Claim request not found or already processed' });
+      throw NotFoundError('Claim request not found or already processed');
     }
 
     // Use SQL helper function to reject claim
@@ -2288,9 +2150,7 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
 
     if (rejectError) {
       logger.error('Reject claim request error:', rejectError);
-      return res.status(400).json({
-        error: rejectError.message || 'Failed to reject claim request'
-      });
+      throw BadRequestError(rejectError.message || 'Failed to reject claim request');
     }
 
     logger.info(`Claim request ${claimId} rejected by admin ${req.user.id}`);
@@ -2339,11 +2199,7 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
       message: 'Claim request rejected successfully.',
       success: true
     });
-  } catch (error) {
-    logger.error('Reject claim request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ==========================================
 // 🆕 EMPLOYEE DASHBOARD STATS (v10.2)
@@ -2353,8 +2209,7 @@ export const rejectClaimRequest = async (req: AuthRequest, res: Response) => {
  * Get employee statistics for dashboard
  * Returns profile views, reviews count, average rating, favorites count, and employment info
  */
-export const getEmployeeStats = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEmployeeStats = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     // Check if employee exists
@@ -2365,7 +2220,7 @@ export const getEmployeeStats = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Parallel queries for better performance
@@ -2439,18 +2294,13 @@ export const getEmployeeStats = async (req: AuthRequest, res: Response) => {
     };
 
     res.json({ stats });
-  } catch (error) {
-    logger.error('Get employee stats error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * Get employee reviews with pagination (v10.2)
  * Returns paginated reviews (comments with ratings) for employee dashboard
  */
-export const getEmployeeReviews = async (req: AuthRequest, res: Response) => {
-  try {
+export const getEmployeeReviews = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const limit = parseInt(req.query.limit as string) || 5;
     const offset = parseInt(req.query.offset as string) || 0;
@@ -2463,7 +2313,7 @@ export const getEmployeeReviews = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Get total count of reviews (not comments - only ratings)
@@ -2494,7 +2344,7 @@ export const getEmployeeReviews = async (req: AuthRequest, res: Response) => {
 
     if (reviewsError) {
       logger.error('Get employee reviews error:', reviewsError);
-      return res.status(400).json({ error: reviewsError.message });
+      throw BadRequestError(reviewsError.message);
     }
 
     res.json({
@@ -2503,11 +2353,7 @@ export const getEmployeeReviews = async (req: AuthRequest, res: Response) => {
       limit,
       offset
     });
-  } catch (error) {
-    logger.error('Get employee reviews error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ==========================================
 // 🆕 PROFILE VIEW TRACKING (v10.2)
@@ -2518,8 +2364,7 @@ export const getEmployeeReviews = async (req: AuthRequest, res: Response) => {
  * Tracks when a user views an employee profile (public endpoint, no auth required)
  * Supports both anonymous and authenticated visitors
  */
-export const recordProfileView = async (req: AuthRequest, res: Response) => {
-  try {
+export const recordProfileView = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     // Check if employee exists
@@ -2530,7 +2375,7 @@ export const recordProfileView = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (employeeError || !employee) {
-      return res.status(404).json({ error: 'Employee not found' });
+      throw NotFoundError('Employee not found');
     }
 
     // Record view (anonymous or authenticated)
@@ -2544,12 +2389,8 @@ export const recordProfileView = async (req: AuthRequest, res: Response) => {
 
     if (error) {
       logger.error('Record profile view error:', error);
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     res.json({ success: true });
-  } catch (error) {
-    logger.error('Record profile view error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

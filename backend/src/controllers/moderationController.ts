@@ -9,9 +9,9 @@ import {
   notifyCommentRemoved
 } from '../utils/notificationHelper';
 import { awardXP } from '../services/gamificationService';
+import { asyncHandler, BadRequestError, NotFoundError } from '../middleware/asyncHandler';
 
-export const getModerationQueue = async (req: AuthRequest, res: Response) => {
-  try {
+export const getModerationQueue = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status = 'pending', item_type, limit = 50 } = req.query;
 
     // 🚀 OPTIMISATION: Utilisation de batch queries avec LEFT JOIN au lieu de N+1 requêtes
@@ -39,11 +39,12 @@ export const getModerationQueue = async (req: AuthRequest, res: Response) => {
     const { data: moderationItems, error } = await baseQuery;
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     if (!moderationItems || moderationItems.length === 0) {
-      return res.json({ moderationItems: [] });
+      res.json({ moderationItems: [] });
+      return;
     }
 
     // Extraire les IDs par type pour les requêtes batch
@@ -124,14 +125,9 @@ export const getModerationQueue = async (req: AuthRequest, res: Response) => {
     });
 
     res.json({ moderationItems: itemsWithData });
-  } catch (error) {
-    logger.error('Get moderation queue error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const approveItem = async (req: AuthRequest, res: Response) => {
-  try {
+export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { moderator_notes } = req.body;
 
@@ -146,11 +142,11 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (moderationError || !moderationItem) {
-      return res.status(404).json({ error: 'Moderation item not found' });
+      throw NotFoundError('Moderation item not found');
     }
 
     if (moderationItem.status !== 'pending') {
-      return res.status(400).json({ error: 'Item has already been reviewed' });
+      throw BadRequestError('Item has already been reviewed');
     }
 
     // Get content details for notification
@@ -215,7 +211,7 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (updateError) {
-      return res.status(400).json({ error: updateError.message });
+      throw BadRequestError(updateError.message);
     }
 
     // Notify user that their content was approved
@@ -275,19 +271,14 @@ export const approveItem = async (req: AuthRequest, res: Response) => {
       message: 'Item approved successfully',
       moderationItem: updatedItem
     });
-  } catch (error) {
-    logger.error('Approve item error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const rejectItem = async (req: AuthRequest, res: Response) => {
-  try {
+export const rejectItem = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { moderator_notes } = req.body;
 
     if (!moderator_notes) {
-      return res.status(400).json({ error: 'Moderator notes are required for rejection' });
+      throw BadRequestError('Moderator notes are required for rejection');
     }
 
     // Get the moderation item with submitter info
@@ -301,11 +292,11 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (moderationError || !moderationItem) {
-      return res.status(404).json({ error: 'Moderation item not found' });
+      throw NotFoundError('Moderation item not found');
     }
 
     if (moderationItem.status !== 'pending') {
-      return res.status(400).json({ error: 'Item has already been reviewed' });
+      throw BadRequestError('Item has already been reviewed');
     }
 
     // Get content details for notification
@@ -361,7 +352,7 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (updateError) {
-      return res.status(400).json({ error: updateError.message });
+      throw BadRequestError(updateError.message);
     }
 
     // Notify user that their content was rejected
@@ -378,14 +369,9 @@ export const rejectItem = async (req: AuthRequest, res: Response) => {
       message: 'Item rejected successfully',
       moderationItem: updatedItem
     });
-  } catch (error) {
-    logger.error('Reject item error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const getModerationStats = async (req: AuthRequest, res: Response) => {
-  try {
+export const getModerationStats = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Get counts for each status
     const { data: pendingCount } = await supabase
       .from('moderation_queue')
@@ -433,14 +419,9 @@ export const getModerationStats = async (req: AuthRequest, res: Response) => {
         }
       }
     });
-  } catch (error) {
-    logger.error('Get moderation stats error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const getReports = async (req: AuthRequest, res: Response) => {
-  try {
+export const getReports = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status = 'pending', limit = 50 } = req.query;
 
     const { data: reports, error } = await supabase
@@ -456,23 +437,18 @@ export const getReports = async (req: AuthRequest, res: Response) => {
       .limit(Number(limit));
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      throw BadRequestError(error.message);
     }
 
     res.json({ reports });
-  } catch (error) {
-    logger.error('Get reports error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
-export const resolveReport = async (req: AuthRequest, res: Response) => {
-  try {
+export const resolveReport = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { action, notes } = req.body; // action: 'dismiss' or 'remove_comment'
 
     if (!action || !['dismiss', 'remove_comment'].includes(action)) {
-      return res.status(400).json({ error: 'Valid action is required (dismiss or remove_comment)' });
+      throw BadRequestError('Valid action is required (dismiss or remove_comment)');
     }
 
     // Get the report
@@ -483,11 +459,11 @@ export const resolveReport = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (reportError || !report) {
-      return res.status(404).json({ error: 'Report not found' });
+      throw NotFoundError('Report not found');
     }
 
     if (report.status !== 'pending') {
-      return res.status(400).json({ error: 'Report has already been resolved' });
+      throw BadRequestError('Report has already been resolved');
     }
 
     // Take action on the comment if needed
@@ -540,15 +516,11 @@ export const resolveReport = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (updateError) {
-      return res.status(400).json({ error: updateError.message });
+      throw BadRequestError(updateError.message);
     }
 
     res.json({
       message: `Report resolved successfully. Comment ${action === 'remove_comment' ? 'removed' : 'kept'}.`,
       report: updatedReport
     });
-  } catch (error) {
-    logger.error('Resolve report error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});

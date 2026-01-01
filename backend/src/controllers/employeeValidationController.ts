@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
 /**
  * Employee Validation Controller
@@ -37,21 +38,18 @@ const LEVEL_WEIGHTS: Record<number, number> = {
  * Auth: Required
  * CSRF: Required
  */
-export const voteOnEmployee = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const voteOnEmployee = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { voteType } = req.body; // 'exists' or 'not_exists'
     const userId = (req as any).user?.id;
 
     // Validation
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
+      throw UnauthorizedError('Authentication required');
     }
 
     if (!voteType || !['exists', 'not_exists'].includes(voteType)) {
-      res.status(400).json({ error: 'Invalid vote type. Must be "exists" or "not_exists"' });
-      return;
+      throw BadRequestError('Invalid vote type. Must be "exists" or "not_exists"');
     }
 
     // Verify employee exists
@@ -62,8 +60,7 @@ export const voteOnEmployee = async (req: Request, res: Response): Promise<void>
       .single();
 
     if (employeeError || !employee) {
-      res.status(404).json({ error: 'Employee not found' });
-      return;
+      throw NotFoundError('Employee not found');
     }
 
     // Insert vote (UNIQUE constraint will prevent duplicates)
@@ -80,12 +77,10 @@ export const voteOnEmployee = async (req: Request, res: Response): Promise<void>
     if (voteError) {
       // Check if duplicate vote
       if (voteError.code === '23505') { // Unique violation
-        res.status(409).json({ error: 'You have already voted on this profile' });
-        return;
+        throw ConflictError('You have already voted on this profile');
       }
       logger.error('Error inserting vote:', voteError);
-      res.status(500).json({ error: 'Failed to record vote' });
-      return;
+      throw InternalServerError('Failed to record vote');
     }
 
     // Award +2 XP for community contribution
@@ -107,43 +102,32 @@ export const voteOnEmployee = async (req: Request, res: Response): Promise<void>
       stats,
       xpAwarded: 2
     });
-  } catch (error) {
-    logger.error('Error in voteOnEmployee:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * GET /api/employees/:id/validation-stats
  * Get validation statistics for an employee profile
  * Auth: Optional (returns userVote if authenticated)
  */
-export const getValidationStats = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getValidationStats = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const userId = (req as any).user?.id;
 
     const stats = await getEmployeeValidationStats(employeeId, userId);
 
     res.status(200).json(stats);
-  } catch (error) {
-    logger.error('Error in getValidationStats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * GET /api/my-validation-votes
  * Get current user's vote history
  * Auth: Required
  */
-export const getMyVotes = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getMyVotes = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
+      throw UnauthorizedError('Authentication required');
     }
 
     const { data: votes, error } = await supabase
@@ -164,16 +148,11 @@ export const getMyVotes = async (req: Request, res: Response): Promise<void> => 
 
     if (error) {
       logger.error('Error fetching user votes:', error);
-      res.status(500).json({ error: 'Failed to fetch vote history' });
-      return;
+      throw InternalServerError('Failed to fetch vote history');
     }
 
     res.status(200).json({ votes });
-  } catch (error) {
-    logger.error('Error in getMyVotes:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ============================================
 // OWNER ENDPOINTS (Visibility Control)
@@ -184,13 +163,11 @@ export const getMyVotes = async (req: Request, res: Response): Promise<void> => 
  * Get all employees from owner's establishments with validation stats
  * Auth: Required (establishment_owner)
  */
-export const getMyEmployeesValidation = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getMyEmployeesValidation = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
+      throw UnauthorizedError('Authentication required');
     }
 
     // Get owner's establishments
@@ -201,8 +178,7 @@ export const getMyEmployeesValidation = async (req: Request, res: Response): Pro
 
     if (ownershipError) {
       logger.error('Error fetching ownerships:', ownershipError);
-      res.status(500).json({ error: 'Failed to fetch establishments' });
-      return;
+      throw InternalServerError('Failed to fetch establishments');
     }
 
     if (!ownerships || ownerships.length === 0) {
@@ -234,8 +210,7 @@ export const getMyEmployeesValidation = async (req: Request, res: Response): Pro
 
     if (employeeError) {
       logger.error('Error fetching employees:', employeeError);
-      res.status(500).json({ error: 'Failed to fetch employees' });
-      return;
+      throw InternalServerError('Failed to fetch employees');
     }
 
     // Enrich with validation stats
@@ -261,11 +236,7 @@ export const getMyEmployeesValidation = async (req: Request, res: Response): Pro
     );
 
     res.status(200).json({ employees: enrichedEmployees });
-  } catch (error) {
-    logger.error('Error in getMyEmployeesValidation:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * PATCH /api/owner/employees/:id/visibility
@@ -273,20 +244,17 @@ export const getMyEmployeesValidation = async (req: Request, res: Response): Pro
  * Auth: Required (establishment_owner)
  * CSRF: Required
  */
-export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const toggleEmployeeVisibilityAsOwner = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { isHidden, reason } = req.body;
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
+      throw UnauthorizedError('Authentication required');
     }
 
     if (typeof isHidden !== 'boolean') {
-      res.status(400).json({ error: 'isHidden must be a boolean' });
-      return;
+      throw BadRequestError('isHidden must be a boolean');
     }
 
     // Verify employee exists and get establishment_id
@@ -297,8 +265,7 @@ export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Respons
       .single();
 
     if (employeeError || !employee) {
-      res.status(404).json({ error: 'Employee not found' });
-      return;
+      throw NotFoundError('Employee not found');
     }
 
     // Verify user owns this establishment
@@ -310,8 +277,7 @@ export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Respons
       .single();
 
     if (ownershipError || !ownership) {
-      res.status(403).json({ error: 'You do not own this establishment' });
-      return;
+      throw ForbiddenError('You do not own this establishment');
     }
 
     // Update visibility
@@ -329,8 +295,7 @@ export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Respons
 
     if (updateError) {
       logger.error('Error updating employee visibility:', updateError);
-      res.status(500).json({ error: 'Failed to update visibility' });
-      return;
+      throw InternalServerError('Failed to update visibility');
     }
 
     logger.info(`Owner ${userId} set employee ${employeeId} visibility to ${isHidden}`);
@@ -339,11 +304,7 @@ export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Respons
       isHidden,
       reason
     });
-  } catch (error) {
-    logger.error('Error in toggleEmployeeVisibilityAsOwner:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ============================================
 // ADMIN ENDPOINTS (Full Control)
@@ -355,8 +316,7 @@ export const toggleEmployeeVisibilityAsOwner = async (req: Request, res: Respons
  * Auth: Required (admin/moderator)
  * Query: ?filter=contested (optional)
  */
-export const getAllEmployeesValidation = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getAllEmployeesValidation = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { filter } = req.query;
 
     // Get all employees
@@ -382,8 +342,7 @@ export const getAllEmployeesValidation = async (req: Request, res: Response): Pr
 
     if (employeeError) {
       logger.error('Error fetching employees:', employeeError);
-      res.status(500).json({ error: 'Failed to fetch employees' });
-      return;
+      throw InternalServerError('Failed to fetch employees');
     }
 
     // Enrich with validation stats
@@ -417,11 +376,7 @@ export const getAllEmployeesValidation = async (req: Request, res: Response): Pr
     }
 
     res.status(200).json({ employees: enrichedEmployees });
-  } catch (error) {
-    logger.error('Error in getAllEmployeesValidation:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 /**
  * PATCH /api/admin/employees/:id/visibility
@@ -429,20 +384,17 @@ export const getAllEmployeesValidation = async (req: Request, res: Response): Pr
  * Auth: Required (admin/moderator)
  * CSRF: Required
  */
-export const toggleEmployeeVisibilityAsAdmin = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const toggleEmployeeVisibilityAsAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { isHidden, reason } = req.body;
     const userId = (req as any).user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
+      throw UnauthorizedError('Authentication required');
     }
 
     if (typeof isHidden !== 'boolean') {
-      res.status(400).json({ error: 'isHidden must be a boolean' });
-      return;
+      throw BadRequestError('isHidden must be a boolean');
     }
 
     // Update visibility (admin can update any profile)
@@ -460,8 +412,7 @@ export const toggleEmployeeVisibilityAsAdmin = async (req: Request, res: Respons
 
     if (updateError) {
       logger.error('Error updating employee visibility (admin):', updateError);
-      res.status(500).json({ error: 'Failed to update visibility' });
-      return;
+      throw InternalServerError('Failed to update visibility');
     }
 
     logger.info(`Admin ${userId} set employee ${employeeId} visibility to ${isHidden}`);
@@ -470,11 +421,7 @@ export const toggleEmployeeVisibilityAsAdmin = async (req: Request, res: Respons
       isHidden,
       reason
     });
-  } catch (error) {
-    logger.error('Error in toggleEmployeeVisibilityAsAdmin:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+});
 
 // ============================================
 // HELPER FUNCTIONS

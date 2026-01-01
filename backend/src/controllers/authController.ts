@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { generateCSRFToken } from '../middleware/csrf'; // 🔧 Import for token regeneration
 import { escapeLikeWildcards } from '../utils/validation'; // 🔧 FIX S1
 import { revokeAllUserTokens } from '../middleware/refreshToken'; // 🔧 Token rotation
+import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 
 // Cookie security configuration (shared with server.ts)
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -192,42 +193,29 @@ const sanitizeInput = (input: string): string => {
   return input.trim().toLowerCase();
 };
 
-export const register = async (req: Request, res: Response) => {
-  try {
+export const register = asyncHandler(async (req: Request, res: Response) => {
     const { pseudonym, email, password, account_type } = req.body;
 
     // Input validation
     if (!pseudonym || !email || !password) {
-      return res.status(400).json({
-        error: 'Pseudonym, email and password are required',
-        code: 'MISSING_FIELDS'
-      });
+      throw BadRequestError('Pseudonym, email and password are required');
     }
 
     // Validate pseudonym
     if (!validatePseudonym(pseudonym)) {
-      return res.status(400).json({
-        error: 'Pseudonym must be 3-50 characters, alphanumeric with dash/underscore only',
-        code: 'INVALID_PSEUDONYM'
-      });
+      throw BadRequestError('Pseudonym must be 3-50 characters, alphanumeric with dash/underscore only');
     }
 
     // Validate email
     const sanitizedEmail = sanitizeInput(email);
     if (!validateEmail(sanitizedEmail)) {
-      return res.status(400).json({
-        error: 'Invalid email format',
-        code: 'INVALID_EMAIL'
-      });
+      throw BadRequestError('Invalid email format');
     }
 
     // Validate password
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
-      return res.status(400).json({
-        error: passwordValidation.message,
-        code: 'INVALID_PASSWORD'
-      });
+      throw BadRequestError(passwordValidation.message || 'Invalid password');
     }
 
     // 🔒 SECURITY: Check if password has been breached (warning only, not blocking)
@@ -255,10 +243,7 @@ export const register = async (req: Request, res: Response) => {
 
     if (existingUsers && existingUsers.length > 0) {
       const conflictType = existingUsers.some(u => u.email === sanitizedEmail) ? 'email' : 'pseudonym';
-      return res.status(409).json({
-        error: `User with this ${conflictType} already exists`,
-        code: 'USER_EXISTS'
-      });
+      throw ConflictError(`User with this ${conflictType} already exists`);
     }
 
     // Hash password with secure rounds
@@ -281,10 +266,7 @@ export const register = async (req: Request, res: Response) => {
 
     if (error) {
       logger.error('User creation error:', error);
-      return res.status(400).json({
-        error: 'Failed to create user',
-        code: 'CREATION_FAILED'
-      });
+      throw BadRequestError('Failed to create user');
     }
 
     // 🔧 ROLLBACK FIX: Wrap post-creation steps in try-catch to rollback user if anything fails
@@ -307,7 +289,7 @@ export const register = async (req: Request, res: Response) => {
         logger.error('Failed to initialize user_points:', pointsError);
         // Rollback: delete user if user_points creation fails
         await supabase.from('users').delete().eq('id', user.id);
-        return res.status(500).json({ error: 'Failed to initialize user gamification data' });
+        throw InternalServerError('Failed to initialize user gamification data');
       }
 
       logger.debug('✅ user_points initialized for new user:', user.id);
@@ -321,7 +303,7 @@ export const register = async (req: Request, res: Response) => {
         // Rollback: delete user and user_points if JWT_SECRET is missing
         await supabase.from('user_points').delete().eq('user_id', user.id);
         await supabase.from('users').delete().eq('id', user.id);
-        return res.status(500).json({ error: 'Server configuration error' });
+        throw InternalServerError('Server configuration error');
       }
 
       const token = jwt.sign(
@@ -394,38 +376,20 @@ export const register = async (req: Request, res: Response) => {
       logger.error('Post-creation error, rolling back user:', postCreationError);
       await supabase.from('users').delete().eq('id', user.id);
 
-      return res.status(500).json({
-        error: 'Registration failed. Please try again.',
-        code: 'POST_CREATION_FAILED'
-      });
+      throw InternalServerError('Registration failed. Please try again.');
     }
+});
 
-  } catch (error) {
-    logger.error('Registration error:', error);
-    return res.status(500).json({
-      error: 'Registration failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
-
-export const login = async (req: Request, res: Response) => {
-  try {
+export const login = asyncHandler(async (req: Request, res: Response) => {
     const { login, password } = req.body; // login can be pseudonym or email
 
     // Input validation
     if (!login || !password) {
-      return res.status(400).json({
-        error: 'Login and password are required',
-        code: 'MISSING_FIELDS'
-      });
+      throw BadRequestError('Login and password are required');
     }
 
     if (typeof login !== 'string' || typeof password !== 'string') {
-      return res.status(400).json({
-        error: 'Invalid input types',
-        code: 'INVALID_INPUT'
-      });
+      throw BadRequestError('Invalid input types');
     }
 
     const sanitizedLogin = sanitizeInput(login);
@@ -443,10 +407,7 @@ export const login = async (req: Request, res: Response) => {
     if (error || !users || users.length === 0) {
       // Use constant time delay to prevent timing attacks
       await new Promise(resolve => setTimeout(resolve, 100));
-      return res.status(401).json({
-        error: 'Invalid credentials',
-        code: 'INVALID_CREDENTIALS'
-      });
+      throw UnauthorizedError('Invalid credentials');
     }
 
     const user = users[0];
@@ -456,10 +417,7 @@ export const login = async (req: Request, res: Response) => {
     if (!validPassword) {
       // Use constant time delay to prevent timing attacks
       await new Promise(resolve => setTimeout(resolve, 100));
-      return res.status(401).json({
-        error: 'Invalid credentials',
-        code: 'INVALID_CREDENTIALS'
-      });
+      throw UnauthorizedError('Invalid credentials');
     }
 
     // Generate JWT with proper expiration
@@ -470,7 +428,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (!jwtSecret) {
       logger.error('JWT_SECRET not configured');
-      return res.status(500).json({ error: 'Server configuration error' });
+      throw InternalServerError('Server configuration error');
     }
 
     const token = jwt.sign(
@@ -541,24 +499,12 @@ export const login = async (req: Request, res: Response) => {
         csrfToken: freshCsrfToken
       });
     });
+});
 
-  } catch (error) {
-    logger.error('Login error:', error);
-    return res.status(500).json({
-      error: 'Login failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
-
-export const getProfile = async (req: AuthRequest, res: Response) => {
-  try {
+export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
     // User is already validated by middleware
     if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
-      });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Get full user profile with linked employee (if any)
@@ -586,10 +532,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
 
     if (error || !fullUser) {
       logger.error('Get profile error:', error);
-      return res.status(404).json({
-        error: 'User profile not found',
-        code: 'USER_NOT_FOUND'
-      });
+      throw NotFoundError('User profile not found');
     }
 
     // 🔍 DEBUG: Log what we're returning
@@ -604,42 +547,24 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
     res.json({
       user: fullUser
     });
-
-  } catch (error) {
-    logger.error('Profile error:', error);
-    return res.status(500).json({
-      error: 'Failed to get profile',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 // Password change endpoint
-export const changePassword = async (req: AuthRequest, res: Response) => {
-  try {
+export const changePassword = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { currentPassword, newPassword } = req.body;
 
     if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
-      });
+      throw UnauthorizedError('Authentication required');
     }
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({
-        error: 'Current and new password are required',
-        code: 'MISSING_FIELDS'
-      });
+      throw BadRequestError('Current and new password are required');
     }
 
     // Validate new password
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.valid) {
-      return res.status(400).json({
-        error: passwordValidation.message,
-        code: 'INVALID_PASSWORD'
-      });
+      throw BadRequestError(passwordValidation.message || 'Invalid password');
     }
 
     // 🔒 SECURITY: Check if new password has been breached (warning only, not blocking)
@@ -660,19 +585,13 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
       .single();
 
     if (fetchError || !userData) {
-      return res.status(401).json({
-        error: 'User not found',
-        code: 'USER_NOT_FOUND'
-      });
+      throw UnauthorizedError('User not found');
     }
 
     // Verify current password
     const validCurrentPassword = await bcrypt.compare(currentPassword, userData.password);
     if (!validCurrentPassword) {
-      return res.status(401).json({
-        error: 'Current password is incorrect',
-        code: 'INVALID_CURRENT_PASSWORD'
-      });
+      throw UnauthorizedError('Current password is incorrect');
     }
 
     // Hash new password
@@ -687,29 +606,17 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     if (updateError) {
       logger.error('Password update error:', updateError);
-      return res.status(500).json({
-        error: 'Failed to update password',
-        code: 'UPDATE_FAILED'
-      });
+      throw InternalServerError('Failed to update password');
     }
 
     res.json({
       message: 'Password changed successfully',
       passwordBreached: isBreached // ⚠️ Warning flag for frontend to display
     });
-
-  } catch (error) {
-    logger.error('Change password error:', error);
-    return res.status(500).json({
-      error: 'Password change failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 // Logout endpoint to clear cookies
-export const logout = async (req: AuthRequest, res: Response) => {
-  try {
+export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
     // Clear the httpOnly cookie
     res.clearCookie('auth-token', {
       httpOnly: true,
@@ -722,14 +629,7 @@ export const logout = async (req: AuthRequest, res: Response) => {
     res.json({
       message: 'Logout successful'
     });
-  } catch (error) {
-    logger.error('Logout error:', error);
-    return res.status(500).json({
-      error: 'Logout failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 // ==========================================
 // 🔧 FIX A4: Password Reset Flow
@@ -743,16 +643,12 @@ const PASSWORD_RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000;
  * Generates a secure token and stores it in the database
  * Note: Email sending is not yet implemented - tokens are logged for manual intervention
  */
-export const forgotPassword = async (req: Request, res: Response) => {
-  try {
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
 
     // Validate email
     if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        error: 'Valid email address is required',
-        code: 'INVALID_EMAIL'
-      });
+      throw BadRequestError('Valid email address is required');
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -769,10 +665,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
       logger.info('Password reset requested for non-existent email', {
         email: normalizedEmail
       });
-      return res.json({
+      res.json({
         message: 'If an account exists with this email, you will receive password reset instructions.',
         code: 'RESET_REQUESTED'
       });
+      return;
     }
 
     // Generate secure reset token
@@ -794,10 +691,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         userId: user.id,
         error: updateError.message
       });
-      return res.status(500).json({
-        error: 'Failed to process password reset request',
-        code: 'INTERNAL_ERROR'
-      });
+      throw InternalServerError('Failed to process password reset request');
     }
 
     // Log reset token for manual email (until email service is configured)
@@ -817,45 +711,28 @@ export const forgotPassword = async (req: Request, res: Response) => {
       // In development, include token for testing (remove in production)
       ...(NODE_ENV === 'development' && { _devToken: resetToken })
     });
-  } catch (error) {
-    logger.error('Password reset request failed:', error);
-    return res.status(500).json({
-      error: 'Password reset request failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 /**
  * Reset password with token
  * Validates the token and updates the user's password
  */
-export const resetPassword = async (req: Request, res: Response) => {
-  try {
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
     const { token, newPassword } = req.body;
 
     // Validate inputs
     if (!token || typeof token !== 'string') {
-      return res.status(400).json({
-        error: 'Reset token is required',
-        code: 'MISSING_TOKEN'
-      });
+      throw BadRequestError('Reset token is required');
     }
 
     if (!newPassword) {
-      return res.status(400).json({
-        error: 'New password is required',
-        code: 'MISSING_PASSWORD'
-      });
+      throw BadRequestError('New password is required');
     }
 
     // Validate new password strength
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.valid) {
-      return res.status(400).json({
-        error: passwordValidation.message,
-        code: 'WEAK_PASSWORD'
-      });
+      throw BadRequestError(passwordValidation.message || 'Weak password');
     }
 
     // Hash the provided token
@@ -872,10 +749,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       logger.warn('Invalid password reset token used', {
         tokenHashPrefix: tokenHash.substring(0, 8)
       });
-      return res.status(400).json({
-        error: 'Invalid or expired reset token',
-        code: 'INVALID_TOKEN'
-      });
+      throw BadRequestError('Invalid or expired reset token');
     }
 
     // Check if token has expired
@@ -884,10 +758,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         userId: user.id,
         expiredAt: user.password_reset_expires
       });
-      return res.status(400).json({
-        error: 'Reset token has expired. Please request a new password reset.',
-        code: 'TOKEN_EXPIRED'
-      });
+      throw BadRequestError('Reset token has expired. Please request a new password reset.');
     }
 
     // Hash the new password
@@ -908,10 +779,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         userId: user.id,
         error: updateError.message
       });
-      return res.status(500).json({
-        error: 'Failed to reset password',
-        code: 'INTERNAL_ERROR'
-      });
+      throw InternalServerError('Failed to reset password');
     }
 
     logger.info('Password reset successfully', {
@@ -923,14 +791,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       message: 'Password has been reset successfully. You can now log in with your new password.',
       code: 'PASSWORD_RESET_SUCCESS'
     });
-  } catch (error) {
-    logger.error('Password reset failed:', error);
-    return res.status(500).json({
-      error: 'Password reset failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 // ==========================================
 // 🔧 Phase 9: Real-time Availability Check
@@ -943,16 +804,12 @@ export const resetPassword = async (req: Request, res: Response) => {
  * Used for real-time validation during registration
  * Rate limited separately (more permissive than auth endpoints)
  */
-export const checkAvailability = async (req: Request, res: Response) => {
-  try {
+export const checkAvailability = asyncHandler(async (req: Request, res: Response) => {
     const { pseudonym, email } = req.query;
 
     // At least one field must be provided
     if (!pseudonym && !email) {
-      return res.status(400).json({
-        error: 'At least one of pseudonym or email must be provided',
-        code: 'MISSING_FIELD'
-      });
+      throw BadRequestError('At least one of pseudonym or email must be provided');
     }
 
     const result: {
@@ -1003,14 +860,7 @@ export const checkAvailability = async (req: Request, res: Response) => {
     }
 
     res.json(result);
-  } catch (error) {
-    logger.error('Check availability error:', error);
-    return res.status(500).json({
-      error: 'Failed to check availability',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
 
 // ==========================================
 // 🔧 v10.3: Logout All Devices
@@ -1020,23 +870,16 @@ export const checkAvailability = async (req: Request, res: Response) => {
  * Logout from all devices
  * Revokes all refresh tokens for the authenticated user
  */
-export const logoutAll = async (req: AuthRequest, res: Response) => {
-  try {
+export const logoutAll = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
-      });
+      throw UnauthorizedError('Authentication required');
     }
 
     // Revoke all refresh tokens for this user
     const success = await revokeAllUserTokens(req.user.id);
 
     if (!success) {
-      return res.status(500).json({
-        error: 'Failed to logout from all devices',
-        code: 'REVOCATION_FAILED'
-      });
+      throw InternalServerError('Failed to logout from all devices');
     }
 
     // Clear cookies
@@ -1064,12 +907,4 @@ export const logoutAll = async (req: AuthRequest, res: Response) => {
     res.json({
       message: 'Successfully logged out from all devices'
     });
-
-  } catch (error) {
-    logger.error('Logout all error:', error);
-    return res.status(500).json({
-      error: 'Logout failed',
-      code: 'INTERNAL_ERROR'
-    });
-  }
-};
+});
