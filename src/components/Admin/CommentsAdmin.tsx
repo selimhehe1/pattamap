@@ -134,7 +134,11 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const toggleSelect = (commentId: number) => {
     setSelectedIds(prev => {
       const newSet = new Set(prev);
-      newSet.has(commentId) ? newSet.delete(commentId) : newSet.add(commentId);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
       return newSet;
     });
   };
