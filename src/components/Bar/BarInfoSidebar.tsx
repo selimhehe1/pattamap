@@ -186,15 +186,22 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
   };
 
   const getCategoryFromIcon = (icon: string): string => {
-    switch (icon) {
-      case '🍺': return 'beer';
-      case '🍸': return 'cocktail';
-      case '🥃': return 'shot';
-      case '🥂': case '🍾': return 'spirit';
-      case '🥤': return 'soft';
-      case '🍷': return 'wine';
-      default: return 'other';
-    }
+    // Handle both old emoji format and new category key format
+    const emojiMap: Record<string, string> = {
+      '🍺': 'beer',
+      '🍸': 'cocktail',
+      '🥃': 'shot',
+      '🥂': 'spirit',
+      '🍾': 'spirit',
+      '🥤': 'soft',
+      '🍷': 'wine',
+    };
+    // Check if it's an emoji
+    if (emojiMap[icon]) return emojiMap[icon];
+    // Check if it's already a valid category key
+    const validCategories = ['beer', 'cocktail', 'shot', 'spirit', 'soft', 'wine'];
+    if (validCategories.includes(icon)) return icon;
+    return 'other';
   };
 
   // Process consumables with templates
@@ -332,10 +339,10 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
                     <option value="">{t('barInfoSidebar.buttons.add')}</option>
                     {Object.entries(consumableTemplates)
                       .filter(([category]) => category !== 'service')
-                      .map(([_category, templates]) =>
+                      .map(([category, templates]) =>
                         templates.map(template => (
                           <option key={template.id} value={template.id}>
-                            {template.icon} {template.name}
+                            [{category}] {template.name}
                           </option>
                         ))
                       )}

@@ -301,6 +301,10 @@
   -webkit-backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 8px; /* Réduit de 12px */
+  /* Fix débordement horizontal */
+  width: calc(100% - 16px); /* 100% moins padding horizontal du parent overlay (8px * 2) */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Optimisation quand pas de VIP - réduit encore le padding bas */
@@ -314,6 +318,9 @@
   gap: 8px; /* Réduit de 12px */
   align-items: flex-start;
   margin-bottom: 3px; /* Réduit de 6px */
+  /* Fix débordement */
+  width: 100%;
+  min-width: 0; /* Permet le shrinking en flexbox */
 }
 
 /* Left column: Name + Nickname */
@@ -322,6 +329,9 @@
   display: flex;
   flex-direction: column;
   gap: 1px; /* Réduit de 2px */
+  /* Fix débordement */
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Right column: Details stacked vertically */
@@ -332,6 +342,9 @@
   gap: 2px; /* Réduit de 4px */
   align-items: flex-end;
   text-align: right;
+  /* Fix débordement */
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Nickname style */
@@ -354,6 +367,11 @@
   display: flex;
   align-items: center;
   gap: 6px; /* Réduit de 8px */
+  /* Fix débordement texte long */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Verified Badge - Badge supprimé (non utilisé dans l'encadré noir) */
@@ -372,6 +390,11 @@
   gap: 4px;
   font-size: 11px; /* Réduit de 13px */
   color: var(--text-primary);
+  /* Fix débordement texte long (nationalité, etc.) */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .employee-card-icon {
@@ -391,7 +414,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 120px; /* Limite la largeur pour éviter débordement */
+  max-width: 100%; /* Responsive - adapte à la largeur disponible */
 }
 
 .employee-card-rating {

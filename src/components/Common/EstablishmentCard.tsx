@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Users } from 'lucide-react';
+import { Building2, MapPin, Users, Beer, Sparkles, Music, Heart, Mic, UtensilsCrossed, Hotel, PartyPopper } from 'lucide-react';
 import { use3DTilt } from '../../hooks/use3DTilt';
 import LazyImage from './LazyImage';
 import { Establishment } from '../../types';
@@ -16,18 +16,23 @@ interface EstablishmentCardProps {
   variant?: 'default' | 'compact' | 'featured';
 }
 
-// Category icons/emojis
-const categoryIcons: Record<string, string> = {
-  bar: '🍺',
-  'go-go': '💃',
-  agogo: '💃',
-  club: '🎵',
-  massage: '💆',
-  restaurant: '🍽️',
-  hotel: '🏨',
-  karaoke: '🎤',
-  beer_bar: '🍻',
-  gentleman_club: '🎩',
+// Category icons - Lucide React components
+const getCategoryIconComponent = (category: string): React.ReactNode => {
+  const key = category?.toLowerCase() || '';
+  const icons: Record<string, React.ReactNode> = {
+    bar: <Beer size={14} />,
+    'go-go': <Sparkles size={14} />,
+    agogo: <Sparkles size={14} />,
+    gogo: <Sparkles size={14} />,
+    club: <Music size={14} />,
+    massage: <Heart size={14} />,
+    restaurant: <UtensilsCrossed size={14} />,
+    hotel: <Hotel size={14} />,
+    karaoke: <Mic size={14} />,
+    beer_bar: <Beer size={14} />,
+    gentleman_club: <PartyPopper size={14} />,
+  };
+  return icons[key] || <Building2 size={14} />;
 };
 
 /**
@@ -59,11 +64,7 @@ export const EstablishmentCard = memo<EstablishmentCardProps>(
 
     // Get category display
     const categoryName = establishment.category?.name || 'Establishment';
-    const categoryIcon =
-      establishment.category?.icon ||
-      categoryIcons[categoryName.toLowerCase()] ||
-      categoryIcons[establishment.category_id?.toString() || ''] ||
-      '🏢';
+    const categoryIcon = getCategoryIconComponent(categoryName);
 
     // Get zone display name (using centralized getZoneLabel)
     const zoneName = establishment.zone

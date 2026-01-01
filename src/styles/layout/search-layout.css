@@ -637,7 +637,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 
 .search-hero {
   position: relative;
-  padding: 3rem 1.5rem 2rem;
+  padding: 6rem 1.5rem 2rem; /* Increased from 3rem to clear fixed header */
   overflow: visible; /* Phase 3.6: Allow sparkles to display outside container */
   text-align: center;
 }
@@ -877,7 +877,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 
 @media (max-width: 768px) {
   .search-hero {
-    padding: 2rem 1rem 1.5rem;
+    padding: 5rem 1rem 1.5rem; /* Increased from 2rem to clear fixed header */
   }
 
   .search-icon-container {
@@ -919,7 +919,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 
 @media (max-width: 480px) {
   .search-hero {
-    padding: 1.5rem 1rem;
+    padding: 4.5rem 1rem; /* Increased from 1.5rem to clear fixed header */
   }
 
   .search-icon-container {

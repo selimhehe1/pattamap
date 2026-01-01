@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DollarSign, Gem, Pencil, Trash2, Lightbulb } from 'lucide-react';
+import { DollarSign, Gem, Pencil, Trash2, Lightbulb, Beer, Plus, Hotel, FolderOpen, Wine, Martini, CupSoda, GlassWater } from 'lucide-react';
 import { ConsumableTemplate } from '../../../types';
 import '../../../styles/components/establishment-ui.css';
 
@@ -48,6 +48,20 @@ const PricingForm: React.FC<PricingFormProps> = ({
   const { t } = useTranslation();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editPrice, setEditPrice] = useState<string>('');
+
+  // Render consumable icon based on category or icon key
+  const renderConsumableIcon = (icon: string | undefined, size = 14): React.ReactNode => {
+    const key = icon?.toLowerCase() || '';
+    const icons: Record<string, React.ReactNode> = {
+      beer: <Beer size={size} />,
+      shot: <Wine size={size} />,
+      cocktail: <Martini size={size} />,
+      spirit: <Wine size={size} />,
+      wine: <GlassWater size={size} />,
+      soft: <CupSoda size={size} />,
+    };
+    return icons[key] || <Beer size={size} />;
+  };
 
   // Détermine si les options "special pricing" doivent être affichées
   // Afficher par défaut (catégorie vide) et pour Bar/GoGo Bar
@@ -102,7 +116,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
 
       {/* Consommations */}
       <div style={{ marginBottom: '15px' }}>
-        <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>🍺 {t('establishment.pricing.consumablesTitle')}</h4>
+        <h4 className="text-cyan-nightlife" style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}><Beer size={14} /> {t('establishment.pricing.consumablesTitle')}</h4>
 
         <div style={{ marginBottom: '12px' }}>
           <label style={{
@@ -164,10 +178,10 @@ const PricingForm: React.FC<PricingFormProps> = ({
                     return groups;
                   }, [])
                   .map(group => (
-                    <optgroup key={group.category} label={`📂 ${group.displayName}`}>
+                    <optgroup key={group.category} label={`[${group.displayName}]`}>
                       {group.templates.map((template) => (
                         <option key={template.id} value={template.id.toString()}>
-                          {template.icon} {template.name} ({t('establishment.pricing.defaultLabel')}: {template.default_price}฿)
+                          {template.name} ({t('establishment.pricing.defaultLabel')}: {template.default_price}฿)
                         </option>
                       ))}
                     </optgroup>
@@ -221,7 +235,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 backdropFilter: 'blur(10px)'
               }}
              aria-label="Add">
-              ➕
+              <Plus size={16} />
             </button>
           </div>
         </div>
@@ -255,8 +269,8 @@ const PricingForm: React.FC<PricingFormProps> = ({
                       backgroundColor: index % 2 === 0 ? 'rgba(0,255,255,0.1)' : 'transparent'
                     }}
                   >
-                    <span style={{ fontSize: '14px', color: 'white', fontWeight: '500' }}>
-                      {template?.icon} {template?.name}
+                    <span style={{ fontSize: '14px', color: 'white', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {renderConsumableIcon(template?.icon || template?.category)} {template?.name}
                     </span>
                     <div className="consumable-actions-nightlife">
                       {editingIndex === index ? (
@@ -451,11 +465,11 @@ const PricingForm: React.FC<PricingFormProps> = ({
       {/* Chambres - Uniquement pour Bar et GoGo Bar */}
       {shouldShowSpecialPricing && (
         <div>
-          <h4 className="text-cyan-nightlife" style={{ marginBottom: '15px', fontSize: '14px', fontWeight: '600' }}>🏨 {t('establishment.pricing.roomsTitle')}</h4>
+          <h4 className="text-cyan-nightlife" style={{ marginBottom: '15px', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}><Hotel size={14} /> {t('establishment.pricing.roomsTitle')}</h4>
 
           <div className="rooms-toggle-container-nightlife">
             <div className="rooms-toggle-label-nightlife">
-              <span>🏨</span>
+              <Hotel size={16} />
               <span>{t('establishment.pricing.roomsAvailableLabel')}</span>
             </div>
             <div

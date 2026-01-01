@@ -4,9 +4,12 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { ConsumableTemplate } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import { logger } from '../../utils/logger';
-import { getCategoryIcon } from '../../utils/iconMapper';
 import {
   Beer,
+  Wine,
+  Martini,
+  CupSoda,
+  GlassWater,
   X,
   Plus,
   Pencil,
@@ -14,6 +17,19 @@ import {
   CheckCircle,
   Trash2
 } from 'lucide-react';
+
+// Consumable category icon mapping
+const getConsumableCategoryIcon = (category: string, size = 16): React.ReactNode => {
+  const icons: Record<string, React.ReactNode> = {
+    beer: <Beer size={size} />,
+    shot: <Wine size={size} />,
+    cocktail: <Martini size={size} />,
+    spirit: <Wine size={size} />,
+    wine: <GlassWater size={size} />,
+    soft: <CupSoda size={size} />,
+  };
+  return icons[category] || <Beer size={size} />;
+};
 
 interface ConsumablesAdminProps {
   activeTab: string;
@@ -30,7 +46,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   const [formData, setFormData] = useState({
     name: '',
     category: 'beer' as 'beer' | 'shot' | 'cocktail' | 'spirit' | 'wine' | 'soft',
-    icon: '🍺',
     default_price: ''
   });
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -47,21 +62,21 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
           setConsumables(data.consumables || []);
         } else {
           const mockConsumables: ConsumableTemplate[] = [
-            { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-            { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-            { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-            { id: 'cons-004', name: 'Tequila Shot', category: 'shot', icon: '🥃', default_price: 150, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-            { id: 'cons-005', name: 'Mojito', category: 'cocktail', icon: '🍹', default_price: 200, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-            { id: 'cons-006', name: 'Whisky', category: 'spirit', icon: '🥂', default_price: 180, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
+            { id: 'cons-001', name: 'Chang', category: 'beer', icon: 'beer', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-002', name: 'Heineken', category: 'beer', icon: 'beer', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-003', name: 'Tiger', category: 'beer', icon: 'beer', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-004', name: 'Tequila Shot', category: 'shot', icon: 'shot', default_price: 150, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-005', name: 'Mojito', category: 'cocktail', icon: 'cocktail', default_price: 200, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+            { id: 'cons-006', name: 'Whisky', category: 'spirit', icon: 'spirit', default_price: 180, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
           ];
           setConsumables(mockConsumables);
         }
       } catch (error) {
         logger.error('Failed to load consumables:', error);
         const mockConsumables: ConsumableTemplate[] = [
-          { id: 'cons-001', name: 'Chang', category: 'beer', icon: '🍺', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-002', name: 'Heineken', category: 'beer', icon: '🍺', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
-          { id: 'cons-003', name: 'Tiger', category: 'beer', icon: '🍺', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
+          { id: 'cons-001', name: 'Chang', category: 'beer', icon: 'beer', default_price: 70, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+          { id: 'cons-002', name: 'Heineken', category: 'beer', icon: 'beer', default_price: 90, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' },
+          { id: 'cons-003', name: 'Tiger', category: 'beer', icon: 'beer', default_price: 80, status: 'active', created_by: 'user-001', created_at: '2024-01-01', updated_at: '2024-01-01' }
         ];
         setConsumables(mockConsumables);
       }
@@ -79,7 +94,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
     const consumableData = {
       ...formData,
-      icon: getCategoryIcon(formData.category),
+      icon: formData.category, // Store category key as icon identifier
       default_price: formData.default_price ? parseInt(formData.default_price) : undefined
     };
 
@@ -96,7 +111,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       });
 
       if (response.ok) {
-        setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
+        setFormData({ name: '', category: 'beer', default_price: '' });
         setShowAddForm(false);
         setEditingConsumable(null);
         refreshConsumables();
@@ -105,7 +120,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
       }
     } catch (error) {
       logger.error('Error saving consumable:', error);
-      setFormData({ name: '', category: 'beer', icon: '🍺', default_price: '' });
+      setFormData({ name: '', category: 'beer', default_price: '' });
       setShowAddForm(false);
       setEditingConsumable(null);
       refreshConsumables();
@@ -117,7 +132,6 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
     setFormData({
       name: consumable.name,
       category: consumable.category,
-      icon: consumable.icon,
       default_price: consumable.default_price?.toString() || ''
     });
     setShowAddForm(true);
@@ -169,12 +183,12 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
   };
 
   const categories = [
-    { key: 'beer', label: `🍺 ${t('admin.beers')}`, color: 'gold' },
-    { key: 'shot', label: `🥃 ${t('admin.shots')}`, color: 'error' },
-    { key: 'cocktail', label: `🍹 ${t('admin.cocktails')}`, color: 'cyan' },
-    { key: 'spirit', label: `🥂 ${t('admin.spirits')}`, color: 'info' },
-    { key: 'wine', label: `🍷 ${t('admin.wines')}`, color: 'success' },
-    { key: 'soft', label: `🥤 ${t('admin.softs')}`, color: 'warning' }
+    { key: 'beer', label: t('admin.beers'), icon: <Beer size={16} />, color: 'gold' },
+    { key: 'shot', label: t('admin.shots'), icon: <Wine size={16} />, color: 'error' },
+    { key: 'cocktail', label: t('admin.cocktails'), icon: <Martini size={16} />, color: 'cyan' },
+    { key: 'spirit', label: t('admin.spirits'), icon: <Wine size={16} />, color: 'info' },
+    { key: 'wine', label: t('admin.wines'), icon: <GlassWater size={16} />, color: 'success' },
+    { key: 'soft', label: t('admin.softs'), icon: <CupSoda size={16} />, color: 'warning' }
   ];
 
   if (activeTab !== 'consumables') return null;
@@ -245,12 +259,12 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                 onChange={handleInputChange}
                 className="cmd-form__select"
               >
-                <option value="beer">🍺 {t('admin.beer')}</option>
-                <option value="shot">🥃 {t('admin.shot')}</option>
-                <option value="cocktail">🍹 {t('admin.cocktail')}</option>
-                <option value="spirit">🥂 {t('admin.spirits')}</option>
-                <option value="wine">🍷 {t('admin.wine')}</option>
-                <option value="soft">🥤 {t('admin.soft')}</option>
+                <option value="beer">{t('admin.beer')}</option>
+                <option value="shot">{t('admin.shot')}</option>
+                <option value="cocktail">{t('admin.cocktail')}</option>
+                <option value="spirit">{t('admin.spirits')}</option>
+                <option value="wine">{t('admin.wine')}</option>
+                <option value="soft">{t('admin.soft')}</option>
               </select>
             </div>
 
@@ -269,7 +283,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
             <div className="cmd-form__group">
               <label className="cmd-form__label">{t('admin.preview')}</label>
               <div className="cmd-form__preview">
-                {getCategoryIcon(formData.category)}{' '}{formData.name || 'Nom'}
+                {getConsumableCategoryIcon(formData.category)}{' '}{formData.name || 'Nom'}
               </div>
             </div>
 
@@ -298,7 +312,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
           return (
             <div key={category.key} className={`cmd-card cmd-card--category cmd-card--${category.color}`}>
               <div className="cmd-card__header">
-                <h3 className="cmd-card__title">{category.label}</h3>
+                <h3 className="cmd-card__title">{category.icon} {category.label}</h3>
                 <span className={`cmd-card__badge cmd-card__badge--${category.color}`}>
                   {categoryConsumables.length}
                 </span>
@@ -314,7 +328,7 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
                     {categoryConsumables.map(consumable => (
                       <div key={consumable.id} className="cmd-consumable-item">
                         <div className="cmd-consumable-item__info">
-                          <span className="cmd-consumable-item__icon">{consumable.icon}</span>
+                          <span className="cmd-consumable-item__icon">{getConsumableCategoryIcon(consumable.category)}</span>
                           <div className="cmd-consumable-item__details">
                             <span className="cmd-consumable-item__name">{consumable.name}</span>
                             {consumable.default_price && (

@@ -4,7 +4,7 @@
  */
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil, Users, Star, MapPin, Clock } from 'lucide-react';
+import { Pencil, Users, Star, MapPin, Clock, Beer, Sparkles, Heart, Music, Mic, UtensilsCrossed, Hotel, Building2 } from 'lucide-react';
 import { Establishment } from '../../../types';
 import { getZoneLabel } from '../../../utils/constants';
 
@@ -16,21 +16,32 @@ interface BarDetailHeaderProps {
   employeeCount?: number;
 }
 
-// Category icons/names mapping
-const categoryInfo: Record<string | number, { icon: string; name: string }> = {
-  1: { icon: '🍺', name: 'Bar' },
-  2: { icon: '💃', name: 'GoGo' },
-  3: { icon: '💆', name: 'Massage' },
-  4: { icon: '🎵', name: 'Club' },
-  5: { icon: '🎤', name: 'Karaoke' },
-  6: { icon: '🍽️', name: 'Restaurant' },
-  7: { icon: '🏨', name: 'Hotel' },
-  bar: { icon: '🍺', name: 'Bar' },
-  'go-go': { icon: '💃', name: 'GoGo' },
-  agogo: { icon: '💃', name: 'GoGo' },
-  massage: { icon: '💆', name: 'Massage' },
-  club: { icon: '🎵', name: 'Club' },
-  karaoke: { icon: '🎤', name: 'Karaoke' },
+// Category icons/names mapping - using Lucide components
+const getCategoryInfo = (categoryId: number | string | undefined, categoryName: string | undefined): { icon: React.ReactNode; name: string } => {
+  const id = categoryId?.toString() || '';
+  const name = categoryName?.toLowerCase() || '';
+
+  const infoById: Record<string, { icon: React.ReactNode; name: string }> = {
+    '1': { icon: <Beer size={18} />, name: 'Bar' },
+    '2': { icon: <Sparkles size={18} />, name: 'GoGo' },
+    '3': { icon: <Heart size={18} />, name: 'Massage' },
+    '4': { icon: <Music size={18} />, name: 'Club' },
+    '5': { icon: <Mic size={18} />, name: 'Karaoke' },
+    '6': { icon: <UtensilsCrossed size={18} />, name: 'Restaurant' },
+    '7': { icon: <Hotel size={18} />, name: 'Hotel' },
+  };
+
+  const infoByName: Record<string, { icon: React.ReactNode; name: string }> = {
+    'bar': { icon: <Beer size={18} />, name: 'Bar' },
+    'go-go': { icon: <Sparkles size={18} />, name: 'GoGo' },
+    'agogo': { icon: <Sparkles size={18} />, name: 'GoGo' },
+    'gogo': { icon: <Sparkles size={18} />, name: 'GoGo' },
+    'massage': { icon: <Heart size={18} />, name: 'Massage' },
+    'club': { icon: <Music size={18} />, name: 'Club' },
+    'karaoke': { icon: <Mic size={18} />, name: 'Karaoke' },
+  };
+
+  return infoById[id] || infoByName[name] || { icon: <Building2 size={18} />, name: 'Venue' };
 };
 
 export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
@@ -49,9 +60,7 @@ export const BarDetailHeader: React.FC<BarDetailHeaderProps> = ({
   }, []);
 
   // Get category info
-  const category = categoryInfo[bar.category_id] ||
-                   categoryInfo[bar.category?.name?.toLowerCase() || ''] ||
-                   { icon: '🏢', name: 'Venue' };
+  const category = getCategoryInfo(bar.category_id, bar.category?.name);
 
   // Get zone display name
   const zoneName = bar.zone ? getZoneLabel(bar.zone) : '';

@@ -18,6 +18,12 @@ import {
   Sparkles,
   Filter,
   ArrowUpDown,
+  TreePine,
+  Waves,
+  Heart,
+  Beer,
+  Music,
+  Mic,
 } from 'lucide-react';
 import { useEstablishmentsByZone } from '../hooks/useEstablishments';
 import { getZoneLabel } from '../utils/constants';
@@ -39,17 +45,32 @@ const zoneTaglines: Record<string, string> = {
   thirdroad: 'Off the Beaten Path',
 };
 
-// Category definitions
+// Category definitions with Lucide icons
 const categories = [
-  { id: 'bar', name: 'Bar', icon: '🍺' },
-  { id: 'go-go', name: 'GoGo', icon: '💃' },
-  { id: 'massage', name: 'Massage', icon: '💆' },
-  { id: 'club', name: 'Club', icon: '🎵' },
-  { id: 'karaoke', name: 'Karaoke', icon: '🎤' },
+  { id: 'bar', name: 'Bar', icon: <Beer size={16} /> },
+  { id: 'go-go', name: 'GoGo', icon: <Sparkles size={16} /> },
+  { id: 'massage', name: 'Massage', icon: <Heart size={16} /> },
+  { id: 'club', name: 'Club', icon: <Music size={16} /> },
+  { id: 'karaoke', name: 'Karaoke', icon: <Mic size={16} /> },
 ];
 
 // Sort options
 type SortOption = 'name' | 'employees' | 'recent';
+
+// Zone icon mapping - matches homepage ZoneGrid icons
+const getZoneIcon = (zoneId: string): React.ReactNode => {
+  const iconProps = { className: 'zone-icon' };
+  const icons: Record<string, React.ReactNode> = {
+    soi6: <Users {...iconProps} />,
+    walkingstreet: <Sparkles {...iconProps} />,
+    lkmetro: <Building2 {...iconProps} />,
+    treetown: <TreePine {...iconProps} />,
+    soibuakhao: <MapPin {...iconProps} />,
+    beachroad: <Waves {...iconProps} />,
+    freelance: <Heart {...iconProps} />,
+  };
+  return icons[zoneId] || <MapPin {...iconProps} />;
+};
 
 const EstablishmentsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -143,9 +164,9 @@ const EstablishmentsPage: React.FC = () => {
         <div className="zone-hero-glow" />
 
         <div className="zone-hero-content">
-          {/* Zone Icon */}
+          {/* Zone Icon - Dynamic based on zone */}
           <div className="zone-icon-container">
-            <MapPin className="zone-icon" />
+            {getZoneIcon(zone)}
             <Sparkles className="zone-sparkle zone-sparkle-1" />
             <Sparkles className="zone-sparkle zone-sparkle-2" />
           </div>

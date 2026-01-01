@@ -89,6 +89,17 @@
   transform: translateY(-2px);
 }
 
+/* Zone Card Icon Animations */
+@keyframes zoneIconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes zoneIconPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(232, 121, 249, 0.3); }
+  50% { box-shadow: 0 8px 30px rgba(232, 121, 249, 0.5); }
+}
+
 /* Zone Card Icon */
 .zone-card-icon {
   flex-shrink: 0;
@@ -100,6 +111,15 @@
   background: var(--zone-gradient, linear-gradient(135deg, #E879F9 0%, #00E5FF 100%));
   border-radius: var(--border-radius-md, 12px);
   color: white;
+  animation:
+    zoneIconFloat 3s ease-in-out infinite,
+    zoneIconPulse 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.zone-card:hover .zone-card-icon {
+  animation-play-state: paused;
+  transform: scale(1.1);
 }
 
 /* Zone Card Content */
@@ -275,4 +295,19 @@ body[data-theme="light"] .zone-search-all-btn {
 body[data-theme="light"] .zone-search-all-btn:hover {
   background: rgba(180, 83, 9, 0.1);
   border-color: rgba(180, 83, 9, 0.6);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .zone-card-icon {
+    animation: none;
+  }
+
+  .zone-card,
+  .zone-card:hover .zone-card-icon {
+    transition: none;
+  }
 }

@@ -947,7 +947,17 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
 
         // Verify the operation was successful
         if (newEmployment && !empError) {
-          logger.debug(`✅ Employment updated successfully for employee ${realUuid}`);
+          // Update the current_establishment_id in the employees table
+          const { error: updateEstError } = await supabase
+            .from('employees')
+            .update({ current_establishment_id: establishmentUuid })
+            .eq('id', realUuid);
+
+          if (updateEstError) {
+            logger.error('❌ Error updating current_establishment_id:', updateEstError);
+          } else {
+            logger.debug(`✅ Employee ${realUuid} establishment updated to ${establishmentUuid}`);
+          }
         }
       }
     }
