@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middleware/auth';
 import {
   getComments,
@@ -11,6 +11,9 @@ import {
   updateUserRating
 } from '../commentController';
 import { logger } from '../../utils/logger';
+
+// Mock next function for asyncHandler wrapped controllers
+const mockNext: NextFunction = jest.fn();
 
 // Import mock helpers
 import { createMockQueryBuilder, mockSuccess, mockNotFound } from '../../config/__mocks__/supabase';
@@ -104,7 +107,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getComments(mockRequest as AuthRequest, mockResponse as Response);
+      await getComments(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         comments: expect.arrayContaining([
@@ -125,7 +128,7 @@ describe('CommentController', () => {
     it('should return 400 if employee_id is missing', async () => {
       mockRequest.query = {}; // No employee_id
 
-      await getComments(mockRequest as AuthRequest, mockResponse as Response);
+      await getComments(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Employee ID is required' });
@@ -149,7 +152,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getComments(mockRequest as AuthRequest, mockResponse as Response);
+      await getComments(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Erreur lors de la récupération des données' });
@@ -201,7 +204,7 @@ describe('CommentController', () => {
         })
       });
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -261,7 +264,7 @@ describe('CommentController', () => {
         })
       });
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(201);
     });
@@ -269,7 +272,7 @@ describe('CommentController', () => {
     it('should return 400 for missing required fields', async () => {
       mockRequest.body = { employee_id: 'emp-1' }; // Missing content
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -284,7 +287,7 @@ describe('CommentController', () => {
         rating: 6 // Invalid rating
       };
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -311,7 +314,7 @@ describe('CommentController', () => {
         })
       });
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -345,13 +348,14 @@ describe('CommentController', () => {
         createMockQueryBuilder(mockSuccess([{ id: 'existing-rating', rating: 5 }]))
       );
 
-      await createComment(mockRequest as AuthRequest, mockResponse as Response);
+      await createComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: expect.stringContaining('already rated'),
-        existing_rating: 5
-      });
+      expect(statusMock).toHaveBeenCalledWith(409);
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.stringContaining('already')
+        })
+      );
     });
   });
 
@@ -393,7 +397,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateComment(mockRequest as AuthRequest, mockResponse as Response);
+      await updateComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Comment updated successfully',
@@ -446,7 +450,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateComment(mockRequest as AuthRequest, mockResponse as Response);
+      await updateComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Comment updated successfully',
@@ -480,7 +484,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateComment(mockRequest as AuthRequest, mockResponse as Response);
+      await updateComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(403);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -503,7 +507,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateComment(mockRequest as AuthRequest, mockResponse as Response);
+      await updateComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Comment not found' });
@@ -535,7 +539,7 @@ describe('CommentController', () => {
         })
       });
 
-      await deleteComment(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Comment deleted successfully'
@@ -573,7 +577,7 @@ describe('CommentController', () => {
         })
       });
 
-      await deleteComment(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Comment deleted successfully'
@@ -602,7 +606,7 @@ describe('CommentController', () => {
         })
       });
 
-      await deleteComment(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(403);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -665,7 +669,7 @@ describe('CommentController', () => {
         })
       });
 
-      await reportComment(mockRequest as AuthRequest, mockResponse as Response);
+      await reportComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -678,7 +682,7 @@ describe('CommentController', () => {
       mockRequest.params = { id: 'comment-1' };
       mockRequest.body = { description: 'Some description' }; // Missing reason
 
-      await reportComment(mockRequest as AuthRequest, mockResponse as Response);
+      await reportComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Reason is required' });
@@ -699,7 +703,7 @@ describe('CommentController', () => {
         })
       });
 
-      await reportComment(mockRequest as AuthRequest, mockResponse as Response);
+      await reportComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Comment not found' });
@@ -735,12 +739,14 @@ describe('CommentController', () => {
         })
       });
 
-      await reportComment(mockRequest as AuthRequest, mockResponse as Response);
+      await reportComment(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'You have already reported this comment'
-      });
+      expect(statusMock).toHaveBeenCalledWith(409);
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.stringContaining('already')
+        })
+      );
     });
   });
 
@@ -768,7 +774,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getEmployeeRatings(mockRequest as AuthRequest, mockResponse as Response);
+      await getEmployeeRatings(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         average_rating: 4.25, // (5+5+4+3)/4
@@ -800,7 +806,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getEmployeeRatings(mockRequest as AuthRequest, mockResponse as Response);
+      await getEmployeeRatings(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         average_rating: null,
@@ -847,7 +853,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await getUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         user_rating: mockRating
@@ -876,7 +882,7 @@ describe('CommentController', () => {
         })
       });
 
-      await getUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await getUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         user_rating: null
@@ -940,7 +946,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Rating added successfully',
@@ -1005,7 +1011,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Rating updated successfully',
@@ -1017,7 +1023,7 @@ describe('CommentController', () => {
       mockRequest.params = { employee_id: 'emp-1' };
       mockRequest.body = { rating: 6 }; // Invalid rating
 
-      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -1042,7 +1048,7 @@ describe('CommentController', () => {
         })
       });
 
-      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response);
+      await updateUserRating(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({

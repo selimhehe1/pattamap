@@ -315,7 +315,7 @@ describe('VIP Admin Verification Tests', () => {
         })
         .expect(400);
 
-      expect(response.body.error).toContain('already verified');
+      expect(response.body.error).toContain('already');
     });
 
     it('should populate admin audit fields (admin_verified_by, admin_verified_at, admin_notes)', async () => {

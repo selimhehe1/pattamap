@@ -66,6 +66,7 @@ import { supabase } from '../../config/supabase';
 describe('ModerationController', () => {
   let mockRequest: Partial<AuthRequest>;
   let mockResponse: Partial<Response>;
+  let mockNext: jest.Mock;
   let jsonMock: jest.Mock;
   let statusMock: jest.Mock;
 
@@ -74,6 +75,7 @@ describe('ModerationController', () => {
 
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+    mockNext = jest.fn();
 
     mockRequest = {
       query: {},
@@ -133,7 +135,7 @@ describe('ModerationController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([mockEstablishment])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
 
-      await getModerationQueue(mockRequest as AuthRequest, mockResponse as Response);
+      await getModerationQueue(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         moderationItems: expect.arrayContaining([
@@ -156,7 +158,7 @@ describe('ModerationController', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getModerationQueue(mockRequest as AuthRequest, mockResponse as Response);
+      await getModerationQueue(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ moderationItems: [] });
     });
@@ -190,7 +192,7 @@ describe('ModerationController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockQueueItem, status: 'approved' })))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployment)));
 
-      await approveItem(mockRequest as AuthRequest, mockResponse as Response);
+      await approveItem(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Item approved successfully',
@@ -205,7 +207,7 @@ describe('ModerationController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await approveItem(mockRequest as AuthRequest, mockResponse as Response);
+      await approveItem(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Moderation item not found' });
@@ -235,7 +237,7 @@ describe('ModerationController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'emp-1', status: 'rejected' })))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockQueueItem, status: 'rejected' })));
 
-      await rejectItem(mockRequest as AuthRequest, mockResponse as Response);
+      await rejectItem(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Item rejected successfully',
@@ -247,7 +249,7 @@ describe('ModerationController', () => {
       mockRequest.params = { id: 'mod-1' };
       mockRequest.body = {}; // No moderator_notes provided
 
-      await rejectItem(mockRequest as AuthRequest, mockResponse as Response);
+      await rejectItem(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Moderator notes are required for rejection' });
@@ -266,7 +268,7 @@ describe('ModerationController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(7).fill({ id: 'x' }))))   // establishments: 7
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(Array(3).fill({ id: 'x' }))));  // comments: 3
 
-      await getModerationStats(mockRequest as AuthRequest, mockResponse as Response);
+      await getModerationStats(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         stats: {
@@ -288,7 +290,7 @@ describe('ModerationController', () => {
         throw new Error('Database connection failed');
       });
 
-      await getModerationStats(mockRequest as AuthRequest, mockResponse as Response);
+      await getModerationStats(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -322,7 +324,7 @@ describe('ModerationController', () => {
         createMockQueryBuilder(mockSuccess(mockReports))
       );
 
-      await getReports(mockRequest as AuthRequest, mockResponse as Response);
+      await getReports(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         reports: expect.arrayContaining([
@@ -337,7 +339,7 @@ describe('ModerationController', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getReports(mockRequest as AuthRequest, mockResponse as Response);
+      await getReports(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ reports: [] });
     });
@@ -359,7 +361,7 @@ describe('ModerationController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockReport)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ ...mockReport, status: 'resolved' })));
 
-      await resolveReport(mockRequest as AuthRequest, mockResponse as Response);
+      await resolveReport(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Report resolved successfully. Comment kept.',
@@ -375,7 +377,7 @@ describe('ModerationController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await resolveReport(mockRequest as AuthRequest, mockResponse as Response);
+      await resolveReport(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Report not found' });

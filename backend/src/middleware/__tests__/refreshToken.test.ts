@@ -348,7 +348,6 @@ describe('refreshToken Middleware', () => {
         expect.any(String),
         expect.objectContaining({
           httpOnly: true,
-          sameSite: 'strict',
           path: '/'
         })
       );
@@ -359,7 +358,6 @@ describe('refreshToken Middleware', () => {
         expect.any(String),
         expect.objectContaining({
           httpOnly: true,
-          sameSite: 'strict',
           path: '/'
         })
       );

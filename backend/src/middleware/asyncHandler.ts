@@ -41,32 +41,35 @@ type AsyncRequestHandler = (
 /**
  * Wrapper pour les controllers async
  * Catch les erreurs et les passe au middleware d'erreur
+ * Returns the Promise so tests can await the handler
  */
 export const asyncHandler = (fn: AsyncRequestHandler): RequestHandler => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    Promise.resolve(fn(req, res, next)).catch((error: Error) => {
-      logger.error(`❌ Controller error [${req.method} ${req.path}]:`, error);
+  return (req: Request, res: Response, next: NextFunction) => {
+    return Promise.resolve(fn(req, res, next))
+      .then(() => {})
+      .catch((error: Error) => {
+        logger.error(`❌ Controller error [${req.method} ${req.path}]:`, error);
 
-      // Si la réponse n'a pas encore été envoyée
-      if (!res.headersSent) {
-        // Erreur personnalisée avec status code
-        if ('statusCode' in error && typeof (error as { statusCode: number }).statusCode === 'number') {
-          res.status((error as { statusCode: number }).statusCode).json({
-            error: error.message || 'An error occurred',
+        // Si la réponse n'a pas encore été envoyée
+        if (!res.headersSent) {
+          // Erreur personnalisée avec status code
+          if ('statusCode' in error && typeof (error as { statusCode: number }).statusCode === 'number') {
+            res.status((error as { statusCode: number }).statusCode).json({
+              error: error.message || 'An error occurred',
+            });
+            return;
+          }
+
+          // Erreur par défaut
+          res.status(500).json({
+            error: 'Internal server error',
           });
           return;
         }
 
-        // Erreur par défaut
-        res.status(500).json({
-          error: 'Internal server error',
-        });
-        return;
-      }
-
-      // Si headers déjà envoyés, passer au middleware d'erreur
-      next(error);
-    });
+        // Si headers déjà envoyés, passer au middleware d'erreur
+        next(error);
+      });
   };
 };
 
@@ -92,5 +95,6 @@ export const BadRequestError = (message = 'Bad request') => new HttpError(400, m
 export const UnauthorizedError = (message = 'Unauthorized') => new HttpError(401, message);
 export const ForbiddenError = (message = 'Forbidden') => new HttpError(403, message);
 export const ConflictError = (message = 'Conflict') => new HttpError(409, message);
+export const InternalServerError = (message = 'Internal server error') => new HttpError(500, message);
 
 export default asyncHandler;

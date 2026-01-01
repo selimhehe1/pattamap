@@ -56,6 +56,7 @@ import { supabase } from '../../config/supabase';
 describe('OwnershipRequestController', () => {
   let mockRequest: Partial<AuthRequest>;
   let mockResponse: Partial<Response>;
+  let mockNext: jest.Mock;
   let jsonMock: jest.Mock;
   let statusMock: jest.Mock;
 
@@ -64,6 +65,7 @@ describe('OwnershipRequestController', () => {
 
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+    mockNext = jest.fn();
 
     mockRequest = {
       query: {},
@@ -114,7 +116,7 @@ describe('OwnershipRequestController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRequest_entity)));
 
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -129,7 +131,7 @@ describe('OwnershipRequestController', () => {
         documents_urls: ['doc1.jpg']
       };
 
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -143,7 +145,7 @@ describe('OwnershipRequestController', () => {
         documents_urls: []
       };
 
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -163,13 +165,14 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess(mockUser))
       );
 
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(403);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Only establishment owners can request ownership',
-        current_account_type: 'user'
-      });
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.stringContaining('establishment owner')
+        })
+      );
     });
 
     it('should return 409 if user already has pending request', async () => {
@@ -188,7 +191,7 @@ describe('OwnershipRequestController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(existingRequest)));
 
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(409);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -218,7 +221,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess(mockRequests))
       );
 
-      await getMyOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         requests: expect.arrayContaining([
@@ -234,7 +237,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getMyOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ requests: [], total: 0 });
     });
@@ -251,7 +254,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess(mockRequests))
       );
 
-      await getAllOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response);
+      await getAllOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         requests: expect.arrayContaining([
@@ -267,7 +270,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getAllOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response);
+      await getAllOwnershipRequests(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ requests: [], total: 0 });
     });
@@ -290,14 +293,15 @@ describe('OwnershipRequestController', () => {
 
       const updatedRequest = { ...mockRequest_entity, status: 'approved' };
 
-      // Mock queries: 1) get request, 2) check existing ownership, 3) insert ownership, 4) update request
+      // Mock queries: 1) get request, 2) check existing ownership, 3) insert ownership, 4) update establishment status, 5) update request
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRequest_entity)))
         .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess({ id: 'own-1' })))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(null))) // establishment status update
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(updatedRequest)));
 
-      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Ownership request approved successfully',
@@ -313,7 +317,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Ownership request not found' });
@@ -333,13 +337,14 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess(mockRequest_entity))
       );
 
-      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await approveOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Request has already been approved',
-        current_status: 'approved'
-      });
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.stringContaining('already')
+        })
+      );
     });
   });
 
@@ -364,7 +369,7 @@ describe('OwnershipRequestController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRequest_entity)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(rejectedRequest)));
 
-      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Ownership request rejected',
@@ -377,7 +382,7 @@ describe('OwnershipRequestController', () => {
       mockRequest.body = { admin_notes: '' };
       (mockRequest as any).user.role = 'admin';
 
-      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -394,7 +399,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await rejectOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Ownership request not found' });
@@ -417,7 +422,7 @@ describe('OwnershipRequestController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRequest_entity)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(null)));
 
-      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Ownership request cancelled successfully'
@@ -431,7 +436,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Ownership request not found' });
@@ -450,7 +455,7 @@ describe('OwnershipRequestController', () => {
         createMockQueryBuilder(mockSuccess(mockRequest_entity))
       );
 
-      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response);
+      await cancelOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(403);
       expect(jsonMock).toHaveBeenCalledWith({

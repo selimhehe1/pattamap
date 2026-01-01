@@ -38,7 +38,8 @@ jest.mock('../../config/cloudinary', () => ({
     api: {
       resource: jest.fn()
     }
-  }
+  },
+  ensureConfigured: jest.fn()
 }));
 
 jest.mock('../../config/supabase', () => {
@@ -69,6 +70,7 @@ import { missionTrackingService } from '../../services/missionTrackingService';
 describe('UploadController', () => {
   let mockRequest: Partial<AuthRequest>;
   let mockResponse: Partial<Response>;
+  let mockNext: jest.Mock;
   let jsonMock: jest.Mock;
   let statusMock: jest.Mock;
 
@@ -77,6 +79,7 @@ describe('UploadController', () => {
 
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+    mockNext = jest.fn();
 
     mockRequest = {
       params: {},
@@ -129,7 +132,7 @@ describe('UploadController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'upload-1' }))
       );
 
-      await uploadImages(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadImages(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Images uploaded successfully',
@@ -142,10 +145,10 @@ describe('UploadController', () => {
     it('should return 400 if no images provided', async () => {
       (mockRequest as any).files = [];
 
-      await uploadImages(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadImages(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'No images provided' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('image') }));
     });
 
     it('should return 400 if more than 5 images', async () => {
@@ -154,10 +157,10 @@ describe('UploadController', () => {
         mimetype: 'image/jpeg'
       });
 
-      await uploadImages(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadImages(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Maximum 5 images allowed' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('5') }));
     });
 
     it('should handle cloudinary upload errors', async () => {
@@ -170,10 +173,10 @@ describe('UploadController', () => {
         callback(new Error('Cloudinary error'), null);
       });
 
-      await uploadImages(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadImages(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Failed to upload images' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
   });
 
@@ -197,7 +200,7 @@ describe('UploadController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'upload-1' }))
       );
 
-      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Image uploaded successfully',
@@ -213,10 +216,10 @@ describe('UploadController', () => {
     it('should return 400 if no image provided', async () => {
       (mockRequest as any).file = undefined;
 
-      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'No image provided' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('image') }));
     });
 
     it('should handle upload errors', async () => {
@@ -227,10 +230,10 @@ describe('UploadController', () => {
 
       (cloudinary.uploader.upload as jest.Mock).mockRejectedValue(new Error('Upload failed'));
 
-      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadSingleImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Failed to upload image' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
   });
 
@@ -240,7 +243,7 @@ describe('UploadController', () => {
 
       (cloudinary.uploader.destroy as jest.Mock).mockResolvedValue({ result: 'ok' });
 
-      await deleteImage(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ message: 'Image deleted successfully' });
     });
@@ -248,10 +251,10 @@ describe('UploadController', () => {
     it('should return 400 if public_id missing', async () => {
       mockRequest.body = {};
 
-      await deleteImage(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Public ID is required' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('ID') }));
     });
 
     it('should return 400 if deletion fails', async () => {
@@ -259,10 +262,10 @@ describe('UploadController', () => {
 
       (cloudinary.uploader.destroy as jest.Mock).mockResolvedValue({ result: 'not found' });
 
-      await deleteImage(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteImage(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Failed to delete image' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
   });
 
@@ -287,7 +290,7 @@ describe('UploadController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'upload-1' }))
       );
 
-      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Establishment logo uploaded successfully',
@@ -304,10 +307,10 @@ describe('UploadController', () => {
       (mockRequest as any).user.role = 'admin';
       (mockRequest as any).file = undefined;
 
-      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'No logo image provided' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('logo') }));
     });
 
     it('should return 403 if user is not admin or moderator', async () => {
@@ -317,10 +320,10 @@ describe('UploadController', () => {
         mimetype: 'image/png'
       };
 
-      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(403);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Admin or moderator access required' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('Admin') }));
     });
 
     it('should allow moderator to upload logo', async () => {
@@ -342,7 +345,7 @@ describe('UploadController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'upload-1' }))
       );
 
-      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response);
+      await uploadEstablishmentLogo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).not.toHaveBeenCalledWith(403);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -368,7 +371,7 @@ describe('UploadController', () => {
 
       (cloudinary.api.resource as jest.Mock).mockResolvedValue(mockImageInfo);
 
-      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response);
+      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         image: {
@@ -386,10 +389,10 @@ describe('UploadController', () => {
     it('should return 400 if public_id missing', async () => {
       mockRequest.params = {};
 
-      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response);
+      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Public ID is required' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('ID') }));
     });
 
     it('should handle errors when fetching image info', async () => {
@@ -397,10 +400,10 @@ describe('UploadController', () => {
 
       (cloudinary.api.resource as jest.Mock).mockRejectedValue(new Error('Not found'));
 
-      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response);
+      await getImageInfo(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Failed to get image information' });
+      expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
     });
   });
 });

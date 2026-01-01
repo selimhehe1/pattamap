@@ -80,7 +80,7 @@ const defaultUser = {
   is_active: true,
 };
 
-// Helper to create mock request/response
+// Helper to create mock request/response/next
 const createMockReqRes = (overrides: Partial<AuthRequest> = {}) => {
   const req = {
     user: defaultUser,
@@ -95,7 +95,9 @@ const createMockReqRes = (overrides: Partial<AuthRequest> = {}) => {
     json: jest.fn().mockReturnThis(),
   } as unknown as Response;
 
-  return { req, res };
+  const next = jest.fn();
+
+  return { req, res, next };
 };
 
 describe('VIPController', () => {
@@ -109,9 +111,9 @@ describe('VIPController', () => {
   // ========================================
   describe('getPricingOptions', () => {
     it('should return pricing for employee type', async () => {
-      const { req, res } = createMockReqRes({ params: { type: 'employee' } });
+      const { req, res, next } = createMockReqRes({ params: { type: 'employee' } });
 
-      await getPricingOptions(req, res);
+      await getPricingOptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -124,9 +126,9 @@ describe('VIPController', () => {
     });
 
     it('should return pricing for establishment type', async () => {
-      const { req, res } = createMockReqRes({ params: { type: 'establishment' } });
+      const { req, res, next } = createMockReqRes({ params: { type: 'establishment' } });
 
-      await getPricingOptions(req, res);
+      await getPricingOptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -138,27 +140,27 @@ describe('VIPController', () => {
     });
 
     it('should reject invalid subscription type', async () => {
-      const { req, res } = createMockReqRes({ params: { type: 'invalid' } });
+      const { req, res, next } = createMockReqRes({ params: { type: 'invalid' } });
 
-      await getPricingOptions(req, res);
+      await getPricingOptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid subscription type',
+          error: expect.stringContaining('Invalid subscription type'),
         })
       );
     });
 
     it('should handle errors gracefully', async () => {
-      const { req, res } = createMockReqRes({ params: { type: 'employee' } });
+      const { req, res, next } = createMockReqRes({ params: { type: 'employee' } });
 
       // Force an error by mocking the function to throw
       jest.spyOn(require('../../config/vipPricing'), 'getAllPricingOptions').mockImplementationOnce(() => {
         throw new Error('Pricing error');
       });
 
-      await getPricingOptions(req, res);
+      await getPricingOptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -176,76 +178,76 @@ describe('VIPController', () => {
     };
 
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined, body: validPurchaseBody });
+      const { req, res, next } = createMockReqRes({ user: undefined, body: validPurchaseBody });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     });
 
     it('should require all fields', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { subscription_type: 'employee' }, // Missing fields
       });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Missing required fields',
+          error: expect.stringContaining('Missing required fields'),
         })
       );
     });
 
     it('should reject invalid subscription type', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { ...validPurchaseBody, subscription_type: 'invalid' },
       });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid subscription type',
+          error: expect.stringContaining('Invalid subscription type'),
         })
       );
     });
 
     it('should reject invalid duration', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { ...validPurchaseBody, duration: 15 }, // Invalid duration
       });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid duration',
+          error: expect.stringContaining('Invalid duration'),
         })
       );
     });
 
     it('should reject invalid payment method', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { ...validPurchaseBody, payment_method: 'bitcoin' },
       });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid payment method',
+          error: expect.stringContaining('Invalid payment method'),
         })
       );
     });
 
     it('should check employee ownership for employee VIP purchase', async () => {
-      const { req, res } = createMockReqRes({ body: validPurchaseBody });
+      const { req, res, next } = createMockReqRes({ body: validPurchaseBody });
 
       // Employee not linked to user
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -256,18 +258,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Forbidden',
+          error: expect.stringContaining('permission'),
         })
       );
     });
 
     it('should reject if active subscription exists', async () => {
-      const { req, res } = createMockReqRes({ body: validPurchaseBody });
+      const { req, res, next } = createMockReqRes({ body: validPurchaseBody });
 
       // Employee linked to user
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -278,18 +280,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'sub-123', expires_at: '2025-12-31', tier: 'employee' }))
       );
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Active subscription exists',
+          error: expect.stringContaining('active'),
         })
       );
     });
 
     it('should create subscription successfully with cash payment', async () => {
-      const { req, res } = createMockReqRes({ body: validPurchaseBody });
+      const { req, res, next } = createMockReqRes({ body: validPurchaseBody });
 
       // Employee linked to user
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -324,7 +326,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
@@ -338,7 +340,7 @@ describe('VIPController', () => {
     });
 
     it('should create subscription with PromptPay and generate QR', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { ...validPurchaseBody, payment_method: 'promptpay' },
       });
 
@@ -368,7 +370,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
@@ -383,7 +385,7 @@ describe('VIPController', () => {
     it('should reject PromptPay if not configured', async () => {
       (isPromptPayConfigured as jest.Mock).mockReturnValueOnce(false);
 
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         body: { ...validPurchaseBody, payment_method: 'promptpay' },
       });
 
@@ -400,18 +402,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'sub-new', price_paid: 299 }))
       );
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'PromptPay not available',
+          error: expect.stringContaining('PromptPay'),
         })
       );
     });
 
     it('should rollback subscription on transaction creation failure', async () => {
-      const { req, res } = createMockReqRes({ body: validPurchaseBody });
+      const { req, res, next } = createMockReqRes({ body: validPurchaseBody });
 
       const deleteMock = jest.fn().mockReturnThis();
       const eqMock = jest.fn().mockResolvedValue({ error: null });
@@ -438,7 +440,7 @@ describe('VIPController', () => {
         eq: eqMock,
       });
 
-      await purchaseVIP(req, res);
+      await purchaseVIP(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(
@@ -454,15 +456,15 @@ describe('VIPController', () => {
   // ========================================
   describe('getMyVIPSubscriptions', () => {
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined });
+      const { req, res, next } = createMockReqRes({ user: undefined });
 
-      await getMyVIPSubscriptions(req, res);
+      await getMyVIPSubscriptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
 
     it('should return user subscriptions', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       // Employee subscriptions
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -473,7 +475,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess([{ id: 'est-sub-1' }]))
       );
 
-      await getMyVIPSubscriptions(req, res);
+      await getMyVIPSubscriptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -488,13 +490,13 @@ describe('VIPController', () => {
     });
 
     it('should handle empty subscriptions', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValue(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getMyVIPSubscriptions(req, res);
+      await getMyVIPSubscriptions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
     });
@@ -505,35 +507,35 @@ describe('VIPController', () => {
   // ========================================
   describe('cancelVIPSubscription', () => {
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         user: undefined,
         params: { id: 'sub-123' },
         body: { subscription_type: 'employee' },
       });
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
 
     it('should validate subscription type', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { id: 'sub-123' },
         body: { subscription_type: 'invalid' },
       });
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid subscription type',
+          error: expect.stringContaining('Invalid subscription type'),
         })
       );
     });
 
     it('should return 404 if subscription not found', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { id: 'sub-nonexistent' },
         body: { subscription_type: 'employee' },
       });
@@ -542,13 +544,13 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
 
     it('should check user permission', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { id: 'sub-123' },
         body: { subscription_type: 'employee' },
       });
@@ -562,13 +564,13 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
     });
 
     it('should reject if subscription not active', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { id: 'sub-123' },
         body: { subscription_type: 'employee' },
       });
@@ -582,18 +584,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'owner-123' }))
       );
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Subscription not active',
+          error: expect.stringContaining('cancelled'),
         })
       );
     });
 
     it('should cancel subscription successfully', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { id: 'sub-123' },
         body: { subscription_type: 'employee' },
       });
@@ -611,7 +613,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'sub-123', status: 'cancelled' }))
       );
 
-      await cancelVIPSubscription(req, res);
+      await cancelVIPSubscription(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -629,15 +631,15 @@ describe('VIPController', () => {
   // ========================================
   describe('verifyPayment', () => {
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined, params: { transactionId: 'txn-123' } });
+      const { req, res, next } = createMockReqRes({ user: undefined, params: { transactionId: 'txn-123' } });
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
 
     it('should require admin role', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         user: { ...defaultUser, id: 'user-123', role: 'user' },
       });
@@ -647,13 +649,13 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ role: 'user' }))
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
     });
 
     it('should return 404 if transaction not found', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-nonexistent' },
         user: { ...defaultUser, id: 'admin-123', role: 'admin' },
       });
@@ -667,13 +669,13 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
 
     it('should reject already verified transaction', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         user: { ...defaultUser, id: 'admin-123', role: 'admin' },
       });
@@ -687,18 +689,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'txn-123', payment_status: 'completed' }))
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Payment already verified',
+          error: expect.stringContaining('already'),
         })
       );
     });
 
     it('should only verify cash payments', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         user: { ...defaultUser, id: 'admin-123', role: 'admin' },
       });
@@ -712,18 +714,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'txn-123', payment_status: 'pending', payment_method: 'promptpay' }))
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid payment method',
+          error: expect.stringContaining('cash'),
         })
       );
     });
 
     it('should verify payment and activate subscription', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         body: { admin_notes: 'Verified cash payment' },
         user: { ...defaultUser, id: 'admin-123', role: 'admin' },
@@ -756,7 +758,7 @@ describe('VIPController', () => {
         }))
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -769,7 +771,7 @@ describe('VIPController', () => {
     });
 
     it('should handle transaction update failure', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         user: { ...defaultUser, id: 'admin-123', role: 'admin' },
       });
@@ -792,7 +794,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockError('Update failed'))
       );
 
-      await verifyPayment(req, res);
+      await verifyPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -803,7 +805,7 @@ describe('VIPController', () => {
   // ========================================
   describe('getVIPTransactions', () => {
     it('should return all transactions without filters', async () => {
-      const { req, res } = createMockReqRes({ query: {} });
+      const { req, res, next } = createMockReqRes({ query: {} });
 
       const mockTransactions = [
         { id: 'txn-1', subscription_type: 'employee' },
@@ -823,7 +825,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ tier: 'establishment' }))
       );
 
-      await getVIPTransactions(req, res);
+      await getVIPTransactions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -836,37 +838,37 @@ describe('VIPController', () => {
     });
 
     it('should filter by payment_method', async () => {
-      const { req, res } = createMockReqRes({ query: { payment_method: 'cash' } });
+      const { req, res, next } = createMockReqRes({ query: { payment_method: 'cash' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getVIPTransactions(req, res);
+      await getVIPTransactions(req, res, next);
 
       expect(supabase.from).toHaveBeenCalledWith('vip_payment_transactions');
     });
 
     it('should filter by status', async () => {
-      const { req, res } = createMockReqRes({ query: { status: 'pending' } });
+      const { req, res, next } = createMockReqRes({ query: { status: 'pending' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getVIPTransactions(req, res);
+      await getVIPTransactions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
     it('should handle database errors', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockError('Database error'))
       );
 
-      await getVIPTransactions(req, res);
+      await getVIPTransactions(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -877,24 +879,24 @@ describe('VIPController', () => {
   // ========================================
   describe('rejectPayment', () => {
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         user: undefined,
         params: { transactionId: 'txn-123' },
         body: { admin_notes: 'Fake payment' },
       });
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
 
     it('should require admin_notes', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         body: {}, // Missing admin_notes
       });
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
@@ -905,7 +907,7 @@ describe('VIPController', () => {
     });
 
     it('should return 404 if transaction not found', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-nonexistent' },
         body: { admin_notes: 'Fake payment' },
       });
@@ -914,13 +916,13 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
 
     it('should reject already processed transaction', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         body: { admin_notes: 'Fake payment' },
       });
@@ -929,18 +931,18 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ id: 'txn-123', payment_status: 'completed' }))
       );
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Transaction already processed',
+          error: expect.stringContaining('status'),
         })
       );
     });
 
     it('should reject payment and cancel subscription', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         body: { admin_notes: 'Payment proof is fake' },
       });
@@ -967,7 +969,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockSuccess({ tier: 'employee' }))
       );
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -980,7 +982,7 @@ describe('VIPController', () => {
     });
 
     it('should handle transaction update failure', async () => {
-      const { req, res } = createMockReqRes({
+      const { req, res, next } = createMockReqRes({
         params: { transactionId: 'txn-123' },
         body: { admin_notes: 'Fake payment' },
       });
@@ -998,7 +1000,7 @@ describe('VIPController', () => {
         createMockQueryBuilder(mockError('Update failed'))
       );
 
-      await rejectPayment(req, res);
+      await rejectPayment(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });

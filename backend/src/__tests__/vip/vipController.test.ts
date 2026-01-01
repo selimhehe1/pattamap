@@ -525,7 +525,7 @@ describe('VIP Controller Tests', () => {
         .send({ admin_notes: 'Cash received' })
         .expect(403);
 
-      expect(response.body).toHaveProperty('error', 'Forbidden');
+      expect(response.body.error).toContain('admin');
     });
 
     it('should return 404 if transaction not found', async () => {
@@ -563,7 +563,7 @@ describe('VIP Controller Tests', () => {
         .send({ admin_notes: 'Cash received' })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Payment already verified');
+      expect(response.body.error).toEqual(expect.stringContaining('already'));
     });
 
     it('should return 400 if payment method is not cash', async () => {
@@ -583,7 +583,7 @@ describe('VIP Controller Tests', () => {
         .send({ admin_notes: 'Cash received' })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Invalid payment method');
+      expect(response.body.error).toEqual(expect.stringContaining('cash'));
     });
   });
 
@@ -775,7 +775,7 @@ describe('VIP Controller Tests', () => {
         .send({ admin_notes: 'Invalid payment proof' })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Transaction already processed');
+      expect(response.body.error).toEqual(expect.stringContaining('status'));
     });
   });
 

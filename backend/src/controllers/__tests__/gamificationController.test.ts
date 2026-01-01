@@ -44,7 +44,7 @@ jest.mock('../../utils/logger');
 // Import supabase AFTER jest.mock
 import { supabase } from '../../config/supabase';
 
-// Helper to create mock request/response
+// Helper to create mock request/response/next
 const createMockReqRes = (overrides: Partial<AuthRequest> = {}) => {
   const req = {
     user: { id: 'test-user-123' },
@@ -59,7 +59,9 @@ const createMockReqRes = (overrides: Partial<AuthRequest> = {}) => {
     json: jest.fn().mockReturnThis()
   } as unknown as Response;
 
-  return { req, res };
+  const next = jest.fn();
+
+  return { req, res, next };
 };
 
 describe('GamificationController - New Features', () => {
@@ -73,7 +75,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('getXPHistory', () => {
     it('should return XP history for default 30 day period', async () => {
-      const { req, res } = createMockReqRes({ query: {} });
+      const { req, res, next } = createMockReqRes({ query: {} });
 
       const mockTransactions = [
         { xp_amount: 50, reason: 'check_in', created_at: '2025-12-10T10:00:00Z' },
@@ -85,7 +87,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockTransactions))
       );
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -101,13 +103,13 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should accept period query param (7, 30, 90)', async () => {
-      const { req, res } = createMockReqRes({ query: { period: '7' } });
+      const { req, res, next } = createMockReqRes({ query: { period: '7' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ period: 7 })
@@ -115,9 +117,9 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should reject invalid period values', async () => {
-      const { req, res } = createMockReqRes({ query: { period: '15' } });
+      const { req, res, next } = createMockReqRes({ query: { period: '15' } });
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -126,9 +128,9 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined });
+      const { req, res, next } = createMockReqRes({ user: undefined });
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -137,13 +139,13 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should handle empty data gracefully', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -154,13 +156,13 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should handle database error', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockError('Database error'))
       );
 
-      await getXPHistory(req, res);
+      await getXPHistory(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -174,7 +176,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('getWeeklyLeaderboard', () => {
     it('should return users sorted by weekly XP', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       const mockLeaderboard = [
         { user_id: 'user-1', username: 'Player1', weekly_xp: 500, current_level: 5 },
@@ -185,7 +187,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockLeaderboard))
       );
 
-      await getWeeklyLeaderboard(req, res);
+      await getWeeklyLeaderboard(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -199,19 +201,19 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should respect limit param (default 50)', async () => {
-      const { req, res } = createMockReqRes({ query: { limit: '10' } });
+      const { req, res, next } = createMockReqRes({ query: { limit: '10' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getWeeklyLeaderboard(req, res);
+      await getWeeklyLeaderboard(req, res, next);
 
       expect(supabase.from).toHaveBeenCalledWith('leaderboard_weekly');
     });
 
     it('should fallback to user_points if view does not exist', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       // First call fails (view doesn't exist)
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -226,7 +228,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockFallback))
       );
 
-      await getWeeklyLeaderboard(req, res);
+      await getWeeklyLeaderboard(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'weekly' })
@@ -234,7 +236,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should handle database error', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       // First call fails
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -245,7 +247,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockError('Database error'))
       );
 
-      await getWeeklyLeaderboard(req, res);
+      await getWeeklyLeaderboard(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -256,7 +258,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('getCategoryLeaderboard', () => {
     it('should return reviewers leaderboard', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'reviewers' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'reviewers' } });
 
       const mockLeaderboard = [
         { user_id: 'user-1', username: 'Reviewer1', review_count: 50 }
@@ -266,7 +268,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockLeaderboard))
       );
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'reviewers' })
@@ -274,45 +276,45 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should return photographers leaderboard', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'photographers' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'photographers' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(supabase.from).toHaveBeenCalledWith('leaderboard_photographers');
     });
 
     it('should return checkins leaderboard', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'checkins' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'checkins' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(supabase.from).toHaveBeenCalledWith('leaderboard_checkins');
     });
 
     it('should return helpful leaderboard', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'helpful' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'helpful' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(supabase.from).toHaveBeenCalledWith('leaderboard_helpful');
     });
 
     it('should reject invalid category', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'invalid' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'invalid' } });
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -321,7 +323,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should provide fallback when view does not exist', async () => {
-      const { req, res } = createMockReqRes({ params: { category: 'reviewers' } });
+      const { req, res, next } = createMockReqRes({ params: { category: 'reviewers' } });
 
       // View query fails
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -338,7 +340,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockComments))
       );
 
-      await getCategoryLeaderboard(req, res);
+      await getCategoryLeaderboard(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'reviewers' })
@@ -351,7 +353,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('getRewards', () => {
     it('should return all active rewards', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       const mockRewards = [
         { id: 'reward-1', name: 'Photo Upload', unlock_type: 'level', unlock_value: 2, is_active: true },
@@ -362,7 +364,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockRewards))
       );
 
-      await getRewards(req, res);
+      await getRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith({
         rewards: mockRewards
@@ -370,25 +372,25 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should return empty array if no rewards', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await getRewards(req, res);
+      await getRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith({ rewards: [] });
     });
 
     it('should handle database error', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockError('Database error'))
       );
 
-      await getRewards(req, res);
+      await getRewards(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -402,7 +404,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('getMyRewards', () => {
     it('should return rewards with unlock status', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       const mockProgress = { current_level: 5, total_xp: 500 };
       const mockRewards = [
@@ -437,7 +439,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockRewards))
       );
 
-      await getMyRewards(req, res);
+      await getMyRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -452,7 +454,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should include currentLevel and totalXp', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockSuccess({ current_level: 3, total_xp: 300 }))
@@ -461,7 +463,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getMyRewards(req, res);
+      await getMyRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -472,9 +474,9 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined });
+      const { req, res, next } = createMockReqRes({ user: undefined });
 
-      await getMyRewards(req, res);
+      await getMyRewards(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -483,7 +485,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should handle missing user progress gracefully', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       // User progress not found (PGRST116)
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -493,7 +495,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getMyRewards(req, res);
+      await getMyRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -504,7 +506,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should use fallback query if join fails', async () => {
-      const { req, res } = createMockReqRes();
+      const { req, res, next } = createMockReqRes();
 
       // User progress
       (supabase.from as jest.Mock).mockReturnValueOnce(
@@ -523,7 +525,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess([]))
       );
 
-      await getMyRewards(req, res);
+      await getMyRewards(req, res, next);
 
       expect(res.json).toHaveBeenCalled();
     });
@@ -534,7 +536,7 @@ describe('GamificationController - New Features', () => {
   // ========================================
   describe('claimReward', () => {
     it('should claim eligible reward', async () => {
-      const { req, res } = createMockReqRes({ params: { rewardId: 'reward-1' } });
+      const { req, res, next } = createMockReqRes({ params: { rewardId: 'reward-1' } });
 
       const mockReward = {
         id: 'reward-1',
@@ -565,7 +567,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess({ id: 'unlock-1' }))
       );
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -579,7 +581,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should reject if not eligible (level too low)', async () => {
-      const { req, res } = createMockReqRes({ params: { rewardId: 'reward-1' } });
+      const { req, res, next } = createMockReqRes({ params: { rewardId: 'reward-1' } });
 
       const mockReward = {
         id: 'reward-1',
@@ -598,7 +600,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(mockProgress))
       );
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith(
@@ -609,7 +611,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should reject if already claimed', async () => {
-      const { req, res } = createMockReqRes({ params: { rewardId: 'reward-1' } });
+      const { req, res, next } = createMockReqRes({ params: { rewardId: 'reward-1' } });
 
       const mockReward = {
         id: 'reward-1',
@@ -632,7 +634,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(existingUnlock))
       );
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -641,9 +643,9 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should require authentication', async () => {
-      const { req, res } = createMockReqRes({ user: undefined, params: { rewardId: 'reward-1' } });
+      const { req, res, next } = createMockReqRes({ user: undefined, params: { rewardId: 'reward-1' } });
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -652,13 +654,13 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should return 404 for non-existent reward', async () => {
-      const { req, res } = createMockReqRes({ params: { rewardId: 'non-existent' } });
+      const { req, res, next } = createMockReqRes({ params: { rewardId: 'non-existent' } });
 
       (supabase.from as jest.Mock).mockReturnValueOnce(
         createMockQueryBuilder(mockNotFound())
       );
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
@@ -667,7 +669,7 @@ describe('GamificationController - New Features', () => {
     });
 
     it('should update existing unlock if unclaimed', async () => {
-      const { req, res } = createMockReqRes({ params: { rewardId: 'reward-1' } });
+      const { req, res, next } = createMockReqRes({ params: { rewardId: 'reward-1' } });
 
       const mockReward = {
         id: 'reward-1',
@@ -696,7 +698,7 @@ describe('GamificationController - New Features', () => {
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await claimReward(req, res);
+      await claimReward(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({

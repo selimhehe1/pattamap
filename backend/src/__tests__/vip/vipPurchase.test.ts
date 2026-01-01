@@ -146,7 +146,7 @@ describe('VIP Purchase Workflow Tests', () => {
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Forbidden');
+      expect(response.body.error).toContain('permission');
     });
 
     it('should return 403 if user is not owner of establishment', async () => {
@@ -178,7 +178,7 @@ describe('VIP Purchase Workflow Tests', () => {
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Forbidden');
+      expect(response.body.error).toContain('permission');
     });
 
     it('should calculate correct price for 7-day duration', async () => {
@@ -361,7 +361,7 @@ describe('VIP Purchase Workflow Tests', () => {
         })
         .expect(403);
 
-      expect(response.body.error).toBe('Forbidden');
+      expect(response.body.error).toContain('permission');
     });
 
     it('should calculate establishment pricing correctly (4x employee pricing)', async () => {

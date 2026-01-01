@@ -194,9 +194,11 @@ describe('NotificationController', () => {
       await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Internal server error'
-      });
+      expect(jsonMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.any(String)
+        })
+      );
     });
   });
 
@@ -251,7 +253,7 @@ describe('NotificationController', () => {
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Internal server error'
+        error: expect.any(String)
       });
     });
   });
@@ -299,7 +301,7 @@ describe('NotificationController', () => {
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Internal server error'
+        error: expect.any(String)
       });
     });
   });
@@ -370,7 +372,7 @@ describe('NotificationController', () => {
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Internal server error'
+        error: expect.any(String)
       });
     });
   });

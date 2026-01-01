@@ -3,11 +3,14 @@
  * Tests for push notification subscription endpoints
  */
 
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middleware/auth';
 import * as pushController from '../pushController';
 import { supabase } from '../../config/supabase';
 import * as pushService from '../../services/pushService';
+
+// Mock next function for asyncHandler wrapped controllers
+const mockNext: NextFunction = jest.fn();
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -51,7 +54,7 @@ describe('Push Controller', () => {
       const req = createMockRequest();
       const res = createMockResponse();
 
-      await pushController.getPublicKey(req, res as Response);
+      await pushController.getPublicKey(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         publicKey: 'test-vapid-key'
@@ -64,7 +67,7 @@ describe('Push Controller', () => {
       const req = createMockRequest();
       const res = createMockResponse();
 
-      await pushController.getPublicKey(req, res as Response);
+      await pushController.getPublicKey(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(503);
       expect(res.json).toHaveBeenCalledWith({
@@ -80,7 +83,7 @@ describe('Push Controller', () => {
       const req = createMockRequest();
       const res = createMockResponse();
 
-      await pushController.getPublicKey(req, res as Response);
+      await pushController.getPublicKey(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -112,7 +115,7 @@ describe('Push Controller', () => {
         insert: jest.fn().mockResolvedValue({ error: null })
       });
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
@@ -142,7 +145,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         message: 'Push subscription updated successfully',
@@ -154,7 +157,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ user: undefined });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
@@ -164,7 +167,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ body: {} });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -182,7 +185,7 @@ describe('Push Controller', () => {
       });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -200,7 +203,7 @@ describe('Push Controller', () => {
       });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -219,7 +222,7 @@ describe('Push Controller', () => {
       });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -238,7 +241,7 @@ describe('Push Controller', () => {
       });
       const res = createMockResponse();
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -263,7 +266,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Database insert error' });
@@ -291,7 +294,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Database update error' });
@@ -307,7 +310,7 @@ describe('Push Controller', () => {
         throw new Error('Unexpected error');
       });
 
-      await pushController.subscribe(req, res as Response);
+      await pushController.subscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -329,7 +332,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.unsubscribe(req, res as Response);
+      await pushController.unsubscribe(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         message: 'Push subscription removed successfully',
@@ -341,7 +344,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ user: undefined });
       const res = createMockResponse();
 
-      await pushController.unsubscribe(req, res as Response);
+      await pushController.unsubscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
@@ -351,7 +354,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ body: {} });
       const res = createMockResponse();
 
-      await pushController.unsubscribe(req, res as Response);
+      await pushController.unsubscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Endpoint is required' });
@@ -373,7 +376,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.unsubscribe(req, res as Response);
+      await pushController.unsubscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Database delete error' });
@@ -389,7 +392,7 @@ describe('Push Controller', () => {
         throw new Error('Unexpected error');
       });
 
-      await pushController.unsubscribe(req, res as Response);
+      await pushController.unsubscribe(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -429,7 +432,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.getUserSubscriptions(req, res as Response);
+      await pushController.getUserSubscriptions(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         subscriptions: expect.arrayContaining([
@@ -461,7 +464,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.getUserSubscriptions(req, res as Response);
+      await pushController.getUserSubscriptions(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         subscriptions: [],
@@ -473,7 +476,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ user: undefined });
       const res = createMockResponse();
 
-      await pushController.getUserSubscriptions(req, res as Response);
+      await pushController.getUserSubscriptions(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
@@ -494,7 +497,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.getUserSubscriptions(req, res as Response);
+      await pushController.getUserSubscriptions(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Database query error' });
@@ -508,7 +511,7 @@ describe('Push Controller', () => {
         throw new Error('Unexpected error');
       });
 
-      await pushController.getUserSubscriptions(req, res as Response);
+      await pushController.getUserSubscriptions(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -530,7 +533,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.getPushStatus(req, res as Response);
+      await pushController.getPushStatus(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         configured: true,
@@ -553,7 +556,7 @@ describe('Push Controller', () => {
         })
       });
 
-      await pushController.getPushStatus(req, res as Response);
+      await pushController.getPushStatus(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         configured: true,
@@ -568,7 +571,7 @@ describe('Push Controller', () => {
       const req = createMockRequest();
       const res = createMockResponse();
 
-      await pushController.getPushStatus(req, res as Response);
+      await pushController.getPushStatus(req, res as Response, mockNext);
 
       expect(res.json).toHaveBeenCalledWith({
         configured: false,
@@ -581,7 +584,7 @@ describe('Push Controller', () => {
       const req = createMockRequest({ user: undefined });
       const res = createMockResponse();
 
-      await pushController.getPushStatus(req, res as Response);
+      await pushController.getPushStatus(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
@@ -597,7 +600,7 @@ describe('Push Controller', () => {
         throw new Error('Unexpected error');
       });
 
-      await pushController.getPushStatus(req, res as Response);
+      await pushController.getPushStatus(req, res as Response, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
