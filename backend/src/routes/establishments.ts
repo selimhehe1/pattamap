@@ -16,6 +16,69 @@ import {
 } from '../controllers/establishmentController';
 import { getMyOwnedEstablishments } from '../controllers/establishmentOwnerController';
 
+// Type definitions for Supabase query results
+interface EstablishmentCategory {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+interface EstablishmentUser {
+  id: string;
+  pseudonym?: string;
+}
+
+interface RawEstablishment {
+  id: string;
+  name: string;
+  address?: string;
+  zone?: string;
+  grid_row?: number;
+  grid_col?: number;
+  category_id?: string;
+  phone?: string;
+  website?: string;
+  location?: unknown;
+  opening_hours?: unknown;
+  services?: string[];
+  status: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  // Supabase returns nested queries as arrays
+  category?: EstablishmentCategory[] | null;
+  user?: EstablishmentUser[] | null;
+}
+
+interface EmploymentJob {
+  id: string;
+  employee_id: string;
+  establishment_id: string;
+  establishment?: { id: string; name: string } | null;
+  position?: string;
+  start_date?: string;
+  end_date?: string;
+  is_current: boolean;
+}
+
+interface RawEmployee {
+  id: string;
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[];
+  description?: string;
+  photos?: string[];
+  status: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  user?: EstablishmentUser | null;
+  current_employment?: EmploymentJob[];
+  employment_history?: EmploymentJob[];
+}
+
 const router = Router();
 
 // SECURITY FIX: Remove test routes from production
@@ -34,26 +97,32 @@ const uuidToNumber = (uuid: string): number => {
   return Math.abs(hash);
 };
 
-const transformEstablishment = (est: any) => ({
-  ...est,
-  id: est.id, // Keep original UUID instead of converting to number
-  category_id: est.category_id || 1,
-  created_by: est.created_by || null, // Keep original UUID if present
-  category: est.category ? {
-    ...est.category,
-    id: est.category.id // Keep original UUID
-  } : null,
-  user: est.user ? {
-    ...est.user,
-    id: est.user.id // Keep original UUID
-  } : null
-});
+const transformEstablishment = (est: RawEstablishment) => {
+  // Handle Supabase returning nested queries as arrays
+  const category = est.category?.[0];
+  const user = est.user?.[0];
 
-const transformEmployee = (emp: any) => ({
+  return {
+    ...est,
+    id: est.id, // Keep original UUID instead of converting to number
+    category_id: est.category_id || 1,
+    created_by: est.created_by || null, // Keep original UUID if present
+    category: category ? {
+      ...category,
+      id: category.id // Keep original UUID
+    } : null,
+    user: user ? {
+      ...user,
+      id: user.id // Keep original UUID
+    } : null
+  };
+};
+
+const transformEmployee = (emp: RawEmployee) => ({
   ...emp,
   id: emp.id, // Keep original UUID instead of converting to number
   created_by: emp.created_by || null, // Keep original UUID if present
-  current_employment: emp.current_employment?.map((job: any) => ({
+  current_employment: emp.current_employment?.map((job) => ({
     ...job,
     id: job.id, // Keep original UUID
     employee_id: job.employee_id, // Keep original UUID
@@ -203,11 +272,11 @@ router.get('/temp-admin-employees', async (req, res) => {
     }
 
     // Transform data using the utility function
-    const transformedEmployees = (data || []).map((emp: any) => {
+    const transformedEmployees = (data as RawEmployee[] || []).map((emp) => {
       const baseEmployee = transformEmployee(emp);
       return {
         ...baseEmployee,
-        employment_history: emp.employment_history?.map((eh: any) => ({
+        employment_history: emp.employment_history?.map((eh) => ({
           id: eh.id, // Keep original UUID
           employee_id: emp.id, // Keep original UUID
           establishment_id: eh.establishment_id, // Keep original UUID
@@ -258,7 +327,7 @@ router.get('/consumables', async (req, res) => {
     logger.debug(`✅ Found ${data?.length || 0} templates in ${new Set(data?.map(d => d.category)).size} categories`);
 
     res.json({ consumables: data || [] });
-  } catch (error: any) {
+  } catch (error) {
     logger.error('Error fetching consumable templates:', error);
     res.status(500).json({ error: 'Failed to fetch consumable templates' });
   }

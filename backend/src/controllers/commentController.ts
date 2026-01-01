@@ -10,6 +10,26 @@ import { awardXP } from '../services/gamificationService';
 import { badgeAwardService } from '../services/badgeAwardService';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
+// Type definitions
+interface CommentPhotoRecord {
+  id: string;
+  comment_id: string;
+  photo_url: string;
+  cloudinary_public_id: string;
+  display_order: number;
+  created_at: string;
+}
+
+interface CommentUpdates {
+  content?: string;
+  rating?: number;
+}
+
+interface CommentResponse {
+  id: string;
+  is_establishment_response: boolean;
+}
+
 export const getComments = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { employee_id } = req.query;
   const { status = 'approved' } = req.query;
@@ -163,7 +183,7 @@ export const createComment = asyncHandler(async (req: AuthRequest, res: Response
   }
 
   // 📸 v10.4 - Insert photos if provided
-  let insertedPhotos: any[] = [];
+  let insertedPhotos: CommentPhotoRecord[] = [];
   if (photo_urls && photo_urls.length > 0) {
     const photosToInsert = photo_urls.map((url, index) => {
       // Extract cloudinary public_id from URL
@@ -328,7 +348,7 @@ export const createComment = asyncHandler(async (req: AuthRequest, res: Response
   // 📸 v10.4 - Include photos in response
   const commentWithPhotos = {
     ...comment,
-    photos: insertedPhotos.sort((a: any, b: any) => a.display_order - b.display_order)
+    photos: insertedPhotos.sort((a, b) => a.display_order - b.display_order)
   };
 
   res.status(201).json({
@@ -356,7 +376,7 @@ export const updateComment = asyncHandler(async (req: AuthRequest, res: Response
     throw ForbiddenError('Not authorized to update this comment');
   }
 
-  const updates: any = {};
+  const updates: CommentUpdates = {};
   if (content) updates.content = content;
   if (rating && !comment.parent_comment_id) updates.rating = rating; // Only parent comments can have ratings
 
@@ -823,7 +843,7 @@ export const getEstablishmentReviews = asyncHandler(async (req: AuthRequest, res
   const reviewsWithResponseStatus = reviews?.map(review => ({
     ...review,
     has_establishment_response: (review.responses || []).some(
-      (r: any) => r.is_establishment_response
+      (r: CommentResponse) => r.is_establishment_response
     )
   })) || [];
 

@@ -21,7 +21,7 @@ export enum LogLevel {
 
 interface LogOptions {
   sanitize?: boolean; // Auto-sanitize tokens/secrets (default: true)
-  context?: Record<string, any>; // Additional context
+  context?: Record<string, unknown>; // Additional context
 }
 
 class Logger {
@@ -32,7 +32,7 @@ class Logger {
    * Sanitize sensitive data from logs
    * Removes tokens, passwords, secrets, etc.
    */
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (typeof data !== 'object' || data === null) return data;
 
     const sensitiveKeys = [
@@ -51,7 +51,12 @@ class Logger {
       'access_token'
     ];
 
-    const sanitized = Array.isArray(data) ? [...data] : { ...data };
+    if (Array.isArray(data)) {
+      return data.map(item => this.sanitizeData(item));
+    }
+
+    const dataObj = data as Record<string, unknown>;
+    const sanitized: Record<string, unknown> = { ...dataObj };
 
     for (const key of Object.keys(sanitized)) {
       const lowerKey = key.toLowerCase();
@@ -71,7 +76,7 @@ class Logger {
   /**
    * Format log message with emoji, timestamp, and level
    */
-  private formatMessage(level: string, message: string, data?: any, options?: LogOptions): string {
+  private formatMessage(level: string, message: string, data?: unknown, options?: LogOptions): string {
     const timestamp = new Date().toISOString();
     const emoji = {
       DEBUG: '🔍',
@@ -90,10 +95,15 @@ class Logger {
 
     // Add context if provided
     if (options?.context) {
-      formattedData = {
-        ...formattedData,
-        context: this.sanitizeData(options.context)
-      };
+      const contextData = this.sanitizeData(options.context);
+      if (formattedData && typeof formattedData === 'object' && !Array.isArray(formattedData)) {
+        formattedData = {
+          ...(formattedData as Record<string, unknown>),
+          context: contextData
+        };
+      } else {
+        formattedData = { data: formattedData, context: contextData };
+      }
     }
 
     return `${emoji} [${timestamp}] [${level}] ${message}${
@@ -104,7 +114,7 @@ class Logger {
   /**
    * Debug logs - only in development
    */
-  debug(message: string, data?: any, options?: LogOptions) {
+  debug(message: string, data?: unknown, options?: LogOptions) {
     if (this.isDevelopment && this.minLevel <= LogLevel.DEBUG) {
       console.log(this.formatMessage('DEBUG', message, data, options));
     }
@@ -113,7 +123,7 @@ class Logger {
   /**
    * Info logs - development and production (if enabled)
    */
-  info(message: string, data?: any, options?: LogOptions) {
+  info(message: string, data?: unknown, options?: LogOptions) {
     if (this.minLevel <= LogLevel.INFO) {
       console.log(this.formatMessage('INFO', message, data, options));
     }
@@ -122,7 +132,7 @@ class Logger {
   /**
    * Warning logs - always logged
    */
-  warn(message: string, data?: any, options?: LogOptions) {
+  warn(message: string, data?: unknown, options?: LogOptions) {
     if (this.minLevel <= LogLevel.WARN) {
       console.warn(this.formatMessage('WARN', message, data, options));
     }
@@ -131,7 +141,7 @@ class Logger {
   /**
    * Error logs - always logged
    */
-  error(message: string, error?: Error | any, options?: LogOptions) {
+  error(message: string, error?: Error | unknown, options?: LogOptions) {
     if (this.minLevel <= LogLevel.ERROR) {
       const errorData = error instanceof Error ? {
         message: error.message,
@@ -165,7 +175,7 @@ class Logger {
    * Critical logs - always logged with forced sanitization
    * Use for security incidents, data breaches, etc.
    */
-  critical(message: string, error?: Error | any, options?: LogOptions) {
+  critical(message: string, error?: Error | unknown, options?: LogOptions) {
     const errorData = error instanceof Error ? {
       message: error.message,
       stack: error.stack,
@@ -201,7 +211,7 @@ class Logger {
    * Helper to log HTTP requests
    * Auto-sanitizes headers and body
    */
-  logRequest(req: Request, message: string, additionalData?: any) {
+  logRequest(req: Request, message: string, additionalData?: Record<string, unknown>) {
     this.debug(message, {
       method: req.method,
       url: req.originalUrl,
@@ -219,7 +229,7 @@ class Logger {
   /**
    * Helper to log authentication events
    */
-  logAuth(event: string, data?: any) {
+  logAuth(event: string, data?: Record<string, unknown>) {
     this.info(`Auth: ${event}`, {
       timestamp: new Date().toISOString(),
       ...data
@@ -229,7 +239,7 @@ class Logger {
   /**
    * Helper to log security events
    */
-  logSecurity(event: string, data?: any) {
+  logSecurity(event: string, data?: Record<string, unknown>) {
     this.warn(`Security: ${event}`, {
       timestamp: new Date().toISOString(),
       ...data

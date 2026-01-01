@@ -151,7 +151,7 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
 
     // Get content details for notification
     let contentName = '';
-    let contentData: any = null;
+    let contentData: { name?: string; content?: string } | null = null;
 
     if (moderationItem.item_type === 'employee') {
       const { data: employee } = await supabase

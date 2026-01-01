@@ -11,6 +11,21 @@
 import { supabase } from '../config/supabase';
 import { logger } from './logger';
 
+// Type definitions for Supabase query results
+interface EstablishmentWithCategory {
+  id: string;
+  name: string;
+  category: { name: string } | null;
+}
+
+interface EmploymentHistoryWithEstablishment {
+  establishment_id: string;
+  establishments: {
+    id: string;
+    category: { name: string } | null;
+  } | null;
+}
+
 /**
  * Validates that an establishment is a Nightclub
  * @param establishmentId - The establishment ID to validate
@@ -38,7 +53,9 @@ export async function validateEstablishmentIsNightclub(
       };
     }
 
-    const categoryName = (establishment.category as any)?.name || null;
+    // Type assertion for Supabase nested query result
+    const categoryData = (establishment.category as { name: string }[] | null)?.[0];
+    const categoryName = categoryData?.name || null;
     const isNightclub = categoryName === 'Nightclub';
 
     return {
@@ -98,13 +115,20 @@ export async function validateAllEstablishmentsAreNightclubs(
       };
     }
 
+    // Type assertion for Supabase nested query results (arrays for related data)
     const invalidEstablishments = establishments
-      .filter((est: any) => est.category?.name !== 'Nightclub')
-      .map((est: any) => ({
-        id: est.id,
-        name: est.name,
-        category: est.category?.name || 'Unknown'
-      }));
+      .filter((est) => {
+        const category = (est.category as { name: string }[] | null)?.[0];
+        return category?.name !== 'Nightclub';
+      })
+      .map((est) => {
+        const category = (est.category as { name: string }[] | null)?.[0];
+        return {
+          id: est.id as string,
+          name: est.name as string,
+          category: category?.name || 'Unknown'
+        };
+      });
 
     return {
       valid: invalidEstablishments.length === 0,
@@ -198,10 +222,14 @@ export async function getFreelanceNightclubs(employeeId: string): Promise<string
       return [];
     }
 
-    // Filter only nightclubs
+    // Filter only nightclubs - handle Supabase's array return format for nested queries
     const nightclubIds = employmentHistory
-      .filter((eh: any) => eh.establishments?.category?.name === 'Nightclub')
-      .map((eh: any) => eh.establishment_id);
+      .filter((eh) => {
+        const establishments = eh.establishments as { category: { name: string }[] }[] | null;
+        const category = establishments?.[0]?.category?.[0];
+        return category?.name === 'Nightclub';
+      })
+      .map((eh) => eh.establishment_id as string);
 
     return nightclubIds;
   } catch (err) {

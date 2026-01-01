@@ -13,6 +13,52 @@ import { logger } from '../utils/logger';
 import { escapeLikeWildcards } from '../utils/validation';
 import { asyncHandler, NotFoundError, InternalServerError } from '../middleware/asyncHandler';
 
+// =====================================================
+// TYPES
+// =====================================================
+
+interface EmploymentWithEstablishment {
+  id: string;
+  employee_id: string;
+  is_current: boolean;
+  start_date: string;
+  establishment: {
+    id: string;
+    name: string;
+    address?: string;
+    zone?: string;
+    category: { name: string } | null;
+  } | null;
+}
+
+interface RawFreelanceEmployee {
+  id: string;
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[];
+  description?: string;
+  photos: string[];
+  is_vip?: boolean;
+  vip_expires_at?: string;
+  is_verified?: boolean;
+  status: string;
+  created_at: string;
+  current_employment?: EmploymentWithEstablishment[];
+}
+
+interface NightclubAssociation {
+  id: string;
+  name: string;
+  address?: string;
+  zone?: string;
+  start_date: string;
+}
+
+interface ProcessedFreelance extends Omit<RawFreelanceEmployee, 'current_employment'> {
+  nightclubs: NightclubAssociation[];
+}
+
 /**
  * GET /api/freelances
  * Fetch all freelance employees
@@ -79,12 +125,12 @@ export const getFreelances = asyncHandler(async (req: Request, res: Response) =>
   }
 
   // Process employees: group nightclubs and filter based on has_nightclub
-  const employees = (rawEmployees || []).map((emp: any) => {
+  const employees = (rawEmployees as RawFreelanceEmployee[] || []).map((emp) => {
     const nightclubs = (emp.current_employment || [])
-      .filter((eh: any) => eh.is_current === true && eh.establishment?.category?.name === 'Nightclub')
-      .map((eh: any) => ({
-        id: eh.establishment.id,
-        name: eh.establishment.name,
+      .filter((eh) => eh.is_current === true && eh.establishment?.category?.name === 'Nightclub')
+      .map((eh) => ({
+        id: eh.establishment!.id,
+        name: eh.establishment!.name,
         start_date: eh.start_date
       }));
 
@@ -98,15 +144,15 @@ export const getFreelances = asyncHandler(async (req: Request, res: Response) =>
   // Filter by has_nightclub if specified
   let filteredEmployees = employees;
   if (has_nightclub === 'true') {
-    filteredEmployees = employees.filter((emp: any) => emp.nightclubs.length > 0);
+    filteredEmployees = employees.filter((emp) => emp.nightclubs.length > 0);
   } else if (has_nightclub === 'false') {
-    filteredEmployees = employees.filter((emp: any) => emp.nightclubs.length === 0);
+    filteredEmployees = employees.filter((emp) => emp.nightclubs.length === 0);
   }
 
   // Sort employees - Verified priority first
-  const sortedEmployees = filteredEmployees.sort((a: any, b: any) => {
-    const aIsVip = a.is_vip && new Date(a.vip_expires_at) > new Date();
-    const bIsVip = b.is_vip && new Date(b.vip_expires_at) > new Date();
+  const sortedEmployees = filteredEmployees.sort((a, b) => {
+    const aIsVip = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
+    const bIsVip = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
     const aIsVerified = a.is_verified === true;
     const bIsVerified = b.is_verified === true;
 
@@ -185,13 +231,13 @@ export const getFreelanceById = asyncHandler(async (req: Request, res: Response)
   }
 
   // Filter only nightclubs
-  const nightclubs = (employmentHistory || [])
-    .filter((eh: any) => eh.establishment?.category?.name === 'Nightclub')
-    .map((eh: any) => ({
-      id: eh.establishment.id,
-      name: eh.establishment.name,
-      address: eh.establishment.address,
-      zone: eh.establishment.zone,
+  const nightclubs = (employmentHistory as EmploymentWithEstablishment[] || [])
+    .filter((eh) => eh.establishment?.category?.name === 'Nightclub')
+    .map((eh) => ({
+      id: eh.establishment!.id,
+      name: eh.establishment!.name,
+      address: eh.establishment!.address,
+      zone: eh.establishment!.zone,
       start_date: eh.start_date
     }));
 

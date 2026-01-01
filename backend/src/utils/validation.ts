@@ -77,7 +77,7 @@ export const validateTextInput = (
 
 // Validate numeric input
 export const validateNumericInput = (
-  input: any,
+  input: unknown,
   min?: number,
   max?: number
 ): { valid: boolean; value?: number; error?: string } => {
@@ -374,15 +374,17 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
   'PGRST116': 'Ressource non trouvée',
 };
 
-export const sanitizeErrorForClient = (error: any, context?: string): string => {
+export const sanitizeErrorForClient = (error: unknown, context?: string): string => {
+  const errorObj = error as { message?: string; code?: string } | null;
+
   // In development, return more details for debugging
   if (process.env.NODE_ENV === 'development') {
-    return error?.message || 'Une erreur est survenue';
+    return errorObj?.message || 'Une erreur est survenue';
   }
 
   // Check for known Postgres/Supabase error codes
-  if (error?.code && ERROR_CODE_MESSAGES[error.code]) {
-    return ERROR_CODE_MESSAGES[error.code];
+  if (errorObj?.code && ERROR_CODE_MESSAGES[errorObj.code]) {
+    return ERROR_CODE_MESSAGES[errorObj.code];
   }
 
   // Generic user-friendly messages based on context

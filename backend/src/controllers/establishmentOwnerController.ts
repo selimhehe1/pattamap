@@ -2,13 +2,39 @@ import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
-import { CreateEstablishmentOwnerRequest } from '../types';
+import { CreateEstablishmentOwnerRequest, Establishment } from '../types';
 import {
   notifyEstablishmentOwnerAssigned,
   notifyEstablishmentOwnerRemoved,
   notifyEstablishmentOwnerPermissionsUpdated
 } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
+
+// Type definitions
+interface OwnershipPermissions {
+  can_edit_info?: boolean;
+  can_edit_pricing?: boolean;
+  can_edit_photos?: boolean;
+  can_edit_employees?: boolean;
+  can_view_analytics?: boolean;
+}
+
+interface OwnershipRecord {
+  id: string;
+  user_id: string;
+  establishment_id: string;
+  owner_role: 'owner' | 'manager';
+  permissions: OwnershipPermissions;
+  assigned_at: string;
+  // Supabase returns nested queries as arrays
+  establishment?: Establishment[] | null;
+}
+
+interface OwnershipUpdates {
+  updated_at: string;
+  permissions?: OwnershipPermissions;
+  owner_role?: 'owner' | 'manager';
+}
 
 /**
  * Get all owners of a specific establishment (admin only)
@@ -110,12 +136,18 @@ export const getMyOwnedEstablishments = asyncHandler(async (req: AuthRequest, re
     }
 
     // Extract establishments from ownership records
-    const establishments = ownerships?.map((ownership: any) => ({
-      ...ownership.establishment,
-      ownership_role: ownership.owner_role,
-      permissions: ownership.permissions,
-      owned_since: ownership.assigned_at
-    })) || [];
+    // Type assertion at use point to avoid complex Supabase typing issues
+    const establishments = (ownerships || []).map((ownership) => {
+      const est = ownership.establishment;
+      // Handle Supabase returning nested queries as arrays
+      const establishment = Array.isArray(est) ? est[0] : est;
+      return {
+        ...establishment,
+        ownership_role: ownership.owner_role,
+        permissions: ownership.permissions,
+        owned_since: ownership.assigned_at
+      };
+    });
 
     res.json({
       establishments,
@@ -345,7 +377,7 @@ export const updateEstablishmentOwnerPermissions = asyncHandler(async (req: Auth
     }
 
     // Update ownership
-    const updates: any = { updated_at: new Date().toISOString() };
+    const updates: OwnershipUpdates = { updated_at: new Date().toISOString() };
     if (permissions) updates.permissions = permissions;
     if (owner_role) updates.owner_role = owner_role;
 

@@ -3,6 +3,14 @@ import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
 import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
+// Type definitions
+interface VisibilityUpdateData {
+  is_hidden: boolean;
+  hidden_by: string | null;
+  hidden_at: string | null;
+  hide_reason: string | null;
+}
+
 /**
  * Employee Validation Controller
  * Handles community voting on employee profile existence
@@ -281,7 +289,7 @@ export const toggleEmployeeVisibilityAsOwner = asyncHandler(async (req: Request,
     }
 
     // Update visibility
-    const updateData: any = {
+    const updateData: VisibilityUpdateData = {
       is_hidden: isHidden,
       hidden_by: isHidden ? userId : null,
       hidden_at: isHidden ? new Date().toISOString() : null,
@@ -398,7 +406,7 @@ export const toggleEmployeeVisibilityAsAdmin = asyncHandler(async (req: Request,
     }
 
     // Update visibility (admin can update any profile)
-    const updateData: any = {
+    const updateData: VisibilityUpdateData = {
       is_hidden: isHidden,
       hidden_by: isHidden ? userId : null,
       hidden_at: isHidden ? new Date().toISOString() : null,

@@ -8,6 +8,30 @@ import { awardXP } from '../services/gamificationService';
 import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 
+// Type definitions for Supabase query results
+interface CurrentEmploymentRecord {
+  id: string;
+  employee_id: string;
+  establishment_id: string;
+  is_current: boolean;
+  start_date?: string;
+  end_date?: string;
+  establishment?: {
+    id: string;
+    name: string;
+    zone?: string;
+  } | null;
+}
+
+interface IndependentPositionRecord {
+  id: string;
+  employee_id: string;
+  is_active: boolean;
+  zone?: string;
+  grid_row?: number;
+  grid_col?: number;
+}
+
 export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
     const {
       status = 'approved',
@@ -129,7 +153,7 @@ export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response)
 
     // 🆕 v10.3: Filter by employee type (freelance vs regular)
     const employees = (allEmployees || []).filter(emp => {
-      const hasCurrentEmployment = emp.current_employment?.some((ce: any) => ce.is_current === true);
+      const hasCurrentEmployment = emp.current_employment?.some((ce: CurrentEmploymentRecord) => ce.is_current === true);
       const isFreelance = emp.is_freelance === true;
 
       // Base filter: must have active position (employment OR freelance)
@@ -1117,9 +1141,9 @@ export const searchEmployees = asyncHandler(async (req: AuthRequest, res: Respon
     // ✅ Filter employees - Accept ALL approved employees by default (no strict position requirement)
     const filteredEmployees = (allEmployees || []).filter(emp => {
       // Identify positions for optional filters
-      const hasCurrentEmployment = emp.current_employment?.some((ce: any) => ce.is_current === true);
-      const currentEmp = emp.current_employment?.find((ce: any) => ce.is_current === true);
-      const hasActiveFreelance = emp.independent_position?.some((ip: any) => ip.is_active === true);
+      const hasCurrentEmployment = emp.current_employment?.some((ce: CurrentEmploymentRecord) => ce.is_current === true);
+      const currentEmp = emp.current_employment?.find((ce: CurrentEmploymentRecord) => ce.is_current === true);
+      const hasActiveFreelance = emp.independent_position?.some((ip: IndependentPositionRecord) => ip.is_active === true);
       const isSimpleFreelance = emp.is_freelance === true; // 🆕 v10.x - Simple freelance (no map position)
 
       // 🆕 v10.3 - Employee Type Filter (optional - only applied if specified)

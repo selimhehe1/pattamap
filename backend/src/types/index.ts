@@ -21,6 +21,7 @@ export interface Establishment {
   id: string;
   name: string;
   address: string;
+  zone?: string;
   location: {
     latitude: number;
     longitude: number;
@@ -30,7 +31,7 @@ export interface Establishment {
   description?: string;
   phone?: string;
   website?: string;
-  opening_hours?: any;
+  opening_hours?: Record<string, string | string[]>;
   // Social media links (v10.1)
   instagram?: string;
   twitter?: string;
@@ -160,7 +161,7 @@ export interface CreateEstablishmentRequest {
   description?: string;
   phone?: string;
   website?: string;
-  opening_hours?: any;
+  opening_hours?: Record<string, string | string[]>;
   // Social media links (v10.1)
   instagram?: string;
   twitter?: string;
@@ -282,7 +283,7 @@ export interface CreateOwnershipRequestRequest {
     description?: string;
     phone?: string;
     website?: string;
-    opening_hours?: any;
+    opening_hours?: Record<string, string | string[]>;
     instagram?: string;
     twitter?: string;
     tiktok?: string;
@@ -375,8 +376,8 @@ export interface Notification {
   related_entity_id?: string;
   metadata?: {
     i18n_key?: string;
-    i18n_params?: Record<string, any>;
-    [key: string]: any; // Allow additional metadata fields
+    i18n_params?: Record<string, unknown>;
+    [key: string]: unknown; // Allow additional metadata fields
   };
 }
 
@@ -385,7 +386,7 @@ export interface CreateNotificationRequest {
   type: NotificationType;
   // i18n support (v10.3 - NEW)
   i18n_key?: string; // e.g., 'notifications.verificationApproved'
-  i18n_params?: Record<string, any>; // e.g., { employeeName: 'Lisa', establishmentName: 'Club XYZ' }
+  i18n_params?: Record<string, unknown>; // e.g., { employeeName: 'Lisa', establishmentName: 'Club XYZ' }
   // Backward compatibility (optional when i18n_key provided)
   title?: string;
   message?: string;

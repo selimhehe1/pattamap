@@ -67,10 +67,12 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
         hasUserId: !!decoded.userId,
         hasRole: !!decoded.role
       });
-    } catch (jwtError: any) {
+    } catch (jwtError) {
+      const errorMessage = jwtError instanceof Error ? jwtError.message : 'Unknown error';
+      const errorName = jwtError instanceof Error ? jwtError.name : 'UnknownError';
       logger.debug('Token verification failed', {
-        error: jwtError.message,
-        code: jwtError.name
+        error: errorMessage,
+        code: errorName
       });
       if (jwtError instanceof TokenExpiredError) {
         return res.status(401).json({
@@ -172,10 +174,11 @@ export const authenticateTokenOptional = async (req: AuthRequest, res: Response,
     let decoded: JWTPayload;
     try {
       decoded = jwt.verify(token, jwtSecret) as JWTPayload;
-    } catch (jwtError: any) {
+    } catch (jwtError) {
       // Token invalid/expired - continue without authentication
+      const errorMessage = jwtError instanceof Error ? jwtError.message : 'Unknown error';
       logger.debug('Optional auth: token verification failed', {
-        error: jwtError.message
+        error: errorMessage
       });
       return next();
     }
