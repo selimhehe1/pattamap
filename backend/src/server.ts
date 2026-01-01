@@ -497,7 +497,7 @@ app.get('/api/health', healthCheckRateLimit, (req, res) => {
     message: 'PattaMap API is running!',
     timestamp: new Date().toISOString(),
     version: '2.0.0-secure',
-    buildId: 'favfix-20251231-v5'
+    buildId: 'estfix-20260101-v2'
   });
 });
 

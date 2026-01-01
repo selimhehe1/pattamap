@@ -673,8 +673,18 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
         }
 
         logger.info(`Employee ${id} updated with ${newEstablishmentIds.length} establishment(s)`);
+
+        // Also update the current_establishment_id column (for non-freelance, use first/only establishment)
+        if (!isFreelance && newEstablishmentIds.length === 1) {
+          employeeUpdates.current_establishment_id = newEstablishmentIds[0];
+        } else if (isFreelance && newEstablishmentIds.length > 0) {
+          // For freelance, set to first establishment (or could be null)
+          employeeUpdates.current_establishment_id = newEstablishmentIds[0];
+        }
       } else {
         logger.info(`Employee ${id} removed from all establishments (free freelance or no employment)`);
+        // Clear current_establishment_id when removing all establishments
+        employeeUpdates.current_establishment_id = null;
       }
     }
 
