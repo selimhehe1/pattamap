@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import {
   createProposal,
@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 // Middleware pour vérifier si l'utilisateur est admin ou moderator
-const requireModeratorOrAdmin = (req: any, res: any, next: any) => {
+const requireModeratorOrAdmin = (req: Request, res: Response, next: NextFunction) => {
   const userRole = req.user?.role;
 
   if (userRole === 'admin' || userRole === 'moderator') {

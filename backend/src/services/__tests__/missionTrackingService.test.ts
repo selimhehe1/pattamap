@@ -837,10 +837,11 @@ describe('MissionTrackingService', () => {
     describe('getUniqueZonesVisited', () => {
 
       it('should count unique zones for all-time', async () => {
+        // Supabase returns relations as arrays
         const mockCheckIns = [
-          { establishment: { zone: 'Walking Street' } },
-          { establishment: { zone: 'Soi 6' } },
-          { establishment: { zone: 'Walking Street' } } // Duplicate
+          { establishment: [{ zone: 'Walking Street' }] },
+          { establishment: [{ zone: 'Soi 6' }] },
+          { establishment: [{ zone: 'Walking Street' }] } // Duplicate
         ];
 
         const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockCheckIns, null));
@@ -852,9 +853,10 @@ describe('MissionTrackingService', () => {
       });
 
       it('should count unique zones for weekly missions', async () => {
+        // Supabase returns relations as arrays
         const mockCheckIns = [
-          { establishment: { zone: 'LK Metro' } },
-          { establishment: { zone: 'Treetown' } }
+          { establishment: [{ zone: 'LK Metro' }] },
+          { establishment: [{ zone: 'Treetown' }] }
         ];
 
         const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockCheckIns, null));
@@ -866,10 +868,11 @@ describe('MissionTrackingService', () => {
       });
 
       it('should handle null zones gracefully', async () => {
+        // Supabase returns relations as arrays
         const mockCheckIns = [
-          { establishment: { zone: 'Zone A' } },
-          { establishment: null }, // Null establishment
-          { establishment: { zone: null } } // Null zone
+          { establishment: [{ zone: 'Zone A' }] },
+          { establishment: [] }, // Empty array (no establishment)
+          { establishment: [{ zone: null }] } // Null zone
         ];
 
         const mockFrom = jest.fn().mockReturnValue(mockSupabaseChain(mockCheckIns, null));

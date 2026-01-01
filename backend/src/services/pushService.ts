@@ -23,8 +23,9 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
       VAPID_PRIVATE_KEY
     );
     vapidConfigured = true;
-  } catch (error: any) {
-    logger.error('❌ VAPID configuration failed:', error.message);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('❌ VAPID configuration failed:', errorMessage);
     logger.error('Push notifications will be disabled. Please check your VAPID keys.');
     logger.error('Keys must be URL-safe Base64 without "=" padding.');
   }
@@ -55,7 +56,7 @@ export interface PushNotificationPayload {
     url?: string;
     notificationId?: string;
     type?: NotificationType;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   actions?: Array<{
     action: string;
@@ -101,13 +102,18 @@ export const sendPushNotification = async (
     });
 
     return true;
-  } catch (error: any) {
+  } catch (error) {
+    // Type guard for web-push errors which have statusCode
+    const pushError = error as { statusCode?: number; message?: string };
+    const statusCode = pushError.statusCode;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
     // Handle specific push errors
-    if (error.statusCode === 404 || error.statusCode === 410) {
+    if (statusCode === 404 || statusCode === 410) {
       // Subscription expired or invalid - remove it
       logger.warn('Push subscription expired/invalid, removing:', {
         endpoint: subscription.endpoint.substring(0, 50) + '...',
-        statusCode: error.statusCode
+        statusCode
       });
 
       await supabase
@@ -119,8 +125,8 @@ export const sendPushNotification = async (
     }
 
     logger.error('Send push notification error:', {
-      error: error.message,
-      statusCode: error.statusCode,
+      error: errorMessage,
+      statusCode,
       endpoint: subscription.endpoint.substring(0, 50) + '...'
     });
 

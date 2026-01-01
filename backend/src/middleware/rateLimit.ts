@@ -122,7 +122,7 @@ export const createRateLimit = (options: RateLimitOptions) => {
           return originalStatus.call(this, code);
         };
 
-        res.json = function(body: any) {
+        res.json = function<T>(body: T) {
           const shouldSkip =
             (skipSuccessfulRequests && statusCode >= 200 && statusCode < 400) ||
             (skipFailedRequests && statusCode >= 400);
@@ -194,7 +194,7 @@ export const adminCriticalRateLimit = createRateLimit({
   message: 'Too many critical admin operations, please wait',
   keyGenerator: (req: Request) => {
     // Include user ID if available for more precise limiting
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `critical:${userIdFromToken}:${ip}`;
   }
@@ -206,7 +206,7 @@ export const userManagementRateLimit = createRateLimit({
   maxRequests: 20,
   message: 'Too many user management operations',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `usermgmt:${userIdFromToken}:${ip}`;
   }
@@ -218,7 +218,7 @@ export const bulkOperationRateLimit = createRateLimit({
   maxRequests: 5, // Very limited
   message: 'Too many bulk operations, please wait',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     return `bulk:${userIdFromToken}`;
   }
 });
@@ -236,7 +236,7 @@ export const establishmentEmployeesRateLimit = createRateLimit({
   maxRequests: 30, // Max 30 requests per minute
   message: 'Too many requests to view employees',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `est-employees:${userIdFromToken}:${ip}`;
   }
@@ -248,7 +248,7 @@ export const vipPurchaseRateLimit = createRateLimit({
   maxRequests: 5, // Max 5 VIP purchases per hour (prevent spam)
   message: 'Too many VIP purchase attempts, please try again later',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `vip-purchase:${userIdFromToken}:${ip}`;
   }
@@ -260,7 +260,7 @@ export const vipStatusCheckRateLimit = createRateLimit({
   maxRequests: 60, // Max 60 requests per minute (frequent checks allowed)
   message: 'Too many VIP status check requests',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `vip-status:${userIdFromToken}:${ip}`;
   }
@@ -285,7 +285,7 @@ export const searchSuggestionsRateLimit = createRateLimit({
   maxRequests: 60, // Max 60 requests per minute (1 per second avg)
   message: 'Too many search requests. Please slow down.',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `search-suggestions:${userIdFromToken}:${ip}`;
   }
@@ -297,7 +297,7 @@ export const employeeSearchRateLimit = createRateLimit({
   maxRequests: 30, // Max 30 searches per minute
   message: 'Too many search requests. Please wait before searching again.',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `employee-search:${userIdFromToken}:${ip}`;
   }
@@ -310,7 +310,7 @@ export const notificationRateLimit = createRateLimit({
   maxRequests: 30, // Max 30 requests per minute (1 per 2 seconds avg)
   message: 'Too many notification requests. Please wait.',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `notifications:${userIdFromToken}:${ip}`;
   }
@@ -322,7 +322,7 @@ export const notificationMutationRateLimit = createRateLimit({
   maxRequests: 60, // Max 60 mutations per minute
   message: 'Too many notification actions. Please slow down.',
   keyGenerator: (req: Request) => {
-    const userIdFromToken = (req as any).user?.id || 'anonymous';
+    const userIdFromToken = req.user?.id || 'anonymous';
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `notification-mutations:${userIdFromToken}:${ip}`;
   }

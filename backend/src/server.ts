@@ -322,7 +322,7 @@ const createSessionStore = (): session.Store | undefined => {
           return null;
         }
       },
-      set: async (key: string, value: string, optionsOrFlag?: any, ttl?: number) => {
+      set: async (key: string, value: string, optionsOrFlag?: { EX?: number } | string, ttl?: number) => {
         try {
           // connect-redis v8+ uses { EX: ttl } format
           // connect-redis v7 uses 'EX', ttl format
@@ -524,7 +524,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
     const { establishmentId, grid_row, grid_col, zone, swap_with_id } = req.body;
 
     // 🛡️ SECURITY: Check if user is admin OR owner of the establishment
-    const user = (req as any).user;
+    const user = req.user;
     const isAdmin = user?.role === 'admin' || user?.role === 'moderator';
     const isOwner = user?.id ? await isEstablishmentOwner(user.id, establishmentId) : false;
 
@@ -542,7 +542,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
     }
 
     // Enhanced UUID validation
-    const isValidUUID = (uuid: any): boolean => {
+    const isValidUUID = (uuid: unknown): boolean => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       return typeof uuid === 'string' && uuidRegex.test(uuid);
     };

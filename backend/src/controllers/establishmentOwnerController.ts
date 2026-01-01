@@ -332,18 +332,21 @@ export const removeEstablishmentOwner = asyncHandler(async (req: AuthRequest, re
       throw InternalServerError('Failed to remove owner');
     }
 
+    const establishmentArray = ownership.establishment as { name: string }[] | null;
+    const userArray = ownership.user as { pseudonym: string }[] | null;
+
     logger.info('Establishment owner removed', {
       establishmentId: id,
-      establishmentName: (ownership.establishment as any)?.name,
+      establishmentName: establishmentArray?.[0]?.name,
       ownerId: userId,
-      ownerPseudonym: (ownership.user as any)?.pseudonym,
+      ownerPseudonym: userArray?.[0]?.pseudonym,
       removedBy: req.user!.pseudonym
     });
 
     // Notify user that they've been removed as establishment owner
     await notifyEstablishmentOwnerRemoved(
       userId,
-      (ownership.establishment as any)?.name || 'Unknown',
+      establishmentArray?.[0]?.name || 'Unknown',
       id
     );
 
@@ -414,9 +417,10 @@ export const updateEstablishmentOwnerPermissions = asyncHandler(async (req: Auth
 
     // Notify user that their permissions have been updated
     if (updated && permissions) {
+      const establishmentArray = updated.establishment as { name: string }[] | null;
       await notifyEstablishmentOwnerPermissionsUpdated(
         userId,
-        (updated.establishment as any)?.name || 'Unknown',
+        establishmentArray?.[0]?.name || 'Unknown',
         id,
         permissions
       );

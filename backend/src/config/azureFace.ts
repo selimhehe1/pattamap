@@ -213,20 +213,27 @@ export async function compareFaces(imageUrl1: string, imageUrl2: string): Promis
 
     return score;
 
-  } catch (error: any) {
-    console.error('❌ Azure Face API error:', error.message);
+  } catch (error) {
+    // Type guard for Azure errors
+    const azureError = error as {
+      code?: string;
+      message?: string;
+      response?: { body?: { error?: { code?: string; message?: string } }; status?: number };
+    };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Azure Face API error:', errorMessage);
 
     // Handle specific Azure errors
-    const errorCode = error.code || error.response?.body?.error?.code;
-    const errorMessage = error.message || error.response?.body?.error?.message;
+    const errorCode = azureError.code || azureError.response?.body?.error?.code;
+    const azureErrorMessage = azureError.message || azureError.response?.body?.error?.message;
 
-    if (errorCode === 'InvalidImageSize' || errorMessage?.includes('image size')) {
+    if (errorCode === 'InvalidImageSize' || azureErrorMessage?.includes('image size')) {
       throw new Error('Image too small or too large. Please use a clear photo.');
     }
-    if (errorCode === 'InvalidImage' || errorMessage?.includes('invalid image')) {
+    if (errorCode === 'InvalidImage' || azureErrorMessage?.includes('invalid image')) {
       throw new Error('Invalid image format. Please use JPG or PNG.');
     }
-    if (errorCode === 'RateLimitExceeded' || error.response?.status === 429) {
+    if (errorCode === 'RateLimitExceeded' || azureError.response?.status === 429) {
       throw new Error('Too many verification attempts. Please try again later.');
     }
 
@@ -274,8 +281,9 @@ export async function compareAgainstMultiplePhotos(
 
     return bestScore;
 
-  } catch (error: any) {
-    console.error('❌ Multiple photo comparison error:', error.message);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Multiple photo comparison error:', errorMessage);
     throw error;
   }
 }
@@ -323,20 +331,27 @@ export async function detectFaceInImage(imageUrl: string): Promise<boolean> {
 
     return faceDetected;
 
-  } catch (error: any) {
-    console.error('❌ Face detection error:', error.message);
+  } catch (error) {
+    // Type guard for Azure errors
+    const azureError = error as {
+      code?: string;
+      message?: string;
+      response?: { body?: { error?: { code?: string; message?: string } }; status?: number };
+    };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Face detection error:', errorMessage);
 
     // Handle specific Azure errors
-    const errorCode = error.code || error.response?.body?.error?.code;
-    const errorMessage = error.message || error.response?.body?.error?.message;
+    const errorCode = azureError.code || azureError.response?.body?.error?.code;
+    const azureErrorMessage = azureError.message || azureError.response?.body?.error?.message;
 
-    if (errorCode === 'InvalidImageSize' || errorMessage?.includes('image size')) {
+    if (errorCode === 'InvalidImageSize' || azureErrorMessage?.includes('image size')) {
       throw new Error('Image too small or too large. Please use a clear photo.');
     }
-    if (errorCode === 'InvalidImage' || errorMessage?.includes('invalid image')) {
+    if (errorCode === 'InvalidImage' || azureErrorMessage?.includes('invalid image')) {
       throw new Error('Invalid image format. Please use JPG or PNG.');
     }
-    if (errorCode === 'RateLimitExceeded' || error.response?.status === 429) {
+    if (errorCode === 'RateLimitExceeded' || azureError.response?.status === 429) {
       throw new Error('Too many verification attempts. Please try again later.');
     }
 

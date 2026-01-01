@@ -67,7 +67,7 @@ export const cacheMiddleware = (options: CacheOptions = {}) => {
       const cacheKey = keyGenerator(req);
 
       // Try to get from cache
-      const cached = await cacheGet<any>(cacheKey);
+      const cached = await cacheGet<unknown>(cacheKey);
 
       if (cached) {
         logger.debug(`✅ Cache HIT for key: ${cacheKey}`);
@@ -86,7 +86,7 @@ export const cacheMiddleware = (options: CacheOptions = {}) => {
       // Intercept res.json to cache the response
       const originalJson = res.json.bind(res);
 
-      res.json = function (body: any) {
+      res.json = function<T> (body: T) {
         // Only cache successful responses
         if (res.statusCode >= 200 && res.statusCode < 300) {
           // Cache asynchronously (don't block response)

@@ -65,9 +65,9 @@ interface CursorValue {
 /**
  * Encode cursor from item
  */
-export const encodeCursor = (item: any, sortField: string = 'created_at'): Cursor => {
+export const encodeCursor = (item: { id: string; created_at?: string; [key: string]: unknown }, sortField: string = 'created_at'): Cursor => {
   const cursorValue: CursorValue = {
-    created_at: item[sortField] || item.created_at,
+    created_at: (item[sortField] as string) || item.created_at || '',
     id: item.id,
   };
 
@@ -99,8 +99,18 @@ export const decodeCursor = (cursor: Cursor): CursorValue | null => {
  *   { limit: 20, cursor: 'eyJjcmVhdGVkX2F0IjoiMjAyNC0wMS0wMVQxMjowMDowMFoiLCJpZCI6IjEyMyJ9' }
  * );
  */
-export const paginateQuery = async <T extends Record<string, any>>(
-  queryBuilder: any,
+// Supabase PostgrestFilterBuilder type for query builder
+interface SupabaseQueryBuilder {
+  order: (column: string, options?: { ascending?: boolean }) => SupabaseQueryBuilder;
+  lt: (column: string, value: string) => SupabaseQueryBuilder;
+  gt: (column: string, value: string) => SupabaseQueryBuilder;
+  or: (filter: string) => SupabaseQueryBuilder;
+  limit: (count: number) => SupabaseQueryBuilder;
+  then: <T>(onfulfilled?: (value: { data: T[] | null; error: Error | null; count: number | null }) => unknown) => Promise<unknown>;
+}
+
+export const paginateQuery = async <T extends { id: string; created_at?: string; [key: string]: unknown }>(
+  queryBuilder: SupabaseQueryBuilder,
   options: PaginationOptions = {}
 ): Promise<PaginatedResponse<T>> => {
   const {
@@ -151,19 +161,25 @@ export const paginateQuery = async <T extends Record<string, any>>(
     throw error;
   }
 
+  // Handle null data (empty result)
+  const results: T[] = (data as T[] | null) || [];
+
   // Determine if there's a next page
-  const hasNextPage = data.length > safeLimit;
+  const hasNextPage = results.length > safeLimit;
 
   // Remove the extra item if we fetched one
-  const items = hasNextPage ? data.slice(0, safeLimit) : data;
+  const items = hasNextPage ? results.slice(0, safeLimit) : results;
 
-  // Generate cursors
-  const nextCursor = hasNextPage && items.length > 0
-    ? encodeCursor(items[items.length - 1], sortField)
+  // Generate cursors - T extends { id: string; created_at?: string } so we can encode directly
+  const lastItem = items[items.length - 1];
+  const firstItem = items[0];
+
+  const nextCursor = hasNextPage && lastItem
+    ? encodeCursor(lastItem, sortField)
     : null;
 
-  const previousCursor = items.length > 0
-    ? encodeCursor(items[0], sortField)
+  const previousCursor = firstItem
+    ? encodeCursor(firstItem, sortField)
     : null;
 
   return {

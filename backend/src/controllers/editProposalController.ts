@@ -126,7 +126,7 @@ async function handleFreelanceSwitch(
 
 export const createProposal = asyncHandler(async (req: Request, res: Response) => {
   const { item_type, item_id, proposed_changes, current_values } = req.body;
-  const proposed_by = (req as any).user?.id;
+  const proposed_by = req.user?.id;
 
   if (!proposed_by) {
     throw UnauthorizedError();
@@ -296,7 +296,7 @@ export const getProposals = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getMyProposals = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
 
   if (!userId) {
     throw UnauthorizedError();
@@ -319,7 +319,7 @@ export const getMyProposals = asyncHandler(async (req: Request, res: Response) =
 export const approveProposal = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { moderator_notes } = req.body;
-  const moderator_id = (req as any).user?.id;
+  const moderator_id = req.user?.id;
 
   if (!moderator_id) {
     throw UnauthorizedError();
@@ -411,7 +411,7 @@ export const approveProposal = asyncHandler(async (req: Request, res: Response) 
 export const rejectProposal = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { moderator_notes } = req.body;
-  const moderator_id = (req as any).user?.id;
+  const moderator_id = req.user?.id;
 
   if (!moderator_id) {
     throw UnauthorizedError();

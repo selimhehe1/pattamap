@@ -19,7 +19,7 @@ import {
  * Admin verifies a cash payment and activates subscription
  */
 export const verifyPayment = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw UnauthorizedError('Unauthorized');
   }
@@ -176,7 +176,7 @@ export const getVIPTransactions = asyncHandler(async (req: Request, res: Respons
 export const rejectPayment = asyncHandler(async (req: Request, res: Response) => {
   const { transactionId } = req.params;
   const { admin_notes } = req.body;
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
 
   if (!userId) {
     throw UnauthorizedError('Authentication required');

@@ -767,7 +767,8 @@ export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res:
         // Group by user_id and count
         const counts = new Map<string, { count: number; username: string }>();
         for (const row of data || []) {
-          const existing = counts.get(row.user_id) || { count: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          const usersArray = row.users as { pseudonym: string }[] | null;
+          const existing = counts.get(row.user_id) || { count: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
           existing.count++;
           counts.set(row.user_id, existing);
         }
@@ -785,7 +786,8 @@ export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res:
 
         const counts = new Map<string, { count: number; username: string }>();
         for (const row of data || []) {
-          const existing = counts.get(row.user_id) || { count: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          const usersArray = row.users as { pseudonym: string }[] | null;
+          const existing = counts.get(row.user_id) || { count: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
           existing.count++;
           counts.set(row.user_id, existing);
         }
@@ -802,7 +804,8 @@ export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res:
 
         const counts = new Map<string, { total: number; verified: number; username: string }>();
         for (const row of data || []) {
-          const existing = counts.get(row.user_id) || { total: 0, verified: 0, username: (row.users as any)?.pseudonym || 'Unknown' };
+          const usersArray = row.users as { pseudonym: string }[] | null;
+          const existing = counts.get(row.user_id) || { total: 0, verified: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
           existing.total++;
           if (row.verified) existing.verified++;
           counts.set(row.user_id, existing);
@@ -826,8 +829,10 @@ export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res:
 
         const counts = new Map<string, { count: number; username: string }>();
         for (const row of data || []) {
-          const authorId = (row.comments as any)?.user_id;
-          const username = (row.comments as any)?.users?.pseudonym || 'Unknown';
+          const commentsArray = row.comments as { user_id: string; users: { pseudonym: string }[] | null }[] | null;
+          const comment = commentsArray?.[0];
+          const authorId = comment?.user_id;
+          const username = comment?.users?.[0]?.pseudonym || 'Unknown';
           if (authorId) {
             const existing = counts.get(authorId) || { count: 0, username };
             existing.count++;

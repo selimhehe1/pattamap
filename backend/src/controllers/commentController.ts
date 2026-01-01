@@ -486,7 +486,8 @@ export const reportComment = asyncHandler(async (req: AuthRequest, res: Response
 
   // 🔔 Notify moderators about the new report
   try {
-    const employeeName = (comment.employee as any)?.name || 'Unknown';
+    const employeeData = comment.employee as { name: string }[] | null;
+    const employeeName = employeeData?.[0]?.name || 'Unknown';
     const commentPreview = comment.content.length > 50
       ? comment.content.substring(0, 50) + '...'
       : comment.content;
@@ -748,7 +749,8 @@ export const createEstablishmentResponse = asyncHandler(async (req: AuthRequest,
 
   // 🔔 Notify the original reviewer
   try {
-    const employeeName = (originalComment.employee as any)?.name || 'Employee';
+    const employeeData = originalComment.employee as { name: string }[] | null;
+    const employeeName = employeeData?.[0]?.name || 'Employee';
 
     // Get establishment name
     const { data: establishment } = await supabase

@@ -9,6 +9,28 @@ import { asyncHandler, UnauthorizedError , InternalServerError } from '../middle
  * Handles data export to CSV format
  */
 
+// Supabase relationship types for export queries
+interface EmployeeRelation {
+  name: string;
+  nickname?: string;
+  age?: number;
+  nationality?: string[];
+  is_freelance?: boolean;
+}
+
+interface EstablishmentRelation {
+  name: string;
+  zone?: string;
+  address?: string;
+}
+
+interface BadgeRelation {
+  name: string;
+  description?: string;
+  category?: string;
+  rarity?: string;
+}
+
 // Helper to convert data to CSV
 const toCSV = (data: Record<string, unknown>[], columns: string[]): string => {
   if (data.length === 0) return '';
@@ -64,14 +86,18 @@ export const exportFavorites = asyncHandler(async (req: AuthRequest, res: Respon
     }
 
     // Flatten data for CSV
-    const flatData = (favorites || []).map(fav => ({
-      name: (fav.employee as any)?.name || '',
-      nickname: (fav.employee as any)?.nickname || '',
-      age: (fav.employee as any)?.age || '',
-      nationality: (fav.employee as any)?.nationality || [],
-      is_freelance: (fav.employee as any)?.is_freelance ? 'Yes' : 'No',
-      added_at: new Date(fav.created_at).toLocaleDateString(),
-    }));
+    const flatData = (favorites || []).map(fav => {
+      const employeeArray = fav.employee as EmployeeRelation[] | null;
+      const employee = employeeArray?.[0];
+      return {
+        name: employee?.name || '',
+        nickname: employee?.nickname || '',
+        age: employee?.age || '',
+        nationality: employee?.nationality || [],
+        is_freelance: employee?.is_freelance ? 'Yes' : 'No',
+        added_at: new Date(fav.created_at).toLocaleDateString(),
+      };
+    });
 
     const csv = toCSV(flatData, ['name', 'nickname', 'age', 'nationality', 'is_freelance', 'added_at']);
 
@@ -107,12 +133,16 @@ export const exportVisits = asyncHandler(async (req: AuthRequest, res: Response)
       throw InternalServerError('Failed to export visits');
     }
 
-    const flatData = (visits || []).map(visit => ({
-      establishment: (visit.establishment as any)?.name || '',
-      zone: (visit.establishment as any)?.zone || '',
-      address: (visit.establishment as any)?.address || '',
-      visited_at: new Date(visit.visited_at).toLocaleDateString(),
-    }));
+    const flatData = (visits || []).map(visit => {
+      const establishmentArray = visit.establishment as EstablishmentRelation[] | null;
+      const establishment = establishmentArray?.[0];
+      return {
+        establishment: establishment?.name || '',
+        zone: establishment?.zone || '',
+        address: establishment?.address || '',
+        visited_at: new Date(visit.visited_at).toLocaleDateString(),
+      };
+    });
 
     const csv = toCSV(flatData, ['establishment', 'zone', 'address', 'visited_at']);
 
@@ -149,13 +179,17 @@ export const exportBadges = asyncHandler(async (req: AuthRequest, res: Response)
       throw InternalServerError('Failed to export badges');
     }
 
-    const flatData = (userBadges || []).map(ub => ({
-      badge: (ub.badge as any)?.name || '',
-      description: (ub.badge as any)?.description || '',
-      category: (ub.badge as any)?.category || '',
-      rarity: (ub.badge as any)?.rarity || '',
-      earned_at: new Date(ub.awarded_at).toLocaleDateString(),
-    }));
+    const flatData = (userBadges || []).map(ub => {
+      const badgeArray = ub.badge as BadgeRelation[] | null;
+      const badge = badgeArray?.[0];
+      return {
+        badge: badge?.name || '',
+        description: badge?.description || '',
+        category: badge?.category || '',
+        rarity: badge?.rarity || '',
+        earned_at: new Date(ub.awarded_at).toLocaleDateString(),
+      };
+    });
 
     const csv = toCSV(flatData, ['badge', 'description', 'category', 'rarity', 'earned_at']);
 
@@ -191,15 +225,21 @@ export const exportReviews = asyncHandler(async (req: AuthRequest, res: Response
       throw InternalServerError('Failed to export reviews');
     }
 
-    const flatData = (comments || []).map(comment => ({
-      type: comment.establishment ? 'Establishment' : 'Employee',
-      target: (comment.establishment as any)?.name || (comment.employee as any)?.name || '',
-      zone: (comment.establishment as any)?.zone || '',
-      rating: comment.rating || '',
-      review: comment.text || '',
-      status: comment.status,
-      date: new Date(comment.created_at).toLocaleDateString(),
-    }));
+    const flatData = (comments || []).map(comment => {
+      const establishmentArray = comment.establishment as EstablishmentRelation[] | null;
+      const establishment = establishmentArray?.[0];
+      const employeeArray = comment.employee as { name: string }[] | null;
+      const employee = employeeArray?.[0];
+      return {
+        type: comment.establishment ? 'Establishment' : 'Employee',
+        target: establishment?.name || employee?.name || '',
+        zone: establishment?.zone || '',
+        rating: comment.rating || '',
+        review: comment.text || '',
+        status: comment.status,
+        date: new Date(comment.created_at).toLocaleDateString(),
+      };
+    });
 
     const csv = toCSV(flatData, ['type', 'target', 'zone', 'rating', 'review', 'status', 'date']);
 

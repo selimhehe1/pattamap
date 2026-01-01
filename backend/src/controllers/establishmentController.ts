@@ -72,6 +72,19 @@ interface EmployeeWithId {
   id: string;
 }
 
+// Employee data returned from Supabase relationship queries
+interface EmployeeFromQuery {
+  id: string;
+  name: string;
+  age?: number;
+  nationality?: string[];
+  photos?: string[];
+  status: string;
+  average_rating?: number;
+  comment_count?: number;
+  is_freelance?: boolean;
+}
+
 // Create establishment request body
 interface CreateEstablishmentBody {
   name: string;
@@ -1287,7 +1300,8 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
     throw NotFoundError('Establishment not found');
   }
 
-  const isNightclub = (establishment.category as any)?.name === 'Nightclub';
+  const categoryData = establishment.category as { name: string }[] | null;
+  const isNightclub = categoryData?.[0]?.name === 'Nightclub';
 
   // 3. Fetch employees via current_employment
   const { data: employments, error: empError } = await supabase
@@ -1317,15 +1331,21 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
   // 4. Extract regular employees and add current_employment info
   let employees = employments
     .filter(emp => emp.employee) // Filter out null employees
-    .map(emp => ({
-      ...(emp.employee as any),
-      current_employment: {
-        establishment_id: id,
-        establishment_name: establishment.name,
-        start_date: emp.start_date
-      },
-      employee_type: (emp.employee as any).is_freelance ? 'freelance' : 'regular'
-    }));
+    .map(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray?.[0];
+      if (!employee) return null;
+      return {
+        ...employee,
+        current_employment: {
+          establishment_id: id,
+          establishment_name: establishment.name,
+          start_date: emp.start_date
+        },
+        employee_type: employee.is_freelance ? 'freelance' : 'regular'
+      };
+    })
+    .filter((e): e is NonNullable<typeof e> => e !== null);
 
   // 5. v10.3: If nightclub, also fetch associated freelances
   if (isNightclub) {
@@ -1353,16 +1373,24 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
 
     if (!freelanceError && freelanceEmployments) {
       const freelances = freelanceEmployments
-        .filter(emp => emp.employee && (emp.employee as any).is_freelance === true)
-        .map(emp => ({
-          ...(emp.employee as any),
-          current_employment: {
-            establishment_id: id,
-            establishment_name: establishment.name,
-            start_date: emp.start_date
-          },
-          employee_type: 'freelance'
-        }));
+        .filter(emp => {
+          const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+          const employee = employeeArray?.[0];
+          return employee && employee.is_freelance === true;
+        })
+        .map(emp => {
+          const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+          const employee = employeeArray![0];
+          return {
+            ...employee,
+            current_employment: {
+              establishment_id: id,
+              establishment_name: establishment.name,
+              start_date: emp.start_date
+            },
+            employee_type: 'freelance' as const
+          };
+        });
 
       // Merge freelances with regular employees (avoid duplicates by employee_id)
       const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
@@ -1379,7 +1407,9 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
   }
 
   // 5. Fetch VIP status for all employees in a single query (optimized from N+1)
-  let employeesWithVIP = employees;
+  type EmployeeWithVIP = (typeof employees)[number] & { is_vip: boolean; vip_expires_at: string | null };
+  let employeesWithVIP: EmployeeWithVIP[] = employees.map(emp => ({ ...emp, is_vip: false, vip_expires_at: null }));
+
   try {
     const employeeIds = employees.map((emp: EmployeeWithId) => emp.id);
     const { data: vipSubs } = await supabase
@@ -1394,18 +1424,13 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
       (vipSubs || []).map((sub: { employee_id: string; expires_at: string }) => [sub.employee_id, sub.expires_at])
     );
 
-    employeesWithVIP = employees.map((emp: EmployeeWithId & Record<string, unknown>) => ({
+    employeesWithVIP = employees.map(emp => ({
       ...emp,
       is_vip: vipMap.has(emp.id),
       vip_expires_at: vipMap.get(emp.id) || null
     }));
-  } catch (error) {
-    // Table doesn't exist yet or query failed - return without VIP info
-    employeesWithVIP = employees.map((emp: EmployeeWithId & Record<string, unknown>) => ({
-      ...emp,
-      is_vip: false,
-      vip_expires_at: null
-    }));
+  } catch {
+    // Table doesn't exist yet or query failed - keep default without VIP info
   }
 
   logger.debug('Successfully fetched employees', {

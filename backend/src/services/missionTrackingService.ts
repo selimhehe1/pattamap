@@ -561,7 +561,7 @@ class MissionTrackingService {
       }
 
       // Count unique establishments
-      const uniqueEstablishments = new Set(data?.map((ci: any) => ci.establishment_id) || []);
+      const uniqueEstablishments = new Set(data?.map((ci: { establishment_id: string }) => ci.establishment_id) || []);
       return uniqueEstablishments.size;
     } catch (error) {
       logger.error('Error counting unique check-ins:', error);
@@ -628,8 +628,8 @@ class MissionTrackingService {
         return 0;
       }
 
-      // Count unique zones
-      const uniqueZones = new Set(data?.map((ci: any) => ci.establishment?.zone).filter(Boolean) || []);
+      // Count unique zones - establishment is returned as array from Supabase join
+      const uniqueZones = new Set(data?.map((ci: { establishment?: { zone?: string }[] }) => ci.establishment?.[0]?.zone).filter(Boolean) || []);
       return uniqueZones.size;
     } catch (error) {
       logger.error('Error counting unique zones:', error);

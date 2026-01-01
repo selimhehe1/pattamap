@@ -49,7 +49,7 @@ const LEVEL_WEIGHTS: Record<number, number> = {
 export const voteOnEmployee = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { voteType } = req.body; // 'exists' or 'not_exists'
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     // Validation
     if (!userId) {
@@ -119,7 +119,7 @@ export const voteOnEmployee = asyncHandler(async (req: Request, res: Response): 
  */
 export const getValidationStats = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     const stats = await getEmployeeValidationStats(employeeId, userId);
 
@@ -132,7 +132,7 @@ export const getValidationStats = asyncHandler(async (req: Request, res: Respons
  * Auth: Required
  */
 export const getMyVotes = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw UnauthorizedError('Authentication required');
@@ -172,7 +172,7 @@ export const getMyVotes = asyncHandler(async (req: Request, res: Response): Prom
  * Auth: Required (establishment_owner)
  */
 export const getMyEmployeesValidation = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw UnauthorizedError('Authentication required');
@@ -225,12 +225,13 @@ export const getMyEmployeesValidation = asyncHandler(async (req: Request, res: R
     const enrichedEmployees = await Promise.all(
       (employees || []).map(async (emp) => {
         const stats = await getEmployeeValidationStats(emp.id);
+        const establishmentArray = emp.establishments as { name: string }[] | null;
         return {
           employeeId: emp.id,
           employeeName: emp.stage_name,
           photoUrl: emp.photo_url,
           establishmentId: emp.establishment_id,
-          establishmentName: (emp.establishments as any)?.name,
+          establishmentName: establishmentArray?.[0]?.name,
           totalVotes: stats.totalVotes,
           existsVotes: stats.existsVotes,
           notExistsVotes: stats.notExistsVotes,
@@ -255,7 +256,7 @@ export const getMyEmployeesValidation = asyncHandler(async (req: Request, res: R
 export const toggleEmployeeVisibilityAsOwner = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { isHidden, reason } = req.body;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw UnauthorizedError('Authentication required');
@@ -357,12 +358,13 @@ export const getAllEmployeesValidation = asyncHandler(async (req: Request, res: 
     let enrichedEmployees = await Promise.all(
       (employees || []).map(async (emp) => {
         const stats = await getEmployeeValidationStats(emp.id);
+        const establishmentArray = emp.establishments as { name: string }[] | null;
         return {
           employeeId: emp.id,
           employeeName: emp.stage_name,
           photoUrl: emp.photo_url,
           establishmentId: emp.establishment_id,
-          establishmentName: (emp.establishments as any)?.name,
+          establishmentName: establishmentArray?.[0]?.name,
           totalVotes: stats.totalVotes,
           existsVotes: stats.existsVotes,
           notExistsVotes: stats.notExistsVotes,
@@ -395,7 +397,7 @@ export const getAllEmployeesValidation = asyncHandler(async (req: Request, res: 
 export const toggleEmployeeVisibilityAsAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id: employeeId } = req.params;
     const { isHidden, reason } = req.body;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw UnauthorizedError('Authentication required');

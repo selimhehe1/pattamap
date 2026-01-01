@@ -252,9 +252,8 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
           .eq('is_current', true)
           .single();
 
-        const establishmentName = employment?.establishments
-          ? (employment.establishments as any).name
-          : undefined;
+        const establishmentArray = employment?.establishments as { name: string }[] | null;
+        const establishmentName = establishmentArray?.[0]?.name;
 
         await notifyFavoriteAvailable(
           moderationItem.item_id,

@@ -7,7 +7,7 @@
 
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * Initialize Sentry for Node.js/Express application
@@ -27,7 +27,7 @@ export const initSentry = () => {
     return;
   }
 
-  const integrations: any[] = [];
+  const integrations: ReturnType<typeof nodeProfilingIntegration>[] = [];
 
   // Add profiling integration if enabled
   if (enableProfiling) {
@@ -153,7 +153,7 @@ export const setSentryUser = (user: { id: string; pseudonym?: string; email?: st
  * Set user context from Express request
  */
 export const setSentryUserFromRequest = (req: Request) => {
-  const user = (req as any).user;
+  const user = req.user;
   if (user) {
     setSentryUser({
       id: user.id,
@@ -174,7 +174,7 @@ export const clearSentryUser = () => {
 /**
  * Add breadcrumb for tracking user actions
  */
-export const addSentryBreadcrumb = (message: string, category: string, data?: Record<string, any>) => {
+export const addSentryBreadcrumb = (message: string, category: string, data?: Record<string, unknown>) => {
   Sentry.addBreadcrumb({
     message,
     category,
@@ -186,7 +186,7 @@ export const addSentryBreadcrumb = (message: string, category: string, data?: Re
 /**
  * Manually capture an exception
  */
-export const captureSentryException = (error: Error, context?: Record<string, any>) => {
+export const captureSentryException = (error: Error, context?: Record<string, unknown>) => {
   Sentry.captureException(error, {
     extra: context,
   });
@@ -204,7 +204,7 @@ export const captureSentryMessage = (message: string, level: 'info' | 'warning' 
  * Use this instead of Sentry.Handlers.requestHandler() which doesn't exist in v10
  */
 export const sentryRequestMiddleware = () => {
-  return (req: Request, _res: any, next: any) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     // Set request context
     Sentry.setContext('request', {
       method: req.method,
@@ -223,7 +223,7 @@ export const sentryRequestMiddleware = () => {
  * Use this as your last error handler
  */
 export const sentryErrorMiddleware = () => {
-  return (err: Error, req: Request, _res: any, next: any) => {
+  return (err: Error, req: Request, _res: Response, next: NextFunction) => {
     // Capture the error
     Sentry.captureException(err, {
       extra: {
@@ -249,7 +249,7 @@ export const sentryErrorMiddleware = () => {
  */
 export const withSentrySpan = async <T>(
   name: string,
-  attributes: Record<string, any> = {},
+  attributes: Record<string, string | number | boolean | undefined> = {},
   callback: () => Promise<T>
 ): Promise<T> => {
   return await Sentry.startSpan(
@@ -272,7 +272,7 @@ export const withSentrySpan = async <T>(
  */
 export const createChildSpan = async <T>(
   operation: string,
-  data: Record<string, any> = {},
+  data: Record<string, string | number | boolean | undefined> = {},
   callback: () => Promise<T>
 ): Promise<T> => {
   return await Sentry.startSpan(

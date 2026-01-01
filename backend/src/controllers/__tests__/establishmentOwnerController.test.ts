@@ -570,10 +570,11 @@ describe('establishmentOwnerController', () => {
     it('should notify user when removed', async () => {
       const { notifyEstablishmentOwnerRemoved } = require('../../utils/notificationHelper');
 
+      // Supabase returns relations as arrays
       const mockOwnership = {
         id: 'ownership-123',
-        user: { pseudonym: 'removedowner' },
-        establishment: { name: 'Test Bar' }
+        user: [{ pseudonym: 'removedowner' }],
+        establishment: [{ name: 'Test Bar' }]
       };
 
       let callCount = 0;

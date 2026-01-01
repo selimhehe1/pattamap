@@ -16,7 +16,7 @@ import { notifyVIPSubscriptionCancelled } from '../../utils/notificationHelper';
  * Returns all VIP subscriptions for the authenticated user's entities
  */
 export const getMyVIPSubscriptions = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw UnauthorizedError('Unauthorized');
   }
@@ -60,7 +60,7 @@ export const getMyVIPSubscriptions = asyncHandler(async (req: Request, res: Resp
  * Cancels an active VIP subscription
  */
 export const cancelVIPSubscription = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw UnauthorizedError('Unauthorized');
   }

@@ -76,7 +76,7 @@ export const auditLogger = (action: string, resourceType: string, level: AuditLe
     const originalStatus = res.status;
 
     let statusCode = 200;
-    let responseBody: any = null;
+    let responseBody: unknown = null;
 
     // Override status method to capture status code
     res.status = function(code: number) {
@@ -85,13 +85,13 @@ export const auditLogger = (action: string, resourceType: string, level: AuditLe
     };
 
     // Override json method to capture response
-    res.json = function(body: any) {
+    res.json = function<T>(body: T) {
       responseBody = body;
       return originalJson.call(this, body);
     };
 
     // Override send method to capture response
-    res.send = function(body: any) {
+    res.send = function<T>(body: T) {
       responseBody = body;
       return originalSend.call(this, body);
     };
@@ -136,7 +136,8 @@ export const auditLogger = (action: string, resourceType: string, level: AuditLe
 
         // Add error details if request failed
         if (auditStatus !== 'success' && responseBody) {
-          details.error = responseBody.error || responseBody.message;
+          const errorBody = responseBody as { error?: string; message?: string };
+          details.error = errorBody.error || errorBody.message;
         }
 
         // Add resource ID from request params if available

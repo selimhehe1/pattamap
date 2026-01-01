@@ -52,7 +52,7 @@ export const csrfTokenGenerator = (req: Request, res: Response, next: NextFuncti
       });
 
       // Rendre le token disponible pour les vues/API
-      (req as any).csrfToken = req.session.csrfToken;
+      req.csrfToken = req.session.csrfToken;
 
       // ✅ Call next() ONLY after session is saved
       next();
@@ -61,7 +61,7 @@ export const csrfTokenGenerator = (req: Request, res: Response, next: NextFuncti
     logger.debug('CSRF token reused from session');
 
     // Rendre le token disponible pour les vues/API
-    (req as any).csrfToken = req.session.csrfToken;
+    req.csrfToken = req.session.csrfToken;
 
     // ✅ Call next() for existing token case
     next();
@@ -186,7 +186,7 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
 
 // Route pour obtenir le token CSRF (pour le frontend)
 export const getCSRFToken = (req: Request, res: Response) => {
-  const token = (req as any).csrfToken || req.session.csrfToken;
+  const token = req.csrfToken || req.session.csrfToken;
 
   if (!token) {
     logger.error('CSRF token not available');
