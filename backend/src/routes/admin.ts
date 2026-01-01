@@ -831,9 +831,15 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    logger.debug('=== EMPLOYEE UPDATE DEBUG ===');
-    logger.debug('Employee ID received:', id);
-    logger.debug('Request Body:', JSON.stringify(req.body, null, 2));
+    logger.info('=== EMPLOYEE UPDATE DEBUG ===');
+    logger.info('Employee ID received:', id);
+    logger.info('Request Body Keys:', Object.keys(req.body));
+    logger.info('current_establishment_id in request:', JSON.stringify({
+      value: req.body.current_establishment_id,
+      type: typeof req.body.current_establishment_id,
+      isNull: req.body.current_establishment_id === null,
+      isUndefined: req.body.current_establishment_id === undefined
+    }));
 
     // Define allowed fields for employee updates
     const allowedFields = [
@@ -867,17 +873,9 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
 
     logger.debug('✅ Using UUID:', realUuid);
 
-    // Retirer les champs calculés/non modifiables (garder current_establishment_id pour l'update)
-    const { id: _, created_at, updated_at, user, employment_history, ...cleanData } = updateData;
-
-    // Convert current_establishment_id to UUID if it's a numeric ID
-    if (cleanData.current_establishment_id) {
-      const estId = cleanData.current_establishment_id;
-      if (typeof estId === 'number' || /^\d+$/.test(estId)) {
-        cleanData.current_establishment_id = await findUuidByNumber('establishments', estId.toString());
-        logger.debug('🏢 Converted establishment ID:', { from: estId, to: cleanData.current_establishment_id });
-      }
-    }
+    // Retirer les champs calculés/non modifiables
+    // current_establishment_id is extracted separately - it's handled via employment_history, not stored on employees table
+    const { id: _, created_at, updated_at, user, employment_history, current_establishment_id: requestedEstablishmentId, ...cleanData } = updateData;
 
     logger.debug('Clean Data:', JSON.stringify(cleanData, null, 2));
 
@@ -896,41 +894,35 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
       throw error;
     }
 
-    // Handle current_establishment_id change
-    if (updateData.current_establishment_id) {
-      logger.debug('🏢 Processing establishment change:', updateData.current_establishment_id);
+    // Handle current_establishment_id change via employment_history
+    logger.info('🏢 requestedEstablishmentId value:', JSON.stringify({
+      value: requestedEstablishmentId,
+      type: typeof requestedEstablishmentId,
+      truthy: !!requestedEstablishmentId
+    }));
+
+    if (requestedEstablishmentId) {
+      logger.info('🏢 Processing establishment change:', requestedEstablishmentId);
 
       // Convert numeric establishment ID to UUID if necessary
-      let establishmentUuid = updateData.current_establishment_id;
+      let establishmentUuid = requestedEstablishmentId;
 
       // Check if it's a numeric ID that needs conversion
       if (typeof establishmentUuid === 'number' || /^\d+$/.test(establishmentUuid)) {
         establishmentUuid = await findUuidByNumber('establishments', establishmentUuid.toString());
-        logger.debug('🏢 Converted establishment ID' + JSON.stringify({ from: updateData.current_establishment_id, to: establishmentUuid }));
+        logger.debug('🏢 Converted establishment ID' + JSON.stringify({ from: requestedEstablishmentId, to: establishmentUuid }));
       }
 
       if (establishmentUuid) {
-        // Mark current employment as ended - first check if there are any current employments
-        const { data: currentEmployments, error: checkError } = await supabase
-          .from('employment_history')
-          .select('id')
-          .eq('employee_id', realUuid)
-          .eq('is_current', true);
-
-        if (checkError) {
-          logger.error('❌ Error checking current employments:', checkError);
-        }
-
         // Mark current employment as ended
-        const { data: updatedEmployments, error: updateError } = await supabase
+        const { error: updateError } = await supabase
           .from('employment_history')
           .update({
             is_current: false,
             end_date: new Date().toISOString()
           })
           .eq('employee_id', realUuid)
-          .eq('is_current', true)
-          .select('id, establishment_id, is_current, end_date');
+          .eq('is_current', true);
 
         if (updateError) {
           logger.error('❌ Error updating current employments:', updateError);
@@ -946,27 +938,14 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
             start_date: new Date().toISOString(),
             is_current: true,
             notes: 'Updated via admin panel',
-            created_by: req.user?.id || realUuid  // Use actual admin user ID
+            created_by: req.user?.id || realUuid
           })
           .select('id, establishment_id, is_current, start_date');
 
         if (empError) {
           logger.error('❌ Employment history insert error:', empError);
-        }
-
-        // Verify the operation was successful
-        if (newEmployment && !empError) {
-          // Update the current_establishment_id in the employees table
-          const { error: updateEstError } = await supabase
-            .from('employees')
-            .update({ current_establishment_id: establishmentUuid })
-            .eq('id', realUuid);
-
-          if (updateEstError) {
-            logger.error('❌ Error updating current_establishment_id:', updateEstError);
-          } else {
-            logger.debug(`✅ Employee ${realUuid} establishment updated to ${establishmentUuid}`);
-          }
+        } else {
+          logger.info(`✅ Employee ${realUuid} establishment updated to ${establishmentUuid}`, JSON.stringify(newEmployment));
         }
       }
     }

@@ -142,8 +142,10 @@ export interface CreateEmployeeRequest {
     whatsapp?: string;
   };
   is_freelance?: boolean;
-  current_establishment_id?: string; // For regular employees (single establishment)
-  current_establishment_ids?: string[]; // For freelances (multiple nightclubs)
+  // Request fields only - NOT stored in employees table
+  // Used to create/update employment_history records (the source of truth)
+  current_establishment_id?: string;
+  current_establishment_ids?: string[];
   position?: string;
   start_date?: string;
   // freelance_position DEPRECATED in v10.3 - Freelances no longer have independent map positions

@@ -7,6 +7,122 @@ import {
   notifyEditProposalRejected
 } from '../utils/notificationHelper';
 
+/**
+ * Helper: Update employment_history when changing employee's establishment
+ * Used by both createProposal (auto-approve) and approveProposal
+ */
+async function updateEmploymentHistory(
+  employeeId: string,
+  newEstablishmentId: string | null,
+  createdBy: string,
+  notes: string
+): Promise<void> {
+  if (!newEstablishmentId) {
+    logger.info('updateEmploymentHistory: No newEstablishmentId provided, skipping');
+    return;
+  }
+
+  logger.info(`updateEmploymentHistory: Starting for employee ${employeeId} -> establishment ${newEstablishmentId}`);
+
+  // 1. End current employment
+  const { error: endError } = await supabase
+    .from('employment_history')
+    .update({
+      is_current: false,
+      end_date: new Date().toISOString()
+    })
+    .eq('employee_id', employeeId)
+    .eq('is_current', true);
+
+  if (endError) {
+    logger.error('updateEmploymentHistory: Error ending current employment:', endError);
+  } else {
+    logger.info('updateEmploymentHistory: Ended current employment successfully');
+  }
+
+  // 2. Create new current employment
+  const { error: insertError } = await supabase
+    .from('employment_history')
+    .insert({
+      employee_id: employeeId,
+      establishment_id: newEstablishmentId,
+      position: 'Employee',
+      start_date: new Date().toISOString(),
+      is_current: true,
+      notes,
+      created_by: createdBy
+    });
+
+  if (insertError) {
+    logger.error('updateEmploymentHistory: Error inserting new employment:', insertError);
+  } else {
+    logger.info(`updateEmploymentHistory: Created new employment for employee ${employeeId} at establishment ${newEstablishmentId}`);
+  }
+}
+
+/**
+ * Helper: Handle freelance mode switch
+ * When switching TO freelance, end all non-Nightclub employment
+ * Freelancers can only work in Nightclubs
+ */
+async function handleFreelanceSwitch(
+  employeeId: string,
+  isFreelance: boolean
+): Promise<void> {
+  if (!isFreelance) return;
+
+  logger.info(`handleFreelanceSwitch: Processing freelance switch for employee ${employeeId}`);
+
+  // Get current jobs with establishment category
+  const { data: currentJobs, error: fetchError } = await supabase
+    .from('employment_history')
+    .select(`
+      id,
+      establishment_id,
+      establishments!inner(
+        id,
+        name,
+        category:establishment_categories(name)
+      )
+    `)
+    .eq('employee_id', employeeId)
+    .eq('is_current', true);
+
+  if (fetchError) {
+    logger.error('handleFreelanceSwitch: Error fetching current jobs:', fetchError);
+    return;
+  }
+
+  if (!currentJobs || currentJobs.length === 0) {
+    logger.info('handleFreelanceSwitch: No current jobs to process');
+    return;
+  }
+
+  // End only NON-Nightclub jobs
+  for (const job of currentJobs) {
+    const establishment = job.establishments as any;
+    const categoryName = establishment?.category?.name;
+
+    if (categoryName !== 'Nightclub') {
+      logger.info(`handleFreelanceSwitch: Ending non-nightclub job at "${establishment?.name}" (${categoryName})`);
+
+      const { error: endError } = await supabase
+        .from('employment_history')
+        .update({
+          is_current: false,
+          end_date: new Date().toISOString()
+        })
+        .eq('id', job.id);
+
+      if (endError) {
+        logger.error(`handleFreelanceSwitch: Error ending job ${job.id}:`, endError);
+      }
+    } else {
+      logger.info(`handleFreelanceSwitch: Keeping Nightclub job at "${establishment?.name}"`);
+    }
+  }
+}
+
 export const createProposal = async (req: Request, res: Response) => {
   try {
     const { item_type, item_id, proposed_changes, current_values } = req.body;
@@ -38,7 +154,24 @@ export const createProposal = async (req: Request, res: Response) => {
       const validChanges = { ...proposed_changes };
 
       if (item_type === 'employee') {
+        // Handle establishment change via employment_history (before deleting)
+        logger.info(`createProposal: Employee edit - current_establishment_id = ${proposed_changes.current_establishment_id}`);
+        if (proposed_changes.current_establishment_id) {
+          logger.info(`createProposal: Calling updateEmploymentHistory for employee ${item_id}`);
+          await updateEmploymentHistory(
+            item_id,
+            proposed_changes.current_establishment_id,
+            proposed_by,
+            'Updated via edit proposal (auto-approved)'
+          );
+        }
         delete validChanges.current_establishment_id;
+
+        // Handle freelance switch - end non-nightclub jobs
+        if (proposed_changes.is_freelance === true) {
+          logger.info(`createProposal: Freelance switch detected, calling handleFreelanceSwitch`);
+          await handleFreelanceSwitch(item_id, true);
+        }
       }
 
       const { error: updateError } = await supabase
@@ -226,7 +359,22 @@ export const approveProposal = async (req: Request, res: Response) => {
 
     const validChanges = { ...proposal.proposed_changes };
     if (proposal.item_type === 'employee') {
+      // Handle establishment change via employment_history (before deleting)
+      if (proposal.proposed_changes.current_establishment_id) {
+        await updateEmploymentHistory(
+          proposal.item_id,
+          proposal.proposed_changes.current_establishment_id,
+          moderator_id,
+          'Updated via edit proposal'
+        );
+      }
       delete validChanges.current_establishment_id;
+
+      // Handle freelance switch - end non-nightclub jobs
+      if (proposal.proposed_changes.is_freelance === true) {
+        logger.info(`approveProposal: Freelance switch detected, calling handleFreelanceSwitch`);
+        await handleFreelanceSwitch(proposal.item_id, true);
+      }
     }
 
     const { error: updateError } = await supabase

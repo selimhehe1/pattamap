@@ -298,6 +298,12 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
     async (employeeData: Partial<AdminEmployee>) => {
       if (!editingEmployee) return;
 
+      // DEBUG: Log what we're sending to API
+      console.log('🏢 handleSaveEmployee received:', JSON.stringify({
+        current_establishment_id: (employeeData as Record<string, unknown>).current_establishment_id,
+        keys: Object.keys(employeeData)
+      }));
+
       try {
         const API_URL = getApiUrl();
         const response = await secureFetch(
