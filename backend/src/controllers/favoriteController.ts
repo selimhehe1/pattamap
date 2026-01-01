@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
 import { notifyNewFavorite } from '../utils/notificationHelper';
+import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError } from '../middleware/asyncHandler';
 
-export const getFavorites = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
+export const getFavorites = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.id;
 
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+  if (!userId) {
+    throw UnauthorizedError();
+  }
 
     // Step 1: Get favorites (just IDs)
     const { data: favorites, error } = await supabase
@@ -20,7 +20,7 @@ export const getFavorites = async (req: Request, res: Response) => {
 
     if (error) {
       logger.error('Error fetching favorites:', error);
-      return res.status(500).json({ error: 'Failed to fetch favorites' });
+      throw new Error('Failed to fetch favorites');
     }
 
     interface FavoriteRecord {
@@ -154,52 +154,44 @@ export const getFavorites = async (req: Request, res: Response) => {
         firstValidEmployee: validEmployees[0] ? { id: validEmployees[0].id?.substring(0, 8), name: validEmployees[0].name } : null
       }
     });
-  } catch (error) {
-    logger.error('Error in getFavorites:', error);
-    res.status(500).json({ error: 'Internal server error' });
+});
+
+export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.id;
+  const { employee_id } = req.body;
+
+  if (!userId) {
+    throw UnauthorizedError();
   }
-};
 
-export const addFavorite = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
-    const { employee_id } = req.body;
+  if (!employee_id) {
+    throw BadRequestError('Employee ID is required');
+  }
 
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+  const { data: existingFavorite } = await supabase
+    .from('user_favorites')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('employee_id', employee_id)
+    .single();
 
-    if (!employee_id) {
-      return res.status(400).json({ error: 'Employee ID is required' });
-    }
+  if (existingFavorite) {
+    throw ConflictError('Employee already in favorites');
+  }
 
-    const { data: existingFavorite } = await supabase
-      .from('user_favorites')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('employee_id', employee_id)
-      .single();
+  const { data, error } = await supabase
+    .from('user_favorites')
+    .insert([{
+      user_id: userId,
+      employee_id: employee_id
+    }])
+    .select()
+    .single();
 
-    if (existingFavorite) {
-      return res.status(409).json({
-        error: 'Employee already in favorites',
-        is_favorite: true
-      });
-    }
-
-    const { data, error } = await supabase
-      .from('user_favorites')
-      .insert([{
-        user_id: userId,
-        employee_id: employee_id
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      logger.error('Error adding favorite:', error);
-      return res.status(500).json({ error: 'Failed to add favorite' });
-    }
+  if (error) {
+    logger.error('Error adding favorite:', error);
+    throw new Error('Failed to add favorite');
+  }
 
     // Notify employee if they have a linked account
     try {
@@ -243,68 +235,54 @@ export const addFavorite = async (req: Request, res: Response) => {
       favorite: data,
       is_favorite: true
     });
-  } catch (error) {
-    logger.error('Error in addFavorite:', error);
-    res.status(500).json({ error: 'Internal server error' });
+});
+
+export const removeFavorite = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.id;
+  const { employee_id } = req.params;
+
+  if (!userId) {
+    throw UnauthorizedError();
   }
-};
 
-export const removeFavorite = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
-    const { employee_id } = req.params;
+  const { error } = await supabase
+    .from('user_favorites')
+    .delete()
+    .eq('user_id', userId)
+    .eq('employee_id', employee_id);
 
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const { error } = await supabase
-      .from('user_favorites')
-      .delete()
-      .eq('user_id', userId)
-      .eq('employee_id', employee_id);
-
-    if (error) {
-      logger.error('Error removing favorite:', error);
-      return res.status(500).json({ error: 'Failed to remove favorite' });
-    }
-
-    res.json({
-      message: 'Employee removed from favorites',
-      is_favorite: false
-    });
-  } catch (error) {
-    logger.error('Error in removeFavorite:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (error) {
+    logger.error('Error removing favorite:', error);
+    throw new Error('Failed to remove favorite');
   }
-};
 
-export const checkFavorite = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
-    const { employee_id } = req.params;
+  res.json({
+    message: 'Employee removed from favorites',
+    is_favorite: false
+  });
+});
 
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+export const checkFavorite = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.id;
+  const { employee_id } = req.params;
 
-    const { data, error } = await supabase
-      .from('user_favorites')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('employee_id', employee_id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      logger.error('Error checking favorite:', error);
-      return res.status(500).json({ error: 'Failed to check favorite status' });
-    }
-
-    res.json({
-      is_favorite: !!data
-    });
-  } catch (error) {
-    logger.error('Error in checkFavorite:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!userId) {
+    throw UnauthorizedError();
   }
-};
+
+  const { data, error } = await supabase
+    .from('user_favorites')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('employee_id', employee_id)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    logger.error('Error checking favorite:', error);
+    throw new Error('Failed to check favorite status');
+  }
+
+  res.json({
+    is_favorite: !!data
+  });
+});

@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middleware/auth';
 import {
   getMyNotifications,
@@ -10,6 +10,9 @@ import {
 import { supabase } from '../../config/supabase';
 import { logger } from '../../utils/logger';
 import * as notificationHelper from '../../utils/notificationHelper';
+
+// Mock next function for asyncHandler wrapped controllers
+const mockNext: NextFunction = jest.fn();
 
 // Mock dependencies
 jest.mock('../../config/supabase');
@@ -77,7 +80,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('get_user_notifications', {
         p_user_id: 'user-123',
@@ -107,7 +110,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('get_user_notifications', {
         p_user_id: 'user-123',
@@ -125,7 +128,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('get_user_notifications', {
         p_user_id: 'user-123',
@@ -141,7 +144,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         notifications: [],
@@ -156,7 +159,7 @@ describe('NotificationController', () => {
         error: { message: 'Database error' }
       });
 
-      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response);
+      await getMyNotifications(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -169,7 +172,7 @@ describe('NotificationController', () => {
     it('should return unread notification count', async () => {
       (notificationHelper.getUnreadNotificationCount as jest.Mock).mockResolvedValue(5);
 
-      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response);
+      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ count: 5 });
       expect(notificationHelper.getUnreadNotificationCount).toHaveBeenCalledWith('user-123');
@@ -178,7 +181,7 @@ describe('NotificationController', () => {
     it('should return 0 if user has no unread notifications', async () => {
       (notificationHelper.getUnreadNotificationCount as jest.Mock).mockResolvedValue(0);
 
-      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response);
+      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ count: 0 });
     });
@@ -188,7 +191,7 @@ describe('NotificationController', () => {
         new Error('Database error')
       );
 
-      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response);
+      await getUnreadCount(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -207,7 +210,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await markAsRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAsRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('mark_notification_read', {
         p_notification_id: 'notif-1',
@@ -227,7 +230,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await markAsRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAsRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -244,7 +247,7 @@ describe('NotificationController', () => {
         error: { message: 'Database error' }
       });
 
-      await markAsRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAsRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -261,7 +264,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await markAllRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAllRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('mark_all_notifications_read', {
         p_user_id: 'user-123'
@@ -278,7 +281,7 @@ describe('NotificationController', () => {
         error: { message: 'Database error' }
       });
 
-      await markAllRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAllRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -292,7 +295,7 @@ describe('NotificationController', () => {
         new Error('Unexpected error')
       );
 
-      await markAllRead(mockRequest as AuthRequest, mockResponse as Response);
+      await markAllRead(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -311,7 +314,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(supabase.rpc).toHaveBeenCalledWith('delete_notification', {
         p_notification_id: 'notif-1',
@@ -331,7 +334,7 @@ describe('NotificationController', () => {
         error: null
       });
 
-      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Notification deleted'
@@ -347,7 +350,7 @@ describe('NotificationController', () => {
         error: { message: 'Database error' }
       });
 
-      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -363,7 +366,7 @@ describe('NotificationController', () => {
         new Error('Unexpected error')
       );
 
-      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response);
+      await deleteNotification(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({

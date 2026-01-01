@@ -12,7 +12,7 @@
  * Day 4 Sprint - Secondary Controllers Testing
  */
 
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import {
   getFavorites,
   addFavorite,
@@ -20,6 +20,9 @@ import {
   checkFavorite
 } from '../favoriteController';
 import { logger } from '../../utils/logger';
+
+// Mock next function for asyncHandler wrapped controllers
+const mockNext: NextFunction = jest.fn();
 
 // Import mock helpers
 import { createMockQueryBuilder, mockSuccess, mockNotFound, mockError } from '../../config/__mocks__/supabase';
@@ -120,7 +123,7 @@ describe('FavoriteController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployment)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRatings)));
 
-      await getFavorites(mockRequest as Request, mockResponse as Response);
+      await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         favorites: expect.arrayContaining([
@@ -147,7 +150,7 @@ describe('FavoriteController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
 
-      await getFavorites(mockRequest as Request, mockResponse as Response);
+      await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         favorites: [],
@@ -158,7 +161,7 @@ describe('FavoriteController', () => {
     it('should return 401 if user not authenticated', async () => {
       (mockRequest as any).user = undefined;
 
-      await getFavorites(mockRequest as Request, mockResponse as Response);
+      await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Unauthorized' });
@@ -188,7 +191,7 @@ describe('FavoriteController', () => {
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockLinkedUser))) // Get linked user
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockCurrentUser))); // Get current user
 
-      await addFavorite(mockRequest as Request, mockResponse as Response);
+      await addFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -207,7 +210,7 @@ describe('FavoriteController', () => {
         createMockQueryBuilder(mockSuccess(existingFavorite))
       );
 
-      await addFavorite(mockRequest as Request, mockResponse as Response);
+      await addFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(409);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -219,7 +222,7 @@ describe('FavoriteController', () => {
     it('should return 400 if employee_id is missing', async () => {
       mockRequest.body = {};
 
-      await addFavorite(mockRequest as Request, mockResponse as Response);
+      await addFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Employee ID is required' });
@@ -229,7 +232,7 @@ describe('FavoriteController', () => {
       (mockRequest as any).user = undefined;
       mockRequest.body = { employee_id: 'emp-1' };
 
-      await addFavorite(mockRequest as Request, mockResponse as Response);
+      await addFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Unauthorized' });
@@ -244,7 +247,7 @@ describe('FavoriteController', () => {
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await removeFavorite(mockRequest as Request, mockResponse as Response);
+      await removeFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Employee removed from favorites',
@@ -259,7 +262,7 @@ describe('FavoriteController', () => {
         createMockQueryBuilder(mockSuccess(null))
       );
 
-      await removeFavorite(mockRequest as Request, mockResponse as Response);
+      await removeFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Employee removed from favorites',
@@ -271,7 +274,7 @@ describe('FavoriteController', () => {
       (mockRequest as any).user = undefined;
       mockRequest.params = { employee_id: 'emp-1' };
 
-      await removeFavorite(mockRequest as Request, mockResponse as Response);
+      await removeFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Unauthorized' });
@@ -288,7 +291,7 @@ describe('FavoriteController', () => {
         createMockQueryBuilder(mockSuccess(mockFavorite))
       );
 
-      await checkFavorite(mockRequest as Request, mockResponse as Response);
+      await checkFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ is_favorite: true });
     });
@@ -300,7 +303,7 @@ describe('FavoriteController', () => {
         createMockQueryBuilder(mockNotFound())
       );
 
-      await checkFavorite(mockRequest as Request, mockResponse as Response);
+      await checkFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonMock).toHaveBeenCalledWith({ is_favorite: false });
     });
@@ -309,7 +312,7 @@ describe('FavoriteController', () => {
       (mockRequest as any).user = undefined;
       mockRequest.params = { employee_id: 'emp-1' };
 
-      await checkFavorite(mockRequest as Request, mockResponse as Response);
+      await checkFavorite(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Unauthorized' });
