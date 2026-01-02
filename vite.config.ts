@@ -94,18 +94,61 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['framer-motion', 'lucide-react', 'react-icons'],
-          query: ['@tanstack/react-query'],
-          i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
-          supabase: ['@supabase/supabase-js'],
-          sentry: ['@sentry/react'],
-          charts: ['recharts'],
-          utils: ['axios', 'dompurify'],
-          helmet: ['@dr.pogodin/react-helmet'],
-          toast: ['react-hot-toast'],
-          analytics: ['react-ga4']
+        // Function-based manualChunks to properly capture submodules
+        manualChunks(id) {
+          // React core - capture ALL submodules including react-dom/client
+          if (id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/scheduler')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/react-router')) {
+            return 'vendor';
+          }
+          // UI libs
+          if (id.includes('node_modules/framer-motion') ||
+              id.includes('node_modules/lucide-react') ||
+              id.includes('node_modules/react-icons')) {
+            return 'ui';
+          }
+          // Query
+          if (id.includes('node_modules/@tanstack/react-query')) {
+            return 'query';
+          }
+          // i18n
+          if (id.includes('node_modules/i18next')) {
+            return 'i18n';
+          }
+          // Supabase
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
+          // Sentry
+          if (id.includes('node_modules/@sentry')) {
+            return 'sentry';
+          }
+          // Charts
+          if (id.includes('node_modules/recharts') ||
+              id.includes('node_modules/d3')) {
+            return 'charts';
+          }
+          // Utils
+          if (id.includes('node_modules/axios') ||
+              id.includes('node_modules/dompurify')) {
+            return 'utils';
+          }
+          // Helmet
+          if (id.includes('node_modules/@dr.pogodin/react-helmet')) {
+            return 'helmet';
+          }
+          // Toast
+          if (id.includes('node_modules/react-hot-toast')) {
+            return 'toast';
+          }
+          // Analytics
+          if (id.includes('node_modules/react-ga4')) {
+            return 'analytics';
+          }
         }
       }
     }
