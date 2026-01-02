@@ -252,7 +252,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     } finally {
       setUploadingPhotos(false);
     }
-  }, [newPhotos, secureFetch, refreshToken]);
+  }, [newPhotos, secureFetch, refreshToken, t]);
 
   // Validation
   const validateForm = useCallback((): boolean => {

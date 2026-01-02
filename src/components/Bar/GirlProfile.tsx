@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Sparkles, Star, BarChart3, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight, ChevronDown, Shield, Cake, Share2, History } from 'lucide-react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, Building2, MapPin, Globe, Briefcase, Calendar, ExternalLink, MessageSquare, XCircle, ChevronLeft, ChevronRight, ChevronDown, Shield, Cake, Share2, History } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -309,7 +309,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch (err) {
+      } catch (_err) {
         // User cancelled or share failed, fallback to clipboard
         navigator.clipboard.writeText(shareUrl);
         toast.success(t('common.linkCopied', 'Link copied to clipboard!'));

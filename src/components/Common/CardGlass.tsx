@@ -60,7 +60,7 @@ export const CardGlass = forwardRef<HTMLDivElement, CardGlassProps>(
       tiltOptions = {},
       hoverScale = true,
       onClick,
-      as: Component = 'div',
+      as: _Component = 'div',
       style,
       'data-testid': testId,
     },
@@ -75,7 +75,7 @@ export const CardGlass = forwardRef<HTMLDivElement, CardGlassProps>(
     });
 
     // Combine refs
-    const ref = forwardedRef || tiltRef;
+    const _ref = forwardedRef || tiltRef;
 
     // Build background based on variant
     const backgrounds = {

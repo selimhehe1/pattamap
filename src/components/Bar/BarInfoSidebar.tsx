@@ -17,7 +17,6 @@ import {
   Home,
   Beer,
   Wine,
-  Plus,
   MapPin,
   Phone,
   Map,

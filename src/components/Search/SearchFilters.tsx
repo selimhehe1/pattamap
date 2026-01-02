@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Search, ChevronDown, Trash2, Check, Building2,
-  Cake, Globe, MapPin, Tag, ArrowUpDown,
+  Cake, Globe, MapPin, Tag,
   Loader2, Pencil, Lightbulb, AlertTriangle,
   // v11.0 - New filter icons
   Languages, Star, Image, MessageCircle, User, Sparkles,
@@ -148,7 +148,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   }, [filters.zone, availableFilters.establishments]);
 
   // Sort options - Using translations (labels only, icons rendered separately)
-  const sortOptions = React.useMemo(() => [
+  const _sortOptions = React.useMemo(() => [
     { value: 'relevance', label: t('search.sortOptions.relevance'), icon: 'target' },
     { value: 'vip', label: t('search.sortOptions.vip'), icon: 'crown' },
     { value: 'popularity', label: t('search.sortOptions.popular'), icon: 'star' },

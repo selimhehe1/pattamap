@@ -14,7 +14,7 @@
  * ```
  */
 
-import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSecureFetch } from './useSecureFetch';
 import { logger } from '../utils/logger';
 import toast from '../utils/toast';

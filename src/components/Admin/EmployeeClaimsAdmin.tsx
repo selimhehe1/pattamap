@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Ban, Link, Loader2, CheckCircle, XCircle, ClipboardList, MailX, User, PersonStanding, MessageSquare, Calendar, Eye, HelpCircle } from 'lucide-react';
+import { Ban, Link, Loader2, CheckCircle, XCircle, ClipboardList, MailX, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { EmployeeClaimRequest } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
-import LazyImage from '../Common/LazyImage';
 import EmployeeClaimCard from './EmployeeClaimCard';
 import { logger } from '../../utils/logger';
 import toast from '../../utils/toast';
@@ -206,7 +205,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return '#FFD700';
       case 'approved': return '#00FF7F';
@@ -224,7 +223,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     }
   };
 
-  const isImageUrl = (url: string): boolean => {
+  const _isImageUrl = (url: string): boolean => {
     return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   };
 

@@ -15,7 +15,7 @@ import { EmployeeCard } from './EmployeeCard';
 import { EditProposalCard } from './EditProposalCard';
 import { EmployeeDetailModal } from './EmployeeDetailModal';
 import EditEmployeeModal from '../../Employee/EditEmployeeModal';
-import { logger } from '../../../utils/logger';
+import { logger as _logger } from '../../../utils/logger';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/components/social-icons.css';
 import '../../../styles/pages/user-dashboard.css';

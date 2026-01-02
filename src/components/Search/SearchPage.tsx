@@ -131,16 +131,16 @@ const SearchPage: React.FC = () => {
     limit: 20
   });
 
-  // Extract data from current page
-  const searchResults = data?.employees || [];
+  // Extract data from current page - memoized to prevent unnecessary re-renders
+  const searchResults = useMemo(() => data?.employees || [], [data?.employees]);
   const totalResults = data?.total || 0;
   const totalPages = Math.ceil(totalResults / 20);
-  const availableFilters = {
+  const availableFilters = useMemo(() => ({
     nationalities: data?.filters?.availableNationalities || [],
     zones: data?.filters?.availableZones || [],
     establishments: data?.filters?.availableEstablishments || [],
     categories: data?.filters?.availableCategories || []
-  };
+  }), [data?.filters?.availableNationalities, data?.filters?.availableZones, data?.filters?.availableEstablishments, data?.filters?.availableCategories]);
 
 
   // Update URL params

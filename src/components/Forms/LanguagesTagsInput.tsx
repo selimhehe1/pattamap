@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Languages, Lightbulb, AlertTriangle } from 'lucide-react';
+import { Lightbulb, AlertTriangle } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import '../../styles/components/NationalityTagsInput.css'; // Reuse same styles
 

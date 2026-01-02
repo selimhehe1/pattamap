@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion as _motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Employee } from '../../types';
 import LazyImage from './LazyImage';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DollarSign, Gem, Pencil, Trash2, Lightbulb, Beer, Plus, Hotel, FolderOpen, Wine, Martini, CupSoda, GlassWater } from 'lucide-react';
+import { DollarSign, Gem, Pencil, Trash2, Lightbulb, Beer, Plus, Hotel, Wine, Martini, CupSoda, GlassWater } from 'lucide-react';
 import { ConsumableTemplate } from '../../../types';
 import '../../../styles/components/establishment-ui.css';
 

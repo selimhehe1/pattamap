@@ -18,7 +18,6 @@ import {
   MailX,
   Building2,
   MapPin,
-  Eye,
   Plus,
   User,
   Check,

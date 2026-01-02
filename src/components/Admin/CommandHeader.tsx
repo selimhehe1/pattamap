@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Shield, Trophy } from 'lucide-react';
+import { Shield as _Shield, Trophy } from 'lucide-react';
 
 interface CommandHeaderProps {
   user: {

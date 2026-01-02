@@ -63,11 +63,11 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
   isMobileOpen,
   onMobileClose,
   stats,
-  user,
-  onUserClick
+  user: _user,
+  onUserClick: _onUserClick
 }) => {
   const { t } = useTranslation();
-  const location = useLocation();
+  const _location = useLocation();
 
   const navItems: NavItem[] = [
     {

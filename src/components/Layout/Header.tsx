@@ -16,8 +16,6 @@ import {
   FileEdit,
   ClipboardList,
   Building,
-  List,
-  Map,
   ChevronLeft, // 🆕 Header redesign - Back button icon
   Menu, // 🆕 Header redesign - Menu icon
   X // 🆕 Header redesign - Close icon
