@@ -150,7 +150,7 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
     }
 
     // Get content details for notification
-    let _contentName = '';
+    let contentName = '';
     let _contentData: { name?: string; content?: string } | null = null;
 
     if (moderationItem.item_type === 'employee') {
@@ -159,7 +159,7 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      _contentName = employee?.name || 'Employee';
+      contentName = employee?.name || 'Employee';
       _contentData = employee;
     } else if (moderationItem.item_type === 'establishment') {
       const { data: establishment } = await supabase
@@ -167,10 +167,10 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      _contentName = establishment?.name || 'Establishment';
+      contentName = establishment?.name || 'Establishment';
       _contentData = establishment;
     } else if (moderationItem.item_type === 'comment') {
-      _contentName = 'Comment';
+      contentName = 'Comment';
       const { data: comment } = await supabase
         .from('comments')
         .select('content')
