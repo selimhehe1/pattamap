@@ -14,8 +14,9 @@
  * Total: 14 tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '../../../test-utils/test-helpers';
 import ReviewForm from '../ReviewForm';
 
 // Mock i18n
@@ -48,15 +49,19 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Mock AuthContext
+// Mock AuthContext - need to include AuthContext export for renderWithProviders
 const mockUser = { id: 'user-123', email: 'test@example.com', username: 'testuser' };
 let mockUserValue: typeof mockUser | null = mockUser;
 
-vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: mockUserValue,
-  }),
-}));
+vi.mock('../../../contexts/AuthContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../contexts/AuthContext')>();
+  return {
+    ...actual,
+    useAuth: () => ({
+      user: mockUserValue,
+    }),
+  };
+});
 
 // Mock toast
 vi.mock('../../../utils/toast', () => ({
@@ -114,14 +119,14 @@ describe('ReviewForm Component', () => {
   describe('Authentication state', () => {
     it('should show login required message when user is not authenticated', () => {
       mockUserValue = null;
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       expect(screen.getByText(/Login Required/i)).toBeInTheDocument();
       expect(screen.getByText(/Please log in to leave a review/i)).toBeInTheDocument();
     });
 
     it('should show form when user is authenticated', () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       expect(screen.getByText(/Add Comment/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Your Comment/i)).toBeInTheDocument();
@@ -130,20 +135,20 @@ describe('ReviewForm Component', () => {
 
   describe('Form rendering', () => {
     it('should render comment textarea', () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
 
     it('should render submit and cancel buttons', () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       expect(screen.getByText('Cancel')).toBeInTheDocument();
       expect(screen.getByText('Submit Review')).toBeInTheDocument();
     });
 
     it('should render image upload section', () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       expect(screen.getByTestId('image-upload')).toBeInTheDocument();
       expect(screen.getByText('Maximum 3 photos')).toBeInTheDocument();
@@ -152,7 +157,7 @@ describe('ReviewForm Component', () => {
 
   describe('Validation', () => {
     it('should show error when comment is empty', async () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const submitButton = screen.getByText('Submit Review');
       await userEvent.click(submitButton);
@@ -164,7 +169,7 @@ describe('ReviewForm Component', () => {
     });
 
     it('should show error when comment is too short', async () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       await userEvent.type(textarea, 'Short');
@@ -179,7 +184,7 @@ describe('ReviewForm Component', () => {
     });
 
     it('should show error when comment is too long', async () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       const longText = 'a'.repeat(1001);
@@ -196,7 +201,7 @@ describe('ReviewForm Component', () => {
     });
 
     it('should show character count', async () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       await userEvent.type(textarea, 'Test comment');
@@ -208,7 +213,7 @@ describe('ReviewForm Component', () => {
   describe('Submission', () => {
     it('should call onSubmit with correct data when form is valid', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       await userEvent.type(textarea, 'This is a valid review comment');
@@ -227,7 +232,7 @@ describe('ReviewForm Component', () => {
 
     it('should reset form after successful submission', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       await userEvent.type(textarea, 'This is a valid review comment');
@@ -241,7 +246,7 @@ describe('ReviewForm Component', () => {
     });
 
     it('should call onCancel when cancel button is clicked', async () => {
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const cancelButton = screen.getByText('Cancel');
       await userEvent.click(cancelButton);
@@ -252,14 +257,14 @@ describe('ReviewForm Component', () => {
 
   describe('Loading states', () => {
     it('should disable form controls when loading', () => {
-      render(<ReviewForm {...defaultProps} isLoading={true} />);
+      renderWithProviders(<ReviewForm {...defaultProps} isLoading={true} />);
 
       const textarea = screen.getByRole('textbox');
       expect(textarea).toBeDisabled();
     });
 
     it('should disable buttons when loading', () => {
-      render(<ReviewForm {...defaultProps} isLoading={true} />);
+      renderWithProviders(<ReviewForm {...defaultProps} isLoading={true} />);
 
       const cancelButton = screen.getByText('Cancel');
       const submitButton = screen.getByText('Submitting...');
@@ -272,7 +277,7 @@ describe('ReviewForm Component', () => {
   describe('Error handling', () => {
     it('should show error message when submission fails', async () => {
       mockOnSubmit.mockRejectedValue(new Error('Network error'));
-      render(<ReviewForm {...defaultProps} />);
+      renderWithProviders(<ReviewForm {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       await userEvent.type(textarea, 'This is a valid review comment');

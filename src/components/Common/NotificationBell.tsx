@@ -263,7 +263,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
           {unreadCount > 0 && <span className="notif-bell__menu-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
         </button>
       ) : (
-        <button ref={buttonRef} className="notif-bell__btn" onClick={toggleDropdown}>
+        <button ref={buttonRef} className="notif-bell__btn" onClick={toggleDropdown} aria-label={t('notifications.title', 'Notifications')}>
           <Bell size={20} />
           {unreadCount > 0 && <span className="notif-bell__badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
         </button>

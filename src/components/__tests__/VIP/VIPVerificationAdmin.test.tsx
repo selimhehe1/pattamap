@@ -143,7 +143,7 @@ describe('VIPVerificationAdmin Component', () => {
 
       await waitFor(() => {
         // Use querySelectorAll to find filter-tab buttons specifically
-        const filterTabs = document.querySelectorAll('.filter-tab');
+        const filterTabs = document.querySelectorAll('.cmd-filter');
         expect(filterTabs.length).toBe(3);
 
         // Verify tab text content
@@ -240,9 +240,9 @@ describe('VIPVerificationAdmin Component', () => {
 
       await waitFor(() => {
         // Find the filter-tab button that contains "Pending" and is active
-        const filterTabs = document.querySelectorAll('.filter-tab');
+        const filterTabs = document.querySelectorAll('.cmd-filter');
         const pendingTab = Array.from(filterTabs).find(tab => tab.textContent?.includes('Pending'));
-        expect(pendingTab).toHaveClass('active');
+        expect(pendingTab).toHaveClass('cmd-filter--active');
       });
     });
 
@@ -307,12 +307,12 @@ describe('VIPVerificationAdmin Component', () => {
 
       // Wait for filter tabs to render
       await waitFor(() => {
-        const filterTabs = document.querySelectorAll('.filter-tab');
+        const filterTabs = document.querySelectorAll('.cmd-filter');
         expect(filterTabs.length).toBe(3);
       });
 
       // Find and click the Completed tab button
-      const filterTabs = document.querySelectorAll('.filter-tab');
+      const filterTabs = document.querySelectorAll('.cmd-filter');
       const completedTab = Array.from(filterTabs).find(tab => tab.textContent?.includes('Completed'));
       expect(completedTab).toBeInTheDocument();
       fireEvent.click(completedTab!);

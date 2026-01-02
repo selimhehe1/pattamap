@@ -143,7 +143,7 @@ describe('NotificationBell', () => {
 
       await waitFor(() => {
         // Look for the dropdown by its class or empty state container
-        const dropdown = document.querySelector('.notification-dropdown');
+        const dropdown = document.querySelector('.notif-dropdown');
         expect(dropdown).toBeInTheDocument();
       });
     });
@@ -159,7 +159,7 @@ describe('NotificationBell', () => {
       fireEvent.click(bellButton);
 
       await waitFor(() => {
-        const dropdown = document.querySelector('.notification-dropdown');
+        const dropdown = document.querySelector('.notif-dropdown');
         expect(dropdown).toBeInTheDocument();
       });
 
@@ -168,7 +168,7 @@ describe('NotificationBell', () => {
 
       await waitFor(() => {
         // After clicking outside, dropdown should be hidden (removed from DOM or have display:none)
-        const dropdown = document.querySelector('.notification-dropdown');
+        const dropdown = document.querySelector('.notif-dropdown');
         expect(dropdown).not.toBeInTheDocument();
       });
     });
@@ -184,11 +184,11 @@ describe('NotificationBell', () => {
       fireEvent.click(bellButton);
 
       await waitFor(() => {
-        // Check for empty state container with MailOpen icon
-        const emptyState = document.querySelector('.notification-empty');
+        // Check for empty state container - component uses .notif-dropdown__empty
+        const emptyState = document.querySelector('.notif-dropdown__empty');
         expect(emptyState).toBeInTheDocument();
-        // Verify the MailOpen Lucide icon is present
-        expect(emptyState?.querySelector('.lucide-mail-open')).toBeInTheDocument();
+        // Verify the empty state text is present
+        expect(screen.getByText(/All caught up/i)).toBeInTheDocument();
       });
     });
   });

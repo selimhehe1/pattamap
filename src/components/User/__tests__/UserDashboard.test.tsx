@@ -232,7 +232,8 @@ describe('UserDashboard Component', () => {
       mockFavorites = [mockFavorite];
       render(<UserDashboard />);
 
-      expect(screen.getByText(/25 years/)).toBeInTheDocument();
+      // EmployeeCard renders age as just the number, not "X years"
+      expect(screen.getByText('25')).toBeInTheDocument();
       expect(screen.getByText(/Thai/)).toBeInTheDocument();
     });
 

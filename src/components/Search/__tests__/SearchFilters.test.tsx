@@ -97,8 +97,8 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      // Find age_min input
-      const ageMinInput = container.querySelector('input[type="number"][placeholder*="Min"]') as HTMLInputElement;
+      // Find age_min input (now a range slider)
+      const ageMinInput = screen.getByTestId('age-min-input') as HTMLInputElement;
       expect(ageMinInput).toBeInTheDocument();
 
       // Simulate typing
@@ -127,7 +127,8 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      const ageMaxInput = container.querySelector('input[type="number"][placeholder*="Max"]') as HTMLInputElement;
+      // Age max is now a range slider
+      const ageMaxInput = screen.getByTestId('age-max-input') as HTMLInputElement;
       expect(ageMaxInput).toBeInTheDocument();
 
       act(() => {
@@ -153,7 +154,8 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      const ageMinInput = screen.getByPlaceholderText(/search\.ageMin/i);
+      // Age filters are now range sliders with testId
+      const ageMinInput = screen.getByTestId('age-min-input');
 
       act(() => {
         fireEvent.change(ageMinInput, { target: { value: '25' } });
@@ -345,13 +347,19 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      // Find zone select by display value (zone is already set to 'soi6')
-      const zoneSelect = screen.getByDisplayValue('Soi 6');
-      expect(zoneSelect).toBeInTheDocument();
+      // Find zone filter by test-id (component uses CustomSelect)
+      const zoneFilter = screen.getByTestId('zone-filter');
+      expect(zoneFilter).toBeInTheDocument();
 
-      // Change zone
+      // Click to open the dropdown
       act(() => {
-        fireEvent.change(zoneSelect, { target: { value: 'walkingstreet' } });
+        fireEvent.click(zoneFilter);
+      });
+
+      // Find and click Walking Street option
+      const walkingStreetOption = screen.getByText('Walking Street');
+      act(() => {
+        fireEvent.click(walkingStreetOption);
       });
 
       // Should call onZoneChange (which triggers immediate reset)
@@ -391,14 +399,14 @@ describe('SearchFilters - Filter Fixes', () => {
       );
 
       // Should have all filter inputs
-      expect(screen.getByText(/search\.verifiedOnly/)).toBeInTheDocument();
+      expect(screen.getByText(/search\.freelanceOnly/)).toBeInTheDocument();
       expect(screen.getByText(/search\.searchName/)).toBeInTheDocument();
       expect(screen.getByText(/search\.ageRange/)).toBeInTheDocument();
       expect(screen.getByText(/search\.nationality/)).toBeInTheDocument();
       expect(screen.getByText(/search\.zone/)).toBeInTheDocument();
       expect(screen.getByText(/search\.establishmentType/)).toBeInTheDocument();
       expect(screen.getByText(/search\.establishment(?!Type)/)).toBeInTheDocument(); // Negative lookahead to not match "Type"
-      expect(screen.getByText(/search\.sortBy/)).toBeInTheDocument();
+      // Note: sortBy was removed from filters in v11.1 (now in SearchPage near cards)
     });
 
     it('should disable inputs when loading', () => {
@@ -434,8 +442,8 @@ describe('SearchFilters - Filter Fixes', () => {
     });
   });
 
-  describe('SearchFilters - Verified Filter', () => {
-    it('should call onFilterChange when verified button clicked', () => {
+  describe('SearchFilters - Freelance Filter', () => {
+    it('should call onFilterChange when freelance button clicked', () => {
       render(
         <SearchFilters
           filters={mockFilters}
@@ -446,26 +454,26 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      // The verified filter is a button, not a checkbox
-      const verifiedButton = screen.getByText(/search\.verifiedOnly/i).closest('button');
-      expect(verifiedButton).toBeInTheDocument();
+      // The freelance filter is a button toggle
+      const freelanceButton = screen.getByText(/search\.freelanceOnly/i).closest('button');
+      expect(freelanceButton).toBeInTheDocument();
 
       act(() => {
-        if (verifiedButton) fireEvent.click(verifiedButton);
+        if (freelanceButton) fireEvent.click(freelanceButton);
       });
 
-      expect(mockHandlers.onFilterChange).toHaveBeenCalledWith('is_verified', 'true');
+      expect(mockHandlers.onFilterChange).toHaveBeenCalledWith('type', 'freelance');
     });
 
-    it('should show active styling when verified is active', () => {
-      const filtersWithVerified = {
+    it('should show active styling when freelance is active', () => {
+      const filtersWithFreelance = {
         ...mockFilters,
-        is_verified: 'true'
+        type: 'freelance'
       };
 
       const { container } = render(
         <SearchFilters
-          filters={filtersWithVerified}
+          filters={filtersWithFreelance}
           availableFilters={mockAvailableFilters}
           {...mockHandlers}
           loading={false}
@@ -474,8 +482,8 @@ describe('SearchFilters - Filter Fixes', () => {
       );
 
       // Check that the button has the active class
-      const verifiedButton = container.querySelector('.verified-filter-active');
-      expect(verifiedButton).toBeInTheDocument();
+      const freelanceButton = container.querySelector('.freelance-toggle-active');
+      expect(freelanceButton).toBeInTheDocument();
     });
   });
 
