@@ -34,6 +34,97 @@ interface PurchaseVIPRequest {
   payment_method: PaymentMethod;
 }
 
+/** Helper: Check if user has permission to purchase VIP for the entity */
+async function checkVIPPurchasePermission(
+  userId: string,
+  subscriptionType: VIPSubscriptionType,
+  entityId: string
+): Promise<boolean> {
+  if (subscriptionType === 'employee') {
+    // CASE 1: Employee buying VIP for themselves
+    const { data: userEmployee } = await supabase
+      .from('employees')
+      .select('id, user_id')
+      .eq('id', entityId)
+      .eq('user_id', userId)
+      .single();
+
+    if (userEmployee) {
+      logger.debug('VIP purchase authorized: Employee buying for self', { userId, employeeId: entityId });
+      return true;
+    }
+
+    // CASE 2: Establishment owner buying VIP for their employee
+    const { data: ownership } = await supabase
+      .from('establishment_owners')
+      .select(`id, permissions, current_employment!inner(establishment_id, employee_id)`)
+      .eq('user_id', userId)
+      .eq('current_employment.employee_id', entityId)
+      .eq('current_employment.is_current', true)
+      .single();
+
+    if (ownership?.permissions?.can_edit_employees === true) {
+      logger.debug('VIP purchase authorized: Owner buying for employee', {
+        userId, employeeId: entityId, canEditEmployees: true
+      });
+      return true;
+    }
+    return false;
+  }
+
+  // For establishments: user must be owner/manager
+  const { data: ownership } = await supabase
+    .from('establishment_owners')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('establishment_id', entityId)
+    .single();
+
+  return !!ownership;
+}
+
+/** Helper: Create VIP subscription record */
+async function createVIPSubscription(
+  tableName: string,
+  entityColumn: string,
+  entityId: string,
+  tier: VIPTier,
+  duration: VIPDuration,
+  paymentMethod: PaymentMethod,
+  price: number,
+  userId: string
+) {
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+  const paymentStatus = paymentMethod === 'admin_grant' ? 'completed' : 'pending';
+  const subscriptionStatus = paymentMethod === 'admin_grant' ? 'active' : 'pending_payment';
+
+  const { data, error } = await supabase
+    .from(tableName)
+    .insert({
+      [entityColumn]: entityId,
+      status: subscriptionStatus,
+      tier,
+      duration,
+      starts_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+      payment_method: paymentMethod,
+      payment_status: paymentStatus,
+      price_paid: price,
+      transaction_id: null,
+      admin_verified_by: paymentMethod === 'admin_grant' ? userId : null,
+      admin_verified_at: paymentMethod === 'admin_grant' ? now.toISOString() : null,
+    })
+    .select()
+    .single();
+
+  if (error || !data) {
+    logger.error('Error creating VIP subscription:', error);
+    throw InternalServerError('Failed to create VIP subscription');
+  }
+  return data;
+}
+
 /**
  * POST /api/vip/purchase
  * Initiates a VIP subscription purchase
@@ -82,62 +173,7 @@ export const purchaseVIP = asyncHandler(async (req: Request, res: Response) => {
   // 2. AUTHORIZATION CHECK
   // =====================================================
 
-  // Check if user has permission to purchase VIP for this entity
-  let hasPermission = false;
-
-  if (subscription_type === 'employee') {
-    // CASE 1: Employee buying VIP for themselves
-    // Check if user_id is linked to this employee profile
-    const { data: userEmployee } = await supabase
-      .from('employees')
-      .select('id, user_id')
-      .eq('id', entity_id)
-      .eq('user_id', userId)
-      .single();
-
-    if (userEmployee) {
-      // Employee can purchase VIP for their own profile
-      hasPermission = true;
-      logger.debug('VIP purchase authorized: Employee buying for self', {
-        userId,
-        employeeId: entity_id
-      });
-    } else {
-      // CASE 2: Establishment owner buying VIP for their employee
-      const { data: ownership } = await supabase
-        .from('establishment_owners')
-        .select(`
-          id,
-          permissions,
-          current_employment!inner(establishment_id, employee_id)
-        `)
-        .eq('user_id', userId)
-        .eq('current_employment.employee_id', entity_id)
-        .eq('current_employment.is_current', true)
-        .single();
-
-      hasPermission = !!(ownership && ownership.permissions?.can_edit_employees === true);
-
-      if (hasPermission && ownership) {
-        logger.debug('VIP purchase authorized: Owner buying for employee', {
-          userId,
-          employeeId: entity_id,
-          canEditEmployees: ownership.permissions?.can_edit_employees
-        });
-      }
-    }
-  } else if (subscription_type === 'establishment') {
-    // For establishments: user must be owner/manager
-    const { data: ownership } = await supabase
-      .from('establishment_owners')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('establishment_id', entity_id)
-      .single();
-
-    hasPermission = !!ownership;
-  }
-
+  const hasPermission = await checkVIPPurchasePermission(userId, subscription_type, entity_id);
   if (!hasPermission) {
     throw ForbiddenError('You do not have permission to purchase VIP for this entity');
   }
@@ -174,45 +210,16 @@ export const purchaseVIP = asyncHandler(async (req: Request, res: Response) => {
   // 5. CREATE VIP SUBSCRIPTION (FIRST)
   // =====================================================
 
-  const now = new Date();
-  const startsAt = now;
-  const expiresAt = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
-
-  // Determine payment status based on method
-  const paymentStatus = payment_method === 'admin_grant' ? 'completed' : 'pending';
-  const subscriptionStatus =
-    payment_method === 'admin_grant' ? 'active' : 'pending_payment';
-
-  // Create subscription FIRST (without transaction_id, will be updated later)
-  const subscriptionData = {
-    [entityColumn]: entity_id,
-    status: subscriptionStatus,
-    tier,
-    duration,
-    starts_at: startsAt.toISOString(),
-    expires_at: expiresAt.toISOString(),
-    payment_method,
-    payment_status: paymentStatus,
-    price_paid: price,
-    transaction_id: null, // Will be updated after transaction creation
-    admin_verified_by: payment_method === 'admin_grant' ? userId : null,
-    admin_verified_at: payment_method === 'admin_grant' ? now.toISOString() : null,
-  };
-
-  const { data: subscription, error: subscriptionError } = await supabase
-    .from(tableName)
-    .insert(subscriptionData)
-    .select()
-    .single();
-
-  if (subscriptionError || !subscription) {
-    logger.error('Error creating VIP subscription:', subscriptionError);
-    throw InternalServerError('Failed to create VIP subscription');
-  }
+  const subscription = await createVIPSubscription(
+    tableName, entityColumn, entity_id, tier, duration, payment_method, price, userId
+  );
 
   // =====================================================
   // 6. CREATE PAYMENT TRANSACTION (SECOND)
   // =====================================================
+
+  const now = new Date();
+  const paymentStatus = payment_method === 'admin_grant' ? 'completed' : 'pending';
 
   // Generate PromptPay QR code if payment method is promptpay
   let promptpayData: { qrCode: string; reference: string } | null = null;

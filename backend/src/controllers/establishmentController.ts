@@ -185,6 +185,85 @@ function hexToFloat64LE(hex: string): number {
   return view.getFloat64(0, true); // true = little-endian
 }
 
+/** Helper: Fetch employee counts for establishments */
+async function fetchEmployeeCounts(establishmentIds: string[]): Promise<{
+  total: { [key: string]: number };
+  approved: { [key: string]: number };
+}> {
+  const employeeCounts: { [key: string]: number } = {};
+  const approvedEmployeeCounts: { [key: string]: number } = {};
+
+  const { data: employmentData, error: employmentError } = await supabase
+    .from('employment_history')
+    .select('establishment_id, employees(status)')
+    .in('establishment_id', establishmentIds)
+    .eq('is_current', true);
+
+  if (!employmentError && employmentData) {
+    employmentData.forEach((emp: EmploymentRecord) => {
+      const estId = emp.establishment_id;
+      employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
+
+      const employeeStatus = Array.isArray(emp.employees)
+        ? emp.employees[0]?.status
+        : (emp.employees as { status: string } | undefined)?.status;
+      if (employeeStatus === 'approved') {
+        approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
+      }
+    });
+  }
+
+  return { total: employeeCounts, approved: approvedEmployeeCounts };
+}
+
+/** Helper: Fetch ownership map for establishments */
+async function fetchOwnershipMap(establishmentIds: string[]): Promise<{ [key: string]: boolean }> {
+  const ownerMap: { [key: string]: boolean } = {};
+
+  const { data: ownerData } = await supabase
+    .from('establishment_owners')
+    .select('establishment_id')
+    .in('establishment_id', establishmentIds);
+
+  if (ownerData) {
+    ownerData.forEach((owner: { establishment_id: string }) => {
+      ownerMap[owner.establishment_id] = true;
+    });
+  }
+
+  return ownerMap;
+}
+
+/** Helper: Map establishments with coordinates and extra data */
+function mapEstablishmentsWithExtras(
+  establishments: DbEstablishmentWithLocation[],
+  employeeCounts: { [key: string]: number },
+  approvedCounts: { [key: string]: number },
+  ownerMap: { [key: string]: boolean }
+) {
+  return establishments.map((est: DbEstablishmentWithLocation) => {
+    let latitude = null;
+    let longitude = null;
+
+    if (est.location) {
+      const coords = parsePostGISBinary(est.location, est.id);
+      if (coords) {
+        latitude = coords.latitude;
+        longitude = coords.longitude;
+      }
+    }
+
+    return {
+      ...est,
+      latitude,
+      longitude,
+      employee_count: employeeCounts[est.id] || 0,
+      approved_employee_count: approvedCounts[est.id] || 0,
+      has_owner: !!ownerMap[est.id]
+    };
+  });
+}
+
 export const getEstablishments = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { category_id, status = 'approved', search, limit = 50, page = 1, zone, cursor: _cursor } = req.query;
 
@@ -311,79 +390,25 @@ export const getEstablishments = asyncHandler(async (req: AuthRequest, res: Resp
     throw BadRequestError(error.message);
   }
 
-  // 🔧 FIX M5: Combine employee count queries into single query
-  // Previously: 2 separate queries (N+1 risk with large datasets)
-  // Now: 1 query with employee status, count both total and approved client-side
-  const employeeCounts: { [key: string]: number } = {};
-  const approvedEmployeeCounts: { [key: string]: number } = {};
+  // Fetch employee counts and ownership data using helper functions
+  let establishmentsWithCoords: ReturnType<typeof mapEstablishmentsWithExtras> = [];
   if (establishments && establishments.length > 0) {
     const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
 
-    // Single query to get all current employees with their status
-    const { data: employmentData, error: employmentError } = await supabase
-      .from('employment_history')
-      .select('establishment_id, employees(status)')
-      .in('establishment_id', establishmentIds)
-      .eq('is_current', true);
+    // Fetch extra data in parallel
+    const [employeeData, ownerMap] = await Promise.all([
+      fetchEmployeeCounts(establishmentIds),
+      fetchOwnershipMap(establishmentIds)
+    ]);
 
-    if (!employmentError && employmentData) {
-      // Count both total and approved employees in single pass
-      employmentData.forEach((emp: EmploymentRecord) => {
-        const estId = emp.establishment_id;
-        employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
-
-        // Check if employee is approved (handle array or single object from Supabase)
-        const employeeStatus = Array.isArray(emp.employees)
-          ? emp.employees[0]?.status
-          : (emp.employees as { status: string } | undefined)?.status;
-        if (employeeStatus === 'approved') {
-          approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
-        }
-      });
-    }
+    // Map establishments with coordinates and extra data
+    establishmentsWithCoords = mapEstablishmentsWithExtras(
+      establishments,
+      employeeData.total,
+      employeeData.approved,
+      ownerMap
+    );
   }
-
-  // 🆕 v10.x - Query has_owner for filtering establishments without owner
-  const establishmentOwnerMap: { [key: string]: boolean } = {};
-  if (establishments && establishments.length > 0) {
-    const establishmentIds = establishments.map((est: DbEstablishmentWithLocation) => est.id);
-
-    const { data: ownerData } = await supabase
-      .from('establishment_owners')
-      .select('establishment_id')
-      .in('establishment_id', establishmentIds);
-
-    if (ownerData) {
-      ownerData.forEach((owner: { establishment_id: string }) => {
-        establishmentOwnerMap[owner.establishment_id] = true;
-      });
-    }
-  }
-
-  // Extract coordinates only (no category_id transformation)
-  const establishmentsWithCoords = establishments?.map((est: DbEstablishmentWithLocation) => {
-    let latitude = null;
-    let longitude = null;
-
-    if (est.location) {
-      // 🔧 FIX M6: Pass establishment ID for better error logging
-      const coords = parsePostGISBinary(est.location, est.id);
-      if (coords) {
-        latitude = coords.latitude;
-        longitude = coords.longitude;
-      }
-    }
-
-    return {
-      ...est,
-      // Keep category_id as native INTEGER (no transformation)
-      latitude,
-      longitude,
-      employee_count: employeeCounts[est.id] || 0, // Total employee count
-      approved_employee_count: approvedEmployeeCounts[est.id] || 0, // Approved employee count (for sorting)
-      has_owner: !!establishmentOwnerMap[est.id] // 🆕 v10.x - True if establishment has verified owner
-    };
-  }) || [];
 
   // Check for count error
   if (countError) {

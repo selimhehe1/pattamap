@@ -30,6 +30,133 @@ interface CommentResponse {
   is_establishment_response: boolean;
 }
 
+/** Helper: Insert photos for a comment */
+async function insertCommentPhotos(
+  commentId: string,
+  photoUrls: string[]
+): Promise<CommentPhotoRecord[]> {
+  if (!photoUrls || photoUrls.length === 0) return [];
+
+  const photosToInsert = photoUrls.map((url, index) => {
+    const urlParts = url.split('/');
+    const filenameWithExt = urlParts[urlParts.length - 1];
+    const publicId = filenameWithExt.split('.')[0];
+    return { comment_id: commentId, photo_url: url, cloudinary_public_id: publicId, display_order: index };
+  });
+
+  const { data: photos, error } = await supabase
+    .from('comment_photos')
+    .insert(photosToInsert)
+    .select();
+
+  if (error) {
+    logger.error('Insert comment photos error:', error);
+    return [];
+  }
+  logger.info(`📸 Inserted ${photos?.length || 0} photos for comment ${commentId}`);
+  return photos || [];
+}
+
+/** Helper: Handle notifications for comment creation */
+async function handleCommentNotifications(
+  commentId: string,
+  employeeId: string,
+  userId: string,
+  userPseudonym: string,
+  content: string,
+  parentCommentId?: string
+): Promise<void> {
+  // Notify parent comment author if this is a reply
+  if (parentCommentId) {
+    try {
+      const { data: parentComment } = await supabase
+        .from('comments')
+        .select('user_id')
+        .eq('id', parentCommentId)
+        .single();
+
+      const { data: employeeData } = await supabase
+        .from('employees')
+        .select('id, name')
+        .eq('id', employeeId)
+        .single();
+
+      if (parentComment && employeeData && parentComment.user_id !== userId) {
+        await notifyCommentReply(parentComment.user_id, userPseudonym, employeeData.name, commentId, employeeData.id);
+      }
+    } catch (err) {
+      logger.error('Comment reply notification error:', err);
+    }
+  }
+
+  // Detect and notify mentioned users (@username)
+  try {
+    const mentionRegex = /@([a-zA-Z0-9_-]+)/g;
+    const mentions = [...content.matchAll(mentionRegex)].map(match => match[1]);
+
+    if (mentions.length > 0) {
+      const { data: employeeData } = await supabase
+        .from('employees')
+        .select('id, name')
+        .eq('id', employeeId)
+        .single();
+
+      if (employeeData) {
+        const orConditions = mentions.map(m => `pseudonym.ilike.${escapeLikeWildcards(m.toLowerCase())}`).join(',');
+        const { data: mentionedUsers } = await supabase.from('users').select('id, pseudonym').or(orConditions);
+
+        if (mentionedUsers?.length) {
+          await Promise.all(
+            mentionedUsers
+              .filter(user => user.id !== userId)
+              .map(user => notifyCommentMention(user.id, userPseudonym, employeeData.name, commentId, employeeData.id))
+          );
+          logger.info(`Notified ${mentionedUsers.length} mentioned users in comment ${commentId}`);
+        }
+      }
+    }
+  } catch (err) {
+    logger.error('Mention notification error:', err);
+  }
+}
+
+/** Helper: Handle post-creation hooks (missions, badges, XP) */
+async function handlePostCreationHooks(
+  userId: string,
+  commentId: string,
+  content: string,
+  photoCount: number,
+  isReply: boolean
+): Promise<void> {
+  if (isReply) return; // Only for parent comments
+
+  // Track mission progress
+  try {
+    await missionTrackingService.onReviewCreated(userId, commentId, content?.length || 0, photoCount > 0);
+  } catch (err) {
+    logger.error('Mission tracking error for review:', err);
+  }
+
+  // Award badges
+  try {
+    const newBadges = await badgeAwardService.checkAndAwardBadges(userId, 'review_created');
+    if (newBadges.length > 0) {
+      logger.info(`🎉 Awarded ${newBadges.length} badge(s) to user ${userId}: ${newBadges.join(', ')}`);
+    }
+  } catch (err) {
+    logger.error('Badge award error for review:', err);
+  }
+
+  // Award XP
+  if (content) {
+    try {
+      await awardXP(userId, 50, 'review_created', 'comment', commentId);
+    } catch (err) {
+      logger.error('XP award error for review:', err);
+    }
+  }
+}
+
 export const getComments = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { employee_id } = req.query;
   const { status = 'approved' } = req.query;
@@ -183,166 +310,21 @@ export const createComment = asyncHandler(async (req: AuthRequest, res: Response
   }
 
   // 📸 v10.4 - Insert photos if provided
-  let insertedPhotos: CommentPhotoRecord[] = [];
-  if (photo_urls && photo_urls.length > 0) {
-    const photosToInsert = photo_urls.map((url, index) => {
-      // Extract cloudinary public_id from URL
-      // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{public_id}.{format}
-      const urlParts = url.split('/');
-      const filenameWithExt = urlParts[urlParts.length - 1];
-      const publicId = filenameWithExt.split('.')[0];
+  const insertedPhotos = await insertCommentPhotos(comment.id, photo_urls || []);
 
-      return {
-        comment_id: comment.id,
-        photo_url: url,
-        cloudinary_public_id: publicId,
-        display_order: index
-      };
-    });
+  // Handle notifications (reply notifications and @mentions)
+  await handleCommentNotifications(
+    comment.id, employee_id, req.user!.id, req.user!.pseudonym, content, parent_comment_id
+  );
 
-    const { data: photos, error: photosError } = await supabase
-      .from('comment_photos')
-      .insert(photosToInsert)
-      .select();
+  // Handle post-creation hooks (missions, badges, XP) - only for parent comments
+  await handlePostCreationHooks(
+    req.user!.id, comment.id, content, insertedPhotos.length, !!parent_comment_id
+  );
 
-    if (photosError) {
-      logger.error('Insert comment photos error:', photosError);
-      // Don't fail the entire request, just log the error
-      // The comment was already created successfully
-    } else {
-      insertedPhotos = photos || [];
-      logger.info(`📸 Inserted ${insertedPhotos.length} photos for comment ${comment.id}`);
-    }
-  }
-
-  // Notify parent comment author if this is a reply
-  if (parent_comment_id) {
-    try {
-      // Get parent comment author
-      const { data: parentComment } = await supabase
-        .from('comments')
-        .select('user_id, user:users(pseudonym)')
-        .eq('id', parent_comment_id)
-        .single();
-
-      // Get employee name
-      const { data: employeeData } = await supabase
-        .from('employees')
-        .select('id, name')
-        .eq('id', employee_id)
-        .single();
-
-      // Only notify if parent comment author is different from reply author
-      if (parentComment && employeeData && parentComment.user_id !== req.user!.id) {
-        await notifyCommentReply(
-          parentComment.user_id,
-          req.user!.pseudonym,
-          employeeData.name,
-          comment.id,
-          employeeData.id
-        );
-      }
-    } catch (notifyError) {
-      // Log error but don't fail the request if notification fails
-      logger.error('Comment reply notification error:', notifyError);
-    }
-  }
-
-  // 🔔 Detect and notify mentioned users (@username)
-  try {
-    // Extract mentions from content using regex (e.g., @john_doe, @user123)
-    const mentionRegex = /@([a-zA-Z0-9_-]+)/g;
-    const mentions = [...content.matchAll(mentionRegex)].map(match => match[1]);
-
-    if (mentions.length > 0) {
-      // Get employee name for notification
-      const { data: employeeData } = await supabase
-        .from('employees')
-        .select('id, name')
-        .eq('id', employee_id)
-        .single();
-
-      if (employeeData) {
-        // Find users with these pseudonyms (case-insensitive)
-        // Build OR condition for each mention
-        // 🔧 FIX S1: Escape LIKE wildcards to prevent mention injection
-        const orConditions = mentions
-          .map(m => `pseudonym.ilike.${escapeLikeWildcards(m.toLowerCase())}`)
-          .join(',');
-
-        const { data: mentionedUsers } = await supabase
-          .from('users')
-          .select('id, pseudonym')
-          .or(orConditions);
-
-        // Notify each mentioned user (except the comment author)
-        if (mentionedUsers && mentionedUsers.length > 0) {
-          const notifyPromises = mentionedUsers
-            .filter(user => user.id !== req.user!.id) // Don't notify self
-            .map(user =>
-              notifyCommentMention(
-                user.id,
-                req.user!.pseudonym,
-                employeeData.name,
-                comment.id,
-                employeeData.id
-              )
-            );
-
-          await Promise.all(notifyPromises);
-          logger.info(`Notified ${notifyPromises.length} mentioned users in comment ${comment.id}`);
-        }
-      }
-    }
-  } catch (mentionError) {
-    // Log error but don't fail the request if mention notifications fail
-    logger.error('Mention notification error:', mentionError);
-  }
-
-  // Track mission progress for reviews (only for parent comments, not replies)
-  if (!parent_comment_id) {
-    try {
-      const reviewLength = content?.length || 0;
-      // 📸 v10.4 - Now using actual photo count
-      const hasPhotos = insertedPhotos.length > 0;
-      await missionTrackingService.onReviewCreated(req.user!.id, comment.id, reviewLength, hasPhotos);
-    } catch (missionError) {
-      // Log error but don't fail the request if mission tracking fails
-      logger.error('Mission tracking error for review:', missionError);
-    }
-  }
-
-  // 🏅 Check and award badges for review creation (only for parent comments, not replies)
-  if (!parent_comment_id) {
-    try {
-      const newBadges = await badgeAwardService.checkAndAwardBadges(req.user!.id, 'review_created');
-      if (newBadges.length > 0) {
-        logger.info(`🎉 Awarded ${newBadges.length} badge(s) to user ${req.user!.id}: ${newBadges.join(', ')}`);
-      }
-    } catch (badgeError) {
-      // Log error but don't fail the request if badge award fails
-      logger.error('Badge award error for review:', badgeError);
-    }
-  }
-
-  // ✅ Award XP for review creation (only for parent comments with content)
-  // Replies don't award XP to avoid spam
+  // Log successful creation
   if (!parent_comment_id && content) {
-    try {
-      // Award 50 XP for creating a review
-      await awardXP(
-        req.user!.id,
-        50,
-        'review_created',
-        'comment',
-        comment.id
-      );
-      logger.info(`✅ XP awarded: +50 XP for review ${comment.id} by user ${req.user!.id}`);
-    } catch (xpError) {
-      // Log error but don't fail the request if XP attribution fails
-      // This ensures comment creation succeeds even if gamification system has issues
-      logger.error('XP attribution error (non-critical):', xpError);
-    }
+    logger.info(`✅ Review created: ${comment.id} by user ${req.user!.id}`);
   }
 
   // 📸 v10.4 - Include photos in response
