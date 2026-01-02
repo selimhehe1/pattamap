@@ -102,7 +102,10 @@ export default defineConfig({
           supabase: ['@supabase/supabase-js'],
           sentry: ['@sentry/react'],
           charts: ['recharts'],
-          utils: ['lodash', 'axios', 'dompurify']
+          utils: ['axios', 'dompurify'],
+          helmet: ['@dr.pogodin/react-helmet'],
+          toast: ['react-hot-toast'],
+          analytics: ['react-ga4']
         }
       }
     }

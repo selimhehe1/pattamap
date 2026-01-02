@@ -9,13 +9,15 @@ import { GamificationProvider } from './contexts/GamificationContext';
 import { useAppModals } from './hooks/useAppModals';
 import { SidebarProvider } from './contexts/SidebarContext';
 import ModalRenderer from './components/Common/ModalRenderer';
-import ZoneGrid from './components/Home/ZoneGrid';
-import Header from './components/Layout/Header';
 import SkipToContent from './components/Layout/SkipToContent';
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
-import XPToastNotifications from './components/Gamification/XPToastNotifications';
 import OfflineBanner from './components/Common/OfflineBanner';
+
+// Lazy load heavy components for bundle optimization
+const ZoneGrid = React.lazy(() => import('./components/Home/ZoneGrid'));
+const Header = React.lazy(() => import('./components/Layout/Header'));
+const XPToastNotifications = React.lazy(() => import('./components/Gamification/XPToastNotifications'));
 import { logger } from './utils/logger';
 import { Toaster } from './utils/toast';
 import { initGA, initWebVitals, trackPageView } from './utils/analytics';
@@ -104,7 +106,9 @@ const HomePage: React.FC = () => {
         className="page-content-with-header-nightlife"
         tabIndex={-1}
       >
-        <ZoneGrid />
+        <Suspense fallback={<LoadingFallback message="Loading zones..." variant="page" />}>
+          <ZoneGrid />
+        </Suspense>
       </main>
     </div>
   );
@@ -151,10 +155,16 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <OfflineBanner />
 
       {/* Header global - Hidden on auth pages and admin pages which have their own layout */}
-      {!isAuthPage && !isAdminPage && <Header />}
+      {!isAuthPage && !isAdminPage && (
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
+      )}
 
       {/* XP Toast Notifications - Gamification v10.3 */}
-      <XPToastNotifications />
+      <Suspense fallback={null}>
+        <XPToastNotifications />
+      </Suspense>
 
       {children}
     </>
