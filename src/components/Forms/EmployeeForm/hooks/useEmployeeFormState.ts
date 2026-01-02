@@ -49,7 +49,8 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   // Initialize form with existing data
   useEffect(() => {
     if (initialData) {
-      const socialMedia = initialData.social_media as FormSocialMedia | undefined;
+      // FIX: Map from API keys (instagram, facebook, etc.) to form keys (ig, fb, etc.)
+      const apiSocialMedia = initialData.social_media as Record<string, string> | undefined;
 
       // FIX: Derive current_establishment_id from various sources
       // - current_employment[] (from regular employee API)
@@ -77,11 +78,12 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         languages_spoken: initialData.languages_spoken || null,
         description: initialData.description || '',
         social_media: {
-          ig: socialMedia?.ig || '',
-          fb: socialMedia?.fb || '',
-          line: socialMedia?.line || '',
-          tg: socialMedia?.tg || '',
-          wa: socialMedia?.wa || ''
+          // Map from API keys to form keys
+          ig: apiSocialMedia?.instagram || apiSocialMedia?.ig || '',
+          fb: apiSocialMedia?.facebook || apiSocialMedia?.fb || '',
+          line: apiSocialMedia?.line || '',
+          tg: apiSocialMedia?.telegram || apiSocialMedia?.tg || '',
+          wa: apiSocialMedia?.whatsapp || apiSocialMedia?.wa || ''
         },
         current_establishment_id: derivedEstablishmentId
       });
