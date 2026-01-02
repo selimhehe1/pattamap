@@ -72,34 +72,38 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             { value: 'female', label: 'Female', icon: '♀' },
             { value: 'male', label: 'Male', icon: '♂' },
             { value: 'ladyboy', label: 'Ladyboy', icon: '⚧' }
-          ].map(option => (
-            <label
-              key={option.value}
-              className="uf-radio-option"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: formData.sex === option.value ? '2px solid var(--accent-pink)' : '1px solid var(--border-color)',
-                background: formData.sex === option.value ? 'rgba(236, 72, 153, 0.1)' : 'var(--bg-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <input
-                type="radio"
-                name="sex"
-                value={option.value}
-                checked={formData.sex === option.value}
-                onChange={onInputChange}
-                style={{ display: 'none' }}
-              />
-              <span style={{ fontSize: '16px' }}>{option.icon}</span>
-              <span>{option.label}</span>
-            </label>
-          ))}
+          ].map(option => {
+            const currentSex = formData.sex || '';
+            const isSelected = currentSex === option.value;
+            return (
+              <label
+                key={option.value}
+                className="uf-radio-option"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: isSelected ? '2px solid var(--accent-pink)' : '1px solid var(--border-color)',
+                  background: isSelected ? 'rgba(236, 72, 153, 0.1)' : 'var(--bg-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <input
+                  type="radio"
+                  name="sex"
+                  value={option.value}
+                  checked={isSelected}
+                  onChange={onInputChange}
+                  style={{ display: 'none' }}
+                />
+                <span style={{ fontSize: '16px' }}>{option.icon}</span>
+                <span>{option.label}</span>
+              </label>
+            );
+          })}
         </div>
         {errors.sex && (
           <div className="uf-error">
