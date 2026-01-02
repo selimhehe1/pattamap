@@ -161,6 +161,12 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
 
             {/* Details */}
             <div style={{ color: 'white' }}>
+              {/* Sex/Gender */}
+              <div style={{ marginBottom: '20px' }}>
+                <strong style={{ color: '#C19A6B' }}>{t('employee.sexLabel', 'Gender')}:</strong>{' '}
+                {employee.sex ? t(`employee.sex.${employee.sex}`, employee.sex.charAt(0).toUpperCase() + employee.sex.slice(1)) : '-'}
+              </div>
+
               {/* Age */}
               <div style={{ marginBottom: '20px' }}>
                 <strong style={{ color: '#C19A6B' }}>Age:</strong> {employee.age}

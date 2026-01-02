@@ -16,6 +16,7 @@ import { escapeLikeWildcards } from './validation';
 export interface SearchParams {
   searchQuery: string | null;
   type: string | null;
+  sex: string | null; // v10.x - Gender filter
   nationality: string | null;
   ageMin: number | null;
   ageMax: number | null;
@@ -53,6 +54,7 @@ export function parseSearchParams(query: Record<string, unknown>): SearchParams 
   const {
     q: searchQuery,
     type,
+    sex, // v10.x - Gender filter
     nationality,
     age_min,
     age_max,
@@ -84,6 +86,7 @@ export function parseSearchParams(query: Record<string, unknown>): SearchParams 
   return {
     searchQuery: searchQuery ? String(searchQuery).trim() : null,
     type: type ? String(type) : null,
+    sex: sex ? String(sex) : null, // v10.x - Gender filter
     nationality: nationality ? String(nationality) : null,
     ageMin: age_min ? Number(age_min) : null,
     ageMax: age_max ? Number(age_max) : null,
@@ -133,6 +136,11 @@ export async function buildEmployeeSearchQuery(params: SearchParams) {
     query = query.or(
       `name.ilike.%${searchTerm}%,nickname.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`
     );
+  }
+
+  // Sex/Gender filter
+  if (params.sex) {
+    query = query.eq('sex', params.sex);
   }
 
   // Nationality filter (array contains)

@@ -246,6 +246,16 @@
     "addComment": "Add Comment"
   },
 
+  "employee": {
+    "sexLabel": "性別",
+    "sex": {
+      "male": "男性",
+      "female": "女性",
+      "ladyboy": "レディーボーイ"
+    },
+    "errorSexRequired": "性別を選択してください"
+  },
+
   "validation": {
     "communityValidation": "Community Validation",
     "underReview": "Under review",

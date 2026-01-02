@@ -49,6 +49,7 @@ export interface Employee {
   name: string;
   nickname?: string;
   age?: number;
+  sex: 'male' | 'female' | 'ladyboy'; // v10.x - Gender (required)
   nationality?: string[] | null; // Array for multiple nationalities (max 2 for "half/mixed")
   description?: string;
   photos: string[];
@@ -132,6 +133,7 @@ export interface CreateEmployeeRequest {
   name: string;
   nickname?: string;
   age?: number;
+  sex: 'male' | 'female' | 'ladyboy'; // v10.x - Gender (required)
   nationality?: string[] | null; // Array for multiple nationalities (max 2 for "half/mixed")
   description?: string;
   photos: string[];

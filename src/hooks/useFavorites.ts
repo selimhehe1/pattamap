@@ -32,6 +32,7 @@ export interface Favorite {
   employee_nickname?: string;
   employee_photos: string[];
   employee_age?: number;
+  employee_sex?: 'male' | 'female' | 'ladyboy'; // v10.x - Gender
   employee_nationality?: string;
   employee_rating?: number;
   employee_comment_count?: number;

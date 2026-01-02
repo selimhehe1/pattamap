@@ -45,6 +45,7 @@ export function EmployeeForm({
     handleInputChange,
     handleNationalityChange,
     handleLanguagesChange,
+    handleSexChange,
     handleEstablishmentChange,
     handleFreelanceModeChange,
     addNewPhotos,
@@ -64,6 +65,7 @@ export function EmployeeForm({
             onInputChange={handleInputChange}
             onNationalityChange={handleNationalityChange}
             onLanguagesChange={handleLanguagesChange}
+            onSexChange={handleSexChange}
           />
 
           {/* Photo Upload Section */}

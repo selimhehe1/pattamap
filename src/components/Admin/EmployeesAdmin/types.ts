@@ -23,6 +23,7 @@ export interface AdminEmployee {
   name: string;
   nickname?: string;
   age: number;
+  sex: 'male' | 'female' | 'ladyboy'; // v10.x - Gender (required)
   nationality: string[] | null;
   description?: string;
   photos: string[];

@@ -16,6 +16,7 @@ interface EmployeeBasicInfoProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onNationalityChange: (nationalities: string[] | null) => void;
   onLanguagesChange: (languages: string[] | null) => void;
+  onSexChange: (sex: 'male' | 'female' | 'ladyboy' | '') => void;
 }
 
 export function EmployeeBasicInfo({
@@ -23,7 +24,8 @@ export function EmployeeBasicInfo({
   errors,
   onInputChange,
   onNationalityChange,
-  onLanguagesChange
+  onLanguagesChange,
+  onSexChange
 }: EmployeeBasicInfoProps) {
   const { t } = useTranslation();
 
@@ -118,6 +120,59 @@ export function EmployeeBasicInfo({
           value={formData.languages_spoken}
           onChange={onLanguagesChange}
         />
+      </div>
+
+      {/* Sex/Gender - Required */}
+      <div className="form-input-group-lg">
+        <label className="label-nightlife">
+          <User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+          {t('employee.sexLabel', 'Gender')} <span className="text-required">*</span>
+        </label>
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          marginTop: '8px',
+          flexWrap: 'wrap'
+        }}>
+          {(['female', 'male', 'ladyboy'] as const).map((sexOption) => (
+            <label
+              key={sexOption}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: formData.sex === sexOption
+                  ? '2px solid var(--color-cyan-nightlife)'
+                  : '1px solid rgba(255,255,255,0.2)',
+                background: formData.sex === sexOption
+                  ? 'rgba(0, 255, 255, 0.1)'
+                  : 'rgba(255,255,255,0.05)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <input
+                type="radio"
+                name="sex"
+                value={sexOption}
+                checked={formData.sex === sexOption}
+                onChange={() => onSexChange(sexOption)}
+                style={{ display: 'none' }}
+              />
+              <span style={{
+                color: formData.sex === sexOption ? 'var(--color-cyan-nightlife)' : 'inherit',
+                fontWeight: formData.sex === sexOption ? '600' : '400'
+              }}>
+                {t(`employee.sex.${sexOption}`, sexOption.charAt(0).toUpperCase() + sexOption.slice(1))}
+              </span>
+            </label>
+          ))}
+        </div>
+        {errors.sex && (
+          <span className="error-text-nightlife"><AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.sex}</span>
+        )}
       </div>
 
       {/* Description */}

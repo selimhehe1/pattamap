@@ -245,6 +245,17 @@
     "cancelComment": "Отменить комментарий",
     "addComment": "Добавить комментарий"
   },
+
+  "employee": {
+    "sexLabel": "Пол",
+    "sex": {
+      "male": "Мужчина",
+      "female": "Женщина",
+      "ladyboy": "Ледибой"
+    },
+    "errorSexRequired": "Пожалуйста, выберите пол"
+  },
+
   "validation": {
     "communityValidation": "Проверка сообществом",
     "underReview": "На проверке",

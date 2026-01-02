@@ -278,6 +278,7 @@ describe('Employee Search Helpers', () => {
     const defaultParams: SearchParams = {
       searchQuery: null,
       type: null,
+      sex: null, // v10.x - Gender filter
       nationality: null,
       ageMin: null,
       ageMax: null,

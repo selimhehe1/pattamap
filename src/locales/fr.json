@@ -293,6 +293,16 @@
     "addComment": "Ajouter un commentaire"
   },
 
+  "employee": {
+    "sexLabel": "Genre",
+    "sex": {
+      "male": "Homme",
+      "female": "Femme",
+      "ladyboy": "Ladyboy"
+    },
+    "errorSexRequired": "Veuillez sélectionner un genre"
+  },
+
   "validation": {
     "communityValidation": "Validation Communautaire",
     "underReview": "En cours d'examen",

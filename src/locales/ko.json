@@ -246,6 +246,16 @@
     "addComment": "Add Comment"
   },
 
+  "employee": {
+    "sexLabel": "성별",
+    "sex": {
+      "male": "남성",
+      "female": "여성",
+      "ladyboy": "레이디보이"
+    },
+    "errorSexRequired": "성별을 선택해주세요"
+  },
+
   "validation": {
     "communityValidation": "Community Validation",
     "underReview": "Under review",

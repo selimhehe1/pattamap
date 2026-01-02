@@ -72,6 +72,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         name: initialData.name || '',
         nickname: initialData.nickname || '',
         age: initialData.age?.toString() || '',
+        sex: initialData.sex || '', // v10.x - Gender
         nationality: initialData.nationality || null,
         languages_spoken: initialData.languages_spoken || null,
         description: initialData.description || '',
@@ -122,6 +123,15 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   const handleLanguagesChange = useCallback((languages: string[] | null) => {
     setFormData(prev => ({ ...prev, languages_spoken: languages }));
   }, []);
+
+  // v10.x - Sex change handler
+  const handleSexChange = useCallback((sex: 'male' | 'female' | 'ladyboy' | '') => {
+    setFormData(prev => ({ ...prev, sex }));
+    // Clear error when sex is selected
+    if (sex && errors.sex) {
+      setErrors(prev => ({ ...prev, sex: undefined }));
+    }
+  }, [errors.sex]);
 
   const handleEstablishmentChange = useCallback((establishmentId: string) => {
     setFormData(prev => ({ ...prev, current_establishment_id: establishmentId }));
@@ -262,6 +272,11 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
       newErrors.name = t('employee.errorNameRequired');
     }
 
+    // v10.x - Sex is required
+    if (!formData.sex) {
+      newErrors.sex = t('employee.errorSexRequired', 'Please select a gender');
+    }
+
     if (formData.age) {
       const age = parseInt(formData.age);
       if (age < 18 || age > 80) {
@@ -277,7 +292,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData.name, formData.age, existingPhotoUrls.length, newPhotos.length, t]);
+  }, [formData.name, formData.sex, formData.age, existingPhotoUrls.length, newPhotos.length, t]);
 
   // Form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -312,6 +327,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         name: formData.name.trim(),
         nickname: formData.nickname.trim() || undefined,
         age: formData.age ? parseInt(formData.age, 10) : undefined,
+        sex: formData.sex as 'male' | 'female' | 'ladyboy', // v10.x - Gender (required)
         nationality: formData.nationality,
         languages_spoken: formData.languages_spoken,
         description: formData.description.trim() || undefined,
@@ -356,6 +372,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     handleInputChange,
     handleNationalityChange,
     handleLanguagesChange,
+    handleSexChange, // v10.x - Gender handler
     handleEstablishmentChange,
     handleFreelanceModeChange,
     addNewPhotos,

@@ -186,6 +186,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         </h3>
         <div className="aec-meta">
           <span>
+            {employee.sex ? t(`employee.sex.${employee.sex}`, employee.sex) : ''}
+          </span>
+          <span>
             🌍 {employee.nationality}
           </span>
           <span>

@@ -243,6 +243,17 @@
     "cancelComment": "टिप्पणी रद्द करें",
     "addComment": "टिप्पणी जोड़ें"
   },
+
+  "employee": {
+    "sexLabel": "लिंग",
+    "sex": {
+      "male": "पुरुष",
+      "female": "महिला",
+      "ladyboy": "लेडीबॉय"
+    },
+    "errorSexRequired": "कृपया लिंग चुनें"
+  },
+
   "validation": {
     "communityValidation": "समुदाय सत्यापन",
     "underReview": "समीक्षाधीन",

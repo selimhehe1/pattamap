@@ -243,6 +243,17 @@
     "cancelComment": "取消评论",
     "addComment": "添加评论"
   },
+
+  "employee": {
+    "sexLabel": "性别",
+    "sex": {
+      "male": "男",
+      "female": "女",
+      "ladyboy": "人妖"
+    },
+    "errorSexRequired": "请选择性别"
+  },
+
   "validation": {
     "communityValidation": "社区验证",
     "underReview": "审核中",

@@ -284,6 +284,7 @@ export const createEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       name,
       nickname,
       age,
+      sex,
       nationality,
       description,
       photos,
@@ -297,6 +298,17 @@ export const createEmployee = asyncHandler(async (req: AuthRequest, res: Respons
 
     if (!name) {
       throw BadRequestError('Name is required');
+    }
+
+    // ========================================
+    // v10.x - Validate sex field (required)
+    // ========================================
+    const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
+    if (!sex) {
+      throw BadRequestError('Sex/gender is required');
+    }
+    if (!VALID_SEX_VALUES.includes(sex as typeof VALID_SEX_VALUES[number])) {
+      throw BadRequestError(`Sex must be one of: ${VALID_SEX_VALUES.join(', ')}`);
     }
 
     // ========================================
@@ -357,6 +369,7 @@ export const createEmployee = asyncHandler(async (req: AuthRequest, res: Respons
         name,
         nickname,
         age,
+        sex, // v10.x - Gender field
         nationality,
         description,
         photos,
@@ -527,6 +540,14 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
     const nationalityValidation = validateNationalityArray(updates.nationality);
     if (!nationalityValidation.valid) {
       throw BadRequestError(nationalityValidation.error || 'Invalid nationality');
+    }
+
+    // v10.x - Validate sex field if provided
+    if (updates.sex !== undefined && updates.sex !== null) {
+      const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
+      if (!VALID_SEX_VALUES.includes(updates.sex as typeof VALID_SEX_VALUES[number])) {
+        throw BadRequestError(`Sex must be one of: ${VALID_SEX_VALUES.join(', ')}`);
+      }
     }
 
     // ========================================

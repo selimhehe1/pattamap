@@ -113,6 +113,7 @@ export interface Employee {
   name: string;
   nickname?: string;
   age?: number;
+  sex: 'male' | 'female' | 'ladyboy'; // v10.x - Gender (required)
   nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
   languages_spoken?: string[] | null; // v10.5: Languages spoken (Thai, English, Chinese, Russian, etc.)
   description?: string;
@@ -222,6 +223,7 @@ export interface EmployeeFormData {
   name: string;
   nickname?: string;
   age?: number;
+  sex: 'male' | 'female' | 'ladyboy'; // v10.x - Gender (required)
   nationality?: string[] | null; // v10.4: Array for multiple nationalities (max 2 for "half/mixed")
   languages_spoken?: string[] | null; // v10.5: Languages spoken (Thai, English, Chinese, Russian, etc.)
   description?: string;
@@ -322,6 +324,7 @@ export interface Favorite {
   employee_nickname?: string;
   employee_photos: string[];
   employee_age?: number;
+  employee_sex?: 'male' | 'female' | 'ladyboy'; // v10.x - Gender
   employee_nationality?: string[] | null; // v10.4: Array for multiple nationalities
   employee_description?: string;
   employee_social_media?: {

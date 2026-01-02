@@ -243,6 +243,17 @@
     "cancelComment": "ยกเลิกความคิดเห็น",
     "addComment": "เพิ่มความคิดเห็น"
   },
+
+  "employee": {
+    "sexLabel": "เพศ",
+    "sex": {
+      "male": "ชาย",
+      "female": "หญิง",
+      "ladyboy": "กะเทย"
+    },
+    "errorSexRequired": "กรุณาเลือกเพศ"
+  },
+
   "validation": {
     "communityValidation": "การตรวจสอบชุมชน",
     "underReview": "กำลังตรวจสอบ",

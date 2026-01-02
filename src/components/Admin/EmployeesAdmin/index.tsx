@@ -230,6 +230,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
                 name: profileEmployee.name,
                 nickname: profileEmployee.nickname || undefined,
                 age: profileEmployee.age,
+                sex: profileEmployee.sex,
                 nationality: profileEmployee.nationality,
                 photos: profileEmployee.photos || [],
                 description: profileEmployee.description || undefined,
