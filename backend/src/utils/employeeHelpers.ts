@@ -316,3 +316,184 @@ export async function updateEmploymentAssociations(
 
   return { success: true };
 }
+
+/**
+ * Search filter options for employee search
+ */
+export interface SearchFilterOptions {
+  type?: string;
+  category_id?: string | number;
+  establishment_id?: string;
+  normalizedZoneFilter?: string | null;
+  languages?: string;
+  has_photos?: string;
+  social_media?: string;
+}
+
+/**
+ * Apply search filters to employees
+ * Extracted from searchEmployees to reduce complexity
+ */
+export function applySearchFilters<T extends {
+  current_employment?: CurrentEmploymentRecord[];
+  independent_position?: IndependentPositionRecord[];
+  is_freelance?: boolean;
+  freelance_zone?: string;
+  languages_spoken?: string[];
+  photos?: string[];
+  social_media?: Record<string, string>;
+}>(
+  employees: T[],
+  options: SearchFilterOptions
+): T[] {
+  const { type, category_id, establishment_id, normalizedZoneFilter, languages, has_photos, social_media } = options;
+
+  return employees.filter(emp => {
+    const hasCurrentEmployment = emp.current_employment?.some(ce => ce.is_current === true);
+    const currentEmp = emp.current_employment?.find(ce => ce.is_current === true);
+    const hasActiveFreelance = emp.independent_position?.some(ip => ip.is_active === true);
+    const isSimpleFreelance = emp.is_freelance === true;
+
+    // Type filter
+    if (type && type !== 'all') {
+      const isFreelance = hasActiveFreelance || isSimpleFreelance;
+      if (type === 'freelance' && !isFreelance) return false;
+      if (type === 'regular' && !hasCurrentEmployment) return false;
+    }
+
+    // Category filter
+    if (category_id) {
+      if (!currentEmp) return false;
+      const estCategoryId = (currentEmp.establishment as { category_id?: number } | undefined)?.category_id;
+      if (estCategoryId !== Number(category_id)) return false;
+    }
+
+    // Establishment filter
+    if (establishment_id) {
+      if (!currentEmp) return false;
+      if (currentEmp.establishment_id !== establishment_id) return false;
+    }
+
+    // Zone filter
+    if (normalizedZoneFilter) {
+      const establishmentZone = (currentEmp?.establishment as { zone?: string } | undefined)?.zone?.toLowerCase().replace(/\s+/g, '');
+      const freelanceZone = emp.independent_position?.[0]?.zone?.toLowerCase().replace(/\s+/g, '');
+      const simpleFreelanceZone = emp.is_freelance ? emp.freelance_zone?.toLowerCase().replace(/\s+/g, '') : null;
+      const matchesZone = establishmentZone === normalizedZoneFilter ||
+                          freelanceZone === normalizedZoneFilter ||
+                          simpleFreelanceZone === normalizedZoneFilter;
+      if (!matchesZone) return false;
+    }
+
+    // Languages filter
+    if (languages && String(languages).trim()) {
+      const requestedLanguages = String(languages).split(',').map(l => l.trim().toLowerCase());
+      const employeeLanguages = Array.isArray(emp.languages_spoken)
+        ? emp.languages_spoken.map(l => l.toLowerCase())
+        : [];
+      const speaksAnyLanguage = requestedLanguages.some(lang =>
+        employeeLanguages.some(empLang => empLang.includes(lang) || lang.includes(empLang))
+      );
+      if (!speaksAnyLanguage) return false;
+    }
+
+    // Has photos filter
+    if (has_photos === 'true') {
+      if (!Array.isArray(emp.photos) || emp.photos.length === 0) return false;
+    }
+
+    // Social media filter
+    if (social_media && String(social_media).trim()) {
+      const requestedPlatforms = String(social_media).split(',').map(p => p.trim().toLowerCase());
+      const employeeSocials = emp.social_media || {};
+      const hasAnySocial = requestedPlatforms.some(platform => {
+        const value = employeeSocials[platform];
+        return value && String(value).trim() !== '';
+      });
+      if (!hasAnySocial) return false;
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Filter employees by minimum rating
+ * Returns filtered employees and their ratings map for reuse
+ */
+export async function filterByMinRating<T extends { id: string }>(
+  employees: T[],
+  minRating: number
+): Promise<{ filtered: T[]; ratingsByEmployee: Map<string, number[]> }> {
+  const employeeIds = employees.map(emp => emp.id);
+
+  const { data: allRatings } = await supabase
+    .from('comments')
+    .select('employee_id, rating')
+    .in('employee_id', employeeIds)
+    .eq('status', 'approved')
+    .not('rating', 'is', null);
+
+  const ratingsByEmployee = new Map<string, number[]>();
+  (allRatings || []).forEach(r => {
+    if (!ratingsByEmployee.has(r.employee_id)) {
+      ratingsByEmployee.set(r.employee_id, []);
+    }
+    ratingsByEmployee.get(r.employee_id)!.push(r.rating);
+  });
+
+  const filtered = employees.filter(emp => {
+    const ratings = ratingsByEmployee.get(emp.id) || [];
+    if (ratings.length === 0) return false;
+    const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+    return avgRating >= minRating;
+  });
+
+  return { filtered, ratingsByEmployee };
+}
+
+/**
+ * Enrich employees with ratings, votes, and relevance score for search
+ */
+export function enrichEmployeesForSearch<T extends {
+  id: string;
+  name?: string;
+  nickname?: string;
+  description?: string;
+  nationality?: string[];
+  is_vip?: boolean;
+  vip_expires_at?: string;
+  is_verified?: boolean;
+}>(
+  employees: T[],
+  ratingsData: RatingData[],
+  votesData: VoteData[],
+  searchQuery?: string
+): (T & { average_rating: number; comment_count: number; vote_count: number; relevance_score: number })[] {
+  return employees.map(employee => {
+    const employeeRatings = ratingsData
+      .filter(r => r.employee_id === employee.id)
+      .map(r => r.rating);
+
+    const averageRating = employeeRatings.length > 0
+      ? employeeRatings.reduce((sum, rating) => sum + rating, 0) / employeeRatings.length
+      : 0;
+
+    const voteCount = votesData.filter(v => v.employee_id === employee.id).length;
+
+    const relevanceScore = calculateRelevanceScore(
+      employee,
+      searchQuery,
+      averageRating,
+      employeeRatings.length
+    );
+
+    return {
+      ...employee,
+      average_rating: averageRating,
+      comment_count: employeeRatings.length,
+      vote_count: voteCount,
+      relevance_score: relevanceScore
+    };
+  });
+}

@@ -11,7 +11,10 @@ import {
   fetchEmployeeRatingsAndVotes,
   enrichEmployeesWithRatings,
   applySorting,
-  updateEmploymentAssociations
+  updateEmploymentAssociations,
+  applySearchFilters,
+  filterByMinRating,
+  enrichEmployeesForSearch
 } from '../utils/employeeHelpers';
 
 // Type definitions for Supabase query results
@@ -27,15 +30,6 @@ interface CurrentEmploymentRecord {
     name: string;
     zone?: string;
   } | null;
-}
-
-interface IndependentPositionRecord {
-  id: string;
-  employee_id: string;
-  is_active: boolean;
-  zone?: string;
-  grid_row?: number;
-  grid_col?: number;
 }
 
 export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -1069,329 +1063,51 @@ export const searchEmployees = asyncHandler(async (req: AuthRequest, res: Respon
       throw BadRequestError(error.message);
     }
 
-    // ✅ Filter employees - Accept ALL approved employees by default (no strict position requirement)
-    const filteredEmployees = (allEmployees || []).filter(emp => {
-      // Identify positions for optional filters
-      const hasCurrentEmployment = emp.current_employment?.some((ce: CurrentEmploymentRecord) => ce.is_current === true);
-      const currentEmp = emp.current_employment?.find((ce: CurrentEmploymentRecord) => ce.is_current === true);
-      const hasActiveFreelance = emp.independent_position?.some((ip: IndependentPositionRecord) => ip.is_active === true);
-      const isSimpleFreelance = emp.is_freelance === true; // 🆕 v10.x - Simple freelance (no map position)
-
-      // 🆕 v10.3 - Employee Type Filter (optional - only applied if specified)
-      if (type && type !== 'all') {
-        const isFreelance = hasActiveFreelance || isSimpleFreelance;
-        const isRegular = hasCurrentEmployment;
-
-        if (type === 'freelance' && !isFreelance) {
-          return false; // User wants freelances only, but this is a regular employee
-        }
-
-        if (type === 'regular' && !isRegular) {
-          return false; // User wants regular employees only, but this is a freelance
-        }
-      }
-
-      // Category filter (optional - only applied if employee has current employment)
-      if (category_id) {
-        if (!currentEmp) {
-          return false; // Skip employees without current employment when category filter is active
-        }
-        const establishmentCategoryId = currentEmp?.establishment?.category_id;
-        const categoryMatches = establishmentCategoryId === Number(category_id);
-
-        if (!categoryMatches) {
-          return false;
-        }
-      }
-
-      // Establishment filter (optional - only applied if employee has current employment)
-      if (establishment_id) {
-        if (!currentEmp) {
-          return false; // Skip employees without current employment when establishment filter is active
-        }
-        const establishmentMatches = currentEmp?.establishment_id === establishment_id;
-        if (!establishmentMatches) {
-          return false;
-        }
-      }
-
-      // Zone filter (optional - works with current employment OR freelance)
-      if (normalizedZoneFilter) {
-        const establishmentZone = currentEmp?.establishment?.zone?.toLowerCase().replace(/\s+/g, '');
-        const freelanceZone = emp.independent_position?.[0]?.zone?.toLowerCase().replace(/\s+/g, '');
-        const simpleFreelanceZone = emp.is_freelance ? emp.freelance_zone?.toLowerCase().replace(/\s+/g, '') : null; // 🆕 v10.x
-
-        const matchesZone = establishmentZone === normalizedZoneFilter ||
-                            freelanceZone === normalizedZoneFilter ||
-                            simpleFreelanceZone === normalizedZoneFilter;
-        if (!matchesZone) {
-          return false;
-        }
-      }
-
-      // 🆕 v11.0 - Languages filter (check if employee speaks any of the requested languages)
-      if (languages && String(languages).trim()) {
-        const requestedLanguages = String(languages).split(',').map(l => l.trim().toLowerCase());
-        const employeeLanguages = Array.isArray(emp.languages_spoken)
-          ? emp.languages_spoken.map((l: string) => l.toLowerCase())
-          : [];
-
-        // Employee must speak at least one of the requested languages
-        const speaksAnyLanguage = requestedLanguages.some(lang =>
-          employeeLanguages.some((empLang: string) => empLang.includes(lang) || lang.includes(empLang))
-        );
-
-        if (!speaksAnyLanguage) {
-          return false;
-        }
-      }
-
-      // 🆕 v11.0 - Has photos filter
-      if (has_photos === 'true') {
-        const hasPhotos = Array.isArray(emp.photos) && emp.photos.length > 0;
-        if (!hasPhotos) {
-          return false;
-        }
-      }
-
-      // 🆕 v11.0 - Social media filter (check if employee has any of the requested platforms)
-      if (social_media && String(social_media).trim()) {
-        const requestedPlatforms = String(social_media).split(',').map(p => p.trim().toLowerCase());
-        const employeeSocials = emp.social_media || {};
-
-        // Employee must have at least one of the requested social platforms
-        const hasAnySocial = requestedPlatforms.some(platform => {
-          const value = employeeSocials[platform];
-          return value && String(value).trim() !== '';
-        });
-
-        if (!hasAnySocial) {
-          return false;
-        }
-      }
-
-      return true; // ✅ Accept by default - all approved employees are shown
+    // ✅ Filter employees using helper function
+    const filteredEmployees = applySearchFilters(allEmployees || [], {
+      type: type as string,
+      category_id: category_id ? Number(category_id) : undefined,
+      establishment_id: establishment_id as string,
+      normalizedZoneFilter,
+      languages: languages as string,
+      has_photos: has_photos as string,
+      social_media: social_media as string
     });
 
     logger.debug(`📊 Filtered ${filteredEmployees.length} employees from ${allEmployees?.length || 0} total`);
 
-    // 🆕 v11.0 - Min rating filter requires pre-calculating ALL ratings before pagination
+    // 🆕 v11.0 - Min rating filter using helper function
     let employeesToProcess = filteredEmployees;
     let totalFiltered = filteredEmployees.length;
 
-    // If min_rating filter is set, we need to calculate ratings for ALL employees first
     if (min_rating && Number(min_rating) > 0) {
-      const allEmployeeIds = filteredEmployees.map(emp => emp.id);
-
-      // Get ALL ratings to filter by min_rating
-      const { data: allRatings } = await supabase
-        .from('comments')
-        .select('employee_id, rating')
-        .in('employee_id', allEmployeeIds)
-        .eq('status', 'approved')
-        .not('rating', 'is', null);
-
-      // Calculate average ratings for each employee
-      const ratingsByEmployee = new Map<string, number[]>();
-      (allRatings || []).forEach(r => {
-        if (!ratingsByEmployee.has(r.employee_id)) {
-          ratingsByEmployee.set(r.employee_id, []);
-        }
-        ratingsByEmployee.get(r.employee_id)!.push(r.rating);
-      });
-
-      // Filter by min_rating
-      const minRatingValue = Number(min_rating);
-      employeesToProcess = filteredEmployees.filter(emp => {
-        const ratings = ratingsByEmployee.get(emp.id) || [];
-        if (ratings.length === 0) return false; // No ratings = doesn't meet minimum
-        const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-        return avgRating >= minRatingValue;
-      });
-
-      totalFiltered = employeesToProcess.length;
-      logger.debug(`📊 After min_rating filter (>=${minRatingValue}): ${totalFiltered} employees`);
+      const { filtered } = await filterByMinRating(filteredEmployees, Number(min_rating));
+      employeesToProcess = filtered;
+      totalFiltered = filtered.length;
+      logger.debug(`📊 After min_rating filter (>=${min_rating}): ${totalFiltered} employees`);
     }
 
     // Manual pagination (after min_rating filter if applied)
     const employees = employeesToProcess.slice(offset, offset + limit);
 
-    // Get ratings for popularity sorting and enrichment (for current page only)
+    // Get ratings and votes for current page using helper function
     const employeeIds = employees?.map(emp => emp.id) || [];
-    let ratingsData: Array<{employee_id: string, rating: number, created_at: string}> = [];
-    let votesData: Array<{employee_id: string}> = [];
+    const { ratingsData, votesData } = await fetchEmployeeRatingsAndVotes(employeeIds);
 
-    if (employeeIds.length > 0) {
-      const { data: ratings } = await supabase
-        .from('comments')
-        .select('employee_id, rating, created_at')
-        .in('employee_id', employeeIds)
-        .eq('status', 'approved')
-        .not('rating', 'is', null);
+    // Enrich employees with ratings, votes, and relevance score using helper
+    const enrichedEmployees = enrichEmployeesForSearch(
+      employees || [],
+      ratingsData,
+      votesData,
+      searchQuery as string | undefined
+    );
 
-      ratingsData = ratings || [];
-
-      // 🆕 Get vote counts for each employee
-      const { data: votes } = await supabase
-        .from('employee_existence_votes')
-        .select('employee_id')
-        .in('employee_id', employeeIds);
-
-      votesData = votes || [];
-    }
-
-    // Enrich employees with ratings and calculate relevance score
-    const enrichedEmployees = employees?.map(employee => {
-      const employeeRatings = ratingsData
-        .filter(r => r.employee_id === employee.id)
-        .map(r => r.rating);
-
-      const averageRating = employeeRatings.length > 0
-        ? employeeRatings.reduce((sum, rating) => sum + rating, 0) / employeeRatings.length
-        : 0;
-
-      // Calculate relevance score for search
-      let relevanceScore = 0;
-      if (searchQuery) {
-        const searchTerm = String(searchQuery).toLowerCase();
-        const name = employee.name?.toLowerCase() || '';
-        const nickname = employee.nickname?.toLowerCase() || '';
-        const description = employee.description?.toLowerCase() || '';
-        // 🐛 FIX: nationality is now TEXT[] array, not string
-        const nationalityArray = Array.isArray(employee.nationality) ? employee.nationality : [];
-        const nationalityStr = nationalityArray.join(' ').toLowerCase();
-
-        // Exact name match gets highest score
-        if (name === searchTerm) relevanceScore += 100;
-        else if (name.includes(searchTerm)) relevanceScore += 50;
-
-        // Nickname matches
-        if (nickname === searchTerm) relevanceScore += 80;
-        else if (nickname.includes(searchTerm)) relevanceScore += 40;
-
-        // Description matches
-        if (description.includes(searchTerm)) relevanceScore += 20;
-
-        // Nationality matches (now searches in joined array)
-        if (nationalityStr.includes(searchTerm)) relevanceScore += 30;
-
-        // Boost score based on rating and number of reviews
-        relevanceScore += (averageRating * 5) + (employeeRatings.length * 2);
-      }
-
-      // 🆕 v10.3 Phase 4 - VIP & Verified Boost
-      // Priority order: Verified > VIP (VIP system currently disabled visually)
-      const isVIPActive = employee.is_vip &&
-        employee.vip_expires_at &&
-        new Date(employee.vip_expires_at) > new Date();
-
-      const isVerified = employee.is_verified === true;
-
-      // Boost hierarchy for relevance ranking
-      // Verified takes absolute priority - boost must be higher than max possible non-verified score
-      // Max non-verified score: ~100 (name match) + 50 (desc) + 30 (nationality) + 50 (rating 5*10) + 20 (10 reviews) = ~250
-      // So verified boost must be > 250 to guarantee verified always appears first
-      if (isVerified && isVIPActive) {
-        // Verified + VIP: Maximum priority
-        relevanceScore += 1000;
-      } else if (isVerified) {
-        // Verified only: Absolute priority over non-verified
-        relevanceScore += 500;
-      } else if (isVIPActive) {
-        // VIP only: Small boost (VIP hidden in UI anyway)
-        relevanceScore += 10;
-      }
-      // No boost for non-verified, non-VIP profiles
-
-      // 🆕 Count votes for this employee
-      const voteCount = votesData.filter(v => v.employee_id === employee.id).length;
-
-      return {
-        ...employee,
-        average_rating: averageRating,
-        comment_count: employeeRatings.length,
-        vote_count: voteCount,
-        relevance_score: relevanceScore
-      };
-    }) || [];
-
-    // Apply sorting for popularity and relevance
-    if (sort_by === 'popularity') {
-      enrichedEmployees.sort((a, b) => {
-        // 🆕 v10.3 Phase 4 - VIP gets +50% popularity boost
-        const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
-        const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
-
-        const baseScoreA = (a.average_rating || 0) * 10 + (a.comment_count || 0);
-        const baseScoreB = (b.average_rating || 0) * 10 + (b.comment_count || 0);
-
-        const scoreA = isVIPActiveA ? baseScoreA * 1.5 : baseScoreA; // +50% boost
-        const scoreB = isVIPActiveB ? baseScoreB * 1.5 : baseScoreB;
-
-        return sort_order === 'asc' ? scoreA - scoreB : scoreB - scoreA;
-      });
-    } else if (sort_by === 'relevance') {
-      // Sort by relevance_score (includes VIP/Verified boosts + text search matching)
-      enrichedEmployees.sort((a, b) => {
-        return (b.relevance_score || 0) - (a.relevance_score || 0);
-      });
-    } else if (sort_by === 'name') {
-      // Re-apply name sorting after enrichment to ensure proper order
-      enrichedEmployees.sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-        if (sort_order === 'asc') {
-          return nameA.localeCompare(nameB);
-        } else {
-          return nameB.localeCompare(nameA);
-        }
-      });
-    } else if (sort_by === 'age') {
-      // Re-apply age sorting after enrichment to ensure proper order
-      enrichedEmployees.sort((a, b) => {
-        const ageA = a.age || 0;
-        const ageB = b.age || 0;
-        return sort_order === 'asc' ? ageA - ageB : ageB - ageA;
-      });
-    } else if (sort_by === 'nationality') {
-      // Re-apply nationality sorting after enrichment to ensure proper order
-      // v10.4: Nationality is now TEXT[] array, sort by first nationality
-      enrichedEmployees.sort((a, b) => {
-        const nationalityA = (Array.isArray(a.nationality) && a.nationality.length > 0 ? a.nationality[0] : '').toLowerCase();
-        const nationalityB = (Array.isArray(b.nationality) && b.nationality.length > 0 ? b.nationality[0] : '').toLowerCase();
-        if (sort_order === 'asc') {
-          return nationalityA.localeCompare(nationalityB);
-        } else {
-          return nationalityB.localeCompare(nationalityA);
-        }
-      });
-    } else if (sort_by === 'newest') {
-      // Re-apply newest sorting after enrichment to ensure proper order
-      enrichedEmployees.sort((a, b) => {
-        const dateA = new Date(a.created_at || 0).getTime();
-        const dateB = new Date(b.created_at || 0).getTime();
-        return dateB - dateA; // Newest first (descending)
-      });
-    } else if (sort_by === 'oldest') {
-      // Re-apply oldest sorting after enrichment to ensure proper order
-      enrichedEmployees.sort((a, b) => {
-        const dateA = new Date(a.created_at || 0).getTime();
-        const dateB = new Date(b.created_at || 0).getTime();
-        return dateA - dateB; // Oldest first (ascending)
-      });
-    }
-
-    // 🆕 v10.3 Phase 4 - VIP Priority Sorting (DISABLED)
-    // VIP system is visually disabled in UI, so we use relevance score instead
-    // The relevance_score already includes verified boost (+500) which takes priority
-    // Keeping this comment for when VIP system is re-enabled
-    // enrichedEmployees.sort((a, b) => {
-    //   const isVIPActiveA = a.is_vip && a.vip_expires_at && new Date(a.vip_expires_at) > new Date();
-    //   const isVIPActiveB = b.is_vip && b.vip_expires_at && new Date(b.vip_expires_at) > new Date();
-    //   if (isVIPActiveA && !isVIPActiveB) return -1;
-    //   if (!isVIPActiveA && isVIPActiveB) return 1;
-    //   return 0;
-    // });
+    // Apply sorting using helper function
+    const sortedEmployees = applySorting(
+      enrichedEmployees,
+      sort_by as string || 'relevance',
+      sort_order as string || 'desc'
+    );
 
     // Get available filters for suggestions - PARALLELIZED for performance
     // v10.4: Nationality is now TEXT[] array, flatten to get unique values
@@ -1442,7 +1158,7 @@ export const searchEmployees = asyncHandler(async (req: AuthRequest, res: Respon
     // ========================================
     // Use 'employees' (consistent with GET /api/employees) instead of 'data'
     res.json({
-      employees: enrichedEmployees,  // Standardized field name
+      employees: sortedEmployees,  // Standardized field name
       total: totalFiltered,
       page: Number(page),
       limit: Number(limit),
