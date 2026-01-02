@@ -147,17 +147,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     return { groupedByZone, sortedZones };
   }, [filters.zone, availableFilters.establishments]);
 
-  // Sort options - Using translations (labels only, icons rendered separately)
-  const _sortOptions = React.useMemo(() => [
-    { value: 'relevance', label: t('search.sortOptions.relevance'), icon: 'target' },
-    { value: 'vip', label: t('search.sortOptions.vip'), icon: 'crown' },
-    { value: 'popularity', label: t('search.sortOptions.popular'), icon: 'star' },
-    { value: 'newest', label: t('search.sortOptions.newest'), icon: 'clock' },
-    { value: 'oldest', label: t('search.sortOptions.oldest'), icon: 'calendar' },
-    { value: 'name', label: t('search.sortOptions.name'), icon: 'file' }
-  ], [t]);
-
-  // 🚀 Styles supprimés - remplacés par CSS pur .input-nightlife et .select-nightlife
 
   // 🎯 CONSOLIDATED: Sync all local states with parent props in one effect
   // This reduces re-renders from 5 separate effects to 1
