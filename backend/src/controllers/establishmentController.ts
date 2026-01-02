@@ -6,6 +6,7 @@ import { logger } from '../utils/logger';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 import { notifyAdminsPendingContent } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, InternalServerError } from '../middleware/asyncHandler';
+import { validateCoordinates, getEstablishmentCoordinates, createLocationPoint } from '../utils/establishmentHelpers';
 
 // Database types for establishment queries - Supabase returns nested relations as arrays
 interface DbEstablishmentWithLocation {
@@ -561,50 +562,15 @@ export const createEstablishment = asyncHandler(async (req: AuthRequest, res: Re
     throw BadRequestError('Name, address, zone and category are required');
   }
 
-  // ========================================
-  // BUG #2 FIX - Validate coordinates if provided
-  // ========================================
-  // Validate latitude/longitude if provided by user
-  if (latitude !== undefined || longitude !== undefined) {
-    const lat = parseFloat(String(latitude));
-    const lng = parseFloat(String(longitude));
-
-    // Validate latitude range (-90 to 90)
-    if (isNaN(lat) || lat < -90 || lat > 90) {
-      throw BadRequestError('Invalid latitude. Must be a number between -90 and 90');
-    }
-
-    // Validate longitude range (-180 to 180)
-    if (isNaN(lng) || lng < -180 || lng > 180) {
-      throw BadRequestError('Invalid longitude. Must be a number between -180 and 180');
-    }
-
-    // Validate Pattaya area (rough bounds: 12.8-13.1 lat, 100.8-101.0 lng)
-    // This prevents obviously wrong coordinates outside Pattaya region
-    if (lat < 12.8 || lat > 13.1 || lng < 100.8 || lng > 101.0) {
-      logger.warn('Coordinates outside Pattaya region', { lat, lng });
-      throw BadRequestError('Coordinates are outside Pattaya region (12.8-13.1 lat, 100.8-101.0 lng)');
-    }
+  // Validate coordinates using helper
+  const coordValidation = validateCoordinates(latitude, longitude);
+  if (!coordValidation.valid) {
+    throw BadRequestError(coordValidation.error || 'Invalid coordinates');
   }
 
-  // Generate default coordinates based on zone if not provided
-  const getZoneCoordinates = (zone: string) => {
-    switch (zone) {
-      case 'Soi 6': return { latitude: 12.9342, longitude: 100.8779 };
-      case 'Walking Street': return { latitude: 12.9278, longitude: 100.8701 };
-      case 'LK Metro': return { latitude: 12.9389, longitude: 100.8744 };
-      case 'Treetown': return { latitude: 12.9456, longitude: 100.8822 };
-      default: return { latitude: 12.9342, longitude: 100.8779 }; // Default to Soi 6
-    }
-  };
-
-  // Use provided coordinates or generate defaults
-  const coords = (latitude !== undefined && longitude !== undefined)
-    ? { latitude: parseFloat(String(latitude)), longitude: parseFloat(String(longitude)) }
-    : getZoneCoordinates(zone);
-
-  // Create location point for PostGIS
-  const location = `POINT(${coords.longitude} ${coords.latitude})`;
+  // Get coordinates using helper (uses zone defaults if not provided)
+  const coords = getEstablishmentCoordinates(zone, latitude, longitude);
+  const location = createLocationPoint(coords);
 
   const { data: establishment, error } = await supabase
     .from('establishments')
