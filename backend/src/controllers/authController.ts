@@ -18,7 +18,7 @@ const COOKIES_SECURE = NODE_ENV === 'production' ||
 
 // 🔧 FIX: Cookie domain for cross-subdomain sharing (www.pattamap.com <-> api.pattamap.com)
 // Note: Modern browsers don't require leading dot, and Express cookie library may reject it
-const COOKIE_DOMAIN = (() => {
+const _COOKIE_DOMAIN = (() => {
   if (process.env.COOKIE_DOMAIN) {
     return process.env.COOKIE_DOMAIN;
   }
@@ -99,7 +99,7 @@ const validatePassword = (password: string): { valid: boolean; message?: string 
   }
 
   // 🔒 NEW: Special character requirement
-  if (!/(?=.*[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/])/.test(password)) {
+  if (!/(?=.*[@$!%*?&#^()_+\-=[{};':"\\|,.<>/\]])/.test(password)) {
     return {
       valid: false,
       message: 'Password must contain at least one special character (@$!%*?&#^()_+-=[]{};\':"|,.<>/)'

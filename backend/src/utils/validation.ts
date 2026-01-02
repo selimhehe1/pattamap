@@ -151,7 +151,7 @@ export const sanitizeInternalLink = (link: string | undefined | null): string | 
 
   // Only allow safe URL characters
   // Allows: letters, numbers, /, -, _, ., ~, ?, =, &, #, @, %, +
-  if (!/^[a-zA-Z0-9\/_\-.~?=&#@%+]+$/.test(link)) {
+  if (!/^[a-zA-Z0-9/_\-.~?=&#@%+]+$/.test(link)) {
     return null;
   }
 

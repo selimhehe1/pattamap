@@ -164,7 +164,7 @@ class Logger {
           }).catch(() => {
             // Fail silently if Sentry is not available
           });
-        } catch (sentryError) {
+        } catch (_sentryError) {
           // Fail silently
         }
       }
@@ -202,7 +202,7 @@ class Logger {
       }).catch(() => {
         // Fail silently if Sentry is not available
       });
-    } catch (sentryError) {
+    } catch (_sentryError) {
       // Fail silently
     }
   }

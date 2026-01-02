@@ -4,7 +4,7 @@ import { authenticateToken, requireRole, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf';
 import { logger } from '../utils/logger';
 import { notifyUserContentApproved, notifyUserContentRejected } from '../utils/notificationHelper';
-import { getVIPTransactions } from '../controllers/vipController';
+// getVIPTransactions import removed - not used in this file
 import { awardXP } from '../services/gamificationService';
 import { User, EstablishmentCategory } from '../types';
 import {
@@ -875,7 +875,7 @@ router.put('/employees/:id', async (req: AuthRequest, res: Response) => {
 
     // Retirer les champs calculés/non modifiables
     // current_establishment_id is extracted separately - it's handled via employment_history, not stored on employees table
-    const { id: _, created_at, updated_at, user, employment_history, current_establishment_id: requestedEstablishmentId, ...cleanData } = updateData;
+    const { id: _, created_at: _created_at, updated_at: _updated_at, user: _user, employment_history: _employment_history, current_establishment_id: requestedEstablishmentId, ...cleanData } = updateData;
 
     logger.debug('Clean Data:', JSON.stringify(cleanData, null, 2));
 
@@ -1232,7 +1232,7 @@ router.put('/users/:id', async (req, res) => {
     }
 
     // Retirer les champs calculés/non modifiables et sensibles
-    const { id: _, created_at, updated_at, stats, password, ...cleanData } = updateData;
+    const { id: _, created_at: _created_at2, updated_at: _updated_at2, stats: _stats, password: _password, ...cleanData } = updateData;
 
     const { data, error } = await supabase
       .from('users')
@@ -1402,7 +1402,7 @@ router.put('/consumables/:id', async (req, res) => {
     const updateData = req.body;
 
     // Retirer les champs calculés/non modifiables
-    const { id: _, created_at, updated_at, created_by, ...cleanData } = updateData;
+    const { id: _, created_at: _created_at3, updated_at: _updated_at3, created_by: _created_by, ...cleanData } = updateData;
 
     const { data, error } = await supabase
       .from('consumable_templates')
@@ -1665,7 +1665,7 @@ router.post('/comments/:id/approve', async (req, res) => {
 router.post('/comments/:id/reject', async (req, res) => {
   try {
     const { id } = req.params;
-    const { reason } = req.body;
+    const { reason: _reason } = req.body;
 
     const { data, error } = await supabase
       .from('comments')

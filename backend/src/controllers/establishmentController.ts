@@ -38,7 +38,7 @@ interface EmploymentRecord {
   employees?: { status: string }[];
 }
 
-interface EstablishmentConsumable {
+interface _EstablishmentConsumable {
   consumable_id: string;
   price: number;
   consumables: {
@@ -186,7 +186,7 @@ function hexToFloat64LE(hex: string): number {
 }
 
 export const getEstablishments = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { category_id, status = 'approved', search, limit = 50, page = 1, zone, cursor } = req.query;
+  const { category_id, status = 'approved', search, limit = 50, page = 1, zone, cursor: _cursor } = req.query;
 
   // Validate and sanitize inputs
   const validatedParams = prepareFilterParams({

@@ -11,7 +11,7 @@ const COOKIES_SECURE = NODE_ENV === 'production' ||
   process.env.COOKIES_SECURE === 'true' ||
   process.env.HTTPS_ENABLED === 'true';
 
-const COOKIE_DOMAIN = (() => {
+const _COOKIE_DOMAIN = (() => {
   if (process.env.COOKIE_DOMAIN) {
     return process.env.COOKIE_DOMAIN;
   }
@@ -113,7 +113,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     let decoded: RefreshTokenPayload;
     try {
       decoded = jwt.verify(refreshToken, refreshSecret) as RefreshTokenPayload;
-    } catch (jwtError) {
+    } catch (_jwtError) {
       return res.status(401).json({
         error: 'Invalid refresh token',
         code: 'REFRESH_TOKEN_INVALID'

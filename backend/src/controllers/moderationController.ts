@@ -150,8 +150,8 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
     }
 
     // Get content details for notification
-    let contentName = '';
-    let contentData: { name?: string; content?: string } | null = null;
+    let _contentName = '';
+    let _contentData: { name?: string; content?: string } | null = null;
 
     if (moderationItem.item_type === 'employee') {
       const { data: employee } = await supabase
@@ -159,24 +159,24 @@ export const approveItem = asyncHandler(async (req: AuthRequest, res: Response) 
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      contentName = employee?.name || 'Employee';
-      contentData = employee;
+      _contentName = employee?.name || 'Employee';
+      _contentData = employee;
     } else if (moderationItem.item_type === 'establishment') {
       const { data: establishment } = await supabase
         .from('establishments')
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      contentName = establishment?.name || 'Establishment';
-      contentData = establishment;
+      _contentName = establishment?.name || 'Establishment';
+      _contentData = establishment;
     } else if (moderationItem.item_type === 'comment') {
-      contentName = 'Comment';
+      _contentName = 'Comment';
       const { data: comment } = await supabase
         .from('comments')
         .select('content')
         .eq('id', moderationItem.item_id)
         .single();
-      contentData = comment;
+      _contentData = comment;
     }
 
     // Update the item status to approved
@@ -299,7 +299,7 @@ export const rejectItem = asyncHandler(async (req: AuthRequest, res: Response) =
     }
 
     // Get content details for notification
-    let contentName = '';
+    let _contentName2 = '';
 
     if (moderationItem.item_type === 'employee') {
       const { data: employee } = await supabase
@@ -307,16 +307,16 @@ export const rejectItem = asyncHandler(async (req: AuthRequest, res: Response) =
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      contentName = employee?.name || 'Employee';
+      _contentName2 = employee?.name || 'Employee';
     } else if (moderationItem.item_type === 'establishment') {
       const { data: establishment } = await supabase
         .from('establishments')
         .select('name')
         .eq('id', moderationItem.item_id)
         .single();
-      contentName = establishment?.name || 'Establishment';
+      _contentName2 = establishment?.name || 'Establishment';
     } else if (moderationItem.item_type === 'comment') {
-      contentName = 'Comment';
+      _contentName2 = 'Comment';
     }
 
     // Update the item status to rejected

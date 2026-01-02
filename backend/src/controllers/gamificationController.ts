@@ -88,14 +88,14 @@ interface FallbackLeaderboardEntry {
  * Body: { userId, xpAmount, reason, entityType?, entityId?, metadata? }
  */
 export const awardXP = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { userId, xpAmount, reason, entityType, entityId, metadata }: XPAwardRequest = req.body;
+    const { userId, xpAmount, reason, entityType, entityId, metadata: _metadata }: XPAwardRequest = req.body;
 
     if (!userId || !xpAmount || !reason) {
       throw BadRequestError('Missing required fields: userId, xpAmount, reason');
     }
 
     // Call PostgreSQL function to award XP
-    const { data: success, error } = await supabase.rpc('award_xp', {
+    const { data: _success, error } = await supabase.rpc('award_xp', {
       p_user_id: userId,
       p_xp_amount: xpAmount,
       p_reason: reason,
@@ -454,7 +454,7 @@ export const followUser = asyncHandler(async (req: AuthRequest, res: Response) =
     }
 
     // Check if already following
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing, error: _checkError } = await supabase
       .from('user_followers')
       .select('id')
       .eq('follower_id', followerId)
@@ -516,7 +516,7 @@ export const voteOnReview = asyncHandler(async (req: AuthRequest, res: Response)
     const { voteType = 'helpful' } = req.body;
 
     // Check if already voted
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing, error: _checkError2 } = await supabase
       .from('review_votes')
       .select('id')
       .eq('review_id', reviewId)

@@ -2077,7 +2077,7 @@ export const approveClaimRequest = asyncHandler(async (req: AuthRequest, res: Re
     }
 
     // For claim_existing type, use SQL helper function to create the link
-    const { data: success, error: approveError } = await supabase
+    const { data: _success, error: approveError } = await supabase
       .rpc('approve_employee_claim_request', {
         p_claim_id: claimId,
         p_moderator_id: req.user.id,
@@ -2165,7 +2165,7 @@ export const rejectClaimRequest = asyncHandler(async (req: AuthRequest, res: Res
     }
 
     // Use SQL helper function to reject claim
-    const { data: success, error: rejectError } = await supabase
+    const { error: rejectError } = await supabase
       .rpc('reject_employee_claim_request', {
         p_claim_id: claimId,
         p_moderator_id: req.user.id,

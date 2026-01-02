@@ -4,9 +4,7 @@ import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import {
   CreateOwnershipRequestRequest,
-  ReviewOwnershipRequestRequest,
-  User,
-  Establishment
+  ReviewOwnershipRequestRequest
 } from '../types';
 import {
   notifyAdminsNewOwnershipRequest,

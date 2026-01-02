@@ -19,7 +19,7 @@ interface OwnershipPermissions {
   can_view_analytics?: boolean;
 }
 
-interface OwnershipRecord {
+interface _OwnershipRecord {
   id: string;
   user_id: string;
   establishment_id: string;

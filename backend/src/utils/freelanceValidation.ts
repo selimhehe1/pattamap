@@ -12,13 +12,13 @@ import { supabase } from '../config/supabase';
 import { logger } from './logger';
 
 // Type definitions for Supabase query results
-interface EstablishmentWithCategory {
+interface _EstablishmentWithCategory {
   id: string;
   name: string;
   category: { name: string } | null;
 }
 
-interface EmploymentHistoryWithEstablishment {
+interface _EmploymentHistoryWithEstablishment {
   establishment_id: string;
   establishments: {
     id: string;

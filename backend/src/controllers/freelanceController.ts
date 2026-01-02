@@ -55,7 +55,7 @@ interface NightclubAssociation {
   start_date: string;
 }
 
-interface ProcessedFreelance extends Omit<RawFreelanceEmployee, 'current_employment'> {
+interface _ProcessedFreelance extends Omit<RawFreelanceEmployee, 'current_employment'> {
   nightclubs: NightclubAssociation[];
 }
 

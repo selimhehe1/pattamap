@@ -86,7 +86,7 @@ const router = Router();
 // Removed: GET /test, POST /test-post
 
 // Utility functions for admin transformations
-const uuidToNumber = (uuid: string): number => {
+const _uuidToNumber = (uuid: string): number => {
   if (!uuid) return 0;
   let hash = 0;
   for (let i = 0; i < uuid.length; i++) {
@@ -341,7 +341,7 @@ router.post('/grid-move', async (req, res) => {
     logger.debug('🔧 WORKAROUND - Body type:', typeof req.body);
     logger.debug('🔧 WORKAROUND - Body:', req.body);
 
-    const { establishmentId, grid_row, grid_col, zone, swap_with_id } = req.body;
+    const { establishmentId, grid_row, grid_col, zone, swap_with_id: _swap_with_id } = req.body;
 
     if (!establishmentId || !grid_row || !grid_col || !zone) {
       return res.status(400).json({

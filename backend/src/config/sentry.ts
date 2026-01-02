@@ -49,7 +49,7 @@ export const initSentry = () => {
     release: process.env.npm_package_version,
 
     // Security: Filter sensitive data
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Remove sensitive data from breadcrumbs
       if (event.breadcrumbs) {
         event.breadcrumbs = event.breadcrumbs.map(breadcrumb => {

@@ -29,7 +29,7 @@ if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
 }
 
 // Initialize Sentry BEFORE any other imports (critical for error tracking)
-import { initSentry, Sentry, sentryRequestMiddleware, sentryErrorMiddleware } from './config/sentry';
+import { initSentry, Sentry as _Sentry, sentryRequestMiddleware, sentryErrorMiddleware } from './config/sentry';
 initSentry();
 
 import express from 'express';
@@ -38,11 +38,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 import session from 'express-session';
 import { RedisStore } from 'connect-redis';
-import Redis from 'ioredis';
+import Redis from 'ioredis'; // eslint-disable-line @typescript-eslint/no-unused-vars -- Redis type needed for type compatibility
 import { Redis as UpstashRedis } from '@upstash/redis';
 import cookieParser from 'cookie-parser';
 import { csrfTokenGenerator, csrfProtection, getCSRFToken } from './middleware/csrf';
-import { authenticateToken, requireAdmin, isEstablishmentOwner } from './middleware/auth';
+import { authenticateToken, requireAdmin as _requireAdmin, isEstablishmentOwner } from './middleware/auth';
 import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import establishmentRoutes from './routes/establishments';
@@ -65,14 +65,14 @@ import ownershipRequestRoutes from './routes/ownershipRequests';
 import exportRoutes from './routes/export';
 import publicRoutes from './routes/public';
 import {
-  apiRateLimit,
+  apiRateLimit as _apiRateLimit,
   authRateLimit,
-  uploadRateLimit,
+  uploadRateLimit as _uploadRateLimit,
   adminRateLimit,
-  commentRateLimit,
+  commentRateLimit as _commentRateLimit,
   healthCheckRateLimit
 } from './middleware/rateLimit';
-import { initRedis, cacheInvalidatePattern, cacheDel, getRedisClient, isRedisConnected } from './config/redis';
+import { initRedis, cacheInvalidatePattern, cacheDel, getRedisClient as _getRedisClient, isRedisConnected as _isRedisConnected } from './config/redis';
 import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
 
 const app = express();
@@ -521,7 +521,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
       isSwap: !!req.body.swap_with_id
     });
 
-    const { establishmentId, grid_row, grid_col, zone, swap_with_id } = req.body;
+    const { establishmentId, grid_row, grid_col, zone, swap_with_id: _swap_with_id } = req.body;
 
     // 🛡️ SECURITY: Check if user is admin OR owner of the establishment
     const user = req.user;
@@ -877,7 +877,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
 
         const now = new Date().toISOString();
         let step1Success = false;
-        let step2Success = false;
+        let _step2Success = false;
 
         try {
           // STEP 1: Move source to temporary position (NULL, NULL, zone)
@@ -918,7 +918,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
             throw new Error('Failed to move target to source position');
           }
           logger.debug('✅ STEP 2 SUCCESS:', step2Data[0]);
-          step2Success = true;
+          _step2Success = true;
 
           // STEP 3: Move source to target's final position
           logger.debug('🔄 STEP 3: Moving source to target position:', { grid_row, grid_col, zone });
@@ -1087,7 +1087,7 @@ if (NODE_ENV === 'development') {
 app.use(sentryErrorMiddleware());
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Server error', err);
   res.status(500).json({ error: 'Something went wrong!' });
 });

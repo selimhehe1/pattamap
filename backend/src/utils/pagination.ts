@@ -24,7 +24,7 @@
  * );
  */
 
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient as _SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Cursor type: base64-encoded JSON with created_at + id
@@ -81,7 +81,7 @@ export const decodeCursor = (cursor: Cursor): CursorValue | null => {
   try {
     const decoded = Buffer.from(cursor, 'base64').toString('utf-8');
     return JSON.parse(decoded) as CursorValue;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
