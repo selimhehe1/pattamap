@@ -7,6 +7,12 @@ import { notifyEmployeeUpdate, notifyAdminsPendingContent, notifyUserContentPend
 import { awardXP } from '../services/gamificationService';
 import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
+import {
+  fetchEmployeeRatingsAndVotes,
+  enrichEmployeesWithRatings,
+  applySorting,
+  updateEmploymentAssociations
+} from '../utils/employeeHelpers';
 
 // Type definitions for Supabase query results
 interface CurrentEmploymentRecord {
@@ -170,58 +176,16 @@ export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response)
       }
     });
 
-    // Calculate rating averages for each employee
+    // Fetch ratings and votes using helper function
     const employeeIds = employees?.map(emp => emp.id) || [];
+    const { ratingsData, votesData } = await fetchEmployeeRatingsAndVotes(employeeIds);
 
-    let ratingsData: Array<{employee_id: string, rating: number}> = [];
-    let votesData: Array<{employee_id: string}> = [];
-    if (employeeIds.length > 0) {
-      const { data: ratings } = await supabase
-        .from('comments')
-        .select('employee_id, rating')
-        .in('employee_id', employeeIds)
-        .eq('status', 'approved')
-        .not('rating', 'is', null);
+    // Enrich employees with ratings and votes using helper function
+    let enrichedEmployees = enrichEmployeesWithRatings(employees || [], ratingsData, votesData);
 
-      ratingsData = ratings || [];
-
-      // 🆕 Get vote counts for each employee
-      const { data: votes } = await supabase
-        .from('employee_existence_votes')
-        .select('employee_id')
-        .in('employee_id', employeeIds);
-
-      votesData = votes || [];
-    }
-
-    // Enrich employees with average ratings and vote counts
-    const enrichedEmployees = employees?.map(employee => {
-      const employeeRatings = ratingsData
-        .filter(r => r.employee_id === employee.id)
-        .map(r => r.rating);
-
-      const averageRating = employeeRatings.length > 0
-        ? employeeRatings.reduce((sum, rating) => sum + rating, 0) / employeeRatings.length
-        : null;
-
-      // 🆕 Count votes for this employee
-      const voteCount = votesData.filter(v => v.employee_id === employee.id).length;
-
-      return {
-        ...employee,
-        average_rating: averageRating,
-        comment_count: employeeRatings.length,
-        vote_count: voteCount
-      };
-    }) || [];
-
-    // If sorting by popularity (rating), sort the enriched results
+    // Apply sorting using helper function
     if (sort_by === 'popularity') {
-      enrichedEmployees.sort((a, b) => {
-        const ratingA = a.average_rating || 0;
-        const ratingB = b.average_rating || 0;
-        return sort_order === 'asc' ? ratingA - ratingB : ratingB - ratingA;
-      });
+      enrichedEmployees = applySorting(enrichedEmployees, 'popularity', sort_order as string);
     }
 
     // Return enriched employees with ratings and employment data
@@ -615,43 +579,10 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
         throw BadRequestError(validation.error || 'Invalid freelance configuration');
       }
 
-      // Update employment associations
-      // 1. Deactivate all current employment
-      const { error: deactivateError } = await supabase
-        .from('employment_history')
-        .update({ is_current: false, end_date: new Date().toISOString().split('T')[0] })
-        .eq('employee_id', id)
-        .eq('is_current', true);
-
-      if (deactivateError) {
-        logger.error('Failed to deactivate employment history:', deactivateError);
-        // Don't fail the request, just log the error
-      }
-
-      // 2. Create new employment associations
-      if (newEstablishmentIds.length > 0) {
-        const employmentRecords = newEstablishmentIds.map(estId => ({
-          employee_id: id,
-          establishment_id: estId,
-          start_date: new Date().toISOString().split('T')[0],
-          is_current: true,
-          created_by: req.user!.id
-        }));
-
-        const { error: createError } = await supabase
-          .from('employment_history')
-          .insert(employmentRecords);
-
-        if (createError) {
-          logger.error('Failed to create employment history:', createError);
-          throw BadRequestError('Failed to update establishments: ' + createError.message);
-        }
-
-        logger.info(`Employee ${id} updated with ${newEstablishmentIds.length} establishment(s)`);
-        // Note: current_establishment_id is NOT stored on employees table
-        // The employment_history table is the source of truth for employee-establishment relationships
-      } else {
-        logger.info(`Employee ${id} removed from all establishments (free freelance or no employment)`);
+      // Update employment associations using helper function
+      const result = await updateEmploymentAssociations(id, newEstablishmentIds, req.user!.id);
+      if (!result.success) {
+        throw BadRequestError(result.error || 'Failed to update establishments');
       }
     }
 
