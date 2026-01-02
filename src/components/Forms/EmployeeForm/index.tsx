@@ -54,24 +54,6 @@ export function EmployeeForm({
     handleSubmit
   } = useEmployeeFormState({ initialData, onSubmit });
 
-  // DEBUG: Check if all handlers are functions
-  console.log('🔍 EmployeeForm DEBUG:', {
-    onSubmit: typeof onSubmit,
-    onCancel: typeof onCancel,
-    handleInputChange: typeof handleInputChange,
-    handleNationalityChange: typeof handleNationalityChange,
-    handleLanguagesChange: typeof handleLanguagesChange,
-    handleSexChange: typeof handleSexChange,
-    handleEstablishmentChange: typeof handleEstablishmentChange,
-    handleFreelanceModeChange: typeof handleFreelanceModeChange,
-    addNewPhotos: typeof addNewPhotos,
-    removeNewPhoto: typeof removeNewPhoto,
-    removeExistingPhoto: typeof removeExistingPhoto,
-    handleSubmit: typeof handleSubmit,
-    formData: formData ? 'exists' : 'null',
-    initialData: initialData ? 'exists' : 'null'
-  });
-
   return (
     <div className="uf-container uf-animate-fade">
       <div className="uf-animate-slide">

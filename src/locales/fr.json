@@ -586,6 +586,8 @@
     "passwordNeedsUppercase": "Le mot de passe doit contenir au moins une lettre majuscule (A-Z)",
     "passwordNeedsNumber": "Le mot de passe doit contenir au moins un chiffre (0-9)",
     "passwordNeedsSpecial": "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&#)",
+    "employeeNameRequired": "Le nom de l'employé est requis",
+    "employeeSexRequired": "Veuillez sélectionner votre sexe/genre",
     "createNewEstablishment": "Créer un Nouvel Établissement",
     "createNewEstablishmentDesc": "Enregistrez votre établissement pendant l'inscription",
     "createEstablishmentTitle": "Créez Votre Établissement",

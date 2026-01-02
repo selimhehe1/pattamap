@@ -757,6 +757,15 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         onClose();
       } else if (formData.employeePath === 'create') {
         // Create new profile with uploaded photos
+
+        // Validate required employee fields
+        if (!formData.employeeName.trim()) {
+          throw new Error(t('register.employeeNameRequired', 'Employee name is required'));
+        }
+        if (!formData.employeeSex) {
+          throw new Error(t('register.employeeSexRequired', 'Please select your sex/gender'));
+        }
+
         toast.info(t('register.creatingEmployeeProfile'));
 
         // 🔧 CSRF FIX: Validate fresh token is available

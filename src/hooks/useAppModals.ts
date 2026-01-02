@@ -155,16 +155,66 @@ export const useAppModals = (): UseAppModalsReturn => {
     setEditingEmployeeData(editData || null);
     setIsSelfProfile(selfProfile || false);
 
+    // Define submit handler inline to capture latest state
+    const submitHandler = async (employeeData: Partial<Employee>) => {
+      setIsSubmitting(true);
+      try {
+        let endpoint: string;
+        let method: string;
+
+        if (editData) {
+          endpoint = `${import.meta.env.VITE_API_URL}/api/employees/${editData.id}`;
+          method = 'PUT';
+        } else if (selfProfile) {
+          endpoint = `${import.meta.env.VITE_API_URL}/api/employees/my-profile`;
+          method = 'POST';
+        } else {
+          endpoint = `${import.meta.env.VITE_API_URL}/api/employees`;
+          method = 'POST';
+        }
+
+        const response = await secureFetch(endpoint, {
+          method,
+          body: JSON.stringify(employeeData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to submit employee');
+        }
+
+        closeModal(MODAL_IDS.EMPLOYEE_FORM);
+        setEditingEmployeeData(null);
+        setIsSelfProfile(false);
+
+        if (editData && refreshLinkedProfile) {
+          await refreshLinkedProfile();
+        }
+
+        const successMessage = editData
+          ? 'Profile updated successfully!'
+          : (selfProfile ? 'Your employee profile has been created! Waiting for admin approval.' : 'Employee added successfully!');
+
+        toast.success(successMessage);
+      } catch (error) {
+        logger.error('Failed to submit employee', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to submit employee');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     openModal(MODAL_IDS.EMPLOYEE_FORM, EmployeeForm, {
       initialData: editData,
       isLoading: isSubmitting,
+      onSubmit: submitHandler,
       onCancel: () => {
         closeModal(MODAL_IDS.EMPLOYEE_FORM);
         setEditingEmployeeData(null);
         setIsSelfProfile(false);
       }
     }, { size: 'large', closeOnOverlayClick: false });
-  }, [openModal, closeModal, isSubmitting]);
+  }, [openModal, closeModal, isSubmitting, secureFetch, refreshLinkedProfile]);
 
   const closeEmployeeForm = useCallback(() => {
     closeModal(MODAL_IDS.EMPLOYEE_FORM);
