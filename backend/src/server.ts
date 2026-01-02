@@ -521,7 +521,7 @@ app.post('/api/grid-move-workaround', authenticateToken, async (req, res) => {
       isSwap: !!req.body.swap_with_id
     });
 
-    const { establishmentId, grid_row, grid_col, zone, swap_with_id: _swap_with_id } = req.body;
+    const { establishmentId, grid_row, grid_col, zone, swap_with_id } = req.body;
 
     // 🛡️ SECURITY: Check if user is admin OR owner of the establishment
     const user = req.user;
