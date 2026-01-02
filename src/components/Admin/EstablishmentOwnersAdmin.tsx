@@ -565,14 +565,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       {viewMode === 'owners' && (
         <div className="cmd-filters" style={{ marginBottom: '24px' }}>
           <div className="cmd-filter-pills">
-            {[
+            {([
               { key: 'all', label: 'All Establishments', icon: <ClipboardList size={14} /> },
               { key: 'with_owners', label: 'With Owners', icon: <Users size={14} /> },
               { key: 'without_owners', label: 'Without Owners', icon: <MailX size={14} /> }
-            ].map((tab) => (
+            ] as const).map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setFilter(tab.key as any)}
+                onClick={() => setFilter(tab.key)}
                 className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
               >
                 {tab.icon}

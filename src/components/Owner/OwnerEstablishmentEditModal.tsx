@@ -507,7 +507,14 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
           {permissions.can_edit_info && (
             <div className="form-section">
               <BasicInfoForm
-                formData={formData as any}
+                formData={{
+                  name: formData.name,
+                  address: formData.address,
+                  zone: formData.zone,
+                  category_id: formData.category_id,
+                  description: formData.description,
+                  logo_url: formData.logo_url
+                }}
                 categories={categories}
                 errors={errors}
                 onChange={handleInputChange}

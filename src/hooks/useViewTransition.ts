@@ -38,6 +38,11 @@ interface ViewTransitionLike {
   skipTransition: () => void;
 }
 
+/** Type guard for checking View Transitions API support */
+const hasViewTransition = (doc: Document): doc is Document & { startViewTransition: (callback: () => void | Promise<void>) => ViewTransitionLike } => {
+  return 'startViewTransition' in doc && typeof (doc as { startViewTransition?: unknown }).startViewTransition === 'function';
+};
+
 // Check if native ViewTransition type exists
 // @internal Reserved for future type-safe startViewTransition usage
 type _ViewTransitionResult = typeof document extends { startViewTransition: infer T }
@@ -60,8 +65,7 @@ export interface UseViewTransitionReturn {
  */
 const checkSupport = (): boolean => {
   if (typeof document === 'undefined') return false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return typeof (document as any).startViewTransition === 'function';
+  return hasViewTransition(document);
 };
 
 /**
@@ -92,9 +96,8 @@ export const useViewTransition = (): UseViewTransitionReturn => {
       }
 
       // Use View Transitions API if supported
-      if (isSupported) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (document as any).startViewTransition(callback) as ViewTransitionLike;
+      if (isSupported && hasViewTransition(document)) {
+        return document.startViewTransition(callback);
       }
 
       // Fallback: just run the callback

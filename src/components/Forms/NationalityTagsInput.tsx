@@ -43,9 +43,10 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
   const selectedNationalities = useMemo(() => {
     if (!value) return [];
     if (Array.isArray(value)) return value;
-    // Legacy: convert string to array (in case of old data)
-    if (typeof (value as any) === 'string' && (value as any).trim()) {
-      return [(value as any)];
+    // Legacy: convert string to array (in case of old data from before type was string[])
+    const legacyValue = value as unknown;
+    if (typeof legacyValue === 'string' && legacyValue.trim()) {
+      return [legacyValue];
     }
     return [];
   }, [value]);

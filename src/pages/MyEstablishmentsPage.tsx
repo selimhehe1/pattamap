@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Crown, Settings, FileEdit, DollarSign, Camera, Users, BarChart3, Lock, Ban, Trophy, Building2, Eye, MessageCircle, Loader2, MapPin, Calendar, Pencil } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureFetch } from '../hooks/useSecureFetch';
+import { Establishment } from '../types';
 import { logger } from '../utils/logger';
 import { isFeatureEnabled, FEATURES } from '../utils/featureFlags';
 import OwnerEstablishmentEditModal from '../components/Owner/OwnerEstablishmentEditModal'; // 🆕 v10.1
@@ -21,41 +22,11 @@ interface Permission {
   can_view_analytics: boolean;
 }
 
-interface OwnedEstablishment {
-  id: string;
-  name: string;
-  address?: string;
-  zone: string;
-  grid_row?: number;
-  grid_col?: number;
-  category_id: string;
-  description?: string;
-  phone?: string;
-  website?: string;
-  location?: {
-    lat: number;
-    lng: number;
-  };
-  opening_hours?: string;
-  instagram?: string;
-  twitter?: string;
-  tiktok?: string;
-  status: 'approved' | 'pending' | 'rejected';
-  is_vip?: boolean; // 🆕 v10.3 Phase 5 - VIP status
-  vip_expires_at?: string | null; // 🆕 v10.3 Phase 5 - VIP expiration
-  logo_url?: string;
-  ladydrink?: number;
-  barfine?: number;
-  rooms?: number;
+/** Extension of Establishment with owner-specific fields */
+interface OwnedEstablishment extends Establishment {
   ownership_role: 'owner' | 'manager';
   permissions: Permission;
   owned_since: string;
-  category?: {
-    id: string;
-    name: string;
-    icon?: string;
-    color?: string;
-  };
 }
 
 interface DashboardStats {
@@ -367,7 +338,7 @@ const MyEstablishmentsPage: React.FC = () => {
       {/* ✅ Edit Modal (Phase 2.2) */}
       {selectedEstablishment && (
         <OwnerEstablishmentEditModal
-          establishment={selectedEstablishment as any}
+          establishment={selectedEstablishment}
           permissions={selectedEstablishment.permissions}
           onClose={handleCloseEditModal}
           onSuccess={() => {
@@ -407,7 +378,7 @@ const MyEstablishmentsPage: React.FC = () => {
       {VIP_ENABLED && selectedEstablishmentForVIP && (
         <VIPPurchaseModal
           subscriptionType="establishment"
-          entity={selectedEstablishmentForVIP as any}
+          entity={selectedEstablishmentForVIP}
           onClose={() => setSelectedEstablishmentForVIP(null)}
           onSuccess={() => {
             setSelectedEstablishmentForVIP(null);

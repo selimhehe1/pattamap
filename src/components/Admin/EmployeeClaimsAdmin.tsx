@@ -264,15 +264,15 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       {/* Filter Tabs */}
       <div className="cmd-filters" style={{ marginBottom: '24px' }}>
         <div className="cmd-filter-pills">
-          {[
+          {([
             { key: 'pending', label: t('admin.claims.filterPending'), icon: <Loader2 size={14} /> },
             { key: 'approved', label: t('admin.claims.filterApproved'), icon: <CheckCircle size={14} /> },
             { key: 'rejected', label: t('admin.claims.filterRejected'), icon: <XCircle size={14} /> },
             { key: 'all', label: t('admin.claims.filterAll'), icon: <ClipboardList size={14} /> }
-          ].map((tab) => (
+          ] as const).map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setFilter(tab.key as any)}
+              onClick={() => setFilter(tab.key)}
               className={`cmd-filter ${filter === tab.key ? 'cmd-filter--active' : ''}`}
             >
               {tab.icon}

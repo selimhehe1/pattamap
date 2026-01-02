@@ -142,6 +142,8 @@ export interface Employee {
   average_rating?: number;
   comment_count?: number;
   vote_count?: number; // 🆕 Number of existence votes
+  total_views?: number; // Analytics: total profile views
+  total_favorites?: number; // Analytics: total times favorited
   independent_position?: IndependentPosition;
 }
 

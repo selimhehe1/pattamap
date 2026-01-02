@@ -163,10 +163,10 @@ const MyEmployeesList: React.FC<Props> = ({
             {/* Stats Summary */}
             <div className="employee-stats-summary">
               <span title={t('myEmployees.profileViews', 'Profile Views')}>
-                <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {(employee as any).total_views || 0}
+                <Eye size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {employee.total_views || 0}
               </span>
               <span title={t('myEmployees.favorites', 'Favorites')}>
-                <Heart size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FF6B6B', color: '#FF6B6B' }} /> {(employee as any).total_favorites || 0}
+                <Heart size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FF6B6B', color: '#FF6B6B' }} /> {employee.total_favorites || 0}
               </span>
               <span title={t('myEmployees.rating', 'Rating')}>
                 <Star size={14} style={{ marginRight: '4px', verticalAlign: 'middle', fill: '#FFD700', color: '#FFD700' }} /> {employee.average_rating?.toFixed(1) || 'N/A'}
