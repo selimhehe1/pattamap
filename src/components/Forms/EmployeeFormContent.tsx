@@ -3,52 +3,37 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { Establishment, Employee, CloudinaryUploadResponse } from '../../types';
 import { logger } from '../../utils/logger';
-import { getZoneLabel } from '../../utils/constants';
-import LazyImage from '../Common/LazyImage';
-import NationalityTagsInput from './NationalityTagsInput';
-import { Pencil, Sparkles, Users, FileText, User, AlertTriangle, UserCog, Cake, Globe, Camera, FolderOpen, Music, Building2, MapPin, Check, Lightbulb, Store, Smartphone, X, Upload, Loader2, Save } from 'lucide-react';
+import { Pencil, Sparkles, Users, AlertTriangle, X, Upload, Loader2, Save } from 'lucide-react';
 import '../../styles/components/form-unified.css';
 
-// Internal form state for social media (using abbreviations)
-interface FormSocialMedia {
-  ig: string;
-  fb: string;
-  line: string;
-  tg: string;
-  wa: string;
-}
+// Sub-components
+import {
+  BasicInfoSection,
+  PhotosSection,
+  FreelanceModeSection,
+  EstablishmentSection,
+  SocialMediaSection,
+  FreelanceWarningModal
+} from './EmployeeFormContent/index';
+import type { InternalFormData, EmployeeSubmitData } from './EmployeeFormContent/types';
 
-// Internal form data type
-interface InternalFormData {
-  name: string;
-  nickname: string;
-  age: string;
-  nationality: string[] | null;
-  description: string;
-  social_media: FormSocialMedia;
-  current_establishment_id: string;
-}
-
-// Extended form data type for submission (includes freelance fields)
-interface EmployeeSubmitData {
-  name: string;
-  nickname?: string;
-  age?: number;
-  nationality?: string[] | null;
-  description?: string;
-  photos: string[];
-  social_media?: Record<string, string>;
-  current_establishment_id?: string;
-  current_establishment_ids?: string[];
-  is_freelance?: boolean;
-}
+/**
+ * EmployeeFormContent Component (v10.5 - Refactored)
+ *
+ * Form for creating/editing employee profiles.
+ * Features:
+ * - Basic information (name, age, nationality, description)
+ * - Photo management (upload, remove, restore)
+ * - Freelance mode with multi-nightclub support
+ * - Social media links
+ */
 
 interface EmployeeFormContentProps {
   onSubmit: (employeeData: EmployeeSubmitData) => void;
-  onClose?: () => void; // Optional - injected by openModal
+  onClose?: () => void;
   isLoading?: boolean;
   initialData?: Partial<Employee> & { current_establishment_id?: string };
-  isSelfProfile?: boolean; // 🆕 v10.0 - Self-managed employee profile mode
+  isSelfProfile?: boolean;
 }
 
 const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
@@ -56,13 +41,13 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
   onClose = () => {},
   isLoading = false,
   initialData,
-  isSelfProfile = false // 🆕 v10.0
+  isSelfProfile = false
 }) => {
   const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
-  // Icon style helper
   const iconStyle = { marginRight: '6px', verticalAlign: 'middle' as const };
 
+  // Form data state
   const [formData, setFormData] = useState<InternalFormData>({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
@@ -79,26 +64,28 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     current_establishment_id: initialData?.current_establishment_id || ''
   });
 
+  // Photo management state
   const [photos, setPhotos] = useState<File[]>([]);
   const [existingPhotos, setExistingPhotos] = useState<string[]>(initialData?.photos || []);
   const [photosToRemove, setPhotosToRemove] = useState<string[]>([]);
-  const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+
+  // Establishments state
+  const [establishments, setEstablishments] = useState<Establishment[]>([]);
+
+  // Errors state
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Freelance Mode (v10.3: multi-nightclub support)
+  // Freelance mode state
   const [isFreelanceMode, setIsFreelanceMode] = useState(false);
   const [selectedNightclubs, setSelectedNightclubs] = useState<string[]>([]);
-
-  // Freelance warning dialog state (v10.4: UX improvement)
   const [showFreelanceWarning, setShowFreelanceWarning] = useState(false);
   const [warningEstablishment, setWarningEstablishment] = useState<Establishment | null>(null);
 
+  // Fetch establishments
   useEffect(() => {
     const fetchEstablishments = async () => {
       try {
-        // SECURITY FIX: Use useAuth instead of localStorage token
-        // Check if user is admin/moderator via AuthContext
         const isAdminContext = user && ['admin', 'moderator'].includes(user.role) &&
                               window.location.pathname.includes('admin');
 
@@ -106,10 +93,8 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           ? `${import.meta.env.VITE_API_URL}/api/admin/establishments`
           : `${import.meta.env.VITE_API_URL}/api/establishments`;
 
-        // SECURITY FIX: Use secureFetch (httpOnly cookies) instead of Bearer token
         const response = await secureFetch(endpoint);
         const data = await response.json();
-
         setEstablishments(data.establishments || []);
       } catch (error) {
         logger.error('Error fetching establishments:', error);
@@ -118,18 +103,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     fetchEstablishments();
   }, [secureFetch, user]);
 
-  // Initialize existing photos when initialData changes
+  // Initialize existing photos
   useEffect(() => {
     if (initialData?.photos) {
       setExistingPhotos(initialData.photos);
     }
   }, [initialData]);
 
-  // Initialize freelance mode from initialData
+  // Initialize freelance mode
   useEffect(() => {
     if (initialData?.is_freelance) {
       setIsFreelanceMode(true);
-      // v10.3: Load associated nightclubs if any
       if (initialData?.current_employment) {
         const nightclubIds = initialData.current_employment
           .filter((emp) => emp.establishment?.category?.name === 'Nightclub')
@@ -139,6 +123,10 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     }
   }, [initialData]);
 
+  // ============================================
+  // Form handlers
+  // ============================================
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
@@ -146,28 +134,27 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       const socialField = name.split('.')[1];
       setFormData(prev => ({
         ...prev,
-        social_media: {
-          ...prev.social_media,
-          [socialField]: value
-        }
+        social_media: { ...prev.social_media, [socialField]: value }
       }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
+  const handleNationalityChange = (nationalities: string[] | null) => {
+    setFormData(prev => ({ ...prev, nationality: nationalities }));
+  };
+
+  // ============================================
+  // Photo handlers
+  // ============================================
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-
-    // Calculate total photos: existing (not removed) + current new + new files
     const currentExistingCount = existingPhotos.length - photosToRemove.length;
     const totalAfterAdding = currentExistingCount + photos.length + files.length;
 
@@ -176,13 +163,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       return;
     }
 
-    // Validate file types and sizes
     const validFiles = files.filter(file => {
       if (!file.type.startsWith('image/')) {
         setErrors(prev => ({ ...prev, photos: 'Only image files are allowed' }));
         return false;
       }
-      if (file.size > 10 * 1024 * 1024) { // 10MB
+      if (file.size > 10 * 1024 * 1024) {
         setErrors(prev => ({ ...prev, photos: 'Images must be smaller than 10MB' }));
         return false;
       }
@@ -205,20 +191,21 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     setPhotosToRemove(prev => prev.filter(url => url !== photoUrl));
   };
 
-  // v10.4: Handle freelance mode switch with warning for non-nightclub establishments
+  // ============================================
+  // Freelance mode handlers
+  // ============================================
+
   const handleFreelanceModeChange = (checked: boolean) => {
     if (checked && formData.current_establishment_id) {
       const currentEst = establishments.find(e => e.id === formData.current_establishment_id);
 
       if (currentEst) {
         if (currentEst.category?.name === 'Nightclub') {
-          // CAS 1: Nightclub → garder comme premier nightclub freelance (pas de warning)
           setIsFreelanceMode(true);
           setSelectedNightclubs([currentEst.id]);
           setFormData(prev => ({ ...prev, current_establishment_id: '' }));
           return;
         } else {
-          // CAS 2: Non-Nightclub (Bar, etc.) → demander confirmation
           setWarningEstablishment(currentEst);
           setShowFreelanceWarning(true);
           return;
@@ -226,10 +213,17 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
       }
     }
 
-    // CAS 3: Pas d'établissement ou désactivation → basculer directement
     setIsFreelanceMode(checked);
     if (!checked) {
       setSelectedNightclubs([]);
+    }
+  };
+
+  const handleNightclubToggle = (nightclubId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedNightclubs(prev => [...prev, nightclubId]);
+    } else {
+      setSelectedNightclubs(prev => prev.filter(id => id !== nightclubId));
     }
   };
 
@@ -245,19 +239,23 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     setWarningEstablishment(null);
   };
 
-  const uploadPhotos = async () => {
+  // ============================================
+  // Upload and submit
+  // ============================================
+
+  const uploadPhotos = async (): Promise<string[]> => {
     if (photos.length === 0) return [];
 
     setUploadingPhotos(true);
     try {
-      const formData = new FormData();
+      const formDataUpload = new FormData();
       photos.forEach(photo => {
-        formData.append('images', photo);
+        formDataUpload.append('images', photo);
       });
 
       const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
         method: 'POST',
-        body: formData
+        body: formDataUpload
       });
 
       const data = await response.json();
@@ -275,15 +273,13 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     }
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (formData.age && (parseInt(formData.age) < 18 || parseInt(formData.age) > 80)) {
       newErrors.age = 'Age must be between 18 and 80';
     }
-    // v10.3: Freelances can be "free" (no nightclub) or associated with nightclubs
-    // No validation needed for selectedNightclubs - it's optional
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -295,20 +291,13 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     if (!validateForm()) return;
 
     try {
-      // Upload new photos if any
       const uploadedPhotoUrls = photos.length > 0 ? await uploadPhotos() : [];
-
-      // Combine existing photos (minus removed ones) with newly uploaded photos
       const keptExistingPhotos = existingPhotos.filter(url => !photosToRemove.includes(url));
       const finalPhotoUrls = [...keptExistingPhotos, ...uploadedPhotoUrls];
 
       // Map abbreviations to full names for API
       const socialMediaMap: Record<string, string> = {
-        ig: 'instagram',
-        fb: 'facebook',
-        line: 'line',
-        tg: 'telegram',
-        wa: 'whatsapp'
+        ig: 'instagram', fb: 'facebook', line: 'line', tg: 'telegram', wa: 'whatsapp'
       };
 
       const mappedSocialMedia: Record<string, string> = {};
@@ -329,13 +318,12 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         current_establishment_id: formData.current_establishment_id || undefined
       };
 
-      // v10.3: Handle freelance mode with multi-nightclub support
       if (isFreelanceMode) {
         employeeData.is_freelance = true;
         if (selectedNightclubs.length > 0) {
           employeeData.current_establishment_ids = selectedNightclubs;
         }
-        delete employeeData.current_establishment_id; // Remove single establishment if in freelance mode
+        delete employeeData.current_establishment_id;
       }
 
       onSubmit(employeeData);
@@ -369,393 +357,49 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
       <form onSubmit={handleSubmit}>
         {/* Basic Information */}
-        <div className="uf-section">
-          <h3 className="uf-section-title">
-            <FileText size={16} style={iconStyle} /> Basic Information
-          </h3>
-
-          <div className="uf-field">
-            <label className="uf-label">
-              <User size={14} style={iconStyle} /> Name *
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="uf-input"
-              placeholder="Enter full name"
-            />
-            {errors.name && (
-              <div className="uf-error">
-                <AlertTriangle size={14} style={iconStyle} /> {errors.name}
-              </div>
-            )}
-          </div>
-
-          <div className="uf-field">
-            <label className="uf-label">
-              <UserCog size={14} style={iconStyle} /> Nickname
-            </label>
-            <input
-              type="text"
-              name="nickname"
-              value={formData.nickname}
-              onChange={handleInputChange}
-              className="uf-input"
-              placeholder="Nickname or stage name"
-            />
-          </div>
-
-          <div className="uf-grid-2">
-            <div className="uf-field">
-              <label className="uf-label">
-                <Cake size={14} style={iconStyle} /> Age
-              </label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleInputChange}
-                className="uf-input"
-                min="18"
-                max="80"
-                placeholder="Age"
-              />
-              {errors.age && (
-                <div className="uf-error">
-                  <AlertTriangle size={14} style={iconStyle} /> {errors.age}
-                </div>
-              )}
-            </div>
-
-            <div className="uf-field">
-              <label className="uf-label">
-                <Globe size={14} style={iconStyle} /> Nationality
-              </label>
-              <NationalityTagsInput
-                value={formData.nationality}
-                onChange={(nationalities) => {
-                  setFormData(prev => ({ ...prev, nationality: nationalities }));
-                }}
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <div className="uf-field">
-            <label className="uf-label">
-              <FileText size={14} style={iconStyle} /> Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="uf-textarea"
-              placeholder="Brief description..."
-            />
-          </div>
-        </div>
+        <BasicInfoSection
+          formData={formData}
+          errors={errors}
+          isLoading={isLoading}
+          onInputChange={handleInputChange}
+          onNationalityChange={handleNationalityChange}
+        />
 
         {/* Photos */}
-        <div className="photo-management-container">
-          <h3 className="photo-management-header">
-            <Camera size={16} style={iconStyle} /> Photos Management
-            <span className="photo-counter-badge">
-              {existingPhotos.length - photosToRemove.length + photos.length}/5
-            </span>
-          </h3>
+        <PhotosSection
+          photos={photos}
+          existingPhotos={existingPhotos}
+          photosToRemove={photosToRemove}
+          errors={errors}
+          onPhotoChange={handlePhotoChange}
+          onRemovePhoto={removePhoto}
+          onRemoveExistingPhoto={removeExistingPhoto}
+          onRestoreExistingPhoto={restoreExistingPhoto}
+        />
 
-          {/* Existing Photos Section */}
-          {existingPhotos.length > 0 && (
-            <div className="photo-section">
-              <h4 className="photo-section-title">
-                <Camera size={14} style={iconStyle} /> Current Photos ({existingPhotos.length - photosToRemove.length} kept)
-              </h4>
+        {/* Freelance Mode */}
+        <FreelanceModeSection
+          isFreelanceMode={isFreelanceMode}
+          selectedNightclubs={selectedNightclubs}
+          establishments={establishments}
+          onFreelanceModeChange={handleFreelanceModeChange}
+          onNightclubToggle={handleNightclubToggle}
+        />
 
-              <div className="photo-grid">
-                {existingPhotos.map((photoUrl, index) => (
-                  <div
-                    key={`existing-${index}`}
-                    className={`photo-item existing ${photosToRemove.includes(photoUrl) ? 'marked-for-removal' : ''}`}
-                  >
-                    <LazyImage
-                      src={photoUrl}
-                      alt={`Existing ${index + 1}`}
-                      objectFit="cover"
-                    />
-
-                    {photosToRemove.includes(photoUrl) ? (
-                      <button
-                        type="button"
-                        onClick={() => restoreExistingPhoto(photoUrl)}
-                        className="photo-restore-btn"
-                        title="Restore photo"
-                      >
-                        ↶
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => removeExistingPhoto(photoUrl)}
-                        className="photo-remove-btn large"
-                        title="Remove photo"
-                      >
-                        ×
-                      </button>
-                    )}
-
-                    {photosToRemove.includes(photoUrl) && (
-                      <div className="photo-status-label removal-warning">
-                        WILL BE REMOVED
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Add New Photos Section */}
-          <div className="photo-section">
-            <h4 className="photo-section-title">
-              <FolderOpen size={14} style={iconStyle} /> Add New Photos
-            </h4>
-
-            <div className="photo-upload-zone">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handlePhotoChange}
-                className="photo-upload-input"
-              />
-              <div className="photo-upload-text">
-                <FolderOpen size={16} style={iconStyle} /> Click or drag photos here
-              </div>
-              <div className="photo-upload-subtext">
-                JPG, PNG, GIF up to 10MB each
-              </div>
-            </div>
-
-            {errors.photos && (
-              <div style={{ color: '#FF4757', fontSize: '14px', marginBottom: '15px' }}>
-                <AlertTriangle size={14} style={iconStyle} /> {errors.photos}
-              </div>
-            )}
-
-            {photos.length > 0 && (
-              <div>
-                <h5 className="photo-section-subtitle">
-                  <Sparkles size={14} style={iconStyle} /> New Photos to Upload ({photos.length})
-                </h5>
-                <div className="photo-grid">
-                  {photos.map((photo, index) => (
-                    <div key={`new-${index}`} className="photo-item new-photo">
-                      <LazyImage
-                        src={URL.createObjectURL(photo)}
-                        alt={`New ${index + 1}`}
-                        objectFit="cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="photo-remove-btn"
-                      >
-                        ×
-                      </button>
-                      <div className="photo-status-label new-badge">
-                        NEW
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Freelance Mode Toggle */}
-        <div className="freelance-mode-container">
-          <h3 className="freelance-mode-section-title">
-            <Users size={16} style={iconStyle} /> Employment Mode
-          </h3>
-
-          <div className="freelance-toggle-box">
-            <label className="freelance-toggle-label">
-              <input
-                type="checkbox"
-                checked={isFreelanceMode}
-                onChange={(e) => handleFreelanceModeChange(e.target.checked)}
-              />
-              <span><Users size={14} style={iconStyle} /> Freelance Mode</span>
-            </label>
-            {isFreelanceMode && (
-              <span className="freelance-active-badge">
-                ACTIVE
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Freelance Nightclubs Selector (v10.3) */}
-        {isFreelanceMode && (
-          <div className="nightclubs-selector">
-            <h3 className="freelance-mode-section-title">
-              <Music size={16} style={iconStyle} /> Nightclubs (Optional)
-            </h3>
-
-            <div className="uf-field">
-              <label className="nightclubs-selector-label">
-                <Building2 size={14} style={iconStyle} /> Select Nightclubs (you can work at multiple)
-              </label>
-
-              {/* Filter nightclubs only */}
-              {establishments.filter(est => est.category?.name === 'Nightclub').length > 0 ? (
-                <div className="nightclubs-list">
-                  {establishments
-                    .filter(est => est.category?.name === 'Nightclub')
-                    .map(nightclub => (
-                      <label
-                        key={nightclub.id}
-                        className={`nightclub-option ${selectedNightclubs.includes(nightclub.id) ? 'selected' : ''}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedNightclubs.includes(nightclub.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedNightclubs(prev => [...prev, nightclub.id]);
-                            } else {
-                              setSelectedNightclubs(prev => prev.filter(id => id !== nightclub.id));
-                            }
-                          }}
-                        />
-                        <span className="nightclub-name">
-                          {nightclub.name}
-                        </span>
-                        {nightclub.zone && (
-                          <span className="nightclub-zone">
-                            <MapPin size={12} style={iconStyle} /> {nightclub.zone}
-                          </span>
-                        )}
-                      </label>
-                    ))}
-                </div>
-              ) : (
-                <div className="nightclubs-empty-state">
-                  <AlertTriangle size={14} style={iconStyle} /> No nightclubs available yet. You can still register as a free freelance!
-                </div>
-              )}
-
-              {selectedNightclubs.length > 0 && (
-                <div className="nightclubs-selected-count">
-                  <Check size={14} style={iconStyle} /> {selectedNightclubs.length} nightclub(s) selected
-                </div>
-              )}
-            </div>
-
-            <div className="freelance-info-note">
-              <Lightbulb size={14} style={iconStyle} /> <strong>Note:</strong> As a freelance, you can work at multiple nightclubs or be completely independent. Select the nightclubs where you regularly work, or leave it empty to be listed as a free freelance.
-            </div>
-          </div>
-        )}
-
-        {/* Current Employment */}
+        {/* Current Employment (only if not freelance) */}
         {!isFreelanceMode && (
-          <div className="uf-section">
-          <h3 className="uf-section-title">
-            <Building2 size={16} style={iconStyle} /> Current Employment (Optional)
-          </h3>
-
-          <div className="uf-field">
-            <label className="uf-label">
-              <Store size={14} style={iconStyle} /> Current Establishment
-            </label>
-            <select
-              name="current_establishment_id"
-              value={formData.current_establishment_id}
-              onChange={handleInputChange}
-              className="uf-select"
-            >
-              <option value="">Select establishment</option>
-              {(() => {
-                // Filter establishments with zone only
-                const establishmentsWithZone = establishments.filter(est => est.zone);
-
-                // Group by zone
-                const groupedByZone = establishmentsWithZone.reduce((acc, est) => {
-                  const zone = est.zone || 'other';
-                  if (!acc[zone]) acc[zone] = [];
-                  acc[zone].push(est);
-                  return acc;
-                }, {} as Record<string, typeof establishments>);
-
-                // Sort each group alphabetically
-                Object.keys(groupedByZone).forEach(zone => {
-                  groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
-                });
-
-                // Sort zones alphabetically (using centralized getZoneLabel)
-                const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-                  getZoneLabel(a).localeCompare(getZoneLabel(b))
-                );
-
-                return sortedZones.map(zone => (
-                  <optgroup
-                    key={zone}
-                    label={getZoneLabel(zone)}
-                  >
-                    {groupedByZone[zone].map(est => (
-                      <option
-                        key={est.id}
-                        value={est.id}
-                      >
-                        {est.name} - {est.category?.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ));
-              })()}
-            </select>
-          </div>
-        </div>
+          <EstablishmentSection
+            establishments={establishments}
+            currentEstablishmentId={formData.current_establishment_id}
+            onChange={handleInputChange}
+          />
         )}
 
         {/* Social Media */}
-        <div className="uf-section">
-          <h3 className="uf-section-title">
-            <Smartphone size={16} style={iconStyle} /> Social Media (Optional)
-          </h3>
-
-          <div className="uf-grid-social">
-            {Object.keys(formData.social_media).map(platform => {
-              const labels = {
-                ig: 'Instagram',
-                fb: 'Facebook',
-                line: 'Line',
-                tg: 'Telegram',
-                wa: 'WhatsApp'
-              };
-
-              return (
-                <div key={platform} className="uf-field">
-                  <label className="uf-label">
-                    {labels[platform as keyof typeof labels]}
-                  </label>
-                  <input
-                    type="text"
-                    name={`social_media.${platform}`}
-                    value={formData.social_media[platform as keyof typeof formData.social_media]}
-                    onChange={handleInputChange}
-                    className="uf-input"
-                    placeholder={`${labels[platform as keyof typeof labels]} username`}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <SocialMediaSection
+          socialMedia={formData.social_media}
+          onChange={handleInputChange}
+        />
 
         {errors.submit && (
           <div className="uf-error-box">
@@ -765,19 +409,11 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
 
         {/* Action Buttons */}
         <div className="uf-actions">
-          <button
-            type="button"
-            onClick={onClose}
-            className="uf-btn uf-btn-cancel"
-          >
+          <button type="button" onClick={onClose} className="uf-btn uf-btn-cancel">
             <X size={14} style={iconStyle} /> Cancel
           </button>
 
-          <button
-            type="submit"
-            disabled={isLoading || uploadingPhotos}
-            className="uf-btn uf-btn-submit"
-          >
+          <button type="submit" disabled={isLoading || uploadingPhotos} className="uf-btn uf-btn-submit">
             {uploadingPhotos ? (
               <><Upload size={14} style={iconStyle} /> Uploading Photos...</>
             ) : isLoading ? (
@@ -788,98 +424,14 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
           </button>
         </div>
 
-        {/* v10.4: Freelance Mode Warning Dialog */}
+        {/* Freelance Warning Modal */}
         {showFreelanceWarning && warningEstablishment && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}>
-            <div style={{
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-              border: '2px solid rgba(157, 78, 221, 0.5)',
-              borderRadius: '16px',
-              padding: '24px',
-              maxWidth: '450px',
-              width: '90%',
-              boxShadow: '0 20px 60px rgba(157, 78, 221, 0.3)'
-            }}>
-              <h3 style={{
-                margin: '0 0 16px 0',
-                color: '#FFD700',
-                fontSize: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <AlertTriangle size={20} /> Changement vers mode Freelance
-              </h3>
-              <p style={{
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                margin: '0 0 12px 0'
-              }}>
-                Un freelance ne peut travailler <strong style={{ color: '#C77DFF' }}>qu'en Nightclub</strong>.
-              </p>
-              <p style={{
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                margin: '0 0 20px 0'
-              }}>
-                L'association avec <strong style={{ color: '#00E5FF' }}>{warningEstablishment.name}</strong>{' '}
-                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>({warningEstablishment.category?.name})</span>{' '}
-                sera supprimée.
-              </p>
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-                justifyContent: 'flex-end'
-              }}>
-                <button
-                  type="button"
-                  onClick={handleCancelFreelanceSwitch}
-                  style={{
-                    padding: '10px 20px',
-                    background: 'transparent',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <X size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Annuler
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmFreelanceSwitch}
-                  style={{
-                    padding: '10px 20px',
-                    background: 'linear-gradient(45deg, #9D4EDD, #C77DFF)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Check size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Confirmer
-                </button>
-              </div>
-            </div>
-          </div>
+          <FreelanceWarningModal
+            establishmentName={warningEstablishment.name}
+            categoryName={warningEstablishment.category?.name || 'Unknown'}
+            onConfirm={handleConfirmFreelanceSwitch}
+            onCancel={handleCancelFreelanceSwitch}
+          />
         )}
       </form>
     </div>
