@@ -18,6 +18,11 @@ import {
   filterByMinRating,
   enrichEmployeesForSearch
 } from '../utils/employeeHelpers';
+import {
+  parseSearchParams,
+  buildEmployeeSearchQuery,
+  compileAvailableFilters
+} from '../utils/employeeSearchHelpers';
 
 // 🚀 Cache in-memory simple pour suggestions
 interface CacheEntry {
@@ -156,248 +161,83 @@ export const getEmployeeNameSuggestions = asyncHandler(async (req: AuthRequest, 
  * GET /api/employees/search
  */
 export const searchEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const {
-      q: searchQuery,
-      type, // 🆕 v10.3 - Employee type filter (all/freelance/regular)
-      nationality,
-      age_min,
-      age_max,
-      zone,
-      establishment_id,
-      category_id,
-      is_verified,
-      sort_by = 'relevance',
-      sort_order = 'desc',
-      page: rawPage = 1,
-      limit: rawLimit = 20,
-      // 🆕 v11.0 - Advanced filters
-      languages,      // Comma-separated: "Thai,English"
-      min_rating,     // "1"-"5" minimum average rating
-      has_photos,     // "true" - filter employees with photos
-      social_media    // Comma-separated: "instagram,line,whatsapp"
-    } = req.query;
+    // 1. Parse and validate all query parameters
+    const params = parseSearchParams(req.query as Record<string, unknown>);
 
-    // 🔧 FIX S3: Validate and sanitize pagination parameters
-    const page = Math.max(1, Number(rawPage) || 1);
-    const limit = Math.min(100, Math.max(1, Number(rawLimit) || 20));
-
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit;
-
-    // If zone filter is provided, filter will be applied after query (to include freelances)
-    let normalizedZoneFilter: string | null = null;
-    if (zone) {
-      // Normalize zone for search: remove spaces and lowercase
-      normalizedZoneFilter = String(zone).toLowerCase().replace(/\s+/g, '');
-    }
-
-    // Query to get all employees (with establishments or freelance)
-    let query = supabase
-      .from('employees')
-      .select(`
-        *,
-        current_employment:employment_history!left(
-          *,
-          establishment:establishments(
-            *,
-            category:establishment_categories(*)
-          )
-        ),
-        independent_position:independent_positions!left(*)
-      `)
-      .eq('status', 'approved');
-
-    // Text search with ranking
-    // 🔧 FIX S1: Escape LIKE wildcards to prevent pattern injection
-    if (searchQuery) {
-      const searchTerm = escapeLikeWildcards(String(searchQuery).trim());
-
-      // Use full-text search for better relevance
-      // NOTE v10.4: Nationality removed from full-text search (now TEXT[] array)
-      // Exact nationality match available via nationality filter parameter below
-      query = query.or(
-        `name.ilike.%${searchTerm}%,nickname.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`
-      );
-    }
-
-    // Nationality filter (exact match in array)
-    // v10.4: Nationality is now TEXT[] array, use contains operator for exact match
-    if (nationality) {
-      // Check if nationality array contains the specified value (case-sensitive exact match)
-      query = query.contains('nationality', [nationality]);
-    }
-
-    // Age range filter
-    if (age_min) {
-      query = query.gte('age', Number(age_min));
-    }
-    if (age_max) {
-      query = query.lte('age', Number(age_max));
-    }
-
-    // Verified filter (v10.3)
-    if (is_verified === 'true') {
-      query = query.eq('is_verified', true);
-    }
-
-    // Note: establishment_id, category_id, and zone filters are applied after query
-    // to properly handle freelances (who don't have employment_history)
-
-    // VIP-first ordering - VIP employees ALWAYS appear first (v10.3 Phase 4)
-    query = query.order('is_vip', { ascending: false, nullsFirst: false });
-
-    // Base sorting (before popularity calculations)
-    if (sort_by !== 'popularity' && sort_by !== 'relevance') {
-      switch (sort_by) {
-        case 'name':
-          query = query.order('name', { ascending: sort_order === 'asc' });
-          break;
-        case 'age':
-          query = query.order('age', {
-            ascending: sort_order === 'asc',
-            nullsFirst: false
-          });
-          break;
-        case 'nationality':
-          query = query.order('nationality', {
-            ascending: sort_order === 'asc',
-            nullsFirst: false
-          });
-          break;
-        case 'newest':
-          query = query.order('created_at', { ascending: false });
-          break;
-        case 'oldest':
-          query = query.order('created_at', { ascending: true });
-          break;
-      }
-    }
-
-    // Execute query (without pagination yet - will filter and paginate manually)
+    // 2. Build and execute the database query
+    const query = await buildEmployeeSearchQuery(params);
     const { data: allEmployees, error } = await query;
 
     if (error) {
       throw BadRequestError(error.message);
     }
 
-    // ✅ Filter employees using helper function
+    // 3. Apply post-query filters (type, category, zone, languages, photos, social media)
     const filteredEmployees = applySearchFilters(allEmployees || [], {
-      type: type as string,
-      category_id: category_id ? Number(category_id) : undefined,
-      establishment_id: establishment_id as string,
-      normalizedZoneFilter,
-      languages: languages as string,
-      has_photos: has_photos as string,
-      social_media: social_media as string
+      type: params.type || undefined,
+      category_id: params.categoryId || undefined,
+      establishment_id: params.establishmentId || undefined,
+      normalizedZoneFilter: params.normalizedZoneFilter,
+      languages: params.languages || undefined,
+      has_photos: params.hasPhotos ? 'true' : undefined,
+      social_media: params.socialMedia || undefined
     });
 
     logger.debug(`📊 Filtered ${filteredEmployees.length} employees from ${allEmployees?.length || 0} total`);
 
-    // 🆕 v11.0 - Min rating filter using helper function
+    // 4. Apply min rating filter if specified
     let employeesToProcess = filteredEmployees;
     let totalFiltered = filteredEmployees.length;
 
-    if (min_rating && Number(min_rating) > 0) {
-      const { filtered } = await filterByMinRating(filteredEmployees, Number(min_rating));
+    if (params.minRating && params.minRating > 0) {
+      const { filtered } = await filterByMinRating(filteredEmployees, params.minRating);
       employeesToProcess = filtered;
       totalFiltered = filtered.length;
-      logger.debug(`📊 After min_rating filter (>=${min_rating}): ${totalFiltered} employees`);
+      logger.debug(`📊 After min_rating filter (>=${params.minRating}): ${totalFiltered} employees`);
     }
 
-    // Manual pagination (after min_rating filter if applied)
-    const employees = employeesToProcess.slice(offset, offset + limit);
+    // 5. Apply pagination
+    const employees = employeesToProcess.slice(params.offset, params.offset + params.limit);
 
-    // Get ratings and votes for current page using helper function
+    // 6. Enrich with ratings and votes
     const employeeIds = employees?.map(emp => emp.id) || [];
     const { ratingsData, votesData } = await fetchEmployeeRatingsAndVotes(employeeIds);
 
-    // Enrich employees with ratings, votes, and relevance score using helper
     const enrichedEmployees = enrichEmployeesForSearch(
       employees || [],
       ratingsData,
       votesData,
-      searchQuery as string | undefined
+      params.searchQuery || undefined
     );
 
-    // Apply sorting using helper function
-    const sortedEmployees = applySorting(
-      enrichedEmployees,
-      sort_by as string || 'relevance',
-      sort_order as string || 'desc'
-    );
+    // 7. Apply final sorting
+    const sortedEmployees = applySorting(enrichedEmployees, params.sortBy, params.sortOrder);
 
-    // Get available filters for suggestions - PARALLELIZED for performance
-    // v10.4: Nationality is now TEXT[] array, flatten to get unique values
-    const [
-      nationalitiesResult,
-      zonesResult,
-      establishmentsResult,
-      categoriesResult
-    ] = await Promise.all([
-      supabase
-        .from('employees')
-        .select('nationality')
-        .eq('status', 'approved')
-        .not('nationality', 'is', null),
-      supabase
-        .from('establishments')
-        .select('zone')
-        .not('zone', 'is', null),
-      supabase
-        .from('establishments')
-        .select('id, name, zone')
-        .eq('status', 'approved')
-        .order('name'),
-      supabase
-        .from('establishment_categories')
-        .select('id, name, icon')
-        .order('name')
-    ]);
+    // 8. Get available filter options (parallel queries)
+    const availableFilters = await compileAvailableFilters();
 
-    // Flatten nationality arrays and get unique values
-    const availableNationalities = Array.from(new Set(
-      nationalitiesResult.data?.flatMap(n => Array.isArray(n.nationality) ? n.nationality : []).filter(Boolean) || []
-    )).sort();
-
-    // Get available zones
-    const availableZones = Array.from(new Set(
-      zonesResult.data?.map(z => z.zone?.toLowerCase().replace(/\s+/g, '')).filter(Boolean) || []
-    )).sort();
-
-    // Get available establishments with zone info
-    const availableEstablishments = establishmentsResult.data || [];
-
-    // Get available categories
-    const availableCategories = categoriesResult.data || [];
-
-    // ========================================
-    // BUG #10 FIX - Standardize response structure
-    // ========================================
-    // Use 'employees' (consistent with GET /api/employees) instead of 'data'
+    // 9. Build and send response
     res.json({
-      employees: sortedEmployees,  // Standardized field name
+      employees: sortedEmployees,
       total: totalFiltered,
-      page: Number(page),
-      limit: Number(limit),
-      hasMore: offset + Number(limit) < totalFiltered,
+      page: params.page,
+      limit: params.limit,
+      hasMore: params.offset + params.limit < totalFiltered,
       filters: {
-        availableNationalities,
-        availableZones,
-        availableEstablishments,
-        availableCategories,
-        searchQuery: searchQuery || null,
+        ...availableFilters,
+        searchQuery: params.searchQuery,
         appliedFilters: {
-          nationality,
-          age_min: age_min ? Number(age_min) : null,
-          age_max: age_max ? Number(age_max) : null,
-          zone,
-          establishment_id,
-          category_id
+          nationality: params.nationality,
+          age_min: params.ageMin,
+          age_max: params.ageMax,
+          zone: params.zone,
+          establishment_id: params.establishmentId,
+          category_id: params.categoryId
         }
       },
       sorting: {
-        sort_by,
-        sort_order,
+        sort_by: params.sortBy,
+        sort_order: params.sortOrder,
         availableSorts: [
           { value: 'relevance', label: 'Most Relevant' },
           { value: 'popularity', label: 'Most Popular' },
