@@ -8,6 +8,18 @@ import {
 } from '../utils/notificationHelper';
 import { asyncHandler, UnauthorizedError, BadRequestError, NotFoundError, InternalServerError } from '../middleware/asyncHandler';
 
+/** Type for employment history query with establishment and category join
+ *  Note: Supabase returns arrays for join relations */
+interface EmploymentJobWithEstablishment {
+  id: string;
+  establishment_id: string;
+  establishments: Array<{
+    id: string;
+    name: string;
+    category: Array<{ name: string }> | null;
+  }>;
+}
+
 /**
  * Helper: Update employment_history when changing employee's establishment
  * Used by both createProposal (auto-approve) and approveProposal
@@ -100,9 +112,9 @@ async function handleFreelanceSwitch(
   }
 
   // End only NON-Nightclub jobs
-  for (const job of currentJobs) {
-    const establishment = job.establishments as any;
-    const categoryName = establishment?.category?.name;
+  for (const job of currentJobs as EmploymentJobWithEstablishment[]) {
+    const establishment = job.establishments[0];
+    const categoryName = establishment?.category?.[0]?.name;
 
     if (categoryName !== 'Nightclub') {
       logger.info(`handleFreelanceSwitch: Ending non-nightclub job at "${establishment?.name}" (${categoryName})`);

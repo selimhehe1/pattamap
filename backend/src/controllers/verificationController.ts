@@ -15,6 +15,16 @@ import {
 } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError , InternalServerError } from '../middleware/asyncHandler';
 
+/** Type for employee verification query result */
+interface EmployeeVerificationData {
+  id: string;
+  name: string;
+  photos: string[];
+  is_verified: boolean;
+  verified_at: string | null;
+  user_id: string | null;
+}
+
 /**
  * Submit verification request
  * POST /api/employees/:id/verify
@@ -40,8 +50,7 @@ export const submitVerification = asyncHandler(async (req: AuthRequest, res: Res
       throw NotFoundError('Employee not found');
     }
 
-    // Cast to include new verification fields (types will be updated after Supabase type regeneration)
-    const employeeData = employee as any;
+    const employeeData = employee as EmployeeVerificationData;
 
     // Authorization check: Only the employee themselves can request verification
     // (user_id must match the logged-in user)

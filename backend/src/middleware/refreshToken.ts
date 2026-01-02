@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from './auth';
@@ -255,10 +255,10 @@ export const autoRefreshMiddleware = async (req: AuthRequest, res: Response, nex
       }
 
       try {
-        const decoded = jwt.decode(accessToken) as any;
+        const decoded = jwt.decode(accessToken);
 
-        if (decoded && decoded.exp) {
-          const timeUntilExpiry = decoded.exp * 1000 - Date.now();
+        if (decoded && typeof decoded === 'object' && 'exp' in decoded) {
+          const timeUntilExpiry = (decoded as JwtPayload).exp! * 1000 - Date.now();
           const fiveMinutes = 5 * 60 * 1000;
 
           // If token expires in less than 5 minutes, try to refresh

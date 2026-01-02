@@ -38,8 +38,16 @@ import helmet from 'helmet';
 import compression from 'compression';
 import session from 'express-session';
 import { RedisStore } from 'connect-redis';
-import Redis from 'ioredis'; // eslint-disable-line @typescript-eslint/no-unused-vars -- Redis type needed for type compatibility
 import { Redis as UpstashRedis } from '@upstash/redis';
+
+/** Redis client interface compatible with connect-redis session store */
+interface RedisClientWrapper {
+  get(key: string): Promise<string | null>;
+  set(key: string, value: string, optionsOrFlag?: { EX?: number } | string, ttl?: number): Promise<string>;
+  del(key: string | string[]): Promise<number>;
+  expire(key: string, seconds: number): Promise<number>;
+  ttl(key: string): Promise<number>;
+}
 import cookieParser from 'cookie-parser';
 import { csrfTokenGenerator, csrfProtection, getCSRFToken } from './middleware/csrf';
 import { authenticateToken, requireAdmin as _requireAdmin, isEstablishmentOwner } from './middleware/auth';
@@ -308,15 +316,15 @@ const createSessionStore = (): session.Store | undefined => {
     // Create a wrapper that makes Upstash client compatible with connect-redis
     // IMPORTANT: connect-redis expects raw strings, but Upstash auto-serializes JSON
     // We need to handle serialization ourselves
-    const redisClientWrapper = {
-      get: async (key: string) => {
+    const redisClientWrapper: RedisClientWrapper = {
+      get: async (key: string): Promise<string | null> => {
         try {
           const value = await upstashClient.get(key);
           // If Upstash already deserialized it to an object, re-serialize it
           if (value && typeof value === 'object') {
             return JSON.stringify(value);
           }
-          return value;
+          return typeof value === 'string' ? value : null;
         } catch (err) {
           logger.error('Redis GET error:', err);
           return null;
@@ -373,8 +381,11 @@ const createSessionStore = (): session.Store | undefined => {
       }
     };
 
+    // Type assertion needed: our wrapper implements the required methods but
+    // connect-redis expects specific Redis client types (ioredis/node-redis)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const store = new RedisStore({
-      client: redisClientWrapper as any,
+      client: redisClientWrapper as unknown as ConstructorParameters<typeof RedisStore>[0]['client'],
       prefix: 'pattamap:session:'
     });
 
