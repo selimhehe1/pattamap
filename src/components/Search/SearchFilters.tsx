@@ -25,6 +25,7 @@ const debugLog = (message: string, data?: unknown) => {
 export interface FilterValues {
   q: string; // Query text search (matches API parameter)
   type: string; // 🆕 v10.3 - Employee type (all/freelance/regular)
+  sex: string; // 🆕 v10.x - Gender filter (female/male/ladyboy)
   nationality: string;
   zone: string;
   establishment_id: string;
@@ -506,7 +507,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   // 🆕 v11.0 - Count active filters per section for badges
   const sectionFilterCounts = React.useMemo(() => ({
     search: [filters.q, filters.zone, filters.establishment_id, filters.category_id].filter(Boolean).length,
-    profile: [filters.age_min, filters.age_max, filters.nationality, filters.languages].filter(Boolean).length,
+    profile: [filters.age_min, filters.age_max, filters.sex, filters.nationality, filters.languages].filter(Boolean).length,
     quality: [
       filters.is_verified,
       filters.min_rating,
@@ -925,6 +926,70 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             <span>{ageError}</span>
           </div>
         )}
+      </div>
+
+      {/* 🆕 v10.x - Gender Filter */}
+      <div className="filter-section">
+        <label className="label-nightlife filter-label-with-icon">
+          <User size={20} /> {t('search.gender', 'Gender')}
+        </label>
+        <div className="gender-chips-container" style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginTop: '8px'
+        }}>
+          {[
+            { value: 'female', label: t('employee.sex.female', 'Female'), icon: '♀' },
+            { value: 'male', label: t('employee.sex.male', 'Male'), icon: '♂' },
+            { value: 'ladyboy', label: t('employee.sex.ladyboy', 'Ladyboy'), icon: '⚧' }
+          ].map(gender => {
+            const isSelected = filters.sex === gender.value;
+
+            return (
+              <button
+                key={gender.value}
+                type="button"
+                onClick={() => {
+                  // Toggle: if clicking on current selection, clear it
+                  if (isSelected) {
+                    onFilterChange('sex', '');
+                  } else {
+                    onFilterChange('sex', gender.value);
+                  }
+                }}
+                disabled={loading}
+                className={`gender-chip ${isSelected ? 'gender-chip-active' : ''}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  background: isSelected
+                    ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(168, 85, 247, 0.2))'
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: isSelected
+                    ? '2px solid #E879F9'
+                    : '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '12px',
+                  color: isSelected ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
+                  fontSize: '14px',
+                  fontWeight: isSelected ? '600' : '500',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? '0 0 15px rgba(232, 121, 249, 0.3)' : 'none',
+                  flex: '1 1 auto',
+                  justifyContent: 'center',
+                  minWidth: '80px'
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>{gender.icon}</span>
+                <span>{gender.label}</span>
+                {isSelected && <Check size={14} style={{ marginLeft: '4px' }} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Nationality - Phase 3.4: Custom styled dropdown */}

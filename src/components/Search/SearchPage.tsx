@@ -28,6 +28,7 @@ const SearchPage: React.FC = () => {
   const [filters, setFilters] = useState({
     q: urlParams.get('q') || '',
     type: urlParams.get('type') || 'all', // 🆕 v10.3 - Employee type filter (all/freelance/regular)
+    sex: urlParams.get('sex') || '', // 🆕 v10.x - Gender filter (female/male/ladyboy)
     nationality: urlParams.get('nationality') || '',
     zone: urlParams.get('zone') || '',
     establishment_id: urlParams.get('establishment_id') || '',
@@ -229,6 +230,7 @@ const SearchPage: React.FC = () => {
     setFilters({
       q: '',
       type: 'all', // 🆕 v10.3 - Reset type filter
+      sex: '', // 🆕 v10.x - Reset gender filter
       nationality: '',
       zone: '',
       establishment_id: '',

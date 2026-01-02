@@ -530,6 +530,23 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               </motion.div>
             )}
 
+            {/* 🆕 v10.x - Gender Badge */}
+            {girl.sex && (
+              <motion.div
+                className="profile-v2-stat"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22 }}
+              >
+                <span className="profile-v2-stat-value" style={{ textTransform: 'capitalize' }}>
+                  {girl.sex === 'female' ? '♀' : girl.sex === 'male' ? '♂' : '⚧'} {t(`employee.sex.${girl.sex}`, girl.sex)}
+                </span>
+                <span className="profile-v2-stat-label">
+                  {t('profile.gender', 'Gender')}
+                </span>
+              </motion.div>
+            )}
+
             {nationalityDisplay && (
               <motion.div
                 className="profile-v2-stat"
