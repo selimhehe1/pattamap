@@ -520,12 +520,59 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           toast.error(t('register.passwordTooShort'));
           return;
         }
+        // Validate password complexity
+        if (!/[a-z]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsLowercase'));
+          return;
+        }
+        if (!/[A-Z]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsUppercase'));
+          return;
+        }
+        if (!/[0-9]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsNumber'));
+          return;
+        }
+        if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsSpecial'));
+          return;
+        }
         setCurrentStep(3);
       }
     }
     // Step 3 → Step 4 or submit
     else if (currentStep === 3) {
       if (formData.accountType === 'employee' && formData.employeePath === 'create') {
+        // Validate credentials before proceeding to step 4
+        if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
+          toast.error(t('register.fillAllFields'));
+          return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+          toast.error(t('register.passwordsDoNotMatch'));
+          return;
+        }
+        if (formData.password.length < 8) {
+          toast.error(t('register.passwordTooShort'));
+          return;
+        }
+        // Validate password complexity
+        if (!/[a-z]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsLowercase'));
+          return;
+        }
+        if (!/[A-Z]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsUppercase'));
+          return;
+        }
+        if (!/[0-9]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsNumber'));
+          return;
+        }
+        if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
+          toast.error(t('register.passwordNeedsSpecial'));
+          return;
+        }
         setCurrentStep(4);
       }
       // 🆕 v10.x NEW FLOW: Owner Step 3 = claim/create path selection
@@ -2210,6 +2257,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             <div style={{
               maxHeight: '500px',
               overflowY: 'auto',
+              overflowX: 'hidden',
               marginBottom: '20px',
               paddingRight: '8px'
             }}>
@@ -2778,6 +2826,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             <div style={{
               maxHeight: '500px',
               overflowY: 'auto',
+              overflowX: 'hidden',
               marginBottom: '20px',
               paddingRight: '8px'
             }}>
