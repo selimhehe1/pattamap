@@ -998,7 +998,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
             onClose={() => setShowEditModal(false)}
             employee={{
               ...girl,
-              current_establishment_id: girl.current_employment?.[0]?.establishment_id || ''
+              current_establishment_id: girl.current_employment?.find(e => e.is_current)?.establishment_id || ''
             } as Employee}
             showInfoNote={false}
             onSave={async (employeeData: EmployeeFormData) => {
