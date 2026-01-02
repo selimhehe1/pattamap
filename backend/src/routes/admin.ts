@@ -21,6 +21,40 @@ const getErrorMessage = (error: unknown): string => {
   return 'Unknown error';
 };
 
+// Dashboard stats fallback helper
+async function getDashboardStatsFallback() {
+  const [
+    { count: totalEstablishments },
+    { count: pendingEstablishments },
+    { count: totalEmployees },
+    { count: pendingEmployees },
+    { count: totalUsers },
+    { count: totalComments },
+    { count: pendingComments },
+    { count: reportedComments }
+  ] = await Promise.all([
+    supabase.from('establishments').select('id', { count: 'exact', head: true }),
+    supabase.from('establishments').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('employees').select('*', { count: 'exact', head: true }),
+    supabase.from('employees').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('users').select('*', { count: 'exact', head: true }),
+    supabase.from('comments').select('*', { count: 'exact', head: true }),
+    supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+  ]);
+
+  return {
+    totalEstablishments: totalEstablishments || 0,
+    pendingEstablishments: pendingEstablishments || 0,
+    totalEmployees: totalEmployees || 0,
+    pendingEmployees: pendingEmployees || 0,
+    totalUsers: totalUsers || 0,
+    totalComments: totalComments || 0,
+    pendingComments: pendingComments || 0,
+    reportedComments: reportedComments || 0
+  };
+}
+
 // Database record types (may differ from API types)
 // Note: These are standalone types, not extending base types due to structural differences
 interface DbEstablishment {
@@ -320,50 +354,17 @@ router.post('/create-basic-consumables', async (req, res) => {
 router.get('/dashboard-stats', async (req, res) => {
   logger.debug('Dashboard stats endpoint reached');
   try {
-    // 🚀 OPTIMISATION: Une seule requête CTE parallèle au lieu de 8 requêtes séquentielles
-    // Gain attendu: 2.5s → 0.2s (-90% temps de réponse)
+    // Try optimized RPC function first
     const { data: statsData, error } = await supabase.rpc('get_dashboard_stats');
 
     if (error) {
-      // Fallback vers l'ancienne méthode si la fonction n'existe pas encore
+      // Fallback to parallel queries if RPC not available
       logger.warn('CTE function not available, using fallback method:', error.message);
-
-      // Utiliser Promise.all pour paralléliser au maximum les requêtes existantes
-      const [
-        { count: totalEstablishments },
-        { count: pendingEstablishments },
-        { count: totalEmployees },
-        { count: pendingEmployees },
-        { count: totalUsers },
-        { count: totalComments },
-        { count: pendingComments },
-        { count: reportedComments }
-      ] = await Promise.all([
-        supabase.from('establishments').select('id', { count: 'exact', head: true }),
-        supabase.from('establishments').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('employees').select('*', { count: 'exact', head: true }),
-        supabase.from('employees').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('comments').select('*', { count: 'exact', head: true }),
-        supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending')
-      ]);
-
-      const stats = {
-        totalEstablishments: totalEstablishments || 0,
-        pendingEstablishments: pendingEstablishments || 0,
-        totalEmployees: totalEmployees || 0,
-        pendingEmployees: pendingEmployees || 0,
-        totalUsers: totalUsers || 0,
-        totalComments: totalComments || 0,
-        pendingComments: pendingComments || 0,
-        reportedComments: reportedComments || 0
-      };
-
+      const stats = await getDashboardStatsFallback();
       return res.json({ stats });
     }
 
-    // Utiliser les données de la fonction optimisée
+    // Use optimized RPC data
     const stats = {
       totalEstablishments: statsData?.[0]?.total_establishments || 0,
       pendingEstablishments: statsData?.[0]?.pending_establishments || 0,
