@@ -705,6 +705,138 @@ export const createEstablishment = asyncHandler(async (req: AuthRequest, res: Re
   });
 });
 
+/** Helper: Check granular permissions for establishment owners */
+async function checkOwnerPermissions(
+  userId: string,
+  establishmentId: string,
+  updates: Record<string, unknown>
+): Promise<void> {
+  const { data: ownership, error: ownershipError } = await supabase
+    .from('establishment_owners')
+    .select('permissions, owner_role')
+    .eq('user_id', userId)
+    .eq('establishment_id', establishmentId)
+    .single();
+
+  if (ownershipError || !ownership) {
+    logger.error('Failed to fetch ownership permissions:', ownershipError);
+    throw ForbiddenError('Failed to verify ownership permissions');
+  }
+
+  const permissions = ownership.permissions;
+  const attemptedFields = Object.keys(updates);
+
+  // Field → permission mapping
+  const infoFields = ['name', 'address', 'description', 'phone', 'website', 'opening_hours', 'instagram', 'twitter', 'tiktok'];
+  const pricingFields = ['ladydrink', 'barfine', 'rooms', 'pricing'];
+  const photoFields = ['logo_url', 'photos'];
+
+  if (attemptedFields.some(f => infoFields.includes(f)) && !permissions.can_edit_info) {
+    throw ForbiddenError('You do not have permission to edit establishment information');
+  }
+  if (attemptedFields.some(f => pricingFields.includes(f)) && !permissions.can_edit_pricing) {
+    throw ForbiddenError('You do not have permission to edit pricing information');
+  }
+  if (attemptedFields.some(f => photoFields.includes(f)) && !permissions.can_edit_photos) {
+    throw ForbiddenError('You do not have permission to edit establishment photos');
+  }
+}
+
+/** Helper: Update establishment consumables */
+async function updateEstablishmentConsumables(
+  establishmentId: string,
+  consumables: ConsumableInput[]
+): Promise<void> {
+  // Delete existing consumables
+  await supabase
+    .from('establishment_consumables')
+    .delete()
+    .eq('establishment_id', establishmentId);
+
+  // Insert new consumables
+  if (consumables.length > 0) {
+    const consumablesToInsert = consumables.map((c: ConsumableInput) => ({
+      establishment_id: establishmentId,
+      consumable_id: c.consumable_id,
+      price: c.price
+    }));
+
+    const { error } = await supabase
+      .from('establishment_consumables')
+      .insert(consumablesToInsert);
+
+    if (error) {
+      logger.error('Failed to update consumables:', error);
+    }
+  }
+}
+
+/** Helper: Fetch freelances associated with a nightclub */
+async function fetchNightclubFreelances(
+  establishmentId: string,
+  establishmentName: string,
+  existingEmployeeIds: Set<string>
+) {
+  const { data: freelanceEmployments, error } = await supabase
+    .from('employment_history')
+    .select(`
+      employee_id,
+      start_date,
+      employee:employees(id, name, age, nationality, photos, status, average_rating, comment_count, is_freelance)
+    `)
+    .eq('establishment_id', establishmentId)
+    .eq('is_current', true);
+
+  if (error || !freelanceEmployments) return [];
+
+  return freelanceEmployments
+    .filter(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray?.[0];
+      return employee?.is_freelance === true && !existingEmployeeIds.has(employee.id);
+    })
+    .map(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray![0];
+      return {
+        ...employee,
+        current_employment: {
+          establishment_id: establishmentId,
+          establishment_name: establishmentName,
+          start_date: emp.start_date
+        },
+        employee_type: 'freelance' as const
+      };
+    });
+}
+
+/** Helper: Fetch and format establishment consumables */
+async function fetchFormattedConsumables(establishmentId: string) {
+  const { data: consumables, error } = await supabase
+    .from('establishment_consumables')
+    .select(`
+      id,
+      consumable_id,
+      price,
+      consumable:consumable_templates(id, name, category, icon, default_price)
+    `)
+    .eq('establishment_id', establishmentId);
+
+  if (error) {
+    logger.warn('Could not load consumables:', error);
+    return [];
+  }
+
+  return (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
+    id: ec.id,
+    consumable_id: ec.consumable_id,
+    name: ec.consumable?.[0]?.name,
+    category: ec.consumable?.[0]?.category,
+    icon: ec.consumable?.[0]?.icon,
+    price: ec.price
+  }));
+}
+
 export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Response) => {
   logger.debug('🔄 UPDATE ESTABLISHMENT called with ID:', req.params.id);
   logger.debug('🔄 UPDATE ESTABLISHMENT body:', req.body);
@@ -747,72 +879,9 @@ export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Re
     authReason: isAdmin ? 'admin/moderator' : isCreator ? 'creator' : 'owner'
   });
 
-  // ========================================
-  // BUG #8 FIX - Enforce granular permissions for owners
-  // ========================================
-  // Security Issue: Owners could modify fields they don't have permission for
-  // Check permissions only for owners (admin/creator have full access)
+  // Check granular permissions for owners (admin/creator have full access)
   if (isOwner && !isAdmin && !isCreator) {
-    logger.debug('🔒 Checking granular permissions for owner');
-
-    // Fetch owner permissions
-    const { data: ownership, error: ownershipError } = await supabase
-      .from('establishment_owners')
-      .select('permissions, owner_role')
-      .eq('user_id', req.user!.id)
-      .eq('establishment_id', id)
-      .single();
-
-    if (ownershipError || !ownership) {
-      logger.error('Failed to fetch ownership permissions:', ownershipError);
-      throw ForbiddenError('Failed to verify ownership permissions');
-    }
-
-    const permissions = ownership.permissions;
-    logger.debug('📋 Owner permissions:', permissions);
-
-    // Define field → permission mapping
-    const infoFields = ['name', 'address', 'description', 'phone', 'website', 'opening_hours', 'instagram', 'twitter', 'tiktok'];
-    const pricingFields = ['ladydrink', 'barfine', 'rooms', 'pricing'];
-    const photoFields = ['logo_url', 'photos'];
-
-    // Check if owner is trying to modify fields they don't have permission for
-    const attemptedFields = Object.keys(updates);
-
-    // Check INFO permission
-    const modifyingInfo = attemptedFields.some(field => infoFields.includes(field));
-    if (modifyingInfo && !permissions.can_edit_info) {
-      logger.warn('Owner attempted to edit info without permission', {
-        userId: req.user!.id,
-        establishmentId: id,
-        attemptedFields
-      });
-      throw ForbiddenError('You do not have permission to edit establishment information');
-    }
-
-    // Check PRICING permission
-    const modifyingPricing = attemptedFields.some(field => pricingFields.includes(field));
-    if (modifyingPricing && !permissions.can_edit_pricing) {
-      logger.warn('Owner attempted to edit pricing without permission', {
-        userId: req.user!.id,
-        establishmentId: id,
-        attemptedFields
-      });
-      throw ForbiddenError('You do not have permission to edit pricing information');
-    }
-
-    // Check PHOTOS permission
-    const modifyingPhotos = attemptedFields.some(field => photoFields.includes(field));
-    if (modifyingPhotos && !permissions.can_edit_photos) {
-      logger.warn('Owner attempted to edit photos without permission', {
-        userId: req.user!.id,
-        establishmentId: id,
-        attemptedFields
-      });
-      throw ForbiddenError('You do not have permission to edit establishment photos');
-    }
-
-    logger.debug('✅ All permission checks passed for owner');
+    await checkOwnerPermissions(req.user!.id, id, updates);
   }
 
   // If location is being updated, recreate the PostGIS point
@@ -822,35 +891,9 @@ export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Re
     delete updates.longitude;
   }
 
-  // Handle consumables separately (pricing.consumables)
+  // Handle consumables separately
   if (updates.pricing?.consumables) {
-    logger.debug('🔧 Updating consumables for establishment:', id);
-    logger.debug('📦 New consumables:', updates.pricing.consumables);
-
-    // Delete existing consumables
-    await supabase
-      .from('establishment_consumables')
-      .delete()
-      .eq('establishment_id', id);
-
-    // Insert new consumables
-    if (updates.pricing.consumables.length > 0) {
-      const consumablesToInsert = updates.pricing.consumables.map((c: ConsumableInput) => ({
-        establishment_id: id,
-        consumable_id: c.consumable_id,
-        price: c.price
-      }));
-
-      const { error: consumablesError } = await supabase
-        .from('establishment_consumables')
-        .insert(consumablesToInsert);
-
-      if (consumablesError) {
-        logger.error('❌ Failed to update consumables:', consumablesError);
-      } else {
-        logger.debug('✅ Consumables updated successfully');
-      }
-    }
+    await updateEstablishmentConsumables(id, updates.pricing.consumables);
   }
 
   // Transform pricing object to flat database columns (same as createEstablishment)
@@ -950,38 +993,10 @@ export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Re
     throw BadRequestError(error.message);
   }
 
-  // Load consumables for the updated establishment (same as GET)
-  const { data: consumables, error: consumablesError } = await supabase
-    .from('establishment_consumables')
-    .select(`
-      id,
-      consumable_id,
-      price,
-      consumable:consumable_templates(
-        id,
-        name,
-        category,
-        icon,
-        default_price
-      )
-    `)
-    .eq('establishment_id', id);
+  // Load and format consumables for response
+  const formattedConsumables = await fetchFormattedConsumables(id);
 
-  if (consumablesError) {
-    logger.warn('Could not load consumables after update:', consumablesError);
-  }
-
-  // Format consumables for frontend (Supabase returns nested relations as arrays)
-  const formattedConsumables = (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
-    id: ec.id,
-    consumable_id: ec.consumable_id,
-    name: ec.consumable?.[0]?.name,
-    category: ec.consumable?.[0]?.category,
-    icon: ec.consumable?.[0]?.icon,
-    price: ec.price
-  }));
-
-  // Format response with pricing (including consumables)
+  // Format response with pricing
   const pricing = {
     consumables: formattedConsumables,
     ladydrink: updatedEstablishment.ladydrink || '130',
@@ -1374,61 +1389,9 @@ export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, r
 
   // 5. v10.3: If nightclub, also fetch associated freelances
   if (isNightclub) {
-    logger.debug('Nightclub detected, fetching associated freelances', { establishmentId: id });
-
-    const { data: freelanceEmployments, error: freelanceError } = await supabase
-      .from('employment_history')
-      .select(`
-        employee_id,
-        start_date,
-        employee:employees(
-          id,
-          name,
-          age,
-          nationality,
-          photos,
-          status,
-          average_rating,
-          comment_count,
-          is_freelance
-        )
-      `)
-      .eq('establishment_id', id)
-      .eq('is_current', true);
-
-    if (!freelanceError && freelanceEmployments) {
-      const freelances = freelanceEmployments
-        .filter(emp => {
-          const employeeArray = emp.employee as EmployeeFromQuery[] | null;
-          const employee = employeeArray?.[0];
-          return employee && employee.is_freelance === true;
-        })
-        .map(emp => {
-          const employeeArray = emp.employee as EmployeeFromQuery[] | null;
-          const employee = employeeArray![0];
-          return {
-            ...employee,
-            current_employment: {
-              establishment_id: id,
-              establishment_name: establishment.name,
-              start_date: emp.start_date
-            },
-            employee_type: 'freelance' as const
-          };
-        });
-
-      // Merge freelances with regular employees (avoid duplicates by employee_id)
-      const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
-      const newFreelances = freelances.filter((f: EmployeeWithId) => !existingIds.has(f.id));
-
-      employees = [...employees, ...newFreelances];
-
-      logger.debug('Freelances merged', {
-        regularCount: employees.length - newFreelances.length,
-        freelanceCount: newFreelances.length,
-        totalCount: employees.length
-      });
-    }
+    const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
+    const freelances = await fetchNightclubFreelances(id, establishment.name, existingIds);
+    employees = [...employees, ...freelances];
   }
 
   // 5. Fetch VIP status for all employees in a single query (optimized from N+1)
