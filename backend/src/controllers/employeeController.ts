@@ -3,7 +3,7 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { CreateEmployeeRequest } from '../types';
 import { logger } from '../utils/logger';
-import { notifyEmployeeUpdate, notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
+import { notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
 import { awardXP } from '../services/gamificationService';
 import { validateImageUrls, escapeLikeWildcards, validateUrlArray } from '../utils/validation';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
@@ -14,7 +14,9 @@ import {
   updateEmploymentAssociations,
   applySearchFilters,
   filterByMinRating,
-  enrichEmployeesForSearch
+  enrichEmployeesForSearch,
+  notifyFollowersOfUpdate,
+  validateNationalityArray
 } from '../utils/employeeHelpers';
 
 // Type definitions for Supabase query results
@@ -524,24 +526,10 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       }
     }
 
-    // ========================================
-    // v10.4 - Validate nationality array (update)
-    // ========================================
-    if (updates.nationality !== undefined && updates.nationality !== null) {
-      if (!Array.isArray(updates.nationality)) {
-        throw BadRequestError('Nationality must be an array');
-      }
-      if (updates.nationality.length === 0) {
-        throw BadRequestError('Nationality array cannot be empty (omit field to remove nationality)');
-      }
-      if (updates.nationality.length > 2) {
-        throw BadRequestError('Maximum 2 nationalities allowed (for half/mixed heritage)');
-      }
-      for (const nat of updates.nationality) {
-        if (typeof nat !== 'string' || nat.trim().length === 0) {
-          throw BadRequestError('Each nationality must be a non-empty string');
-        }
-      }
+    // v10.4 - Validate nationality array using helper
+    const nationalityValidation = validateNationalityArray(updates.nationality);
+    if (!nationalityValidation.valid) {
+      throw BadRequestError(nationalityValidation.error || 'Invalid nationality');
     }
 
     // ========================================
@@ -603,49 +591,15 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       throw BadRequestError(error.message);
     }
 
-    // Notify followers of profile updates
-    try {
-      // Get all users who favorited this employee
-      const { data: followers } = await supabase
-        .from('user_favorites')
-        .select('user_id')
-        .eq('employee_id', id);
-
-      const followerIds = followers?.map(f => f.user_id) || [];
-
-      if (followerIds.length > 0 && updatedEmployee) {
-        // Determine update type based on what changed
-        let updateType: 'profile' | 'photos' | 'position' | null = null;
-
-        // Photos update
-        if (updates.photos && updates.photos !== employee.photos) {
-          updateType = 'photos';
-        }
-        // Position changes (establishment or freelance mode)
-        else if (current_establishment_id !== undefined || updates.is_freelance !== undefined) {
-          updateType = 'position';
-        }
-        // Profile info updates (name, nickname, age, nationality, description, social_media)
-        else if (
-          updates.name || updates.nickname || updates.age !== undefined ||
-          updates.nationality || updates.description || updates.social_media
-        ) {
-          updateType = 'profile';
-        }
-
-        // Send notification if we detected a meaningful update
-        if (updateType) {
-          await notifyEmployeeUpdate(
-            followerIds,
-            updatedEmployee.name,
-            updateType,
-            id
-          );
-        }
-      }
-    } catch (notifyError) {
-      // Log error but don't fail the request if notification fails
-      logger.error('Employee update notification error:', notifyError);
+    // Notify followers of profile updates using helper
+    if (updatedEmployee) {
+      await notifyFollowersOfUpdate(
+        id,
+        updatedEmployee.name,
+        updates,
+        employee,
+        current_establishment_id !== undefined
+      );
     }
 
     res.json({

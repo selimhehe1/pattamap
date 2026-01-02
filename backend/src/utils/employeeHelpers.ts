@@ -6,6 +6,7 @@
 
 import { supabase } from '../config/supabase';
 import { logger } from './logger';
+import { notifyEmployeeUpdate } from './notificationHelper';
 
 // Type definitions
 export interface CurrentEmploymentRecord {
@@ -496,4 +497,75 @@ export function enrichEmployeesForSearch<T extends {
       relevance_score: relevanceScore
     };
   });
+}
+
+/**
+ * Notify followers of employee profile updates
+ */
+export async function notifyFollowersOfUpdate(
+  employeeId: string,
+  employeeName: string,
+  updates: Record<string, unknown>,
+  previousEmployee: { photos?: string[]; is_freelance?: boolean },
+  currentEstablishmentChanged: boolean
+): Promise<void> {
+  try {
+    const { data: followers } = await supabase
+      .from('user_favorites')
+      .select('user_id')
+      .eq('employee_id', employeeId);
+
+    const followerIds = followers?.map(f => f.user_id) || [];
+    if (followerIds.length === 0) return;
+
+    let updateType: 'profile' | 'photos' | 'position' | null = null;
+
+    if (updates.photos && updates.photos !== previousEmployee.photos) {
+      updateType = 'photos';
+    } else if (currentEstablishmentChanged || updates.is_freelance !== undefined) {
+      updateType = 'position';
+    } else if (
+      updates.name || updates.nickname || updates.age !== undefined ||
+      updates.nationality || updates.description || updates.social_media
+    ) {
+      updateType = 'profile';
+    }
+
+    if (updateType) {
+      await notifyEmployeeUpdate(followerIds, employeeName, updateType, employeeId);
+    }
+  } catch (err) {
+    logger.error('Employee update notification error:', err);
+  }
+}
+
+/**
+ * Validate nationality array format
+ */
+export function validateNationalityArray(
+  nationality: unknown
+): { valid: boolean; error?: string } {
+  if (nationality === undefined || nationality === null) {
+    return { valid: true };
+  }
+
+  if (!Array.isArray(nationality)) {
+    return { valid: false, error: 'Nationality must be an array' };
+  }
+
+  if (nationality.length === 0) {
+    return { valid: false, error: 'Nationality array cannot be empty (omit field to remove nationality)' };
+  }
+
+  if (nationality.length > 2) {
+    return { valid: false, error: 'Maximum 2 nationalities allowed (for half/mixed heritage)' };
+  }
+
+  for (const nat of nationality) {
+    if (typeof nat !== 'string' || nat.trim().length === 0) {
+      return { valid: false, error: 'Each nationality must be a non-empty string' };
+    }
+  }
+
+  return { valid: true };
 }
