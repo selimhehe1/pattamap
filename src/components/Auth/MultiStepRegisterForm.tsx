@@ -15,6 +15,8 @@ import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import toast from '../../utils/toast';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
+import { AccountTypeSelectionStep, CredentialsStep } from './steps';
+import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 
@@ -1047,182 +1049,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         <form onSubmit={handleSubmit} className="form-layout" data-testid="multistep-register-form">
           {/* STEP 1: Account Type Selection */}
           {currentStep === 1 && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                color: '#00E5FF',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '10px'
-              }}>
-                <UserCog size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.accountType')}
-              </label>
-              <div style={{
-                display: 'flex',
-                gap: '15px',
-                flexWrap: 'wrap'
-              }}>
-                <label style={{
-                  flex: '1 1 calc(50% - 8px)',
-                  minWidth: '200px',
-                  padding: '15px',
-                  border: `2px solid ${formData.accountType === 'regular' ? '#00E5FF' : 'rgba(255,255,255,0.2)'}`,
-                  borderRadius: '12px',
-                  background: formData.accountType === 'regular'
-                    ? 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.2))'
-                    : 'rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}>
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="regular"
-                    checked={formData.accountType === 'regular'}
-                    onChange={() => handleInputChange('accountType', 'regular')}
-                    style={{ accentColor: '#00E5FF' }}
-                  />
-                  <div>
-                    <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                      <Users size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.regularUser')}
-                    </div>
-                    <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                      {t('register.regularUserDesc')}
-                    </div>
-                  </div>
-                </label>
-
-                <label style={{
-                  flex: '1 1 calc(50% - 8px)',
-                  minWidth: '200px',
-                  padding: '15px',
-                  border: `2px solid ${formData.accountType === 'employee' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
-                  borderRadius: '12px',
-                  background: formData.accountType === 'employee'
-                    ? 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(193, 154, 107,0.2))'
-                    : 'rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}>
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="employee"
-                    checked={formData.accountType === 'employee'}
-                    onChange={() => handleInputChange('accountType', 'employee')}
-                    style={{ accentColor: '#C19A6B' }}
-                  />
-                  <div>
-                    <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                      <PersonStanding size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.employeeUser')}
-                    </div>
-                    <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                      {t('register.employeeUserDesc')}
-                    </div>
-                  </div>
-                </label>
-
-                <label style={{
-                  flex: '1 1 calc(50% - 8px)',
-                  minWidth: '200px',
-                  padding: '15px',
-                  border: `2px solid ${formData.accountType === 'establishment_owner' ? '#FFD700' : 'rgba(255,255,255,0.2)'}`,
-                  borderRadius: '12px',
-                  background: formData.accountType === 'establishment_owner'
-                    ? 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.2))'
-                    : 'rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}>
-                  <input
-                    type="radio"
-                    name="accountType"
-                    value="establishment_owner"
-                    checked={formData.accountType === 'establishment_owner'}
-                    onChange={() => handleInputChange('accountType', 'establishment_owner')}
-                    style={{ accentColor: '#FFD700' }}
-                  />
-                  <div>
-                    <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Crown size={16} color="#FFD700" /> {t('register.establishmentOwner')}
-                    </div>
-                    <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                      {t('register.establishmentOwnerDesc')}
-                    </div>
-                  </div>
-                </label>
-              </div>
-
-              {/* Info banner for employee accounts */}
-              {formData.accountType === 'employee' && (
-                <div style={{
-                  marginTop: '12px',
-                  padding: '12px 16px',
-                  background: 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(193, 154, 107,0.15))',
-                  border: '1px solid rgba(193, 154, 107,0.3)',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  color: '#ffffff',
-                  lineHeight: '1.5'
-                }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#C19A6B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Sparkles size={16} /> {t('register.employeeBenefitsTitle')}
-                  </div>
-                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                    <li>{t('register.employeeBenefit1')}</li>
-                    <li>{t('register.employeeBenefit2')}</li>
-                    <li>{t('register.employeeBenefit3')}</li>
-                    <li>{t('register.employeeBenefit4')}</li>
-                  </ul>
-                </div>
-              )}
-
-              {/* 🆕 v10.1 - Info banner for establishment owner accounts */}
-              {formData.accountType === 'establishment_owner' && (
-                <div style={{
-                  marginTop: '12px',
-                  padding: '12px 16px',
-                  background: 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.15))',
-                  border: '1px solid rgba(255,215,0,0.3)',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  color: '#ffffff',
-                  lineHeight: '1.5'
-                }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#FFD700', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Crown size={16} /> {t('register.ownerBenefitsTitle')}
-                  </div>
-                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                    <li>{t('register.ownerBenefit1')}</li>
-                    <li>{t('register.ownerBenefit2')}</li>
-                    <li>{t('register.ownerBenefit3')}</li>
-                    <li>{t('register.ownerBenefit4')}</li>
-                  </ul>
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#cccccc', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <AlertTriangle size={14} /> {t('register.ownerApprovalNote')}
-                  </div>
-                </div>
-              )}
-
-              {/* Next Button */}
-              <button
-                type="button"
-                onClick={handleNext}
-                className="btn btn--success"
-                style={{ marginTop: '20px' }}
-              >
-                {t('register.nextButton')} →
-              </button>
-            </div>
+            <AccountTypeSelectionStep
+              accountType={formData.accountType}
+              onAccountTypeChange={(type: AccountType) => handleInputChange('accountType', type)}
+              onNext={handleNext}
+            />
           )}
 
           {/* STEP 2: Employee Path Selection (Claim or Create) */}
@@ -1661,98 +1492,32 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             </div>
           )}
 
-          {/* STEP 2: Owner Credentials - 🆕 v10.x NEW FLOW: credentials FIRST */}
+          {/* STEP 2: Owner Credentials */}
           {currentStep === 2 && formData.accountType === 'establishment_owner' && (
-            <>
-              <FormField
-                label={<><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.pseudonymLabel')}</>}
-                name="pseudonym"
-                value={formData.pseudonym}
-                error={errors.pseudonym}
-                status={fieldStatus.pseudonym}
-                onChange={(e) => handleInputChange('pseudonym', e.target.value)}
-                onBlur={(e) => handleInputBlur('pseudonym', e.target.value)}
-                placeholder={t('register.pseudonymPlaceholder')}
-                required
-                maxLength={50}
-                showCounter
-              />
-              <FormField
-                label={<><Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.emailLabel')}</>}
-                name="email"
-                type="email"
-                value={formData.email}
-                error={errors.email}
-                status={fieldStatus.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                onBlur={(e) => handleInputBlur('email', e.target.value)}
-                placeholder={t('register.emailPlaceholder')}
-                required
-              />
-              <FormField
-                label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                error={errors.password}
-                status={fieldStatus.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                onBlur={(e) => handleInputBlur('password', e.target.value)}
-                placeholder={t('register.passwordPlaceholder')}
-                required
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ background: 'transparent', border: 'none', color: '#C19A6B', cursor: 'pointer' }}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                }
-              />
-              <FormField
-                label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                error={errors.confirmPassword}
-                status={fieldStatus.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
-                placeholder={t('register.confirmPasswordPlaceholder')}
-                required
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    style={{ background: 'transparent', border: 'none', color: '#C19A6B', cursor: 'pointer' }}
-                  >
-                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                }
-              />
-
-              {/* Navigation Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="btn btn--secondary"
-                  style={{ flex: 1 }}
-                >
-                  ← {t('register.previousButton')}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword}
-                  className="btn btn--success"
-                  style={{ flex: 2 }}
-                >
-                  {t('register.nextButton')} →
-                </button>
-              </div>
-            </>
+            <CredentialsStep
+              credentials={{
+                pseudonym: formData.pseudonym,
+                email: formData.email,
+                password: formData.password,
+                confirmPassword: formData.confirmPassword
+              }}
+              errors={{
+                pseudonym: errors.pseudonym,
+                email: errors.email,
+                password: errors.password,
+                confirmPassword: errors.confirmPassword
+              }}
+              fieldStatus={{
+                pseudonym: fieldStatus.pseudonym,
+                email: fieldStatus.email,
+                password: fieldStatus.password,
+                confirmPassword: fieldStatus.confirmPassword
+              }}
+              onFieldChange={(field, value) => handleInputChange(field, value)}
+              onFieldBlur={(field, value) => handleInputBlur(field, value)}
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+            />
           )}
 
           {/* STEP 3: Owner Path Selection (Claim or Create) - 🆕 v10.x REORDERED */}
