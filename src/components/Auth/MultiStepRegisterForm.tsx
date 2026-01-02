@@ -265,6 +265,15 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     password: {
       required: true,
       minLength: 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
+      custom: (value) => {
+        const pwd = value as string;
+        if (pwd.length < 8) return true; // Let minLength handle this
+        if (!/[a-z]/.test(pwd)) return t('register.passwordNeedsLowercase');
+        if (!/[A-Z]/.test(pwd)) return t('register.passwordNeedsUppercase');
+        if (!/[0-9]/.test(pwd)) return t('register.passwordNeedsNumber');
+        if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(pwd)) return t('register.passwordNeedsSpecial');
+        return true;
+      },
       message: (field, rule) => {
         if (rule === 'required') return t('register.passwordRequired');
         if (rule === 'minLength') return t('auth.passwordMinLength', { min: 8 });
