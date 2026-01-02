@@ -18,9 +18,9 @@ declare global {
         id: string;
         pseudonym: string;
         email: string;
-        role: string;
+        role: 'user' | 'moderator' | 'admin';
         is_active: boolean;
-        account_type?: string;
+        account_type?: 'regular' | 'employee' | 'establishment_owner';
         linked_employee_id?: string;
       };
 

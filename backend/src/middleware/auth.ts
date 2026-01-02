@@ -9,10 +9,10 @@ export interface AuthRequest extends Request {
     id: string;
     pseudonym: string;
     email: string;
-    role: string;
+    role: 'user' | 'moderator' | 'admin';
     is_active: boolean;
-    account_type?: string; // v10.0 - Employee Claim System
-    linked_employee_id?: string; // v10.0 - Link to employee profile
+    account_type?: 'regular' | 'employee' | 'establishment_owner';
+    linked_employee_id?: string;
   };
 }
 
@@ -117,8 +117,8 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       });
     }
 
-    // Attach user to request
-    req.user = user;
+    // Attach user to request (cast from Supabase string types to union types)
+    req.user = user as AuthRequest['user'];
     logger.debug('Authentication successful', {
       hasPseudonym: !!user.pseudonym,
       hasRole: !!user.role,
@@ -209,7 +209,7 @@ export const authenticateTokenOptional = async (req: AuthRequest, res: Response,
     }
 
     // Attach user to request (optional authentication succeeded)
-    req.user = user;
+    req.user = user as AuthRequest['user'];
     logger.debug('Optional authentication successful', {
       userId: user.id,
       hasPseudonym: !!user.pseudonym

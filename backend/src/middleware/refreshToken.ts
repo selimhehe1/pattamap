@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { supabase } from '../config/supabase';
@@ -93,7 +93,7 @@ export const generateTokenPair = async (userId: string, email: string, role: str
 };
 
 // Refresh access token using refresh token
-export const refreshAccessToken = async (req: Request, res: Response) => {
+export const refreshAccessToken = async (req: AuthRequest, res: Response) => {
   try {
     const refreshToken = req.cookies?.['refresh-token'];
 
