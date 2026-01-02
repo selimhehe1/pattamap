@@ -27,6 +27,67 @@ interface RequestEstablishment {
   zone?: string;
 }
 
+interface EstablishmentResolution {
+  id: string;
+  name: string;
+  isNew: boolean;
+}
+
+/** Helper: Resolve or create establishment for ownership request */
+async function resolveEstablishment(
+  establishmentId: string | undefined,
+  establishmentData: CreateOwnershipRequestRequest['establishment_data'],
+  userId: string
+): Promise<EstablishmentResolution> {
+  if (establishmentData) {
+    // Create new establishment with status='pending'
+    const { data: newEst, error } = await supabase
+      .from('establishments')
+      .insert({
+        name: establishmentData.name,
+        address: establishmentData.address,
+        location: { latitude: establishmentData.latitude, longitude: establishmentData.longitude },
+        category_id: establishmentData.category_id,
+        zone: establishmentData.zone,
+        description: establishmentData.description,
+        phone: establishmentData.phone,
+        website: establishmentData.website,
+        opening_hours: establishmentData.opening_hours,
+        instagram: establishmentData.instagram,
+        twitter: establishmentData.twitter,
+        tiktok: establishmentData.tiktok,
+        status: 'pending',
+        created_by: userId
+      })
+      .select('id, name')
+      .single();
+
+    if (error || !newEst) {
+      logger.error('Create establishment error:', error);
+      throw InternalServerError('Failed to create establishment');
+    }
+
+    logger.info('Establishment created for ownership request', {
+      establishmentId: newEst.id, establishmentName: newEst.name, userId
+    });
+
+    return { id: newEst.id, name: newEst.name, isNew: true };
+  }
+
+  // Verify existing establishment
+  const { data: est, error } = await supabase
+    .from('establishments')
+    .select('id, name')
+    .eq('id', establishmentId!)
+    .single();
+
+  if (error || !est) {
+    throw NotFoundError('Establishment not found');
+  }
+
+  return { id: est.id, name: est.name, isNew: false };
+}
+
 /**
  * Create a new ownership request (establishment owner only)
  * POST /api/ownership-requests
@@ -73,65 +134,11 @@ export const createOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
       throw ForbiddenError('Only establishment owners can request ownership');
     }
 
-    // Handle establishment creation if data provided
-    let finalEstablishmentId = establishment_id;
-    let establishmentName: string;
-    let isNewEstablishment = false;
-
-    if (establishment_data) {
-      // Create new establishment with status='pending'
-      const { data: newEstablishment, error: createError } = await supabase
-        .from('establishments')
-        .insert({
-          name: establishment_data.name,
-          address: establishment_data.address,
-          location: {
-            latitude: establishment_data.latitude,
-            longitude: establishment_data.longitude
-          },
-          category_id: establishment_data.category_id,
-          zone: establishment_data.zone,
-          description: establishment_data.description,
-          phone: establishment_data.phone,
-          website: establishment_data.website,
-          opening_hours: establishment_data.opening_hours,
-          instagram: establishment_data.instagram,
-          twitter: establishment_data.twitter,
-          tiktok: establishment_data.tiktok,
-          status: 'pending',
-          created_by: userId
-        })
-        .select('id, name')
-        .single();
-
-      if (createError || !newEstablishment) {
-        logger.error('Create establishment error:', createError);
-        throw InternalServerError('Failed to create establishment');
-      }
-
-      finalEstablishmentId = newEstablishment.id;
-      establishmentName = newEstablishment.name;
-      isNewEstablishment = true;
-
-      logger.info('Establishment created for ownership request', {
-        establishmentId: finalEstablishmentId,
-        establishmentName,
-        userId
-      });
-    } else {
-      // Verify existing establishment
-      const { data: establishment, error: estError } = await supabase
-        .from('establishments')
-        .select('id, name')
-        .eq('id', establishment_id!)
-        .single();
-
-      if (estError || !establishment) {
-        throw NotFoundError('Establishment not found');
-      }
-
-      establishmentName = establishment.name;
-    }
+    // Resolve or create establishment
+    const resolved = await resolveEstablishment(establishment_id, establishment_data, userId);
+    const finalEstablishmentId = resolved.id;
+    const establishmentName = resolved.name;
+    const isNewEstablishment = resolved.isNew;
 
     // Check if user already owns this establishment
     const { data: existingOwnership } = await supabase
