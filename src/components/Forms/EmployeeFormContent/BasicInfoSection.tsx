@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, User, UserCog, Cake, Globe, AlertTriangle } from 'lucide-react';
+import { FileText, User, UserCog, Cake, Globe, AlertTriangle, Users } from 'lucide-react';
 import NationalityTagsInput from '../NationalityTagsInput';
 import type { BasicInfoSectionProps } from './types';
 
@@ -60,6 +60,52 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           className="uf-input"
           placeholder="Nickname or stage name"
         />
+      </div>
+
+      {/* 🆕 v10.x - Sex/Gender Field */}
+      <div className="uf-field">
+        <label className="uf-label">
+          <Users size={14} style={iconStyle} /> Sex *
+        </label>
+        <div className="uf-radio-group" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {[
+            { value: 'female', label: 'Female', icon: '♀' },
+            { value: 'male', label: 'Male', icon: '♂' },
+            { value: 'ladyboy', label: 'Ladyboy', icon: '⚧' }
+          ].map(option => (
+            <label
+              key={option.value}
+              className="uf-radio-option"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: formData.sex === option.value ? '2px solid var(--accent-pink)' : '1px solid var(--border-color)',
+                background: formData.sex === option.value ? 'rgba(236, 72, 153, 0.1)' : 'var(--bg-secondary)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <input
+                type="radio"
+                name="sex"
+                value={option.value}
+                checked={formData.sex === option.value}
+                onChange={onInputChange}
+                style={{ display: 'none' }}
+              />
+              <span style={{ fontSize: '16px' }}>{option.icon}</span>
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+        {errors.sex && (
+          <div className="uf-error">
+            <AlertTriangle size={14} style={iconStyle} /> {errors.sex}
+          </div>
+        )}
       </div>
 
       <div className="uf-grid-2">

@@ -52,6 +52,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     name: initialData?.name || '',
     nickname: initialData?.nickname || '',
     age: initialData?.age?.toString() || '',
+    sex: initialData?.sex || '', // 🆕 v10.x - Gender
     nationality: initialData?.nationality || null,
     description: initialData?.description || '',
     social_media: {
@@ -277,6 +278,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.sex) newErrors.sex = 'Sex is required'; // 🆕 v10.x - Gender validation
     if (formData.age && (parseInt(formData.age) < 18 || parseInt(formData.age) > 80)) {
       newErrors.age = 'Age must be between 18 and 80';
     }
@@ -311,6 +313,7 @@ const EmployeeFormContent: React.FC<EmployeeFormContentProps> = ({
         name: formData.name,
         nickname: formData.nickname || undefined,
         age: formData.age ? parseInt(formData.age) : undefined,
+        sex: formData.sex as 'male' | 'female' | 'ladyboy', // 🆕 v10.x - Gender
         nationality: formData.nationality,
         description: formData.description || undefined,
         photos: finalPhotoUrls,

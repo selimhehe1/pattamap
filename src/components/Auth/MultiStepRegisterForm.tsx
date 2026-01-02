@@ -63,6 +63,7 @@ interface FormData {
   employeeName: string;
   employeeNickname: string;
   employeeAge: string;
+  employeeSex: string; // 🆕 v10.x - Gender
   employeeNationality: string[] | null;
   employeeDescription: string;
   photos: File[];
@@ -134,6 +135,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     employeeName: '',
     employeeNickname: '',
     employeeAge: '',
+    employeeSex: '', // 🆕 v10.x - Gender
     employeeNationality: null,
     employeeDescription: '',
     photos: [],
@@ -722,6 +724,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             name: formData.employeeName,
             nickname: formData.employeeNickname || undefined,
             age: formData.employeeAge ? parseInt(formData.employeeAge) : undefined,
+            sex: formData.employeeSex, // 🆕 v10.x - Gender
             nationality: formData.employeeNationality,
             description: formData.employeeDescription || undefined,
             photos: photoUrls,
@@ -973,6 +976,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   employeeName: '',
                   employeeNickname: '',
                   employeeAge: '',
+                  employeeSex: '', // 🆕 v10.x - Gender
                   employeeNationality: null,
                   employeeDescription: '',
                   photos: [],
@@ -2342,6 +2346,44 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                     className="input-nightlife"
                     placeholder={t('register.nicknamePlaceholder')}
                   />
+                </div>
+
+                {/* 🆕 v10.x - Sex/Gender Field */}
+                <div className="form-input-group-lg">
+                  <label className="label-nightlife"><Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.sex.label', 'Sex')} *</label>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {[
+                      { value: 'female', label: t('employee.sex.female', 'Female'), icon: '♀' },
+                      { value: 'male', label: t('employee.sex.male', 'Male'), icon: '♂' },
+                      { value: 'ladyboy', label: t('employee.sex.ladyboy', 'Ladyboy'), icon: '⚧' }
+                    ].map(option => (
+                      <label
+                        key={option.value}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '10px 18px',
+                          borderRadius: '10px',
+                          border: formData.employeeSex === option.value ? '2px solid #ec4899' : '2px solid rgba(255,255,255,0.2)',
+                          background: formData.employeeSex === option.value ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.3)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="employeeSex"
+                          value={option.value}
+                          checked={formData.employeeSex === option.value}
+                          onChange={(e) => handleInputChange('employeeSex', e.target.value)}
+                          style={{ display: 'none' }}
+                        />
+                        <span style={{ fontSize: '18px' }}>{option.icon}</span>
+                        <span style={{ color: '#fff' }}>{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="form-row-2-cols">

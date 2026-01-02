@@ -18,6 +18,7 @@ export interface InternalFormData {
   name: string;
   nickname: string;
   age: string;
+  sex: string; // 🆕 v10.x - Gender (male/female/ladyboy)
   nationality: string[] | null;
   description: string;
   social_media: FormSocialMedia;
@@ -29,6 +30,7 @@ export interface EmployeeSubmitData {
   name: string;
   nickname?: string;
   age?: number;
+  sex?: 'male' | 'female' | 'ladyboy'; // 🆕 v10.x - Gender
   nationality?: string[] | null;
   description?: string;
   photos: string[];
