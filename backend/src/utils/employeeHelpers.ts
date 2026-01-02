@@ -331,6 +331,69 @@ export interface SearchFilterOptions {
   social_media?: string;
 }
 
+// Individual filter functions to reduce complexity
+
+function matchesTypeFilter(
+  type: string | undefined,
+  hasCurrentEmployment: boolean,
+  hasActiveFreelance: boolean,
+  isSimpleFreelance: boolean
+): boolean {
+  if (!type || type === 'all') return true;
+  const isFreelance = hasActiveFreelance || isSimpleFreelance;
+  if (type === 'freelance' && !isFreelance) return false;
+  if (type === 'regular' && !hasCurrentEmployment) return false;
+  return true;
+}
+
+function matchesCategoryFilter(
+  categoryId: string | number | undefined,
+  currentEmp: CurrentEmploymentRecord | undefined
+): boolean {
+  if (!categoryId) return true;
+  if (!currentEmp) return false;
+  const estCategoryId = (currentEmp.establishment as { category_id?: number } | undefined)?.category_id;
+  return estCategoryId === Number(categoryId);
+}
+
+function matchesZoneFilter(
+  normalizedZoneFilter: string | null | undefined,
+  currentEmp: CurrentEmploymentRecord | undefined,
+  emp: { independent_position?: IndependentPositionRecord[]; is_freelance?: boolean; freelance_zone?: string }
+): boolean {
+  if (!normalizedZoneFilter) return true;
+  const establishmentZone = (currentEmp?.establishment as { zone?: string } | undefined)?.zone?.toLowerCase().replace(/\s+/g, '');
+  const freelanceZone = emp.independent_position?.[0]?.zone?.toLowerCase().replace(/\s+/g, '');
+  const simpleFreelanceZone = emp.is_freelance ? emp.freelance_zone?.toLowerCase().replace(/\s+/g, '') : null;
+  return establishmentZone === normalizedZoneFilter ||
+         freelanceZone === normalizedZoneFilter ||
+         simpleFreelanceZone === normalizedZoneFilter;
+}
+
+function matchesLanguagesFilter(
+  languages: string | undefined,
+  employeeLanguages: string[]
+): boolean {
+  if (!languages || !String(languages).trim()) return true;
+  const requestedLanguages = String(languages).split(',').map(l => l.trim().toLowerCase());
+  const normalizedEmpLangs = employeeLanguages.map(l => l.toLowerCase());
+  return requestedLanguages.some(lang =>
+    normalizedEmpLangs.some(empLang => empLang.includes(lang) || lang.includes(empLang))
+  );
+}
+
+function matchesSocialMediaFilter(
+  socialMedia: string | undefined,
+  employeeSocials: Record<string, string>
+): boolean {
+  if (!socialMedia || !String(socialMedia).trim()) return true;
+  const requestedPlatforms = String(socialMedia).split(',').map(p => p.trim().toLowerCase());
+  return requestedPlatforms.some(platform => {
+    const value = employeeSocials[platform];
+    return value && String(value).trim() !== '';
+  });
+}
+
 /**
  * Apply search filters to employees
  * Extracted from searchEmployees to reduce complexity
@@ -350,69 +413,19 @@ export function applySearchFilters<T extends {
   const { type, category_id, establishment_id, normalizedZoneFilter, languages, has_photos, social_media } = options;
 
   return employees.filter(emp => {
-    const hasCurrentEmployment = emp.current_employment?.some(ce => ce.is_current === true);
+    const hasCurrentEmployment = emp.current_employment?.some(ce => ce.is_current === true) ?? false;
     const currentEmp = emp.current_employment?.find(ce => ce.is_current === true);
-    const hasActiveFreelance = emp.independent_position?.some(ip => ip.is_active === true);
+    const hasActiveFreelance = emp.independent_position?.some(ip => ip.is_active === true) ?? false;
     const isSimpleFreelance = emp.is_freelance === true;
 
-    // Type filter
-    if (type && type !== 'all') {
-      const isFreelance = hasActiveFreelance || isSimpleFreelance;
-      if (type === 'freelance' && !isFreelance) return false;
-      if (type === 'regular' && !hasCurrentEmployment) return false;
-    }
-
-    // Category filter
-    if (category_id) {
-      if (!currentEmp) return false;
-      const estCategoryId = (currentEmp.establishment as { category_id?: number } | undefined)?.category_id;
-      if (estCategoryId !== Number(category_id)) return false;
-    }
-
-    // Establishment filter
-    if (establishment_id) {
-      if (!currentEmp) return false;
-      if (currentEmp.establishment_id !== establishment_id) return false;
-    }
-
-    // Zone filter
-    if (normalizedZoneFilter) {
-      const establishmentZone = (currentEmp?.establishment as { zone?: string } | undefined)?.zone?.toLowerCase().replace(/\s+/g, '');
-      const freelanceZone = emp.independent_position?.[0]?.zone?.toLowerCase().replace(/\s+/g, '');
-      const simpleFreelanceZone = emp.is_freelance ? emp.freelance_zone?.toLowerCase().replace(/\s+/g, '') : null;
-      const matchesZone = establishmentZone === normalizedZoneFilter ||
-                          freelanceZone === normalizedZoneFilter ||
-                          simpleFreelanceZone === normalizedZoneFilter;
-      if (!matchesZone) return false;
-    }
-
-    // Languages filter
-    if (languages && String(languages).trim()) {
-      const requestedLanguages = String(languages).split(',').map(l => l.trim().toLowerCase());
-      const employeeLanguages = Array.isArray(emp.languages_spoken)
-        ? emp.languages_spoken.map(l => l.toLowerCase())
-        : [];
-      const speaksAnyLanguage = requestedLanguages.some(lang =>
-        employeeLanguages.some(empLang => empLang.includes(lang) || lang.includes(empLang))
-      );
-      if (!speaksAnyLanguage) return false;
-    }
-
-    // Has photos filter
-    if (has_photos === 'true') {
-      if (!Array.isArray(emp.photos) || emp.photos.length === 0) return false;
-    }
-
-    // Social media filter
-    if (social_media && String(social_media).trim()) {
-      const requestedPlatforms = String(social_media).split(',').map(p => p.trim().toLowerCase());
-      const employeeSocials = emp.social_media || {};
-      const hasAnySocial = requestedPlatforms.some(platform => {
-        const value = employeeSocials[platform];
-        return value && String(value).trim() !== '';
-      });
-      if (!hasAnySocial) return false;
-    }
+    // Apply filters using helper functions
+    if (!matchesTypeFilter(type, hasCurrentEmployment, hasActiveFreelance, isSimpleFreelance)) return false;
+    if (!matchesCategoryFilter(category_id, currentEmp)) return false;
+    if (establishment_id && (!currentEmp || currentEmp.establishment_id !== establishment_id)) return false;
+    if (!matchesZoneFilter(normalizedZoneFilter, currentEmp, emp)) return false;
+    if (!matchesLanguagesFilter(languages, emp.languages_spoken || [])) return false;
+    if (has_photos === 'true' && (!Array.isArray(emp.photos) || emp.photos.length === 0)) return false;
+    if (!matchesSocialMediaFilter(social_media, emp.social_media || {})) return false;
 
     return true;
   });

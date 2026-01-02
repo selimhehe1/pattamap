@@ -4,6 +4,7 @@ import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { missionTrackingService } from '../services/missionTrackingService';
 import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError , InternalServerError } from '../middleware/asyncHandler';
+import { getCategoryFallback } from '../utils/gamificationHelpers';
 
 // ========================================
 // TYPES
@@ -66,16 +67,6 @@ interface DbReward {
     unlocked_at: string;
     claimed: boolean;
   }>;
-}
-
-// Fallback data type
-interface FallbackLeaderboardEntry {
-  user_id: string;
-  username: string;
-  review_count?: number;
-  upload_count?: number;
-  zone_count?: number;
-  rank?: number;
 }
 
 // ========================================
@@ -755,96 +746,8 @@ export const getCategoryLeaderboard = asyncHandler(async (req: AuthRequest, res:
     if (error) {
       logger.error(`Get ${category} leaderboard error:`, error);
 
-      // Provide fallback for each category
-      let fallbackData: FallbackLeaderboardEntry[] = [];
-
-      if (category === 'reviewers') {
-        const { data } = await supabase
-          .from('comments')
-          .select('user_id, users!inner(pseudonym)')
-          .not('content', 'is', null);
-
-        // Group by user_id and count
-        const counts = new Map<string, { count: number; username: string }>();
-        for (const row of data || []) {
-          const usersArray = row.users as { pseudonym: string }[] | null;
-          const existing = counts.get(row.user_id) || { count: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
-          existing.count++;
-          counts.set(row.user_id, existing);
-        }
-        fallbackData = Array.from(counts.entries())
-          .map(([user_id, { count, username }]) => ({ user_id, username, review_count: count }))
-          .sort((a, b) => b.review_count - a.review_count)
-          .slice(0, parseInt(limit as string, 10));
-      }
-
-      if (category === 'photographers') {
-        const { data } = await supabase
-          .from('user_photo_uploads')
-          .select('user_id, users!inner(pseudonym)')
-          .eq('status', 'approved');
-
-        const counts = new Map<string, { count: number; username: string }>();
-        for (const row of data || []) {
-          const usersArray = row.users as { pseudonym: string }[] | null;
-          const existing = counts.get(row.user_id) || { count: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
-          existing.count++;
-          counts.set(row.user_id, existing);
-        }
-        fallbackData = Array.from(counts.entries())
-          .map(([user_id, { count, username }]) => ({ user_id, username, photo_count: count }))
-          .sort((a, b) => b.photo_count - a.photo_count)
-          .slice(0, parseInt(limit as string, 10));
-      }
-
-      if (category === 'checkins') {
-        const { data } = await supabase
-          .from('check_ins')
-          .select('user_id, verified, users!inner(pseudonym)');
-
-        const counts = new Map<string, { total: number; verified: number; username: string }>();
-        for (const row of data || []) {
-          const usersArray = row.users as { pseudonym: string }[] | null;
-          const existing = counts.get(row.user_id) || { total: 0, verified: 0, username: usersArray?.[0]?.pseudonym || 'Unknown' };
-          existing.total++;
-          if (row.verified) existing.verified++;
-          counts.set(row.user_id, existing);
-        }
-        fallbackData = Array.from(counts.entries())
-          .map(([user_id, { total, verified, username }]) => ({
-            user_id,
-            username,
-            checkin_count: total,
-            verified_checkins: verified
-          }))
-          .sort((a, b) => b.verified_checkins - a.verified_checkins)
-          .slice(0, parseInt(limit as string, 10));
-      }
-
-      if (category === 'helpful') {
-        const { data } = await supabase
-          .from('review_votes')
-          .select('review_id, vote_type, comments!inner(user_id, users!inner(pseudonym))')
-          .eq('vote_type', 'helpful');
-
-        const counts = new Map<string, { count: number; username: string }>();
-        for (const row of data || []) {
-          const commentsArray = row.comments as { user_id: string; users: { pseudonym: string }[] | null }[] | null;
-          const comment = commentsArray?.[0];
-          const authorId = comment?.user_id;
-          const username = comment?.users?.[0]?.pseudonym || 'Unknown';
-          if (authorId) {
-            const existing = counts.get(authorId) || { count: 0, username };
-            existing.count++;
-            counts.set(authorId, existing);
-          }
-        }
-        fallbackData = Array.from(counts.entries())
-          .map(([user_id, { count, username }]) => ({ user_id, username, helpful_votes: count }))
-          .sort((a, b) => b.helpful_votes - a.helpful_votes)
-          .slice(0, parseInt(limit as string, 10));
-      }
-
+      // Use helper for fallback data
+      const fallbackData = await getCategoryFallback(category, parseInt(limit as string, 10));
       const rankedData = fallbackData.map((entry, index) => ({
         ...entry,
         rank: index + 1
