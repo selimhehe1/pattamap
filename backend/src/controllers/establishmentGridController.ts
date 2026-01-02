@@ -10,6 +10,25 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, InternalServerError } from '../middleware/asyncHandler';
+import { fetchNightclubFreelances } from '../utils/establishmentHelpers';
+
+// Employee with ID for mapping
+interface EmployeeWithId {
+  id: string;
+}
+
+// Employee data returned from Supabase relationship queries
+interface EmployeeFromQuery {
+  id: string;
+  name: string;
+  age?: number;
+  nationality?: string[];
+  photos?: string[];
+  status: string;
+  average_rating?: number;
+  comment_count?: number;
+  is_freelance?: boolean;
+}
 
 /**
  * Update grid position for an establishment (admin/moderator only)
@@ -226,5 +245,151 @@ export const updateEstablishmentLogo = asyncHandler(async (req: AuthRequest, res
   res.json({
     message: 'Establishment logo updated successfully',
     establishment: establishment
+  });
+});
+
+/**
+ * GET /api/establishments/:id/employees
+ *
+ * Returns all employees working at an establishment.
+ * Only accessible by establishment owners/managers.
+ *
+ * @param req.params.id - Establishment ID
+ * @param req.user.id - Current user ID
+ * @returns { employees[], total, establishment }
+ */
+export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params; // establishment_id
+  const user_id = req.user?.id;
+
+  // 1. Check ownership
+  const { data: ownership, error: ownershipError } = await supabase
+    .from('establishment_owners')
+    .select('*')
+    .eq('user_id', user_id)
+    .eq('establishment_id', id)
+    .single();
+
+  if (ownershipError || !ownership) {
+    logger.warn('Unauthorized employee list access attempt', {
+      userId: user_id,
+      establishmentId: id
+    });
+    throw ForbiddenError('You are not authorized to view employees of this establishment');
+  }
+
+  logger.debug('Establishment employee list access authorized', {
+    userId: user_id,
+    establishmentId: id,
+    ownerRole: ownership.owner_role
+  });
+
+  // 2. Fetch establishment info (v10.3: include category to check if nightclub)
+  const { data: establishment, error: estError } = await supabase
+    .from('establishments')
+    .select(`
+      id,
+      name,
+      zone,
+      category:establishment_categories(name)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (estError) {
+    logger.error('Establishment not found:', estError);
+    throw NotFoundError('Establishment not found');
+  }
+
+  const categoryData = establishment.category as { name: string }[] | null;
+  const isNightclub = categoryData?.[0]?.name === 'Nightclub';
+
+  // 3. Fetch employees via current_employment
+  const { data: employments, error: empError } = await supabase
+    .from('current_employment')
+    .select(`
+      employee_id,
+      start_date,
+      employee:employees!current_employment_employee_id_fkey(
+        id,
+        name,
+        age,
+        nationality,
+        photos,
+        status,
+        average_rating,
+        comment_count,
+        is_freelance
+      )
+    `)
+    .eq('establishment_id', id);
+
+  if (empError) {
+    logger.error('Failed to fetch employees:', empError);
+    throw InternalServerError('Failed to fetch employees');
+  }
+
+  // 4. Extract regular employees and add current_employment info
+  let employees = employments
+    .filter(emp => emp.employee) // Filter out null employees
+    .map(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray?.[0];
+      if (!employee) return null;
+      return {
+        ...employee,
+        current_employment: {
+          establishment_id: id,
+          establishment_name: establishment.name,
+          start_date: emp.start_date
+        },
+        employee_type: employee.is_freelance ? 'freelance' : 'regular'
+      };
+    })
+    .filter((e): e is NonNullable<typeof e> => e !== null);
+
+  // 5. v10.3: If nightclub, also fetch associated freelances
+  if (isNightclub) {
+    const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
+    const freelances = await fetchNightclubFreelances(id, establishment.name, existingIds);
+    employees = [...employees, ...freelances];
+  }
+
+  // 6. Fetch VIP status for all employees in a single query (optimized from N+1)
+  type EmployeeWithVIP = (typeof employees)[number] & { is_vip: boolean; vip_expires_at: string | null };
+  let employeesWithVIP: EmployeeWithVIP[] = employees.map(emp => ({ ...emp, is_vip: false, vip_expires_at: null }));
+
+  try {
+    const employeeIds = employees.map((emp: EmployeeWithId) => emp.id);
+    const { data: vipSubs } = await supabase
+      .from('employee_vip_subscriptions')
+      .select('employee_id, expires_at')
+      .in('employee_id', employeeIds)
+      .eq('status', 'active')
+      .gte('expires_at', new Date().toISOString());
+
+    // Create a map for O(1) lookup
+    const vipMap = new Map(
+      (vipSubs || []).map((sub: { employee_id: string; expires_at: string }) => [sub.employee_id, sub.expires_at])
+    );
+
+    employeesWithVIP = employees.map(emp => ({
+      ...emp,
+      is_vip: vipMap.has(emp.id),
+      vip_expires_at: vipMap.get(emp.id) || null
+    }));
+  } catch {
+    // Table doesn't exist yet or query failed - keep default without VIP info
+  }
+
+  logger.debug('Successfully fetched employees', {
+    establishmentId: id,
+    employeeCount: employeesWithVIP.length
+  });
+
+  res.json({
+    employees: employeesWithVIP,
+    total: employeesWithVIP.length,
+    establishment
   });
 });

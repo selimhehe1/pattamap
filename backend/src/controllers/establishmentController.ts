@@ -5,7 +5,7 @@ import { validateTextInput, validateNumericInput, prepareFilterParams } from '..
 import { logger } from '../utils/logger';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 import { notifyAdminsPendingContent } from '../utils/notificationHelper';
-import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, InternalServerError } from '../middleware/asyncHandler';
+import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError } from '../middleware/asyncHandler';
 import {
   validateCoordinates,
   getEstablishmentCoordinates,
@@ -13,57 +13,14 @@ import {
   fetchEmployeeCounts,
   fetchOwnershipMap,
   mapEstablishmentsWithExtras,
-  DbEstablishmentWithLocation
+  DbEstablishmentWithLocation,
+  ConsumableInput,
+  EstablishmentConsumableWithTemplate,
+  checkOwnerPermissions,
+  updateEstablishmentConsumables,
+  fetchFormattedConsumables
 } from '../utils/establishmentHelpers';
 
-// Note: DbEstablishmentWithLocation is imported from establishmentHelpers
-
-interface _EstablishmentConsumable {
-  consumable_id: string;
-  price: number;
-  consumables: {
-    name: string;
-    icon: string;
-    category: string;
-  };
-}
-
-interface ConsumableInput {
-  consumable_id: string;
-  price: number;
-}
-
-// Consumable with joined template data - Supabase returns nested relations as arrays
-interface EstablishmentConsumableWithTemplate {
-  id: string;
-  consumable_id: string;
-  price: number;
-  consumable?: {
-    id: string;
-    name: string;
-    category: string;
-    icon: string;
-    default_price: number;
-  }[];
-}
-
-// Employee with ID for mapping
-interface EmployeeWithId {
-  id: string;
-}
-
-// Employee data returned from Supabase relationship queries
-interface EmployeeFromQuery {
-  id: string;
-  name: string;
-  age?: number;
-  nationality?: string[];
-  photos?: string[];
-  status: string;
-  average_rating?: number;
-  comment_count?: number;
-  is_freelance?: boolean;
-}
 
 // Create establishment request body
 interface CreateEstablishmentBody {
@@ -497,137 +454,11 @@ export const createEstablishment = asyncHandler(async (req: AuthRequest, res: Re
   });
 });
 
-/** Helper: Check granular permissions for establishment owners */
-async function checkOwnerPermissions(
-  userId: string,
-  establishmentId: string,
-  updates: Record<string, unknown>
-): Promise<void> {
-  const { data: ownership, error: ownershipError } = await supabase
-    .from('establishment_owners')
-    .select('permissions, owner_role')
-    .eq('user_id', userId)
-    .eq('establishment_id', establishmentId)
-    .single();
-
-  if (ownershipError || !ownership) {
-    logger.error('Failed to fetch ownership permissions:', ownershipError);
-    throw ForbiddenError('Failed to verify ownership permissions');
-  }
-
-  const permissions = ownership.permissions;
-  const attemptedFields = Object.keys(updates);
-
-  // Field → permission mapping
-  const infoFields = ['name', 'address', 'description', 'phone', 'website', 'opening_hours', 'instagram', 'twitter', 'tiktok'];
-  const pricingFields = ['ladydrink', 'barfine', 'rooms', 'pricing'];
-  const photoFields = ['logo_url', 'photos'];
-
-  if (attemptedFields.some(f => infoFields.includes(f)) && !permissions.can_edit_info) {
-    throw ForbiddenError('You do not have permission to edit establishment information');
-  }
-  if (attemptedFields.some(f => pricingFields.includes(f)) && !permissions.can_edit_pricing) {
-    throw ForbiddenError('You do not have permission to edit pricing information');
-  }
-  if (attemptedFields.some(f => photoFields.includes(f)) && !permissions.can_edit_photos) {
-    throw ForbiddenError('You do not have permission to edit establishment photos');
-  }
-}
-
-/** Helper: Update establishment consumables */
-async function updateEstablishmentConsumables(
-  establishmentId: string,
-  consumables: ConsumableInput[]
-): Promise<void> {
-  // Delete existing consumables
-  await supabase
-    .from('establishment_consumables')
-    .delete()
-    .eq('establishment_id', establishmentId);
-
-  // Insert new consumables
-  if (consumables.length > 0) {
-    const consumablesToInsert = consumables.map((c: ConsumableInput) => ({
-      establishment_id: establishmentId,
-      consumable_id: c.consumable_id,
-      price: c.price
-    }));
-
-    const { error } = await supabase
-      .from('establishment_consumables')
-      .insert(consumablesToInsert);
-
-    if (error) {
-      logger.error('Failed to update consumables:', error);
-    }
-  }
-}
-
-/** Helper: Fetch freelances associated with a nightclub */
-async function fetchNightclubFreelances(
-  establishmentId: string,
-  establishmentName: string,
-  existingEmployeeIds: Set<string>
-) {
-  const { data: freelanceEmployments, error } = await supabase
-    .from('employment_history')
-    .select(`
-      employee_id,
-      start_date,
-      employee:employees(id, name, age, nationality, photos, status, average_rating, comment_count, is_freelance)
-    `)
-    .eq('establishment_id', establishmentId)
-    .eq('is_current', true);
-
-  if (error || !freelanceEmployments) return [];
-
-  return freelanceEmployments
-    .filter(emp => {
-      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
-      const employee = employeeArray?.[0];
-      return employee?.is_freelance === true && !existingEmployeeIds.has(employee.id);
-    })
-    .map(emp => {
-      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
-      const employee = employeeArray![0];
-      return {
-        ...employee,
-        current_employment: {
-          establishment_id: establishmentId,
-          establishment_name: establishmentName,
-          start_date: emp.start_date
-        },
-        employee_type: 'freelance' as const
-      };
-    });
-}
-
-/** Helper: Fetch and format establishment consumables */
-async function fetchFormattedConsumables(establishmentId: string) {
-  const { data: consumables, error } = await supabase
-    .from('establishment_consumables')
-    .select(`
-      id,
-      consumable_id,
-      price,
-      consumable:consumable_templates(id, name, category, icon, default_price)
-    `)
-    .eq('establishment_id', establishmentId);
-
-  if (error) {
-    logger.warn('Could not load consumables:', error);
-    return [];
-  }
-
-  return (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
-    id: ec.id,
-    consumable_id: ec.consumable_id,
-    name: ec.consumable?.[0]?.name,
-    category: ec.consumable?.[0]?.category,
-    icon: ec.consumable?.[0]?.icon,
-    price: ec.price
-  }));
-}
+// Helper functions are imported from establishmentHelpers.ts:
+// - checkOwnerPermissions
+// - updateEstablishmentConsumables
+// - fetchNightclubFreelances
+// - fetchFormattedConsumables
 
 export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Response) => {
   logger.debug('🔄 UPDATE ESTABLISHMENT called with ID:', req.params.id);
@@ -857,7 +688,7 @@ export const deleteEstablishment = asyncHandler(async (req: AuthRequest, res: Re
 });
 
 // Grid and logo functions are in establishmentGridController.ts
-export { updateEstablishmentGridPosition, updateEstablishmentLogo } from './establishmentGridController';
+export { updateEstablishmentGridPosition, updateEstablishmentLogo, getEstablishmentEmployees } from './establishmentGridController';
 
 export const getEstablishmentCategories = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { data: categories, error } = await supabase
@@ -872,148 +703,4 @@ export const getEstablishmentCategories = asyncHandler(async (req: AuthRequest, 
   res.json({ categories });
 });
 
-/**
- * GET /api/establishments/:id/employees
- *
- * Returns all employees working at an establishment.
- * Only accessible by establishment owners/managers.
- *
- * @param req.params.id - Establishment ID
- * @param req.user.id - Current user ID
- * @returns { employees[], total, establishment }
- */
-export const getEstablishmentEmployees = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params; // establishment_id
-  const user_id = req.user?.id;
-
-  // 1. Check ownership
-  const { data: ownership, error: ownershipError } = await supabase
-    .from('establishment_owners')
-    .select('*')
-    .eq('user_id', user_id)
-    .eq('establishment_id', id)
-    .single();
-
-  if (ownershipError || !ownership) {
-    logger.warn('Unauthorized employee list access attempt', {
-      userId: user_id,
-      establishmentId: id
-    });
-    throw ForbiddenError('You are not authorized to view employees of this establishment');
-  }
-
-  logger.debug('Establishment employee list access authorized', {
-    userId: user_id,
-    establishmentId: id,
-    ownerRole: ownership.owner_role
-  });
-
-  // 2. Fetch establishment info (v10.3: include category to check if nightclub)
-  const { data: establishment, error: estError } = await supabase
-    .from('establishments')
-    .select(`
-      id,
-      name,
-      zone,
-      category:establishment_categories(name)
-    `)
-    .eq('id', id)
-    .single();
-
-  if (estError) {
-    logger.error('Establishment not found:', estError);
-    throw NotFoundError('Establishment not found');
-  }
-
-  const categoryData = establishment.category as { name: string }[] | null;
-  const isNightclub = categoryData?.[0]?.name === 'Nightclub';
-
-  // 3. Fetch employees via current_employment
-  const { data: employments, error: empError } = await supabase
-    .from('current_employment')
-    .select(`
-      employee_id,
-      start_date,
-      employee:employees!current_employment_employee_id_fkey(
-        id,
-        name,
-        age,
-        nationality,
-        photos,
-        status,
-        average_rating,
-        comment_count,
-        is_freelance
-      )
-    `)
-    .eq('establishment_id', id);
-
-  if (empError) {
-    logger.error('Failed to fetch employees:', empError);
-    throw InternalServerError('Failed to fetch employees');
-  }
-
-  // 4. Extract regular employees and add current_employment info
-  let employees = employments
-    .filter(emp => emp.employee) // Filter out null employees
-    .map(emp => {
-      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
-      const employee = employeeArray?.[0];
-      if (!employee) return null;
-      return {
-        ...employee,
-        current_employment: {
-          establishment_id: id,
-          establishment_name: establishment.name,
-          start_date: emp.start_date
-        },
-        employee_type: employee.is_freelance ? 'freelance' : 'regular'
-      };
-    })
-    .filter((e): e is NonNullable<typeof e> => e !== null);
-
-  // 5. v10.3: If nightclub, also fetch associated freelances
-  if (isNightclub) {
-    const existingIds = new Set(employees.map((e: EmployeeWithId) => e.id));
-    const freelances = await fetchNightclubFreelances(id, establishment.name, existingIds);
-    employees = [...employees, ...freelances];
-  }
-
-  // 5. Fetch VIP status for all employees in a single query (optimized from N+1)
-  type EmployeeWithVIP = (typeof employees)[number] & { is_vip: boolean; vip_expires_at: string | null };
-  let employeesWithVIP: EmployeeWithVIP[] = employees.map(emp => ({ ...emp, is_vip: false, vip_expires_at: null }));
-
-  try {
-    const employeeIds = employees.map((emp: EmployeeWithId) => emp.id);
-    const { data: vipSubs } = await supabase
-      .from('employee_vip_subscriptions')
-      .select('employee_id, expires_at')
-      .in('employee_id', employeeIds)
-      .eq('status', 'active')
-      .gte('expires_at', new Date().toISOString());
-
-    // Create a map for O(1) lookup
-    const vipMap = new Map(
-      (vipSubs || []).map((sub: { employee_id: string; expires_at: string }) => [sub.employee_id, sub.expires_at])
-    );
-
-    employeesWithVIP = employees.map(emp => ({
-      ...emp,
-      is_vip: vipMap.has(emp.id),
-      vip_expires_at: vipMap.get(emp.id) || null
-    }));
-  } catch {
-    // Table doesn't exist yet or query failed - keep default without VIP info
-  }
-
-  logger.debug('Successfully fetched employees', {
-    establishmentId: id,
-    employeeCount: employeesWithVIP.length
-  });
-
-  res.json({
-    employees: employeesWithVIP,
-    total: employeesWithVIP.length,
-    establishment
-  });
-});
+// getEstablishmentEmployees is exported from establishmentGridController

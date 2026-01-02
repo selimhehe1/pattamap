@@ -6,6 +6,7 @@
 
 import { logger } from './logger';
 import { supabase } from '../config/supabase';
+import { ForbiddenError } from '../middleware/asyncHandler';
 
 // Database types for establishment queries
 export interface DbEstablishmentWithLocation {
@@ -275,4 +276,181 @@ export function mapEstablishmentsWithExtras(
       has_owner: !!ownerMap[est.id]
     };
   });
+}
+
+// ==========================================
+// 🆕 ESTABLISHMENT MUTATION HELPERS
+// ==========================================
+
+// Consumable input type for create/update
+export interface ConsumableInput {
+  consumable_id: string;
+  price: number;
+}
+
+// Consumable with joined template data
+export interface EstablishmentConsumableWithTemplate {
+  id: string;
+  consumable_id: string;
+  price: number;
+  consumable?: {
+    id: string;
+    name: string;
+    category: string;
+    icon: string;
+    default_price: number;
+  }[];
+}
+
+// Employee data returned from Supabase relationship queries
+interface EmployeeFromQuery {
+  id: string;
+  name: string;
+  age?: number;
+  nationality?: string[];
+  photos?: string[];
+  status: string;
+  average_rating?: number;
+  comment_count?: number;
+  is_freelance?: boolean;
+}
+
+/**
+ * Check granular permissions for establishment owners
+ */
+export async function checkOwnerPermissions(
+  userId: string,
+  establishmentId: string,
+  updates: Record<string, unknown>
+): Promise<void> {
+  const { data: ownership, error: ownershipError } = await supabase
+    .from('establishment_owners')
+    .select('permissions, owner_role')
+    .eq('user_id', userId)
+    .eq('establishment_id', establishmentId)
+    .single();
+
+  if (ownershipError || !ownership) {
+    logger.error('Failed to fetch ownership permissions:', ownershipError);
+    throw ForbiddenError('Failed to verify ownership permissions');
+  }
+
+  const permissions = ownership.permissions;
+  const attemptedFields = Object.keys(updates);
+
+  // Field → permission mapping
+  const infoFields = ['name', 'address', 'description', 'phone', 'website', 'opening_hours', 'instagram', 'twitter', 'tiktok'];
+  const pricingFields = ['ladydrink', 'barfine', 'rooms', 'pricing'];
+  const photoFields = ['logo_url', 'photos'];
+
+  if (attemptedFields.some(f => infoFields.includes(f)) && !permissions.can_edit_info) {
+    throw ForbiddenError('You do not have permission to edit establishment information');
+  }
+  if (attemptedFields.some(f => pricingFields.includes(f)) && !permissions.can_edit_pricing) {
+    throw ForbiddenError('You do not have permission to edit pricing information');
+  }
+  if (attemptedFields.some(f => photoFields.includes(f)) && !permissions.can_edit_photos) {
+    throw ForbiddenError('You do not have permission to edit establishment photos');
+  }
+}
+
+/**
+ * Update establishment consumables
+ */
+export async function updateEstablishmentConsumables(
+  establishmentId: string,
+  consumables: ConsumableInput[]
+): Promise<void> {
+  // Delete existing consumables
+  await supabase
+    .from('establishment_consumables')
+    .delete()
+    .eq('establishment_id', establishmentId);
+
+  // Insert new consumables
+  if (consumables.length > 0) {
+    const consumablesToInsert = consumables.map((c: ConsumableInput) => ({
+      establishment_id: establishmentId,
+      consumable_id: c.consumable_id,
+      price: c.price
+    }));
+
+    const { error } = await supabase
+      .from('establishment_consumables')
+      .insert(consumablesToInsert);
+
+    if (error) {
+      logger.error('Failed to update consumables:', error);
+    }
+  }
+}
+
+/**
+ * Fetch freelances associated with a nightclub
+ */
+export async function fetchNightclubFreelances(
+  establishmentId: string,
+  establishmentName: string,
+  existingEmployeeIds: Set<string>
+) {
+  const { data: freelanceEmployments, error } = await supabase
+    .from('employment_history')
+    .select(`
+      employee_id,
+      start_date,
+      employee:employees(id, name, age, nationality, photos, status, average_rating, comment_count, is_freelance)
+    `)
+    .eq('establishment_id', establishmentId)
+    .eq('is_current', true);
+
+  if (error || !freelanceEmployments) return [];
+
+  return freelanceEmployments
+    .filter(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray?.[0];
+      return employee?.is_freelance === true && !existingEmployeeIds.has(employee.id);
+    })
+    .map(emp => {
+      const employeeArray = emp.employee as EmployeeFromQuery[] | null;
+      const employee = employeeArray![0];
+      return {
+        ...employee,
+        current_employment: {
+          establishment_id: establishmentId,
+          establishment_name: establishmentName,
+          start_date: emp.start_date
+        },
+        employee_type: 'freelance' as const
+      };
+    });
+}
+
+/**
+ * Fetch and format establishment consumables
+ */
+export async function fetchFormattedConsumables(establishmentId: string) {
+  const { data: consumables, error } = await supabase
+    .from('establishment_consumables')
+    .select(`
+      id,
+      consumable_id,
+      price,
+      consumable:consumable_templates(id, name, category, icon, default_price)
+    `)
+    .eq('establishment_id', establishmentId);
+
+  if (error) {
+    logger.warn('Could not load consumables:', error);
+    return [];
+  }
+
+  return (consumables || []).map((ec: EstablishmentConsumableWithTemplate) => ({
+    id: ec.id,
+    consumable_id: ec.consumable_id,
+    name: ec.consumable?.[0]?.name,
+    category: ec.consumable?.[0]?.category,
+    icon: ec.consumable?.[0]?.icon,
+    price: ec.price
+  }));
 }
