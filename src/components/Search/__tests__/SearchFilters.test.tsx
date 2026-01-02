@@ -87,7 +87,7 @@ describe('SearchFilters - Filter Fixes', () => {
 
   describe('Fix 4: Cleanup Debounce Age Fields', () => {
     it('should flush age_min value on unmount if typing', () => {
-      const { unmount, container } = render(
+      const { unmount } = render(
         <SearchFilters
           filters={mockFilters}
           availableFilters={mockAvailableFilters}
@@ -117,7 +117,7 @@ describe('SearchFilters - Filter Fixes', () => {
     });
 
     it('should flush age_max value on unmount if typing', () => {
-      const { unmount, container } = render(
+      const { unmount } = render(
         <SearchFilters
           filters={mockFilters}
           availableFilters={mockAvailableFilters}
