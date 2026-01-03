@@ -1,23 +1,22 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangle, Loader2, Beer, Music, Sparkles, Heart } from 'lucide-react';
+import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
 import { EstablishmentCategory } from '../../../types';
 import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
 import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
-import CustomSelect from '../../Common/CustomSelect';
 import '../../../styles/components/modals.css';
 
-// Map category icon names to Lucide React components
-const getCategoryIcon = (iconName: string): React.ReactNode => {
-  const iconMap: Record<string, React.ReactNode> = {
-    'beer': <Beer size={16} style={{ color: '#ff6b35' }} />,
-    'dancer': <Sparkles size={16} style={{ color: '#ff006e' }} />,
-    'spa': <Heart size={16} style={{ color: '#06ffa5' }} />,
-    'music': <Music size={16} style={{ color: '#7b2cbf' }} />,
+// Map category icon names to emojis for display in select options
+const getCategoryEmoji = (iconName: string): string => {
+  const emojiMap: Record<string, string> = {
+    'beer': '🍺',
+    'dancer': '💃',
+    'spa': '💆',
+    'music': '🎵',
   };
-  return iconMap[iconName?.toLowerCase()] || <Tag size={16} />;
+  return emojiMap[iconName?.toLowerCase()] || '🏢';
 };
 
 interface BasicInfoFormProps {
@@ -173,18 +172,22 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         <label className="label-nightlife">
           <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.categoryLabel')} *
         </label>
-        <CustomSelect
-          options={categories.map(cat => ({
-            value: cat.id.toString(),
-            label: cat.name,
-            icon: getCategoryIcon(cat.icon)
-          }))}
+        <select
+          name="category_id"
           value={String(formData.category_id)}
-          onChange={(value) => onChange({
-            target: { name: 'category_id', value }
-          } as React.ChangeEvent<HTMLSelectElement>)}
-          placeholder={t('establishment.basicInfo.selectCategoryPlaceholder')}
-        />
+          onChange={onChange}
+          className="select-nightlife"
+          style={{
+            ...(errors.category_id && { borderColor: '#FF4757' })
+          }}
+        >
+          <option value="">{t('establishment.basicInfo.selectCategoryPlaceholder')}</option>
+          {categories.map(category => (
+            <option key={category.id} value={category.id.toString()}>
+              {getCategoryEmoji(category.icon)} {category.name}
+            </option>
+          ))}
+        </select>
         {errors.category_id && (
           <div className="error-message-nightlife">
             <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.category_id}
