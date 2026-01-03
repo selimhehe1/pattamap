@@ -89,7 +89,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
       toast.info('Uploading photo...');
       const selfieUrl = await uploadToCloudinary(selectedFile);
 
-      toast.info('Analyzing face...');
+      toast.info('Submitting verification...');
       const response = await secureFetch(
         `${import.meta.env.VITE_API_URL}/api/verifications/${employeeId}/verify`,
         {
@@ -382,21 +382,11 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
           transition={{ delay: 0.3 }}
           style={{ textAlign: 'center', padding: '20px' }}
         >
-          <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '16px' }}>
-            {verificationResult.status === 'approved' && t('verificationModal.approvedMessage', 'Your profile now has a verified badge.')}
-            {verificationResult.status === 'manual_review' && t('verificationModal.reviewMessage', 'An admin will review your submission within 24 hours.')}
-            {verificationResult.status === 'rejected' && t('verificationModal.rejectedMessage', 'The photo did not match your profile photos. Please try again with a clearer selfie.')}
+          <p style={{ color: 'rgba(255,255,255,0.8)' }}>
+            {verificationResult.status === 'approved' && t('verificationModal.approvedMessage', 'Your profile is now verified!')}
+            {verificationResult.status === 'manual_review' && t('verificationModal.reviewMessage', 'Your verification has been submitted. An admin will review it shortly.')}
+            {verificationResult.status === 'rejected' && t('verificationModal.rejectedMessage', 'Verification rejected. Please try again with a clearer photo.')}
           </p>
-          <div style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: config.iconBg,
-            borderRadius: '8px',
-            color: config.color,
-            fontWeight: 'bold'
-          }}>
-            {t('verificationModal.matchScore', 'Match score')}: {verificationResult.face_match_score}%
-          </div>
         </motion.div>
 
         <motion.div
