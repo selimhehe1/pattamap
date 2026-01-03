@@ -8,15 +8,28 @@ import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
 import '../../../styles/components/modals.css';
 
-// Map category icon names to emojis for display in select options
-const getCategoryEmoji = (iconName: string): string => {
-  const emojiMap: Record<string, string> = {
-    'beer': '🍺',
-    'dancer': '💃',
-    'spa': '💆',
-    'music': '🎵',
+// Map category to emoji - uses name as primary key (more robust than icon field)
+const getCategoryEmoji = (category: { name: string; icon?: string }): string => {
+  // First try by icon field
+  if (category.icon) {
+    const iconMap: Record<string, string> = {
+      'beer': '🍺',
+      'dancer': '💃',
+      'spa': '💆',
+      'music': '🎵',
+    };
+    const emoji = iconMap[category.icon.toLowerCase()];
+    if (emoji) return emoji;
+  }
+
+  // Fallback: map by category name
+  const nameMap: Record<string, string> = {
+    'bar': '🍺',
+    'gogo bar': '💃',
+    'massage salon': '💆',
+    'nightclub': '🎵',
   };
-  return emojiMap[iconName?.toLowerCase()] || '🏢';
+  return nameMap[category.name.toLowerCase()] || '🏢';
 };
 
 interface BasicInfoFormProps {
@@ -184,7 +197,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           <option value="">{t('establishment.basicInfo.selectCategoryPlaceholder')}</option>
           {categories.map(category => (
             <option key={category.id} value={category.id.toString()}>
-              {getCategoryEmoji(category.icon)} {category.name}
+              {getCategoryEmoji(category)} {category.name}
             </option>
           ))}
         </select>
