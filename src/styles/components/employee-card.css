@@ -704,8 +704,11 @@
   }
 
   .employee-card-nickname-inline {
-    font-size: 9px;
-    max-width: 50px;
+    display: none; /* Hide nickname on mobile to give more space to name */
+  }
+
+  .employee-card-name {
+    max-width: 100%; /* Name takes full available width */
   }
 
   /* Quick info chips */
