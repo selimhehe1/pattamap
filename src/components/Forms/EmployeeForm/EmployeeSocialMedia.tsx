@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaInstagram, FaFacebookF, FaLine, FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
 import type { FormSocialMedia } from './types';
 
 interface EmployeeSocialMediaProps {
@@ -20,12 +21,20 @@ export function EmployeeSocialMedia({
 }: EmployeeSocialMediaProps) {
   const { t } = useTranslation();
 
+  const iconMap: Record<string, React.ReactNode> = {
+    ig: <FaInstagram size={14} style={{ color: '#E4405F' }} />,
+    fb: <FaFacebookF size={14} style={{ color: '#1877F2' }} />,
+    line: <FaLine size={14} style={{ color: '#00C300' }} />,
+    tg: <FaTelegramPlane size={14} style={{ color: '#0088cc' }} />,
+    wa: <FaWhatsapp size={14} style={{ color: '#25D366' }} />
+  };
+
   const labelMap: Record<string, string> = {
-    ig: `📷 ${t('employee.instagramLabel')}`,
-    fb: `📘 ${t('employee.facebookLabel')}`,
+    ig: t('employee.instagramLabel'),
+    fb: t('employee.facebookLabel'),
     line: t('employee.lineLabel'),
     tg: t('employee.telegramLabel'),
-    wa: `📞 ${t('employee.whatsappLabel')}`
+    wa: t('employee.whatsappLabel')
   };
 
   const placeholderMap: Record<string, string> = {
@@ -52,7 +61,8 @@ export function EmployeeSocialMedia({
       <div className="social-media-grid">
         {SOCIAL_PLATFORMS.map(platform => (
           <div key={platform}>
-            <label className="label-nightlife">
+            <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {iconMap[platform]}
               {labelMap[platform]}
             </label>
             <input
