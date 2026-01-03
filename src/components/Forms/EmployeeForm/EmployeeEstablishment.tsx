@@ -14,12 +14,14 @@ interface EmployeeEstablishmentProps {
   currentEstablishmentId: string;
   isFreelanceMode: boolean;
   onEstablishmentChange: (establishmentId: string) => void;
+  error?: string; // Validation error to display
 }
 
 export function EmployeeEstablishment({
   currentEstablishmentId,
   isFreelanceMode,
-  onEstablishmentChange
+  onEstablishmentChange,
+  error
 }: EmployeeEstablishmentProps) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,7 +113,11 @@ export function EmployeeEstablishment({
         {isFreelanceMode ? (
           <><Moon size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Associated Nightclubs <span style={{ fontSize: '12px', fontWeight: 'normal', color: 'rgba(255,255,255,0.6)' }}>(Optional)</span></>
         ) : (
-          <><Building2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('employee.currentEmployment')}</>
+          <>
+            <Building2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('employee.currentEmployment', 'Current Establishment')}
+            <span style={{ color: '#FF6B6B', marginLeft: '4px' }}>*</span>
+          </>
         )}
       </h3>
 
@@ -244,6 +250,20 @@ export function EmployeeEstablishment({
             </div>
           )}
         </div>
+
+        {/* Error message */}
+        {error && (
+          <p style={{
+            color: '#FF6B6B',
+            fontSize: '13px',
+            marginTop: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            ⚠️ {error}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -10,11 +10,13 @@ import { Users, PersonStanding, Moon, Building2 } from 'lucide-react';
 interface EmployeeEmploymentModeProps {
   isFreelanceMode: boolean;
   onModeChange: (isFreelance: boolean) => void;
+  highlightAnimation?: boolean; // Triggered when auto-switched to freelance
 }
 
 export function EmployeeEmploymentMode({
   isFreelanceMode,
-  onModeChange
+  onModeChange,
+  highlightAnimation = false
 }: EmployeeEmploymentModeProps) {
   const { t } = useTranslation();
 
@@ -36,9 +38,12 @@ export function EmployeeEmploymentMode({
         flexDirection: 'column',
         gap: '12px',
         padding: '15px',
-        background: 'rgba(157, 78, 221, 0.1)',
-        border: '2px solid rgba(157, 78, 221, 0.3)',
-        borderRadius: '12px'
+        background: highlightAnimation ? 'rgba(157, 78, 221, 0.3)' : 'rgba(157, 78, 221, 0.1)',
+        border: highlightAnimation ? '2px solid #C77DFF' : '2px solid rgba(157, 78, 221, 0.3)',
+        borderRadius: '12px',
+        boxShadow: highlightAnimation ? '0 0 20px rgba(199, 125, 255, 0.6)' : 'none',
+        transition: 'all 0.3s ease-in-out',
+        animation: highlightAnimation ? 'freelance-pulse 0.8s ease-in-out 2' : 'none'
       }}>
         <div style={{
           display: 'flex',
@@ -105,7 +110,7 @@ export function EmployeeEmploymentMode({
               <br />
               • Works at one establishment (any type)
               <br />
-              • Select establishment below (optional)
+              • <span style={{ color: '#FF6B6B' }}>Establishment required</span> - select below
             </>
           )}
         </div>

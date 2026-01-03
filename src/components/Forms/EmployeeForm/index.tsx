@@ -41,6 +41,8 @@ export function EmployeeForm({
     warningEstablishment,
     handleConfirmFreelanceSwitch,
     handleCancelFreelanceSwitch,
+    // Freelance highlight animation
+    freelanceHighlight,
     // Handlers
     handleInputChange,
     handleNationalityChange,
@@ -83,6 +85,7 @@ export function EmployeeForm({
           <EmployeeEmploymentMode
             isFreelanceMode={isFreelanceMode}
             onModeChange={handleFreelanceModeChange}
+            highlightAnimation={freelanceHighlight}
           />
 
           {/* Establishment Selector */}
@@ -90,6 +93,7 @@ export function EmployeeForm({
             currentEstablishmentId={formData.current_establishment_id}
             isFreelanceMode={isFreelanceMode}
             onEstablishmentChange={handleEstablishmentChange}
+            error={errors.establishment}
           />
 
           {/* Social Media Section */}

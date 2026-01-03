@@ -51,6 +51,7 @@ export interface FormErrors {
   age?: string;
   sex?: string; // v10.x - Gender validation error
   photos?: string;
+  establishment?: string; // Required for non-freelance employees
   submit?: string;
 }
 

@@ -9,6 +9,7 @@ import { useSecureFetch } from '../../../../hooks/useSecureFetch';
 import { useCSRF } from '../../../../contexts/CSRFContext';
 import { useEstablishments } from '../../../../hooks';
 import { logger } from '../../../../utils/logger';
+import toast from '../../../../utils/toast';
 import type { Employee, CloudinaryUploadResponse, Establishment } from '../../../../types';
 import type {
   InternalFormData,
@@ -45,6 +46,9 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
   // Freelance warning state
   const [showFreelanceWarning, setShowFreelanceWarning] = useState(false);
   const [warningEstablishment, setWarningEstablishment] = useState<Establishment | null>(null);
+
+  // Freelance highlight animation (triggered when auto-switched)
+  const [freelanceHighlight, setFreelanceHighlight] = useState(false);
 
   // Initialize form with existing data
   useEffect(() => {
@@ -292,9 +296,29 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
       newErrors.photos = t('employee.errorPhotosRequired');
     }
 
+    // Business rule: Regular employees MUST have an establishment
+    // If no establishment in regular mode → auto-switch to Freelance
+    if (!isFreelanceMode && !formData.current_establishment_id) {
+      // Auto-switch to Freelance mode
+      setIsFreelanceMode(true);
+
+      // Trigger highlight animation
+      setFreelanceHighlight(true);
+      setTimeout(() => setFreelanceHighlight(false), 1500);
+
+      // Show toast explaining what happened
+      toast.info(t(
+        'employee.autoSwitchedToFreelance',
+        'Switched to Freelance mode (no establishment selected). Click Submit again to confirm.'
+      ));
+
+      // Block this submission - user must re-click Submit
+      return false;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData.name, formData.sex, formData.age, existingPhotoUrls.length, newPhotos.length, t]);
+  }, [formData.name, formData.sex, formData.age, formData.current_establishment_id, isFreelanceMode, existingPhotoUrls.length, newPhotos.length, t]);
 
   // Form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -370,6 +394,8 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
     warningEstablishment,
     handleConfirmFreelanceSwitch,
     handleCancelFreelanceSwitch,
+    // Freelance highlight animation
+    freelanceHighlight,
     // Handlers
     handleInputChange,
     handleNationalityChange,
