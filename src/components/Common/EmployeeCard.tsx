@@ -171,98 +171,88 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
         </div>
       )}
 
-      {/* Gradient Overlay with Info */}
+      {/* Gradient Overlay with Info - Glassmorphic Compact Card v2.0 */}
       <div className="employee-card-overlay">
         <div className={`employee-card-info ${!isVIP ? 'employee-card-info--no-vip' : ''}`}>
-          {/* Two-column layout */}
-          <div className="employee-card-info-columns">
-            {/* Left column: Name + Nickname */}
-            <div className="employee-card-info-left">
+          {/* Row 1: Name + Nickname (inline) + Quick Info (Age/Nationality chips) */}
+          <div className="employee-card-main-row">
+            <div className="employee-card-name-row">
               <h3 className="employee-card-name">
                 {employee.name}
               </h3>
               {employee.nickname && (
-                <p className="employee-card-nickname">"{employee.nickname}"</p>
+                <span className="employee-card-nickname-inline">"{employee.nickname}"</span>
               )}
             </div>
-
-            {/* Right column: Age, Nationality, Establishment */}
-            <div className="employee-card-info-right">
+            <div className="employee-card-quick-info">
               {employee.age && (
-                <span className="employee-card-detail">
-                  <span className="employee-card-icon"><Cake size={14} /></span>
+                <span className="employee-card-quick-info-item">
+                  <Cake size={10} className="employee-card-icon" />
                   <span>{employee.age}</span>
                 </span>
               )}
               {employee.nationality && Array.isArray(employee.nationality) && employee.nationality.length > 0 && (
-                <span className="employee-card-detail">
-                  <span className="employee-card-icon"><Globe size={14} /></span>
-                  <span>{employee.nationality.join(' / ')}</span>
+                <span className="employee-card-quick-info-item">
+                  <Globe size={10} className="employee-card-icon" />
+                  <span>{employee.nationality[0].substring(0, 3).toUpperCase()}</span>
                 </span>
-              )}
-              {showEstablishment && currentEstablishment && (
-                <div className="employee-card-establishment">
-                  <span className="employee-card-icon"><Building2 size={14} /></span>
-                  <span className="employee-card-establishment-name">
-                    {currentEstablishment.name}
-                  </span>
-                </div>
               )}
             </div>
           </div>
 
-          {/* Employee Type Badge (Freelance or Regular) - v10.3 */}
-          {(() => {
-            const hasActiveFreelance = employee.independent_position?.is_active;
-            const isSimpleFreelance = employee.is_freelance === true;
-            const hasCurrentEmployment = employee.current_employment?.some((ce) => ce.is_current);
+          {/* Row 2: Tags (Type + Establishment) */}
+          <div className="employee-card-tags-row">
+            {(() => {
+              const hasActiveFreelance = employee.independent_position?.is_active;
+              const isSimpleFreelance = employee.is_freelance === true;
+              const hasCurrentEmploymentCheck = employee.current_employment?.some((ce) => ce.is_current);
 
-            const isFreelance = hasActiveFreelance || isSimpleFreelance;
-            const isRegular = hasCurrentEmployment;
+              const isFreelanceType = hasActiveFreelance || isSimpleFreelance;
+              const isRegularType = hasCurrentEmploymentCheck;
 
-            if (isFreelance) {
-              return (
-                <div className="employee-card-type employee-card-type-freelance">
-                  <span className="employee-card-type-icon"><Gem size={14} /></span>
-                  <span className="employee-card-type-label">{t('search.freelances')}</span>
-                </div>
-              );
-            } else if (isRegular) {
-              return (
-                <div className="employee-card-type employee-card-type-regular">
-                  <span className="employee-card-type-icon"><Building2 size={14} /></span>
-                  <span className="employee-card-type-label">{t('search.regularEmployees')}</span>
-                </div>
-              );
-            }
-            return null;
-          })()}
-
-          {/* VIP Badge - Bottom Right - v10.3 Phase 4 - Crown via CSS ::before (only if VIP feature enabled) */}
-          {VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date() && (
-            <div
-              className="employee-card-vip-badge"
-              title={`VIP until ${new Date(employee.vip_expires_at).toLocaleDateString()}`}
-            >
-              VIP
-            </div>
-          )}
-
-          {/* HOT Badge - For popular employees */}
-          {isHot && !isVIP && (
-            <div className="employee-card-hot-badge fire-glow">
-              <Flame size={12} />
-              <span>HOT</span>
-            </div>
-          )}
-
-          {/* Description preview (visible on hover) */}
-          {employee.description && (
-            <div className="employee-card-description hover-reveal">
-              <p>{employee.description}</p>
-            </div>
-          )}
+              if (isFreelanceType) {
+                return (
+                  <span className="employee-card-tag employee-card-tag-freelance">
+                    <Gem size={11} className="employee-card-tag-icon" />
+                    <span>{t('search.freelances')}</span>
+                  </span>
+                );
+              } else if (isRegularType) {
+                return (
+                  <span className="employee-card-tag employee-card-tag-employee">
+                    <Building2 size={11} className="employee-card-tag-icon" />
+                    <span>{t('search.regularEmployees')}</span>
+                  </span>
+                );
+              }
+              return null;
+            })()}
+            {showEstablishment && currentEstablishment && (
+              <span className="employee-card-tag employee-card-tag-establishment">
+                <Building2 size={11} className="employee-card-tag-icon" />
+                <span>{currentEstablishment.name}</span>
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* VIP Badge - Bottom Right - Positioned outside info box */}
+        {VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date() && (
+          <div
+            className="employee-card-vip-badge"
+            title={`VIP until ${new Date(employee.vip_expires_at).toLocaleDateString()}`}
+          >
+            VIP
+          </div>
+        )}
+
+        {/* HOT Badge - For popular employees */}
+        {isHot && !isVIP && (
+          <div className="employee-card-hot-badge fire-glow">
+            <Flame size={12} />
+            <span>HOT</span>
+          </div>
+        )}
       </div>
 
       {/* Neon border glow */}
