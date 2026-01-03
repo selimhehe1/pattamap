@@ -16,6 +16,7 @@ import {
   FileEdit,
   ClipboardList,
   Building,
+  Briefcase, // 🆕 Employee badge icon
   ChevronLeft, // 🆕 Header redesign - Back button icon
   Menu, // 🆕 Header redesign - Menu icon
   X // 🆕 Header redesign - Close icon
@@ -38,6 +39,7 @@ import ThemeToggle from '../Common/ThemeToggle';
 import AnimatedButton from '../Common/AnimatedButton';
 import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
+import UserAvatar from '../Common/UserAvatar';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
 import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
@@ -247,7 +249,11 @@ const Header: React.FC = () => {
                               objectFit="cover"
                             />
                           ) : (
-                            <div className="user-menu-avatar-icon"><User size={20} /></div>
+                            <UserAvatar
+                              user={user}
+                              size="sm"
+                              showBorder={false}
+                            />
                           )}
                         </button>
                         <div className="user-menu-info">
@@ -257,6 +263,8 @@ const Header: React.FC = () => {
                               <><Crown size={12} /> ADMIN</>
                             ) : user.role === 'moderator' ? (
                               <><Zap size={12} /> MOD</>
+                            ) : user.account_type === 'employee' ? (
+                              <><Briefcase size={12} /> EMPLOYEE</>
                             ) : (
                               <><User size={12} /> USER</>
                             )}
@@ -264,8 +272,8 @@ const Header: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Progress Section - Moved from header for cleaner design */}
-                      {userProgress && (
+                      {/* Progress Section - Hidden for employees (no gamification) */}
+                      {userProgress && user.account_type !== 'employee' && (
                         <div className="menu-section menu-section-progress">
                           <div className="menu-section-label">{t('header.myProgress', 'MY PROGRESS')}</div>
                           <div className="menu-progress-row">

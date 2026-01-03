@@ -383,7 +383,8 @@ export const GamificationProvider: React.FC<GamificationProviderProps> = ({ chil
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (!user) {
+      // Skip gamification for employees - they have their own profile system
+      if (!user || user.account_type === 'employee') {
         setLoading(false);
         return;
       }

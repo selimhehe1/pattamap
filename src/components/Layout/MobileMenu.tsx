@@ -16,6 +16,7 @@ import {
   FileEdit,
   ClipboardList,
   Building,
+  Briefcase, // 🆕 Employee badge icon
   X
 } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
@@ -174,12 +175,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                   <><Crown size={10} /> ADMIN</>
                 ) : user.role === 'moderator' ? (
                   <><Zap size={10} /> MOD</>
+                ) : user.account_type === 'employee' ? (
+                  <><Briefcase size={10} /> EMPLOYEE</>
                 ) : (
                   <><User size={10} /> USER</>
                 )}
               </span>
             </div>
-            {userProgress && (
+            {/* Hide XP level for employees (no gamification) */}
+            {userProgress && user.account_type !== 'employee' && (
               <button
                 className="mobile-menu-xp"
                 onClick={() => handleNavigate('/achievements')}
