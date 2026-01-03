@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
@@ -281,32 +282,9 @@ const EmployeeDashboard: React.FC = () => {
     );
   }
 
-  // No linked profile yet - Technical error (should not happen in normal flow)
+  // No linked profile yet - redirect to home instead of showing error
   if (!linkedEmployeeProfile) {
-    return (
-      <div className="employee-dashboard">
-        <div className="dashboard-container">
-          <header className="dashboard-header">
-            <h1>{t('employeeDashboard.title', 'My Dashboard')}</h1>
-          </header>
-
-          <section className="verification-section">
-            <div className="verification-status not-verified">
-              <div className="status-icon"><AlertTriangle size={32} /></div>
-              <div className="status-content">
-                <h3>{t('employeeDashboard.noProfileLinked', 'No Profile Linked')}</h3>
-                <p className="not-verified-description">
-                  {t('employeeDashboard.technicalError', 'There seems to be a technical issue with your profile setup. Please contact an administrator for assistance.')}
-                </p>
-                <p className="contact-admin" style={{ marginTop: '16px', fontSize: '14px' }}>
-                  {t('employeeDashboard.needHelp', 'Need help? Contact an administrator.')}
-                </p>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   const isVerified = verificationStatus?.employee.is_verified || false;

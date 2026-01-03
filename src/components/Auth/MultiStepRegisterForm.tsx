@@ -624,6 +624,23 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       return;
     }
 
+    // 🆕 Early validation for employee fields BEFORE creating account
+    // This prevents orphaned user accounts when employee profile validation fails
+    if (formData.accountType === 'employee' && formData.employeePath === 'create') {
+      if (!formData.employeeName.trim()) {
+        toast.error(t('register.employeeNameRequired', 'Employee name is required'));
+        return;
+      }
+      if (!formData.employeeSex) {
+        toast.error(t('register.employeeSexRequired', 'Please select your sex/gender'));
+        return;
+      }
+      if (!formData.isFreelance && !formData.establishmentId) {
+        toast.error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -776,17 +793,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         }
 
         toast.info(t('register.creatingEmployeeProfile'));
-
-        // 🔧 DEBUG v2: Log form data before API call (forced rebuild)
-        console.log('[DEBUG v2] Creating employee with:', {
-          name: formData.employeeName,
-          sex: formData.employeeSex,
-          sexType: typeof formData.employeeSex,
-          sexLength: formData.employeeSex?.length,
-          isFreelance: formData.isFreelance,
-          establishmentId: formData.establishmentId,
-          timestamp: new Date().toISOString()
-        });
 
         // 🔧 CSRF FIX: Validate fresh token is available
         if (!freshToken) {
