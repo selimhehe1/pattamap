@@ -19,7 +19,7 @@ const ZoneGrid = React.lazy(() => import('./components/Home/ZoneGrid'));
 const Header = React.lazy(() => import('./components/Layout/Header'));
 const XPToastNotifications = React.lazy(() => import('./components/Gamification/XPToastNotifications'));
 import { logger } from './utils/logger';
-import { Toaster } from './utils/toast';
+import { NotificationProvider } from './components/Notifications';
 import { initGA, initWebVitals, trackPageView } from './utils/analytics';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransition from './components/Common/PageTransition';
@@ -56,6 +56,8 @@ import './styles/css-pro-polish.css';
 import './styles/header-ultra-visibility.css';
 import './styles/animations/scroll-animations.css';
 import './styles/animations/shared-animations.css'; // Phase 6 - Shared animation utilities
+import './styles/features/notifications/NeonToast.css'; // Neon Glass Toast System
+import './styles/features/notifications/NeonToastAnimations.css'; // Toast animations
 import './styles/css-consolidated-fixes.css';
 import './styles/modern/index.css'; // Phase 5.2: Container queries & scroll-driven animations
 
@@ -69,6 +71,7 @@ import {
   EmployeeDashboard,
   MyOwnershipRequests,
   MyAchievementsPage,
+  GamifiedUserProfile,
   NotFoundPage,
   EstablishmentsPage
 } from './routes/lazyComponents';
@@ -241,6 +244,12 @@ const AppContent: React.FC = () => {
                 </ProtectedRoute>
               } />
 
+              <Route path="/user/:userId" element={
+                <ProtectedRoute>
+                  <GamifiedUserProfile />
+                </ProtectedRoute>
+              } />
+
               {/* ========================================
                   ADMIN ROUTES - Require Admin/Moderator Role
                   ======================================== */}
@@ -262,9 +271,6 @@ const AppContent: React.FC = () => {
 
       {/* 🎯 All modals rendered via ModalRenderer (using ModalContext) */}
       <ModalRenderer />
-
-      {/* Toast Container - Accessible notifications */}
-      <Toaster />
     </Router>
   );
 };
@@ -286,7 +292,9 @@ const App: React.FC = () => {
                 <GamificationProvider>
                   <ModalProvider>
                     <SidebarProvider>
+                      <NotificationProvider>
                         <AppContent />
+                      </NotificationProvider>
                     </SidebarProvider>
                   </ModalProvider>
                 </GamificationProvider>

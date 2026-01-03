@@ -16,6 +16,7 @@ export const MyEstablishmentsPage = lazy(() => import('../pages/MyEstablishments
 export const EmployeeDashboard = lazy(() => import('../components/Employee/EmployeeDashboard')); // 🆕 v10.2 - Employee Dashboard
 export const MyOwnershipRequests = lazy(() => import('../components/Owner/MyOwnershipRequests')); // 🆕 v10.2 - Ownership Requests
 export const MyAchievementsPage = lazy(() => import('../pages/MyAchievementsPage')); // 🆕 v10.3 - Gamification
+export const GamifiedUserProfile = lazy(() => import('../pages/GamifiedUserProfile')); // 🆕 v10.4 - User Profile with gamification
 export const NotFoundPage = lazy(() => import('../pages/NotFoundPage')); // 🆕 v10.4 - 404 Page
 export const EstablishmentsPage = lazy(() => import('../pages/EstablishmentsPage')); // Zone establishments listing
 
@@ -33,6 +34,7 @@ export const importMyEstablishmentsPage = (): Promise<typeof import('../pages/My
 export const importEmployeeDashboard = (): Promise<typeof import('../components/Employee/EmployeeDashboard')> => import('../components/Employee/EmployeeDashboard'); // 🆕 v10.2
 export const importMyOwnershipRequests = (): Promise<typeof import('../components/Owner/MyOwnershipRequests')> => import('../components/Owner/MyOwnershipRequests'); // 🆕 v10.2
 export const importMyAchievementsPage = (): Promise<typeof import('../pages/MyAchievementsPage')> => import('../pages/MyAchievementsPage'); // 🆕 v10.3
+export const importGamifiedUserProfile = (): Promise<typeof import('../pages/GamifiedUserProfile')> => import('../pages/GamifiedUserProfile'); // 🆕 v10.4
 export const importEstablishmentsPage = (): Promise<typeof import('../pages/EstablishmentsPage')> => import('../pages/EstablishmentsPage'); // Zone establishments
 export const importEmployeeForm = (): Promise<typeof import('../components/Forms/EmployeeForm')> => import('../components/Forms/EmployeeForm');
 export const importEstablishmentForm = (): Promise<typeof import('../components/Forms/EstablishmentForm')> => import('../components/Forms/EstablishmentForm');
