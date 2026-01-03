@@ -5,6 +5,7 @@ import { useGamification } from '../contexts/GamificationContext';
 import XPProgressBar from '../components/Gamification/XPProgressBar';
 import BadgeShowcase from '../components/Gamification/BadgeShowcase';
 import FollowButton from '../components/Gamification/FollowButton';
+import UserAvatar from '../components/Common/UserAvatar';
 import {
   XCircle,
   User,
@@ -23,6 +24,7 @@ interface UserProfile {
   id: string;
   username: string;
   account_type: string;
+  avatar_url?: string | null;
   created_at: string;
 }
 
@@ -134,7 +136,11 @@ const GamifiedUserProfile: React.FC = () => {
       <div className="profile-header">
         <div className="profile-header-left">
           <div className="profile-avatar">
-            {levelIcon}
+            <UserAvatar
+              user={{ pseudonym: profile.username, avatar_url: profile.avatar_url }}
+              size="xl"
+            />
+            <div className="profile-level-icon-badge">{levelIcon}</div>
           </div>
           <div className="profile-info">
             <h1 className="profile-username">{profile.username}</h1>

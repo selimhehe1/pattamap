@@ -58,10 +58,23 @@
 }
 
 .profile-avatar {
-  font-size: 80px;
-  line-height: 1;
+  position: relative;
+  display: inline-block;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
   animation: profileAvatarFloat 3s ease-in-out infinite;
+}
+
+.profile-level-icon-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 32px;
+  line-height: 1;
+  background: linear-gradient(135deg, #0a0f1a 0%, #1a1f2e 100%);
+  border-radius: 50%;
+  padding: 4px;
+  border: 2px solid var(--neon-pink);
+  box-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
 }
 
 @keyframes profileAvatarFloat {

@@ -74,6 +74,27 @@ router.get('/user-progress/:userId', authenticateToken, gamificationController.g
 
 /**
  * @swagger
+ * /api/gamification/user/{userId}/stats:
+ *   get:
+ *     summary: Get user's public gamification stats
+ *     tags: [Gamification]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User stats retrieved
+ */
+router.get('/user/:userId/stats', authenticateToken, gamificationController.getUserStatsPublic);
+
+/**
+ * @swagger
  * /api/gamification/my-progress:
  *   get:
  *     summary: Get current user's gamification progress

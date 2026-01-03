@@ -489,6 +489,54 @@ export const getXPHistory = asyncHandler(async (req: AuthRequest, res: Response)
     });
 });
 
+// ========================================
+// USER STATS (PUBLIC PROFILE)
+// ========================================
+
+/**
+ * Get user's public gamification stats
+ * GET /api/gamification/user/:userId/stats
+ */
+export const getUserStatsPublic = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { userId } = req.params;
+
+    // Get user points
+    const { data: userPoints } = await supabase
+      .from('user_points')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    // Get badges count
+    const { count: badgesCount } = await supabase
+      .from('user_badges')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    // Get followers count
+    const { count: followersCount } = await supabase
+      .from('user_follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('followed_id', userId);
+
+    // Get following count
+    const { count: followingCount } = await supabase
+      .from('user_follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', userId);
+
+    res.json({
+      total_xp: userPoints?.total_xp || 0,
+      current_level: userPoints?.current_level || 1,
+      monthly_xp: userPoints?.monthly_xp || 0,
+      current_streak_days: userPoints?.current_streak_days || 0,
+      longest_streak_days: userPoints?.longest_streak_days || 0,
+      badges_count: badgesCount || 0,
+      followers_count: followersCount || 0,
+      following_count: followingCount || 0
+    });
+});
+
 // Re-export from split controllers for backward compatibility
 export { getLeaderboard, getWeeklyLeaderboard, getCategoryLeaderboard } from './leaderboardController';
 export { getRewards, getMyRewards, claimReward } from './rewardsController';

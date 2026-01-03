@@ -26,6 +26,7 @@ interface LeaderboardEntry {
 interface UserLookup {
   id: string;
   pseudonym: string;
+  avatar_url?: string | null;
 }
 
 // Check-in type - Supabase returns nested relations as arrays
@@ -58,11 +59,11 @@ export const getLeaderboard = asyncHandler(async (req: AuthRequest, res: Respons
         throw InternalServerError('Failed to fetch leaderboard');
       }
 
-      // Join with users to get usernames
+      // Join with users to get usernames and avatars
       const userIds = leaderboard.map((entry: LeaderboardEntry) => entry.user_id);
       const { data: users, error: usersError } = await supabase
         .from('users')
-        .select('id, pseudonym')
+        .select('id, pseudonym, avatar_url')
         .in('id', userIds);
 
       if (usersError) {
@@ -70,10 +71,14 @@ export const getLeaderboard = asyncHandler(async (req: AuthRequest, res: Respons
       }
 
       // Merge user data
-      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => ({
-        ...entry,
-        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
-      }));
+      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => {
+        const user = (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id);
+        return {
+          ...entry,
+          username: user?.pseudonym || 'Unknown',
+          avatar_url: user?.avatar_url || null
+        };
+      });
 
       res.json({ leaderboard: enrichedLeaderboard, type: 'global' });
       return;
@@ -95,17 +100,21 @@ export const getLeaderboard = asyncHandler(async (req: AuthRequest, res: Respons
       const userIds = leaderboard.map((entry: LeaderboardEntry) => entry.user_id);
       const { data: users, error: usersError } = await supabase
         .from('users')
-        .select('id, pseudonym')
+        .select('id, pseudonym, avatar_url')
         .in('id', userIds);
 
       if (usersError) {
         logger.error('Get leaderboard users error:', usersError);
       }
 
-      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => ({
-        ...entry,
-        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
-      }));
+      const enrichedLeaderboard = leaderboard.map((entry: LeaderboardEntry) => {
+        const user = (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id);
+        return {
+          ...entry,
+          username: user?.pseudonym || 'Unknown',
+          avatar_url: user?.avatar_url || null
+        };
+      });
 
       res.json({ leaderboard: enrichedLeaderboard, type: 'monthly' });
       return;
@@ -140,21 +149,25 @@ export const getLeaderboard = asyncHandler(async (req: AuthRequest, res: Respons
         .slice(0, parseInt(limit as string, 10))
         .map(([userId, count], index) => ({ user_id: userId, check_ins: count, rank: index + 1 }));
 
-      // Get usernames
+      // Get usernames and avatars
       const userIds = sortedUsers.map(u => u.user_id);
       const { data: users, error: usersError } = await supabase
         .from('users')
-        .select('id, pseudonym')
+        .select('id, pseudonym, avatar_url')
         .in('id', userIds);
 
       if (usersError) {
         logger.error('Get zone leaderboard users error:', usersError);
       }
 
-      const enrichedLeaderboard = sortedUsers.map(entry => ({
-        ...entry,
-        username: (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id)?.pseudonym || 'Unknown'
-      }));
+      const enrichedLeaderboard = sortedUsers.map(entry => {
+        const user = (users as UserLookup[] | null)?.find((u) => u.id === entry.user_id);
+        return {
+          ...entry,
+          username: user?.pseudonym || 'Unknown',
+          avatar_url: user?.avatar_url || null
+        };
+      });
 
       res.json({ leaderboard: enrichedLeaderboard, type: 'zone', zone });
       return;

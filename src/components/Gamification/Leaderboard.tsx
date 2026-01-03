@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Globe, Calendar, CalendarDays, Medal, Trophy, FileText, Camera, MapPin, ThumbsUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGamification } from '../../contexts/GamificationContext';
+import UserAvatar from '../Common/UserAvatar';
 import { logger } from '../../utils/logger';
 import '../../styles/features/gamification/Leaderboard.css';
 
 interface LeaderboardEntry {
   user_id: string;
   username: string;
+  avatar_url?: string | null;
   total_xp?: number;
   monthly_xp?: number;
   weekly_xp?: number;
@@ -232,7 +234,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
               <div className="podium-entry podium-second">
                 <div className="podium-rank"><Medal size={24} style={{ color: '#C0C0C0' }} /></div>
                 <div className="podium-avatar">
-                  {getLevelIcon(leaderboardData[1].current_level || 1)}
+                  <UserAvatar
+                    user={{ pseudonym: leaderboardData[1].username, avatar_url: leaderboardData[1].avatar_url }}
+                    size="lg"
+                  />
+                  <div className="podium-level-badge">{getLevelIcon(leaderboardData[1].current_level || 1)}</div>
                 </div>
                 <div className="podium-username">{leaderboardData[1].username}</div>
                 <div className="podium-xp">{getStatValue(leaderboardData[1])}</div>
@@ -242,7 +248,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
               <div className="podium-entry podium-first">
                 <div className="podium-rank"><Medal size={28} style={{ color: '#FFD700' }} /></div>
                 <div className="podium-avatar">
-                  {getLevelIcon(leaderboardData[0].current_level || 1)}
+                  <UserAvatar
+                    user={{ pseudonym: leaderboardData[0].username, avatar_url: leaderboardData[0].avatar_url }}
+                    size="lg"
+                  />
+                  <div className="podium-level-badge">{getLevelIcon(leaderboardData[0].current_level || 1)}</div>
                 </div>
                 <div className="podium-username">{leaderboardData[0].username}</div>
                 <div className="podium-xp">{getStatValue(leaderboardData[0])}</div>
@@ -252,7 +262,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
               <div className="podium-entry podium-third">
                 <div className="podium-rank"><Medal size={24} style={{ color: '#CD7F32' }} /></div>
                 <div className="podium-avatar">
-                  {getLevelIcon(leaderboardData[2].current_level || 1)}
+                  <UserAvatar
+                    user={{ pseudonym: leaderboardData[2].username, avatar_url: leaderboardData[2].avatar_url }}
+                    size="lg"
+                  />
+                  <div className="podium-level-badge">{getLevelIcon(leaderboardData[2].current_level || 1)}</div>
                 </div>
                 <div className="podium-username">{leaderboardData[2].username}</div>
                 <div className="podium-xp">{getStatValue(leaderboardData[2])}</div>
@@ -275,7 +289,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
                 {/* User Info */}
                 <div className="entry-info">
                   <div className="entry-avatar">
-                    {getLevelIcon(entry.current_level || 1)}
+                    <UserAvatar
+                      user={{ pseudonym: entry.username, avatar_url: entry.avatar_url }}
+                      size="sm"
+                    />
                   </div>
                   <div className="entry-details">
                     <div className="entry-username">{entry.username}</div>

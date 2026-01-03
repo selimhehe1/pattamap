@@ -72,6 +72,7 @@ import employeeValidationRoutes from './routes/employeeValidation';
 import ownershipRequestRoutes from './routes/ownershipRequests';
 import exportRoutes from './routes/export';
 import publicRoutes from './routes/public';
+import userRoutes from './routes/users';
 import {
   apiRateLimit as _apiRateLimit,
   authRateLimit,
@@ -556,6 +557,7 @@ app.use('/api/admin',
 app.use('/api/ownership-requests', csrfProtection, ownershipRequestRoutes);
 app.use('/api/export', exportRoutes); // Export data to CSV (auth handled in routes)
 app.use('/api/public', publicRoutes); // Public stats (no auth required)
+app.use('/api/users', userRoutes); // User profiles (auth handled in routes)
 
 // Swagger API Documentation (development only)
 if (NODE_ENV === 'development') {
