@@ -227,10 +227,36 @@ export const useAppModals = (): UseAppModalsReturn => {
   // Establishment Form Modal
   // ==========================================
   const openEstablishmentForm = useCallback(() => {
+    // Define submit handler inline to capture latest state
+    const submitHandler = async (establishmentData: Partial<Establishment>) => {
+      setIsSubmitting(true);
+      try {
+        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
+          method: 'POST',
+          body: JSON.stringify(establishmentData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to submit establishment');
+        }
+
+        closeModal(MODAL_IDS.ESTABLISHMENT_FORM);
+        toast.success('Establishment added successfully!');
+      } catch (error) {
+        logger.error('Failed to submit establishment', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to submit establishment');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     openModal(MODAL_IDS.ESTABLISHMENT_FORM, EstablishmentForm, {
+      onSubmit: submitHandler,
+      isLoading: isSubmitting,
       onCancel: () => closeModal(MODAL_IDS.ESTABLISHMENT_FORM)
     }, { size: 'large', closeOnOverlayClick: false });
-  }, [openModal, closeModal]);
+  }, [openModal, closeModal, secureFetch, isSubmitting]);
 
   const closeEstablishmentForm = useCallback(() => {
     closeModal(MODAL_IDS.ESTABLISHMENT_FORM);
