@@ -234,7 +234,7 @@
 
 .modal-premium__header {
   text-align: center;
-  padding: 32px 24px 20px;
+  padding: 20px 24px 12px;
   position: relative;
   z-index: 1;
 }
@@ -573,7 +573,7 @@
   display: flex;
   gap: 12px;
   justify-content: center;
-  padding: 20px 24px 24px;
+  padding: 12px 24px 20px;
   position: relative;
   z-index: 1;
 }
@@ -699,8 +699,8 @@
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
   transition: border-color 0.3s ease;
 }
 
@@ -713,10 +713,10 @@
 }
 
 .modal-premium__section-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #00E5FF;
-  margin: 0 0 16px 0;
+  margin: 0 0 10px 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -902,15 +902,15 @@
 .modal-premium__stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .modal-premium__stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 12px;
+  gap: 4px;
+  padding: 12px 8px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
