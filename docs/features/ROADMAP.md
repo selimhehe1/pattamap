@@ -132,7 +132,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - ✅ VIP admin verification panel (`VIPVerificationAdmin.tsx` - 457 lignes)
 - ✅ VIP purchase modal (`VIPPurchaseModal.tsx` - 391 lignes)
 - ✅ VIP visual effects (gold borders, crown icons sur cards)
-- ✅ VIP priority sorting sur les 9 cartes ergonomiques
+- ✅ VIP priority sorting sur les 9 zones
 - ✅ VIP sorting dans SearchFilters (option "VIP Priority")
 - ✅ PromptPay QR display avec instructions (8 langues)
 
@@ -689,11 +689,8 @@ L'audit a été réalisé en:
 - 50+ tests (notifications seul)
 - 6 langues complètes i18n
 
-**Innovation UX**:
-- 9 cartes ergonomiques custom (vs Google Maps)
-- 322 positions grilles optimisées
-- Drag & drop admin panel
-- HTML5 Canvas rendering professionnel
+**Zones**:
+- 9 zones géographiques
 
 ---
 

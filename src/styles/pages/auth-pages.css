@@ -26,7 +26,7 @@
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
   background: var(--bg-primary, #0a0a0a);
-  overflow: hidden;
+  overflow-x: hidden; /* Allow vertical scroll for long forms */
 }
 
 /* Mode modifiers for potential future differentiation */
@@ -66,9 +66,9 @@
   align-items: center;
   padding: var(--spacing-8, 32px);
   background: var(--bg-secondary, #111111);
-  overflow-y: auto;
-  max-height: 100vh;
-  max-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Removed max-height and overflow-y: auto to allow full content display */
 }
 
 /* Subtle gradient overlay on form side */

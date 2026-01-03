@@ -1,6 +1,5 @@
 /**
  * ZoneGrid - Homepage component displaying zone cards
- * Replaces the ergonomic map system with a simpler zone selection grid
  */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

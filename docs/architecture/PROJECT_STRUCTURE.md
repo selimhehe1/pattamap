@@ -38,7 +38,6 @@ docs/
 ├── architecture/            # Architecture & design
 │   ├── TECH_STACK.md        # Stack technique
 │   ├── PROJECT_STRUCTURE.md # Ce fichier
-│   ├── MAP_SYSTEM.md        # Système cartes
 │   ├── CSS_ARCHITECTURE.md
 │   ├── CSS_MIGRATION_GUIDE.md
 │   ├── CSS_REFACTORING_PROGRESS.md
@@ -465,7 +464,6 @@ Thumbs.db
 ## 🔗 Liens Connexes
 
 - **Architecture Stack**: [TECH_STACK.md](TECH_STACK.md)
-- **Système Cartes**: [MAP_SYSTEM.md](MAP_SYSTEM.md)
 - **Guide Sécurité**: [../../backend/docs/SECURITY.md](../../backend/docs/SECURITY.md)
 - **Guide Performance**: [../../backend/docs/PERFORMANCE.md](../../backend/docs/PERFORMANCE.md)
 

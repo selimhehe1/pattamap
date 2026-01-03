@@ -1,6 +1,6 @@
 # 🏮 PattaMap - Pattaya Directory Platform
 
-> Collaborative platform for referencing entertainment venues and employees in Pattaya, Thailand, with innovative ergonomic maps.
+> Collaborative platform for referencing entertainment venues and employees in Pattaya, Thailand.
 
 **Version**: v10.4.0 (Reviews Améliorées Complete)
 **Status**: ✅ Production-Ready with 622 tests, TypeScript strict, security hardening
@@ -14,11 +14,11 @@
 
 ## 📋 Overview
 
-PattaMap revolutionizes navigation in Pattaya's dense nightlife districts with **custom ergonomic maps** that prioritize readability over geographic accuracy.
+PattaMap is the reference platform for Pattaya's nightlife districts, featuring comprehensive listings and community features.
 
 ### ✨ Key Features
 
-- 🗺️ **9 Ergonomic Zone Maps** - Custom grids (Soi 6, Walking Street, LK Metro, Treetown, etc.)
+- 🗺️ **9 Zones** - Soi 6, Walking Street, LK Metro, Treetown, etc.
 - 👥 **76 Employee Profiles** - Photos, social media, work history
 - 🏢 **151 Establishments** - Bars, Gogos, Nightclubs, Massage venues
 - ⭐ **Community Reviews** - 52 ratings and comments
@@ -66,19 +66,6 @@ npm start                  # Terminal 2 → :3000
 - **Testing**: Jest + React Testing Library (622 tests, 85%+ middleware coverage)
 
 → **Full Stack Details**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
-
----
-
-## 🗺️ Map System (Innovation)
-
-**Why Ergonomic Maps?**
-- Traditional Google Maps = illegible in dense zones
-- Custom grids = each venue has its own readable cell
-- Topographic layouts = visual clarity
-
-**9 Zones**: Soi 6 (2×20), Walking Street (12×5 topographic), LK Metro (L-shape), Treetown (U-shape), and more.
-
-→ **Map System Details**: [docs/architecture/MAP_SYSTEM.md](docs/architecture/MAP_SYSTEM.md)
 
 ---
 
@@ -139,8 +126,7 @@ docs/
 |--------|-------|
 | **Employees** | 76 profiles |
 | **Establishments** | 151 venues |
-| **Zones** | 9 ergonomic maps |
-| **Grid Positions** | 322 total |
+| **Zones** | 9 |
 | **Reviews** | 52 community ratings |
 | **Users** | 14 (user/moderator/admin/establishment_owner) |
 | **Frontend Tests** | 300+ (hooks, components, contexts) |

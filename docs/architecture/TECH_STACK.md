@@ -27,7 +27,7 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 ### Maps & Visualization
 - **HTML5 Canvas** - Rendu des routes sur les cartes
 - **React Zoom Pan Pinch** 3.7.0 - Interactions cartes tactiles
-- **Custom Grid System** - 9 zones avec grilles ergonomiques
+- **Zone System** - 9 zones géographiques
 
 ### Build & Dev Tools
 - **React Scripts** 5.0.1 (Create React App)

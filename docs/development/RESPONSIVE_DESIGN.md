@@ -568,7 +568,6 @@ function detectOrientation(): 'portrait' | 'landscape' {
 
 ### Documentation Interne
 - [CSS Architecture](../architecture/CSS_ARCHITECTURE.md) - Variables, thème nightlife
-- [Map System](../architecture/MAP_SYSTEM.md) - Système cartes ergonomiques
 - [Getting Started](GETTING_STARTED.md) - Installation, dev servers
 
 ### Standards Web

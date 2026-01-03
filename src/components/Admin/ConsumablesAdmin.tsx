@@ -4,6 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { ConsumableTemplate } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import {
   Beer,
   Wine,
@@ -115,11 +116,18 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
         setShowAddForm(false);
         setEditingConsumable(null);
         refreshConsumables();
+        notification.success(
+          editingConsumable
+            ? t('admin.consumableUpdated', 'Consumable updated')
+            : t('admin.consumableAdded', 'Consumable added')
+        );
       } else {
         logger.error('Failed to save consumable');
+        notification.error(t('admin.consumableSaveFailed', 'Failed to save consumable'));
       }
     } catch (error) {
       logger.error('Error saving consumable:', error);
+      notification.error(t('admin.consumableSaveFailed', 'Failed to save consumable'));
       setFormData({ name: '', category: 'beer', default_price: '' });
       setShowAddForm(false);
       setEditingConsumable(null);
@@ -148,11 +156,18 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
       if (response.ok) {
         refreshConsumables();
+        notification.success(
+          newStatus === 'active'
+            ? t('admin.consumableActivated', 'Consumable activated')
+            : t('admin.consumableDeactivated', 'Consumable deactivated')
+        );
       } else {
         logger.error('Failed to toggle status');
+        notification.error(t('admin.consumableStatusFailed', 'Failed to change status'));
       }
     } catch (error) {
       logger.error('Error toggling status:', error);
+      notification.error(t('admin.consumableStatusFailed', 'Failed to change status'));
       refreshConsumables();
     }
   };
@@ -169,11 +184,14 @@ const ConsumablesAdmin: React.FC<ConsumablesAdminProps> = ({ activeTab, onTabCha
 
       if (response.ok) {
         refreshConsumables();
+        notification.success(t('admin.consumableDeleted', 'Consumable deleted'));
       } else {
         logger.error('Failed to delete consumable');
+        notification.error(t('admin.consumableDeleteFailed', 'Failed to delete consumable'));
       }
     } catch (error) {
       logger.error('Error deleting consumable:', error);
+      notification.error(t('admin.consumableDeleteFailed', 'Failed to delete consumable'));
       refreshConsumables();
     }
   };

@@ -6,6 +6,7 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import UserAdminCard from './UserAdminCard';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import {
   Crown,
   Shield,
@@ -102,9 +103,13 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       if (response.ok) {
         refreshUsers();
+        notification.success(t('admin.userRoleUpdated', 'User role updated'));
+      } else {
+        notification.error(t('admin.userRoleFailed', 'Failed to change role'));
       }
     } catch (error) {
       logger.error('Failed to change user role:', error);
+      notification.error(t('admin.userRoleFailed', 'Failed to change role'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -124,9 +129,17 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       if (response.ok) {
         refreshUsers();
+        notification.success(
+          isActive
+            ? t('admin.userDeactivated', 'User deactivated')
+            : t('admin.userActivated', 'User activated')
+        );
+      } else {
+        notification.error(t('admin.userToggleFailed', 'Failed to change user status'));
       }
     } catch (error) {
       logger.error('Failed to toggle user status:', error);
+      notification.error(t('admin.userToggleFailed', 'Failed to change user status'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -148,11 +161,14 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
       if (response.ok) {
         refreshUsers();
         setEditingUser(null);
+        notification.success(t('admin.userSaved', 'User saved'));
       } else {
+        notification.error(t('admin.userSaveFailed', 'Failed to save user'));
         throw new Error('Failed to update user');
       }
     } catch (error) {
       logger.error('Failed to save user:', error);
+      notification.error(t('admin.userSaveFailed', 'Failed to save user'));
       throw error;
     }
   };

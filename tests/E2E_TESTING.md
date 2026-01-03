@@ -6,7 +6,7 @@ PattaMap has comprehensive end-to-end (E2E) tests using Playwright that cover:
 - User search flows
 - Owner management workflows
 - Admin VIP verification
-- Map performance & ergonomics
+- Performance tests
 
 ## Test Accounts
 
@@ -84,7 +84,6 @@ tests/e2e/
 ├── user-search-flow.spec.ts          # User search & filters (11 tests)
 ├── owner-management.spec.ts           # Owner dashboard & VIP (11 tests)
 ├── admin-vip-verification.spec.ts     # Admin VIP workflow (14 tests)
-├── map-performance.spec.ts            # Map ergonomics & perf (16 tests)
 └── auth-integration.spec.ts           # Auth flows integration (15 tests)
 ```
 
@@ -207,17 +206,6 @@ Tests run on 3 different devices to ensure responsiveness:
 | Desktop Chrome  | 1920 × 1080    | Primary desktop experience    |
 | iPhone 12       | 375 × 812      | Mobile portrait               |
 | iPad Pro        | 1024 × 1366    | Tablet experience             |
-
-## Performance Benchmarks
-
-The `map-performance.spec.ts` tests verify:
-
-- ✅ Map loads in < 2 seconds (desktop)
-- ✅ Map loads in < 3 seconds (mobile)
-- ✅ Handles 60 establishments (3×15 grid) without lag
-- ✅ Largest Contentful Paint (LCP) < 2.5s
-- ✅ Cumulative Layout Shift (CLS) < 0.1
-- ✅ Maintains 30+ FPS during interactions
 
 ## Continuous Integration
 

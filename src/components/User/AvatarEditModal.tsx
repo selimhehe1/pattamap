@@ -107,7 +107,13 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
       );
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Avatar upload failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        throw new Error(errorData.error || `Upload failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -116,7 +122,8 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Avatar upload error:', error);
-      toast.error(t('avatar.uploadError', 'Failed to upload avatar'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(t('avatar.uploadError', 'Failed to upload avatar') + `: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }

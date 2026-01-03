@@ -11,6 +11,7 @@ import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import EmployeeCard from '../Common/EmployeeCard';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import { SkeletonGallery } from '../Common/Skeleton';
 import '../../styles/pages/user-dashboard.css';
 import '../../styles/layout/page-layout.css';
@@ -83,9 +84,12 @@ const UserDashboard: React.FC = () => {
           closeOnOverlayClick: true,
           showCloseButton: false
         });
+      } else {
+        notification.error(t('userDashboard.errorLoadingProfile', 'Unable to load profile'));
       }
     } catch (error) {
       logger.error('Failed to load employee:', error);
+      notification.error(t('userDashboard.errorLoadingProfile', 'Unable to load profile'));
     }
   };
 

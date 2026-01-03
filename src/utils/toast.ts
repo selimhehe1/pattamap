@@ -1,118 +1,98 @@
-import toast, { Toaster, ToastOptions } from 'react-hot-toast';
-import { createElement } from 'react';
-import { CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
+import { ReactNode } from 'react';
 
 /**
- * Accessible Toast System
+ * Toast Service - DEPRECATED
  *
- * Wrapper around react-hot-toast with accessibility defaults:
- * - ARIA live regions (polite for success/info, assertive for errors)
- * - Appropriate durations based on message type
- * - Keyboard dismissible
- * - Screen reader friendly
+ * This file now forwards all calls to the new Neon Glass notification system.
+ * The API remains identical for backwards compatibility during migration.
  *
- * WCAG 2.1 Level AA compliant
+ * @deprecated Use 'notification' from './notification' instead.
+ *
+ * Migration Guide:
+ * - Replace: import toast from './utils/toast';
+ * - With:    import notification from './utils/notification';
+ *
+ * The new system provides:
+ * - Neo-Nightlife 2025 glassmorphism design
+ * - Neon glow effects and animations
+ * - Bottom-right stacking
+ * - Full Framer Motion integration
  */
 
-// Default toast options with accessibility in mind
-const defaultOptions: ToastOptions = {
-  duration: 4000, // 4 seconds - enough time to read
-  position: 'top-center',
-  style: {
-    background: 'rgba(0,0,0,0.9)',
-    color: '#ffffff',
-    padding: '16px 24px',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '500',
-    maxWidth: '500px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-  },
-  // Accessibility: role and aria-live handled by react-hot-toast
-  ariaProps: {
-    role: 'status',
-    'aria-live': 'polite',
-  },
+import notification, {
+  showSuccess as newShowSuccess,
+  showError as newShowError,
+  showWarning as newShowWarning,
+  showInfo as newShowInfo,
+  showLoading as newShowLoading,
+  showPromise as newShowPromise,
+  dismissNotification,
+  dismissAll as newDismissAll,
+  showCustom as newShowCustom,
+  NotificationOptions,
+} from './notification';
+
+// Legacy type for backwards compatibility
+interface LegacyToastOptions {
+  duration?: number;
+  style?: Record<string, unknown>;
+  icon?: ReactNode;
+  ariaProps?: {
+    role?: string;
+    'aria-live'?: string;
+  };
+}
+
+/**
+ * Convert legacy options to new format
+ */
+const convertOptions = (options?: LegacyToastOptions): NotificationOptions | undefined => {
+  if (!options) return undefined;
+
+  return {
+    duration: options.duration,
+    icon: options.icon,
+  };
 };
 
-// Success toast (green)
-export const showSuccess = (message: string, options?: ToastOptions): string => {
-  return toast.success(message, {
-    ...defaultOptions,
-    ...options,
-    duration: options?.duration || 4000,
-    style: {
-      ...defaultOptions.style,
-      background: 'linear-gradient(135deg, #4CAF50, #81C784)',
-      ...options?.style,
-    },
-    icon: createElement(CheckCircle, { size: 20, color: '#ffffff' }),
-  });
+/**
+ * @deprecated Use notification.success() instead
+ */
+export const showSuccess = (message: string, options?: LegacyToastOptions): string => {
+  return newShowSuccess(message, convertOptions(options));
 };
 
-// Error toast (red) - longer duration for errors
-export const showError = (message: string, options?: ToastOptions): string => {
-  return toast.error(message, {
-    ...defaultOptions,
-    ...options,
-    duration: options?.duration || 6000, // Errors need more time to read
-    style: {
-      ...defaultOptions.style,
-      background: 'linear-gradient(135deg, #f44336, #e57373)',
-      ...options?.style,
-    },
-    icon: createElement(XCircle, { size: 20, color: '#ffffff' }),
-    ariaProps: {
-      role: 'alert',
-      'aria-live': 'assertive', // Errors are assertive
-    },
-  });
+/**
+ * @deprecated Use notification.error() instead
+ */
+export const showError = (message: string, options?: LegacyToastOptions): string => {
+  return newShowError(message, convertOptions(options));
 };
 
-// Info toast (blue)
-export const showInfo = (message: string, options?: ToastOptions): string => {
-  return toast(message, {
-    ...defaultOptions,
-    ...options,
-    duration: options?.duration || 4000,
-    style: {
-      ...defaultOptions.style,
-      background: 'linear-gradient(135deg, #2196F3, #64B5F6)',
-      ...options?.style,
-    },
-    icon: createElement(Info, { size: 20, color: '#ffffff' }),
-  });
+/**
+ * @deprecated Use notification.info() instead
+ */
+export const showInfo = (message: string, options?: LegacyToastOptions): string => {
+  return newShowInfo(message, convertOptions(options));
 };
 
-// Warning toast (orange)
-export const showWarning = (message: string, options?: ToastOptions): string => {
-  return toast(message, {
-    ...defaultOptions,
-    ...options,
-    duration: options?.duration || 5000,
-    style: {
-      ...defaultOptions.style,
-      background: 'linear-gradient(135deg, #FF9800, #FFB74D)',
-      ...options?.style,
-    },
-    icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' }),
-  });
+/**
+ * @deprecated Use notification.warning() instead
+ */
+export const showWarning = (message: string, options?: LegacyToastOptions): string => {
+  return newShowWarning(message, convertOptions(options));
 };
 
-// Loading toast - use with promise pattern
-export const showLoading = (message: string, options?: ToastOptions): string => {
-  return toast.loading(message, {
-    ...defaultOptions,
-    ...options,
-    style: {
-      ...defaultOptions.style,
-      background: 'linear-gradient(135deg, #9C27B0, #BA68C8)',
-      ...options?.style,
-    },
-  });
+/**
+ * @deprecated Use notification.loading() instead
+ */
+export const showLoading = (message: string, options?: LegacyToastOptions): string => {
+  return newShowLoading(message, convertOptions(options));
 };
 
-// Promise toast - handles loading/success/error automatically
+/**
+ * @deprecated Use notification.promise() instead
+ */
 export const showPromise = <T,>(
   promise: Promise<T>,
   messages: {
@@ -120,66 +100,42 @@ export const showPromise = <T,>(
     success: string | ((data: T) => string);
     error: string | ((err: unknown) => string);
   },
-  options?: ToastOptions
+  options?: LegacyToastOptions
 ): Promise<T> => {
-  return toast.promise(
-    promise,
-    {
-      loading: messages.loading,
-      success: messages.success,
-      error: messages.error,
-    },
-    {
-      ...defaultOptions,
-      ...options,
-      success: {
-        style: {
-          ...defaultOptions.style,
-          background: 'linear-gradient(135deg, #4CAF50, #81C784)',
-        },
-        icon: createElement(CheckCircle, { size: 20, color: '#ffffff' }),
-        duration: 4000,
-      },
-      error: {
-        style: {
-          ...defaultOptions.style,
-          background: 'linear-gradient(135deg, #f44336, #e57373)',
-        },
-        icon: createElement(XCircle, { size: 20, color: '#ffffff' }),
-        duration: 6000,
-      },
-      loading: {
-        style: {
-          ...defaultOptions.style,
-          background: 'linear-gradient(135deg, #9C27B0, #BA68C8)',
-        },
-      },
-    }
-  );
+  return newShowPromise(promise, messages, convertOptions(options));
 };
 
-// Dismiss a specific toast
+/**
+ * @deprecated Use notification.dismiss() instead
+ */
 export const dismissToast = (toastId: string): void => {
-  toast.dismiss(toastId);
+  dismissNotification(toastId);
 };
 
-// Dismiss all toasts
+/**
+ * @deprecated Use notification.dismissAll() instead
+ */
 export const dismissAll = (): void => {
-  toast.dismiss();
+  newDismissAll();
 };
 
-// Custom toast with full control
-export const showCustom = (message: string, options?: ToastOptions): string => {
-  return toast(message, {
-    ...defaultOptions,
-    ...options,
-  });
+/**
+ * @deprecated Use notification.custom() instead
+ */
+export const showCustom = (message: string, options?: LegacyToastOptions): string => {
+  return newShowCustom(message, 'info', convertOptions(options));
 };
 
-// Re-export Toaster component for App.tsx integration
-export { Toaster };
+/**
+ * @deprecated The Toaster component is no longer needed.
+ * NotificationProvider now handles rendering automatically.
+ * Remove <Toaster /> from App.tsx.
+ */
+export const Toaster = () => null;
 
-// Default export with all methods
+/**
+ * @deprecated Use notification from './notification' instead
+ */
 const toastService = {
   success: showSuccess,
   error: showError,

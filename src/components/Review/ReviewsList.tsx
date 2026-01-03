@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import ReviewPhotoGallery, { ReviewPhoto } from './ReviewPhotoGallery';
+import UserAvatar from '../Common/UserAvatar';
 import '../../styles/components/reviews.css';
 
 interface Review {
@@ -19,6 +20,7 @@ interface Review {
   user?: {
     id: string;
     pseudonym: string;
+    avatar_url?: string | null;
   };
   replies?: Reply[];
   photos?: ReviewPhoto[]; // v10.4 - Photos in reviews
@@ -38,6 +40,7 @@ interface Reply {
   user?: {
     id: string;
     pseudonym: string;
+    avatar_url?: string | null;
   };
   replies?: Reply[]; // Support recursive nested replies (ThreadedComment structure)
 }
@@ -185,9 +188,14 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
             {/* Review Header */}
             <div className="review-header-nightlife">
               <div className="review-author-section">
-                <div className="review-avatar-nightlife">
-                  {review.user?.pseudonym?.charAt(0).toUpperCase() || '?'}
-                </div>
+                <UserAvatar
+                  user={{
+                    pseudonym: review.user?.pseudonym || 'Anonymous',
+                    avatar_url: review.user?.avatar_url
+                  }}
+                  size="sm"
+                  showBorder={true}
+                />
                 <div className="review-author-info">
                   <div className="review-author-name">
                     {review.user?.pseudonym || t('reviewsList.anonymous')}

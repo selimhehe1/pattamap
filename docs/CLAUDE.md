@@ -11,21 +11,14 @@
 
 ## 📋 Vue d'ensemble Rapide
 
-**PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec un système innovant de **cartes ergonomiques** optimisées pour la lisibilité dans les zones de nightlife denses.
+**PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec des fonctionnalités communautaires avancées.
 
 ### Données Actuelles
-- 🗺️ **9 zones géographiques** avec cartes personnalisées (322 positions)
+- 🗺️ **9 zones géographiques**
 - 🏢 **151 établissements** (Bars, Gogos, Nightclubs, Massages)
 - 👥 **76 profils employées** avec photos, réseaux sociaux, historique
 - ⭐ **52 reviews communautaires**
 - 🔐 **14 utilisateurs** (roles: user/moderator/admin)
-
-### Innovation Principale
-**Cartes Ergonomiques** > Google Maps dans zones denses:
-- Grilles personnalisées (Soi 6: 2×20, Walking Street: 12×5 topographique)
-- Chaque établissement a sa propre case (toujours lisible)
-- Design immersif nightlife avec animations
-- Drag & drop admin pour positionnement
 
 ---
 
@@ -178,7 +171,7 @@
 ### Score de Santé : 7.5/10
 
 **Points Forts** ✅ :
-- 🗺️ **Innovation unique** : Système de cartes ergonomiques (9 zones, 322 positions)
+- 🗺️ **9 zones géographiques** avec navigation intuitive
 - 🏗️ **Architecture solide** : React 19 + TypeScript strict, Express + Supabase
 - 📚 **Documentation exemplaire** : 1,056 lignes + 20+ docs techniques
 - 🔒 **Sécurité robuste** : JWT + httpOnly cookies, CSRF, 8 rate limiters
@@ -326,14 +319,10 @@ pattaya-directory/
 
 → **Détails complets**: [docs/architecture/PROJECT_STRUCTURE.md](docs/architecture/PROJECT_STRUCTURE.md)
 
-### Système de Cartes (Innovation UX)
-- **9 zones mappées**: Soi 6, Walking Street, LK Metro, Treetown, Soi Buakhao, Jomtien, BoyzTown, Soi 7&8, Beach Road
-- **Grilles ergonomiques**: Formes variables (rectangulaires, L, U, topographiques)
-- **HTML5 Canvas**: Rendu routes professionnelles
-- **Drag & Drop Admin**: Positionnement facile établissements
+### Système de Zones
+- **9 zones**: Soi 6, Walking Street, LK Metro, Treetown, Soi Buakhao, Jomtien, BoyzTown, Soi 7&8, Beach Road
+- **Navigation intuitive**: Sélection par zone avec filtres
 - **Responsive**: Adaptation mobile/desktop automatique
-
-→ **Détails complets**: [docs/architecture/MAP_SYSTEM.md](docs/architecture/MAP_SYSTEM.md)
 
 ---
 
@@ -427,7 +416,7 @@ npm start                    # → http://localhost:3000
 ## ✨ Fonctionnalités
 
 ### Implémentées (v10.3.2)
-✅ **Cartes Ergonomiques** - 9 zones, 322 positions, drag & drop admin
+✅ **9 Zones Géographiques** - Navigation par zone
 ✅ **CRUD Complet** - Employées (76), Établissements (151)
 ✅ **Reviews** - Notes 5⭐, commentaires, modération
 ✅ **Authentification** - JWT + httpOnly + CSRF
@@ -1298,7 +1287,7 @@ Le système **VIP Subscriptions** permet la monétisation de PattaMap via des ab
 - ✅ VIPPurchaseModal (`VIPPurchaseModal.tsx` - 333 lignes)
 - ✅ VIPVerificationAdmin (`VIPVerificationAdmin.tsx` - 457 lignes)
 - ✅ VIP visual effects (gold borders, crown icons sur cards)
-- ✅ VIP priority sorting sur les 9 cartes ergonomiques
+- ✅ VIP priority sorting sur les 9 zones
 - ⏳ VIP sorting dans SearchPage.tsx (2h)
 - ⏳ PromptPay QR generation (4-5h)
 
@@ -1535,7 +1524,6 @@ src/components/Search/__tests__/
 ### 🏗️ Architecture (5 fichiers)
 - [TECH_STACK.md](docs/architecture/TECH_STACK.md) - Technologies, dépendances, env vars
 - [PROJECT_STRUCTURE.md](docs/architecture/PROJECT_STRUCTURE.md) - Organisation dossiers, workflow
-- [MAP_SYSTEM.md](docs/architecture/MAP_SYSTEM.md) - 9 zones, grilles, drag & drop
 - [CSS_ARCHITECTURE.md](docs/architecture/CSS_ARCHITECTURE.md) - Styles, thème nightlife
 - [AUDIT_CSS_ARCHITECTURE.md](docs/architecture/AUDIT_CSS_ARCHITECTURE.md) - Audit CSS
 
@@ -1659,7 +1647,7 @@ PattaMap dispose de **7 agents spécialisés** pour tâches spécifiques. Ils so
 **pattamap-code-navigator** 🧭
 - **Expertise**: Navigation et analyse de la codebase PattaMap
 - **Quand utiliser**: Comprendre architecture, localiser fonctions, tracer data flow
-- **Exemple**: "Explique-moi comment fonctionne le système de cartes ergonomiques"
+- **Exemple**: "Explique-moi comment fonctionne la navigation par zones"
 
 **pattamap-debugger** 🐛
 - **Expertise**: Debug erreurs PattaMap (CORS, CSRF, drag & drop, Supabase, TypeScript)
@@ -1669,12 +1657,12 @@ PattaMap dispose de **7 agents spécialisés** pour tâches spécifiques. Ils so
 ### Agents de Développement
 
 **pattamap-react-expert** ⚛️
-- **Expertise**: Composants React, cartes ergonomiques, HTML5 Canvas, React Query
+- **Expertise**: Composants React, React Query, performance
 - **Quand utiliser**: Créer/modifier composants, optimiser performance React
 - **Exemple**: "Je veux créer une nouvelle carte pour Jomtien avec grille 2×10"
 
 **pattamap-map-architect** 🗺️
-- **Expertise**: Système de cartes ergonomiques, grilles custom, Canvas rendering
+- **Expertise**: Système de zones, navigation, layouts custom
 - **Quand utiliser**: Créer nouvelles zones, optimiser rendu Canvas, modifier grilles
 - **Exemple**: "Créer une carte topographique en L-shape pour nouvelle zone"
 
@@ -1811,7 +1799,7 @@ lsof -ti:8080 | xargs kill -9
 | **Reviews** | 52 avis |
 | **Utilisateurs** | 14 (user/moderator/admin/establishment_owner) |
 | **Account Types** | 3 (regular, employee, establishment_owner) |
-| **Zones** | 9 cartes ergonomiques |
+| **Zones** | 9 |
 | **Positions grilles** | 322 total |
 | **Establishment Owners** | System actif (v10.1) |
 | **Notifications System** | PWA Push + Enhanced UI (v10.2) - 21 types |

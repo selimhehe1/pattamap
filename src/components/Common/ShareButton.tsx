@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Share2, Copy, Check, Facebook, MessageCircle } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
+import notification from '../../utils/notification';
 
 interface ShareButtonProps {
   /** URL to share (defaults to current page) */
@@ -60,9 +61,11 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       trackEvent('Social', 'Share', 'copy-link');
+      notification.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Copy failed:', error);
+      notification.error('Failed to copy link');
     }
   }, [shareUrl]);
 

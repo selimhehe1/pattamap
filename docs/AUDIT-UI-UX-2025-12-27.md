@@ -31,14 +31,7 @@
 - **Fichiers modifiés:** `src/components/Auth/LoginForm.tsx`, `src/hooks/useAppModals.ts`, `src/styles/components/modal-forms.css`
 - **Statut:** ✅ DÉPLOYÉ ET FONCTIONNEL - Modale de login testée avec succès
 
-### 3. Établissements absents des cartes ergonomiques - ✅ CORRIGÉ
-- **Pages:** Toutes les zones (Soi 6, Walking Street, LK Metro, Soi Buakhao, Beach Road, Treetown)
-- **Problème:** Les cartes affichaient uniquement les routes sans établissements
-- **Cause racine:** Le fix du commit `8275be7` (API URL fallback) a également résolu ce problème
-- **Vérification:** Ruby Club s'affiche correctement sur la carte Soi 6 (position row=1, col=13)
-- **Statut:** ✅ FONCTIONNEL - Les établissements s'affichent maintenant sur les cartes ergonomiques
-
-### 4. Incohérence des données entre pages - ✅ CORRIGÉ (comportement attendu)
+### 3. Incohérence des données entre pages - ✅ CORRIGÉ (comportement attendu)
 - **Problème initial:**
   - `/freelances` affiche "0 freelances available" et "No freelances found"
   - `/search` affiche "Found 3 result" avec Nicky, XP Test Employee, Test Sans Photo
@@ -348,7 +341,6 @@
 | Freelances | /freelances | Problèmes mineurs (layout) |
 | Login | /login | ✅ Entièrement corrigé |
 | Page 404 | /* | ✅ Fonctionnel |
-| Cartes ergonomiques | / (toutes zones) | ✅ CORRIGÉ - Établissements affichés |
 | Dashboard | /dashboard | ✅ Audité - Fonctionnel |
 | Admin Panel | /admin | ✅ Fonctionnel (1 employé, 1 établissement) |
 | My Establishments | /my-establishments | ✅ Audité - Access Denied (normal) |

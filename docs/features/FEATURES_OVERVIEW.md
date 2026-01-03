@@ -2,7 +2,7 @@
 
 ## 📋 Résumé Exécutif
 
-**PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec un système unique de **cartes ergonomiques** et des fonctionnalités communautaires avancées.
+**PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec des fonctionnalités communautaires avancées.
 
 **Version actuelle**: v10.4.0 (Reviews Améliorées Complete)
 **Statut**: 76 employées, 151 établissements, 9 zones, système complet et sécurisé
@@ -11,20 +11,7 @@
 
 ## 🎯 Fonctionnalités Core (Implémentées)
 
-### 1. Système de Cartes Ergonomiques ✅
-
-**Innovation principale** - Grilles personnalisées pour chaque zone géographique
-
-- **9 zones mappées**: Soi 6, Walking Street, LK Metro, Treetown, Soi Buakhao, Jomtien Complex, BoyzTown, Soi 7&8, Beach Road
-- **322 positions disponibles** au total
-- **Grilles variables**: 2×20 (Soi 6), 12×5 topographique (Walking Street), formes L/U
-- **Drag & drop admin**: Positionnement facile des établissements
-- **HTML5 Canvas**: Rendu professionnel des routes
-- **Responsive**: Adaptation mobile/desktop automatique
-
-→ Voir détails: [docs/architecture/MAP_SYSTEM.md](../architecture/MAP_SYSTEM.md)
-
-### 2. Gestion Employées & Établissements ✅
+### 1. Gestion Employées & Établissements ✅
 
 **CRUD Complet avec validation**
 
@@ -40,9 +27,9 @@
 - Catégories (Bar, Gogo, Nightclub, Massage)
 - Menus avec prix (consommations, lady drinks, bar fine, rooms)
 - Galerie photos
-- Position sur cartes ergonomiques
+- Position dans zone
 
-### 3. Système de Reviews ✅
+### 2. Système de Reviews ✅
 
 **Avis & Notations communautaires**
 
@@ -60,7 +47,7 @@
 - Modération (pending/approved/reported)
 - i18n 8 langues (EN, FR, TH, RU, CN, HI, JA, KO)
 
-### 4. Authentification & Sécurité ✅
+### 3. Authentification & Sécurité ✅
 
 **Enterprise-grade security**
 
@@ -73,7 +60,7 @@
 
 → Voir détails: [backend/docs/SECURITY.md](../../backend/docs/SECURITY.md)
 
-### 5. Édition Collaborative ✅
+### 4. Édition Collaborative ✅
 
 **Système de propositions**
 
@@ -82,7 +69,7 @@
 - Historique des changements
 - Statut tracking (pending/approved/rejected)
 
-### 6. Recherche Avancée ✅
+### 5. Recherche Avancée ✅
 
 **Multi-critères**
 
@@ -93,7 +80,7 @@
 - Pagination cursor-based ready
 - Scoring pertinence
 
-### 7. Dashboard Admin ✅
+### 6. Dashboard Admin ✅
 
 **Interface de gestion complète**
 
@@ -104,13 +91,13 @@
 - Audit logs consultation
 - Positionnement grilles (drag & drop)
 
-### 8. Favoris Utilisateurs ✅
+### 7. Favoris Utilisateurs ✅
 
 - Sauvegarde employées favorites
 - Liste personnelle accessible
 - Notifications futures (roadmap)
 
-### 9. Upload Images ✅
+### 8. Upload Images ✅
 
 **Cloudinary Integration**
 
@@ -239,7 +226,7 @@
 **Mission**: Faciliter la découverte et le suivi des employées de divertissement à Pattaya
 
 **Proposition de valeur**:
-1. **Cartes ergonomiques** > Google Maps dans zones denses
+1. **Navigation par zones** optimisée pour zones denses
 2. **Données communautaires** (reviews, historique emplois)
 3. **Sécurité & confidentialité** (CSRF, audit logs)
 4. **Mobile-first** responsive design

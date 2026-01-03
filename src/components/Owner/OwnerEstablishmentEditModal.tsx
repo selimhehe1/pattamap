@@ -10,7 +10,7 @@ import OpeningHoursForm from '../Forms/EstablishmentFormSections/OpeningHoursFor
 import SocialMediaForm from '../Forms/EstablishmentFormSections/SocialMediaForm';
 import PricingForm from '../Forms/EstablishmentFormSections/PricingForm';
 import { logger } from '../../utils/logger';
-import toastService from '../../utils/toast';
+import notification from '../../utils/notification';
 import {
   Lock,
   Pencil,
@@ -261,10 +261,11 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
 
       const data = await response.json();
       logger.debug('✅ Logo upload successful:', data);
+      notification.success(t('ownerEstablishmentModal.successLogoUpload', 'Logo uploaded successfully'));
       return data.logo?.url || null;
     } catch (error) {
       logger.error('❌ Logo upload error:', error);
-      toastService.error(t('ownerEstablishmentModal.errorLogoUploadFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
+      notification.error(t('ownerEstablishmentModal.errorLogoUploadFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
       return null;
     } finally {
       setUploadingLogo(false);
@@ -358,12 +359,12 @@ const OwnerEstablishmentEditModal: React.FC<OwnerEstablishmentEditModalProps> = 
         throw new Error(errorData.error || t('ownerEstablishmentModal.errorUpdateFailed'));
       }
 
-      toastService.success(t('ownerEstablishmentModal.successUpdateMessage'));
+      notification.success(t('ownerEstablishmentModal.successUpdateMessage'));
       onSuccess();
       onClose();
     } catch (error) {
       logger.error('Error updating establishment:', error);
-      toastService.error(t('ownerEstablishmentModal.errorUpdateFailedMessage', { error: error instanceof Error ? error.message : 'Unknown error' }));
+      notification.error(t('ownerEstablishmentModal.errorUpdateFailedMessage', { error: error instanceof Error ? error.message : 'Unknown error' }));
       setErrors(prev => ({ ...prev, submit: t('ownerEstablishmentModal.errorUpdateFailed') }));
     } finally {
       setIsLoading(false);

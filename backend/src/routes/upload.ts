@@ -9,27 +9,42 @@ import {
   deleteImage,
   getImageInfo
 } from '../controllers/uploadController';
+import { uploadAvatar, deleteAvatar } from '../controllers/userController';
 
 const router = Router();
 
-// Upload establishment logo (CSRF-exempt for session sync issues)
+// ========================================
+// ROUTES WITHOUT CSRF (FormData uploads)
+// ========================================
+// These routes are CSRF-exempt because:
+// 1. FormData is parsed by multer AFTER any CSRF middleware would check req.body
+// 2. CSRF tokens cannot be included in multipart/form-data easily
+// 3. Security is maintained via JWT authentication token
+// ========================================
+
+// Upload establishment logo (auth required, no CSRF)
 router.post('/establishment-logo', authenticateToken, uploadSingle, uploadEstablishmentLogo);
 
-// Upload multiple images (CSRF-exempt because FormData is parsed by multer AFTER CSRF check)
-// Security: Still requires authentication via JWT token
+// Upload multiple images (auth required, no CSRF)
 router.post('/images', authenticateToken, uploadMultiple, uploadImages);
 
-// All other upload routes require authentication and CSRF protection
-router.use(authenticateToken);
-router.use(csrfProtection);
+// Upload user avatar (auth required, no CSRF)
+router.post('/avatar', authenticateToken, uploadSingle, uploadAvatar);
 
-// Upload single image
-router.post('/image', uploadSingle, uploadSingleImage);
+// ========================================
+// ROUTES WITH CSRF (JSON/form requests)
+// ========================================
 
-// Delete image
-router.delete('/image', deleteImage);
+// Delete user avatar (auth + CSRF required)
+router.delete('/avatar', authenticateToken, csrfProtection, deleteAvatar);
 
-// Get image information
-router.get('/image/:public_id', getImageInfo);
+// Upload single image (auth + CSRF required)
+router.post('/image', authenticateToken, csrfProtection, uploadSingle, uploadSingleImage);
+
+// Delete image (auth + CSRF required)
+router.delete('/image', authenticateToken, csrfProtection, deleteImage);
+
+// Get image information (auth only, GET is safe)
+router.get('/image/:public_id', authenticateToken, getImageInfo);
 
 export default router;

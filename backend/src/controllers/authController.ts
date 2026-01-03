@@ -119,7 +119,7 @@ const sanitizeInput = (input: string): string => {
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    const { pseudonym, email, password, account_type } = req.body;
+    const { pseudonym, email, password, account_type, avatar_url } = req.body;
 
     // Input validation
     if (!pseudonym || !email || !password) {
@@ -175,7 +175,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create user with explicit fields (including account_type)
+    // Create user with explicit fields (including account_type and optional avatar_url)
     const { data: user, error } = await supabase
       .from('users')
       .insert({
@@ -184,9 +184,10 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         password: hashedPassword,
         role: 'user',
         is_active: true,
-        account_type: userAccountType
+        account_type: userAccountType,
+        avatar_url: avatar_url || null
       })
-      .select('id, pseudonym, email, role, is_active, account_type, created_at')
+      .select('id, pseudonym, email, role, is_active, account_type, avatar_url, created_at')
       .single();
 
     if (error) {
@@ -442,6 +443,7 @@ export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) =
         role,
         is_active,
         account_type,
+        avatar_url,
         linked_employee_id,
         created_at,
         linkedEmployee:employees!users_linked_employee_id_fkey(

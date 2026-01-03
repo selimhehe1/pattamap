@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { XCircle, Loader2, RefreshCw, Camera, Trash2, Lightbulb } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import LazyImage from '../Common/LazyImage';
 
 interface EstablishmentLogoProps {
@@ -99,10 +100,12 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
       onLogoUpdated(establishment.id, logoUrl);
 
       logger.debug('✅ Logo uploaded successfully:', logoUrl);
+      notification.success(t('establishmentLogo.successUploaded', 'Logo uploaded successfully'));
 
     } catch (error) {
       logger.error('Logo upload error:', error);
       setError(error instanceof Error ? error.message : t('establishmentLogo.errorUploadFailed'));
+      notification.error(t('establishmentLogo.errorUploadFailed', 'Failed to upload logo'));
       setPreviewUrl(null);
     } finally {
       setIsUploading(false);
@@ -131,10 +134,12 @@ const EstablishmentLogo: React.FC<EstablishmentLogoProps> = ({
 
       onLogoUpdated(establishment.id, '');
       setPreviewUrl(null);
+      notification.success(t('establishmentLogo.successRemoved', 'Logo removed'));
 
     } catch (error) {
       logger.error('Remove logo error:', error);
       setError(error instanceof Error ? error.message : t('establishmentLogo.errorRemoveFailed'));
+      notification.error(t('establishmentLogo.errorRemoveFailed', 'Failed to remove logo'));
     } finally {
       setIsUploading(false);
     }

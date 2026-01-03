@@ -309,7 +309,7 @@ Design cohérent avec PattaMap :
     "language": "Language"
   },
   "map": {
-    "title": "Ergonomic Maps",
+    "title": "Zones",
     "zones": "ZONES",
     "viewMap": "Map",
     "viewList": "List"

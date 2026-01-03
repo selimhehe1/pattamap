@@ -19,7 +19,7 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import AdminEstablishmentCard from './AdminEstablishmentCard';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { Establishment } from '../../types';
 import '../../styles/admin/establishments.css';
 import '../../styles/admin/admin-components.css';
@@ -126,9 +126,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       });
       if (response.ok) {
         refreshEstablishments();
+        notification.success(t('admin.establishmentApproved', 'Establishment approved'));
+      } else {
+        notification.error(t('admin.approveEstablishmentError', 'Failed to approve establishment'));
       }
     } catch (error) {
       logger.error('Failed to approve establishment:', error);
+      notification.error(t('admin.approveEstablishmentError', 'Failed to approve establishment'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -148,9 +152,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       });
       if (response.ok) {
         refreshEstablishments();
+        notification.success(t('admin.establishmentRejected', 'Establishment rejected'));
+      } else {
+        notification.error(t('admin.rejectEstablishmentError', 'Failed to reject establishment'));
       }
     } catch (error) {
       logger.error('Failed to reject establishment:', error);
+      notification.error(t('admin.rejectEstablishmentError', 'Failed to reject establishment'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -177,13 +185,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       if (response.ok) {
         refreshEstablishments();
         logger.info('Establishment deleted successfully:', establishmentId);
-        toast.success(t('admin.deleteEstablishmentSuccess', 'Establishment deleted successfully'));
+        notification.success(t('admin.deleteEstablishmentSuccess', 'Establishment deleted successfully'));
       } else {
         throw new Error('Failed to delete establishment');
       }
     } catch (error) {
       logger.error('Failed to delete establishment:', error);
-      toast.error(t('admin.deleteEstablishmentError', 'Failed to delete establishment. Please try again.'));
+      notification.error(t('admin.deleteEstablishmentError', 'Failed to delete establishment. Please try again.'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -208,7 +216,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       if (response.ok) {
         refreshEstablishments();
         closeModal('establishment-add');
-        toast.success(t('admin.establishmentCreated', 'Establishment created successfully'));
+        notification.success(t('admin.establishmentCreated', 'Establishment created successfully'));
       } else {
         throw new Error('Failed to create establishment');
       }
@@ -229,7 +237,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       if (response.ok) {
         refreshEstablishments();
         closeModal('establishment-edit');
-        toast.success(t('admin.establishmentUpdated', 'Establishment updated successfully'));
+        notification.success(t('admin.establishmentUpdated', 'Establishment updated successfully'));
       } else {
         throw new Error('Failed to update establishment');
       }
@@ -270,9 +278,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       if (response.ok) {
         refreshEstablishments();
         setSelectedProposal(null);
+        notification.success(t('admin.proposalApproved', 'Edit proposal approved'));
+      } else {
+        notification.error(t('admin.approveProposalError', 'Failed to approve proposal'));
       }
     } catch (error) {
       logger.error('Failed to approve proposal:', error);
+      notification.error(t('admin.approveProposalError', 'Failed to approve proposal'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -305,9 +317,13 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
       if (response.ok) {
         refreshEstablishments();
         setSelectedProposal(null);
+        notification.success(t('admin.proposalRejected', 'Edit proposal rejected'));
+      } else {
+        notification.error(t('admin.rejectProposalError', 'Failed to reject proposal'));
       }
     } catch (error) {
       logger.error('Failed to reject proposal:', error);
+      notification.error(t('admin.rejectProposalError', 'Failed to reject proposal'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);

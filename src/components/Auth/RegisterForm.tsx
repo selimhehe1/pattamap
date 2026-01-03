@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, User, Lock, AlertTriangle, FileText, PersonStanding, Sparkles, Mail, KeyRound, Check, Loader2, Users, UserCog } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, AlertTriangle, FileText, PersonStanding, Sparkles, Mail, KeyRound, Check, Loader2, Users, UserCog, Camera, Upload, X } from 'lucide-react';
+import UserAvatar from '../Common/UserAvatar';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -18,6 +19,7 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, onRegisterSuccess }) => {
   const { t } = useTranslation();
   const { register } = useAuth();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     pseudonym: '',
     email: '',
@@ -25,6 +27,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     confirmPassword: '',
     accountType: 'regular' as 'regular' | 'employee' // 🆕 v10.0
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [showDraftBanner, setShowDraftBanner] = useState(false);
@@ -165,6 +169,39 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     );
   };
 
+  // Avatar handling
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error(t('register.avatarInvalidType', 'Please select a JPEG, PNG or WebP image'));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t('register.avatarTooLarge', 'Image must be less than 5MB'));
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveAvatar = () => {
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    setAvatarFile(null);
+    setAvatarPreview('');
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -186,12 +223,34 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     setIsLoading(true);
 
     try {
+      // Step 1: Register user
       const result = await register(
         formData.pseudonym,
         formData.email,
         formData.password,
         formData.accountType // 🆕 v10.0
       );
+
+      // Step 2: Upload avatar if provided (after successful registration)
+      if (avatarFile) {
+        try {
+          const avatarFormData = new FormData();
+          avatarFormData.append('file', avatarFile);
+
+          await fetch(
+            `${import.meta.env.VITE_API_URL}/api/upload/avatar`,
+            {
+              method: 'POST',
+              credentials: 'include',
+              body: avatarFormData
+            }
+          );
+          // Avatar upload is optional - don't fail registration if it fails
+        } catch (avatarError) {
+          console.error('Avatar upload failed:', avatarError);
+          // Continue with registration success even if avatar upload fails
+        }
+      }
 
       // ⚠️ Show warning if password was found in breach database
       if (result?.passwordBreached) {
@@ -201,6 +260,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
       }
 
       clearDraft(); // Clear draft on successful submission
+      handleRemoveAvatar(); // Clean up avatar preview
       toast.success(
         formData.accountType === 'employee'
           ? t('register.employeeAccountCreated')
@@ -435,6 +495,98 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 </ul>
               </div>
             )}
+          </div>
+
+          {/* Avatar Upload Section (Optional) */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              color: '#E879F9',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '10px'
+            }}>
+              <Camera size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              {t('register.avatarLabel', 'Profile Photo')}
+              <span style={{ color: '#888', fontWeight: 'normal', fontSize: '12px', marginLeft: '6px' }}>
+                ({t('register.optional', 'optional')})
+              </span>
+            </label>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {/* Avatar Preview */}
+              <UserAvatar
+                user={{
+                  pseudonym: formData.pseudonym || 'User',
+                  avatar_url: avatarPreview || null
+                }}
+                size="lg"
+                showBorder={true}
+              />
+
+              {/* Upload Zone or Remove Button */}
+              <div style={{ flex: 1 }}>
+                {!avatarPreview ? (
+                  <div
+                    onClick={() => avatarInputRef.current?.click()}
+                    style={{
+                      border: '2px dashed #444',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      background: 'rgba(232,121,249,0.05)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#E879F9';
+                      e.currentTarget.style.background = 'rgba(232,121,249,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#444';
+                      e.currentTarget.style.background = 'rgba(232,121,249,0.05)';
+                    }}
+                  >
+                    <Upload size={24} style={{ color: '#E879F9', marginBottom: '8px' }} />
+                    <p style={{ color: '#fff', fontSize: '13px', margin: 0 }}>
+                      {t('register.clickToUpload', 'Click to upload')}
+                    </p>
+                    <p style={{ color: '#666', fontSize: '11px', margin: '4px 0 0' }}>
+                      {t('register.avatarFormats', 'JPEG, PNG, WebP (max 5MB)')}
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 16px',
+                      background: 'transparent',
+                      border: '1px solid #ef4444',
+                      borderRadius: '8px',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <X size={16} />
+                    {t('register.removePhoto', 'Remove photo')}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleAvatarChange}
+              style={{ display: 'none' }}
+            />
           </div>
 
           <div>

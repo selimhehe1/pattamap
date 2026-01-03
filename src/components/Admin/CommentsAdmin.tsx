@@ -7,6 +7,7 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import CommentReviewCard from './CommentReviewCard';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import {
   Ban,
   MessageSquare,
@@ -94,9 +95,15 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/approve`, { method: 'POST' });
-      if (response.ok) refreshComments();
+      if (response.ok) {
+        refreshComments();
+        notification.success(t('admin.commentApproved', 'Comment approved'));
+      } else {
+        notification.error(t('admin.commentApproveFailed', 'Failed to approve comment'));
+      }
     } catch (error) {
       logger.error('Failed to approve comment:', error);
+      notification.error(t('admin.commentApproveFailed', 'Failed to approve comment'));
     } finally {
       setProcessingIds(prev => { const s = new Set(prev); s.delete(commentId); return s; });
     }
@@ -110,9 +117,15 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         method: 'POST',
         body: JSON.stringify({ reason })
       });
-      if (response.ok) refreshComments();
+      if (response.ok) {
+        refreshComments();
+        notification.success(t('admin.commentRejected', 'Comment rejected'));
+      } else {
+        notification.error(t('admin.commentRejectFailed', 'Failed to reject comment'));
+      }
     } catch (error) {
       logger.error('Failed to reject comment:', error);
+      notification.error(t('admin.commentRejectFailed', 'Failed to reject comment'));
     } finally {
       setProcessingIds(prev => { const s = new Set(prev); s.delete(commentId); return s; });
     }
@@ -123,9 +136,15 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await secureFetch(`${API_URL}/api/admin/comments/${commentId}/dismiss-reports`, { method: 'POST' });
-      if (response.ok) refreshComments();
+      if (response.ok) {
+        refreshComments();
+        notification.success(t('admin.reportsDismissed', 'Reports dismissed'));
+      } else {
+        notification.error(t('admin.reportsDismissFailed', 'Failed to dismiss reports'));
+      }
     } catch (error) {
       logger.error('Failed to dismiss reports:', error);
+      notification.error(t('admin.reportsDismissFailed', 'Failed to dismiss reports'));
     } finally {
       setProcessingIds(prev => { const s = new Set(prev); s.delete(commentId); return s; });
     }
@@ -149,6 +168,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
   const handleBulkApprove = async () => {
     if (selectedIds.size === 0) return;
+    const count = selectedIds.size;
     setIsBulkProcessing(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
@@ -156,8 +176,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         secureFetch(`${API_URL}/api/admin/comments/${id}/approve`, { method: 'POST' })
       ));
       refreshComments();
+      notification.success(t('admin.bulkApproveSuccess', '{{count}} comments approved', { count }));
     } catch (error) {
       logger.error('Bulk approve failed:', error);
+      notification.error(t('admin.bulkApproveFailed', 'Failed to approve comments'));
     } finally {
       setIsBulkProcessing(false);
     }
@@ -165,6 +187,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
   const handleBulkReject = async () => {
     if (selectedIds.size === 0) return;
+    const count = selectedIds.size;
     setIsBulkProcessing(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
@@ -172,8 +195,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         secureFetch(`${API_URL}/api/admin/comments/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason: 'Bulk rejected' }) })
       ));
       refreshComments();
+      notification.success(t('admin.bulkRejectSuccess', '{{count}} comments rejected', { count }));
     } catch (error) {
       logger.error('Bulk reject failed:', error);
+      notification.error(t('admin.bulkRejectFailed', 'Failed to reject comments'));
     } finally {
       setIsBulkProcessing(false);
     }
@@ -181,6 +206,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
   const handleBulkDismissReports = async () => {
     if (selectedIds.size === 0) return;
+    const count = selectedIds.size;
     setIsBulkProcessing(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
@@ -188,8 +214,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
         secureFetch(`${API_URL}/api/admin/comments/${id}/dismiss-reports`, { method: 'POST' })
       ));
       refreshComments();
+      notification.success(t('admin.bulkDismissSuccess', '{{count}} reports dismissed', { count }));
     } catch (error) {
       logger.error('Bulk dismiss failed:', error);
+      notification.error(t('admin.bulkDismissFailed', 'Failed to dismiss reports'));
     } finally {
       setIsBulkProcessing(false);
     }

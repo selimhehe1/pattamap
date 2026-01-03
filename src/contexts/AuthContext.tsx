@@ -3,6 +3,7 @@ import { User, AuthContextType, Employee } from '../types';
 import { logger } from '../utils/logger';
 import { setSentryUser, clearSentryUser } from '../config/sentry';
 import { useCSRF } from './CSRFContext';
+import notification from '../utils/notification';
 
 // Export AuthContext for testing purposes
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Not authenticated or token expired
         if (isPeriodicCheck && user) {
           logger.warn('[AuthContext] Session expired - user will be logged out');
+          notification.warning('Votre session a expiré. Veuillez vous reconnecter.');
         }
         setUser(null);
         setToken(null);
@@ -360,6 +362,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Clear Sentry user context
       clearSentryUser();
+
+      // Show success notification
+      notification.success('Déconnexion réussie');
     }
   };
 

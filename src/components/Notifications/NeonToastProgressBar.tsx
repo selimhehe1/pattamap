@@ -38,14 +38,12 @@ const NeonToastProgressBar = memo(({
   const startTimeRef = useRef(createdAt);
   const elapsedRef = useRef(0);
 
-  // Don't render for infinite duration (loading toasts)
-  if (duration === Infinity) {
-    return null;
-  }
+  // Check if we should render (but hooks must be called first!)
+  const isInfinite = duration === Infinity;
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      // No animation for reduced motion
+    // Skip animation for infinite duration or reduced motion
+    if (isInfinite || prefersReducedMotion) {
       return;
     }
 
@@ -57,7 +55,6 @@ const NeonToastProgressBar = memo(({
       // Resume: calculate remaining time and animate
       const elapsed = elapsedRef.current;
       const remaining = Math.max(0, duration - elapsed);
-      const progress = elapsed / duration;
 
       startTimeRef.current = Date.now() - elapsed;
 
@@ -69,11 +66,11 @@ const NeonToastProgressBar = memo(({
         },
       });
     }
-  }, [isPaused, duration, controls, prefersReducedMotion]);
+  }, [isPaused, duration, controls, prefersReducedMotion, isInfinite]);
 
   // Initial animation on mount
   useEffect(() => {
-    if (!prefersReducedMotion) {
+    if (!prefersReducedMotion && !isInfinite) {
       controls.start({
         scaleX: 0,
         transition: {
@@ -82,9 +79,10 @@ const NeonToastProgressBar = memo(({
         },
       });
     }
-  }, [duration, controls, prefersReducedMotion]);
+  }, [duration, controls, prefersReducedMotion, isInfinite]);
 
-  if (prefersReducedMotion) {
+  // Don't render for infinite duration (loading toasts) or reduced motion
+  if (isInfinite || prefersReducedMotion) {
     return null;
   }
 

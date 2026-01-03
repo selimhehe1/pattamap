@@ -68,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Migration vers React 19.1 + TypeScript strict
-- Architecture cartes ergonomiques (9 zones, 322 positions)
 
 ---
 
