@@ -200,7 +200,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
             </div>
           </div>
 
-          {/* Row 2: Tags (Type + Establishment) */}
+          {/* Row 2: Tags (Type only) */}
           <div className="employee-card-tags-row">
             {(() => {
               const hasActiveFreelance = employee.independent_position?.is_active;
@@ -227,16 +227,18 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
               }
               return null;
             })()}
-            {showEstablishment && currentEstablishment && (
-              <span className="employee-card-tag employee-card-tag-establishment">
-                <Building2 size={11} className="employee-card-tag-icon" />
-                <span>{currentEstablishment.name}</span>
-              </span>
-            )}
           </div>
         </div>
 
-        {/* VIP Badge - Bottom Right - Positioned outside info box */}
+        {/* Establishment Badge - Bottom Right */}
+        {showEstablishment && currentEstablishment && (
+          <div className="employee-card-establishment-badge">
+            <Building2 size={12} />
+            <span>{currentEstablishment.name}</span>
+          </div>
+        )}
+
+        {/* VIP Badge - Bottom Right (above establishment if both present) */}
         {VIP_ENABLED && employee.is_vip && employee.vip_expires_at && new Date(employee.vip_expires_at) > new Date() && (
           <div
             className="employee-card-vip-badge"

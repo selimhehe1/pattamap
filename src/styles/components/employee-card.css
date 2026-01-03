@@ -191,6 +191,46 @@
   }
 }
 
+/* Establishment Badge - Bottom Right (floating) */
+.employee-card-establishment-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  max-width: 140px;
+  overflow: hidden;
+}
+
+.employee-card-establishment-badge span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.employee-card-establishment-badge svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* Offset establishment badge when VIP is present */
+.employee-card-vip ~ .employee-card-establishment-badge,
+.employee-card-overlay:has(.employee-card-vip-badge) .employee-card-establishment-badge {
+  bottom: 45px;
+}
+
 .employee-card-photo-count {
   position: absolute;
   top: 10px;
@@ -849,6 +889,18 @@ body[data-theme="light"] .employee-card-tag-establishment {
   background: rgba(15, 23, 42, 0.08);
   color: #374151;
   border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+/* Light mode - Floating establishment badge */
+body[data-theme="light"] .employee-card-establishment-badge {
+  background: rgba(255, 255, 255, 0.95);
+  color: #374151;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .employee-card-establishment-badge svg {
+  color: #6B7280;
 }
 
 /* Light mode - Legacy Type badges */
