@@ -94,7 +94,7 @@
   },
 
   "map": {
-    "title": "Ergonomic Maps",
+    "title": "Zones",
     "selectZone": "Select a zone to explore",
     "zones": "ZONES",
     "establishments": "Establishments",
@@ -613,6 +613,7 @@
     "establishmentAddress": "Address",
     "establishmentAddressPlaceholder": "Enter street address",
     "establishmentZone": "Zone",
+    "selectZone": "Select a zone",
     "establishmentCategory": "Category",
     "selectCategory": "Select a category",
     "establishmentDescription": "Description",

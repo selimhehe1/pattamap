@@ -93,7 +93,7 @@
   },
 
   "map": {
-    "title": "Cartes Ergonomiques",
+    "title": "Zones",
     "selectZone": "Sélectionnez une zone à explorer",
     "zones": "ZONES",
     "establishments": "Établissements",
@@ -600,6 +600,7 @@
     "establishmentAddress": "Adresse",
     "establishmentAddressPlaceholder": "Entrez l'adresse",
     "establishmentZone": "Zone",
+    "selectZone": "Sélectionnez une zone",
     "establishmentCategory": "Catégorie",
     "selectCategory": "Sélectionnez une catégorie",
     "establishmentDescription": "Description",
