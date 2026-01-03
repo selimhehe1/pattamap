@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: 'user' | 'moderator' | 'admin';
   account_type?: 'regular' | 'employee' | 'establishment_owner'; // 🆕 v10.0
+  avatar_url?: string | null; // 🆕 Profile photo (Cloudinary URL)
   linked_employee_id?: string | null; // 🆕 v10.0
   linkedEmployee?: {
     id: string;

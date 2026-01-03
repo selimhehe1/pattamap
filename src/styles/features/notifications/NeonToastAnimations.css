@@ -1,0 +1,210 @@
+/**
+ * NeonToastAnimations.css - Keyframe animations for Neon Glass Toasts
+ *
+ * Contains CSS keyframe animations for:
+ * - Border glow pulse
+ * - Icon glow pulse
+ * - Loading spinner
+ * - Sparkle effects
+ */
+
+/* ============================================
+   BORDER GLOW PULSE
+   ============================================ */
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   ICON GLOW PULSE
+   ============================================ */
+
+@keyframes iconGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--toast-glow-color, rgba(232, 121, 249, 0.4));
+  }
+  50% {
+    box-shadow: 0 0 35px var(--toast-glow-color, rgba(232, 121, 249, 0.6));
+  }
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+@keyframes neonSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.neon-toast--loading .neon-toast__icon-inner {
+  animation: neonSpin 1s linear infinite;
+}
+
+/* ============================================
+   PROGRESS BAR GLOW
+   ============================================ */
+
+@keyframes progressGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--toast-glow-color, rgba(232, 121, 249, 0.4));
+  }
+  50% {
+    box-shadow: 0 0 16px var(--toast-glow-color, rgba(232, 121, 249, 0.6));
+  }
+}
+
+.neon-toast__progress-bar {
+  animation: progressGlow 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   SUCCESS CHECKMARK DRAW
+   ============================================ */
+
+@keyframes drawCheck {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.neon-toast--success .neon-toast__icon svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: drawCheck 0.4s ease-out 0.15s forwards;
+}
+
+/* ============================================
+   ERROR X-MARK DRAW
+   ============================================ */
+
+@keyframes drawX {
+  0% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.neon-toast--error .neon-toast__icon svg path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: drawX 0.3s ease-out 0.1s forwards;
+}
+
+/* ============================================
+   SPARKLE FLOAT
+   ============================================ */
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -80%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(0) rotate(180deg);
+  }
+}
+
+/* ============================================
+   SHAKE ANIMATION (for errors)
+   ============================================ */
+
+@keyframes toastShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+.neon-toast--error.neon-toast--shake {
+  animation: toastShake 0.5s ease-in-out;
+}
+
+/* ============================================
+   ENTRANCE GLOW BURST
+   ============================================ */
+
+@keyframes entranceGlow {
+  0% {
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 0 60px var(--toast-glow-color, rgba(232, 121, 249, 0.5));
+  }
+  100% {
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      0 0 0 transparent;
+  }
+}
+
+.neon-toast[data-just-entered="true"] {
+  animation: entranceGlow 0.6s ease-out;
+}
+
+/* ============================================
+   HOVER LIFT
+   ============================================ */
+
+.neon-toast:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 40px var(--toast-glow-color, rgba(232, 121, 249, 0.25));
+}
+
+.neon-toast:hover .neon-toast__glow-border {
+  opacity: 0.9;
+}
+
+/* ============================================
+   REDUCED MOTION OVERRIDES
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes borderGlow {
+    0%, 100% { opacity: 0.6; }
+  }
+
+  @keyframes iconGlowPulse {
+    0%, 100% { box-shadow: 0 0 20px var(--toast-glow-color, rgba(232, 121, 249, 0.4)); }
+  }
+
+  @keyframes progressGlow {
+    0%, 100% { box-shadow: 0 0 8px var(--toast-glow-color, rgba(232, 121, 249, 0.4)); }
+  }
+
+  .neon-toast--loading .neon-toast__icon-inner,
+  .neon-toast--success .neon-toast__icon svg path,
+  .neon-toast--error .neon-toast__icon svg path {
+    animation: none;
+  }
+
+  .neon-toast:hover {
+    transform: none;
+  }
+}

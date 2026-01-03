@@ -1,0 +1,404 @@
+/**
+ * NeonToast.css - Neon Glass Toast Styles
+ *
+ * Neo-Nightlife 2025 glassmorphism design with:
+ * - Gradient backgrounds per notification type
+ * - Glow effects and animated borders
+ * - Responsive design
+ * - Light/dark mode support
+ */
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.neon-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-notification, 300);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+  pointer-events: none;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+/* ============================================
+   BASE TOAST
+   ============================================ */
+
+.neon-toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 320px;
+  max-width: 420px;
+  padding: 16px 20px;
+  padding-right: 40px; /* Space for close button */
+
+  /* Glassmorphism */
+  background: rgba(22, 22, 26, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+
+  /* Border */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+
+  /* Shadow */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+
+  /* Touch target */
+  min-height: 44px;
+
+  pointer-events: auto;
+  overflow: hidden;
+
+  /* Font */
+  font-family: var(--font-family-base, 'Space Grotesk', sans-serif);
+}
+
+/* Glow border overlay */
+.neon-toast__glow-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  pointer-events: none;
+  opacity: 0.6;
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+/* ============================================
+   TYPE VARIANTS - Colors & Glow
+   ============================================ */
+
+/* Success: Cyan → Emerald */
+.neon-toast--success {
+  --toast-gradient-start: #00E5FF;
+  --toast-gradient-end: #10B981;
+  --toast-glow-color: rgba(0, 229, 255, 0.4);
+  --toast-glow-rgb: 0, 229, 255;
+  border-color: rgba(0, 229, 255, 0.25);
+}
+
+.neon-toast--success .neon-toast__glow-border {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.15),
+    rgba(16, 185, 129, 0.1)
+  );
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+}
+
+/* Error: Rose → Coral */
+.neon-toast--error {
+  --toast-gradient-start: #FB7185;
+  --toast-gradient-end: #F97316;
+  --toast-glow-color: rgba(251, 113, 133, 0.4);
+  --toast-glow-rgb: 251, 113, 133;
+  border-color: rgba(251, 113, 133, 0.25);
+}
+
+.neon-toast--error .neon-toast__glow-border {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 113, 133, 0.15),
+    rgba(249, 115, 22, 0.1)
+  );
+  box-shadow: 0 0 30px rgba(251, 113, 133, 0.2);
+}
+
+/* Warning: Amber → Gold */
+.neon-toast--warning {
+  --toast-gradient-start: #FBBF24;
+  --toast-gradient-end: #FFD700;
+  --toast-glow-color: rgba(251, 191, 36, 0.4);
+  --toast-glow-rgb: 251, 191, 36;
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.neon-toast--warning .neon-toast__glow-border {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.15),
+    rgba(255, 215, 0, 0.1)
+  );
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.2);
+}
+
+/* Info: Magenta → Violet */
+.neon-toast--info {
+  --toast-gradient-start: #E879F9;
+  --toast-gradient-end: #8B5CF6;
+  --toast-glow-color: rgba(232, 121, 249, 0.4);
+  --toast-glow-rgb: 232, 121, 249;
+  border-color: rgba(232, 121, 249, 0.25);
+}
+
+.neon-toast--info .neon-toast__glow-border {
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.15),
+    rgba(139, 92, 246, 0.1)
+  );
+  box-shadow: 0 0 30px rgba(232, 121, 249, 0.2);
+}
+
+/* Loading: Magenta → Cyan */
+.neon-toast--loading {
+  --toast-gradient-start: #E879F9;
+  --toast-gradient-end: #00E5FF;
+  --toast-glow-color: rgba(232, 121, 249, 0.3);
+  --toast-glow-rgb: 232, 121, 249;
+  border-color: rgba(232, 121, 249, 0.2);
+}
+
+.neon-toast--loading .neon-toast__glow-border {
+  background: linear-gradient(
+    135deg,
+    rgba(232, 121, 249, 0.12),
+    rgba(0, 229, 255, 0.08)
+  );
+}
+
+/* ============================================
+   ICON
+   ============================================ */
+
+.neon-toast__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+
+  /* Gradient background circle */
+  background: linear-gradient(
+    135deg,
+    var(--toast-gradient-start, #E879F9),
+    var(--toast-gradient-end, #8B5CF6)
+  );
+  border-radius: 50%;
+
+  /* Glow effect */
+  box-shadow: 0 0 20px var(--toast-glow-color, rgba(232, 121, 249, 0.4));
+
+  color: white;
+  animation: iconGlowPulse 2s ease-in-out infinite;
+}
+
+.neon-toast__icon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Sparkles container */
+.neon-toast__sparkles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  width: 60px;
+  height: 60px;
+}
+
+.neon-toast__sparkle {
+  position: absolute;
+  color: var(--toast-gradient-start, #E879F9);
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+/* ============================================
+   CONTENT
+   ============================================ */
+
+.neon-toast__content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.neon-toast__message {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #FAFAFA;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.neon-toast__description {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: #A1A1AA;
+  line-height: 1.4;
+}
+
+/* ============================================
+   ACTION BUTTON
+   ============================================ */
+
+.neon-toast__action {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+
+  background: linear-gradient(
+    135deg,
+    var(--toast-gradient-start, #E879F9),
+    var(--toast-gradient-end, #8B5CF6)
+  );
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.neon-toast__action:hover {
+  box-shadow: 0 0 20px var(--toast-glow-color, rgba(232, 121, 249, 0.5));
+}
+
+.neon-toast__action:focus-visible {
+  outline: 2px solid var(--toast-gradient-start, #E879F9);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   CLOSE BUTTON
+   ============================================ */
+
+.neon-toast__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+
+  color: #71717A;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.neon-toast__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FAFAFA;
+}
+
+.neon-toast__close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--toast-gradient-start, #E879F9);
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+
+.neon-toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  border-radius: 0 0 16px 16px;
+}
+
+.neon-toast__progress-bar {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--toast-gradient-start, #E879F9),
+    var(--toast-gradient-end, #8B5CF6)
+  );
+  box-shadow: 0 0 10px var(--toast-glow-color, rgba(232, 121, 249, 0.5));
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 480px) {
+  .neon-toast-container {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+  }
+
+  .neon-toast {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+  }
+}
+
+/* ============================================
+   LIGHT MODE
+   ============================================ */
+
+body[data-theme="light"] .neon-toast {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+body[data-theme="light"] .neon-toast__message {
+  color: #18181B;
+}
+
+body[data-theme="light"] .neon-toast__description {
+  color: #71717A;
+}
+
+body[data-theme="light"] .neon-toast__close {
+  color: #A1A1AA;
+}
+
+body[data-theme="light"] .neon-toast__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #18181B;
+}
+
+body[data-theme="light"] .neon-toast__progress {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-toast,
+  .neon-toast__icon,
+  .neon-toast__glow-border,
+  .neon-toast__progress-bar,
+  .neon-toast__sparkle {
+    animation: none !important;
+    transition: none !important;
+  }
+}
