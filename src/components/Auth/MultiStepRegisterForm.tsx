@@ -953,7 +953,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   <div style={{
                     flex: 1,
                     height: '4px',
-                    background: currentStep >= 3 ? '#C19A6B' : 'rgba(255,255,255,0.2)',
+                    background: currentStep >= 3 ? '#3B82F6' : 'rgba(255,255,255,0.2)',
                     borderRadius: '2px',
                     transition: 'all 0.3s ease'
                   }} />
@@ -965,8 +965,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                background: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#00E5FF' : 'rgba(255,255,255,0.2)',
-                color: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#0a0a2e' : '#ffffff',
+                background: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#3B82F6' : 'rgba(255,255,255,0.2)',
+                color: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#ffffff' : '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

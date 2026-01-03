@@ -879,6 +879,34 @@
   color: #E879F9;
 }
 
+/* Stats Grid - Horizontal layout for stats cards */
+.modal-premium__stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.modal-premium__stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.modal-premium__stat-card:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.modal-premium__stat-icon {
+  opacity: 0.9;
+}
+
 /* ============================================
    15. LOADING STATE
    ============================================ */

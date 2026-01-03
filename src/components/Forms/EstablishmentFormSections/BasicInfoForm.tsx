@@ -8,6 +8,22 @@ import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
 import '../../../styles/components/modals.css';
 
+// Map category icon names to emojis for display in select options
+const getCategoryEmoji = (iconName: string): string => {
+  const emojiMap: Record<string, string> = {
+    'beer': '🍺',
+    'dancer': '💃',
+    'spa': '💆',
+    'music': '🎵',
+    'cocktail': '🍸',
+    'wine': '🍷',
+    'restaurant': '🍽️',
+    'hotel': '🏨',
+    'karaoke': '🎤',
+  };
+  return emojiMap[iconName?.toLowerCase()] || '🏢';
+};
+
 interface BasicInfoFormProps {
   formData: {
     name: string;
@@ -173,7 +189,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           <option value="">{t('establishment.basicInfo.selectCategoryPlaceholder')}</option>
           {categories.map(category => (
             <option key={category.id} value={category.id.toString()}>
-              {category.icon} {category.name}
+              {getCategoryEmoji(category.icon)} {category.name}
             </option>
           ))}
         </select>
