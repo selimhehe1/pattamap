@@ -524,7 +524,6 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               >
                 <span className="profile-v2-stat-value">{girl.age}</span>
                 <span className="profile-v2-stat-label">
-                  <Cake size={12} />
                   {t('profile.age', 'Age')}
                 </span>
               </motion.div>
@@ -556,7 +555,6 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               >
                 <span className="profile-v2-stat-value">{nationalityDisplay}</span>
                 <span className="profile-v2-stat-label">
-                  <Globe size={12} />
                   {t('profile.nationality', 'Nationality')}
                 </span>
               </motion.div>
