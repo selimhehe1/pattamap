@@ -23,6 +23,7 @@ import { logger } from '../utils/logger';
 export interface EmployeeSearchParams {
   q?: string;
   type?: string;
+  sex?: string;
   name?: string;
   nationality?: string;
   zone?: string;

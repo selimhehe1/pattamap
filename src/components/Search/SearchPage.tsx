@@ -293,6 +293,8 @@ const SearchPage: React.FC = () => {
     if (filters.min_rating) active.push({ key: 'min_rating', label: t('search.rating', 'Rating'), value: `${filters.min_rating}+★` });
     if (filters.has_photos === 'true') active.push({ key: 'has_photos', label: t('search.photos', 'Photos'), value: '✓' });
     if (filters.social_media) active.push({ key: 'social_media', label: t('search.socialMedia', 'Social'), value: filters.social_media.split(',').length.toString() });
+    if (filters.sex) active.push({ key: 'sex', label: t('search.gender', 'Gender'), value: filters.sex.charAt(0).toUpperCase() + filters.sex.slice(1) });
+    if (filters.type && filters.type !== 'all') active.push({ key: 'type', label: t('search.type', 'Type'), value: filters.type === 'freelance' ? 'Freelance' : filters.type });
 
     return active;
   }, [filters, availableFilters, t]);
@@ -303,6 +305,8 @@ const SearchPage: React.FC = () => {
   const handleRemoveFilter = useCallback((key: string) => {
     if (key === 'age') {
       setFilters(prev => ({ ...prev, age_min: '', age_max: '' }));
+    } else if (key === 'type') {
+      setFilters(prev => ({ ...prev, type: 'all' }));
     } else {
       setFilters(prev => ({ ...prev, [key]: '' }));
     }
