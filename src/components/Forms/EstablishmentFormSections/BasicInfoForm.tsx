@@ -6,7 +6,7 @@ import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
 import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
-import CustomSelect, { CustomSelectOption } from '../../Common/CustomSelect';
+import CustomSelect from '../../Common/CustomSelect';
 import '../../../styles/components/modals.css';
 
 // Map category icon names to Lucide React components
