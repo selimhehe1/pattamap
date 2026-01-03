@@ -41,9 +41,6 @@ jest.mock('../../utils/notificationHelper', () => ({
   notifyEmployeeVerificationRevoked: jest.fn().mockResolvedValue(undefined),
   notifyAdminsNewVerificationRequest: jest.fn().mockResolvedValue(undefined)
 }));
-jest.mock('../../config/azureFace', () => ({
-  detectFaceInImage: jest.fn().mockResolvedValue({ faceDetected: true, confidence: 0.95 })
-}));
 
 describe('Verification Controller', () => {
   let app: express.Application;
