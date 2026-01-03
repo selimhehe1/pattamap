@@ -95,7 +95,7 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('image', selectedFile);
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/upload/avatar`,
