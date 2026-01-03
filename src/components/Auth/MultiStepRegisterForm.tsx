@@ -777,12 +777,15 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
         toast.info(t('register.creatingEmployeeProfile'));
 
-        // 🔧 DEBUG: Log form data before API call
-        console.log('[DEBUG] Creating employee with:', {
+        // 🔧 DEBUG v2: Log form data before API call (forced rebuild)
+        console.log('[DEBUG v2] Creating employee with:', {
           name: formData.employeeName,
           sex: formData.employeeSex,
+          sexType: typeof formData.employeeSex,
+          sexLength: formData.employeeSex?.length,
           isFreelance: formData.isFreelance,
-          establishmentId: formData.establishmentId
+          establishmentId: formData.establishmentId,
+          timestamp: new Date().toISOString()
         });
 
         // 🔧 CSRF FIX: Validate fresh token is available
