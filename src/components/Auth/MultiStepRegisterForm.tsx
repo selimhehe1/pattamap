@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail, Users, UserCog, Rocket, Lightbulb, Store, Building2, FolderOpen, Camera, BookOpen, Upload } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -69,7 +69,7 @@ interface FormData {
   photos: File[];
   // Step 5 (employee create only) - Employment
   isFreelance: boolean;
-  freelanceZone: string;
+  freelanceNightclubIds: string[];  // 🆕 v10.x - Multiple nightclubs for freelancers
   establishmentId: string;
   // Step 6 (employee create only) - Social Media
   socialMedia: {
@@ -141,7 +141,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     photos: [],
     // Step 5 fields
     isFreelance: false,
-    freelanceZone: '',
+    freelanceNightclubIds: [],  // 🆕 v10.x - Multiple nightclubs for freelancers
     establishmentId: '',
     // Step 6 fields
     socialMedia: {
@@ -179,6 +179,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // React Query hooks for establishments and employee search
   const { data: establishments = [] } = useEstablishments();
+
+  // 🆕 v10.x - Filter nightclubs only (for freelance multi-select)
+  const nightclubs = useMemo(() => {
+    return establishments.filter(est => est.category?.name === 'Nightclub');
+  }, [establishments]);
 
   // Filter establishments by search query and group by zone
   // 🆕 v10.x: excludeWithOwner = true for owner claim (only show establishments without owner)
@@ -794,8 +799,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             description: formData.employeeDescription || undefined,
             photos: photoUrls,
             is_freelance: formData.isFreelance,
-            freelance_zone: formData.isFreelance ? formData.freelanceZone : undefined,
             current_establishment_id: !formData.isFreelance && formData.establishmentId ? formData.establishmentId : undefined,
+            current_establishment_ids: formData.isFreelance && formData.freelanceNightclubIds.length > 0
+              ? formData.freelanceNightclubIds
+              : undefined,
             social_media: Object.fromEntries(
               Object.entries(formData.socialMedia).filter(([_, value]) => value.trim() !== '')
             )
@@ -1047,7 +1054,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   photos: [],
                   // Step 5 fields
                   isFreelance: false,
-                  freelanceZone: '',
+                  freelanceNightclubIds: [],
                   establishmentId: '',
                   // Step 6 fields
                   socialMedia: {
@@ -2562,34 +2569,97 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   )}
                 </div>
 
-                {/* Freelance Zone Selector */}
+                {/* 🆕 v10.x - Freelance Nightclub Multi-Select */}
                 {formData.isFreelance && (
                   <div style={{ marginBottom: '20px' }}>
-                    <label className="label-nightlife"><MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.selectZone')} *</label>
-                    <select
-                      value={formData.freelanceZone}
-                      onChange={(e) => handleInputChange('freelanceZone', e.target.value)}
-                      className="select-nightlife"
-                      required
-                    >
-                      <option value="">{t('register.selectZonePlaceholder')}</option>
-                      <option value="soi6">{t('register.zones.soi6')}</option>
-                      <option value="walkingstreet">{t('register.zones.walkingstreet')}</option>
-                      <option value="lkmetro">{t('register.zones.lkmetro')}</option>
-                      <option value="treetown">{t('register.zones.treetown')}</option>
-                      <option value="soibuakhao">{t('register.zones.soibuakhao')}</option>
-                      <option value="beachroad">{t('register.zones.beachroad')}</option>
-                    </select>
+                    <label className="label-nightlife">
+                      <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      {t('register.selectNightclubs', 'Select Nightclubs (Optional)')}
+                    </label>
+
+                    {/* Info message */}
                     <div style={{
-                      marginTop: '10px',
+                      marginBottom: '15px',
                       padding: '12px',
                       background: 'rgba(157, 78, 221, 0.15)',
                       borderRadius: '8px',
-                      color: 'rgba(255,255,255,0.8)',
-                      fontSize: '13px'
+                      fontSize: '13px',
+                      color: 'rgba(255,255,255,0.8)'
                     }}>
-                      <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.freelanceNote')}
+                      <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      {t('register.freelanceNightclubNote', 'As a freelance, you can work at multiple nightclubs simultaneously, or leave empty to be listed as a free freelance.')}
                     </div>
+
+                    {/* Nightclub checkboxes */}
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      padding: '10px',
+                      background: 'rgba(0,0,0,0.2)',
+                      borderRadius: '8px'
+                    }}>
+                      {nightclubs.length === 0 ? (
+                        <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', margin: '10px 0' }}>
+                          {t('register.noNightclubsAvailable', 'No nightclubs available')}
+                        </p>
+                      ) : (
+                        nightclubs.map(nightclub => (
+                          <label
+                            key={nightclub.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              cursor: 'pointer',
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              background: formData.freelanceNightclubIds.includes(nightclub.id)
+                                ? 'rgba(157, 78, 221, 0.2)'
+                                : 'transparent',
+                              border: formData.freelanceNightclubIds.includes(nightclub.id)
+                                ? '1px solid rgba(157, 78, 221, 0.5)'
+                                : '1px solid transparent',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.freelanceNightclubIds.includes(nightclub.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  handleInputChange('freelanceNightclubIds', [...formData.freelanceNightclubIds, nightclub.id]);
+                                } else {
+                                  handleInputChange('freelanceNightclubIds', formData.freelanceNightclubIds.filter((id: string) => id !== nightclub.id));
+                                }
+                              }}
+                              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                            />
+                            <span style={{ color: '#fff', flex: 1 }}>{nightclub.name}</span>
+                            {nightclub.zone && (
+                              <span style={{ color: '#9D4EDD', fontSize: '12px' }}>
+                                <MapPin size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} />
+                                {nightclub.zone}
+                              </span>
+                            )}
+                          </label>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Selected count indicator */}
+                    {formData.freelanceNightclubIds.length > 0 && (
+                      <div style={{
+                        marginTop: '10px',
+                        color: '#9D4EDD',
+                        fontSize: '13px'
+                      }}>
+                        <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                        {formData.freelanceNightclubIds.length} {t('register.nightclubsSelected', 'nightclub(s) selected')}
+                      </div>
+                    )}
                   </div>
                 )}
 
