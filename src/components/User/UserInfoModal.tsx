@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,22 +12,35 @@ import {
   Star,
   MessageCircle,
   FileEdit,
-  X
+  X,
+  Camera
 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import UserAvatar from '../Common/UserAvatar';
+import AvatarEditModal from './AvatarEditModal';
 import '../../styles/components/modal-premium-base.css';
 
 interface UserInfoModalProps {
   user: User;
   onClose: () => void;
+  onUserUpdate?: (updatedUser: Partial<User>) => void;
   isOpen?: boolean;
 }
 
 /**
  * UserInfoModal - Display user profile information with premium Neo-Nightlife 2025 design
  */
-const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, isOpen = true }) => {
+const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, onUserUpdate, isOpen = true }) => {
   const { t } = useTranslation();
+  const [showAvatarEdit, setShowAvatarEdit] = useState(false);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(user.avatar_url);
+
+  const handleAvatarUpdated = (newAvatarUrl: string | null) => {
+    setCurrentAvatarUrl(newAvatarUrl);
+    if (onUserUpdate) {
+      onUserUpdate({ avatar_url: newAvatarUrl });
+    }
+  };
 
   // Format date
   const formatDate = (dateString?: string) => {
@@ -138,13 +151,42 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, isOpen = t
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
               >
-                <motion.div
-                  className="modal-premium__avatar"
-                  style={{ borderColor: getRoleColor(user.role), boxShadow: `0 0 30px ${getRoleColor(user.role)}40` }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {getRoleIcon(user.role, 48)}
-                </motion.div>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <UserAvatar
+                    user={{
+                      pseudonym: user.pseudonym,
+                      avatar_url: currentAvatarUrl
+                    }}
+                    size="xl"
+                    showBorder={true}
+                  />
+                  {/* Edit Avatar Button */}
+                  <motion.button
+                    onClick={() => setShowAvatarEdit(true)}
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      zIndex: 10,
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #E879F9, #00E5FF)',
+                      border: '3px solid #1a1a2e',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      color: '#fff',
+                      padding: 0
+                    }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label={t('userInfo.editAvatar', 'Edit avatar')}
+                  >
+                    <Camera size={16} />
+                  </motion.button>
+                </div>
                 <h3 className="modal-premium__user-name">{user.pseudonym}</h3>
                 <p className="modal-premium__user-email">{user.email}</p>
                 <motion.span
@@ -250,7 +292,19 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, isOpen = t
   );
 
   // Use portal to render at body level
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      {showAvatarEdit && (
+        <AvatarEditModal
+          user={{ ...user, avatar_url: currentAvatarUrl }}
+          onClose={() => setShowAvatarEdit(false)}
+          onAvatarUpdated={handleAvatarUpdated}
+          isOpen={showAvatarEdit}
+        />
+      )}
+    </>
+  );
 };
 
 export default UserInfoModal;
