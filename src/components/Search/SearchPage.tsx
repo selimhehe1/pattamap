@@ -343,13 +343,51 @@ const SearchPage: React.FC = () => {
             gap: '12px',
             marginBottom: '16px'
           }}>
-            {/* Results count */}
+            {/* Left side: Results count + Active filter tags */}
             <div style={{
-              fontSize: '14px',
-              color: 'rgba(255, 255, 255, 0.7)'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              flexWrap: 'wrap',
+              flex: '1 1 auto'
             }}>
-              {totalResults > 0 && (
-                <span>{totalResults} {t('search.results', 'results')}</span>
+              {/* Results count */}
+              <div style={{
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.7)',
+                whiteSpace: 'nowrap'
+              }}>
+                {totalResults > 0 && (
+                  <span>{totalResults} {t('search.results', 'results')}</span>
+                )}
+              </div>
+
+              {/* Active filter tags - inline with results */}
+              {activeFiltersCount > 0 && (
+                <>
+                  {activeFilters.map((filter) => (
+                    <button
+                      key={filter.key}
+                      className="active-filter-chip"
+                      onClick={() => handleRemoveFilter(filter.key)}
+                      title={`${t('search.removeFilter', 'Remove')}: ${filter.label}`}
+                    >
+                      <span className="active-filter-chip-label">{filter.label}:</span>
+                      <span className="active-filter-chip-value">{filter.value}</span>
+                      <span className="active-filter-chip-remove">
+                        <X size={10} />
+                      </span>
+                    </button>
+                  ))}
+                  {activeFiltersCount > 1 && (
+                    <button
+                      className="clear-all-filters-link"
+                      onClick={handleClearFilters}
+                    >
+                      {t('search.clearAll', 'Clear All')}
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
@@ -465,34 +503,6 @@ const SearchPage: React.FC = () => {
               )}
             </div>
           </div>
-
-          {/* Active Filters Bar */}
-          {activeFiltersCount > 0 && (
-            <div className="active-filters-bar">
-              {activeFilters.map((filter) => (
-                <button
-                  key={filter.key}
-                  className="active-filter-chip"
-                  onClick={() => handleRemoveFilter(filter.key)}
-                  title={`${t('search.removeFilter', 'Remove')}: ${filter.label}`}
-                >
-                  <span className="active-filter-chip-label">{filter.label}:</span>
-                  <span className="active-filter-chip-value">{filter.value}</span>
-                  <span className="active-filter-chip-remove">
-                    <X size={10} />
-                  </span>
-                </button>
-              ))}
-              {activeFiltersCount > 1 && (
-                <button
-                  className="clear-all-filters-link"
-                  onClick={handleClearFilters}
-                >
-                  {t('search.clearAll', 'Clear All')}
-                </button>
-              )}
-            </div>
-          )}
 
           {error && (
             <div style={{
