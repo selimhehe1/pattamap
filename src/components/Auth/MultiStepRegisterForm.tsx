@@ -770,6 +770,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         if (!formData.employeeSex) {
           throw new Error(t('register.employeeSexRequired', 'Please select your sex/gender'));
         }
+        // 🆕 Business rule: Non-freelance employees MUST have an establishment
+        if (!formData.isFreelance && !formData.establishmentId) {
+          throw new Error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
+        }
 
         toast.info(t('register.creatingEmployeeProfile'));
 
@@ -2663,10 +2667,13 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   </div>
                 )}
 
-                {/* Establishment Selector with Autocomplete */}
+                {/* Establishment Selector with Autocomplete - REQUIRED for non-freelance */}
                 {!formData.isFreelance && (
                   <div style={{ marginBottom: '20px', position: 'relative' }}>
-                    <label className="label-nightlife"><Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.currentEstablishment')}</label>
+                    <label className="label-nightlife">
+                      <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                      {t('register.currentEstablishmentRequired', 'Current Establishment')} <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
                     <input
                       ref={establishmentInputRefStep4}
                       type="text"

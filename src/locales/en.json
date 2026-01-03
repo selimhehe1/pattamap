@@ -534,6 +534,8 @@
     "noNightclubsAvailable": "No nightclubs available",
     "nightclubsSelected": "{{count}} nightclub(s) selected",
     "currentEstablishment": "Current Establishment (Optional)",
+    "currentEstablishmentRequired": "Current Establishment",
+    "establishmentRequired": "Please select an establishment or enable Freelance Mode",
     "noEstablishmentsFound": "No establishments found",
     "socialMediaSection": "Social Media (Optional)",
     "socialMediaNote": "Connect your social media to help people find you! (All fields are optional)",
