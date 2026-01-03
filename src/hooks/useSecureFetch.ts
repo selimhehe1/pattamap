@@ -15,6 +15,8 @@ interface SecureFetchOptions extends RequestInit {
   offlineQueue?: boolean;
   /** Human-readable description for offline queue UI */
   offlineDescription?: string;
+  /** Force CSRF token refresh before request (useful after file uploads where React state may be stale) */
+  forceCSRFRefresh?: boolean;
 }
 
 /**
@@ -74,7 +76,7 @@ export const useSecureFetch = () => {
   const { getCSRFHeaders, refreshToken, loading: csrfLoading } = useCSRF();
 
   const secureFetch = useCallback(async (url: string, options: SecureFetchOptions = {}): Promise<Response> => {
-    const { requireAuth = true, offlineQueue = false, offlineDescription, ...fetchOptions } = options;
+    const { requireAuth = true, offlineQueue = false, offlineDescription, forceCSRFRefresh = false, ...fetchOptions } = options;
 
     // Wait for CSRF token to be available if it's still loading
     const isModifyingRequest = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(fetchOptions.method?.toUpperCase() || 'GET');
@@ -98,15 +100,17 @@ export const useSecureFetch = () => {
     // Track fresh token from refresh (React state updates are async, so getCSRFHeaders() might be stale)
     let freshlyRefreshedToken: string | null = null;
 
-    // 🔧 FIX: Only refresh CSRF token if we DON'T have one
-    // Previous bug: refreshing on every "critical operation" caused session mismatch
-    // because refreshToken() fetches from /api/csrf-token which may return a different session
+    // 🔧 FIX: Refresh CSRF token if we DON'T have one OR if forceCSRFRefresh is true
+    // forceCSRFRefresh is useful after file uploads where React state may be stale
     const currentHeaders = getCSRFHeaders();
     const hasValidToken = currentHeaders && Object.keys(currentHeaders).length > 0;
 
-    if (isModifyingRequest && !hasValidToken) {
+    if (isModifyingRequest && (!hasValidToken || forceCSRFRefresh)) {
       if (process.env.NODE_ENV === 'development') {
-        logger.debug('🛡️ Refreshing CSRF token (no token available)', { url });
+        logger.debug('🛡️ Refreshing CSRF token', {
+          reason: forceCSRFRefresh ? 'forced refresh' : 'no token available',
+          url
+        });
       }
       freshlyRefreshedToken = await refreshToken();
       await new Promise(resolve => setTimeout(resolve, 200));

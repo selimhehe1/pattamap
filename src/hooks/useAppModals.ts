@@ -175,7 +175,8 @@ export const useAppModals = (): UseAppModalsReturn => {
 
         const response = await secureFetch(endpoint, {
           method,
-          body: JSON.stringify(employeeData)
+          body: JSON.stringify(employeeData),
+          forceCSRFRefresh: true // Force fresh token after photo upload (React state may be stale)
         });
 
         if (!response.ok) {
@@ -362,7 +363,8 @@ export const useAppModals = (): UseAppModalsReturn => {
 
       const response = await secureFetch(endpoint, {
         method,
-        body: JSON.stringify(employeeData)
+        body: JSON.stringify(employeeData),
+        forceCSRFRefresh: true // Force fresh token after photo upload (React state may be stale)
       });
 
       if (!response.ok) {
