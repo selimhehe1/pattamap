@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Establishment } from '../../types';
 import EstablishmentLogo from './EstablishmentLogo';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 
 interface EstablishmentLogosManagerProps {
   onClose: () => void;
@@ -39,7 +40,9 @@ const EstablishmentLogosManager: React.FC<EstablishmentLogosManagerProps> = ({ o
         setEstablishments(data.establishments || []);
       } catch (error) {
         logger.error('Load establishments error:', error);
-        setError(error instanceof Error ? error.message : t('establishmentLogosManager.errorLoadFailed'));
+        const errorMsg = error instanceof Error ? error.message : t('establishmentLogosManager.errorLoadFailed');
+        setError(errorMsg);
+        notification.error(errorMsg);
       } finally {
         setLoading(false);
       }

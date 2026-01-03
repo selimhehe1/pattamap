@@ -7,6 +7,7 @@ import EmployeeCard from '../Common/EmployeeCard';
 import VIPPurchaseModal from './VIPPurchaseModal';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import '../../styles/features/owner/MyEmployeesList.css';
 
@@ -54,7 +55,9 @@ const MyEmployeesList: React.FC<Props> = ({
         setEmployees(data.employees || []);
       } catch (error) {
         logger.error('Failed to fetch employees:', error);
-        setError('Failed to load employees. Please try again.');
+        const errorMsg = t('myEmployees.loadError', 'Failed to load employees. Please try again.');
+        setError(errorMsg);
+        notification.error(errorMsg);
       } finally {
         setLoading(false);
       }

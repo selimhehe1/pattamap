@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee, Establishment, VIPDuration, PaymentMethod, VIPTierConfig, PurchaseVIPRequest, VIPSubscriptionType } from '../../types';
 import { logger } from '../../utils/logger';
+import notification from '../../utils/notification';
 import {
   Clock,
   X,
@@ -116,6 +117,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
       }
 
       setSuccess(true);
+      notification.success(t('vipPurchase.purchaseSuccess', 'VIP purchase initiated successfully!'));
 
       if (selectedPaymentMethod === 'promptpay' && data.transaction?.promptpay_qr_code) {
         setPromptPayQR({
@@ -133,7 +135,9 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error purchasing VIP:', error);
-      setError(errorMessage || t('vipPurchase.errorPurchasing', 'Failed to purchase VIP subscription'));
+      const errorMsg = errorMessage || t('vipPurchase.errorPurchasing', 'Failed to purchase VIP subscription');
+      setError(errorMsg);
+      notification.error(errorMsg);
     } finally {
       setPurchasing(false);
     }

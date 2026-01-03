@@ -14,7 +14,7 @@ import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import '../../styles/admin/verifications-admin.css';
 
@@ -167,10 +167,10 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       }
 
       await fetchVerifications();
-      toast.success(t(`admin.verification${action === 'approve' ? 'Approved' : 'Rejected'}`, `Verification ${action}d successfully`));
+      notification.success(t(`admin.verification${action === 'approve' ? 'Approved' : 'Rejected'}`, `Verification ${action}d successfully`));
     } catch (error) {
       logger.error(`Error ${action}ing verification:`, error);
-      toast.error(t('admin.verificationError', `Failed to ${action} verification`, { action }));
+      notification.error(t('admin.verificationError', `Failed to ${action} verification`, { action }));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -200,10 +200,10 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       await fetchVerifications();
       setRevokeModalOpen(false);
       setRevokeTarget(null);
-      toast.success(t('admin.verificationRejected', 'Verification rejected successfully'));
+      notification.success(t('admin.verificationRejected', 'Verification rejected successfully'));
     } catch (error) {
       logger.error('Error rejecting verification:', error);
-      toast.error(t('admin.failedRejectVerification', 'Failed to reject verification'));
+      notification.error(t('admin.failedRejectVerification', 'Failed to reject verification'));
     } finally {
       if (revokeTarget) {
         setProcessingIds(prev => {
@@ -249,7 +249,7 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
       });
     } catch (error) {
       logger.error('Error loading employee profile:', error);
-      toast.error(t('admin.failedLoadProfile', 'Failed to load employee profile'));
+      notification.error(t('admin.failedLoadProfile', 'Failed to load employee profile'));
     }
   };
 

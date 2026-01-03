@@ -11,7 +11,7 @@ import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import {
   Clock,
@@ -154,11 +154,11 @@ const VIPVerificationAdmin: React.FC = () => {
       // Refresh transactions
       await fetchTransactions();
 
-      toast.success(t('vipVerification.verifySuccess', 'Payment verified successfully!'));
+      notification.success(t('vipVerification.verifySuccess', 'Payment verified successfully!'));
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error verifying payment:', error);
-      toast.error(errorMessage || t('vipVerification.verifyError', 'Failed to verify payment'));
+      notification.error(errorMessage || t('vipVerification.verifyError', 'Failed to verify payment'));
     } finally {
       setVerifying(null);
     }
@@ -212,11 +212,11 @@ const VIPVerificationAdmin: React.FC = () => {
       // Refresh transactions
       await fetchTransactions();
 
-      toast.success(t('vipVerification.rejectSuccess', 'Payment rejected successfully'));
+      notification.success(t('vipVerification.rejectSuccess', 'Payment rejected successfully'));
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Error rejecting payment:', error);
-      toast.error(errorMessage || t('vipVerification.rejectError', 'Failed to reject payment'));
+      notification.error(errorMessage || t('vipVerification.rejectError', 'Failed to reject payment'));
     } finally {
       setVerifying(null);
     }
@@ -272,12 +272,12 @@ const VIPVerificationAdmin: React.FC = () => {
         )
       );
       await Promise.all(promises);
-      toast.success(t('vipVerification.bulkVerifySuccess', `${selectedIds.size} payment(s) verified successfully!`));
+      notification.success(t('vipVerification.bulkVerifySuccess', `${selectedIds.size} payment(s) verified successfully!`));
       setSelectedIds(new Set());
       await fetchTransactions();
     } catch (error) {
       logger.error('Bulk verify failed:', error);
-      toast.error(t('vipVerification.bulkVerifyError', 'Failed to verify some payments'));
+      notification.error(t('vipVerification.bulkVerifyError', 'Failed to verify some payments'));
     } finally {
       setIsBulkProcessing(false);
     }
