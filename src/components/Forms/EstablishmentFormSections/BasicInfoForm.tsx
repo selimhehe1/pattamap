@@ -4,7 +4,7 @@ import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangl
 import { EstablishmentCategory } from '../../../types';
 import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
-import toast from '../../../utils/toast';
+import notification from '../../../utils/notification';
 import LazyImage from '../../Common/LazyImage';
 import '../../../styles/components/modals.css';
 
@@ -83,13 +83,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     if (file) {
       // Enhanced validation
       if (!file.type.startsWith('image/')) {
-        toast.error(t('establishment.basicInfo.logoErrorType'));
+        notification.error(t('establishment.basicInfo.logoErrorType'));
         return;
       }
 
       // More restrictive file size for logos (2MB max)
       if (file.size > 2 * 1024 * 1024) {
-        toast.error(t('establishment.basicInfo.logoErrorSize', { size: (file.size / 1024 / 1024).toFixed(2) }));
+        notification.error(t('establishment.basicInfo.logoErrorSize', { size: (file.size / 1024 / 1024).toFixed(2) }));
         return;
       }
 

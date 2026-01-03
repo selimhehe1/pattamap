@@ -19,7 +19,7 @@ import { useToggleFavorite } from '../../hooks/useFavorites';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import LazyImage from '../Common/LazyImage';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { useTranslation } from 'react-i18next';
 import { isFeatureEnabled, FEATURES } from '../../utils/featureFlags';
 import { EmploymentSection, SocialMediaLinks } from './GirlProfile/index';
@@ -94,7 +94,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   // 🆕 Phase 5.3: Simplified handler using centralized hook
   const handleToggleFavorite = () => {
     if (!user) {
-      toast.warning(t('common.loginToAddFavorites', 'Please login to add favorites'));
+      notification.warning(t('common.loginToAddFavorites', 'Please login to add favorites'));
       return;
     }
     toggleFavorite();
@@ -239,7 +239,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
       });
 
       if (response.ok) {
-        toast.success(t('reviews.reportSuccess', 'Review reported successfully. Thank you for helping keep our community safe!'));
+        notification.success(t('reviews.reportSuccess', 'Review reported successfully. Thank you for helping keep our community safe!'));
       } else {
         throw new Error('Failed to report review');
       }
@@ -268,11 +268,11 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
       } catch (_err) {
         // User cancelled or share failed, fallback to clipboard
         navigator.clipboard.writeText(shareUrl);
-        toast.success(t('common.linkCopied', 'Link copied to clipboard!'));
+        notification.success(t('common.linkCopied', 'Link copied to clipboard!'));
       }
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success(t('common.linkCopied', 'Link copied to clipboard!'));
+      notification.success(t('common.linkCopied', 'Link copied to clipboard!'));
     }
   }, [girl.id, girl.name, girl.description, t]);
 
@@ -790,9 +790,9 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               if (response.ok) {
                 const data = await response.json();
                 if (data.auto_approved) {
-                  toast.success(t('editProposal.autoApproved', 'Modifications applied immediately!'));
+                  notification.success(t('editProposal.autoApproved', 'Modifications applied immediately!'));
                 } else {
-                  toast.success(t('editProposal.created', 'Proposal created! It will be reviewed by a moderator.'));
+                  notification.success(t('editProposal.created', 'Proposal created! It will be reviewed by a moderator.'));
                 }
                 window.location.reload();
               } else {

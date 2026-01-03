@@ -18,7 +18,7 @@ import { BarDetailHeader } from './BarDetailHeader';
 import { BarDetailContent } from './BarDetailContent';
 import EstablishmentEditModal from '../../Forms/EstablishmentEditModal';
 import { logger } from '../../../utils/logger';
-import toast from '../../../utils/toast';
+import notification from '../../../utils/notification';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/pages/establishment.css';
 import '../../../styles/components/photos.css';
@@ -120,7 +120,7 @@ const BarDetailPage: React.FC = () => {
 
         if (response.ok) {
           setShowEditModal(false);
-          toast.success(t('barDetailPage.toastSuccessApplied'));
+          notification.success(t('barDetailPage.toastSuccessApplied'));
           await new Promise((resolve) => setTimeout(resolve, 2000));
           window.location.reload();
         } else {
@@ -141,10 +141,10 @@ const BarDetailPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.auto_approved) {
-            toast.success(t('barDetailPage.toastSuccessApplied'));
+            notification.success(t('barDetailPage.toastSuccessApplied'));
             window.location.reload();
           } else {
-            toast.success(t('barDetailPage.toastSuccessProposal'));
+            notification.success(t('barDetailPage.toastSuccessProposal'));
           }
           setShowEditModal(false);
         } else {
@@ -153,7 +153,7 @@ const BarDetailPage: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error submitting edit:', error);
-      toast.error(t('barDetailPage.toastErrorSubmit'));
+      notification.error(t('barDetailPage.toastErrorSubmit'));
     } finally {
       setIsSubmittingModal(false);
     }

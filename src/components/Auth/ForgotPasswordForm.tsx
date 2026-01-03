@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail } from 'lucide-react';
 import { useCSRF } from '../../contexts/CSRFContext';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import '../../styles/components/modals.css';
 
 interface ForgotPasswordFormProps {
@@ -68,11 +68,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
       // Success - show confirmation (same message regardless of email existence for security)
       setIsSubmitted(true);
-      toast.success(t('auth.resetEmailSent'));
+      notification.success(t('auth.resetEmailSent'));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t('auth.resetRequestFailed');
       setError(errorMessage);
-      toast.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

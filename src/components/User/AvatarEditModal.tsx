@@ -7,7 +7,7 @@ import { User } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import UserAvatar from '../Common/UserAvatar';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import '../../styles/components/modal-premium-base.css';
 
 interface AvatarEditModalProps {
@@ -49,13 +49,13 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
 
     // Validate file type
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      toast.error(t('avatar.invalidType', 'Please select a JPEG, PNG or WebP image'));
+      notification.error(t('avatar.invalidType', 'Please select a JPEG, PNG or WebP image'));
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(t('avatar.fileTooLarge', 'Image must be less than 5MB'));
+      notification.error(t('avatar.fileTooLarge', 'Image must be less than 5MB'));
       return;
     }
 
@@ -71,12 +71,12 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
     if (!file) return;
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      toast.error(t('avatar.invalidType', 'Please select a JPEG, PNG or WebP image'));
+      notification.error(t('avatar.invalidType', 'Please select a JPEG, PNG or WebP image'));
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(t('avatar.fileTooLarge', 'Image must be less than 5MB'));
+      notification.error(t('avatar.fileTooLarge', 'Image must be less than 5MB'));
       return;
     }
 
@@ -117,13 +117,13 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
       }
 
       const data = await response.json();
-      toast.success(t('avatar.uploadSuccess', 'Avatar updated successfully!'));
+      notification.success(t('avatar.uploadSuccess', 'Avatar updated successfully!'));
       onAvatarUpdated(data.avatar.url);
       onClose();
     } catch (error) {
       console.error('Avatar upload error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(t('avatar.uploadError', 'Failed to upload avatar') + `: ${errorMessage}`);
+      notification.error(t('avatar.uploadError', 'Failed to upload avatar') + `: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }
@@ -149,12 +149,12 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
         throw new Error('Delete failed');
       }
 
-      toast.success(t('avatar.deleteSuccess', 'Avatar removed successfully!'));
+      notification.success(t('avatar.deleteSuccess', 'Avatar removed successfully!'));
       onAvatarUpdated(null);
       onClose();
     } catch (error) {
       console.error('Avatar delete error:', error);
-      toast.error(t('avatar.deleteError', 'Failed to remove avatar'));
+      notification.error(t('avatar.deleteError', 'Failed to remove avatar'));
     } finally {
       setIsDeleting(false);
     }

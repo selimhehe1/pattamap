@@ -17,16 +17,16 @@ const XPToastNotifications: React.FC = () => {
   // Friendly reason labels (using translation keys)
   const getReasonLabel = (reason: string): string => {
     const reasonKeyMap: Record<string, string> = {
-      review_created: 'gamification.toast.reviewCreated',
-      photo_uploaded: 'gamification.toast.photoUploaded',
-      check_in: 'gamification.toast.checkIn',
-      helpful_vote_received: 'gamification.toast.helpfulVote',
-      validation_vote: 'gamification.toast.voteCast',
-      profile_correction_approved: 'gamification.toast.editApproved',
-      friend_invited: 'gamification.toast.friendInvited',
-      mission_completed: 'gamification.toast.missionComplete',
-      badge_earned: 'gamification.toast.badgeUnlocked',
-      streak_bonus: 'gamification.toast.streakBonus'
+      review_created: 'gamification.notification.reviewCreated',
+      photo_uploaded: 'gamification.notification.photoUploaded',
+      check_in: 'gamification.notification.checkIn',
+      helpful_vote_received: 'gamification.notification.helpfulVote',
+      validation_vote: 'gamification.notification.voteCast',
+      profile_correction_approved: 'gamification.notification.editApproved',
+      friend_invited: 'gamification.notification.friendInvited',
+      mission_completed: 'gamification.notification.missionComplete',
+      badge_earned: 'gamification.notification.badgeUnlocked',
+      streak_bonus: 'gamification.notification.streakBonus'
     };
     return t(reasonKeyMap[reason] || reason);
   };

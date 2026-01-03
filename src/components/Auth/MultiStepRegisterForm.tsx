@@ -12,7 +12,7 @@ import FormField from '../Common/FormField';
 import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from '../Forms/NationalityTagsInput';
 import { Employee, Establishment, EstablishmentCategory } from '../../types';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { AccountTypeSelectionStep, CredentialsStep } from './steps';
@@ -332,7 +332,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       if (draft) {
         setFormData(draft);
         setShowDraftBanner(true);
-        toast.success(t('register.draftRestoredToast'));
+        notification.success(t('register.draftRestoredToast'));
         // Restore step based on draft data
         if (draft.pseudonym || draft.email) {
           setCurrentStep(3);
@@ -501,11 +501,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       // Employee path validation (Step 2 = path selection for employees)
       if (formData.accountType === 'employee') {
         if (!formData.employeePath) {
-          toast.error(t('register.selectPathFirst'));
+          notification.error(t('register.selectPathFirst'));
           return;
         }
         if (formData.employeePath === 'claim' && !formData.selectedEmployee) {
-          toast.error(t('register.selectEmployeeFirst'));
+          notification.error(t('register.selectEmployeeFirst'));
           return;
         }
         setCurrentStep(3);
@@ -514,32 +514,32 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       else if (formData.accountType === 'establishment_owner') {
         // Validate credentials before proceeding
         if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
-          toast.error(t('register.fillAllFields'));
+          notification.error(t('register.fillAllFields'));
           return;
         }
         if (formData.password !== formData.confirmPassword) {
-          toast.error(t('register.passwordsDoNotMatch'));
+          notification.error(t('register.passwordsDoNotMatch'));
           return;
         }
         if (formData.password.length < 8) {
-          toast.error(t('register.passwordTooShort'));
+          notification.error(t('register.passwordTooShort'));
           return;
         }
         // Validate password complexity
         if (!/[a-z]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsLowercase'));
+          notification.error(t('register.passwordNeedsLowercase'));
           return;
         }
         if (!/[A-Z]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsUppercase'));
+          notification.error(t('register.passwordNeedsUppercase'));
           return;
         }
         if (!/[0-9]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsNumber'));
+          notification.error(t('register.passwordNeedsNumber'));
           return;
         }
         if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsSpecial'));
+          notification.error(t('register.passwordNeedsSpecial'));
           return;
         }
         setCurrentStep(3);
@@ -550,32 +550,32 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       if (formData.accountType === 'employee' && formData.employeePath === 'create') {
         // Validate credentials before proceeding to step 4
         if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
-          toast.error(t('register.fillAllFields'));
+          notification.error(t('register.fillAllFields'));
           return;
         }
         if (formData.password !== formData.confirmPassword) {
-          toast.error(t('register.passwordsDoNotMatch'));
+          notification.error(t('register.passwordsDoNotMatch'));
           return;
         }
         if (formData.password.length < 8) {
-          toast.error(t('register.passwordTooShort'));
+          notification.error(t('register.passwordTooShort'));
           return;
         }
         // Validate password complexity
         if (!/[a-z]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsLowercase'));
+          notification.error(t('register.passwordNeedsLowercase'));
           return;
         }
         if (!/[A-Z]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsUppercase'));
+          notification.error(t('register.passwordNeedsUppercase'));
           return;
         }
         if (!/[0-9]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsNumber'));
+          notification.error(t('register.passwordNeedsNumber'));
           return;
         }
         if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
-          toast.error(t('register.passwordNeedsSpecial'));
+          notification.error(t('register.passwordNeedsSpecial'));
           return;
         }
         setCurrentStep(4);
@@ -583,11 +583,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       // 🆕 v10.x NEW FLOW: Owner Step 3 = claim/create path selection
       else if (formData.accountType === 'establishment_owner') {
         if (!formData.ownerPath) {
-          toast.error(t('register.selectPathFirst'));
+          notification.error(t('register.selectPathFirst'));
           return;
         }
         if (formData.ownerPath === 'claim' && !formData.selectedEstablishmentToClaim) {
-          toast.error(t('register.selectEstablishmentFirst'));
+          notification.error(t('register.selectEstablishmentFirst'));
           return;
         }
         if (formData.ownerPath === 'create') {
@@ -620,7 +620,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(t('register.fixErrorsToast'));
+      notification.error(t('register.fixErrorsToast'));
       return;
     }
 
@@ -628,15 +628,15 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     // This prevents orphaned user accounts when employee profile validation fails
     if (formData.accountType === 'employee' && formData.employeePath === 'create') {
       if (!formData.employeeName.trim()) {
-        toast.error(t('register.employeeNameRequired', 'Employee name is required'));
+        notification.error(t('register.employeeNameRequired', 'Employee name is required'));
         return;
       }
       if (!formData.employeeSex) {
-        toast.error(t('register.employeeSexRequired', 'Please select your sex/gender'));
+        notification.error(t('register.employeeSexRequired', 'Please select your sex/gender'));
         return;
       }
       if (!formData.isFreelance && !formData.establishmentId) {
-        toast.error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
+        notification.error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
         return;
       }
     }
@@ -655,7 +655,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
       // ⚠️ Show warning if password was found in breach database
       if (result?.passwordBreached) {
-        toast.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
+        notification.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
           duration: 10000 // Show longer (10 seconds)
         });
       }
@@ -664,7 +664,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
       // Handle different post-registration flows
       if (formData.accountType === 'regular') {
-        toast.success(t('register.accountCreated'));
+        notification.success(t('register.accountCreated'));
         onClose();
       } else if (formData.accountType === 'establishment_owner') {
         // 🆕 v10.x - Handle owner claim or create paths
@@ -708,7 +708,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             freshToken || undefined
           );
 
-          toast.success(t('register.ownerClaimSubmitted'));
+          notification.success(t('register.ownerClaimSubmitted'));
           onClose();
         } else if (formData.ownerPath === 'create') {
           // 🆕 v10.x - Create new establishment
@@ -755,7 +755,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               );
             }
 
-            toast.success(t('register.establishmentCreatedPending'));
+            notification.success(t('register.establishmentCreatedPending'));
             onClose();
           } catch (createError) {
             logger.error('Establishment creation failed:', createError);
@@ -763,7 +763,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           }
         } else {
           // No path selected - just created account (shouldn't happen normally)
-          toast.success(t('register.ownerAccountCreated'));
+          notification.success(t('register.ownerAccountCreated'));
           onClose();
         }
       } else if (formData.employeePath === 'claim') {
@@ -775,7 +775,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           [],
           freshToken || undefined // Pass fresh token explicitly
         );
-        toast.success(t('register.claimSubmitted'));
+        notification.success(t('register.claimSubmitted'));
         onClose();
       } else if (formData.employeePath === 'create') {
         // Create new profile with uploaded photos
@@ -792,7 +792,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           throw new Error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
         }
 
-        toast.info(t('register.creatingEmployeeProfile'));
+        notification.info(t('register.creatingEmployeeProfile'));
 
         // 🔧 CSRF FIX: Validate fresh token is available
         if (!freshToken) {
@@ -835,13 +835,13 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           throw new Error(data.error || 'Failed to create employee profile');
         }
 
-        toast.success(t('register.employeeProfileCreated'));
+        notification.success(t('register.employeeProfileCreated'));
         onClose();
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('register.registrationFailed');
       setSubmitError(errorMessage);
-      toast.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -1088,7 +1088,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 });
                 setShowDraftBanner(false);
                 setCurrentStep(1);
-                toast.success(t('register.draftCleared'));
+                notification.success(t('register.draftCleared'));
               }}
               style={{
                 background: 'transparent',

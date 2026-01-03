@@ -8,7 +8,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../../hooks/useSecureFetch';
 import { useDialog } from '../../../hooks/useDialog';
-import toast from '../../../utils/toast';
+import notification from '../../../utils/notification';
 import type { AdminEstablishment } from './types';
 
 interface UseBulkSelectionOptions {
@@ -76,10 +76,10 @@ export function useBulkSelection({ establishments, onSuccess }: UseBulkSelection
       await Promise.all(promises);
 
       if (successCount > 0) {
-        toast.success(t('admin.bulkApproveSuccess', `${successCount} establishment(s) approved`));
+        notification.success(t('admin.bulkApproveSuccess', `${successCount} establishment(s) approved`));
       }
       if (failCount > 0) {
-        toast.error(t('admin.bulkApproveFailed', `${failCount} establishment(s) failed to approve`));
+        notification.error(t('admin.bulkApproveFailed', `${failCount} establishment(s) failed to approve`));
       }
 
       clearSelection();
@@ -132,10 +132,10 @@ export function useBulkSelection({ establishments, onSuccess }: UseBulkSelection
       await Promise.all(promises);
 
       if (successCount > 0) {
-        toast.success(t('admin.bulkRejectSuccess', `${successCount} establishment(s) rejected`));
+        notification.success(t('admin.bulkRejectSuccess', `${successCount} establishment(s) rejected`));
       }
       if (failCount > 0) {
-        toast.error(t('admin.bulkRejectFailed', `${failCount} establishment(s) failed to reject`));
+        notification.error(t('admin.bulkRejectFailed', `${failCount} establishment(s) failed to reject`));
       }
 
       clearSelection();

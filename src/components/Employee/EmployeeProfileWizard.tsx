@@ -4,7 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
 import ClaimEmployeeModal from './ClaimEmployeeModal';
 import LazyImage from '../Common/LazyImage';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import {
   Search,
@@ -72,12 +72,12 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
             const data = await response.json();
             setEmployees(data.employees || []);
           } else {
-            toast.error(t('employeeProfileWizard.errorLoadEmployees'));
+            notification.error(t('employeeProfileWizard.errorLoadEmployees'));
           }
         })
         .catch((error) => {
           logger.error('Error loading employees:', error);
-          toast.error(t('employeeProfileWizard.errorLoadEmployees'));
+          notification.error(t('employeeProfileWizard.errorLoadEmployees'));
         })
         .finally(() => {
           setIsLoadingEmployees(false);

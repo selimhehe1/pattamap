@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import ImageUploadPreview from '../Common/ImageUploadPreview';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 
 interface ReviewFormProps {
@@ -88,12 +88,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     if (photos.length > 0) {
       setIsUploading(true);
       try {
-        toast.info(t('reviews.photoUploading', 'Uploading photos...'));
+        notification.info(t('reviews.photoUploading', 'Uploading photos...'));
         photoUrls = await uploadPhotosViaBackend(photos);
         logger.info(`Uploaded ${photoUrls.length} photos for review`);
       } catch (error: unknown) {
         logger.error('Photo upload error:', error);
-        toast.error(t('reviews.photoUploadError', 'Failed to upload photos'));
+        notification.error(t('reviews.photoUploadError', 'Failed to upload photos'));
         setIsUploading(false);
         setErrors({ submit: t('reviews.photoUploadError', 'Failed to upload photos') });
         return;

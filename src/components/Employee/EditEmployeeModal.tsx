@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XCircle, RefreshCw, X, UserCog, Loader2, Info } from 'lucide-react';
-import toastService from '../../utils/toast';
+import notification from '../../utils/notification';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -81,7 +81,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorLoadProfile');
         logger.error('Fetch error:', error);
         setFetchError(errorMessage);
-        toastService.error(errorMessage);
+        notification.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +92,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
   const handleSubmit = async (employeeData: EmployeeFormData) => {
     if (!linkedProfile) {
-      toastService.error(t('editMyProfileModal.errorNoLinkedProfile'));
+      notification.error(t('editMyProfileModal.errorNoLinkedProfile'));
       return;
     }
 
@@ -101,7 +101,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       // If custom onSave is provided (Admin mode), use it
       if (onSave) {
         await onSave(employeeData);
-        toastService.success(t('editMyProfileModal.successUpdate'));
+        notification.success(t('editMyProfileModal.successUpdate'));
         onProfileUpdated?.();
         onClose();
         return;
@@ -118,12 +118,12 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         throw new Error(errorData.error || t('editMyProfileModal.errorUpdateProfile'));
       }
 
-      toastService.success(t('editMyProfileModal.successUpdate'));
+      notification.success(t('editMyProfileModal.successUpdate'));
       onProfileUpdated?.();
       onClose();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('editMyProfileModal.errorUpdateProfile');
-      toastService.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

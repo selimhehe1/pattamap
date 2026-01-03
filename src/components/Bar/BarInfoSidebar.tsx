@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { Establishment, ConsumableTemplate, Employee } from '../../types';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { getZoneLabel } from '../../utils/constants';
 import '../../styles/components/establishment-ui.css';
 import '../../styles/components/sidebar-establishment.css';
@@ -128,7 +128,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
     const existingConsumable = currentPricing.consumables.find(c => c.consumable_id === templateId);
 
     if (existingConsumable) {
-      toast.warning(t('barInfoSidebar.toast.alreadyInList', { name: template.name }));
+      notification.warning(t('barInfoSidebar.notification.alreadyInList', { name: template.name }));
       return;
     }
 
@@ -446,7 +446,7 @@ const BarInfoSidebar: React.FC<BarInfoSidebarProps> = ({
               const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentBar.address)}`;
               window.open(mapsUrl, '_blank');
             } else {
-              toast.warning(t('barInfoSidebar.errors.noAddress'));
+              notification.warning(t('barInfoSidebar.errors.noAddress'));
             }
           }}
           className="btn-map-single"

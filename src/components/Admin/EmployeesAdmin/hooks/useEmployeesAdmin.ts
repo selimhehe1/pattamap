@@ -9,7 +9,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { useSecureFetch } from '../../../../hooks/useSecureFetch';
 import { useDialog } from '../../../../hooks/useDialog';
 import { logger } from '../../../../utils/logger';
-import toast from '../../../../utils/toast';
+import notification from '../../../../utils/notification';
 import { getApiUrl } from '../utils';
 import type {
   AdminEmployee,
@@ -196,16 +196,16 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
         logger.debug('🔄 Approve response:', { status: response.status, ok: response.ok });
 
         if (response.ok) {
-          toast.success(t('admin.employeeApproved', 'Employee approved successfully'));
+          notification.success(t('admin.employeeApproved', 'Employee approved successfully'));
           await loadEmployees();
         } else {
           const errorData = await response.json().catch(() => ({}));
           logger.error('🔄 Approve failed:', { status: response.status, error: errorData });
-          toast.error(errorData.error || t('admin.approveError', 'Failed to approve employee'));
+          notification.error(errorData.error || t('admin.approveError', 'Failed to approve employee'));
         }
       } catch (error) {
         logger.error('Failed to approve employee:', error);
-        toast.error(t('admin.approveError', 'Failed to approve employee'));
+        notification.error(t('admin.approveError', 'Failed to approve employee'));
       } finally {
         removeProcessingId(employeeId);
       }
@@ -322,7 +322,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
         }
       } catch (error) {
         logger.error('Failed to save employee:', error);
-        toast.error('Failed to update employee');
+        notification.error('Failed to update employee');
       }
     },
     [editingEmployee, secureFetch, loadEmployees]
@@ -352,7 +352,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
         );
 
         if (response.ok) {
-          toast.success(`Profile verified for ${employeeName}`);
+          notification.success(`Profile verified for ${employeeName}`);
           await loadEmployees();
         } else {
           const error = await response.json();
@@ -361,7 +361,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to verify profile';
         logger.error('Failed to verify profile:', error);
-        toast.error(errorMessage);
+        notification.error(errorMessage);
       } finally {
         removeProcessingId(employeeId);
       }
@@ -396,7 +396,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
         );
 
         if (response.ok) {
-          toast.success(`Verification revoked for ${employeeName}`);
+          notification.success(`Verification revoked for ${employeeName}`);
           await loadEmployees();
         } else {
           const error = await response.json();
@@ -405,7 +405,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to revoke verification';
         logger.error('Failed to revoke verification:', error);
-        toast.error(errorMessage);
+        notification.error(errorMessage);
       } finally {
         removeProcessingId(employeeId);
       }
@@ -431,7 +431,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
         );
 
         if (response.ok) {
-          toast.success(`Employee "${employeeName}" deleted successfully`);
+          notification.success(`Employee "${employeeName}" deleted successfully`);
           await loadEmployees();
         } else {
           const error = await response.json();
@@ -440,7 +440,7 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to delete employee';
         logger.error('Failed to delete employee:', error);
-        toast.error(errorMessage);
+        notification.error(errorMessage);
       } finally {
         removeProcessingId(employeeId);
       }
@@ -477,10 +477,10 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
       await Promise.all(promises);
 
       if (successCount > 0) {
-        toast.success(t('admin.bulkApproveSuccess', `${successCount} employee(s) approved`));
+        notification.success(t('admin.bulkApproveSuccess', `${successCount} employee(s) approved`));
       }
       if (failCount > 0) {
-        toast.error(t('admin.bulkApproveFailed', `${failCount} employee(s) failed to approve`));
+        notification.error(t('admin.bulkApproveFailed', `${failCount} employee(s) failed to approve`));
       }
 
       clearSelection();
@@ -534,10 +534,10 @@ export const useEmployeesAdmin = (): UseEmployeesAdminReturn => {
       await Promise.all(promises);
 
       if (successCount > 0) {
-        toast.success(t('admin.bulkRejectSuccess', `${successCount} employee(s) rejected`));
+        notification.success(t('admin.bulkRejectSuccess', `${successCount} employee(s) rejected`));
       }
       if (failCount > 0) {
-        toast.error(t('admin.bulkRejectFailed', `${failCount} employee(s) failed to reject`));
+        notification.error(t('admin.bulkRejectFailed', `${failCount} employee(s) failed to reject`));
       }
 
       clearSelection();

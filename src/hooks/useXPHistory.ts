@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logger } from '../utils/logger';
+import notification from '../utils/notification';
 
 export interface XPDataPoint {
   date: string;
@@ -59,9 +60,10 @@ export const useXPHistory = (initialPeriod: 7 | 30 | 90 = 30): UseXPHistoryRetur
       const result: XPHistoryData = await response.json();
       setData(result);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : 'Failed to load XP history';
       logger.error('Error fetching XP history:', err);
       setError(message);
+      notification.error(message);
     } finally {
       setLoading(false);
     }

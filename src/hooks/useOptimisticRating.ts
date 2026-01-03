@@ -13,10 +13,10 @@
  *     return response.ok;
  *   },
  *   onSuccess: (rating) => {
- *     toast.success('Rating saved!');
+ *     notification.success('Rating saved!');
  *   },
  *   onError: (error) => {
- *     toast.error(error.message);
+ *     notification.error(error.message);
  *   }
  * });
  *

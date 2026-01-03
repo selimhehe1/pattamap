@@ -15,7 +15,7 @@ import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import {
   Ban,
   ClipboardList,
@@ -236,14 +236,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         setSearchedUsers([]);
         // Reload establishments list to update counts
         refreshEstablishments();
-        toast.success(t('admin.ownerAssignedSuccess', 'Owner assigned successfully'));
+        notification.success(t('admin.ownerAssignedSuccess', 'Owner assigned successfully'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.ownerAssignError', 'Failed to assign owner'));
+        notification.error(errorData.error || t('admin.ownerAssignError', 'Failed to assign owner'));
       }
     } catch (error) {
       logger.error('Failed to assign owner:', error);
-      toast.error(t('admin.ownerAssignError', 'Failed to assign owner'));
+      notification.error(t('admin.ownerAssignError', 'Failed to assign owner'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -277,14 +277,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         await loadEstablishmentOwners(establishmentId);
         // Reload establishments list to update counts
         refreshEstablishments();
-        toast.success(t('admin.ownerRemovedSuccess', 'Owner removed successfully'));
+        notification.success(t('admin.ownerRemovedSuccess', 'Owner removed successfully'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.ownerRemoveError', 'Failed to remove owner'));
+        notification.error(errorData.error || t('admin.ownerRemoveError', 'Failed to remove owner'));
       }
     } catch (error) {
       logger.error('Failed to remove owner:', error);
-      toast.error(t('admin.ownerRemoveError', 'Failed to remove owner'));
+      notification.error(t('admin.ownerRemoveError', 'Failed to remove owner'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -314,14 +314,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         // Reload establishment owners
         await loadEstablishmentOwners(selectedEstablishment.id);
         setEditingOwner(null);
-        toast.success(t('admin.ownerPermissionsUpdated', 'Permissions updated successfully'));
+        notification.success(t('admin.ownerPermissionsUpdated', 'Permissions updated successfully'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.ownerPermissionsUpdateError', 'Failed to update permissions'));
+        notification.error(errorData.error || t('admin.ownerPermissionsUpdateError', 'Failed to update permissions'));
       }
     } catch (error) {
       logger.error('Failed to update permissions:', error);
-      toast.error(t('admin.ownerPermissionsUpdateError', 'Failed to update permissions'));
+      notification.error(t('admin.ownerPermissionsUpdateError', 'Failed to update permissions'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -342,7 +342,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
 
   const handleApproveRequest = async (requestId: string) => {
     if (!adminNotes.trim()) {
-      toast.error(t('admin.adminNotesRequired', 'Admin notes are required'));
+      notification.error(t('admin.adminNotesRequired', 'Admin notes are required'));
       return;
     }
 
@@ -357,14 +357,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         refreshEstablishments();
         setSelectedRequest(null);
         setAdminNotes('');
-        toast.success(t('admin.requestApproved', 'Ownership request approved'));
+        notification.success(t('admin.requestApproved', 'Ownership request approved'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.requestApproveError', 'Failed to approve request'));
+        notification.error(errorData.error || t('admin.requestApproveError', 'Failed to approve request'));
       }
     } catch (error) {
       logger.error('Failed to approve request:', error);
-      toast.error(t('admin.requestApproveError', 'Failed to approve request'));
+      notification.error(t('admin.requestApproveError', 'Failed to approve request'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -376,7 +376,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
 
   const handleRejectRequest = async (requestId: string) => {
     if (!adminNotes.trim()) {
-      toast.error(t('admin.adminNotesRequired', 'Admin notes are required'));
+      notification.error(t('admin.adminNotesRequired', 'Admin notes are required'));
       return;
     }
 
@@ -391,14 +391,14 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
         refreshEstablishments();
         setSelectedRequest(null);
         setAdminNotes('');
-        toast.success(t('admin.requestRejected', 'Ownership request rejected'));
+        notification.success(t('admin.requestRejected', 'Ownership request rejected'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.requestRejectError', 'Failed to reject request'));
+        notification.error(errorData.error || t('admin.requestRejectError', 'Failed to reject request'));
       }
     } catch (error) {
       logger.error('Failed to reject request:', error);
-      toast.error(t('admin.requestRejectError', 'Failed to reject request'));
+      notification.error(t('admin.requestRejectError', 'Failed to reject request'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);

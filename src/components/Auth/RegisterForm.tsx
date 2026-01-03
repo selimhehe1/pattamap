@@ -7,7 +7,7 @@ import { useFormValidation, ValidationRules } from '../../hooks/useFormValidatio
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import FormField from '../Common/FormField';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import '../../styles/components/modals.css';
 
 interface RegisterFormProps {
@@ -110,7 +110,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
       if (draft) {
         setFormData(draft);
         setShowDraftBanner(true);
-        toast.success(t('register.draftRestoredToast'));
+        notification.success(t('register.draftRestoredToast'));
       }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -177,13 +177,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error(t('register.avatarInvalidType', 'Please select a JPEG, PNG or WebP image'));
+      notification.error(t('register.avatarInvalidType', 'Please select a JPEG, PNG or WebP image'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(t('register.avatarTooLarge', 'Image must be less than 5MB'));
+      notification.error(t('register.avatarTooLarge', 'Image must be less than 5MB'));
       return;
     }
 
@@ -206,17 +206,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(t('register.fixErrorsToast'));
+      notification.error(t('register.fixErrorsToast'));
       return;
     }
 
     // 🔧 Phase 9: Block submit if pseudonym or email is taken
     if (pseudonymAvailability.status === 'taken') {
-      toast.error(t('register.pseudonymTaken'));
+      notification.error(t('register.pseudonymTaken'));
       return;
     }
     if (emailAvailability.status === 'taken') {
-      toast.error(t('register.emailTaken'));
+      notification.error(t('register.emailTaken'));
       return;
     }
 
@@ -254,14 +254,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
 
       // ⚠️ Show warning if password was found in breach database
       if (result?.passwordBreached) {
-        toast.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
+        notification.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
           duration: 10000 // Show longer (10 seconds)
         });
       }
 
       clearDraft(); // Clear draft on successful submission
       handleRemoveAvatar(); // Clean up avatar preview
-      toast.success(
+      notification.success(
         formData.accountType === 'employee'
           ? t('register.employeeAccountCreated')
           : t('register.accountCreated')
@@ -276,7 +276,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('register.registrationFailed');
       setSubmitError(errorMessage);
-      toast.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -332,7 +332,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
                 clearDraft();
                 setFormData({ pseudonym: '', email: '', password: '', confirmPassword: '', accountType: 'regular' });
                 setShowDraftBanner(false);
-                toast.success(t('register.draftCleared'));
+                notification.success(t('register.draftCleared'));
               }}
               style={{
                 background: 'transparent',

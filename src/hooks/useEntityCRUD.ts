@@ -17,7 +17,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSecureFetch } from './useSecureFetch';
 import { logger } from '../utils/logger';
-import toast from '../utils/toast';
+import notification from '../utils/notification';
 
 /**
  * Configuration pour créer des hooks d'entité
@@ -187,11 +187,11 @@ export function createEntityHooks<
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: keys.lists() });
-        toast.success(createSuccessMessage);
+        notification.success(createSuccessMessage);
       },
       onError: (error: Error) => {
         logger.error(`❌ Failed to create ${entityName}:`, error);
-        toast.error(`Failed to create ${entityName}: ${error.message}`);
+        notification.error(`Failed to create ${entityName}: ${error.message}`);
       },
     });
   }
@@ -225,11 +225,11 @@ export function createEntityHooks<
       onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({ queryKey: keys.lists() });
         queryClient.invalidateQueries({ queryKey: keys.detail(variables.id) });
-        toast.success(updateSuccessMessage);
+        notification.success(updateSuccessMessage);
       },
       onError: (error: Error) => {
         logger.error(`❌ Failed to update ${entityName}:`, error);
-        toast.error(`Failed to update ${entityName}: ${error.message}`);
+        notification.error(`Failed to update ${entityName}: ${error.message}`);
       },
     });
   }
@@ -259,11 +259,11 @@ export function createEntityHooks<
       onSuccess: (_, deletedId) => {
         queryClient.invalidateQueries({ queryKey: keys.lists() });
         queryClient.removeQueries({ queryKey: keys.detail(deletedId) });
-        toast.success(deleteSuccessMessage);
+        notification.success(deleteSuccessMessage);
       },
       onError: (error: Error) => {
         logger.error(`❌ Failed to delete ${entityName}:`, error);
-        toast.error(`Failed to delete ${entityName}: ${error.message}`);
+        notification.error(`Failed to delete ${entityName}: ${error.message}`);
       },
     });
   }

@@ -9,7 +9,7 @@ import { useSecureFetch } from '../../../../hooks/useSecureFetch';
 import { useCSRF } from '../../../../contexts/CSRFContext';
 import { useEstablishments } from '../../../../hooks';
 import { logger } from '../../../../utils/logger';
-import toast from '../../../../utils/toast';
+import notification from '../../../../utils/notification';
 import type { Employee, CloudinaryUploadResponse, Establishment } from '../../../../types';
 import type {
   InternalFormData,
@@ -307,7 +307,7 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
       setTimeout(() => setFreelanceHighlight(false), 1500);
 
       // Show toast explaining what happened
-      toast.info(t(
+      notification.info(t(
         'employee.autoSwitchedToFreelance',
         'Switched to Freelance mode (no establishment selected). Click Submit again to confirm.'
       ));

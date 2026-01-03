@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
 import { Trophy, X, Rocket, Loader2 } from 'lucide-react';
@@ -71,7 +71,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
   // Check user account type on mount
   useEffect(() => {
     if (user && user.account_type !== 'establishment_owner') {
-      toast.error(t('ownership.accountTypeRequired', 'You must have an establishment owner account to request ownership'));
+      notification.error(t('ownership.accountTypeRequired', 'You must have an establishment owner account to request ownership'));
       onClose?.();
     }
   }, [user, onClose, t]);
@@ -110,24 +110,24 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
   // Submit ownership request
   const handleSubmit = async () => {
     if (!createMode && !selectedEstablishment) {
-      toast.error('Please select an establishment');
+      notification.error('Please select an establishment');
       return;
     }
 
     if (createMode && (!newEstablishment.name || !newEstablishment.address || !newEstablishment.category_id)) {
-      toast.error('Please fill in all required establishment fields');
+      notification.error('Please fill in all required establishment fields');
       return;
     }
 
     if (documents.length === 0) {
-      toast.error('Please upload at least one document');
+      notification.error('Please upload at least one document');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      toast.info('Uploading documents...');
+      notification.info('Uploading documents...');
       const documentUrls = await uploadDocumentsToCloudinary();
 
       const requestBody: OwnershipRequestBody = {
@@ -155,7 +155,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
         requestBody.establishment_id = selectedEstablishment!.id;
       }
 
-      toast.info(createMode ? 'Creating establishment and submitting request...' : 'Submitting request...');
+      notification.info(createMode ? 'Creating establishment and submitting request...' : 'Submitting request...');
       const response = await secureFetch(
         `${import.meta.env.VITE_API_URL}/api/ownership-requests`,
         {
@@ -177,14 +177,14 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
         ? 'Establishment and ownership request submitted successfully! Admins will review both.'
         : 'Ownership request submitted successfully! Admins will review your request.';
 
-      toast.success(successMessage);
+      notification.success(successMessage);
       cleanupDocuments();
       onSuccess?.();
       onClose?.();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Submit ownership request error:', error);
-      toast.error(errorMessage || 'Failed to submit request');
+      notification.error(errorMessage || 'Failed to submit request');
     } finally {
       setIsSubmitting(false);
     }
@@ -194,17 +194,17 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
   const handleNext = () => {
     if (currentStep === 1) {
       if (!createMode && !selectedEstablishment) {
-        toast.error('Please select an establishment');
+        notification.error('Please select an establishment');
         return;
       }
       if (createMode && (!newEstablishment.name || !newEstablishment.address || !newEstablishment.category_id)) {
-        toast.error('Please fill in all required fields: name, address, and category');
+        notification.error('Please fill in all required fields: name, address, and category');
         return;
       }
     }
 
     if (currentStep === 2 && documents.length === 0) {
-      toast.error('Please upload at least one document');
+      notification.error('Please upload at least one document');
       return;
     }
 

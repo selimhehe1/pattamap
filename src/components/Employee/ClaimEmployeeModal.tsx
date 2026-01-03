@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee } from '../../types';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import {
   Link,
@@ -118,12 +118,12 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
           setSelectedEmployee(exactMatch || employees[0]);
           setShowSuggestions(false);
         } else {
-          toast.error(t('claimEmployeeModal.errorEmployeeNotFound'));
+          notification.error(t('claimEmployeeModal.errorEmployeeNotFound'));
         }
       }
     } catch (error) {
       logger.error('Employee search error:', error);
-      toast.error(t('claimEmployeeModal.errorSearchFailed'));
+      notification.error(t('claimEmployeeModal.errorSearchFailed'));
     }
   };
 
@@ -151,12 +151,12 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
     e.preventDefault();
 
     if (!selectedEmployee) {
-      toast.error(t('claimEmployeeModal.errorNoEmployeeSelected'));
+      notification.error(t('claimEmployeeModal.errorNoEmployeeSelected'));
       return;
     }
 
     if (message.trim().length < 10) {
-      toast.error(t('claimEmployeeModal.errorMessageTooShort'));
+      notification.error(t('claimEmployeeModal.errorMessageTooShort'));
       return;
     }
 
@@ -166,12 +166,12 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
       const proofs = verificationProofs.filter((p) => p.trim().length > 0);
       await claimEmployeeProfile!(selectedEmployee.id, message.trim(), proofs);
 
-      toast.success(t('claimEmployeeModal.successClaimSubmitted'));
+      notification.success(t('claimEmployeeModal.successClaimSubmitted'));
       onClaimSubmitted?.();
       onClose();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit claim request';
-      toast.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

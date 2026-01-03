@@ -6,7 +6,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import FormField from '../Common/FormField';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import '../../styles/components/modals.css';
 
 interface LoginFormProps {
@@ -79,7 +79,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
       if (draft && draft.login) {
         setFormData(prev => ({ ...prev, login: draft.login }));
         setShowDraftBanner(true);
-        toast.success(t('auth.usernameRestored'));
+        notification.success(t('auth.usernameRestored'));
       }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -105,7 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(t('auth.fixFormErrors'));
+      notification.error(t('auth.fixFormErrors'));
       return;
     }
 
@@ -115,7 +115,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     try {
       await login(formData.login, formData.password);
       clearDraft(); // Clear on successful login
-      toast.success(t('auth.loginSuccess'));
+      notification.success(t('auth.loginSuccess'));
       // Use onLoginSuccess if provided, otherwise fall back to onClose
       if (onLoginSuccess) {
         onLoginSuccess();
@@ -125,7 +125,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('auth.loginFailed');
       setError(errorMessage);
-      toast.error(errorMessage);
+      notification.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -227,7 +227,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
                 clearDraft();
                 setFormData({ login: '', password: '' });
                 setShowDraftBanner(false);
-                toast.success(t('auth.usernameCleared'));
+                notification.success(t('auth.usernameCleared'));
               }}
               style={{
                 background: 'transparent',

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import {
   CheckCircle,
   XCircle,
@@ -68,7 +68,7 @@ const EmployeeVerificationStatusCard: React.FC<EmployeeVerificationStatusCardPro
   const handleRetryVerification = () => {
     // Future: Open verification modal from EmployeeDashboard
     // Requires props callback or context to communicate with parent
-    toast.info('Retry verification feature coming soon!');
+    notification.info('Retry verification feature coming soon!');
   };
 
   if (isLoading) {

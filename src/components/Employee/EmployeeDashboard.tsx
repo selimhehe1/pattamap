@@ -5,7 +5,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { useAppModals } from '../../hooks/useAppModals';
 import LoadingFallback from '../Common/LoadingFallback';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
 import RequestSelfRemovalModal from './RequestSelfRemovalModal';
@@ -121,7 +121,7 @@ const EmployeeDashboard: React.FC = () => {
         }
       } catch (error) {
         logger.error('Failed to fetch dashboard data', error);
-        toast.error('Failed to load dashboard data');
+        notification.error('Failed to load dashboard data');
       } finally {
         setIsLoading(false);
       }
@@ -181,7 +181,7 @@ const EmployeeDashboard: React.FC = () => {
       setVerificationStatus(data);
     } catch (error) {
       logger.error('Failed to fetch verification status', error);
-      toast.error('Failed to load verification status');
+      notification.error('Failed to load verification status');
     }
   };
 
@@ -191,7 +191,7 @@ const EmployeeDashboard: React.FC = () => {
   };
 
   const handleVIPPurchaseSuccess = async () => {
-    toast.success(t('employeeDashboard.vipPurchaseSuccess', 'VIP purchase initiated! Awaiting admin verification.'));
+    notification.success(t('employeeDashboard.vipPurchaseSuccess', 'VIP purchase initiated! Awaiting admin verification.'));
     setShowVIPModal(false);
     // Refresh profile to get updated VIP status
     if (refreshLinkedProfile) {

@@ -1,7 +1,7 @@
 /**
  * Notification API - Imperative notification system
  *
- * Drop-in replacement for toast.ts with identical API.
+ * Drop-in replacement for notification.ts with identical API.
  * Uses the Neon Glass Toast system with Neo-Nightlife 2025 design.
  *
  * Usage:

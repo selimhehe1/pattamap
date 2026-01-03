@@ -9,7 +9,7 @@ import {
   showTestNotification
 } from '../../utils/pushManager';
 import { useTranslation } from 'react-i18next';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import {
   AlertTriangle,
@@ -87,7 +87,7 @@ const PushNotificationSettings: React.FC = () => {
       // Refresh status
       await checkPushStatus();
 
-      toast.success(t('notifications.push.subscribed'));
+      notification.success(t('notifications.push.subscribed'));
 
       // Show test notification
       setTimeout(async () => {
@@ -112,7 +112,7 @@ const PushNotificationSettings: React.FC = () => {
         }
       }
 
-      toast.error(toastMessage);
+      notification.error(toastMessage);
     } finally {
       setSubscribing(false);
     }
@@ -127,10 +127,10 @@ const PushNotificationSettings: React.FC = () => {
       // Refresh status
       await checkPushStatus();
 
-      toast.success(t('notifications.push.unsubscribed'));
+      notification.success(t('notifications.push.unsubscribed'));
     } catch (error) {
       logger.error('Unsubscribe failed:', error);
-      toast.error(t('notifications.push.unsubscribeFailed'));
+      notification.error(t('notifications.push.unsubscribeFailed'));
     } finally {
       setSubscribing(false);
     }
@@ -142,7 +142,7 @@ const PushNotificationSettings: React.FC = () => {
         t('notifications.push.testTitle'),
         t('notifications.push.testMessage')
       );
-      toast.success(t('notifications.push.testSent'));
+      notification.success(t('notifications.push.testSent'));
     } catch (error: unknown) {
       logger.error('Test notification failed:', error);
 
@@ -151,7 +151,7 @@ const PushNotificationSettings: React.FC = () => {
         toastMessage = t('notifications.push.permissionDenied');
       }
 
-      toast.error(toastMessage);
+      notification.error(toastMessage);
     }
   };
 

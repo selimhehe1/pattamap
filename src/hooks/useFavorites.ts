@@ -15,7 +15,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSecureFetch } from './useSecureFetch';
 import { Establishment } from '../types';
 import { logger } from '../utils/logger';
-import toast from '../utils/toast';
+import notification from '../utils/notification';
 import { addToQueue, isOfflineQueueSupported } from '../utils/offlineQueue';
 import { useOnline } from './useOnline';
 import { announcePolite, announceAssertive } from '../utils/announce';
@@ -176,7 +176,7 @@ export const useAddFavorite = () => {
         queryClient.setQueryData(favoriteKeys.lists(), context.previousFavorites);
       }
 
-      toast.error(`Failed to add to favorites: ${error.message}`);
+      notification.error(`Failed to add to favorites: ${error.message}`);
       // Screen reader announcement (WCAG AAA)
       announceAssertive('Error: Failed to add to favorites');
     },
@@ -187,10 +187,10 @@ export const useAddFavorite = () => {
     onSuccess: (_data, _employeeId, context) => {
       // Show different message if queued offline
       if (!context?.previousFavorites && !navigator.onLine) {
-        toast.success('Queued for sync when online');
+        notification.success('Queued for sync when online');
         announcePolite('Favorite queued for sync when online');
       } else {
-        toast.success('Added to favorites!');
+        notification.success('Added to favorites!');
         announcePolite('Added to favorites');
       }
     },
@@ -259,7 +259,7 @@ export const useRemoveFavorite = () => {
         queryClient.setQueryData(favoriteKeys.lists(), context.previousFavorites);
       }
 
-      toast.error(`Failed to remove from favorites: ${error.message}`);
+      notification.error(`Failed to remove from favorites: ${error.message}`);
       // Screen reader announcement (WCAG AAA)
       announceAssertive('Error: Failed to remove from favorites');
     },
@@ -270,10 +270,10 @@ export const useRemoveFavorite = () => {
     onSuccess: (_data, _employeeId, context) => {
       // Show different message if queued offline
       if (!context?.previousFavorites && !navigator.onLine) {
-        toast.success('Queued for sync when online');
+        notification.success('Queued for sync when online');
         announcePolite('Favorite removal queued for sync when online');
       } else {
-        toast.success('Removed from favorites');
+        notification.success('Removed from favorites');
         announcePolite('Removed from favorites');
       }
     },

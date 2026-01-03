@@ -3,7 +3,7 @@ import { ClipboardList, Check, X, Loader2, FileText } from 'lucide-react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import RequestOwnershipModal from '../Forms/RequestOwnershipModal';
 import '../../styles/components/my-ownership-requests.css';
@@ -59,7 +59,7 @@ const MyOwnershipRequests: React.FC = () => {
       setRequests(data.requests || []);
     } catch (error) {
       logger.error('Fetch ownership requests error:', error);
-      toast.error('Failed to load your ownership requests');
+      notification.error('Failed to load your ownership requests');
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +88,12 @@ const MyOwnershipRequests: React.FC = () => {
         throw new Error(error.error || 'Failed to cancel request');
       }
 
-      toast.success('Ownership request cancelled successfully');
+      notification.success('Ownership request cancelled successfully');
       fetchRequests(); // Refresh the list
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Cancel ownership request error:', error);
-      toast.error(errorMessage || 'Failed to cancel request');
+      notification.error(errorMessage || 'Failed to cancel request');
     }
   };
 

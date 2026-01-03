@@ -18,7 +18,7 @@ import { useModal } from '../contexts/ModalContext';
 import { useSecureFetch } from './useSecureFetch';
 import { Employee, Establishment } from '../types';
 import { logger } from '../utils/logger';
-import toast from '../utils/toast';
+import notification from '../utils/notification';
 
 // Lazy-loaded modal components
 const LoginForm = lazy(() => import('../components/Auth/LoginForm'));
@@ -196,10 +196,10 @@ export const useAppModals = (): UseAppModalsReturn => {
           ? 'Profile updated successfully!'
           : (selfProfile ? 'Your employee profile has been created! Waiting for admin approval.' : 'Employee added successfully!');
 
-        toast.success(successMessage);
+        notification.success(successMessage);
       } catch (error) {
         logger.error('Failed to submit employee', error);
-        toast.error(error instanceof Error ? error.message : 'Failed to submit employee');
+        notification.error(error instanceof Error ? error.message : 'Failed to submit employee');
       } finally {
         setIsSubmitting(false);
       }
@@ -242,10 +242,10 @@ export const useAppModals = (): UseAppModalsReturn => {
         }
 
         closeModal(MODAL_IDS.ESTABLISHMENT_FORM);
-        toast.success('Establishment added successfully!');
+        notification.success('Establishment added successfully!');
       } catch (error) {
         logger.error('Failed to submit establishment', error);
-        toast.error(error instanceof Error ? error.message : 'Failed to submit establishment');
+        notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
       } finally {
         setIsSubmitting(false);
       }
@@ -408,10 +408,10 @@ export const useAppModals = (): UseAppModalsReturn => {
         ? 'Profile updated successfully!'
         : (isSelfProfile ? 'Your employee profile has been created! Waiting for admin approval.' : 'Employee added successfully!');
 
-      toast.success(successMessage);
+      notification.success(successMessage);
     } catch (error) {
       logger.error('Failed to submit employee', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit employee');
+      notification.error(error instanceof Error ? error.message : 'Failed to submit employee');
     } finally {
       setIsSubmitting(false);
     }
@@ -431,10 +431,10 @@ export const useAppModals = (): UseAppModalsReturn => {
       }
 
       closeEstablishmentForm();
-      toast.success('Establishment added successfully!');
+      notification.success('Establishment added successfully!');
     } catch (error) {
       logger.error('Failed to submit establishment', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit establishment');
+      notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
     } finally {
       setIsSubmitting(false);
     }

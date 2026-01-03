@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logger } from '../utils/logger';
+import notification from '../utils/notification';
 
 export interface Reward {
   id: string;
@@ -62,6 +63,7 @@ export const useRewards = (): UseRewardsReturn => {
       const message = err instanceof Error ? err.message : 'Failed to fetch rewards';
       logger.error('Error fetching rewards:', err);
       setError(message);
+      notification.error(message);
     } finally {
       setLoading(false);
     }
@@ -93,9 +95,12 @@ export const useRewards = (): UseRewardsReturn => {
 
       // Refetch to update the list
       await fetchRewards();
+      notification.success('Reward claimed successfully!');
       return true;
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to claim reward';
       logger.error('Error claiming reward:', err);
+      notification.error(message);
       return false;
     }
   }, [fetchRewards]);

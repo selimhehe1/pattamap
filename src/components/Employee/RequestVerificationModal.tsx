@@ -4,7 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Eye, Camera, Upload, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
 import '../../styles/components/modal-premium-base.css';
@@ -42,12 +42,12 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      notification.error('Please select an image file');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB');
+      notification.error('File size must be less than 5MB');
       return;
     }
 
@@ -79,17 +79,17 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
 
   const handleSubmitVerification = async () => {
     if (!selectedFile) {
-      toast.error('Please select a selfie photo');
+      notification.error('Please select a selfie photo');
       return;
     }
 
     setIsUploading(true);
 
     try {
-      toast.info('Uploading photo...');
+      notification.info('Uploading photo...');
       const selfieUrl = await uploadToCloudinary(selectedFile);
 
-      toast.info('Submitting verification...');
+      notification.info('Submitting verification...');
       const response = await secureFetch(
         `${import.meta.env.VITE_API_URL}/api/verifications/${employeeId}/verify`,
         {
@@ -110,11 +110,11 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
       setVerificationResult(data.verification);
 
       if (data.verification.status === 'approved') {
-        toast.success(data.message || 'Verification successful!');
+        notification.success(data.message || 'Verification successful!');
       } else if (data.verification.status === 'manual_review') {
-        toast.info(data.message || 'Verification is under review');
+        notification.info(data.message || 'Verification is under review');
       } else if (data.verification.status === 'rejected') {
-        toast.error(data.message || 'Verification failed');
+        notification.error(data.message || 'Verification failed');
       }
 
       setTimeout(() => {
@@ -124,7 +124,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Verification error', error);
-      toast.error(errorMessage || 'Failed to submit verification');
+      notification.error(errorMessage || 'Failed to submit verification');
       setIsUploading(false);
     }
   };

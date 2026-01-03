@@ -8,7 +8,7 @@ import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
 import EmployeeClaimCard from './EmployeeClaimCard';
 import { logger } from '../../utils/logger';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 
 interface EmployeeClaimsAdminProps {
   onTabChange: (tab: string) => void;
@@ -66,11 +66,11 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
           setClaims(data.claims || []);
         } else {
           const errorData = await response.json();
-          toast.error(errorData.error || t('admin.claims.errorLoadFailed'));
+          notification.error(errorData.error || t('admin.claims.errorLoadFailed'));
         }
       } catch (error) {
         logger.error('Failed to load employee claims:', error);
-        toast.error(t('admin.claims.errorLoadFailed'));
+        notification.error(t('admin.claims.errorLoadFailed'));
       } finally {
         setIsLoading(false);
       }
@@ -88,15 +88,15 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       });
 
       if (response.ok) {
-        toast.success(t('admin.claims.successApproved'));
+        notification.success(t('admin.claims.successApproved'));
         refreshClaims(); // Reload list
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.claims.errorApproveFailed'));
+        notification.error(errorData.error || t('admin.claims.errorApproveFailed'));
       }
     } catch (error) {
       logger.error('Failed to approve claim:', error);
-      toast.error(t('admin.claims.errorApproveFailed'));
+      notification.error(t('admin.claims.errorApproveFailed'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -116,7 +116,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
     if (!claimToReject) return;
 
     if (rejectReason.trim().length < 10) {
-      toast.error(t('admin.claims.errorRejectReasonShort'));
+      notification.error(t('admin.claims.errorRejectReasonShort'));
       return;
     }
 
@@ -129,18 +129,18 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
       });
 
       if (response.ok) {
-        toast.success(t('admin.claims.successRejected'));
+        notification.success(t('admin.claims.successRejected'));
         setRejectModalOpen(false);
         setClaimToReject(null);
         setRejectReason('');
         refreshClaims(); // Reload list
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || t('admin.claims.errorRejectFailed'));
+        notification.error(errorData.error || t('admin.claims.errorRejectFailed'));
       }
     } catch (error) {
       logger.error('Failed to reject claim:', error);
-      toast.error(t('admin.claims.errorRejectFailed'));
+      notification.error(t('admin.claims.errorRejectFailed'));
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -185,11 +185,11 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
         })
       );
       await Promise.all(promises);
-      toast.success(t('admin.claims.bulkApproveSuccess', { count: selectedIds.size }));
+      notification.success(t('admin.claims.bulkApproveSuccess', { count: selectedIds.size }));
       refreshClaims();
     } catch (error) {
       logger.error('Bulk approve failed:', error);
-      toast.error(t('admin.claims.bulkApproveFailed'));
+      notification.error(t('admin.claims.bulkApproveFailed'));
     } finally {
       setIsBulkProcessing(false);
     }

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Lock, CheckCircle, Check, X, Loader2, PartyPopper, Star, AlertTriangle, XCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import '../../styles/features/employee/ValidationVoteButtons.css';
 
 interface ValidationVoteButtonsProps {
@@ -83,13 +83,13 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
       queryClient.invalidateQueries({ queryKey: ['validation-stats', employeeId] });
 
       // Show success toast
-      toast.success(t('validation.thanksForVote'), {
+      notification.success(t('validation.thanksForVote'), {
         icon: createElement(PartyPopper, { size: 20, color: '#ffffff' })
       });
 
       // Optional: Show XP award notification
       if (data.xpAwarded) {
-        toast.success(`+${data.xpAwarded} XP`, {
+        notification.success(`+${data.xpAwarded} XP`, {
           icon: createElement(Star, { size: 20, color: '#FFD700' }),
           duration: 2000
         });
@@ -100,11 +100,11 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
         // Immediately refetch stats to sync cache with server state
         queryClient.invalidateQueries({ queryKey: ['validation-stats', employeeId] });
 
-        toast.error(t('validation.alreadyVoted'), {
+        notification.error(t('validation.alreadyVoted'), {
           icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' })
         });
       } else {
-        toast.error(t('validation.voteFailed'), {
+        notification.error(t('validation.voteFailed'), {
           icon: createElement(XCircle, { size: 20, color: '#ffffff' })
         });
       }
@@ -142,7 +142,7 @@ const ValidationVoteButtons: React.FC<ValidationVoteButtonsProps> = ({ employeeI
   const handleVote = (voteType: 'exists' | 'not_exists'): void => {
     // Guard: Block IMMEDIATELY if already voted (prevents API call)
     if (hasVoted) {
-      toast.info(t('validation.alreadyVoted'), {
+      notification.info(t('validation.alreadyVoted'), {
         icon: createElement(AlertTriangle, { size: 20, color: '#ffffff' })
       });
       return;

@@ -4,7 +4,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
-import toast from '../../utils/toast';
+import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
 import '../../styles/components/modal-premium-base.css';
@@ -37,7 +37,7 @@ const RequestSelfRemovalModal: React.FC<RequestSelfRemovalModalProps> = ({
 
   const handleSubmit = async () => {
     if (!isValidExplanation) {
-      toast.error(t('employeeDashboard.removalMinChars', `Please provide at least ${MIN_EXPLANATION_LENGTH} characters explaining your request.`));
+      notification.error(t('employeeDashboard.removalMinChars', `Please provide at least ${MIN_EXPLANATION_LENGTH} characters explaining your request.`));
       return;
     }
 
@@ -62,13 +62,13 @@ const RequestSelfRemovalModal: React.FC<RequestSelfRemovalModalProps> = ({
       }
 
       logger.info('Self-removal request submitted successfully');
-      toast.success(t('employeeDashboard.removalSuccess', 'Removal request submitted. Administrators will review your request.'));
+      notification.success(t('employeeDashboard.removalSuccess', 'Removal request submitted. Administrators will review your request.'));
       onSuccess();
 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Self-removal request error', error);
-      toast.error(errorMessage || 'Failed to submit removal request');
+      notification.error(errorMessage || 'Failed to submit removal request');
     } finally {
       setIsSubmitting(false);
     }
