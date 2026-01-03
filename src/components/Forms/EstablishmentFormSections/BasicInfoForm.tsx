@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
+import { MapPin, Store, Tag, Image as ImageIcon, Camera, RefreshCw, AlertTriangle, Loader2, Beer, Music, Sparkles, Heart, ChevronDown, Check } from 'lucide-react';
 import { EstablishmentCategory } from '../../../types';
 import { ZONE_OPTIONS } from '../../../utils/constants';
 import { logger } from '../../../utils/logger';
@@ -8,28 +8,19 @@ import toast from '../../../utils/toast';
 import LazyImage from '../../Common/LazyImage';
 import '../../../styles/components/modals.css';
 
-// Map category to emoji - uses name as primary key (more robust than icon field)
-const getCategoryEmoji = (category: { name: string; icon?: string }): string => {
-  // First try by icon field
-  if (category.icon) {
-    const iconMap: Record<string, string> = {
-      'beer': '🍺',
-      'dancer': '💃',
-      'spa': '💆',
-      'music': '🎵',
-    };
-    const emoji = iconMap[category.icon.toLowerCase()];
-    if (emoji) return emoji;
-  }
-
-  // Fallback: map by category name
-  const nameMap: Record<string, string> = {
-    'bar': '🍺',
-    'gogo bar': '💃',
-    'massage salon': '💆',
-    'nightclub': '🎵',
+// Map category to Lucide icon component
+const getCategoryIcon = (categoryName: string): React.ReactNode => {
+  const iconMap: Record<string, { icon: React.ReactNode; color: string }> = {
+    'bar': { icon: <Beer size={16} />, color: '#ff6b35' },
+    'gogo bar': { icon: <Sparkles size={16} />, color: '#ff006e' },
+    'massage salon': { icon: <Heart size={16} />, color: '#06ffa5' },
+    'nightclub': { icon: <Music size={16} />, color: '#7b2cbf' },
   };
-  return nameMap[category.name.toLowerCase()] || '🏢';
+  const config = iconMap[categoryName.toLowerCase()];
+  if (config) {
+    return <span style={{ color: config.color, display: 'inline-flex' }}>{config.icon}</span>;
+  }
+  return <Tag size={16} style={{ color: '#888' }} />;
 };
 
 interface BasicInfoFormProps {
@@ -62,6 +53,30 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   uploadingLogo
 }) => {
   const { t } = useTranslation();
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(e.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+    };
+    if (isCategoryOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCategoryOpen]);
+
+  const selectedCategory = categories.find(c => c.id.toString() === String(formData.category_id));
+
+  const handleCategorySelect = (categoryId: string) => {
+    onChange({
+      target: { name: 'category_id', value: categoryId }
+    } as React.ChangeEvent<HTMLSelectElement>);
+    setIsCategoryOpen(false);
+  };
 
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -185,22 +200,94 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         <label className="label-nightlife">
           <Tag size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('establishment.basicInfo.categoryLabel')} *
         </label>
-        <select
-          name="category_id"
-          value={String(formData.category_id)}
-          onChange={onChange}
-          className="select-nightlife"
-          style={{
-            ...(errors.category_id && { borderColor: '#FF4757' })
-          }}
-        >
-          <option value="">{t('establishment.basicInfo.selectCategoryPlaceholder')}</option>
-          {categories.map(category => (
-            <option key={category.id} value={category.id.toString()}>
-              {getCategoryEmoji(category)} {category.name}
-            </option>
-          ))}
-        </select>
+        {/* Custom Category Dropdown with Lucide Icons */}
+        <div ref={categoryDropdownRef} style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+            className="select-nightlife"
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              textAlign: 'left',
+              ...(errors.category_id && { borderColor: '#FF4757' })
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {selectedCategory ? (
+                <>
+                  {getCategoryIcon(selectedCategory.name)}
+                  <span>{selectedCategory.name}</span>
+                </>
+              ) : (
+                <span style={{ color: '#888' }}>{t('establishment.basicInfo.selectCategoryPlaceholder')}</span>
+              )}
+            </span>
+            <ChevronDown
+              size={18}
+              style={{
+                transition: 'transform 0.2s',
+                transform: isCategoryOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                color: '#E879F9'
+              }}
+            />
+          </button>
+
+          {isCategoryOpen && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              marginTop: '4px',
+              background: 'rgba(0, 0, 0, 0.95)',
+              border: '2px solid rgba(232, 121, 249, 0.4)',
+              borderRadius: '12px',
+              maxHeight: '200px',
+              overflowY: 'auto',
+              zIndex: 100,
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
+            }}>
+              {categories.map(category => {
+                const isSelected = category.id.toString() === String(formData.category_id);
+                return (
+                  <div
+                    key={category.id}
+                    onClick={() => handleCategorySelect(category.id.toString())}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '8px',
+                      background: isSelected ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      transition: 'background 0.2s ease',
+                      color: isSelected ? '#00E5FF' : '#ffffff',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {getCategoryIcon(category.name)}
+                      <span>{category.name}</span>
+                    </span>
+                    {isSelected && <Check size={16} style={{ color: '#00E5FF' }} />}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
         {errors.category_id && (
           <div className="error-message-nightlife">
             <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {errors.category_id}
