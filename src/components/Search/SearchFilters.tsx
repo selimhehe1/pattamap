@@ -705,6 +705,48 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
       }} />
 
       {/* ============================================
+         VERIFIED PROFILES TOGGLE - v11.x
+         Filtre pour afficher uniquement les profils vérifiés
+         ============================================ */}
+      <div className="verified-toggle-container" style={{ marginBottom: '1rem' }}>
+        <button
+          type="button"
+          onClick={() => {
+            onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true');
+          }}
+          disabled={loading}
+          className={`verified-toggle ${filters.is_verified === 'true' ? 'verified-toggle-active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            width: '100%',
+            padding: '12px 16px',
+            background: filters.is_verified === 'true'
+              ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(34, 211, 238, 0.2))'
+              : 'rgba(255, 255, 255, 0.05)',
+            border: filters.is_verified === 'true'
+              ? '2px solid #00E5FF'
+              : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            color: filters.is_verified === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: filters.is_verified === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
+          }}
+        >
+          <Check size={18} />
+          <span>{t('search.verifiedOnly', 'Verified Profiles Only')}</span>
+          {filters.is_verified === 'true' && (
+            <Check size={16} style={{ marginLeft: 'auto' }} />
+          )}
+        </button>
+      </div>
+
+      {/* ============================================
          FREELANCE TOGGLE - Separate (v11.1 fix #3)
          Business logic: Freelancers can only work in
          nightclubs or nowhere (no establishment)
