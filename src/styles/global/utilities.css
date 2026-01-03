@@ -164,6 +164,18 @@
   color: var(--color-text-tertiary);
 }
 
+/* Hide number input spinners (ugly white arrows on dark theme) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
+}
+
 /* Select Field */
 .select-nightlife {
   width: 100%;
