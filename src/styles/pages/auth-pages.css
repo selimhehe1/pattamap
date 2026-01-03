@@ -25,8 +25,10 @@
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
+  max-height: 100vh;
+  max-height: 100dvh;
   background: var(--bg-primary, #0a0a0a);
-  overflow-x: hidden; /* Allow vertical scroll for long forms */
+  overflow: hidden; /* Prevent scrollbar on the entire page */
 }
 
 /* Mode modifiers for potential future differentiation */
@@ -68,7 +70,9 @@
   background: var(--bg-secondary, #111111);
   min-height: 100vh;
   min-height: 100dvh;
-  /* Removed max-height and overflow-y: auto to allow full content display */
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto; /* Internal scroll if content exceeds viewport */
 }
 
 /* Subtle gradient overlay on form side */

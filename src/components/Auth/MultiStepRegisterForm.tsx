@@ -932,8 +932,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 transition: 'all 0.3s ease'
               }} />
 
-              {/* Step 2 (employee only) */}
-              {formData.accountType === 'employee' && (
+              {/* Step 2 (employee or owner) */}
+              {(formData.accountType === 'employee' || formData.accountType === 'establishment_owner') && (
                 <>
                   <div style={{
                     width: '32px',
@@ -960,13 +960,13 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 </>
               )}
 
-              {/* Step 3 (or Step 2 for non-employee) */}
+              {/* Step 3 (or Step 2 for regular users) */}
               <div style={{
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                background: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#3B82F6' : 'rgba(255,255,255,0.2)',
-                color: currentStep >= (formData.accountType === 'employee' ? 3 : 2) ? '#ffffff' : '#ffffff',
+                background: currentStep >= ((formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? 3 : 2) ? '#3B82F6' : 'rgba(255,255,255,0.2)',
+                color: currentStep >= ((formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? 3 : 2) ? '#ffffff' : '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -974,11 +974,12 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 fontWeight: 'bold',
                 transition: 'all 0.3s ease'
               }}>
-                {formData.accountType === 'employee' ? '3' : '2'}
+                {(formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? '3' : '2'}
               </div>
 
-              {/* Step 4 (create path only) */}
-              {formData.accountType === 'employee' && formData.employeePath === 'create' && (
+              {/* Step 4 (create path only - employee or owner) */}
+              {((formData.accountType === 'employee' && formData.employeePath === 'create') ||
+                (formData.accountType === 'establishment_owner' && formData.ownerPath === 'create')) && (
                 <>
                   <div style={{
                     flex: 1,
