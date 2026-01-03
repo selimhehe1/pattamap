@@ -115,7 +115,7 @@ export function EmployeeEstablishment({
         ) : (
           <>
             <Building2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-            {t('employee.currentEmployment', 'Current Establishment')}
+            Current Establishment
             <span style={{ color: '#FF6B6B', marginLeft: '4px' }}>*</span>
           </>
         )}
