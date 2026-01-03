@@ -108,30 +108,17 @@ export const LanguagesTagsInput: React.FC<LanguagesTagsInputProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSuggestions]);
 
-  // Calculate dropdown position
-  // Prefer showing ABOVE to avoid overlapping form content below
-  // Recalculate when filtered results change (user types)
+  // Calculate dropdown position - always show below for stability
   useEffect(() => {
     if (showSuggestions && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      // Calculate actual dropdown height based on number of items (each ~41px) + padding
-      const itemHeight = 41;
-      const maxItems = Math.min(filteredSuggestions.length, 5);
-      const actualDropdownHeight = Math.min(maxItems * itemHeight + 8, 200);
-      const spaceAbove = rect.top;
-
-      // Prefer showing above unless not enough space above
-      const showAbove = spaceAbove >= actualDropdownHeight;
-
       setDropdownPosition({
-        top: showAbove
-          ? rect.top + window.scrollY - actualDropdownHeight - 4  // Above the input
-          : rect.bottom + window.scrollY + 4,               // Below the input (fallback)
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 4,  // Always below the input
+        left: rect.left,
         width: rect.width
       });
     }
-  }, [showSuggestions, filteredSuggestions.length]);
+  }, [showSuggestions]);
 
   const handleAddLanguage = (langValue: string) => {
     if (!canAddMore) return;
