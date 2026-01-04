@@ -164,6 +164,8 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
 
     // Default: just toggle the mode
     setIsFreelanceMode(isFreelance);
+    // Quand on désactive freelance, vider l'établissement car les freelances
+    // ne peuvent travailler que dans des nightclubs - l'utilisateur doit choisir un nouvel établissement
     if (!isFreelance) {
       setFormData(prev => ({ ...prev, current_establishment_id: '' }));
     }

@@ -74,6 +74,29 @@ async function updateEmploymentHistory(
 }
 
 /**
+ * Helper: End all current employment for an employee
+ * Used when clearing establishment (freelance without nightclub)
+ */
+async function endCurrentEmployment(employeeId: string): Promise<void> {
+  logger.info(`endCurrentEmployment: Ending all current employment for ${employeeId}`);
+
+  const { error } = await supabase
+    .from('employment_history')
+    .update({
+      is_current: false,
+      end_date: new Date().toISOString()
+    })
+    .eq('employee_id', employeeId)
+    .eq('is_current', true);
+
+  if (error) {
+    logger.error('endCurrentEmployment: Error:', error);
+  } else {
+    logger.info(`endCurrentEmployment: Successfully ended current employment for ${employeeId}`);
+  }
+}
+
+/**
  * Helper: Handle freelance mode switch
  * When switching TO freelance, end all non-Nightclub employment
  * Freelancers can only work in Nightclubs
@@ -167,15 +190,23 @@ export const createProposal = asyncHandler(async (req: Request, res: Response) =
 
     if (item_type === 'employee') {
       // Handle establishment change via employment_history (before deleting)
+      // Check if the key exists in proposed_changes (including null/empty values)
       logger.info(`createProposal: Employee edit - current_establishment_id = ${proposed_changes.current_establishment_id}`);
-      if (proposed_changes.current_establishment_id) {
-        logger.info(`createProposal: Calling updateEmploymentHistory for employee ${item_id}`);
-        await updateEmploymentHistory(
-          item_id,
-          proposed_changes.current_establishment_id,
-          proposed_by,
-          'Updated via edit proposal (auto-approved)'
-        );
+      if ('current_establishment_id' in proposed_changes) {
+        if (proposed_changes.current_establishment_id) {
+          // New establishment selected - create new employment
+          logger.info(`createProposal: Calling updateEmploymentHistory for employee ${item_id}`);
+          await updateEmploymentHistory(
+            item_id,
+            proposed_changes.current_establishment_id,
+            proposed_by,
+            'Updated via edit proposal (auto-approved)'
+          );
+        } else {
+          // Clearing establishment (null or empty) - end current employment
+          logger.info(`createProposal: Clearing establishment, calling endCurrentEmployment for employee ${item_id}`);
+          await endCurrentEmployment(item_id);
+        }
       }
       delete validChanges.current_establishment_id;
 
@@ -357,13 +388,21 @@ export const approveProposal = asyncHandler(async (req: Request, res: Response) 
   const validChanges = { ...proposal.proposed_changes };
   if (proposal.item_type === 'employee') {
     // Handle establishment change via employment_history (before deleting)
-    if (proposal.proposed_changes.current_establishment_id) {
-      await updateEmploymentHistory(
-        proposal.item_id,
-        proposal.proposed_changes.current_establishment_id,
-        moderator_id,
-        'Updated via edit proposal'
-      );
+    // Check if the key exists in proposed_changes (including null/empty values)
+    if ('current_establishment_id' in proposal.proposed_changes) {
+      if (proposal.proposed_changes.current_establishment_id) {
+        // New establishment selected - create new employment
+        await updateEmploymentHistory(
+          proposal.item_id,
+          proposal.proposed_changes.current_establishment_id,
+          moderator_id,
+          'Updated via edit proposal'
+        );
+      } else {
+        // Clearing establishment (null or empty) - end current employment
+        logger.info(`approveProposal: Clearing establishment, calling endCurrentEmployment for employee ${proposal.item_id}`);
+        await endCurrentEmployment(proposal.item_id);
+      }
     }
     delete validChanges.current_establishment_id;
 
