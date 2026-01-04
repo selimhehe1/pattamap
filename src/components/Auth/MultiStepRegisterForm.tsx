@@ -14,7 +14,7 @@ import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
-import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep } from './steps';
+import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep } from './steps';
 import { EstablishmentAutocomplete, PhotoUploadGrid, DocumentUploadGrid, StepIndicator } from './components';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
@@ -1258,473 +1258,43 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             </>
           )}
 
-          {/* STEP 4: Complete Profile - Employee Only (Photos + Info + Employment + Social) */}
+          {/* STEP 4: Complete Profile - Employee Only */}
           {currentStep === 4 && formData.accountType === 'employee' && (
-            <div style={{
-              maxHeight: '500px',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              marginBottom: '20px',
-              paddingRight: '8px'
-            }}>
-              {/* Photos Section */}
-              <div className="form-section" style={{ marginBottom: '30px' }}>
-                <h3 style={{
-                  color: '#00E5FF',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  {t('register.photosSection')}
-                </h3>
-
-                <PhotoUploadGrid
-                  photos={formData.photos}
-                  onChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
-                  error={photoErrors}
-                  onError={setPhotoErrors}
-                  maxPhotos={5}
-                  accentColor="#00E5FF"
-                />
-              </div>
-
-              {/* Basic Info Section */}
-              <div style={{ marginBottom: '30px' }}>
-                <h3 style={{
-                  color: '#C19A6B',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  {t('register.basicInfoSection')}
-                </h3>
-
-                <div className="form-input-group">
-                  <label className="label-nightlife"><User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.nameLabel')} *</label>
-                  <input
-                    type="text"
-                    value={formData.employeeName}
-                    onChange={(e) => handleInputChange('employeeName', e.target.value)}
-                    className="input-nightlife"
-                    placeholder={t('register.namePlaceholder')}
-                    required
-                  />
-                </div>
-
-                <div className="form-input-group-lg">
-                  <label className="label-nightlife"><UserCog size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.nicknameLabel')}</label>
-                  <input
-                    type="text"
-                    value={formData.employeeNickname}
-                    onChange={(e) => handleInputChange('employeeNickname', e.target.value)}
-                    className="input-nightlife"
-                    placeholder={t('register.nicknamePlaceholder')}
-                  />
-                </div>
-
-                {/* 🆕 v10.x - Sex/Gender Field */}
-                <div className="form-input-group-lg">
-                  <label className="label-nightlife"><Users size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('employee.sex.label', 'Sex')} *</label>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    {[
-                      { value: 'female', label: t('employee.sex.female', 'Female'), icon: '♀' },
-                      { value: 'male', label: t('employee.sex.male', 'Male'), icon: '♂' },
-                      { value: 'ladyboy', label: t('employee.sex.ladyboy', 'Ladyboy'), icon: '⚧' }
-                    ].map(option => (
-                      <label
-                        key={option.value}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '10px 18px',
-                          borderRadius: '10px',
-                          border: formData.employeeSex === option.value ? '2px solid #ec4899' : '2px solid rgba(255,255,255,0.2)',
-                          background: formData.employeeSex === option.value ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.3)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <input
-                          type="radio"
-                          name="employeeSex"
-                          value={option.value}
-                          checked={formData.employeeSex === option.value}
-                          onChange={(e) => handleInputChange('employeeSex', e.target.value)}
-                          style={{ display: 'none' }}
-                        />
-                        <span style={{ fontSize: '18px' }}>{option.icon}</span>
-                        <span style={{ color: '#fff' }}>{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-row-2-cols">
-                  <div>
-                    <label className="label-nightlife"><Cake size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.ageLabel')}</label>
-                    <input
-                      type="number"
-                      value={formData.employeeAge}
-                      onChange={(e) => handleInputChange('employeeAge', e.target.value)}
-                      className="input-nightlife"
-                      min="18"
-                      max="80"
-                      placeholder={t('register.agePlaceholder')}
-                    />
-                  </div>
-                  <div>
-                    <label className="label-nightlife"><Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.nationalityLabel')}</label>
-                    <NationalityTagsInput
-                      value={formData.employeeNationality}
-                      onChange={(nationalities) => handleInputChange('employeeNationality', nationalities)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-input-group">
-                  <label className="label-nightlife"><FileText size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.descriptionLabel')}</label>
-                  <textarea
-                    value={formData.employeeDescription}
-                    onChange={(e) => handleInputChange('employeeDescription', e.target.value)}
-                    className="textarea-nightlife"
-                    rows={4}
-                    placeholder={t('register.descriptionPlaceholder')}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      background: 'rgba(0,0,0,0.4)',
-                      border: '2px solid rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
-                      color: '#ffffff',
-                      fontSize: '14px',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Employment Mode Section */}
-              <div style={{ marginBottom: '30px' }}>
-                <h3 style={{
-                  color: '#9D4EDD',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  {t('register.employmentModeSection')}
-                </h3>
-
-                {/* Freelance Mode Toggle */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '15px',
-                  padding: '15px',
-                  background: 'rgba(157, 78, 221, 0.1)',
-                  border: '2px solid rgba(157, 78, 221, 0.3)',
-                  borderRadius: '12px',
-                  marginBottom: '20px'
-                }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    cursor: 'pointer',
-                    color: 'white',
-                    fontSize: '15px',
-                    fontWeight: '500'
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.isFreelance}
-                      onChange={(e) => {
-                        handleInputChange('isFreelance', e.target.checked);
-                        if (e.target.checked) {
-                          handleInputChange('establishmentId', '');
-                        }
-                      }}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <span><PersonStanding size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.freelanceMode')}</span>
-                  </label>
-                  {formData.isFreelance && (
-                    <span style={{
-                      background: 'linear-gradient(45deg, #9D4EDD, #C77DFF)',
-                      color: 'white',
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}>
-                      {t('register.freelanceModeActive')}
-                    </span>
-                  )}
-                </div>
-
-                {/* 🆕 v10.x - Freelance Nightclub Multi-Select */}
-                {formData.isFreelance && (
-                  <div style={{ marginBottom: '20px' }}>
-                    <label className="label-nightlife">
-                      <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                      {t('register.selectNightclubs', 'Select Nightclubs (Optional)')}
-                    </label>
-
-                    {/* Info message */}
-                    <div style={{
-                      marginBottom: '15px',
-                      padding: '12px',
-                      background: 'rgba(157, 78, 221, 0.15)',
-                      borderRadius: '8px',
-                      fontSize: '13px',
-                      color: 'rgba(255,255,255,0.8)'
-                    }}>
-                      <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                      {t('register.freelanceNightclubNote', 'As a freelance, you can work at multiple nightclubs simultaneously, or leave empty to be listed as a free freelance.')}
-                    </div>
-
-                    {/* Nightclub checkboxes */}
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      maxHeight: '200px',
-                      overflowY: 'auto',
-                      padding: '10px',
-                      background: 'rgba(0,0,0,0.2)',
-                      borderRadius: '8px'
-                    }}>
-                      {nightclubs.length === 0 ? (
-                        <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', margin: '10px 0' }}>
-                          {t('register.noNightclubsAvailable', 'No nightclubs available')}
-                        </p>
-                      ) : (
-                        nightclubs.map(nightclub => (
-                          <label
-                            key={nightclub.id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              cursor: 'pointer',
-                              padding: '8px 12px',
-                              borderRadius: '8px',
-                              background: formData.freelanceNightclubIds.includes(nightclub.id)
-                                ? 'rgba(157, 78, 221, 0.2)'
-                                : 'transparent',
-                              border: formData.freelanceNightclubIds.includes(nightclub.id)
-                                ? '1px solid rgba(157, 78, 221, 0.5)'
-                                : '1px solid transparent',
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={formData.freelanceNightclubIds.includes(nightclub.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  handleInputChange('freelanceNightclubIds', [...formData.freelanceNightclubIds, nightclub.id]);
-                                } else {
-                                  handleInputChange('freelanceNightclubIds', formData.freelanceNightclubIds.filter((id: string) => id !== nightclub.id));
-                                }
-                              }}
-                              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                            />
-                            <span style={{ color: '#fff', flex: 1 }}>{nightclub.name}</span>
-                            {nightclub.zone && (
-                              <span style={{ color: '#9D4EDD', fontSize: '12px' }}>
-                                <MapPin size={12} style={{ marginRight: '2px', verticalAlign: 'middle' }} />
-                                {nightclub.zone}
-                              </span>
-                            )}
-                          </label>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Selected count indicator */}
-                    {formData.freelanceNightclubIds.length > 0 && (
-                      <div style={{
-                        marginTop: '10px',
-                        color: '#9D4EDD',
-                        fontSize: '13px'
-                      }}>
-                        <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                        {formData.freelanceNightclubIds.length} {t('register.nightclubsSelected', 'nightclub(s) selected')}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Establishment Selector with Autocomplete - REQUIRED for non-freelance */}
-                {!formData.isFreelance && (
-                  <div style={{ marginBottom: '20px' }}>
-                    <label className="label-nightlife">
-                      <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                      {t('register.currentEstablishmentRequired', 'Current Establishment')} <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <EstablishmentAutocomplete
-                      value={establishmentSearchStep4}
-                      onChange={(value) => {
-                        setEstablishmentSearchStep4(value);
-                        // Clear selection if user types
-                        if (formData.establishmentId) {
-                          handleInputChange('establishmentId', '');
-                        }
-                      }}
-                      onSelect={(est) => {
-                        handleInputChange('establishmentId', est.id);
-                        setEstablishmentSearchStep4(est.name);
-                      }}
-                      onClear={() => handleInputChange('establishmentId', '')}
-                      establishments={establishments}
-                      labelColor="#9D4EDD"
-                      showCategory={true}
-                      selectedId={formData.establishmentId}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Social Media Section */}
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{
-                  color: '#00E5FF',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  {t('register.socialMediaSection')}
-                </h3>
-
-                <div style={{
-                  marginBottom: '20px',
-                  padding: '12px',
-                  background: 'rgba(0,229,255,0.1)',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  color: 'rgba(255,255,255,0.8)'
-                }}>
-                  <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.socialMediaNote')}
-                </div>
-
-                <div className="social-media-grid" style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '15px'
-                }}>
-                  <div>
-                    <label className="label-nightlife"><Camera size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.instagramLabel')}</label>
-                    <input
-                      type="text"
-                      value={formData.socialMedia.ig}
-                      onChange={(e) => handleInputChange('socialMedia', { ...formData.socialMedia, ig: e.target.value })}
-                      className="input-nightlife"
-                      placeholder={t('register.instagramPlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label-nightlife"><BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.facebookLabel')}</label>
-                    <input
-                      type="text"
-                      value={formData.socialMedia.fb}
-                      onChange={(e) => handleInputChange('socialMedia', { ...formData.socialMedia, fb: e.target.value })}
-                      className="input-nightlife"
-                      placeholder={t('register.facebookPlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label-nightlife"><MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.lineLabel')}</label>
-                    <input
-                      type="text"
-                      value={formData.socialMedia.line}
-                      onChange={(e) => handleInputChange('socialMedia', { ...formData.socialMedia, line: e.target.value })}
-                      className="input-nightlife"
-                      placeholder={t('register.linePlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Send size={14} /> {t('register.telegramLabel')}</label>
-                    <input
-                      type="text"
-                      value={formData.socialMedia.tg}
-                      onChange={(e) => handleInputChange('socialMedia', { ...formData.socialMedia, tg: e.target.value })}
-                      className="input-nightlife"
-                      placeholder={t('register.telegramPlaceholder')}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label-nightlife" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={14} /> {t('register.whatsappLabel')}</label>
-                    <input
-                      type="text"
-                      value={formData.socialMedia.wa}
-                      onChange={(e) => handleInputChange('socialMedia', { ...formData.socialMedia, wa: e.target.value })}
-                      className="input-nightlife"
-                      placeholder={t('register.whatsappPlaceholder')}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {submitError && (
-                <div className="error-message-nightlife error-shake" style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <AlertTriangle size={16} /> {submitError}
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="btn btn--secondary"
-                  style={{ flex: 1 }}
-                >
-                  ← {t('register.backButton')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading || uploadingPhotos}
-                  className={`btn btn--success ${isLoading ? 'btn--loading' : ''}`}
-                  style={{ flex: 2 }}
-                >
-                  {uploadingPhotos ? (
-                    <span className="loading-flex">
-                      <span className="loading-spinner-small-nightlife"></span>
-                      <Upload size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.uploadingPhotos')}
-                    </span>
-                  ) : isLoading ? (
-                    <span className="loading-flex">
-                      <span className="loading-spinner-small-nightlife"></span>
-                      <Loader2 size={16} style={{ marginRight: '4px', verticalAlign: 'middle', animation: 'spin 1s linear infinite' }} />{t('register.creatingProfile')}
-                    </span>
-                  ) : (
-                    <><Sparkles size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createAccount')}</>
-                  )}
-                </button>
-              </div>
-            </div>
+            <EmployeeCreateStep
+              photos={formData.photos}
+              onPhotosChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+              photoErrors={photoErrors}
+              onPhotoError={setPhotoErrors}
+              employeeName={formData.employeeName}
+              employeeNickname={formData.employeeNickname}
+              employeeSex={formData.employeeSex}
+              employeeAge={formData.employeeAge}
+              employeeNationality={formData.employeeNationality}
+              employeeDescription={formData.employeeDescription}
+              onFieldChange={(field, value) => handleInputChange(field as keyof FormData, value as FormData[keyof FormData])}
+              isFreelance={formData.isFreelance}
+              freelanceNightclubIds={formData.freelanceNightclubIds}
+              nightclubs={nightclubs}
+              establishmentId={formData.establishmentId}
+              establishmentSearch={establishmentSearchStep4}
+              onEstablishmentSearchChange={(value) => {
+                setEstablishmentSearchStep4(value);
+                if (formData.establishmentId) {
+                  handleInputChange('establishmentId', '');
+                }
+              }}
+              onEstablishmentSelect={(est) => {
+                handleInputChange('establishmentId', est.id);
+                setEstablishmentSearchStep4(est.name);
+              }}
+              onEstablishmentClear={() => handleInputChange('establishmentId', '')}
+              establishments={establishments}
+              socialMedia={formData.socialMedia}
+              isLoading={isLoading}
+              uploadingPhotos={uploadingPhotos}
+              submitError={submitError}
+              onPrevious={handlePrevious}
+            />
           )}
 
           {/* STEP 4: Owner Establishment Creation - 🆕 v10.x */}
