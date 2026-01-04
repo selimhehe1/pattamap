@@ -3178,8 +3178,8 @@
    Always visible, independent of scroll
    ======================================== */
 
-.profile-v2-back-btn {
-  display: none; /* Hidden on desktop */
+button.profile-v2-back-btn {
+  display: none; /* Hidden on desktop - use button selector for higher specificity */
 }
 
 @media (max-width: 767px) {
