@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle, Languages } from 'lucide-react';
+import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle, Languages, Venus, Mars } from 'lucide-react';
 import NationalityTagsInput from '../NationalityTagsInput';
 import LanguagesTagsInput from '../LanguagesTagsInput';
 import type { InternalFormData, FormErrors } from './types';
@@ -122,7 +122,7 @@ export function EmployeeBasicInfo({
         />
       </div>
 
-      {/* Sex/Gender - Required */}
+      {/* Sex/Gender - Required (Icons only) */}
       <div className="form-input-group-lg">
         <label className="label-nightlife">
           <User size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
@@ -130,23 +130,28 @@ export function EmployeeBasicInfo({
         </label>
         <div style={{
           display: 'flex',
-          gap: '12px',
+          gap: '10px',
           marginTop: '8px',
-          flexWrap: 'wrap'
+          justifyContent: 'flex-start'
         }}>
-          {(['female', 'male', 'ladyboy'] as const).map((sexOption) => (
+          {([
+            { value: 'female' as const, Icon: Venus, color: '#FF69B4' },
+            { value: 'male' as const, Icon: Mars, color: '#4169E1' },
+            { value: 'ladyboy' as const, Icon: Sparkles, color: '#9B59B6' }
+          ]).map(({ value, Icon, color }) => (
             <label
-              key={sexOption}
+              key={value}
+              title={t(`employee.sex.${value}`, value.charAt(0).toUpperCase() + value.slice(1))}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                padding: '10px 18px',
                 borderRadius: '8px',
-                border: formData.sex === sexOption
+                border: formData.sex === value
                   ? '2px solid var(--color-cyan-nightlife)'
                   : '1px solid rgba(255,255,255,0.2)',
-                background: formData.sex === sexOption
+                background: formData.sex === value
                   ? 'rgba(0, 255, 255, 0.1)'
                   : 'rgba(255,255,255,0.05)',
                 cursor: 'pointer',
@@ -156,17 +161,18 @@ export function EmployeeBasicInfo({
               <input
                 type="radio"
                 name="sex"
-                value={sexOption}
-                checked={formData.sex === sexOption}
-                onChange={() => onSexChange(sexOption)}
+                value={value}
+                checked={formData.sex === value}
+                onChange={() => onSexChange(value)}
                 style={{ display: 'none' }}
               />
-              <span style={{
-                color: formData.sex === sexOption ? 'var(--color-cyan-nightlife)' : 'inherit',
-                fontWeight: formData.sex === sexOption ? '600' : '400'
-              }}>
-                {t(`employee.sex.${sexOption}`, sexOption.charAt(0).toUpperCase() + sexOption.slice(1))}
-              </span>
+              <Icon
+                size={24}
+                style={{
+                  color: formData.sex === value ? color : 'rgba(255,255,255,0.5)',
+                  transition: 'color 0.2s ease'
+                }}
+              />
             </label>
           ))}
         </div>

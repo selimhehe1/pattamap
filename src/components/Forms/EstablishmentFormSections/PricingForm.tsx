@@ -129,7 +129,7 @@ const PricingForm: React.FC<PricingFormProps> = ({
             {t('establishment.pricing.addConsumableLabel')}
           </label>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 2, minWidth: 0 }}>
               <select
                 value={selectedConsumable.template_id}
                 onChange={(e) => onSelectedConsumableChange('template_id', e.target.value)}
@@ -189,12 +189,12 @@ const PricingForm: React.FC<PricingFormProps> = ({
                 }
               </select>
             </div>
-            <div style={{ width: '120px' }}>
+            <div style={{ flex: 1, minWidth: '70px', maxWidth: '100px' }}>
               <input
                 type="number"
                 value={selectedConsumable.price}
                 onChange={(e) => onSelectedConsumableChange('price', e.target.value)}
-                placeholder={t('establishment.pricing.pricePlaceholder')}
+                placeholder="฿"
                 style={{
                   width: '100%',
                   padding: '10px 12px',
