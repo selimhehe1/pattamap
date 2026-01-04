@@ -1,0 +1,239 @@
+/**
+ * ============================================
+ * QUICK FILTER CHIPS - Mobile-First Filter UI
+ * ============================================
+ *
+ * Horizontal scrollable filter chips for mobile
+ * Inspired by Tinder/Airbnb filter patterns
+ *
+ * @version 11.4
+ * @created 2025-01-04
+ */
+
+/* ===== CONTAINER ===== */
+
+.quick-filter-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quick-filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== CHIP BASE ===== */
+
+.quick-filter-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(232, 121, 249, 0.25);
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Prevent text selection on tap */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quick-filter-chip:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.quick-filter-chip:active {
+  transform: scale(0.95);
+}
+
+/* ===== CHIP ACTIVE STATE ===== */
+
+.quick-filter-chip--active {
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(168, 85, 247, 0.2));
+  border-color: #E879F9;
+  color: #E879F9;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.25);
+}
+
+.quick-filter-chip--active:hover {
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.35), rgba(168, 85, 247, 0.3));
+  box-shadow: 0 0 16px rgba(232, 121, 249, 0.35);
+}
+
+/* ===== CHIP ICON ===== */
+
+.quick-filter-chip__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* ===== GENDER CHIPS - Compact ===== */
+
+.quick-filter-chip--gender {
+  padding: 8px 12px;
+  min-width: 44px;
+  justify-content: center;
+}
+
+.quick-filter-chip--gender .quick-filter-chip__icon {
+  font-size: 16px;
+}
+
+/* ===== MOBILE SEARCH INPUT ===== */
+
+.mobile-search-input-container {
+  margin-bottom: 12px;
+}
+
+.mobile-search-input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-left: 40px;
+  background: rgba(10, 0, 20, 0.6);
+  border: 1px solid rgba(232, 121, 249, 0.25);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.mobile-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.mobile-search-input:focus {
+  border-color: #E879F9;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.2);
+}
+
+.mobile-search-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(232, 121, 249, 0.6);
+  pointer-events: none;
+}
+
+/* ===== MORE FILTERS TOGGLE ===== */
+
+.more-filters-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(10, 0, 20, 0.4);
+  border: 1px solid rgba(232, 121, 249, 0.2);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.more-filters-toggle:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.35);
+  color: #E879F9;
+}
+
+.more-filters-toggle--expanded {
+  background: rgba(232, 121, 249, 0.15);
+  border-color: rgba(232, 121, 249, 0.4);
+  color: #E879F9;
+}
+
+.more-filters-toggle__icon {
+  transition: transform 0.3s ease;
+}
+
+.more-filters-toggle--expanded .more-filters-toggle__icon {
+  transform: rotate(180deg);
+}
+
+/* ===== MORE FILTERS CONTENT ===== */
+
+.more-filters-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+  margin-top: 8px;
+}
+
+.more-filters-content--expanded {
+  grid-template-rows: 1fr;
+}
+
+.more-filters-content__inner {
+  overflow: hidden;
+}
+
+.more-filters-content__inner > * {
+  padding-top: 8px;
+}
+
+/* ===== LIGHT MODE ===== */
+
+body[data-theme="light"] .quick-filter-chip {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(147, 51, 234, 0.25);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+body[data-theme="light"] .quick-filter-chip:hover {
+  background: rgba(147, 51, 234, 0.08);
+  border-color: rgba(147, 51, 234, 0.4);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+body[data-theme="light"] .quick-filter-chip--active {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(168, 85, 247, 0.1));
+  border-color: #9333ea;
+  color: #9333ea;
+}
+
+body[data-theme="light"] .mobile-search-input {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(147, 51, 234, 0.2);
+  color: #1e1e1e;
+}
+
+body[data-theme="light"] .more-filters-toggle {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(147, 51, 234, 0.2);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ===== REDUCED MOTION ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .quick-filter-chip,
+  .more-filters-toggle,
+  .more-filters-content {
+    transition: none;
+  }
+
+  .quick-filter-chip:active {
+    transform: none;
+  }
+}

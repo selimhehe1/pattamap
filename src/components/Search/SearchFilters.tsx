@@ -8,13 +8,17 @@ import {
   // v11.0 - New filter icons
   Languages, Star, Image, MessageCircle, User, Sparkles,
   // v11.1 - Freelance toggle
-  Briefcase
+  Briefcase,
+  // v11.4 - More filters toggle
+  SlidersHorizontal
 } from 'lucide-react';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import FilterSection from './FilterSection';
 import CustomSelect from '../Common/CustomSelect';
+import QuickFilterChips from './QuickFilterChips';
 import '../../styles/layout/search-layout.css';
+import '../../styles/components/quick-filter-chips.css';
 
 // Development logging helper
 const isDev = process.env.NODE_ENV === 'development';
@@ -583,48 +587,95 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
   return (
     <div className="search-filters-fixed-nightlife" data-testid="search-filters">
-      {/* Mobile Toggle Button */}
+      {/* ============================================
+         MOBILE: Quick Filter Chips (v11.4)
+         Always visible - instant filter access
+         ============================================ */}
+      {isMobile && (
+        <QuickFilterChips
+          filters={filters}
+          onFilterChange={onFilterChange}
+        />
+      )}
+
+      {/* Mobile: "More Filters" Toggle Button (v11.4) */}
       {isMobile && (
         <button
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className={`search-filters-toggle-btn ${isFiltersOpen ? 'search-filters-toggle-btn--expanded' : ''}`}
+          className={`more-filters-toggle ${isFiltersOpen ? 'more-filters-toggle--expanded' : ''}`}
           aria-expanded={isFiltersOpen}
           data-testid="mobile-filters-toggle"
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Search size={16} /> {t('search.filters')}
-            {activeFiltersCount > 0 && ` (${activeFiltersCount})`}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <SlidersHorizontal size={14} />
+            {t('search.moreFilters', 'More filters')}
+            {activeFiltersCount > 0 && (
+              <span style={{
+                background: 'rgba(232, 121, 249, 0.3)',
+                color: '#E879F9',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                fontSize: '11px',
+                fontWeight: '600'
+              }}>
+                {activeFiltersCount}
+              </span>
+            )}
           </span>
-          <span style={{
-            transform: isFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease',
-            display: 'flex'
-          }}>
-            <ChevronDown size={20} />
+          <span className="more-filters-toggle__icon" style={{ display: 'flex' }}>
+            <ChevronDown size={16} />
           </span>
         </button>
       )}
 
       {/* Filters Content - Collapsible on mobile */}
       <div className={`filters-content ${isMobile && !isFiltersOpen ? 'filters-content--closed' : ''}`}>
-        {/* Header */}
-        <div className="filter-header">
-          <h3 className="header-title-nightlife filter-label-with-icon">
-            <Search size={18} /> {t('search.filters')}
-          </h3>
+        {/* Header - Desktop only, mobile uses QuickFilterChips */}
+        {!isMobile && (
+          <div className="filter-header">
+            <h3 className="header-title-nightlife filter-label-with-icon">
+              <Search size={18} /> {t('search.filters')}
+            </h3>
 
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={handleClearFilters}
-              disabled={loading}
-              className="btn-clear-filters-nightlife"
-              data-testid="clear-filters"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <Trash2 size={14} /> {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
-            </button>
-          )}
-      </div>
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={handleClearFilters}
+                disabled={loading}
+                className="btn-clear-filters-nightlife"
+                data-testid="clear-filters"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Trash2 size={14} /> {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Mobile: Clear filters button (compact) */}
+        {isMobile && activeFiltersCount > 0 && (
+          <button
+            onClick={handleClearFilters}
+            disabled={loading}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              width: '100%',
+              padding: '8px 12px',
+              marginBottom: '12px',
+              background: 'rgba(255, 71, 87, 0.1)',
+              border: '1px solid rgba(255, 71, 87, 0.3)',
+              borderRadius: '8px',
+              color: '#FF4757',
+              fontSize: '13px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            <Trash2 size={14} /> {t('search.clearAll', 'Clear all filters')}
+          </button>
+        )}
 
       {/* ============================================
          SEARCH NAME - Direct (v11.1 fix #1)
@@ -706,110 +757,113 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* ============================================
          VERIFIED PROFILES TOGGLE - v11.x
-         Filtre pour afficher uniquement les profils vérifiés
+         Desktop only - on mobile these are in QuickFilterChips
          ============================================ */}
-      <div className="verified-toggle-container" style={{ marginBottom: '1rem' }}>
-        <button
-          type="button"
-          onClick={() => {
-            onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true');
-          }}
-          disabled={loading}
-          className={`verified-toggle ${filters.is_verified === 'true' ? 'verified-toggle-active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            width: '100%',
-            padding: '12px 16px',
-            background: filters.is_verified === 'true'
-              ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(34, 211, 238, 0.2))'
-              : 'rgba(255, 255, 255, 0.05)',
-            border: filters.is_verified === 'true'
-              ? '2px solid #00E5FF'
-              : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            color: filters.is_verified === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: filters.is_verified === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
-          }}
-        >
-          <Check size={18} />
-          <span>{t('search.verifiedOnly', 'Verified Profiles Only')}</span>
-          {filters.is_verified === 'true' && (
-            <Check size={16} style={{ marginLeft: 'auto' }} />
-          )}
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="verified-toggle-container" style={{ marginBottom: '1rem' }}>
+          <button
+            type="button"
+            onClick={() => {
+              onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true');
+            }}
+            disabled={loading}
+            className={`verified-toggle ${filters.is_verified === 'true' ? 'verified-toggle-active' : ''}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              width: '100%',
+              padding: '12px 16px',
+              background: filters.is_verified === 'true'
+                ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(34, 211, 238, 0.2))'
+                : 'rgba(255, 255, 255, 0.05)',
+              border: filters.is_verified === 'true'
+                ? '2px solid #00E5FF'
+                : '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              color: filters.is_verified === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: filters.is_verified === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
+            }}
+          >
+            <Check size={18} />
+            <span>{t('search.verifiedOnly', 'Verified Profiles Only')}</span>
+            {filters.is_verified === 'true' && (
+              <Check size={16} style={{ marginLeft: 'auto' }} />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* ============================================
          FREELANCE TOGGLE - Separate (v11.1 fix #3)
-         Business logic: Freelancers can only work in
-         nightclubs or nowhere (no establishment)
+         Desktop only - on mobile these are in QuickFilterChips
          ============================================ */}
-      <div className="freelance-toggle-container" style={{ marginBottom: '1rem' }}>
-        <button
-          type="button"
-          onClick={() => {
-            const newType = filters.type === 'freelance' ? 'all' : 'freelance';
-            onFilterChange('type', newType);
-            // Reset establishment when switching to freelance
-            if (newType === 'freelance') {
-              onFilterChange('establishment_id', '');
-            }
-          }}
-          disabled={loading}
-          className={`freelance-toggle ${filters.type === 'freelance' ? 'freelance-toggle-active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            width: '100%',
-            padding: '12px 16px',
-            background: filters.type === 'freelance'
-              ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(168, 85, 247, 0.2))'
-              : 'rgba(255, 255, 255, 0.05)',
-            border: filters.type === 'freelance'
-              ? '2px solid #E879F9'
-              : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            color: filters.type === 'freelance' ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: filters.type === 'freelance' ? '0 0 20px rgba(232, 121, 249, 0.3)' : 'none'
-          }}
-        >
-          <Briefcase size={18} />
-          <span>{t('search.freelanceOnly', 'Freelance Only')}</span>
+      {!isMobile && (
+        <div className="freelance-toggle-container" style={{ marginBottom: '1rem' }}>
+          <button
+            type="button"
+            onClick={() => {
+              const newType = filters.type === 'freelance' ? 'all' : 'freelance';
+              onFilterChange('type', newType);
+              // Reset establishment when switching to freelance
+              if (newType === 'freelance') {
+                onFilterChange('establishment_id', '');
+              }
+            }}
+            disabled={loading}
+            className={`freelance-toggle ${filters.type === 'freelance' ? 'freelance-toggle-active' : ''}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              width: '100%',
+              padding: '12px 16px',
+              background: filters.type === 'freelance'
+                ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(168, 85, 247, 0.2))'
+                : 'rgba(255, 255, 255, 0.05)',
+              border: filters.type === 'freelance'
+                ? '2px solid #E879F9'
+                : '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              color: filters.type === 'freelance' ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: filters.type === 'freelance' ? '0 0 20px rgba(232, 121, 249, 0.3)' : 'none'
+            }}
+          >
+            <Briefcase size={18} />
+            <span>{t('search.freelanceOnly', 'Freelance Only')}</span>
+            {filters.type === 'freelance' && (
+              <Check size={16} style={{ marginLeft: 'auto' }} />
+            )}
+          </button>
           {filters.type === 'freelance' && (
-            <Check size={16} style={{ marginLeft: 'auto' }} />
+            <div style={{
+              marginTop: '8px',
+              padding: '8px 12px',
+              background: 'rgba(232, 121, 249, 0.1)',
+              border: '1px solid rgba(232, 121, 249, 0.2)',
+              borderRadius: '8px',
+              fontSize: '11px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <Lightbulb size={12} color="#E879F9" />
+              {t('search.freelanceInfo', 'Freelancers work independently or in nightclubs')}
+            </div>
           )}
-        </button>
-        {filters.type === 'freelance' && (
-          <div style={{
-            marginTop: '8px',
-            padding: '8px 12px',
-            background: 'rgba(232, 121, 249, 0.1)',
-            border: '1px solid rgba(232, 121, 249, 0.2)',
-            borderRadius: '8px',
-            fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <Lightbulb size={12} color="#E879F9" />
-            {t('search.freelanceInfo', 'Freelancers work independently or in nightclubs')}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ============================================
          SECTION 2: PROFIL (Profile)

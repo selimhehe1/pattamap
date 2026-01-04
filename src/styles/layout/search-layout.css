@@ -130,42 +130,65 @@
 
 /* ===== RESPONSIVE MOBILE ===== */
 
-/* Mobile: Sidebar devient relative (stack vertical) - v11.3 centered */
+/* Mobile: Quick Chips redesign v11.4 */
 @media (max-width: 48rem) {
+  /* Hide desktop glow line on mobile */
+  .search-filters-fixed-nightlife::before {
+    display: none;
+  }
+
   .search-filters-fixed-nightlife {
-    position: relative; /* Not fixed on mobile */
-    width: calc(100% - var(--spacing-6)); /* Full width minus symmetric margins */
+    position: relative;
+    width: 100%;
     max-width: 100%;
-    height: auto; /* Reset from full viewport height */
+    height: auto;
     left: auto;
     right: auto;
     top: 0;
-    margin: 0 auto var(--spacing-3) auto; /* Centered with auto margins */
-    max-height: none; /* No height limit */
-    overflow-y: visible; /* Not scrollable */
-    box-sizing: border-box; /* Include padding in width */
+    margin: 0 0 var(--spacing-2) 0;
+    max-height: none;
+    overflow-y: visible;
+    box-sizing: border-box;
+    /* Transparent background for mobile - no card look */
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    padding: 0 var(--spacing-3);
   }
 
   .search-results-container-nightlife {
-    padding: var(--spacing-3) var(--spacing-4); /* Symmetric horizontal padding */
-    padding-left: var(--spacing-4); /* Same as right padding */
+    padding: var(--spacing-2) var(--spacing-3);
   }
 
   .results-header-bar {
-    max-width: 100%; /* Full width on mobile */
+    max-width: 100%;
+  }
+
+  /* Smaller toggle button on mobile */
+  .search-filters-toggle-btn {
+    padding: 10px 14px;
+    font-size: var(--font-sm);
+    border-radius: var(--border-radius-lg);
+    border-width: 1px;
+    margin-bottom: var(--spacing-2);
   }
 }
 
-/* Small Mobile: Further adjustments - v11.3 centered */
+/* Small Mobile: Tighter spacing v11.4 */
 @media (max-width: 30rem) {
   .search-filters-fixed-nightlife {
-    width: calc(100% - var(--spacing-4)); /* Slightly more width on small screens */
-    padding: var(--spacing-4); /* Reduced padding */
-    margin: 0 auto var(--spacing-4) auto; /* Centered */
+    padding: 0 var(--spacing-2);
   }
 
   .search-results-container-nightlife {
-    padding: var(--spacing-4) var(--spacing-3); /* Reduced padding */
+    padding: var(--spacing-2);
+  }
+
+  .search-filters-toggle-btn {
+    padding: 8px 12px;
+    font-size: 13px;
   }
 }
 
