@@ -251,14 +251,14 @@
     inset 0 0 20px rgba(232, 121, 249, 0.05);
 }
 
-/* Flag emoji */
+/* Flag image */
 .language-sheet-flag {
   display: block;
-  font-size: 2rem;
-  line-height: 1;
+  width: 40px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  /* Emoji font stack for cross-platform support */
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
 }
 
 /* Language code */

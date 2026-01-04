@@ -21,16 +21,22 @@ import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../utils/i18n';
 import '../../styles/components/language-selector.css';
 import '../../styles/components/language-bottom-sheet.css';
 
-// Flag emojis for each language
-const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
-  en: '🇬🇧',
-  th: '🇹🇭',
-  ru: '🇷🇺',
-  cn: '🇨🇳',
-  fr: '🇫🇷',
-  hi: '🇮🇳',
-  ko: '🇰🇷',
-  ja: '🇯🇵'
+// Flag country codes for flagcdn.com (ISO 3166-1 alpha-2)
+const LANGUAGE_FLAG_CODES: Record<SupportedLanguage, string> = {
+  en: 'gb',  // United Kingdom
+  th: 'th',  // Thailand
+  ru: 'ru',  // Russia
+  cn: 'cn',  // China
+  fr: 'fr',  // France
+  hi: 'in',  // India
+  ko: 'kr',  // South Korea
+  ja: 'jp'   // Japan
+};
+
+// Get flag image URL from flagcdn.com
+const getFlagUrl = (langCode: SupportedLanguage): string => {
+  const countryCode = LANGUAGE_FLAG_CODES[langCode];
+  return `https://flagcdn.com/w40/${countryCode}.png`;
 };
 
 interface LanguageSelectorProps {
@@ -277,9 +283,14 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                       aria-label={`Switch to ${config.name}`}
                       aria-pressed={isActive}
                     >
-                      <span className="language-sheet-flag" aria-hidden="true">
-                        {LANGUAGE_FLAGS[langCode]}
-                      </span>
+                      <img
+                        src={getFlagUrl(langCode)}
+                        alt={config.name}
+                        className="language-sheet-flag"
+                        width={40}
+                        height={30}
+                        loading="lazy"
+                      />
                       <span className="language-sheet-code">{config.code.toUpperCase()}</span>
                       <span className="language-sheet-name">{config.nativeName}</span>
                       <span className="language-sheet-check" aria-hidden="true">✓</span>
