@@ -335,9 +335,7 @@ const SearchPage: React.FC = () => {
         />
 
         {/* Results Section */}
-        <div style={{
-          minHeight: 'calc(100vh - 200px)'
-        }}>
+        <div>
           {/* 🆕 v11.1 - Sort Bar + Active Filters (fix #5) */}
           <div className="results-header-bar" style={{
             display: 'flex',
