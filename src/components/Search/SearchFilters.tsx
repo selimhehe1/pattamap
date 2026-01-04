@@ -2,21 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Search, ChevronDown, Trash2, Check, Building2,
+  Search, Trash2, Check, Building2,
   Cake, Globe, MapPin, Tag,
   Loader2, Pencil, Lightbulb, AlertTriangle,
   // v11.0 - New filter icons
   Languages, Star, Image, MessageCircle, User, Sparkles,
   // v11.1 - Freelance toggle
-  Briefcase,
-  // v11.4 - More filters toggle
-  SlidersHorizontal
+  Briefcase
 } from 'lucide-react';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import FilterSection from './FilterSection';
 import CustomSelect from '../Common/CustomSelect';
-import QuickFilterChips from './QuickFilterChips';
+import MobileFiltersChips from './MobileFiltersChips';
 import '../../styles/layout/search-layout.css';
 import '../../styles/components/quick-filter-chips.css';
 
@@ -588,94 +586,41 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   return (
     <div className="search-filters-fixed-nightlife" data-testid="search-filters">
       {/* ============================================
-         MOBILE: Quick Filter Chips (v11.4)
-         Always visible - instant filter access
+         MOBILE: Full Chips Filter UI (v11.5)
+         All filters as horizontal scrollable chips
          ============================================ */}
-      {isMobile && (
-        <QuickFilterChips
+      {isMobile ? (
+        <MobileFiltersChips
           filters={filters}
+          availableFilters={availableFilters}
           onFilterChange={onFilterChange}
+          onZoneChange={onZoneChange}
+          onQueryChange={onQueryChange}
+          onClearFilters={onClearFilters}
+          loading={loading}
         />
-      )}
+      ) : (
+      <>
+      {/* Filters Content - Desktop only */}
+      <div className="filters-content">
+        {/* Header - Desktop only */}
+        <div className="filter-header">
+          <h3 className="header-title-nightlife filter-label-with-icon">
+            <Search size={18} /> {t('search.filters')}
+          </h3>
 
-      {/* Mobile: "More Filters" Toggle Button (v11.4) */}
-      {isMobile && (
-        <button
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className={`more-filters-toggle ${isFiltersOpen ? 'more-filters-toggle--expanded' : ''}`}
-          aria-expanded={isFiltersOpen}
-          data-testid="mobile-filters-toggle"
-        >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <SlidersHorizontal size={14} />
-            {t('search.moreFilters', 'More filters')}
-            {activeFiltersCount > 0 && (
-              <span style={{
-                background: 'rgba(232, 121, 249, 0.3)',
-                color: '#E879F9',
-                padding: '2px 6px',
-                borderRadius: '10px',
-                fontSize: '11px',
-                fontWeight: '600'
-              }}>
-                {activeFiltersCount}
-              </span>
-            )}
-          </span>
-          <span className="more-filters-toggle__icon" style={{ display: 'flex' }}>
-            <ChevronDown size={16} />
-          </span>
-        </button>
-      )}
-
-      {/* Filters Content - Collapsible on mobile */}
-      <div className={`filters-content ${isMobile && !isFiltersOpen ? 'filters-content--closed' : ''}`}>
-        {/* Header - Desktop only, mobile uses QuickFilterChips */}
-        {!isMobile && (
-          <div className="filter-header">
-            <h3 className="header-title-nightlife filter-label-with-icon">
-              <Search size={18} /> {t('search.filters')}
-            </h3>
-
-            {activeFiltersCount > 0 && (
-              <button
-                onClick={handleClearFilters}
-                disabled={loading}
-                className="btn-clear-filters-nightlife"
-                data-testid="clear-filters"
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Trash2 size={14} /> {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Mobile: Clear filters button (compact) */}
-        {isMobile && activeFiltersCount > 0 && (
-          <button
-            onClick={handleClearFilters}
-            disabled={loading}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              width: '100%',
-              padding: '8px 12px',
-              marginBottom: '12px',
-              background: 'rgba(255, 71, 87, 0.1)',
-              border: '1px solid rgba(255, 71, 87, 0.3)',
-              borderRadius: '8px',
-              color: '#FF4757',
-              fontSize: '13px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-          >
-            <Trash2 size={14} /> {t('search.clearAll', 'Clear all filters')}
-          </button>
-        )}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={handleClearFilters}
+              disabled={loading}
+              className="btn-clear-filters-nightlife"
+              data-testid="clear-filters"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Trash2 size={14} /> {t('search.clearFiltersWithCount', { count: activeFiltersCount })}
+            </button>
+          )}
+        </div>
 
       {/* ============================================
          SEARCH NAME - Direct (v11.1 fix #1)
@@ -757,9 +702,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
       {/* ============================================
          VERIFIED PROFILES TOGGLE - v11.x
-         Desktop only - on mobile these are in QuickFilterChips
          ============================================ */}
-      {!isMobile && (
         <div className="verified-toggle-container" style={{ marginBottom: '1rem' }}>
           <button
             type="button"
@@ -797,13 +740,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             )}
           </button>
         </div>
-      )}
 
       {/* ============================================
          FREELANCE TOGGLE - Separate (v11.1 fix #3)
-         Desktop only - on mobile these are in QuickFilterChips
          ============================================ */}
-      {!isMobile && (
         <div className="freelance-toggle-container" style={{ marginBottom: '1rem' }}>
           <button
             type="button"
@@ -863,7 +803,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
             </div>
           )}
         </div>
-      )}
 
       {/* ============================================
          SECTION 2: PROFIL (Profile)
@@ -1587,7 +1526,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
           </div>
         )}
       </div>
-      {/* End Filters Content */}
+      {/* End Filters Content - Desktop */}
+      </>
+      )}
     </div>
   );
 });

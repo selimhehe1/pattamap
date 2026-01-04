@@ -224,6 +224,207 @@ body[data-theme="light"] .more-filters-toggle {
   color: rgba(0, 0, 0, 0.7);
 }
 
+/* ===== CHIP ROW SYSTEM (v11.5) ===== */
+
+.mobile-filters-chips {
+  padding: 8px 0;
+}
+
+.chip-row {
+  margin-bottom: 16px;
+}
+
+.chip-row:last-child {
+  margin-bottom: 0;
+}
+
+.chip-row-label {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-left: 2px;
+  font-weight: 600;
+}
+
+.chip-row-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-row-scrollable {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  margin: 0 -4px;
+  padding: 4px;
+}
+
+.chip-row-scrollable::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== CHIP VARIANTS (v11.5) ===== */
+
+/* Small compact chip for icons only */
+.quick-filter-chip--compact {
+  padding: 8px 10px;
+  min-width: 40px;
+  justify-content: center;
+}
+
+/* Age preset chip */
+.quick-filter-chip--age {
+  padding: 8px 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nationality chip with flag */
+.quick-filter-chip--nationality {
+  padding: 8px 12px;
+}
+
+.quick-filter-chip--nationality .chip-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Zone chip */
+.quick-filter-chip--zone {
+  padding: 8px 14px;
+}
+
+/* Category chip with emoji */
+.quick-filter-chip--category {
+  padding: 8px 12px;
+}
+
+.quick-filter-chip--category .chip-emoji {
+  font-size: 14px;
+}
+
+/* Rating chip with star */
+.quick-filter-chip--rating {
+  padding: 8px 12px;
+}
+
+.quick-filter-chip--rating .chip-star {
+  color: #FFD700;
+}
+
+.quick-filter-chip--rating.quick-filter-chip--active .chip-star {
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.6));
+}
+
+/* ===== MOBILE SEARCH INPUT (v11.5) ===== */
+
+.mobile-search-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.mobile-search-container .mobile-search-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(232, 121, 249, 0.6);
+  pointer-events: none;
+}
+
+/* ===== ESTABLISHMENT INPUT (v11.5) ===== */
+
+.mobile-establishment-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.mobile-establishment-input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-left: 40px;
+  background: rgba(10, 0, 20, 0.6);
+  border: 1px solid rgba(232, 121, 249, 0.25);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.mobile-establishment-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.mobile-establishment-input:focus {
+  border-color: #E879F9;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.2);
+}
+
+.mobile-establishment-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(232, 121, 249, 0.6);
+  pointer-events: none;
+}
+
+/* ===== CLEAR FILTERS BUTTON (v11.5) ===== */
+
+.mobile-clear-filters-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: rgba(255, 71, 87, 0.08);
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 10px;
+  color: #FF4757;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-clear-filters-btn:hover {
+  background: rgba(255, 71, 87, 0.15);
+  border-color: rgba(255, 71, 87, 0.4);
+}
+
+/* ===== DIVIDER (v11.5) ===== */
+
+.chip-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232, 121, 249, 0.2), transparent);
+  margin: 12px 0;
+}
+
+/* ===== LIGHT MODE (v11.5) ===== */
+
+body[data-theme="light"] .chip-row-label {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme="light"] .mobile-establishment-input {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(147, 51, 234, 0.2);
+  color: #1e1e1e;
+}
+
+body[data-theme="light"] .mobile-clear-filters-btn {
+  background: rgba(255, 71, 87, 0.05);
+  border-color: rgba(255, 71, 87, 0.2);
+}
+
 /* ===== REDUCED MOTION ===== */
 
 @media (prefers-reduced-motion: reduce) {
