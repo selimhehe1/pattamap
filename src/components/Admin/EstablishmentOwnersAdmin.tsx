@@ -122,7 +122,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
     const loadOwnershipRequests = async () => {
       setIsLoading(true);
       try {
-        const response = await secureFetch(`${API_URL}/api/admin/ownership-requests?status=pending`);
+        const response = await secureFetch(`${API_URL}/api/ownership-requests/admin/all?status=pending`);
         if (response.ok) {
           const data = await response.json();
           setOwnershipRequests(data.requests || []);
@@ -348,8 +348,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
 
     setProcessingIds(prev => new Set(prev).add(requestId));
     try {
-      const response = await secureFetch(`${API_URL}/api/admin/ownership-requests/${requestId}/approve`, {
-        method: 'POST',
+      const response = await secureFetch(`${API_URL}/api/ownership-requests/${requestId}/approve`, {
+        method: 'PATCH',
         body: JSON.stringify({ admin_notes: adminNotes })
       });
 
@@ -382,8 +382,8 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
 
     setProcessingIds(prev => new Set(prev).add(requestId));
     try {
-      const response = await secureFetch(`${API_URL}/api/admin/ownership-requests/${requestId}/reject`, {
-        method: 'POST',
+      const response = await secureFetch(`${API_URL}/api/ownership-requests/${requestId}/reject`, {
+        method: 'PATCH',
         body: JSON.stringify({ admin_notes: adminNotes })
       });
 

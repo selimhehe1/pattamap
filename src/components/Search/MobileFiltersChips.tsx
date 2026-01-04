@@ -118,9 +118,9 @@ interface MobileFiltersChipsProps {
 
 /**
  * MobileFiltersChips - Full chip-based filter UI for mobile
- * v11.6 - Organized in accordions for better UX
+ * v12.0 - Fix scroll on click, overflow, establishment zone filtering
  *
- * @version 11.6
+ * @version 12.0
  */
 const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
   filters,
@@ -272,7 +272,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip ${isVerified ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('is_verified', isVerified ? '' : 'true')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('is_verified', isVerified ? '' : 'true'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon"><Check size={14} /></span>
@@ -282,7 +282,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip ${isFreelance ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('type', isFreelance ? 'all' : 'freelance')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('type', isFreelance ? 'all' : 'freelance'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon"><Gem size={14} /></span>
@@ -292,7 +292,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip ${hasPhotos ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('has_photos', hasPhotos ? '' : 'true')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('has_photos', hasPhotos ? '' : 'true'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon"><Image size={14} /></span>
@@ -318,7 +318,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'female' ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('sex', currentSex === 'female' ? '' : 'female')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('sex', currentSex === 'female' ? '' : 'female'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon">♀</span>
@@ -326,7 +326,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'male' ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('sex', currentSex === 'male' ? '' : 'male')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('sex', currentSex === 'male' ? '' : 'male'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon">♂</span>
@@ -334,7 +334,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             <button
               type="button"
               className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'ladyboy' ? 'quick-filter-chip--active' : ''}`}
-              onClick={() => onFilterChange('sex', currentSex === 'ladyboy' ? '' : 'ladyboy')}
+              onClick={(e) => { e.preventDefault(); onFilterChange('sex', currentSex === 'ladyboy' ? '' : 'ladyboy'); }}
               disabled={loading}
             >
               <span className="quick-filter-chip__icon">⚧</span>
@@ -353,7 +353,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                   key={preset.label}
                   type="button"
                   className={`quick-filter-chip quick-filter-chip--age ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => handleAgePresetToggle(preset)}
+                  onClick={(e) => { e.preventDefault(); handleAgePresetToggle(preset); }}
                   disabled={loading}
                 >
                   {preset.label}
@@ -376,7 +376,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                     key={nat}
                     type="button"
                     className={`quick-filter-chip quick-filter-chip--nationality ${isActive ? 'quick-filter-chip--active' : ''}`}
-                    onClick={() => onFilterChange('nationality', isActive ? '' : nat)}
+                    onClick={(e) => { e.preventDefault(); onFilterChange('nationality', isActive ? '' : nat); }}
                     disabled={loading}
                   >
                     <span className="chip-flag">{flag}</span>
@@ -408,7 +408,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                   key={zone.value}
                   type="button"
                   className={`quick-filter-chip quick-filter-chip--zone ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => onZoneChange(isActive ? '' : zone.value)}
+                  onClick={(e) => { e.preventDefault(); onZoneChange(isActive ? '' : zone.value); }}
                   disabled={loading}
                 >
                   {zone.label}
@@ -430,7 +430,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                     key={cat.id}
                     type="button"
                     className={`quick-filter-chip quick-filter-chip--category ${isActive ? 'quick-filter-chip--active' : ''}`}
-                    onClick={() => onFilterChange('category_id', isActive ? '' : String(cat.id))}
+                    onClick={(e) => { e.preventDefault(); onFilterChange('category_id', isActive ? '' : String(cat.id)); }}
                     disabled={loading}
                   >
                     <span className="chip-emoji">{cat.icon}</span>
@@ -455,11 +455,30 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                 className="mobile-establishment-select"
               >
                 <option value="">{t('search.allEstablishments', 'All establishments')}</option>
-                {availableFilters.establishments.map(est => (
-                  <option key={est.id} value={est.id}>
-                    {est.name}
-                  </option>
-                ))}
+                {filters.zone ? (
+                  // Zone selected: show only that zone's establishments
+                  availableFilters.establishments
+                    .filter(est => est.zone === filters.zone)
+                    .map(est => (
+                      <option key={est.id} value={est.id}>{est.name}</option>
+                    ))
+                ) : (
+                  // No zone: group by zone with optgroup
+                  Object.entries(
+                    availableFilters.establishments.reduce((acc, est) => {
+                      const zone = est.zone || 'Other';
+                      if (!acc[zone]) acc[zone] = [];
+                      acc[zone].push(est);
+                      return acc;
+                    }, {} as Record<string, typeof availableFilters.establishments>)
+                  ).map(([zone, ests]) => (
+                    <optgroup key={zone} label={zone}>
+                      {ests.map(est => (
+                        <option key={est.id} value={est.id}>{est.name}</option>
+                      ))}
+                    </optgroup>
+                  ))
+                )}
               </select>
             </div>
           </div>
@@ -485,7 +504,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                   key={stars}
                   type="button"
                   className={`quick-filter-chip quick-filter-chip--rating ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => onFilterChange('min_rating', isActive ? '' : String(stars))}
+                  onClick={(e) => { e.preventDefault(); onFilterChange('min_rating', isActive ? '' : String(stars)); }}
                   disabled={loading}
                 >
                   <Star size={14} className="chip-star" fill={isActive ? '#FFD700' : 'none'} />
@@ -507,7 +526,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                   key={lang.code}
                   type="button"
                   className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => handleLanguageToggle(lang.code)}
+                  onClick={(e) => { e.preventDefault(); handleLanguageToggle(lang.code); }}
                   disabled={loading}
                 >
                   <span>{lang.flag}</span>
@@ -529,7 +548,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
                   key={platform.id}
                   type="button"
                   className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => handleSocialToggle(platform.id)}
+                  onClick={(e) => { e.preventDefault(); handleSocialToggle(platform.id); }}
                   disabled={loading}
                 >
                   <span>{platform.icon}</span>
