@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Crown, AlertTriangle, Send, Sparkles, Phone, FileText, PersonStanding, Link, MapPin, Search, User, CheckCircle, MessageSquare, Cake, Globe, Loader2, Lock, KeyRound, Mail, Users, UserCog, Rocket, Lightbulb, Store, Building2, FolderOpen, Camera, BookOpen, Upload } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Loader2, Lock, KeyRound, Mail, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -9,13 +9,11 @@ import { useEmployeeSearch } from '../../hooks/useEmployees';
 import { useEstablishments } from '../../hooks/useEstablishments';
 import { useCSRF } from '../../contexts/CSRFContext';
 import FormField from '../Common/FormField';
-import NationalityTagsInput from '../Forms/NationalityTagsInput';
 import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
-import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
-import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep } from './steps';
-import { EstablishmentAutocomplete, PhotoUploadGrid, DocumentUploadGrid, StepIndicator } from './components';
+import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep, OwnerCreateStep } from './steps';
+import { StepIndicator } from './components';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
@@ -1297,210 +1295,25 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             />
           )}
 
-          {/* STEP 4: Owner Establishment Creation - 🆕 v10.x */}
+          {/* STEP 4: Owner Establishment Creation */}
           {currentStep === 4 && formData.accountType === 'establishment_owner' && (
-            <div style={{
-              maxHeight: '500px',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              marginBottom: '20px',
-              paddingRight: '8px'
-            }}>
-              <h3 style={{
-                color: '#C19A6B',
-                fontSize: '16px',
-                fontWeight: '600',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <Building2 size={18} /> {t('register.createEstablishmentTitle')}
-              </h3>
-
-              {/* Establishment Name */}
-              <FormField
-                label={<><Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentName')}</>}
-                name="newEstablishmentName"
-                value={formData.newEstablishmentName}
-                onChange={(e) => handleInputChange('newEstablishmentName', e.target.value)}
-                placeholder={t('register.establishmentNamePlaceholder')}
-                required
-                maxLength={100}
-              />
-
-              {/* Establishment Address */}
-              <FormField
-                label={<><MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentAddress')}</>}
-                name="newEstablishmentAddress"
-                value={formData.newEstablishmentAddress}
-                onChange={(e) => handleInputChange('newEstablishmentAddress', e.target.value)}
-                placeholder={t('register.establishmentAddressPlaceholder')}
-                required
-              />
-
-              {/* Zone Selection */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{
-                  display: 'block',
-                  color: '#C19A6B',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  marginBottom: '8px'
-                }}>
-                  <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentZone')} *
-                </label>
-                <select
-                  value={formData.newEstablishmentZone}
-                  onChange={(e) => handleInputChange('newEstablishmentZone', e.target.value)}
-                  className="input-nightlife"
-                  style={{ width: '100%', cursor: 'pointer' }}
-                >
-                  <option value="">{t('register.selectZone')}</option>
-                  {ZONE_OPTIONS.filter(z => z.value !== 'freelance').map(zone => (
-                    <option key={zone.value} value={zone.value}>{zone.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Category Selection */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{
-                  display: 'block',
-                  color: '#C19A6B',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  marginBottom: '8px'
-                }}>
-                  <Crown size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentCategory')} *
-                </label>
-                <select
-                  value={formData.newEstablishmentCategoryId || ''}
-                  onChange={(e) => handleInputChange('newEstablishmentCategoryId', e.target.value ? Number(e.target.value) : null)}
-                  className="input-nightlife"
-                  style={{ width: '100%', cursor: 'pointer' }}
-                >
-                  <option value="">{t('register.selectCategory')}</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Description (Optional) */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{
-                  display: 'block',
-                  color: '#C19A6B',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  marginBottom: '8px'
-                }}>
-                  <BookOpen size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.establishmentDescription')}
-                  <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
-                    ({t('register.optional')})
-                  </span>
-                </label>
-                <textarea
-                  value={formData.newEstablishmentDescription}
-                  onChange={(e) => handleInputChange('newEstablishmentDescription', e.target.value)}
-                  placeholder={t('register.establishmentDescriptionPlaceholder')}
-                  rows={3}
-                  className="input-nightlife"
-                  style={{ resize: 'vertical', minHeight: '80px' }}
-                />
-              </div>
-
-              {/* Phone (Optional) */}
-              <FormField
-                label={<><Phone size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentPhone')} <span style={{ color: '#999999', fontWeight: 'normal' }}>({t('register.optional')})</span></>}
-                name="newEstablishmentPhone"
-                value={formData.newEstablishmentPhone}
-                onChange={(e) => handleInputChange('newEstablishmentPhone', e.target.value)}
-                placeholder={t('register.establishmentPhonePlaceholder')}
-              />
-
-              {/* Website (Optional) */}
-              <FormField
-                label={<><Globe size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.establishmentWebsite')} <span style={{ color: '#999999', fontWeight: 'normal' }}>({t('register.optional')})</span></>}
-                name="newEstablishmentWebsite"
-                value={formData.newEstablishmentWebsite}
-                onChange={(e) => handleInputChange('newEstablishmentWebsite', e.target.value)}
-                placeholder="https://..."
-              />
-
-              {/* Social Media Section */}
-              <div style={{
-                marginTop: '20px',
-                padding: '16px',
-                background: 'rgba(193,154,107,0.05)',
-                borderRadius: '12px',
-                border: '1px solid rgba(193,154,107,0.2)'
-              }}>
-                <h4 style={{ color: '#C19A6B', fontSize: '14px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Users size={14} /> {t('register.socialMediaOptional')}
-                </h4>
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  <FormField
-                    label="Instagram"
-                    name="newEstablishmentInstagram"
-                    value={formData.newEstablishmentInstagram}
-                    onChange={(e) => handleInputChange('newEstablishmentInstagram', e.target.value)}
-                    placeholder="@username"
-                  />
-                  <FormField
-                    label="Twitter/X"
-                    name="newEstablishmentTwitter"
-                    value={formData.newEstablishmentTwitter}
-                    onChange={(e) => handleInputChange('newEstablishmentTwitter', e.target.value)}
-                    placeholder="@username"
-                  />
-                  <FormField
-                    label="TikTok"
-                    name="newEstablishmentTiktok"
-                    value={formData.newEstablishmentTiktok}
-                    onChange={(e) => handleInputChange('newEstablishmentTiktok', e.target.value)}
-                    placeholder="@username"
-                  />
-                </div>
-              </div>
-
-              {submitError && (
-                <div className="error-message-nightlife error-shake" style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <AlertTriangle size={16} /> {submitError}
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="btn btn--secondary"
-                  style={{ flex: 1 }}
-                >
-                  ← {t('register.previousButton')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    !formData.newEstablishmentName.trim() ||
-                    !formData.newEstablishmentAddress.trim() ||
-                    !formData.newEstablishmentZone ||
-                    !formData.newEstablishmentCategoryId ||
-                    isLoading
-                  }
-                  className="btn btn--success"
-                  style={{ flex: 2 }}
-                >
-                  {isLoading ? (
-                    <><Loader2 size={16} className="spin" style={{ marginRight: '8px' }} /> {t('register.submittingButton')}</>
-                  ) : (
-                    <><Sparkles size={16} style={{ marginRight: '8px' }} /> {t('register.createAccountAndEstablishment')}</>
-                  )}
-                </button>
-              </div>
-            </div>
+            <OwnerCreateStep
+              name={formData.newEstablishmentName}
+              address={formData.newEstablishmentAddress}
+              zone={formData.newEstablishmentZone}
+              categoryId={formData.newEstablishmentCategoryId}
+              description={formData.newEstablishmentDescription}
+              phone={formData.newEstablishmentPhone}
+              website={formData.newEstablishmentWebsite}
+              instagram={formData.newEstablishmentInstagram}
+              twitter={formData.newEstablishmentTwitter}
+              tiktok={formData.newEstablishmentTiktok}
+              onFieldChange={(field, value) => handleInputChange(field as keyof FormData, value as FormData[keyof FormData])}
+              categories={categories}
+              isLoading={isLoading}
+              submitError={submitError}
+              onPrevious={handlePrevious}
+            />
           )}
 
           {/* Switch to Login */}

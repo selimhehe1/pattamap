@@ -11,6 +11,7 @@ export { default as CredentialsStep } from './CredentialsStep';
 export { default as EmployeePathStep } from './EmployeePathStep';
 export { default as OwnerPathStep } from './OwnerPathStep';
 export { default as EmployeeCreateStep } from './EmployeeCreateStep';
+export { default as OwnerCreateStep } from './OwnerCreateStep';
 
 // Types - all exported from types.ts
 export * from './types';
