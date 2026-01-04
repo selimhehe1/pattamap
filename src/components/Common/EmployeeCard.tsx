@@ -63,13 +63,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
     ? employee.photos[0]
     : null;
 
-  const hasCurrentEmployment = employee.current_employment &&
-    Array.isArray(employee.current_employment) &&
-    employee.current_employment.length > 0;
+  // Find the CURRENT employment (is_current === true), not just the first one
+  const currentEmploymentRecord = employee.current_employment?.find(ce => ce.is_current);
 
-  const currentEstablishment = hasCurrentEmployment && employee.current_employment?.[0]?.establishment
-    ? employee.current_employment[0].establishment
-    : null;
+  const hasCurrentEmployment = !!currentEmploymentRecord;
+
+  const currentEstablishment = currentEmploymentRecord?.establishment ?? null;
 
   const hasRating = employee.average_rating !== undefined && employee.average_rating > 0;
 
