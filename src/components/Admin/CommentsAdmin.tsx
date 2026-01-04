@@ -12,7 +12,6 @@ import {
   Ban,
   MessageSquare,
   AlertTriangle,
-  Loader2,
   ClipboardList,
   BellOff,
   MailX,
@@ -59,7 +58,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
   const { secureFetch } = useSecureFetch();
   const [comments, setComments] = useState<AdminComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'reported' | 'approved' | 'rejected'>('reported');
+  const [filter, setFilter] = useState<'all' | 'reported' | 'approved' | 'rejected'>('all');
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
   const [selectedComment, setSelectedComment] = useState<AdminComment | null>(null);
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -264,11 +263,10 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
       {/* Filter Tabs */}
       <div className="cmd-filters cmd-filters--scroll">
         {[
+          { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={14} />, variant: '' },
           { key: 'reported', label: t('admin.filterReported'), icon: <AlertTriangle size={14} />, variant: 'error' },
-          { key: 'pending', label: t('admin.filterPending'), icon: <Loader2 size={14} />, variant: 'warning' },
           { key: 'approved', label: t('admin.filterApproved'), icon: <CheckCircle size={14} />, variant: 'success' },
-          { key: 'rejected', label: t('admin.filterRejected'), icon: <XCircle size={14} />, variant: 'error' },
-          { key: 'all', label: t('admin.filterAll'), icon: <ClipboardList size={14} />, variant: '' }
+          { key: 'rejected', label: t('admin.filterRejected'), icon: <XCircle size={14} />, variant: 'error' }
         ].map((tab) => (
           <button
             key={tab.key}

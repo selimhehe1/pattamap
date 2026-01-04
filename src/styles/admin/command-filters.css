@@ -37,6 +37,7 @@
 }
 
 .cmd-filters--scroll {
+  flex-direction: row;
   flex-wrap: nowrap;
   overflow-x: auto;
   padding-bottom: var(--spacing-sm, 8px);
