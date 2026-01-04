@@ -137,13 +137,13 @@
     width: 100%;
     left: 0;
     top: 0;
-    margin-bottom: var(--spacing-5); /* 1.25rem */
+    margin-bottom: var(--spacing-3); /* Reduced from spacing-5 */
     max-height: none; /* No height limit */
     overflow-y: visible; /* Not scrollable */
   }
 
   .search-results-container-nightlife {
-    padding-right: var(--spacing-5); /* Reset to normal on mobile */
+    padding: var(--spacing-3) var(--spacing-5); /* Reduced top/bottom padding on mobile */
     padding-left: var(--spacing-5); /* 1.25rem - Same as right padding */
   }
 
