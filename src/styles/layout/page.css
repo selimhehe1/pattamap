@@ -243,7 +243,7 @@
 @media (max-width: 30rem) {
   .page-content-with-header-nightlife {
     padding-top: 4.375rem; /* 70px */
-    min-height: calc(100vh - 4.375rem);
+    min-height: auto; /* Remove forced min-height on mobile */
   }
 
   .page-container {
