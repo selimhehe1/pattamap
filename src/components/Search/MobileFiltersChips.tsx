@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search, Check, Gem, Image, Building2, Trash2, Star,
-  ChevronDown, User, MapPin, Sparkles, Zap
+  ChevronDown, User, MapPin, Sparkles, Zap, SlidersHorizontal
 } from 'lucide-react';
 import { ZONE_OPTIONS } from '../../utils/constants';
 import '../../styles/components/quick-filter-chips.css';
@@ -226,14 +226,23 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
       )}
 
       {/* ============================================
-         ACCORDION: RECHERCHE
-         Name input
+         MASTER ACCORDION: FILTRER
+         Contains all sub-accordions
          ============================================ */}
       <FilterAccordion
-        title={t('search.sections.search', 'Recherche')}
-        icon={<Search size={18} />}
-        defaultExpanded={true}
+        title={t('search.sections.filters', 'Filtrer')}
+        icon={<SlidersHorizontal size={18} />}
+        defaultExpanded={false}
       >
+        {/* ============================================
+           ACCORDION: RECHERCHE
+           Name input
+           ============================================ */}
+        <FilterAccordion
+          title={t('search.sections.search', 'Recherche')}
+          icon={<Search size={18} />}
+          defaultExpanded={true}
+        >
         <div className="mobile-search-container">
           <Search size={16} className="mobile-search-input-icon" />
           <input
@@ -530,6 +539,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
             })}
           </div>
         </div>
+        </FilterAccordion>
       </FilterAccordion>
     </div>
   );
