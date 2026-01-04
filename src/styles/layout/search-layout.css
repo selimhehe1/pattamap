@@ -877,7 +877,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 
 @media (max-width: 768px) {
   .search-hero {
-    padding: 5rem 1rem 1.5rem; /* Increased from 2rem to clear fixed header */
+    padding: 2.5rem 1rem 1rem; /* Reduced for compact mobile layout */
   }
 
   .search-icon-container {
@@ -919,7 +919,7 @@ body[data-theme="light"] .autocomplete-item-nightlife:hover {
 
 @media (max-width: 480px) {
   .search-hero {
-    padding: 4.5rem 1rem; /* Increased from 1.5rem to clear fixed header */
+    padding: 1.5rem 1rem 0.75rem; /* Compact layout - show cards immediately */
   }
 
   .search-icon-container {
