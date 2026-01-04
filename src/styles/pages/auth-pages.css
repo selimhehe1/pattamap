@@ -108,9 +108,9 @@
   width: 100%;
 }
 
-/* Register form slightly wider for multi-step */
+/* Register form wider for multi-step with employee cards grid */
 .auth-form-register-content {
-  max-width: 520px;
+  max-width: 640px;
 }
 
 /* ============================================

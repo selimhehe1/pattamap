@@ -103,7 +103,7 @@ const VIPVerificationAdmin: React.FC = () => {
       // Note: This endpoint needs to be created in backend
       // For now, we'll fetch from a generic endpoint that returns cash payment transactions
       const response = await secureFetch(
-        `${import.meta.env.VITE_API_URL}/api/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
+        `${import.meta.env.VITE_API_URL}/api/vip/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
       );
 
       if (!response.ok) {
@@ -133,7 +133,7 @@ const VIPVerificationAdmin: React.FC = () => {
       setError(null);
 
       const response = await secureFetch(
-        `${import.meta.env.VITE_API_URL}/api/admin/vip/verify-payment/${transactionId}`,
+        `${import.meta.env.VITE_API_URL}/api/vip/admin/vip/verify-payment/${transactionId}`,
         {
           method: 'POST',
           headers: {
@@ -191,7 +191,7 @@ const VIPVerificationAdmin: React.FC = () => {
 
       // Note: This endpoint needs to be created in backend
       const response = await secureFetch(
-        `${import.meta.env.VITE_API_URL}/api/admin/vip/reject-payment/${transactionId}`,
+        `${import.meta.env.VITE_API_URL}/api/vip/admin/vip/reject-payment/${transactionId}`,
         {
           method: 'POST',
           headers: {
@@ -263,7 +263,7 @@ const VIPVerificationAdmin: React.FC = () => {
     try {
       const promises = Array.from(selectedIds).map(id =>
         secureFetch(
-          `${import.meta.env.VITE_API_URL}/api/admin/vip/verify-payment/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/vip/admin/vip/verify-payment/${id}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -320,7 +320,7 @@ const VIPVerificationAdmin: React.FC = () => {
         setError(null);
 
         const response = await secureFetch(
-          `${import.meta.env.VITE_API_URL}/api/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
+          `${import.meta.env.VITE_API_URL}/api/vip/admin/vip/transactions?payment_method=cash&status=${filter === 'all' ? '' : filter}`
         );
 
         if (!response.ok) {

@@ -179,8 +179,8 @@ const EmployeePathStep: React.FC<EmployeePathStepProps> = ({
             ) : employeeSearchResults?.employees?.length ? (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                gap: '12px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                gap: '10px'
               }}>
                 {employeeSearchResults.employees.map((employee) => (
                   <EmployeeCard
@@ -283,14 +283,14 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, isSelected, onSel
     <div
       onClick={onSelect}
       style={{
-        padding: '12px',
+        padding: '8px',
         background: isSelected
           ? 'linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.3))'
           : 'rgba(0,0,0,0.3)',
         border: isSelected
           ? '2px solid #00E5FF'
           : '2px solid rgba(255,255,255,0.1)',
-        borderRadius: '12px',
+        borderRadius: '10px',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         textAlign: 'center'
@@ -313,32 +313,32 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, isSelected, onSel
           src={employee.photos[0]}
           alt={employee.name}
           style={{
-            width: '60px',
-            height: '60px',
+            width: '56px',
+            height: '56px',
             objectFit: 'cover',
             borderRadius: '8px',
-            margin: '0 auto 8px'
+            margin: '0 auto 6px'
           }}
         />
       ) : (
         <div style={{
-          width: '60px',
-          height: '60px',
+          width: '56px',
+          height: '56px',
           background: 'rgba(255,255,255,0.1)',
           borderRadius: '8px',
-          margin: '0 auto 8px',
+          margin: '0 auto 6px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <User size={24} />
+          <User size={22} />
         </div>
       )}
       <div style={{
         color: '#ffffff',
         fontWeight: 'bold',
-        fontSize: '13px',
-        marginBottom: '4px',
+        fontSize: '12px',
+        marginBottom: '2px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
@@ -348,8 +348,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, isSelected, onSel
       {employee.nickname && (
         <div style={{
           color: '#cccccc',
-          fontSize: '11px',
-          marginBottom: '4px',
+          fontSize: '10px',
+          marginBottom: '2px',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap'
@@ -360,8 +360,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, isSelected, onSel
       {(employee.age || employee.nationality) && (
         <div style={{
           color: '#999999',
-          fontSize: '10px',
-          marginTop: '4px'
+          fontSize: '9px',
+          marginTop: '2px'
         }}>
           {employee.age && `${employee.age}y`}
           {employee.age && employee.nationality && ' • '}
