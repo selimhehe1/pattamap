@@ -175,7 +175,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   const { data: employeeSearchResults, isLoading: isLoadingEmployees } = useEmployeeSearch({
     q: searchQuery || undefined,
-    establishment_id: selectedEstablishmentId || undefined
+    establishment_id: selectedEstablishmentId || undefined,
+    unclaimed_only: true // v12.x - Exclude profiles already linked to a user
   });
 
   // Loading states (some managed by hooks now)

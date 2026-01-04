@@ -34,6 +34,7 @@ export interface SearchParams {
   minRating: number | null;
   hasPhotos: boolean;
   socialMedia: string | null;
+  unclaimedOnly?: boolean; // v12.x - Filter out profiles already linked to a user
 }
 
 export interface AvailableFilters {
@@ -69,7 +70,8 @@ export function parseSearchParams(query: Record<string, unknown>): SearchParams 
     languages,
     min_rating,
     has_photos,
-    social_media
+    social_media,
+    unclaimed_only // v12.x - Filter for registration (exclude profiles with user_id)
   } = query;
 
   // Validate and sanitize pagination
@@ -103,7 +105,8 @@ export function parseSearchParams(query: Record<string, unknown>): SearchParams 
     languages: languages ? String(languages) : null,
     minRating: min_rating ? Number(min_rating) : null,
     hasPhotos: has_photos === 'true',
-    socialMedia: social_media ? String(social_media) : null
+    socialMedia: social_media ? String(social_media) : null,
+    unclaimedOnly: unclaimed_only === 'true' // v12.x - Filter for registration
   };
 }
 
@@ -159,6 +162,11 @@ export async function buildEmployeeSearchQuery(params: SearchParams) {
   // Verified filter
   if (params.isVerified) {
     query = query.eq('is_verified', true);
+  }
+
+  // Unclaimed only filter (for registration - exclude profiles already linked to a user)
+  if (params.unclaimedOnly) {
+    query = query.is('user_id', null);
   }
 
   // VIP-first ordering

@@ -36,6 +36,7 @@ export interface EmployeeSearchParams {
   sort_order?: string;
   page?: number;
   limit?: number;
+  unclaimed_only?: boolean; // v12.x - Filter for registration (exclude profiles with user_id)
 }
 
 /**
