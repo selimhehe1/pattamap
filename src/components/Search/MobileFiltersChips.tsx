@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Search, Check, Gem, Image, Building2, Trash2, Star
+  Search, Check, Gem, Image, Building2, Trash2, Star,
+  ChevronDown, User, MapPin, Sparkles
 } from 'lucide-react';
 import { ZONE_OPTIONS } from '../../utils/constants';
 import '../../styles/components/quick-filter-chips.css';
@@ -51,6 +52,40 @@ const NATIONALITY_FLAGS: Record<string, string> = {
   'Korean': '🇰🇷'
 };
 
+// Filter Accordion Component
+interface FilterAccordionProps {
+  title: string;
+  icon: React.ReactNode;
+  defaultExpanded?: boolean;
+  children: React.ReactNode;
+}
+
+const FilterAccordion: React.FC<FilterAccordionProps> = ({
+  title, icon, defaultExpanded = false, children
+}) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  return (
+    <div className="filter-accordion">
+      <button
+        type="button"
+        className={`filter-accordion__header ${isExpanded ? 'filter-accordion__header--expanded' : ''}`}
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+      >
+        <span className="filter-accordion__icon">{icon}</span>
+        <span className="filter-accordion__title">{title}</span>
+        <ChevronDown size={18} className="filter-accordion__chevron" />
+      </button>
+      <div className={`filter-accordion__content ${isExpanded ? 'filter-accordion__content--expanded' : ''}`}>
+        <div className="filter-accordion__inner">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface MobileFiltersChipsProps {
   filters: {
     q: string;
@@ -83,11 +118,9 @@ interface MobileFiltersChipsProps {
 
 /**
  * MobileFiltersChips - Full chip-based filter UI for mobile
+ * v11.6 - Organized in accordions for better UX
  *
- * All filters displayed as horizontal scrollable chip rows
- * Inspired by Tinder/Airbnb mobile filter patterns
- *
- * @version 11.5
+ * @version 11.6
  */
 const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
   filters,
@@ -180,7 +213,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
 
   return (
     <div className="mobile-filters-chips">
-      {/* Search Input */}
+      {/* Search Input - Always visible */}
       <div className="mobile-search-container">
         <Search size={16} className="mobile-search-input-icon" />
         <input
@@ -195,19 +228,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         />
       </div>
 
-      {/* Clear All Button */}
-      {activeFiltersCount > 0 && (
-        <button
-          onClick={handleClearAll}
-          disabled={loading}
-          className="mobile-clear-filters-btn"
-        >
-          <Trash2 size={14} />
-          {t('search.clearAll', 'Clear all')} ({activeFiltersCount})
-        </button>
-      )}
-
-      {/* Row 1: Quick Toggles */}
+      {/* Quick Toggles - Always visible */}
       <div className="chip-row">
         <div className="chip-row-content">
           <button
@@ -242,219 +263,256 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         </div>
       </div>
 
-      {/* Row 2: Gender */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.gender', 'Gender')}</span>
-        <div className="chip-row-content">
-          <button
-            type="button"
-            className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'female' ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('sex', currentSex === 'female' ? '' : 'female')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon">♀</span>
-          </button>
+      {/* Clear All Button */}
+      {activeFiltersCount > 0 && (
+        <button
+          onClick={handleClearAll}
+          disabled={loading}
+          className="mobile-clear-filters-btn"
+        >
+          <Trash2 size={14} />
+          {t('search.clearAll', 'Clear all')} ({activeFiltersCount})
+        </button>
+      )}
 
-          <button
-            type="button"
-            className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'male' ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('sex', currentSex === 'male' ? '' : 'male')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon">♂</span>
-          </button>
-
-          <button
-            type="button"
-            className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'ladyboy' ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('sex', currentSex === 'ladyboy' ? '' : 'ladyboy')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon">⚧</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Row 3: Age Presets */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.age', 'Age')}</span>
-        <div className="chip-row-content chip-row-scrollable">
-          {AGE_PRESETS.map(preset => {
-            const isActive = currentAgePreset?.label === preset.label;
-            return (
-              <button
-                key={preset.label}
-                type="button"
-                className={`quick-filter-chip quick-filter-chip--age ${isActive ? 'quick-filter-chip--active' : ''}`}
-                onClick={() => handleAgePresetToggle(preset)}
-                disabled={loading}
-              >
-                {preset.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Row 4: Zone */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.zone', 'Zone')}</span>
-        <div className="chip-row-content chip-row-scrollable">
-          {ZONE_OPTIONS.filter(z => z.value && z.value !== 'freelance').map(zone => {
-            const isActive = filters.zone === zone.value;
-            return (
-              <button
-                key={zone.value}
-                type="button"
-                className={`quick-filter-chip quick-filter-chip--zone ${isActive ? 'quick-filter-chip--active' : ''}`}
-                onClick={() => onZoneChange(isActive ? '' : zone.value)}
-                disabled={loading}
-              >
-                {zone.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Row 5: Category */}
-      {availableFilters.categories.length > 0 && (
+      {/* ============================================
+         ACCORDION 1: PROFIL
+         Gender, Age, Nationality
+         ============================================ */}
+      <FilterAccordion
+        title={t('search.sections.profile', 'Profil')}
+        icon={<User size={18} />}
+        defaultExpanded={true}
+      >
+        {/* Gender */}
         <div className="chip-row">
-          <span className="chip-row-label">{t('search.type', 'Type')}</span>
+          <span className="chip-row-label">{t('search.gender', 'Gender')}</span>
+          <div className="chip-row-content">
+            <button
+              type="button"
+              className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'female' ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('sex', currentSex === 'female' ? '' : 'female')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon">♀</span>
+            </button>
+            <button
+              type="button"
+              className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'male' ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('sex', currentSex === 'male' ? '' : 'male')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon">♂</span>
+            </button>
+            <button
+              type="button"
+              className={`quick-filter-chip quick-filter-chip--gender ${currentSex === 'ladyboy' ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('sex', currentSex === 'ladyboy' ? '' : 'ladyboy')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon">⚧</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Age Presets */}
+        <div className="chip-row">
+          <span className="chip-row-label">{t('search.age', 'Age')}</span>
           <div className="chip-row-content chip-row-scrollable">
-            {availableFilters.categories.map(cat => {
-              const isActive = filters.category_id === String(cat.id);
+            {AGE_PRESETS.map(preset => {
+              const isActive = currentAgePreset?.label === preset.label;
               return (
                 <button
-                  key={cat.id}
+                  key={preset.label}
                   type="button"
-                  className={`quick-filter-chip quick-filter-chip--category ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => onFilterChange('category_id', isActive ? '' : String(cat.id))}
+                  className={`quick-filter-chip quick-filter-chip--age ${isActive ? 'quick-filter-chip--active' : ''}`}
+                  onClick={() => handleAgePresetToggle(preset)}
                   disabled={loading}
                 >
-                  <span className="chip-emoji">{cat.icon}</span>
-                  <span>{cat.name}</span>
+                  {preset.label}
                 </button>
               );
             })}
           </div>
         </div>
-      )}
 
-      {/* Row 6: Nationality */}
-      {availableFilters.nationalities.length > 0 && (
+        {/* Nationality */}
+        {availableFilters.nationalities.length > 0 && (
+          <div className="chip-row">
+            <span className="chip-row-label">{t('search.nationality', 'Nationality')}</span>
+            <div className="chip-row-content chip-row-scrollable">
+              {availableFilters.nationalities.slice(0, 15).map(nat => {
+                const isActive = filters.nationality === nat;
+                const flag = NATIONALITY_FLAGS[nat] || '🌍';
+                return (
+                  <button
+                    key={nat}
+                    type="button"
+                    className={`quick-filter-chip quick-filter-chip--nationality ${isActive ? 'quick-filter-chip--active' : ''}`}
+                    onClick={() => onFilterChange('nationality', isActive ? '' : nat)}
+                    disabled={loading}
+                  >
+                    <span className="chip-flag">{flag}</span>
+                    <span>{nat}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </FilterAccordion>
+
+      {/* ============================================
+         ACCORDION 2: LOCALISATION
+         Zone, Category, Establishment
+         ============================================ */}
+      <FilterAccordion
+        title={t('search.sections.location', 'Localisation')}
+        icon={<MapPin size={18} />}
+      >
+        {/* Zone */}
         <div className="chip-row">
-          <span className="chip-row-label">{t('search.nationality', 'Nationality')}</span>
+          <span className="chip-row-label">{t('search.zone', 'Zone')}</span>
           <div className="chip-row-content chip-row-scrollable">
-            {availableFilters.nationalities.slice(0, 15).map(nat => {
-              const isActive = filters.nationality === nat;
-              const flag = NATIONALITY_FLAGS[nat] || '🌍';
+            {ZONE_OPTIONS.filter(z => z.value && z.value !== 'freelance').map(zone => {
+              const isActive = filters.zone === zone.value;
               return (
                 <button
-                  key={nat}
+                  key={zone.value}
                   type="button"
-                  className={`quick-filter-chip quick-filter-chip--nationality ${isActive ? 'quick-filter-chip--active' : ''}`}
-                  onClick={() => onFilterChange('nationality', isActive ? '' : nat)}
+                  className={`quick-filter-chip quick-filter-chip--zone ${isActive ? 'quick-filter-chip--active' : ''}`}
+                  onClick={() => onZoneChange(isActive ? '' : zone.value)}
                   disabled={loading}
                 >
-                  <span className="chip-flag">{flag}</span>
-                  <span>{nat}</span>
+                  {zone.label}
                 </button>
               );
             })}
           </div>
         </div>
-      )}
 
-      {/* Row 7: Rating */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.rating', 'Rating')}</span>
-        <div className="chip-row-content">
-          {[1, 2, 3, 4, 5].map(stars => {
-            const isActive = currentRating === stars;
-            return (
-              <button
-                key={stars}
-                type="button"
-                className={`quick-filter-chip quick-filter-chip--rating ${isActive ? 'quick-filter-chip--active' : ''}`}
-                onClick={() => onFilterChange('min_rating', isActive ? '' : String(stars))}
+        {/* Category */}
+        {availableFilters.categories.length > 0 && (
+          <div className="chip-row">
+            <span className="chip-row-label">{t('search.type', 'Type')}</span>
+            <div className="chip-row-content chip-row-scrollable">
+              {availableFilters.categories.map(cat => {
+                const isActive = filters.category_id === String(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`quick-filter-chip quick-filter-chip--category ${isActive ? 'quick-filter-chip--active' : ''}`}
+                    onClick={() => onFilterChange('category_id', isActive ? '' : String(cat.id))}
+                    disabled={loading}
+                  >
+                    <span className="chip-emoji">{cat.icon}</span>
+                    <span>{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Establishment Dropdown */}
+        {!isFreelance && (
+          <div className="chip-row">
+            <span className="chip-row-label">{t('search.establishment', 'Establishment')}</span>
+            <div className="mobile-establishment-container">
+              <Building2 size={16} className="mobile-establishment-icon" />
+              <select
+                value={filters.establishment_id}
+                onChange={(e) => onFilterChange('establishment_id', e.target.value)}
                 disabled={loading}
+                className="mobile-establishment-select"
               >
-                <Star size={14} className="chip-star" fill={isActive ? '#FFD700' : 'none'} />
-                <span>{stars}+</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                <option value="">{t('search.allEstablishments', 'All establishments')}</option>
+                {availableFilters.establishments.map(est => (
+                  <option key={est.id} value={est.id}>
+                    {est.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+      </FilterAccordion>
 
-      <div className="chip-divider" />
-
-      {/* Row 8: Establishment Input (too many options for chips) */}
-      {!isFreelance && (
-        <div className="mobile-establishment-container">
-          <Building2 size={16} className="mobile-establishment-icon" />
-          <input
-            type="text"
-            placeholder={t('search.establishment', 'Establishment')}
-            disabled={loading}
-            className="mobile-establishment-input"
-            value={filters.establishment_id ?
-              availableFilters.establishments.find(e => e.id === filters.establishment_id)?.name || ''
-              : ''
-            }
-            readOnly
-            onClick={() => {
-              // Could open a modal/drawer for establishment selection
-              // For now, this is just a placeholder
-            }}
-          />
+      {/* ============================================
+         ACCORDION 3: QUALITÉ
+         Rating, Languages, Social Media
+         ============================================ */}
+      <FilterAccordion
+        title={t('search.sections.quality', 'Qualité')}
+        icon={<Sparkles size={18} />}
+      >
+        {/* Rating */}
+        <div className="chip-row">
+          <span className="chip-row-label">{t('search.rating', 'Rating')}</span>
+          <div className="chip-row-content">
+            {[1, 2, 3, 4, 5].map(stars => {
+              const isActive = currentRating === stars;
+              return (
+                <button
+                  key={stars}
+                  type="button"
+                  className={`quick-filter-chip quick-filter-chip--rating ${isActive ? 'quick-filter-chip--active' : ''}`}
+                  onClick={() => onFilterChange('min_rating', isActive ? '' : String(stars))}
+                  disabled={loading}
+                >
+                  <Star size={14} className="chip-star" fill={isActive ? '#FFD700' : 'none'} />
+                  <span>{stars}+</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      )}
 
-      {/* Row 9: Languages */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.languages', 'Languages')}</span>
-        <div className="chip-row-content chip-row-scrollable">
-          {LANGUAGE_OPTIONS.map(lang => {
-            const isActive = selectedLanguages.includes(lang.code);
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
-                onClick={() => handleLanguageToggle(lang.code)}
-                disabled={loading}
-              >
-                <span>{lang.flag}</span>
-                <span>{lang.code}</span>
-              </button>
-            );
-          })}
+        {/* Languages */}
+        <div className="chip-row">
+          <span className="chip-row-label">{t('search.languages', 'Languages')}</span>
+          <div className="chip-row-content chip-row-scrollable">
+            {LANGUAGE_OPTIONS.map(lang => {
+              const isActive = selectedLanguages.includes(lang.code);
+              return (
+                <button
+                  key={lang.code}
+                  type="button"
+                  className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
+                  onClick={() => handleLanguageToggle(lang.code)}
+                  disabled={loading}
+                >
+                  <span>{lang.flag}</span>
+                  <span>{lang.code}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Row 10: Social Media */}
-      <div className="chip-row">
-        <span className="chip-row-label">{t('search.social', 'Social')}</span>
-        <div className="chip-row-content chip-row-scrollable">
-          {SOCIAL_OPTIONS.map(platform => {
-            const isActive = selectedSocial.includes(platform.id);
-            return (
-              <button
-                key={platform.id}
-                type="button"
-                className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
-                onClick={() => handleSocialToggle(platform.id)}
-                disabled={loading}
-              >
-                <span>{platform.icon}</span>
-                <span>{platform.label}</span>
-              </button>
-            );
-          })}
+        {/* Social Media */}
+        <div className="chip-row">
+          <span className="chip-row-label">{t('search.social', 'Social')}</span>
+          <div className="chip-row-content chip-row-scrollable">
+            {SOCIAL_OPTIONS.map(platform => {
+              const isActive = selectedSocial.includes(platform.id);
+              return (
+                <button
+                  key={platform.id}
+                  type="button"
+                  className={`quick-filter-chip ${isActive ? 'quick-filter-chip--active' : ''}`}
+                  onClick={() => handleSocialToggle(platform.id)}
+                  disabled={loading}
+                >
+                  <span>{platform.icon}</span>
+                  <span>{platform.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </FilterAccordion>
     </div>
   );
 });

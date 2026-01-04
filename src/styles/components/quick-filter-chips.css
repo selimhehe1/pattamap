@@ -228,6 +228,9 @@ body[data-theme="light"] .more-filters-toggle {
 
 .mobile-filters-chips {
   padding: 8px 0;
+  overflow-x: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chip-row {
@@ -326,6 +329,8 @@ body[data-theme="light"] .more-filters-toggle {
 .mobile-search-container {
   position: relative;
   margin-bottom: 16px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .mobile-search-container .mobile-search-input-icon {
@@ -342,10 +347,15 @@ body[data-theme="light"] .more-filters-toggle {
 .mobile-establishment-container {
   position: relative;
   margin-bottom: 16px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.mobile-establishment-input {
+.mobile-establishment-input,
+.mobile-establishment-select {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   padding-left: 40px;
   background: rgba(10, 0, 20, 0.6);
@@ -355,6 +365,8 @@ body[data-theme="light"] .more-filters-toggle {
   font-size: 14px;
   outline: none;
   transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .mobile-establishment-input::placeholder {
@@ -423,6 +435,108 @@ body[data-theme="light"] .mobile-establishment-input {
 body[data-theme="light"] .mobile-clear-filters-btn {
   background: rgba(255, 71, 87, 0.05);
   border-color: rgba(255, 71, 87, 0.2);
+}
+
+/* ===== FILTER ACCORDION (v11.6) ===== */
+
+.filter-accordion {
+  margin-bottom: 8px;
+  border: 1px solid rgba(232, 121, 249, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(10, 0, 20, 0.3);
+}
+
+.filter-accordion__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-accordion__header:active {
+  background: rgba(232, 121, 249, 0.05);
+}
+
+.filter-accordion__header--expanded {
+  background: rgba(232, 121, 249, 0.1);
+  color: #E879F9;
+  border-bottom: 1px solid rgba(232, 121, 249, 0.15);
+}
+
+.filter-accordion__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: inherit;
+}
+
+.filter-accordion__title {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-accordion__chevron {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.filter-accordion__header--expanded .filter-accordion__chevron {
+  transform: rotate(180deg);
+  color: #E879F9;
+}
+
+.filter-accordion__content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.filter-accordion__content--expanded {
+  grid-template-rows: 1fr;
+}
+
+.filter-accordion__inner {
+  overflow: hidden;
+}
+
+.filter-accordion__content--expanded .filter-accordion__inner {
+  padding: 12px 16px 16px;
+}
+
+/* Chip rows inside accordions */
+.filter-accordion .chip-row {
+  margin-bottom: 12px;
+}
+
+.filter-accordion .chip-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Light mode accordion */
+body[data-theme="light"] .filter-accordion {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(147, 51, 234, 0.2);
+}
+
+body[data-theme="light"] .filter-accordion__header {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+body[data-theme="light"] .filter-accordion__header--expanded {
+  background: rgba(147, 51, 234, 0.08);
+  color: #9333ea;
 }
 
 /* ===== REDUCED MOTION ===== */
