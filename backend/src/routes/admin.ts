@@ -113,7 +113,9 @@ router.get('/dashboard-stats', async (req, res) => {
       totalUsers: statsData?.[0]?.total_users || 0,
       totalComments: statsData?.[0]?.total_comments || 0,
       pendingComments: statsData?.[0]?.pending_comments || 0,
-      reportedComments: statsData?.[0]?.reported_comments || 0
+      reportedComments: statsData?.[0]?.reported_comments || 0,
+      pendingClaims: statsData?.[0]?.pending_claims || 0,
+      pendingVerifications: statsData?.[0]?.pending_verifications || 0
     };
 
     res.json({ stats });

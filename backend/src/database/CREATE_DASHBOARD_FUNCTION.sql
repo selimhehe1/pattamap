@@ -18,7 +18,7 @@
 -- Exécuter cette requête pour tester:
 -- SELECT * FROM get_dashboard_stats();
 --
--- Résultat attendu: Une ligne avec 8 colonnes (total_establishments, pending_establishments, etc.)
+-- Résultat attendu: Une ligne avec 10 colonnes (total_establishments, pending_establishments, pending_claims, pending_verifications, etc.)
 -- ========================================
 
 -- Supprimer la fonction si elle existe déjà (pour réinstallation propre)
@@ -34,7 +34,9 @@ RETURNS TABLE (
   total_users BIGINT,
   total_comments BIGINT,
   pending_comments BIGINT,
-  reported_comments BIGINT
+  reported_comments BIGINT,
+  pending_claims BIGINT,
+  pending_verifications BIGINT
 )
 LANGUAGE SQL
 STABLE -- Fonction stable (résultats identiques pour mêmes paramètres dans même transaction)
@@ -63,7 +65,13 @@ AS $$
       (SELECT COUNT(*) FROM comments WHERE status = 'pending') as pending_comments,
 
       -- Compter les signalements en attente
-      (SELECT COUNT(*) FROM reports WHERE status = 'pending') as reported_comments
+      (SELECT COUNT(*) FROM reports WHERE status = 'pending') as reported_comments,
+
+      -- Compter les claims de profil en attente
+      (SELECT COUNT(*) FROM moderation_queue WHERE item_type = 'employee_claim' AND status = 'pending') as pending_claims,
+
+      -- Compter les verifications en attente (pending ou manual_review)
+      (SELECT COUNT(*) FROM employee_verifications WHERE status IN ('pending', 'manual_review')) as pending_verifications
   )
   SELECT * FROM dashboard_stats;
 $$;

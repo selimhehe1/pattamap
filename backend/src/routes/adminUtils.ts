@@ -88,7 +88,9 @@ export async function getDashboardStatsFallback() {
     { count: totalUsers },
     { count: totalComments },
     { count: pendingComments },
-    { count: reportedComments }
+    { count: reportedComments },
+    { count: pendingClaims },
+    { count: pendingVerifications }
   ] = await Promise.all([
     supabase.from('establishments').select('id', { count: 'exact', head: true }),
     supabase.from('establishments').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -97,7 +99,9 @@ export async function getDashboardStatsFallback() {
     supabase.from('users').select('*', { count: 'exact', head: true }),
     supabase.from('comments').select('*', { count: 'exact', head: true }),
     supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+    supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('moderation_queue').select('*', { count: 'exact', head: true }).eq('item_type', 'employee_claim').eq('status', 'pending'),
+    supabase.from('employee_verifications').select('*', { count: 'exact', head: true }).in('status', ['pending', 'manual_review'])
   ]);
 
   return {
@@ -108,7 +112,9 @@ export async function getDashboardStatsFallback() {
     totalUsers: totalUsers || 0,
     totalComments: totalComments || 0,
     pendingComments: pendingComments || 0,
-    reportedComments: reportedComments || 0
+    reportedComments: reportedComments || 0,
+    pendingClaims: pendingClaims || 0,
+    pendingVerifications: pendingVerifications || 0
   };
 }
 
