@@ -557,6 +557,15 @@ body[data-theme="light"] .filter-accordion__header--expanded {
   font-size: 13px;
 }
 
+/* Fix double padding for nested accordions */
+.filter-accordion .filter-accordion .filter-accordion__inner {
+  padding: 8px 0 0 0;
+}
+
+.filter-accordion .filter-accordion .filter-accordion__content--expanded .filter-accordion__inner {
+  padding: 8px 0 0 0;
+}
+
 body[data-theme="light"] .filter-accordion .filter-accordion {
   border-left-color: rgba(147, 51, 234, 0.3);
 }

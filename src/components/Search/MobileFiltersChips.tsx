@@ -241,7 +241,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         <FilterAccordion
           title={t('search.sections.search', 'Recherche')}
           icon={<Search size={18} />}
-          defaultExpanded={true}
+          defaultExpanded={false}
         >
         <div className="mobile-search-container">
           <Search size={16} className="mobile-search-input-icon" />
@@ -265,7 +265,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
       <FilterAccordion
         title={t('search.sections.quick', 'Rapide')}
         icon={<Zap size={18} />}
-        defaultExpanded={true}
+        defaultExpanded={false}
       >
         <div className="chip-row">
           <div className="chip-row-content">
@@ -309,7 +309,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
       <FilterAccordion
         title={t('search.sections.profile', 'Profil')}
         icon={<User size={18} />}
-        defaultExpanded={true}
+        defaultExpanded={false}
       >
         {/* Gender */}
         <div className="chip-row">
