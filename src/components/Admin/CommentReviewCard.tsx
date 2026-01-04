@@ -37,7 +37,7 @@ interface CommentReviewCardProps {
       id: number;
       name: string;
       nickname?: string;
-      photo?: string; // For future use
+      photos?: string[];
     };
     reports?: Array<{
       id: number;
@@ -124,11 +124,11 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
       onClick={handleCardClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
     >
-      {/* 1. Background - Gradient + Employee Initial */}
+      {/* 1. Background - Employee Photo or Initial */}
       <div className="aec-image">
-        {comment.employee?.photo ? (
+        {comment.employee?.photos && comment.employee.photos.length > 0 ? (
           <img
-            src={comment.employee.photo}
+            src={comment.employee.photos[0]}
             alt={employeeName}
             className="aec-image-inner"
             style={{ objectFit: 'cover' }}

@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
       .select(`
         *,
         user:users(id, pseudonym),
-        employee:employees(id, name, nickname)
+        employee:employees(id, name, nickname, photos)
       `)
       .order('created_at', { ascending: false });
 
