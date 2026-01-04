@@ -152,18 +152,29 @@ export const getEmployees = asyncHandler(async (req: AuthRequest, res: Response)
 
     // 🆕 v10.3: Filter by employee type (freelance vs regular)
     const employees = (allEmployees || []).filter(emp => {
-      const hasCurrentEmployment = emp.current_employment?.some((ce: CurrentEmploymentRecord) => ce.is_current === true);
+      // 🔧 FIX: Si establishment_id est fourni, vérifier que l'employé y travaille actuellement
+      // Cela s'applique aux employés réguliers ET aux freelances (qui ont aussi des employment_history)
+      const hasCurrentEmploymentAtEstablishment = establishment_id
+        ? emp.current_employment?.some((ce: CurrentEmploymentRecord) =>
+            ce.is_current === true && ce.establishment_id === establishment_id
+          )
+        : emp.current_employment?.some((ce: CurrentEmploymentRecord) => ce.is_current === true);
+
       const isFreelance = emp.is_freelance === true;
 
       // Base filter: must have active position (employment OR freelance)
-      const hasActivePosition = hasCurrentEmployment || isFreelance;
+      // Si establishment_id fourni: l'employé doit avoir un emploi actif dans CET établissement
+      // Sinon: l'employé doit avoir un emploi actif quelque part OU être freelance
+      const hasActivePosition = establishment_id
+        ? hasCurrentEmploymentAtEstablishment  // Employés/Freelances avec emploi actif dans CET établissement
+        : (hasCurrentEmploymentAtEstablishment || isFreelance);  // Tous les employés actifs + freelances
       if (!hasActivePosition) return false;
 
       // Type filter
       if (type === 'freelance') {
         return isFreelance;
       } else if (type === 'regular') {
-        return !isFreelance && hasCurrentEmployment;
+        return !isFreelance && hasCurrentEmploymentAtEstablishment;
       } else { // type === 'all' or undefined
         return true;
       }
