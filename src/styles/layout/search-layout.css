@@ -135,6 +135,7 @@
   .search-filters-fixed-nightlife {
     position: relative; /* Not fixed on mobile */
     width: 100%;
+    height: auto; /* Reset from full viewport height */
     left: 0;
     top: 0;
     margin-bottom: var(--spacing-3); /* Reduced from spacing-5 */
