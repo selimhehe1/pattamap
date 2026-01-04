@@ -1290,6 +1290,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 <div
                                   key={est.id}
                                   className="autocomplete-item-nightlife"
+                                  style={{ fontSize: '14px' }}
                                   onMouseDown={(e) => {
                                     e.preventDefault();
                                     setSelectedEstablishmentId(est.id);
@@ -1743,6 +1744,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 <div
                                   key={est.id}
                                   className="autocomplete-item-nightlife"
+                                  style={{ fontSize: '14px' }}
                                   onMouseDown={(e) => {
                                     e.preventDefault();
                                     handleInputChange('selectedEstablishmentToClaim', est);
@@ -2768,6 +2770,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                                 <div
                                   key={est.id}
                                   className="autocomplete-item-nightlife"
+                                  style={{ fontSize: '14px' }}
                                   onMouseDown={(e) => {
                                     e.preventDefault();
                                     handleInputChange('establishmentId', est.id);
