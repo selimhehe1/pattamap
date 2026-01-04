@@ -2,10 +2,11 @@
  * Tooltip Component
  *
  * Displays an informative tooltip on hover after a delay.
- * Used throughout the app to explain button/icon functions.
+ * Uses React Portal to render in document.body, avoiding overflow issues.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import '../../styles/components/tooltip.css';
 
 interface TooltipProps {
@@ -21,6 +22,11 @@ interface TooltipProps {
   disabled?: boolean;
 }
 
+interface TooltipPosition {
+  top: number;
+  left: number;
+}
+
 export const Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
@@ -29,12 +35,48 @@ export const Tooltip: React.FC<TooltipProps> = ({
   disabled = false
 }) => {
   const [visible, setVisible] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState<TooltipPosition>({ top: 0, left: 0 });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const calculatePosition = useCallback(() => {
+    if (!wrapperRef.current) return;
+
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const gap = 10; // Gap between tooltip and trigger
+
+    let top = 0;
+    let left = 0;
+
+    switch (position) {
+      case 'top':
+        top = rect.top - gap;
+        left = rect.left + rect.width / 2;
+        break;
+      case 'bottom':
+        top = rect.bottom + gap;
+        left = rect.left + rect.width / 2;
+        break;
+      case 'left':
+        top = rect.top + rect.height / 2;
+        left = rect.left - gap;
+        break;
+      case 'right':
+        top = rect.top + rect.height / 2;
+        left = rect.right + gap;
+        break;
+    }
+
+    setTooltipPos({ top, left });
+  }, [position]);
 
   const showTooltip = () => {
     if (disabled || !content) return;
-    timeoutRef.current = setTimeout(() => setVisible(true), delay);
+    timeoutRef.current = setTimeout(() => {
+      calculatePosition();
+      setVisible(true);
+    }, delay);
   };
 
   const hideTooltip = () => {
@@ -59,6 +101,22 @@ export const Tooltip: React.FC<TooltipProps> = ({
     return <>{children}</>;
   }
 
+  const tooltipElement = visible && content ? (
+    <div
+      ref={tooltipRef}
+      className={`tooltip tooltip--portal tooltip--${position}`}
+      role="tooltip"
+      aria-hidden={!visible}
+      style={{
+        top: tooltipPos.top,
+        left: tooltipPos.left,
+      }}
+    >
+      {content}
+      <div className="tooltip__arrow" />
+    </div>
+  ) : null;
+
   return (
     <div
       ref={wrapperRef}
@@ -69,16 +127,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       onBlur={hideTooltip}
     >
       {children}
-      {visible && content && (
-        <div
-          className={`tooltip tooltip--${position}`}
-          role="tooltip"
-          aria-hidden={!visible}
-        >
-          {content}
-          <div className="tooltip__arrow" />
-        </div>
-      )}
+      {tooltipElement && createPortal(tooltipElement, document.body)}
     </div>
   );
 };

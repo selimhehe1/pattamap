@@ -32,6 +32,27 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+/* Portal mode: fixed positioning relative to viewport */
+.tooltip--portal {
+  position: fixed;
+}
+
+.tooltip--portal.tooltip--top {
+  transform: translate(-50%, -100%);
+}
+
+.tooltip--portal.tooltip--bottom {
+  transform: translate(-50%, 0);
+}
+
+.tooltip--portal.tooltip--left {
+  transform: translate(-100%, -50%);
+}
+
+.tooltip--portal.tooltip--right {
+  transform: translate(0, -50%);
+}
+
 /* Arrow indicator */
 .tooltip__arrow {
   position: absolute;
