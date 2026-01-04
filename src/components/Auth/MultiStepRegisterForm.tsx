@@ -9,13 +9,13 @@ import { useEmployeeSearch } from '../../hooks/useEmployees';
 import { useEstablishments } from '../../hooks/useEstablishments';
 import { useCSRF } from '../../contexts/CSRFContext';
 import FormField from '../Common/FormField';
-import LazyImage from '../Common/LazyImage';
 import NationalityTagsInput from '../Forms/NationalityTagsInput';
 import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { AccountTypeSelectionStep, CredentialsStep } from './steps';
+import { EstablishmentAutocomplete, PhotoUploadGrid } from './components';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
@@ -160,13 +160,9 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // Establishment autocomplete state (Step 2 - Employee)
   const [establishmentSearchStep2, setEstablishmentSearchStep2] = useState('');
-  const [showSuggestionsStep2, setShowSuggestionsStep2] = useState(false);
-  const establishmentInputRefStep2 = useRef<HTMLInputElement>(null);
 
   // 🆕 v10.x - Owner establishment claim state (Step 2 - Owner)
   const [ownerEstablishmentSearch, setOwnerEstablishmentSearch] = useState('');
-  const [showOwnerEstablishmentSuggestions, setShowOwnerEstablishmentSuggestions] = useState(false);
-  const ownerEstablishmentInputRef = useRef<HTMLInputElement>(null);
   const [ownershipDocumentPreviews, setOwnershipDocumentPreviews] = useState<{ file: File; url: string; name: string }[]>([]);
   const [_uploadingOwnershipDocs, setUploadingOwnershipDocs] = useState(false);
   const [ownershipDocErrors, setOwnershipDocErrors] = useState<string>('');
@@ -174,8 +170,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // Establishment autocomplete state (Step 4)
   const [establishmentSearchStep4, setEstablishmentSearchStep4] = useState('');
-  const [showSuggestionsStep4, setShowSuggestionsStep4] = useState(false);
-  const establishmentInputRefStep4 = useRef<HTMLInputElement>(null);
 
   // React Query hooks for establishments and employee search
   const { data: establishments = [] } = useEstablishments();
@@ -185,45 +179,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     return establishments.filter(est => est.category?.name === 'Nightclub');
   }, [establishments]);
 
-  // Filter establishments by search query and group by zone
-  // 🆕 v10.x: excludeWithOwner = true for owner claim (only show establishments without owner)
-  const filterEstablishmentsByQuery = (query: string, excludeWithOwner: boolean = false) => {
-    // Filter establishments with zone only
-    let filtered = establishments.filter(est => est.zone);
-
-    // 🆕 v10.x: Exclude establishments that already have an owner (for owner claim)
-    if (excludeWithOwner) {
-      filtered = filtered.filter(est => !est.has_owner);
-    }
-
-    // Apply search filter if query exists
-    if (query.trim().length > 0) {
-      const lowerQuery = query.toLowerCase();
-      filtered = filtered.filter(est =>
-        est.name.toLowerCase().includes(lowerQuery)
-      );
-    }
-
-    // Group by zone
-    const groupedByZone = filtered.reduce((acc, est) => {
-      const zone = est.zone || 'other';
-      if (!acc[zone]) acc[zone] = [];
-      acc[zone].push(est);
-      return acc;
-    }, {} as Record<string, typeof establishments>);
-
-    // Sort each group alphabetically
-    Object.keys(groupedByZone).forEach(zone => {
-      groupedByZone[zone].sort((a, b) => a.name.localeCompare(b.name));
-    });
-
-    // Sort zones alphabetically (using centralized getZoneLabel)
-    const sortedZones = Object.keys(groupedByZone).sort((a, b) =>
-      getZoneLabel(a).localeCompare(getZoneLabel(b))
-    );
-
-    return { groupedByZone, sortedZones };
-  };
   const { data: employeeSearchResults, isLoading: isLoadingEmployees } = useEmployeeSearch({
     q: searchQuery || undefined,
     establishment_id: selectedEstablishmentId || undefined
@@ -382,42 +337,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     if (fieldName in validationRules) {
       handleFieldBlur(fieldName, value);
     }
-  };
-
-  // Photo handling functions
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-
-    if (files.length + formData.photos.length > 5) {
-      setPhotoErrors(t('register.photosMaxError'));
-      return;
-    }
-
-    // Validate file types and sizes
-    const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        setPhotoErrors(t('register.photosTypeError'));
-        return false;
-      }
-      if (file.size > 10 * 1024 * 1024) { // 10MB
-        setPhotoErrors(t('register.photosSizeError'));
-        return false;
-      }
-      return true;
-    });
-
-    setFormData(prev => ({
-      ...prev,
-      photos: [...prev.photos, ...validFiles]
-    }));
-    setPhotoErrors('');
-  };
-
-  const removePhoto = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      photos: prev.photos.filter((_, i) => i !== index)
-    }));
   };
 
   const uploadPhotos = async (explicitCsrfToken?: string) => {
@@ -1204,112 +1123,25 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               {formData.employeePath === 'claim' && (
                 <div style={{ marginBottom: '16px', paddingLeft: '16px' }}>
                   {/* Establishment Filter with Autocomplete */}
-                  <div style={{ marginBottom: '12px', position: 'relative' }}>
-                    <label style={{
-                      display: 'block',
-                      color: '#C19A6B',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.filterByEstablishment')}
-                    </label>
-                    <input
-                      ref={establishmentInputRefStep2}
-                      type="text"
+                  <div style={{ marginBottom: '12px' }}>
+                    <EstablishmentAutocomplete
                       value={establishmentSearchStep2}
-                      onChange={(e) => {
-                        setEstablishmentSearchStep2(e.target.value);
-                        setShowSuggestionsStep2(true);
+                      onChange={(value) => {
+                        setEstablishmentSearchStep2(value);
                         // Clear selection if user types
                         if (selectedEstablishmentId) {
                           setSelectedEstablishmentId(null);
                         }
                       }}
-                      onFocus={() => setShowSuggestionsStep2(true)}
-                      onBlur={() => {
-                        // Delay to allow click on suggestion
-                        setTimeout(() => setShowSuggestionsStep2(false), 200);
+                      onSelect={(est) => {
+                        setSelectedEstablishmentId(est.id);
+                        setEstablishmentSearchStep2(est.name);
                       }}
-                      placeholder={t('register.searchEstablishments')}
-                      className="input-nightlife"
+                      onClear={() => setSelectedEstablishmentId(null)}
+                      establishments={establishments}
+                      label={t('register.filterByEstablishment')}
+                      selectedId={selectedEstablishmentId}
                     />
-
-                    {/* Clear button */}
-                    {(establishmentSearchStep2 || selectedEstablishmentId) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEstablishmentSearchStep2('');
-                          setSelectedEstablishmentId(null);
-                          setShowSuggestionsStep2(false);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '38px',
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#C19A6B',
-                          fontSize: '18px',
-                          cursor: 'pointer',
-                          padding: '0',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-                        ×
-                      </button>
-                    )}
-
-                    {/* Suggestions Dropdown */}
-                    {showSuggestionsStep2 && (() => {
-                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(establishmentSearchStep2);
-                      const hasResults = sortedZones.length > 0;
-
-                      return hasResults ? (
-                        <div className="autocomplete-dropdown-nightlife">
-                          {sortedZones.map(zone => (
-                            <div key={zone}>
-                              {/* Zone Header */}
-                              <div style={{
-                                padding: '8px 16px',
-                                background: 'rgba(255,255,255,0.05)',
-                                color: '#cccccc',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                borderBottom: '1px solid rgba(255,255,255,0.1)'
-                              }}>
-                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
-                              </div>
-                              {/* Establishments in Zone */}
-                              {groupedByZone[zone].map(est => (
-                                <div
-                                  key={est.id}
-                                  className="autocomplete-item-nightlife"
-                                  style={{ fontSize: '14px' }}
-                                  onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    setSelectedEstablishmentId(est.id);
-                                    setEstablishmentSearchStep2(est.name);
-                                    setShowSuggestionsStep2(false);
-                                  }}
-                                >
-                                  {est.name}
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ) : establishmentSearchStep2.trim().length > 0 ? (
-                        <div className="autocomplete-dropdown-nightlife" style={{ textAlign: 'center', color: '#999999' }}>
-                          {t('register.noEstablishmentsFound')}
-                        </div>
-                      ) : null;
-                    })()}
                   </div>
 
                   {/* Text Search Input */}
@@ -1669,101 +1501,25 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               {formData.ownerPath === 'claim' && (
                 <div style={{ marginBottom: '16px', paddingLeft: '16px' }}>
                   {/* Establishment Search */}
-                  <div style={{ marginBottom: '12px', position: 'relative' }}>
-                    <label style={{
-                      display: 'block',
-                      color: '#C19A6B',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      <Search size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.searchYourEstablishment')}
-                    </label>
-                    <input
-                      ref={ownerEstablishmentInputRef}
-                      type="text"
+                  <div style={{ marginBottom: '12px' }}>
+                    <EstablishmentAutocomplete
                       value={ownerEstablishmentSearch}
-                      onChange={(e) => {
-                        setOwnerEstablishmentSearch(e.target.value);
-                        setShowOwnerEstablishmentSuggestions(true);
+                      onChange={(value) => {
+                        setOwnerEstablishmentSearch(value);
                         if (formData.selectedEstablishmentToClaim) {
                           handleInputChange('selectedEstablishmentToClaim', null);
                         }
                       }}
-                      onFocus={() => setShowOwnerEstablishmentSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowOwnerEstablishmentSuggestions(false), 200)}
-                      placeholder={t('register.searchEstablishments')}
-                      className="input-nightlife"
+                      onSelect={(est) => {
+                        handleInputChange('selectedEstablishmentToClaim', est);
+                        setOwnerEstablishmentSearch(est.name);
+                      }}
+                      onClear={() => handleInputChange('selectedEstablishmentToClaim', null)}
+                      establishments={establishments}
+                      excludeWithOwner={true}
+                      label={t('register.searchYourEstablishment')}
+                      selectedId={formData.selectedEstablishmentToClaim?.id}
                     />
-
-                    {/* Clear button */}
-                    {(ownerEstablishmentSearch || formData.selectedEstablishmentToClaim) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOwnerEstablishmentSearch('');
-                          handleInputChange('selectedEstablishmentToClaim', null);
-                          setShowOwnerEstablishmentSuggestions(false);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '38px',
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#C19A6B',
-                          fontSize: '18px',
-                          cursor: 'pointer',
-                          padding: '0'
-                        }}
-                      >
-                        ×
-                      </button>
-                    )}
-
-                    {/* Suggestions Dropdown - 🆕 v10.x: Only show establishments WITHOUT owner */}
-                    {showOwnerEstablishmentSuggestions && (() => {
-                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(ownerEstablishmentSearch, true);
-                      const hasResults = sortedZones.length > 0;
-
-                      return hasResults ? (
-                        <div className="autocomplete-dropdown-nightlife">
-                          {sortedZones.map(zone => (
-                            <div key={zone}>
-                              <div style={{
-                                padding: '8px 16px',
-                                background: 'rgba(255,255,255,0.05)',
-                                color: '#cccccc',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                borderBottom: '1px solid rgba(255,255,255,0.1)'
-                              }}>
-                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
-                              </div>
-                              {groupedByZone[zone].map(est => (
-                                <div
-                                  key={est.id}
-                                  className="autocomplete-item-nightlife"
-                                  style={{ fontSize: '14px' }}
-                                  onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    handleInputChange('selectedEstablishmentToClaim', est);
-                                    setOwnerEstablishmentSearch(est.name);
-                                    setShowOwnerEstablishmentSuggestions(false);
-                                  }}
-                                >
-                                  {est.name}
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ) : ownerEstablishmentSearch.trim().length > 0 ? (
-                        <div className="autocomplete-dropdown-nightlife" style={{ textAlign: 'center', color: '#999999' }}>
-                          {t('register.noEstablishmentsFound')}
-                        </div>
-                      ) : null;
-                    })()}
                   </div>
 
                   {/* Selected Establishment Preview */}
@@ -2315,97 +2071,14 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   {t('register.photosSection')}
                 </h3>
 
-                <div className="photo-upload-area" style={{
-                  position: 'relative',
-                  padding: '30px',
-                  border: '2px dashed rgba(0,229,255,0.5)',
-                  borderRadius: '12px',
-                  background: 'rgba(0,229,255,0.05)',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                    style={{
-                      position: 'absolute',
-                      opacity: 0,
-                      width: '100%',
-                      height: '100%',
-                      cursor: 'pointer',
-                      left: 0,
-                      top: 0
-                    }}
-                  />
-                  <div style={{ color: '#00E5FF', fontSize: '18px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <FolderOpen size={18} /> {t('register.photosUploadArea')}
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
-                    {t('register.photosUploadFormats')}
-                  </div>
-                </div>
-
-                {photoErrors && (
-                  <div style={{
-                    color: '#C19A6B',
-                    fontSize: '14px',
-                    marginTop: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <AlertTriangle size={16} /> {photoErrors}
-                  </div>
-                )}
-
-                {formData.photos.length > 0 && (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                    gap: '12px',
-                    marginTop: '15px'
-                  }}>
-                    {formData.photos.map((photo, index) => (
-                      <div key={index} style={{ position: 'relative' }}>
-                        <LazyImage
-                          src={URL.createObjectURL(photo)}
-                          alt={`Photo ${index + 1}`}
-                          style={{
-                            width: '100%',
-                            height: '120px',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removePhoto(index)}
-                          style={{
-                            position: 'absolute',
-                            top: '5px',
-                            right: '5px',
-                            background: 'linear-gradient(45deg, #FF4757, #C19A6B)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '25px',
-                            height: '25px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <PhotoUploadGrid
+                  photos={formData.photos}
+                  onChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+                  error={photoErrors}
+                  onError={setPhotoErrors}
+                  maxPhotos={5}
+                  accentColor="#00E5FF"
+                />
               </div>
 
               {/* Basic Info Section */}
@@ -2689,114 +2362,30 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
                 {/* Establishment Selector with Autocomplete - REQUIRED for non-freelance */}
                 {!formData.isFreelance && (
-                  <div style={{ marginBottom: '20px', position: 'relative' }}>
+                  <div style={{ marginBottom: '20px' }}>
                     <label className="label-nightlife">
                       <Store size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
                       {t('register.currentEstablishmentRequired', 'Current Establishment')} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
-                    <input
-                      ref={establishmentInputRefStep4}
-                      type="text"
+                    <EstablishmentAutocomplete
                       value={establishmentSearchStep4}
-                      onChange={(e) => {
-                        setEstablishmentSearchStep4(e.target.value);
-                        setShowSuggestionsStep4(true);
+                      onChange={(value) => {
+                        setEstablishmentSearchStep4(value);
                         // Clear selection if user types
                         if (formData.establishmentId) {
                           handleInputChange('establishmentId', '');
                         }
                       }}
-                      onFocus={() => setShowSuggestionsStep4(true)}
-                      onBlur={() => {
-                        // Delay to allow click on suggestion
-                        setTimeout(() => setShowSuggestionsStep4(false), 200);
+                      onSelect={(est) => {
+                        handleInputChange('establishmentId', est.id);
+                        setEstablishmentSearchStep4(est.name);
                       }}
-                      placeholder={t('register.searchEstablishments')}
-                      className="input-nightlife"
+                      onClear={() => handleInputChange('establishmentId', '')}
+                      establishments={establishments}
+                      labelColor="#9D4EDD"
+                      showCategory={true}
+                      selectedId={formData.establishmentId}
                     />
-
-                    {/* Clear button */}
-                    {(establishmentSearchStep4 || formData.establishmentId) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEstablishmentSearchStep4('');
-                          handleInputChange('establishmentId', '');
-                          setShowSuggestionsStep4(false);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '38px',
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#9D4EDD',
-                          fontSize: '18px',
-                          cursor: 'pointer',
-                          padding: '0',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-                        ×
-                      </button>
-                    )}
-
-                    {/* Suggestions Dropdown */}
-                    {showSuggestionsStep4 && (() => {
-                      const { groupedByZone, sortedZones } = filterEstablishmentsByQuery(establishmentSearchStep4);
-                      const hasResults = sortedZones.length > 0;
-
-                      return hasResults ? (
-                        <div className="autocomplete-dropdown-nightlife">
-                          {sortedZones.map(zone => (
-                            <div key={zone}>
-                              {/* Zone Header */}
-                              <div style={{
-                                padding: '8px 16px',
-                                background: 'rgba(255,255,255,0.05)',
-                                color: '#cccccc',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                borderBottom: '1px solid rgba(255,255,255,0.1)'
-                              }}>
-                                <MapPin size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{getZoneLabel(zone)}
-                              </div>
-                              {/* Establishments in Zone */}
-                              {groupedByZone[zone].map(est => (
-                                <div
-                                  key={est.id}
-                                  className="autocomplete-item-nightlife"
-                                  style={{ fontSize: '14px' }}
-                                  onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    handleInputChange('establishmentId', est.id);
-                                    setEstablishmentSearchStep4(est.name);
-                                    setShowSuggestionsStep4(false);
-                                  }}
-                                >
-                                  <div>
-                                    <div>{est.name}</div>
-                                    {est.category?.name && (
-                                      <div style={{ fontSize: '11px', color: '#999999', marginTop: '2px' }}>
-                                        {est.category.name}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ) : establishmentSearchStep4.trim().length > 0 ? (
-                        <div className="autocomplete-dropdown-nightlife" style={{ textAlign: 'center', color: '#999999' }}>
-                          {t('register.noEstablishmentsFound')}
-                        </div>
-                      ) : null;
-                    })()}
                   </div>
                 )}
               </div>

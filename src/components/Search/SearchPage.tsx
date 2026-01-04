@@ -5,7 +5,7 @@ import { XCircle, X, ArrowUpDown, ChevronDown } from 'lucide-react';
 import SearchFilters from './SearchFilters';
 import SearchResults from './SearchResults';
 import SearchHero from './SearchHero';
-import MobileFilterDrawer, { MobileFilterFAB } from './MobileFilterDrawer';
+// MobileFilterDrawer removed - using accordion filters only (v11.3)
 import { Employee } from '../../types';
 import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
@@ -47,8 +47,7 @@ const SearchPage: React.FC = () => {
 
   const [isTyping, setIsTyping] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // 🆕 Pagination state
-  const [isMobile, setIsMobile] = useState(false); // 🆕 v11.0 - Mobile detection
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🆕 v11.0 - Mobile drawer state
+  // Mobile drawer state removed - using accordion filters only (v11.3)
   const [isSortOpen, setIsSortOpen] = useState(false); // 🆕 v11.2 - Custom sort dropdown
   const sortDropdownRef = useRef<HTMLDivElement>(null); // 🆕 v11.2 - Click outside handler
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -85,24 +84,7 @@ const SearchPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage, filters.type, filters.nationality, filters.zone, filters.establishment_id, filters.category_id, filters.age_min, filters.age_max, filters.is_verified, filters.sort_by, filters.sort_order]);
 
-  // 🆕 v11.0 - Mobile detection
-  useEffect(() => {
-    const mobileMediaQuery = window.matchMedia('(max-width: 48rem)'); // 768px
-
-    const handleMobileChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches);
-    };
-
-    // Initial check
-    handleMobileChange(mobileMediaQuery);
-
-    // Add listener for changes
-    mobileMediaQuery.addEventListener('change', handleMobileChange);
-
-    return () => {
-      mobileMediaQuery.removeEventListener('change', handleMobileChange);
-    };
-  }, []);
+  // v11.3 - Mobile detection removed (no longer needed without FAB/Drawer)
 
   // 🆕 v11.2 - Close sort dropdown on click outside
   useEffect(() => {
@@ -540,32 +522,7 @@ const SearchPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 🆕 v11.0 - Mobile Filter FAB */}
-      {isMobile && (
-        <MobileFilterFAB
-          onClick={() => setIsDrawerOpen(true)}
-          activeFiltersCount={activeFiltersCount}
-        />
-      )}
-
-      {/* 🆕 v11.0 - Mobile Filter Drawer */}
-      <MobileFilterDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        onClear={handleClearFilters}
-        activeFiltersCount={activeFiltersCount}
-      >
-        <SearchFilters
-          filters={filters}
-          availableFilters={availableFilters}
-          onFilterChange={handleFilterChange}
-          onZoneChange={handleZoneChange}
-          onQueryChange={handleQueryChange}
-          onClearFilters={handleClearFilters}
-          loading={isFetching}
-          isTyping={isTyping}
-        />
-      </MobileFilterDrawer>
+      {/* v11.3 - Mobile FAB/Drawer removed - accordion filters are sufficient */}
     </div>
   );
 };

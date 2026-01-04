@@ -130,22 +130,25 @@
 
 /* ===== RESPONSIVE MOBILE ===== */
 
-/* Mobile: Sidebar devient relative (stack vertical) */
+/* Mobile: Sidebar devient relative (stack vertical) - v11.3 centered */
 @media (max-width: 48rem) {
   .search-filters-fixed-nightlife {
     position: relative; /* Not fixed on mobile */
-    width: 100%;
+    width: calc(100% - var(--spacing-6)); /* Full width minus symmetric margins */
+    max-width: 100%;
     height: auto; /* Reset from full viewport height */
-    left: 0;
+    left: auto;
+    right: auto;
     top: 0;
-    margin-bottom: var(--spacing-3); /* Reduced from spacing-5 */
+    margin: 0 auto var(--spacing-3) auto; /* Centered with auto margins */
     max-height: none; /* No height limit */
     overflow-y: visible; /* Not scrollable */
+    box-sizing: border-box; /* Include padding in width */
   }
 
   .search-results-container-nightlife {
-    padding: var(--spacing-3) var(--spacing-5); /* Reduced top/bottom padding on mobile */
-    padding-left: var(--spacing-5); /* 1.25rem - Same as right padding */
+    padding: var(--spacing-3) var(--spacing-4); /* Symmetric horizontal padding */
+    padding-left: var(--spacing-4); /* Same as right padding */
   }
 
   .results-header-bar {
@@ -153,15 +156,16 @@
   }
 }
 
-/* Small Mobile: Further adjustments */
+/* Small Mobile: Further adjustments - v11.3 centered */
 @media (max-width: 30rem) {
   .search-filters-fixed-nightlife {
+    width: calc(100% - var(--spacing-4)); /* Slightly more width on small screens */
     padding: var(--spacing-4); /* Reduced padding */
-    margin-bottom: var(--spacing-4);
+    margin: 0 auto var(--spacing-4) auto; /* Centered */
   }
 
   .search-results-container-nightlife {
-    padding: var(--spacing-5) var(--spacing-3); /* Reduced horizontal padding */
+    padding: var(--spacing-4) var(--spacing-3); /* Reduced padding */
   }
 }
 
@@ -1033,54 +1037,10 @@ body[data-theme="light"] .search-stat-label {
 }
 
 /* =============================================
-   MOBILE FILTER DRAWER & FAB
-   Neo-Nightlife 2025 v11.0
+   ACTIVE FILTER CHIPS (v11.3)
+   Neo-Nightlife 2025 - Accordion only
    ============================================= */
-
-/* Pulse Glow Animation for FAB */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(232, 121, 249, 0.5), 0 0 40px rgba(232, 121, 249, 0.2);
-  }
-  50% {
-    box-shadow: 0 4px 30px rgba(232, 121, 249, 0.7), 0 0 60px rgba(232, 121, 249, 0.3);
-  }
-}
-
-/* Mobile Filter FAB */
-.mobile-filter-fab {
-  animation: pulse-glow 2s infinite ease-in-out;
-}
-
-.mobile-filter-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 30px rgba(232, 121, 249, 0.6), 0 0 50px rgba(232, 121, 249, 0.3);
-}
-
-.mobile-filter-fab:active {
-  transform: scale(0.95);
-}
-
-/* Hide FAB on Desktop */
-@media (min-width: 48rem) {
-  .mobile-filter-fab {
-    display: none !important;
-  }
-}
-
-/* Mobile Filter Drawer Panel Scrollbar */
-.mobile-filter-drawer-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.mobile-filter-drawer-panel::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.mobile-filter-drawer-panel::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #E879F9 0%, #A855F7 100%);
-  border-radius: 3px;
-}
+/* FAB/Drawer removed in v11.3 - using accordion filters only */
 
 /* Active Filters Bar */
 .active-filters-bar {
