@@ -986,7 +986,9 @@
 
   .modal-premium {
     border-radius: 20px 20px 0 0;
-    max-height: 95vh;
+    /* Use dvh for dynamic viewport height (accounts for mobile browser UI) */
+    max-height: 90dvh;
+    max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 20px);
   }
 
   .modal-premium--small,
@@ -1009,7 +1011,8 @@
 
   .modal-premium__footer {
     flex-direction: column;
-    padding: 16px 20px 24px;
+    /* Add safe-area padding for home indicator */
+    padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
   .modal-premium__btn-primary,

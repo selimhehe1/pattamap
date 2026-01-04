@@ -195,7 +195,6 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              style={{ maxHeight: '70vh', overflowY: 'auto' }}
             >
               {isLoading ? (
                 <div className="modal-premium__loading">

@@ -630,6 +630,28 @@ body.modal-open {
   }
 }
 
+/* Mobile-specific: safe-area and dynamic viewport height */
+@media (max-width: 767px) {
+  .modal-overlay-unified {
+    /* Account for notch and home indicator */
+    padding: env(safe-area-inset-top, 12px) 12px env(safe-area-inset-bottom, 12px);
+  }
+
+  .modal-content-unified:not(.modal--fullscreen) {
+    /* Use dvh for dynamic viewport height (accounts for mobile browser UI) */
+    max-height: 85dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px);
+  }
+
+  /* Fullscreen modals should use full height minus safe areas */
+  .modal-content-unified.modal--fullscreen {
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
 /* Landscape mode */
 @media (max-height: 48rem) and (orientation: landscape) {
   .modal-content-unified:not(.modal--fullscreen) {

@@ -137,7 +137,7 @@ const EmployeeProfileWizard: React.FC<EmployeeProfileWizardProps> = ({
   if (showEmployeesList) {
     return (
       <div className="modal-overlay-unified" role="dialog" aria-modal="true">
-        <div className="modal-content-unified modal--large" style={{ maxHeight: '90vh', overflow: 'auto' }}>
+        <div className="modal-content-unified modal--large">
           <button
             onClick={onClose}
             className="modal-close-btn"
