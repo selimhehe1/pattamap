@@ -179,7 +179,7 @@ const EmployeePathStep: React.FC<EmployeePathStepProps> = ({
             ) : employeeSearchResults?.employees?.length ? (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
                 gap: '10px'
               }}>
                 {employeeSearchResults.employees.map((employee) => (
@@ -283,91 +283,91 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, isSelected, onSel
     <div
       onClick={onSelect}
       style={{
-        padding: '8px',
-        background: isSelected
-          ? 'linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.3))'
-          : 'rgba(0,0,0,0.3)',
-        border: isSelected
-          ? '2px solid #00E5FF'
-          : '2px solid rgba(255,255,255,0.1)',
-        borderRadius: '10px',
+        position: 'relative',
+        aspectRatio: '3/4',
+        borderRadius: '12px',
+        overflow: 'hidden',
         cursor: 'pointer',
+        border: isSelected ? '3px solid #00E5FF' : '2px solid rgba(255,255,255,0.15)',
+        boxShadow: isSelected ? '0 0 20px rgba(0,229,255,0.4)' : '0 4px 12px rgba(0,0,0,0.3)',
         transition: 'all 0.3s ease',
-        textAlign: 'center'
       }}
       onMouseEnter={(e) => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = '#00E5FF';
-          e.currentTarget.style.background = 'rgba(0,229,255,0.1)';
+          e.currentTarget.style.borderColor = 'rgba(0,229,255,0.6)';
+          e.currentTarget.style.transform = 'scale(1.02)';
         }
       }}
       onMouseLeave={(e) => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-          e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+          e.currentTarget.style.transform = 'scale(1)';
         }
       }}
     >
+      {/* Full Image Background */}
       {employee.photos?.[0] ? (
         <img
           src={employee.photos[0]}
           alt={employee.name}
           style={{
-            width: '56px',
-            height: '56px',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
             objectFit: 'cover',
-            borderRadius: '8px',
-            margin: '0 auto 6px'
           }}
         />
       ) : (
         <div style={{
-          width: '56px',
-          height: '56px',
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '8px',
-          margin: '0 auto 6px',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, rgba(232,121,249,0.3), rgba(0,229,255,0.2))',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}>
-          <User size={22} />
+          <User size={40} color="rgba(255,255,255,0.5)" />
         </div>
       )}
+
+      {/* Dark Overlay Info Box (Bottom) */}
       <div style={{
-        color: '#ffffff',
-        fontWeight: 'bold',
-        fontSize: '12px',
-        marginBottom: '2px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: '24px 8px 8px 8px',
+        background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)',
       }}>
-        {employee.name}
-      </div>
-      {employee.nickname && (
         <div style={{
-          color: '#cccccc',
-          fontSize: '10px',
-          marginBottom: '2px',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          fontSize: '12px',
+          textShadow: '0 1px 3px rgba(0,0,0,0.8)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
         }}>
-          "{employee.nickname}"
+          {employee.name}
         </div>
-      )}
-      {(employee.age || employee.nationality) && (
-        <div style={{
-          color: '#999999',
-          fontSize: '9px',
-          marginTop: '2px'
-        }}>
-          {employee.age && `${employee.age}y`}
-          {employee.age && employee.nationality && ' • '}
-          {Array.isArray(employee.nationality) ? employee.nationality.join(' / ') : employee.nationality}
-        </div>
-      )}
+        {(employee.age || employee.nationality) && (
+          <div style={{
+            color: 'rgba(255,255,255,0.75)',
+            fontSize: '10px',
+            textShadow: '0 1px 2px rgba(0,0,0,0.6)',
+            marginTop: '2px',
+          }}>
+            {employee.age && `${employee.age}y`}
+            {employee.age && employee.nationality && ' • '}
+            {Array.isArray(employee.nationality) ? employee.nationality[0] : employee.nationality}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
