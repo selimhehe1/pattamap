@@ -15,7 +15,7 @@ import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
 import { AccountTypeSelectionStep, CredentialsStep } from './steps';
-import { EstablishmentAutocomplete, PhotoUploadGrid } from './components';
+import { EstablishmentAutocomplete, PhotoUploadGrid, DocumentUploadGrid, StepIndicator } from './components';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
@@ -163,10 +163,9 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // 🆕 v10.x - Owner establishment claim state (Step 2 - Owner)
   const [ownerEstablishmentSearch, setOwnerEstablishmentSearch] = useState('');
-  const [ownershipDocumentPreviews, setOwnershipDocumentPreviews] = useState<{ file: File; url: string; name: string }[]>([]);
   const [_uploadingOwnershipDocs, setUploadingOwnershipDocs] = useState(false);
   const [ownershipDocErrors, setOwnershipDocErrors] = useState<string>('');
-  const [isDraggingOwnerDocs, setIsDraggingOwnerDocs] = useState(false);
+
 
   // Establishment autocomplete state (Step 4)
   const [establishmentSearchStep4, setEstablishmentSearchStep4] = useState('');
@@ -766,29 +765,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   };
 
-  // Calculate total steps dynamically
-  // 🆕 v10.x NEW FLOW for Owners: type → credentials → claim/create → [establishment form if create]
-  const totalSteps =
-    formData.accountType === 'employee' && formData.employeePath === 'create' ? 4 :
-    formData.accountType === 'employee' && formData.employeePath === 'claim' ? 3 :
-    formData.accountType === 'employee' ? 3 : // Not yet selected path
-    formData.accountType === 'establishment_owner' && formData.ownerPath === 'create' ? 4 : // 🆕 Owner create = 4 steps
-    formData.accountType === 'establishment_owner' ? 3 : // Owner claim or not yet selected = 3 steps
-    2; // regular only
-
-  // Calculate display step for progress indicator (FIX BUG-001: "Step 3 of 2")
-  // For employees and owners, show actual step. For regular users, map step 3 to step 2.
-  const displayStep = (formData.accountType === 'employee' || formData.accountType === 'establishment_owner')
-    ? currentStep
-    : (currentStep === 1 ? 1 : 2);
-
-  // Progress percentage
-  const _progressPercentage = totalSteps === 4
-    ? (currentStep / 4) * 100
-    : totalSteps === 3
-    ? (currentStep / 3) * 100
-    : currentStep === 1 ? 50 : 100;
-
   // Form content (shared between embedded and standalone modes)
   const formContent = (
     <div className={embedded ? "auth-form-register-content" : "modal-content-unified modal--large"}>
@@ -818,118 +794,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
         </div>
 
         {/* Progress Bar */}
-        <div style={{ marginBottom: '30px' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '12px'
-          }}>
-            {/* Step indicators */}
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
-              {/* Step 1 */}
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: currentStep >= 1 ? '#00E5FF' : 'rgba(255,255,255,0.2)',
-                color: currentStep >= 1 ? '#0a0a2e' : '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease'
-              }}>
-                1
-              </div>
-              <div style={{
-                flex: 1,
-                height: '4px',
-                background: currentStep >= 2 ? '#00E5FF' : 'rgba(255,255,255,0.2)',
-                borderRadius: '2px',
-                transition: 'all 0.3s ease'
-              }} />
-
-              {/* Step 2 (employee or owner) */}
-              {(formData.accountType === 'employee' || formData.accountType === 'establishment_owner') && (
-                <>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: currentStep >= 2 ? '#C19A6B' : 'rgba(255,255,255,0.2)',
-                    color: currentStep >= 2 ? '#ffffff' : '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease'
-                  }}>
-                    2
-                  </div>
-                  <div style={{
-                    flex: 1,
-                    height: '4px',
-                    background: currentStep >= 3 ? '#3B82F6' : 'rgba(255,255,255,0.2)',
-                    borderRadius: '2px',
-                    transition: 'all 0.3s ease'
-                  }} />
-                </>
-              )}
-
-              {/* Step 3 (or Step 2 for regular users) */}
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: currentStep >= ((formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? 3 : 2) ? '#3B82F6' : 'rgba(255,255,255,0.2)',
-                color: currentStep >= ((formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? 3 : 2) ? '#ffffff' : '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease'
-              }}>
-                {(formData.accountType === 'employee' || formData.accountType === 'establishment_owner') ? '3' : '2'}
-              </div>
-
-              {/* Step 4 (create path only - employee or owner) */}
-              {((formData.accountType === 'employee' && formData.employeePath === 'create') ||
-                (formData.accountType === 'establishment_owner' && formData.ownerPath === 'create')) && (
-                <>
-                  <div style={{
-                    flex: 1,
-                    height: '4px',
-                    background: currentStep >= 4 ? '#9D4EDD' : 'rgba(255,255,255,0.2)',
-                    borderRadius: '2px',
-                    transition: 'all 0.3s ease'
-                  }} />
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: currentStep >= 4 ? '#9D4EDD' : 'rgba(255,255,255,0.2)',
-                    color: currentStep >= 4 ? '#ffffff' : '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease'
-                  }}>
-                    4
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-          <div style={{ fontSize: '12px', color: '#cccccc', textAlign: 'center' }}>
-            {t('register.stepProgress', { current: displayStep, total: totalSteps })}
-          </div>
-        </div>
+        <StepIndicator
+          currentStep={currentStep}
+          accountType={formData.accountType}
+          path={formData.accountType === 'employee' ? formData.employeePath : formData.ownerPath}
+        />
 
         {/* Draft restoration banner */}
         {showDraftBanner && (
@@ -1560,131 +1429,14 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                         ({t('register.optional')})
                       </span>
                     </label>
-                    <p style={{ color: '#999999', fontSize: '12px', marginBottom: '12px' }}>
-                      {t('register.uploadOwnershipDocumentsDesc')}
-                    </p>
-
-                    {/* Drop Zone */}
-                    <div
-                      onDragOver={(e) => { e.preventDefault(); setIsDraggingOwnerDocs(true); }}
-                      onDragLeave={() => setIsDraggingOwnerDocs(false)}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        setIsDraggingOwnerDocs(false);
-                        const files = Array.from(e.dataTransfer.files);
-                        const validFiles = files.filter(file => {
-                          if (file.size > 10 * 1024 * 1024) {
-                            setOwnershipDocErrors(t('register.fileSizeError'));
-                            return false;
-                          }
-                          return true;
-                        });
-                        if (validFiles.length > 0) {
-                          const newPreviews = validFiles.map(file => ({
-                            file,
-                            url: URL.createObjectURL(file),
-                            name: file.name
-                          }));
-                          setOwnershipDocumentPreviews(prev => [...prev, ...newPreviews]);
-                          handleInputChange('ownershipDocuments', [...formData.ownershipDocuments, ...validFiles]);
-                          setOwnershipDocErrors('');
-                        }
-                      }}
-                      style={{
-                        padding: '24px',
-                        border: `2px dashed ${isDraggingOwnerDocs ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
-                        borderRadius: '12px',
-                        background: isDraggingOwnerDocs ? 'rgba(193,154,107,0.1)' : 'rgba(0,0,0,0.2)',
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onClick={() => document.getElementById('owner-doc-input')?.click()}
-                    >
-                      <FolderOpen size={32} style={{ color: '#C19A6B', marginBottom: '8px' }} />
-                      <p style={{ color: '#cccccc', fontSize: '14px' }}>
-                        {t('register.dragDropDocuments')}
-                      </p>
-                      <p style={{ color: '#999999', fontSize: '12px', marginTop: '4px' }}>
-                        {t('register.acceptedFormats')}
-                      </p>
-                      <input
-                        id="owner-doc-input"
-                        type="file"
-                        multiple
-                        accept="image/*,.pdf,.doc,.docx"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          const validFiles = files.filter(file => {
-                            if (file.size > 10 * 1024 * 1024) {
-                              setOwnershipDocErrors(t('register.fileSizeError'));
-                              return false;
-                            }
-                            return true;
-                          });
-                          if (validFiles.length > 0) {
-                            const newPreviews = validFiles.map(file => ({
-                              file,
-                              url: URL.createObjectURL(file),
-                              name: file.name
-                            }));
-                            setOwnershipDocumentPreviews(prev => [...prev, ...newPreviews]);
-                            handleInputChange('ownershipDocuments', [...formData.ownershipDocuments, ...validFiles]);
-                            setOwnershipDocErrors('');
-                          }
-                        }}
-                      />
-                    </div>
-
-                    {/* Error Message */}
-                    {ownershipDocErrors && (
-                      <p style={{ color: '#ff6b6b', fontSize: '12px', marginTop: '8px' }}>
-                        <AlertTriangle size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                        {ownershipDocErrors}
-                      </p>
-                    )}
-
-                    {/* Document Previews */}
-                    {ownershipDocumentPreviews.length > 0 && (
-                      <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {ownershipDocumentPreviews.map((doc, index) => (
-                          <div key={index} style={{
-                            position: 'relative',
-                            padding: '8px 12px',
-                            background: 'rgba(193,154,107,0.1)',
-                            border: '1px solid rgba(193,154,107,0.3)',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-                            <FileText size={14} style={{ color: '#C19A6B' }} />
-                            <span style={{ color: '#ffffff', fontSize: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {doc.name}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                URL.revokeObjectURL(doc.url);
-                                setOwnershipDocumentPreviews(prev => prev.filter((_, i) => i !== index));
-                                handleInputChange('ownershipDocuments', formData.ownershipDocuments.filter((_, i) => i !== index));
-                              }}
-                              style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#ff6b6b',
-                                cursor: 'pointer',
-                                padding: '0',
-                                fontSize: '16px'
-                              }}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <DocumentUploadGrid
+                      documents={formData.ownershipDocuments}
+                      onChange={(docs) => handleInputChange('ownershipDocuments', docs)}
+                      error={ownershipDocErrors}
+                      onError={setOwnershipDocErrors}
+                      description={t('register.uploadOwnershipDocumentsDesc')}
+                      accentColor="#C19A6B"
+                    />
                   </div>
 
                   {/* Contact Me Checkbox */}
