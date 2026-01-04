@@ -9,6 +9,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import Tooltip from '../Common/Tooltip';
 import {
   MapPin,
   User,
@@ -171,27 +172,31 @@ export const AdminEstablishmentCard: React.FC<AdminEstablishmentCardProps> = ({
 
       {/* 5. Floating action icons */}
       <div className="aec-floating-actions">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(establishment);
-          }}
-          className="aec-action-icon"
-          aria-label={t('admin.viewEdit', 'View/Edit')}
-        >
-          <Eye size={16} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(establishment.id, establishment.name);
-          }}
-          disabled={isProcessing}
-          className="aec-action-icon aec-action-icon--danger"
-          aria-label={t('admin.delete', 'Delete')}
-        >
-          {isProcessing ? <Loader2 size={16} className="aec-icon--spin" /> : <Trash2 size={16} />}
-        </button>
+        <Tooltip content={t('admin.viewEditTooltip', 'Voir / Modifier')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(establishment);
+            }}
+            className="aec-action-icon"
+            aria-label={t('admin.viewEdit', 'View/Edit')}
+          >
+            <Eye size={16} />
+          </button>
+        </Tooltip>
+        <Tooltip content={t('admin.deleteEstablishment', 'Supprimer cet établissement')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(establishment.id, establishment.name);
+            }}
+            disabled={isProcessing}
+            className="aec-action-icon aec-action-icon--danger"
+            aria-label={t('admin.delete', 'Delete')}
+          >
+            {isProcessing ? <Loader2 size={16} className="aec-icon--spin" /> : <Trash2 size={16} />}
+          </button>
+        </Tooltip>
       </div>
 
       {/* 6. Info overlay */}

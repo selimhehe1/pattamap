@@ -1,0 +1,183 @@
+/**
+ * Tooltip Styles
+ *
+ * Glassmorphism design with neon accents.
+ * Consistent with PattaMap design system.
+ */
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 8px 14px;
+  background: rgba(13, 13, 15, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s ease-out forwards;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(232, 121, 249, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Arrow indicator */
+.tooltip__arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(13, 13, 15, 0.95);
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  transform: rotate(45deg);
+}
+
+/* Position: Top (default) */
+.tooltip--top {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip--top .tooltip__arrow {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  border-top: none;
+  border-left: none;
+}
+
+/* Position: Bottom */
+.tooltip--bottom {
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip--bottom .tooltip__arrow {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  border-bottom: none;
+  border-right: none;
+}
+
+/* Position: Left */
+.tooltip--left {
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip--left .tooltip__arrow {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-left: none;
+  border-bottom: none;
+}
+
+/* Position: Right */
+.tooltip--right {
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip--right .tooltip__arrow {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-right: none;
+  border-top: none;
+}
+
+/* Animation */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Specific animations for each position */
+.tooltip--top {
+  animation-name: tooltipFadeInTop;
+}
+
+.tooltip--bottom {
+  animation-name: tooltipFadeInBottom;
+}
+
+.tooltip--left {
+  animation-name: tooltipFadeInLeft;
+}
+
+.tooltip--right {
+  animation-name: tooltipFadeInRight;
+}
+
+@keyframes tooltipFadeInTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes tooltipFadeInBottom {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes tooltipFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes tooltipFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* Mobile: Hide tooltips on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .tooltip {
+    display: none !important;
+  }
+}

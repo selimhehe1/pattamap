@@ -9,6 +9,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../../hooks/use3DTilt';
+import Tooltip from '../../Common/Tooltip';
 import {
   User,
   Calendar,
@@ -153,27 +154,31 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
       {/* 5. Floating action icons */}
       <div className="aec-floating-actions">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewProfile(employee);
-          }}
-          className="aec-action-icon"
-          aria-label={t('admin.viewProfile', 'View Profile')}
-        >
-          <Eye size={16} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(employee.id, employee.name);
-          }}
-          disabled={isProcessing}
-          className="aec-action-icon aec-action-icon--danger"
-          aria-label={t('admin.delete', 'Delete')}
-        >
-          {isProcessing ? <Loader2 size={16} className="aec-icon--spin" /> : <Trash2 size={16} />}
-        </button>
+        <Tooltip content={t('admin.viewProfileTooltip', 'Voir le profil complet')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewProfile(employee);
+            }}
+            className="aec-action-icon"
+            aria-label={t('admin.viewProfile', 'View Profile')}
+          >
+            <Eye size={16} />
+          </button>
+        </Tooltip>
+        <Tooltip content={t('admin.deleteEmployee', 'Supprimer cet employé')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(employee.id, employee.name);
+            }}
+            disabled={isProcessing}
+            className="aec-action-icon aec-action-icon--danger"
+            aria-label={t('admin.delete', 'Delete')}
+          >
+            {isProcessing ? <Loader2 size={16} className="aec-icon--spin" /> : <Trash2 size={16} />}
+          </button>
+        </Tooltip>
       </div>
 
       {/* 6. Info overlay */}

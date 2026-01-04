@@ -10,6 +10,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../hooks/use3DTilt';
 import LazyImage from '../Common/LazyImage';
+import Tooltip from '../Common/Tooltip';
 import {
   Eye,
   Crown,
@@ -165,26 +166,30 @@ export const UserAdminCard: React.FC<UserAdminCardProps> = ({
 
       {/* 6. Floating action icons */}
       <div className="aec-floating-actions">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="aec-action-icon"
-          aria-label={t('common.edit', 'Edit')}
-        >
-          <Pencil size={16} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetails();
-          }}
-          className="aec-action-icon"
-          aria-label={t('admin.viewDetails', 'View Details')}
-        >
-          <Eye size={16} />
-        </button>
+        <Tooltip content={t('admin.editUser', 'Modifier les informations')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="aec-action-icon"
+            aria-label={t('common.edit', 'Edit')}
+          >
+            <Pencil size={16} />
+          </button>
+        </Tooltip>
+        <Tooltip content={t('admin.viewProfile', 'Voir le profil complet')} position="bottom">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
+            className="aec-action-icon"
+            aria-label={t('admin.viewDetails', 'View Details')}
+          >
+            <Eye size={16} />
+          </button>
+        </Tooltip>
       </div>
 
       {/* 7. Avatar initial (large, centered) - only when no profile photo */}
@@ -226,37 +231,47 @@ export const UserAdminCard: React.FC<UserAdminCardProps> = ({
           {/* Role selector buttons */}
           <div className="uac-role-buttons">
             {(['user', 'moderator', 'admin'] as const).map((role) => (
-              <button
+              <Tooltip
                 key={role}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (user.role !== role) onChangeRole(role);
-                }}
-                disabled={isProcessing || user.role === role}
-                className={`uac-role-btn uac-role-btn--${role} ${user.role === role ? 'uac-role-btn--active' : ''}`}
+                content={t(`admin.setRole.${role}`, `Définir comme ${role === 'user' ? 'Utilisateur' : role === 'moderator' ? 'Modérateur' : 'Admin'}`)}
+                position="top"
               >
-                {getRoleIcon(role, 12)}
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (user.role !== role) onChangeRole(role);
+                  }}
+                  disabled={isProcessing || user.role === role}
+                  className={`uac-role-btn uac-role-btn--${role} ${user.role === role ? 'uac-role-btn--active' : ''}`}
+                >
+                  {getRoleIcon(role, 12)}
+                </button>
+              </Tooltip>
             ))}
           </div>
 
           {/* Toggle active button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleActive();
-            }}
-            disabled={isProcessing}
-            className={`uac-toggle-btn ${user.is_active ? 'uac-toggle-btn--danger' : 'uac-toggle-btn--success'}`}
+          <Tooltip
+            content={user.is_active ? t('admin.deactivateUser', 'Désactiver l\'utilisateur') : t('admin.activateUser', 'Activer l\'utilisateur')}
+            position="top"
           >
-            {isProcessing ? (
-              <Loader2 size={14} className="aec-icon--spin" />
-            ) : user.is_active ? (
-              <Ban size={14} />
-            ) : (
-              <CheckCircle size={14} />
-            )}
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleActive();
+              }}
+              disabled={isProcessing}
+              className={`uac-toggle-btn ${user.is_active ? 'uac-toggle-btn--danger' : 'uac-toggle-btn--success'}`}
+            >
+              {isProcessing ? (
+                <Loader2 size={14} className="aec-icon--spin" />
+              ) : user.is_active ? (
+                <Ban size={14} />
+              ) : (
+                <CheckCircle size={14} />
+              )}
+            </button>
+          </Tooltip>
         </div>
       )}
 
