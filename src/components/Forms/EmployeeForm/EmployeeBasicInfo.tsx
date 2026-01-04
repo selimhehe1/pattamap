@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle, Languages, Venus, Mars } from 'lucide-react';
+import { User, Sparkles, UserCog, Cake, FileText, AlertTriangle, Languages } from 'lucide-react';
 import NationalityTagsInput from '../NationalityTagsInput';
 import LanguagesTagsInput from '../LanguagesTagsInput';
 import type { InternalFormData, FormErrors } from './types';
@@ -135,10 +135,10 @@ export function EmployeeBasicInfo({
           justifyContent: 'flex-start'
         }}>
           {([
-            { value: 'female' as const, Icon: Venus, color: '#FF69B4' },
-            { value: 'male' as const, Icon: Mars, color: '#4169E1' },
-            { value: 'ladyboy' as const, Icon: Sparkles, color: '#9B59B6' }
-          ]).map(({ value, Icon, color }) => (
+            { value: 'female' as const, icon: '♀', color: '#FF69B4' },
+            { value: 'male' as const, icon: '♂', color: '#4169E1' },
+            { value: 'ladyboy' as const, icon: '⚧', color: '#9B59B6' }
+          ]).map(({ value, icon, color }) => (
             <label
               key={value}
               title={t(`employee.sex.${value}`, value.charAt(0).toUpperCase() + value.slice(1))}
@@ -166,13 +166,15 @@ export function EmployeeBasicInfo({
                 onChange={() => onSexChange(value)}
                 style={{ display: 'none' }}
               />
-              <Icon
-                size={24}
+              <span
                 style={{
+                  fontSize: '24px',
                   color: formData.sex === value ? color : 'rgba(255,255,255,0.5)',
                   transition: 'color 0.2s ease'
                 }}
-              />
+              >
+                {icon}
+              </span>
             </label>
           ))}
         </div>

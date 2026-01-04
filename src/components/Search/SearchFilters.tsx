@@ -970,7 +970,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         </label>
         <div className="gender-chips-container" style={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           gap: '8px',
           marginTop: '8px'
         }}>
@@ -985,6 +985,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
               <button
                 key={gender.value}
                 type="button"
+                title={gender.label}
                 onClick={() => {
                   // Toggle: if clicking on current selection, clear it
                   if (isSelected) {
@@ -998,7 +999,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  justifyContent: 'center',
                   padding: '10px 16px',
                   background: isSelected
                     ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(168, 85, 247, 0.2))'
@@ -1008,19 +1009,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
                     : '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '12px',
                   color: isSelected ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '14px',
+                  fontSize: '20px',
                   fontWeight: isSelected ? '600' : '500',
                   cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
                   boxShadow: isSelected ? '0 0 15px rgba(232, 121, 249, 0.3)' : 'none',
                   flex: '1 1 auto',
-                  justifyContent: 'center',
-                  minWidth: '80px'
+                  minWidth: '50px'
                 }}
               >
-                <span style={{ fontSize: '16px' }}>{gender.icon}</span>
-                <span>{gender.label}</span>
-                {isSelected && <Check size={14} style={{ marginLeft: '4px' }} />}
+                <span>{gender.icon}</span>
               </button>
             );
           })}
