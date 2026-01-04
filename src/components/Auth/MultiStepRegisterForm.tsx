@@ -14,7 +14,7 @@ import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { getZoneLabel, ZONE_OPTIONS } from '../../utils/constants';
-import { AccountTypeSelectionStep, CredentialsStep } from './steps';
+import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep } from './steps';
 import { EstablishmentAutocomplete, PhotoUploadGrid, DocumentUploadGrid, StepIndicator } from './components';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
@@ -944,352 +944,33 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
           {/* STEP 2: Employee Path Selection (Claim or Create) */}
           {currentStep === 2 && formData.accountType === 'employee' && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                color: '#C19A6B',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '10px'
-              }}>
-                <Rocket size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.choosePath')}
-              </label>
-
-              {/* Option: Claim Existing Profile */}
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px',
-                border: `2px solid ${formData.employeePath === 'claim' ? '#00E5FF' : 'rgba(255,255,255,0.2)'}`,
-                borderRadius: '12px',
-                background: formData.employeePath === 'claim'
-                  ? 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.2))'
-                  : 'rgba(0,0,0,0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                marginBottom: '12px'
-              }}>
-                <input
-                  type="radio"
-                  name="employeePath"
-                  value="claim"
-                  checked={formData.employeePath === 'claim'}
-                  onChange={() => handleInputChange('employeePath', 'claim')}
-                  style={{ accentColor: '#00E5FF' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    <Link size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.claimExistingProfile')}
-                  </div>
-                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                    {t('register.claimExistingProfileDesc')}
-                  </div>
-                </div>
-              </label>
-
-              {/* Claim Search Section - Enhanced with Establishment Filter & Grid */}
-              {formData.employeePath === 'claim' && (
-                <div style={{ marginBottom: '16px', paddingLeft: '16px' }}>
-                  {/* Establishment Filter with Autocomplete */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <EstablishmentAutocomplete
-                      value={establishmentSearchStep2}
-                      onChange={(value) => {
-                        setEstablishmentSearchStep2(value);
-                        // Clear selection if user types
-                        if (selectedEstablishmentId) {
-                          setSelectedEstablishmentId(null);
-                        }
-                      }}
-                      onSelect={(est) => {
-                        setSelectedEstablishmentId(est.id);
-                        setEstablishmentSearchStep2(est.name);
-                      }}
-                      onClear={() => setSelectedEstablishmentId(null)}
-                      establishments={establishments}
-                      label={t('register.filterByEstablishment')}
-                      selectedId={selectedEstablishmentId}
-                    />
-                  </div>
-
-                  {/* Text Search Input */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{
-                      display: 'block',
-                      color: '#00E5FF',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      <Search size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.searchByName')}
-                    </label>
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t('register.typeToSearch')}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(0,0,0,0.4)',
-                        border: '2px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#ffffff',
-                        fontSize: '14px',
-                        transition: 'all 0.3s ease',
-                      }}
-                    />
-                  </div>
-
-                  {/* Employee Grid */}
-                  <div style={{
-                    maxHeight: '400px',
-                    overflowY: 'auto',
-                    marginBottom: '12px',
-                    padding: '8px',
-                    background: 'rgba(0,0,0,0.2)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    {isLoadingEmployees ? (
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: '40px',
-                        color: '#00E5FF'
-                      }}>
-                        <span className="loading-spinner-small-nightlife" style={{ marginRight: '10px' }} />
-                        {t('register.loadingEmployees')}
-                      </div>
-                    ) : employeeSearchResults && employeeSearchResults.employees && employeeSearchResults.employees.length > 0 ? (
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                        gap: '12px'
-                      }}>
-                        {employeeSearchResults.employees.map((employee) => (
-                          <div
-                            key={employee.id}
-                            onClick={() => handleEmployeeSelect(employee)}
-                            style={{
-                              padding: '12px',
-                              background: formData.selectedEmployee?.id === employee.id
-                                ? 'linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.3))'
-                                : 'rgba(0,0,0,0.3)',
-                              border: formData.selectedEmployee?.id === employee.id
-                                ? '2px solid #00E5FF'
-                                : '2px solid rgba(255,255,255,0.1)',
-                              borderRadius: '12px',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease',
-                              textAlign: 'center'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (formData.selectedEmployee?.id !== employee.id) {
-                                e.currentTarget.style.borderColor = '#00E5FF';
-                                e.currentTarget.style.background = 'rgba(0,229,255,0.1)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (formData.selectedEmployee?.id !== employee.id) {
-                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-                                e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
-                              }
-                            }}
-                          >
-                            {employee.photos && employee.photos[0] ? (
-                              <img
-                                src={employee.photos[0]}
-                                alt={employee.name}
-                                style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  objectFit: 'cover',
-                                  borderRadius: '8px',
-                                  margin: '0 auto 8px'
-                                }}
-                              />
-                            ) : (
-                              <div style={{
-                                width: '60px',
-                                height: '60px',
-                                background: 'rgba(255,255,255,0.1)',
-                                borderRadius: '8px',
-                                margin: '0 auto 8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '24px'
-                              }}>
-                                <User size={24} />
-                              </div>
-                            )}
-                            <div style={{
-                              color: '#ffffff',
-                              fontWeight: 'bold',
-                              fontSize: '13px',
-                              marginBottom: '4px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {employee.name}
-                            </div>
-                            {employee.nickname && (
-                              <div style={{
-                                color: '#cccccc',
-                                fontSize: '11px',
-                                marginBottom: '4px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                "{employee.nickname}"
-                              </div>
-                            )}
-                            {(employee.age || employee.nationality) && (
-                              <div style={{
-                                color: '#999999',
-                                fontSize: '10px',
-                                marginTop: '4px'
-                              }}>
-                                {employee.age && `${employee.age}y`}
-                                {employee.age && employee.nationality && ' • '}
-                                {Array.isArray(employee.nationality) ? employee.nationality.join(' / ') : employee.nationality}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '40px',
-                        color: '#999999',
-                        fontSize: '14px'
-                      }}>
-                        {searchQuery || selectedEstablishmentId
-                          ? t('register.noEmployeesFound')
-                          : t('register.startTypingOrSelect')
-                        }
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Selected Employee Preview */}
-                  {formData.selectedEmployee && (
-                    <div style={{
-                      padding: '12px',
-                      background: 'linear-gradient(135deg, rgba(0,229,255,0.1), rgba(0,229,255,0.2))',
-                      border: '2px solid #00E5FF',
-                      borderRadius: '12px',
-                      marginTop: '12px',
-                    }}>
-                      <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#00E5FF', fontSize: '13px' }}>
-                        <CheckCircle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.selectedProfile')}
-                      </div>
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        {formData.selectedEmployee.photos && formData.selectedEmployee.photos[0] && (
-                          <img
-                            src={formData.selectedEmployee.photos[0]}
-                            alt={formData.selectedEmployee.name}
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              objectFit: 'cover',
-                              borderRadius: '8px',
-                            }}
-                          />
-                        )}
-                        <div>
-                          <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px' }}>
-                            {formData.selectedEmployee.name}
-                          </div>
-                          {formData.selectedEmployee.nickname && (
-                            <div style={{ color: '#cccccc', fontSize: '12px' }}>
-                              aka "{formData.selectedEmployee.nickname}"
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Option: Create New Profile */}
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px',
-                border: `2px solid ${formData.employeePath === 'create' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
-                borderRadius: '12px',
-                background: formData.employeePath === 'create'
-                  ? 'linear-gradient(135deg, rgba(193, 154, 107,0.1), rgba(193, 154, 107,0.2))'
-                  : 'rgba(0,0,0,0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-              }}>
-                <input
-                  type="radio"
-                  name="employeePath"
-                  value="create"
-                  checked={formData.employeePath === 'create'}
-                  onChange={() => handleInputChange('employeePath', 'create')}
-                  style={{ accentColor: '#C19A6B' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    <Sparkles size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createNewProfile')}
-                  </div>
-                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                    {t('register.createNewProfileDesc')}
-                  </div>
-                </div>
-              </label>
-
-              {/* Navigation Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '2px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                  }}
-                >
-                  ← {t('register.backButton')}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="btn btn--success"
-                  style={{ flex: 2 }}
-                >
-                  {t('register.nextButton')} →
-                </button>
-              </div>
-            </div>
+            <EmployeePathStep
+              employeePath={formData.employeePath}
+              onPathChange={(path) => handleInputChange('employeePath', path)}
+              establishmentSearch={establishmentSearchStep2}
+              onEstablishmentSearchChange={(value) => {
+                setEstablishmentSearchStep2(value);
+                if (selectedEstablishmentId) {
+                  setSelectedEstablishmentId(null);
+                }
+              }}
+              selectedEstablishmentId={selectedEstablishmentId}
+              onEstablishmentSelect={(est) => {
+                setSelectedEstablishmentId(est.id);
+                setEstablishmentSearchStep2(est.name);
+              }}
+              onEstablishmentClear={() => setSelectedEstablishmentId(null)}
+              establishments={establishments}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              searchInputRef={searchInputRef}
+              isLoadingEmployees={isLoadingEmployees}
+              employeeSearchResults={employeeSearchResults ?? null}
+              selectedEmployee={formData.selectedEmployee}
+              onEmployeeSelect={handleEmployeeSelect}
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+            />
           )}
 
           {/* STEP 2: Owner Credentials */}
@@ -1322,259 +1003,36 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
           {/* STEP 3: Owner Path Selection (Claim or Create) - 🆕 v10.x REORDERED */}
           {currentStep === 3 && formData.accountType === 'establishment_owner' && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                color: '#C19A6B',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '10px'
-              }}>
-                <Crown size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('register.ownerPathTitle')}
-              </label>
-
-              {/* Option: Claim Existing Establishment */}
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px',
-                border: `2px solid ${formData.ownerPath === 'claim' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
-                borderRadius: '12px',
-                background: formData.ownerPath === 'claim'
-                  ? 'linear-gradient(135deg, rgba(193,154,107,0.1), rgba(193,154,107,0.2))'
-                  : 'rgba(0,0,0,0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                marginBottom: '12px'
-              }}>
-                <input
-                  type="radio"
-                  name="ownerPath"
-                  value="claim"
-                  checked={formData.ownerPath === 'claim'}
-                  onChange={() => handleInputChange('ownerPath', 'claim')}
-                  style={{ accentColor: '#C19A6B' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    <Building2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.claimExistingEstablishment')}
-                  </div>
-                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                    {t('register.claimExistingEstablishmentDesc')}
-                  </div>
-                </div>
-              </label>
-
-              {/* Claim Establishment Section */}
-              {formData.ownerPath === 'claim' && (
-                <div style={{ marginBottom: '16px', paddingLeft: '16px' }}>
-                  {/* Establishment Search */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <EstablishmentAutocomplete
-                      value={ownerEstablishmentSearch}
-                      onChange={(value) => {
-                        setOwnerEstablishmentSearch(value);
-                        if (formData.selectedEstablishmentToClaim) {
-                          handleInputChange('selectedEstablishmentToClaim', null);
-                        }
-                      }}
-                      onSelect={(est) => {
-                        handleInputChange('selectedEstablishmentToClaim', est);
-                        setOwnerEstablishmentSearch(est.name);
-                      }}
-                      onClear={() => handleInputChange('selectedEstablishmentToClaim', null)}
-                      establishments={establishments}
-                      excludeWithOwner={true}
-                      label={t('register.searchYourEstablishment')}
-                      selectedId={formData.selectedEstablishmentToClaim?.id}
-                    />
-                  </div>
-
-                  {/* Selected Establishment Preview */}
-                  {formData.selectedEstablishmentToClaim && (
-                    <div style={{
-                      padding: '12px',
-                      background: 'rgba(193,154,107,0.1)',
-                      border: '1px solid rgba(193,154,107,0.3)',
-                      borderRadius: '8px',
-                      marginBottom: '16px'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <CheckCircle size={16} style={{ color: '#C19A6B' }} />
-                        <span style={{ color: '#ffffff', fontWeight: 'bold' }}>
-                          {formData.selectedEstablishmentToClaim.name}
-                        </span>
-                      </div>
-                      {formData.selectedEstablishmentToClaim.zone && (
-                        <div style={{ color: '#999999', fontSize: '12px', marginTop: '4px', marginLeft: '24px' }}>
-                          <MapPin size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                          {getZoneLabel(formData.selectedEstablishmentToClaim.zone)}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Document Upload Section (Optional) */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{
-                      display: 'block',
-                      color: '#C19A6B',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      <Upload size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.uploadOwnershipDocuments')}
-                      <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
-                        ({t('register.optional')})
-                      </span>
-                    </label>
-                    <DocumentUploadGrid
-                      documents={formData.ownershipDocuments}
-                      onChange={(docs) => handleInputChange('ownershipDocuments', docs)}
-                      error={ownershipDocErrors}
-                      onError={setOwnershipDocErrors}
-                      description={t('register.uploadOwnershipDocumentsDesc')}
-                      accentColor="#C19A6B"
-                    />
-                  </div>
-
-                  {/* Contact Me Checkbox */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      cursor: 'pointer',
-                      padding: '12px',
-                      background: formData.ownershipContactMe ? 'rgba(193,154,107,0.1)' : 'transparent',
-                      border: `1px solid ${formData.ownershipContactMe ? 'rgba(193,154,107,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                      borderRadius: '8px',
-                      transition: 'all 0.3s ease'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={formData.ownershipContactMe}
-                        onChange={(e) => handleInputChange('ownershipContactMe', e.target.checked)}
-                        style={{ accentColor: '#C19A6B' }}
-                      />
-                      <div>
-                        <div style={{ color: '#ffffff', fontSize: '14px' }}>
-                          <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                          {t('register.ownershipContactMe')}
-                        </div>
-                        <div style={{ color: '#999999', fontSize: '12px', marginTop: '2px' }}>
-                          {t('register.ownershipContactMeDesc')}
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-
-                  {/* Message Textarea */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{
-                      display: 'block',
-                      color: '#C19A6B',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      <MessageSquare size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {t('register.ownershipMessage')}
-                      <span style={{ color: '#999999', fontWeight: 'normal', marginLeft: '8px' }}>
-                        ({t('register.optional')})
-                      </span>
-                    </label>
-                    <textarea
-                      value={formData.ownershipRequestMessage}
-                      onChange={(e) => handleInputChange('ownershipRequestMessage', e.target.value)}
-                      placeholder={t('register.ownershipMessagePlaceholder')}
-                      rows={3}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        background: 'rgba(0,0,0,0.4)',
-                        border: '2px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#ffffff',
-                        fontSize: '14px',
-                        resize: 'vertical',
-                        minHeight: '80px'
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Option: Create New Establishment */}
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px',
-                border: `2px solid ${formData.ownerPath === 'create' ? '#C19A6B' : 'rgba(255,255,255,0.2)'}`,
-                borderRadius: '12px',
-                background: formData.ownerPath === 'create'
-                  ? 'linear-gradient(135deg, rgba(193,154,107,0.1), rgba(193,154,107,0.2))'
-                  : 'rgba(0,0,0,0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                marginBottom: '12px'
-              }}>
-                <input
-                  type="radio"
-                  name="ownerPath"
-                  value="create"
-                  checked={formData.ownerPath === 'create'}
-                  onChange={() => handleInputChange('ownerPath', 'create')}
-                  style={{ accentColor: '#C19A6B' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '15px' }}>
-                    <Rocket size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.createNewEstablishment')}
-                  </div>
-                  <div style={{ color: '#cccccc', fontSize: '12px', marginTop: '4px' }}>
-                    {t('register.createNewEstablishmentDesc')}
-                  </div>
-                </div>
-              </label>
-
-              {/* Navigation Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="btn btn--secondary"
-                  style={{ flex: 1 }}
-                >
-                  ← {t('register.previousButton')}
-                </button>
-                {/* Claim → Submit, Create → Next to Step 4 */}
-                {formData.ownerPath === 'claim' ? (
-                  <button
-                    type="submit"
-                    disabled={!formData.selectedEstablishmentToClaim || isLoading}
-                    className="btn btn--success"
-                    style={{ flex: 2 }}
-                  >
-                    {isLoading ? (
-                      <><Loader2 size={16} className="spin" style={{ marginRight: '8px' }} /> {t('register.submittingButton')}</>
-                    ) : (
-                      <>{t('register.registerButton')} <Send size={16} style={{ marginLeft: '8px' }} /></>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={!formData.ownerPath}
-                    onClick={handleNext}
-                    className="btn btn--success"
-                    style={{ flex: 2 }}
-                  >
-                    {t('register.nextButton')} →
-                  </button>
-                )}
-              </div>
-            </div>
+            <OwnerPathStep
+              ownerPath={formData.ownerPath}
+              onPathChange={(path) => handleInputChange('ownerPath', path)}
+              establishmentSearch={ownerEstablishmentSearch}
+              onEstablishmentSearchChange={(value) => {
+                setOwnerEstablishmentSearch(value);
+                if (formData.selectedEstablishmentToClaim) {
+                  handleInputChange('selectedEstablishmentToClaim', null);
+                }
+              }}
+              onEstablishmentSelect={(est) => {
+                handleInputChange('selectedEstablishmentToClaim', est);
+                setOwnerEstablishmentSearch(est.name);
+              }}
+              onEstablishmentClear={() => handleInputChange('selectedEstablishmentToClaim', null)}
+              establishments={establishments}
+              selectedEstablishment={formData.selectedEstablishmentToClaim}
+              documents={formData.ownershipDocuments}
+              onDocumentsChange={(docs) => handleInputChange('ownershipDocuments', docs)}
+              documentErrors={ownershipDocErrors}
+              onDocumentError={setOwnershipDocErrors}
+              contactMe={formData.ownershipContactMe}
+              onContactMeChange={(checked) => handleInputChange('ownershipContactMe', checked)}
+              message={formData.ownershipRequestMessage}
+              onMessageChange={(msg) => handleInputChange('ownershipRequestMessage', msg)}
+              isLoading={isLoading}
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+              onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+            />
           )}
 
           {/* STEP 3: Registration Form (Employees and Regular users only - Owners have credentials at Step 2) */}

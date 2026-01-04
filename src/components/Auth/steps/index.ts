@@ -8,6 +8,8 @@
 // Step Components
 export { default as AccountTypeSelectionStep } from './AccountTypeSelectionStep';
 export { default as CredentialsStep } from './CredentialsStep';
+export { default as EmployeePathStep } from './EmployeePathStep';
+export { default as OwnerPathStep } from './OwnerPathStep';
 
 // Types - all exported from types.ts
 export * from './types';
