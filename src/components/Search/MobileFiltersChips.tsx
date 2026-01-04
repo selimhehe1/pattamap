@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search, Check, Gem, Image, Building2, Trash2, Star,
-  ChevronDown, User, MapPin, Sparkles
+  ChevronDown, User, MapPin, Sparkles, Zap
 } from 'lucide-react';
 import { ZONE_OPTIONS } from '../../utils/constants';
 import '../../styles/components/quick-filter-chips.css';
@@ -213,57 +213,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
 
   return (
     <div className="mobile-filters-chips">
-      {/* Search Input - Always visible */}
-      <div className="mobile-search-container">
-        <Search size={16} className="mobile-search-input-icon" />
-        <input
-          type="text"
-          value={localQuery}
-          onChange={(e) => setLocalQuery(e.target.value)}
-          onBlur={handleSearchBlur}
-          onKeyDown={handleSearchKeyDown}
-          placeholder={t('search.enterName')}
-          disabled={loading}
-          className="mobile-search-input"
-        />
-      </div>
-
-      {/* Quick Toggles - Always visible */}
-      <div className="chip-row">
-        <div className="chip-row-content">
-          <button
-            type="button"
-            className={`quick-filter-chip ${isVerified ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('is_verified', isVerified ? '' : 'true')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon"><Check size={14} /></span>
-            <span>{t('search.verified', 'Verified')}</span>
-          </button>
-
-          <button
-            type="button"
-            className={`quick-filter-chip ${isFreelance ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('type', isFreelance ? 'all' : 'freelance')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon"><Gem size={14} /></span>
-            <span>{t('search.freelances', 'Freelance')}</span>
-          </button>
-
-          <button
-            type="button"
-            className={`quick-filter-chip ${hasPhotos ? 'quick-filter-chip--active' : ''}`}
-            onClick={() => onFilterChange('has_photos', hasPhotos ? '' : 'true')}
-            disabled={loading}
-          >
-            <span className="quick-filter-chip__icon"><Image size={14} /></span>
-            <span>{t('search.photos', 'Photos')}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Clear All Button */}
+      {/* Clear All Button - En premier */}
       {activeFiltersCount > 0 && (
         <button
           onClick={handleClearAll}
@@ -274,6 +224,74 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
           {t('search.clearAll', 'Clear all')} ({activeFiltersCount})
         </button>
       )}
+
+      {/* ============================================
+         ACCORDION: RECHERCHE
+         Name input
+         ============================================ */}
+      <FilterAccordion
+        title={t('search.sections.search', 'Recherche')}
+        icon={<Search size={18} />}
+        defaultExpanded={true}
+      >
+        <div className="mobile-search-container">
+          <Search size={16} className="mobile-search-input-icon" />
+          <input
+            type="text"
+            value={localQuery}
+            onChange={(e) => setLocalQuery(e.target.value)}
+            onBlur={handleSearchBlur}
+            onKeyDown={handleSearchKeyDown}
+            placeholder={t('search.enterName')}
+            disabled={loading}
+            className="mobile-search-input"
+          />
+        </div>
+      </FilterAccordion>
+
+      {/* ============================================
+         ACCORDION: RAPIDE
+         Verified, Freelance, Photos
+         ============================================ */}
+      <FilterAccordion
+        title={t('search.sections.quick', 'Rapide')}
+        icon={<Zap size={18} />}
+        defaultExpanded={true}
+      >
+        <div className="chip-row">
+          <div className="chip-row-content">
+            <button
+              type="button"
+              className={`quick-filter-chip ${isVerified ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('is_verified', isVerified ? '' : 'true')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon"><Check size={14} /></span>
+              <span>{t('search.verified', 'Verified')}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`quick-filter-chip ${isFreelance ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('type', isFreelance ? 'all' : 'freelance')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon"><Gem size={14} /></span>
+              <span>{t('search.freelances', 'Freelance')}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`quick-filter-chip ${hasPhotos ? 'quick-filter-chip--active' : ''}`}
+              onClick={() => onFilterChange('has_photos', hasPhotos ? '' : 'true')}
+              disabled={loading}
+            >
+              <span className="quick-filter-chip__icon"><Image size={14} /></span>
+              <span>{t('search.photos', 'Photos')}</span>
+            </button>
+          </div>
+        </div>
+      </FilterAccordion>
 
       {/* ============================================
          ACCORDION 1: PROFIL
@@ -318,7 +336,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {/* Age Presets */}
         <div className="chip-row">
           <span className="chip-row-label">{t('search.age', 'Age')}</span>
-          <div className="chip-row-content chip-row-scrollable">
+          <div className="chip-row-content">
             {AGE_PRESETS.map(preset => {
               const isActive = currentAgePreset?.label === preset.label;
               return (
@@ -340,7 +358,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {availableFilters.nationalities.length > 0 && (
           <div className="chip-row">
             <span className="chip-row-label">{t('search.nationality', 'Nationality')}</span>
-            <div className="chip-row-content chip-row-scrollable">
+            <div className="chip-row-content">
               {availableFilters.nationalities.slice(0, 15).map(nat => {
                 const isActive = filters.nationality === nat;
                 const flag = NATIONALITY_FLAGS[nat] || '🌍';
@@ -373,7 +391,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {/* Zone */}
         <div className="chip-row">
           <span className="chip-row-label">{t('search.zone', 'Zone')}</span>
-          <div className="chip-row-content chip-row-scrollable">
+          <div className="chip-row-content">
             {ZONE_OPTIONS.filter(z => z.value && z.value !== 'freelance').map(zone => {
               const isActive = filters.zone === zone.value;
               return (
@@ -395,7 +413,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {availableFilters.categories.length > 0 && (
           <div className="chip-row">
             <span className="chip-row-label">{t('search.type', 'Type')}</span>
-            <div className="chip-row-content chip-row-scrollable">
+            <div className="chip-row-content">
               {availableFilters.categories.map(cat => {
                 const isActive = filters.category_id === String(cat.id);
                 return (
@@ -472,7 +490,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {/* Languages */}
         <div className="chip-row">
           <span className="chip-row-label">{t('search.languages', 'Languages')}</span>
-          <div className="chip-row-content chip-row-scrollable">
+          <div className="chip-row-content">
             {LANGUAGE_OPTIONS.map(lang => {
               const isActive = selectedLanguages.includes(lang.code);
               return (
@@ -494,7 +512,7 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
         {/* Social Media */}
         <div className="chip-row">
           <span className="chip-row-label">{t('search.social', 'Social')}</span>
-          <div className="chip-row-content chip-row-scrollable">
+          <div className="chip-row-content">
             {SOCIAL_OPTIONS.map(platform => {
               const isActive = selectedSocial.includes(platform.id);
               return (
