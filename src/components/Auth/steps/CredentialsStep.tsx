@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, User, Mail, Lock, KeyRound } from 'lucide-react';
 import FormField from '../../Common/FormField';
+import { useAvailabilityCheck, AvailabilityStatus } from '../../../hooks/useAvailabilityCheck';
+import { AvailabilityFeedback } from '../components';
 import type { CredentialsData, CredentialsErrors, CredentialsFieldStatus } from './types';
 
 // Re-export types for consumers
@@ -22,6 +24,8 @@ interface CredentialsStepProps {
   /** Custom button labels */
   nextLabel?: React.ReactNode;
   submitLabel?: React.ReactNode;
+  /** Callback when availability status changes (for blocking Next if taken) */
+  onAvailabilityChange?: (field: 'pseudonym' | 'email', status: AvailabilityStatus) => void;
 }
 
 /**
@@ -49,11 +53,25 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
   isFinalStep = false,
   isLoading = false,
   nextLabel,
-  submitLabel
+  submitLabel,
+  onAvailabilityChange
 }) => {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Real-time availability check hooks
+  const pseudonymAvailability = useAvailabilityCheck('pseudonym');
+  const emailAvailability = useAvailabilityCheck('email');
+
+  // Notify parent when availability status changes
+  useEffect(() => {
+    onAvailabilityChange?.('pseudonym', pseudonymAvailability.status);
+  }, [pseudonymAvailability.status, onAvailabilityChange]);
+
+  useEffect(() => {
+    onAvailabilityChange?.('email', emailAvailability.status);
+  }, [emailAvailability.status, onAvailabilityChange]);
 
   const isFormValid = credentials.pseudonym.trim() &&
     credentials.email.trim() &&
@@ -68,12 +86,19 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
         value={credentials.pseudonym}
         error={errors.pseudonym}
         status={fieldStatus.pseudonym}
-        onChange={(e) => onFieldChange('pseudonym', e.target.value)}
+        onChange={(e) => {
+          onFieldChange('pseudonym', e.target.value);
+          pseudonymAvailability.checkAvailability(e.target.value);
+        }}
         onBlur={(e) => onFieldBlur('pseudonym', e.target.value)}
         placeholder={t('register.pseudonymPlaceholder')}
         required
         maxLength={50}
         showCounter
+      />
+      <AvailabilityFeedback
+        status={pseudonymAvailability.status}
+        message={pseudonymAvailability.message}
       />
 
       <FormField
@@ -83,10 +108,17 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
         value={credentials.email}
         error={errors.email}
         status={fieldStatus.email}
-        onChange={(e) => onFieldChange('email', e.target.value)}
+        onChange={(e) => {
+          onFieldChange('email', e.target.value);
+          emailAvailability.checkAvailability(e.target.value);
+        }}
         onBlur={(e) => onFieldBlur('email', e.target.value)}
         placeholder={t('register.emailPlaceholder')}
         required
+      />
+      <AvailabilityFeedback
+        status={emailAvailability.status}
+        message={emailAvailability.message}
       />
 
       <FormField

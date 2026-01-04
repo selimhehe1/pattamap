@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import notification from '../../../utils/notification';
 import { Employee, Establishment } from '../../../types';
+import type { AvailabilityStatus } from '../../../hooks/useAvailabilityCheck';
 
 // Password validation patterns
 const PASSWORD_PATTERNS = {
@@ -27,6 +28,10 @@ interface UseStepNavigationOptions {
   formData: FormDataForNavigation;
   currentStep: 1 | 2 | 3 | 4;
   setCurrentStep: (step: 1 | 2 | 3 | 4) => void;
+  availabilityStatus?: {
+    pseudonym: AvailabilityStatus;
+    email: AvailabilityStatus;
+  };
 }
 
 interface UseStepNavigationReturn {
@@ -84,9 +89,24 @@ function validateCredentials(
 export function useStepNavigation({
   formData,
   currentStep,
-  setCurrentStep
+  setCurrentStep,
+  availabilityStatus
 }: UseStepNavigationOptions): UseStepNavigationReturn {
   const { t } = useTranslation();
+
+  /**
+   * Check if credentials availability allows proceeding
+   * Returns error message if blocked, null if OK
+   */
+  const checkAvailabilityBlock = (): string | null => {
+    if (availabilityStatus?.pseudonym === 'taken') {
+      return t('register.pseudonymTaken', 'This pseudonym is already taken');
+    }
+    if (availabilityStatus?.email === 'taken') {
+      return t('register.emailTaken', 'This email is already registered');
+    }
+    return null;
+  };
 
   const handleNext = useCallback(() => {
     // Step 1 → Step 2
@@ -122,6 +142,12 @@ export function useStepNavigation({
 
       // Owner Step 2 = CREDENTIALS → validate then go to Step 3
       if (formData.accountType === 'establishment_owner') {
+        // Check availability first
+        const availabilityError = checkAvailabilityBlock();
+        if (availabilityError) {
+          notification.error(availabilityError);
+          return;
+        }
         const credentialError = validateCredentials(formData, t);
         if (credentialError) {
           notification.error(credentialError);
@@ -136,6 +162,12 @@ export function useStepNavigation({
     if (currentStep === 3) {
       // Employee create path: validate credentials then go to step 4
       if (formData.accountType === 'employee' && formData.employeePath === 'create') {
+        // Check availability first
+        const availabilityError = checkAvailabilityBlock();
+        if (availabilityError) {
+          notification.error(availabilityError);
+          return;
+        }
         const credentialError = validateCredentials(formData, t);
         if (credentialError) {
           notification.error(credentialError);
@@ -165,7 +197,7 @@ export function useStepNavigation({
       // For claim/regular/owner, submit is handled by form onSubmit
     }
     // Step 4 → Submit (handled by form onSubmit)
-  }, [currentStep, formData, setCurrentStep, t]);
+  }, [currentStep, formData, setCurrentStep, t, availabilityStatus]);
 
   const handlePrevious = useCallback(() => {
     if (currentStep === 4) {

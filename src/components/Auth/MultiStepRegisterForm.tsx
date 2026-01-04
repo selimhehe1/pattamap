@@ -10,9 +10,11 @@ import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep, OwnerCreateStep } from './steps';
-import { StepIndicator } from './components';
+import { StepIndicator, AvailabilityFeedback } from './components';
+import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import { usePhotoUpload, useStepNavigation, useRegistrationSubmit } from './hooks';
 import type { AccountType } from './steps/types';
+import type { AvailabilityStatus } from '../../hooks/useAvailabilityCheck';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
 
@@ -182,6 +184,34 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Availability status for real-time validation
+  const [availabilityStatus, setAvailabilityStatus] = useState<{
+    pseudonym: AvailabilityStatus;
+    email: AvailabilityStatus;
+  }>({
+    pseudonym: 'idle',
+    email: 'idle'
+  });
+
+  // Real-time availability check hooks (for inline form at Step 3)
+  const pseudonymAvailability = useAvailabilityCheck('pseudonym');
+  const emailAvailability = useAvailabilityCheck('email');
+
+  // Sync availability hooks with state
+  useEffect(() => {
+    setAvailabilityStatus(prev => ({
+      ...prev,
+      pseudonym: pseudonymAvailability.status
+    }));
+  }, [pseudonymAvailability.status]);
+
+  useEffect(() => {
+    setAvailabilityStatus(prev => ({
+      ...prev,
+      email: emailAvailability.status
+    }));
+  }, [emailAvailability.status]);
+
   // 🆕 v10.x - Owner establishment creation states
   const [categories, setCategories] = useState<EstablishmentCategory[]>([]);
   const [_ownerLogoPreview, _setOwnerLogoPreview] = useState<string | null>(null);
@@ -319,7 +349,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const { handleNext, handlePrevious } = useStepNavigation({
     formData,
     currentStep,
-    setCurrentStep
+    setCurrentStep,
+    availabilityStatus
   });
 
   // Registration submit hook
@@ -597,6 +628,9 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onFieldBlur={(field, value) => handleInputBlur(field, value)}
               onPrevious={handlePrevious}
               onNext={handleNext}
+              onAvailabilityChange={(field, status) => {
+                setAvailabilityStatus(prev => ({ ...prev, [field]: status }));
+              }}
             />
           )}
 
@@ -643,13 +677,20 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 value={formData.pseudonym}
                 error={errors.pseudonym}
                 status={fieldStatus.pseudonym}
-                onChange={(e) => handleInputChange('pseudonym', e.target.value)}
+                onChange={(e) => {
+                  handleInputChange('pseudonym', e.target.value);
+                  pseudonymAvailability.checkAvailability(e.target.value);
+                }}
                 onBlur={(e) => handleInputBlur('pseudonym', e.target.value)}
                 placeholder={t('register.pseudonymPlaceholder')}
                 required
                 maxLength={50}
                 showCounter
                 helpText={t('register.pseudonymHelp')}
+              />
+              <AvailabilityFeedback
+                status={pseudonymAvailability.status}
+                message={pseudonymAvailability.message}
               />
 
               <FormField
@@ -659,10 +700,17 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 value={formData.email}
                 error={errors.email}
                 status={fieldStatus.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e) => {
+                  handleInputChange('email', e.target.value);
+                  emailAvailability.checkAvailability(e.target.value);
+                }}
                 onBlur={(e) => handleInputBlur('email', e.target.value)}
                 placeholder={t('register.emailPlaceholder')}
                 required
+              />
+              <AvailabilityFeedback
+                status={emailAvailability.status}
+                message={emailAvailability.message}
               />
 
               <div style={{ position: 'relative' }}>
