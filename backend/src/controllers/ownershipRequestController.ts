@@ -152,6 +152,18 @@ export const createOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
       throw ConflictError('You already own this establishment');
     }
 
+    // Check if establishment is already owned by someone else
+    const { data: anyExistingOwner } = await supabase
+      .from('establishment_owners')
+      .select('id')
+      .eq('establishment_id', finalEstablishmentId!)
+      .limit(1)
+      .single();
+
+    if (anyExistingOwner) {
+      throw ConflictError('This establishment already has an owner');
+    }
+
     // Check if there's already a pending request
     const { data: existingRequest } = await supabase
       .from('establishment_ownership_requests')

@@ -90,6 +90,7 @@ const Step1EstablishmentSelect: React.FC<Step1Props> = ({
                 onChange={(establishment) => onEstablishmentSelect(establishment)}
                 placeholder={t('ownership.searchPlaceholder', 'Search establishment by name...')}
                 disabled={false}
+                excludeWithOwner={true}
               />
             </div>
           </div>

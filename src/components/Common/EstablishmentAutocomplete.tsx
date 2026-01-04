@@ -44,6 +44,7 @@ interface EstablishmentAutocompleteProps {
   placeholder?: string;
   disabled?: boolean;
   showZoneBadge?: boolean;
+  excludeWithOwner?: boolean; // Filter out establishments that already have an owner
 }
 
 const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
@@ -52,7 +53,8 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
   onChange,
   placeholder,
   disabled = false,
-  showZoneBadge = true
+  showZoneBadge = true,
+  excludeWithOwner = false
 }) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +89,11 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     // Show ALL establishments (not just those with zones)
     let filtered = [...establishments];
 
+    // Exclude establishments that already have an owner (for ownership claim flow)
+    if (excludeWithOwner) {
+      filtered = filtered.filter(est => !est.has_owner);
+    }
+
     // Apply search filter using debounced query for better performance
     if (debouncedSearchQuery.trim().length > 0 && !value) {
       const lowerQuery = debouncedSearchQuery.toLowerCase();
@@ -114,7 +121,7 @@ const EstablishmentAutocomplete: React.FC<EstablishmentAutocompleteProps> = ({
     );
 
     return { groupedByZone, sortedZones };
-  }, [establishments, debouncedSearchQuery, value]);
+  }, [establishments, debouncedSearchQuery, value, excludeWithOwner]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
