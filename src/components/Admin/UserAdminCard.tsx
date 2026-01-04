@@ -9,6 +9,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import LazyImage from '../Common/LazyImage';
 import {
   Eye,
   Crown,
@@ -33,6 +34,7 @@ interface UserAdminCardProps {
     is_active: boolean;
     created_at: string;
     last_login?: string;
+    avatar_url?: string | null;
     stats?: {
       establishments_submitted: number;
       employees_submitted: number;
@@ -115,8 +117,19 @@ export const UserAdminCard: React.FC<UserAdminCardProps> = ({
       onClick={handleCardClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
     >
-      {/* 1. Background - Gradient based on role */}
-      <div className={`uac-background uac-background--${user.role}`} />
+      {/* 1. Background - Image if available, otherwise gradient based on role */}
+      {user.avatar_url ? (
+        <div className="uac-background uac-background--image">
+          <LazyImage
+            src={user.avatar_url}
+            alt={user.pseudonym}
+            className="uac-background__img"
+            objectFit="cover"
+          />
+        </div>
+      ) : (
+        <div className={`uac-background uac-background--${user.role}`} />
+      )}
 
       {/* 2. Gradient overlay */}
       <div className="aec-overlay" />
@@ -174,10 +187,12 @@ export const UserAdminCard: React.FC<UserAdminCardProps> = ({
         </button>
       </div>
 
-      {/* 7. Avatar initial (large, centered) */}
-      <div className={`uac-avatar uac-avatar--${user.role}`}>
-        <span className="uac-avatar__initial">{userInitial}</span>
-      </div>
+      {/* 7. Avatar initial (large, centered) - only when no profile photo */}
+      {!user.avatar_url && (
+        <div className={`uac-avatar uac-avatar--${user.role}`}>
+          <span className="uac-avatar__initial">{userInitial}</span>
+        </div>
+      )}
 
       {/* 8. User info overlay */}
       <div className="uac-info-overlay">

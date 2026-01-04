@@ -34,6 +34,7 @@ interface AdminUser {
   updated_at: string;
   last_login?: string;
   is_active: boolean;
+  avatar_url?: string | null;
   stats?: {
     establishments_submitted: number;
     employees_submitted: number;

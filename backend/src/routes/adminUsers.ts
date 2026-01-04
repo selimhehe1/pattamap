@@ -89,7 +89,8 @@ router.get('/users', async (req, res) => {
         role,
         created_at,
         updated_at,
-        is_active
+        is_active,
+        avatar_url
       `)
       .order('created_at', { ascending: false });
 
