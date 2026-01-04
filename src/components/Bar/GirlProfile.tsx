@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Cake, Share2, Globe, MessageSquare } from 'lucide-react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Cake, Share2, Globe, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -295,6 +295,15 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
   return (
     <div className={`profile-v2 ${isVIP ? 'profile-v2--vip' : ''}`}>
+      {/* ====== MOBILE BACK BUTTON ====== */}
+      <button
+        onClick={onClose}
+        className="profile-v2-back-btn"
+        aria-label={t('common.back', 'Back')}
+      >
+        <ArrowLeft size={24} />
+      </button>
+
       {/* ====== COMPACT HEADER ====== */}
       <motion.header
         className="profile-v2-header"

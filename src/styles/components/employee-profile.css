@@ -3171,3 +3171,51 @@
     animation: none;
   }
 }
+
+/* ========================================
+   MOBILE BACK BUTTON
+   Fixed position back button for mobile
+   Always visible, independent of scroll
+   ======================================== */
+
+.profile-v2-back-btn {
+  display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 767px) {
+  .profile-v2-back-btn {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999; /* Above everything */
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .profile-v2-back-btn:hover {
+    background: rgba(232, 121, 249, 0.3);
+    border-color: rgba(232, 121, 249, 0.5);
+    transform: scale(1.05);
+  }
+
+  .profile-v2-back-btn:active {
+    transform: scale(0.95);
+  }
+
+  .profile-v2-back-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+}
