@@ -131,7 +131,6 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              style={{ maxHeight: '70vh', overflowY: 'auto' }}
             >
               {/* Content Grid */}
               <div

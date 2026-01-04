@@ -33,7 +33,7 @@ export interface Favorite {
   employee_photos: string[];
   employee_age?: number;
   employee_sex?: 'male' | 'female' | 'ladyboy'; // v10.x - Gender
-  employee_nationality?: string;
+  employee_nationality?: string[] | null;
   employee_rating?: number;
   employee_comment_count?: number;
   employee_social_media?: Record<string, string>;

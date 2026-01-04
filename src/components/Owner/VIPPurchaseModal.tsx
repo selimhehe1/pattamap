@@ -328,7 +328,6 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          style={{ maxHeight: '60vh', overflowY: 'auto' }}
         >
           {/* VIP Features */}
           <div className="vip-features-section">

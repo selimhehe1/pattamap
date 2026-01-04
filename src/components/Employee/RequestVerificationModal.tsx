@@ -170,7 +170,6 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        style={{ maxHeight: '60vh', overflowY: 'auto' }}
       >
         {/* Pose Instructions */}
         <motion.div

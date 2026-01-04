@@ -122,7 +122,6 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              style={{ maxHeight: '60vh', overflowY: 'auto' }}
             >
               {reviews.length === 0 ? (
                 <div className="modal-premium__empty-state">

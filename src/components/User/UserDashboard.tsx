@@ -37,7 +37,9 @@ const UserDashboard: React.FC = () => {
     photos: favorite.employee_photos || [],
     age: favorite.employee_age,
     sex: favorite.employee_sex || 'female', // v10.x - Default to female if not set
-    nationality: favorite.employee_nationality ? [favorite.employee_nationality] : [],
+    nationality: Array.isArray(favorite.employee_nationality)
+      ? favorite.employee_nationality
+      : [],
     average_rating: favorite.employee_rating ?? favorite.average_rating,
     current_employment: favorite.current_establishment
       ? [{

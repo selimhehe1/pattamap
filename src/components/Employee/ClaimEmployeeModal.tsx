@@ -251,7 +251,6 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              style={{ maxHeight: '60vh', overflowY: 'auto' }}
             >
               <form onSubmit={handleSubmit}>
                 {/* Step 1: Search Employee */}

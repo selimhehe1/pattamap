@@ -188,7 +188,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 }}
-              style={{ maxHeight: '70vh', overflowY: 'auto' }}
             >
               <div style={{
                 display: 'grid',
