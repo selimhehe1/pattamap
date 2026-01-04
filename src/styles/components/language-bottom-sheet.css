@@ -157,7 +157,7 @@
   background: transparent;
   border: 1px solid rgba(232, 121, 249, 0.2);
   border-radius: 10px;
-  color: var(--text-secondary, #A1A1AA);
+  color: #A1A1AA;
   font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -212,6 +212,9 @@
   /* Reset button styles */
   font-family: inherit;
   text-align: center;
+
+  /* Explicit color for Portal context (CSS vars don't inherit) */
+  color: #FAFAFA;
 }
 
 .language-sheet-card:hover {
@@ -261,7 +264,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-secondary, #00E5FF);
+  color: #00E5FF;
   transition: color 0.2s ease;
 }
 
@@ -273,7 +276,7 @@
 .language-sheet-name {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--text-primary, #FAFAFA);
+  color: #FAFAFA;
 }
 
 /* Checkmark for active */
@@ -322,7 +325,7 @@
   border: 1px solid rgba(232, 121, 249, 0.25);
   border-radius: 10px;
 
-  color: var(--text-primary, #FAFAFA);
+  color: #FAFAFA;
   font-size: 0.875rem;
   font-weight: 600;
   font-family: inherit;
