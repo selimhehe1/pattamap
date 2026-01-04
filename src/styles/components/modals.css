@@ -462,6 +462,7 @@
 }
 
 /* Prevent body scroll when modal is open */
+html.modal-open,
 body.modal-open {
   overflow: hidden;
 }
