@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Loader2, Lock, KeyRound, Mail, User } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
-import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useEmployeeSearch } from '../../hooks/useEmployees';
 import { useEstablishments } from '../../hooks/useEstablishments';
-import { useCSRF } from '../../contexts/CSRFContext';
 import FormField from '../Common/FormField';
 import { Employee, Establishment, EstablishmentCategory } from '../../types';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep, OwnerCreateStep } from './steps';
 import { StepIndicator } from './components';
+import { usePhotoUpload, useStepNavigation, useRegistrationSubmit } from './hooks';
 import type { AccountType } from './steps/types';
 import '../../styles/components/modals.css';
 import '../../styles/components/photos.css';
@@ -94,9 +92,6 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   embedded = false
 }) => {
   const { t } = useTranslation();
-  const { register, claimEmployeeProfile, submitOwnershipRequest } = useAuth();
-  const { secureFetch } = useSecureFetch();
-  const { refreshToken } = useCSRF();
 
   // Current step state
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -181,10 +176,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     establishment_id: selectedEstablishmentId || undefined
   });
 
-  // Loading states
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
-  const [submitError, setSubmitError] = useState<string>('');
+  // Loading states (some managed by hooks now)
   const [photoErrors, setPhotoErrors] = useState<string>('');
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -314,6 +306,38 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   }, [formData.accountType]);
 
+  // ============================================
+  // Custom Hooks Integration
+  // ============================================
+
+  // Photo upload hook
+  const { uploadPhotos, isUploading: uploadingPhotos } = usePhotoUpload({
+    photos: formData.photos
+  });
+
+  // Step navigation hook
+  const { handleNext, handlePrevious } = useStepNavigation({
+    formData,
+    currentStep,
+    setCurrentStep
+  });
+
+  // Registration submit hook
+  const {
+    handleSubmit,
+    isLoading,
+    uploadingPhotos: uploadingPhotosSubmit,
+    uploadingOwnershipDocs,
+    submitError,
+    setSubmitError
+  } = useRegistrationSubmit({
+    formData,
+    validateForm,
+    clearDraft,
+    uploadPhotos,
+    onSuccess: onClose
+  });
+
   // Handle employee selection from grid
   const handleEmployeeSelect = (employee: Employee) => {
     setFormData(prev => ({ ...prev, selectedEmployee: employee }));
@@ -336,431 +360,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   };
 
-  const uploadPhotos = async (explicitCsrfToken?: string) => {
-    if (formData.photos.length === 0) return [];
-
-    setUploadingPhotos(true);
-    try {
-      const formDataMultipart = new FormData();
-      formData.photos.forEach(photo => {
-        formDataMultipart.append('images', photo);
-      });
-
-      // 🔧 CSRF FIX: Use explicit CSRF token if provided (from registration)
-      // Otherwise use secureFetch which will handle token refresh
-      if (explicitCsrfToken) {
-        logger.debug('🛡️ Using explicit CSRF token for photo upload');
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'X-CSRF-Token': explicitCsrfToken
-          },
-          body: formDataMultipart
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to upload photos');
-        }
-
-        return data.images.map((img: { url: string }) => img.url);
-      } else {
-        // Fallback to secureFetch for other cases (not during registration)
-        logger.debug('🛡️ Refreshing CSRF token before photo upload...');
-        await refreshToken();
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
-          method: 'POST',
-          body: formDataMultipart
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to upload photos');
-        }
-
-        return data.images.map((img: { url: string }) => img.url);
-      }
-    } catch (error) {
-      logger.error('Photo upload error:', error);
-      throw error;
-    } finally {
-      setUploadingPhotos(false);
-    }
-  };
-
   const handleClose = () => {
     onClose();
-  };
-
-  const handleNext = () => {
-    // Step 1 → Step 2
-    if (currentStep === 1) {
-      if (formData.accountType === 'employee') {
-        // Employee: Step 2 = claim/create path selection
-        setCurrentStep(2);
-      } else if (formData.accountType === 'establishment_owner') {
-        // 🆕 v10.x NEW FLOW: Owner Step 2 = CREDENTIALS FIRST
-        setCurrentStep(2);
-      } else {
-        // Regular: Skip to credentials (Step 3 internally, displayed as Step 2)
-        setCurrentStep(3);
-      }
-    }
-    // Step 2 → Step 3
-    else if (currentStep === 2) {
-      // Employee path validation (Step 2 = path selection for employees)
-      if (formData.accountType === 'employee') {
-        if (!formData.employeePath) {
-          notification.error(t('register.selectPathFirst'));
-          return;
-        }
-        if (formData.employeePath === 'claim' && !formData.selectedEmployee) {
-          notification.error(t('register.selectEmployeeFirst'));
-          return;
-        }
-        setCurrentStep(3);
-      }
-      // 🆕 v10.x NEW FLOW: Owner Step 2 = CREDENTIALS → validate then go to Step 3
-      else if (formData.accountType === 'establishment_owner') {
-        // Validate credentials before proceeding
-        if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
-          notification.error(t('register.fillAllFields'));
-          return;
-        }
-        if (formData.password !== formData.confirmPassword) {
-          notification.error(t('register.passwordsDoNotMatch'));
-          return;
-        }
-        if (formData.password.length < 8) {
-          notification.error(t('register.passwordTooShort'));
-          return;
-        }
-        // Validate password complexity
-        if (!/[a-z]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsLowercase'));
-          return;
-        }
-        if (!/[A-Z]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsUppercase'));
-          return;
-        }
-        if (!/[0-9]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsNumber'));
-          return;
-        }
-        if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsSpecial'));
-          return;
-        }
-        setCurrentStep(3);
-      }
-    }
-    // Step 3 → Step 4 or submit
-    else if (currentStep === 3) {
-      if (formData.accountType === 'employee' && formData.employeePath === 'create') {
-        // Validate credentials before proceeding to step 4
-        if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
-          notification.error(t('register.fillAllFields'));
-          return;
-        }
-        if (formData.password !== formData.confirmPassword) {
-          notification.error(t('register.passwordsDoNotMatch'));
-          return;
-        }
-        if (formData.password.length < 8) {
-          notification.error(t('register.passwordTooShort'));
-          return;
-        }
-        // Validate password complexity
-        if (!/[a-z]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsLowercase'));
-          return;
-        }
-        if (!/[A-Z]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsUppercase'));
-          return;
-        }
-        if (!/[0-9]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsNumber'));
-          return;
-        }
-        if (!/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(formData.password)) {
-          notification.error(t('register.passwordNeedsSpecial'));
-          return;
-        }
-        setCurrentStep(4);
-      }
-      // 🆕 v10.x NEW FLOW: Owner Step 3 = claim/create path selection
-      else if (formData.accountType === 'establishment_owner') {
-        if (!formData.ownerPath) {
-          notification.error(t('register.selectPathFirst'));
-          return;
-        }
-        if (formData.ownerPath === 'claim' && !formData.selectedEstablishmentToClaim) {
-          notification.error(t('register.selectEstablishmentFirst'));
-          return;
-        }
-        if (formData.ownerPath === 'create') {
-          // Go to Step 4 for establishment creation form
-          setCurrentStep(4);
-        }
-        // If claim → submit is handled by form onSubmit
-      }
-      // For claim/regular/owner, submit is handled by form onSubmit
-    }
-    // Step 4 → Submit (handled by form onSubmit)
-  };
-
-  const handlePrevious = () => {
-    if (currentStep === 4) {
-      setCurrentStep(3);
-    } else if (currentStep === 3) {
-      if (formData.accountType === 'employee' || formData.accountType === 'establishment_owner') {
-        // 🆕 v10.x - Both employees and owners have Step 2
-        setCurrentStep(2);
-      } else {
-        setCurrentStep(1);
-      }
-    } else if (currentStep === 2) {
-      setCurrentStep(1);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      notification.error(t('register.fixErrorsToast'));
-      return;
-    }
-
-    // 🆕 Early validation for employee fields BEFORE creating account
-    // This prevents orphaned user accounts when employee profile validation fails
-    if (formData.accountType === 'employee' && formData.employeePath === 'create') {
-      if (!formData.employeeName.trim()) {
-        notification.error(t('register.employeeNameRequired', 'Employee name is required'));
-        return;
-      }
-      if (!formData.employeeSex) {
-        notification.error(t('register.employeeSexRequired', 'Please select your sex/gender'));
-        return;
-      }
-      if (!formData.isFreelance && !formData.establishmentId) {
-        notification.error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
-        return;
-      }
-    }
-
-    setIsLoading(true);
-
-    try {
-      // 🔧 CSRF FIX: Register user account and get fresh CSRF token
-      const result = await register(
-        formData.pseudonym,
-        formData.email,
-        formData.password,
-        formData.accountType
-      );
-      const freshToken = result?.csrfToken;
-
-      // ⚠️ Show warning if password was found in breach database
-      if (result?.passwordBreached) {
-        notification.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
-          duration: 10000 // Show longer (10 seconds)
-        });
-      }
-
-      clearDraft(); // Clear draft on successful submission
-
-      // Handle different post-registration flows
-      if (formData.accountType === 'regular') {
-        notification.success(t('register.accountCreated'));
-        onClose();
-      } else if (formData.accountType === 'establishment_owner') {
-        // 🆕 v10.x - Handle owner claim or create paths
-        if (formData.ownerPath === 'claim' && formData.selectedEstablishmentToClaim) {
-          // Upload documents if any
-          let documentUrls: string[] = [];
-          if (formData.ownershipDocuments.length > 0) {
-            setUploadingOwnershipDocs(true);
-            try {
-              const uploadFormData = new FormData();
-              formData.ownershipDocuments.forEach(doc => {
-                uploadFormData.append('images', doc);
-              });
-
-              const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/images`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                  'X-CSRF-Token': freshToken || ''
-                },
-                body: uploadFormData
-              });
-
-              if (uploadResponse.ok) {
-                const uploadData = await uploadResponse.json();
-                documentUrls = uploadData.images.map((img: { url: string }) => img.url);
-              }
-            } catch (uploadError) {
-              logger.warn('Document upload failed, continuing without documents:', uploadError);
-            } finally {
-              setUploadingOwnershipDocs(false);
-            }
-          }
-
-          // Submit ownership request
-          await submitOwnershipRequest!(
-            formData.selectedEstablishmentToClaim.id,
-            documentUrls,
-            formData.ownershipRequestMessage || undefined,
-            formData.ownershipContactMe,
-            freshToken || undefined
-          );
-
-          notification.success(t('register.ownerClaimSubmitted'));
-          onClose();
-        } else if (formData.ownerPath === 'create') {
-          // 🆕 v10.x - Create new establishment
-          try {
-            const establishmentData = {
-              name: formData.newEstablishmentName.trim(),
-              address: formData.newEstablishmentAddress.trim(),
-              zone: formData.newEstablishmentZone,
-              category_id: formData.newEstablishmentCategoryId,
-              description: formData.newEstablishmentDescription.trim() || undefined,
-              phone: formData.newEstablishmentPhone.trim() || undefined,
-              website: formData.newEstablishmentWebsite.trim() || undefined,
-              instagram: formData.newEstablishmentInstagram.trim() || undefined,
-              twitter: formData.newEstablishmentTwitter.trim() || undefined,
-              tiktok: formData.newEstablishmentTiktok.trim() || undefined
-            };
-
-            const createResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': freshToken || ''
-              },
-              body: JSON.stringify(establishmentData)
-            });
-
-            if (!createResponse.ok) {
-              const errorData = await createResponse.json();
-              throw new Error(errorData.error || t('register.establishmentCreationFailed'));
-            }
-
-            const createData = await createResponse.json();
-            const newEstablishmentId = createData.establishment?.id;
-
-            // Auto-submit ownership request for the new establishment
-            if (newEstablishmentId) {
-              await submitOwnershipRequest!(
-                newEstablishmentId,
-                [], // No documents needed for self-created establishment
-                t('register.selfCreatedEstablishmentMessage'),
-                false,
-                freshToken || undefined
-              );
-            }
-
-            notification.success(t('register.establishmentCreatedPending'));
-            onClose();
-          } catch (createError) {
-            logger.error('Establishment creation failed:', createError);
-            throw createError;
-          }
-        } else {
-          // No path selected - just created account (shouldn't happen normally)
-          notification.success(t('register.ownerAccountCreated'));
-          onClose();
-        }
-      } else if (formData.employeePath === 'claim') {
-        // 🔧 CSRF FIX: Use the fresh token directly (no delay needed!)
-        // Claim existing profile with explicit fresh token
-        await claimEmployeeProfile!(
-          formData.selectedEmployee!.id,
-          formData.claimMessage.trim(),
-          [],
-          freshToken || undefined // Pass fresh token explicitly
-        );
-        notification.success(t('register.claimSubmitted'));
-        onClose();
-      } else if (formData.employeePath === 'create') {
-        // Create new profile with uploaded photos
-
-        // Validate required employee fields
-        if (!formData.employeeName.trim()) {
-          throw new Error(t('register.employeeNameRequired', 'Employee name is required'));
-        }
-        if (!formData.employeeSex) {
-          throw new Error(t('register.employeeSexRequired', 'Please select your sex/gender'));
-        }
-        // 🆕 Business rule: Non-freelance employees MUST have an establishment
-        if (!formData.isFreelance && !formData.establishmentId) {
-          throw new Error(t('register.establishmentRequired', 'Please select an establishment or enable Freelance Mode'));
-        }
-
-        notification.info(t('register.creatingEmployeeProfile'));
-
-        // 🔧 CSRF FIX: Validate fresh token is available
-        if (!freshToken) {
-          throw new Error(t('register.sessionSyncError'));
-        }
-
-        // Upload photos (using fresh token from registration)
-        const photoUrls = await uploadPhotos(freshToken);
-
-        // 🆕 v10.0.2 - Use /my-profile endpoint to auto-link employee to user account
-        // This endpoint creates the bidirectional link (user.linked_employee_id & employee.user_id)
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/my-profile`, {
-          method: 'POST',
-          credentials: 'include', // Include auth cookie
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': freshToken // Use fresh token directly (type-safe now)
-          },
-          body: JSON.stringify({
-            name: formData.employeeName,
-            nickname: formData.employeeNickname || undefined,
-            age: formData.employeeAge ? parseInt(formData.employeeAge) : undefined,
-            sex: formData.employeeSex, // 🆕 v10.x - Gender
-            nationality: formData.employeeNationality,
-            description: formData.employeeDescription || undefined,
-            photos: photoUrls,
-            is_freelance: formData.isFreelance,
-            current_establishment_id: !formData.isFreelance && formData.establishmentId ? formData.establishmentId : undefined,
-            current_establishment_ids: formData.isFreelance && formData.freelanceNightclubIds.length > 0
-              ? formData.freelanceNightclubIds
-              : undefined,
-            social_media: Object.fromEntries(
-              Object.entries(formData.socialMedia).filter(([_, value]) => value.trim() !== '')
-            )
-          })
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to create employee profile');
-        }
-
-        notification.success(t('register.employeeProfileCreated'));
-        onClose();
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('register.registrationFailed');
-      setSubmitError(errorMessage);
-      notification.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Form content (shared between embedded and standalone modes)
