@@ -19,10 +19,23 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../utils/i18n';
 import '../../styles/components/language-selector.css';
+import '../../styles/components/language-bottom-sheet.css';
+
+// Flag emojis for each language
+const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
+  en: '🇬🇧',
+  th: '🇹🇭',
+  ru: '🇷🇺',
+  cn: '🇨🇳',
+  fr: '🇫🇷',
+  hi: '🇮🇳',
+  ko: '🇰🇷',
+  ja: '🇯🇵'
+};
 
 interface LanguageSelectorProps {
   /** Display variant */
-  variant?: 'dropdown' | 'inline' | 'menu-item';
+  variant?: 'dropdown' | 'inline' | 'menu-item' | 'mobile-sheet';
   /** Affichage compact (dropdown) ou liste inline (pour mobile menu) - DEPRECATED, use variant instead */
   compact?: boolean;
   /** Classe CSS additionnelle */
@@ -37,6 +50,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const { i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+  const [sheetClosing, setSheetClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const portalDropdownRef = useRef<HTMLDivElement>(null); // Ref for Portal dropdown
   const modalRef = useRef<HTMLDivElement>(null);
@@ -47,6 +62,18 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     localStorage.setItem('pattamap_language', lng);
     setShowDropdown(false); // Close dropdown after selection
     setShowModal(false); // Close modal after selection
+    closeSheet(); // Close sheet after selection
+  };
+
+  // Close sheet with animation
+  const closeSheet = () => {
+    if (showSheet) {
+      setSheetClosing(true);
+      setTimeout(() => {
+        setShowSheet(false);
+        setSheetClosing(false);
+      }, 300); // Match animation duration
+    }
   };
 
   const currentLanguage = i18n.language as SupportedLanguage;
@@ -112,6 +139,25 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     }
   }, [showModal]);
 
+  // Handle ESC key and body scroll lock for bottom sheet
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSheet();
+      }
+    };
+
+    if (showSheet) {
+      document.addEventListener('keydown', handleEscKey);
+      // Lock body scroll
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleEscKey);
+        document.body.style.overflow = '';
+      };
+    }
+  }, [showSheet]);
+
   // Position dropdown when it opens (menu-item variant only)
   useEffect(() => {
     if (actualVariant === 'menu-item' && showDropdown && buttonRef.current) {
@@ -158,6 +204,96 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       }, 0);
     }
   }, [showDropdown, actualVariant]);
+
+  // Mobile Sheet variant - Premium bottom sheet for mobile
+  if (actualVariant === 'mobile-sheet') {
+    return (
+      <>
+        {/* Trigger Button */}
+        <button
+          type="button"
+          onClick={() => setShowSheet(true)}
+          className="language-sheet-trigger"
+          aria-label={`Current language: ${currentConfig.nativeName}. Tap to change language`}
+          aria-haspopup="dialog"
+          data-testid="language-selector"
+        >
+          <Globe size={18} className="language-sheet-trigger-icon" />
+          <span className="language-sheet-trigger-code">
+            {currentConfig.code.toUpperCase()}
+          </span>
+        </button>
+
+        {/* Bottom Sheet Portal */}
+        {showSheet && ReactDOM.createPortal(
+          <>
+            {/* Backdrop */}
+            <div
+              className="language-sheet-backdrop"
+              onClick={closeSheet}
+              aria-hidden="true"
+            />
+
+            {/* Bottom Sheet */}
+            <div
+              className={`language-sheet ${sheetClosing ? 'closing' : ''}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="language-sheet-title"
+            >
+              {/* Drag Handle */}
+              <div className="language-sheet-handle" />
+
+              {/* Header */}
+              <div className="language-sheet-header">
+                <h2 id="language-sheet-title" className="language-sheet-title">
+                  <span className="language-sheet-title-icon">
+                    <Globe size={18} />
+                  </span>
+                  Select Language
+                </h2>
+                <button
+                  type="button"
+                  onClick={closeSheet}
+                  className="language-sheet-close"
+                  aria-label="Close language selector"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Language Grid */}
+              <div className="language-sheet-grid">
+                {Object.entries(SUPPORTED_LANGUAGES).map(([code, config]) => {
+                  const langCode = code as SupportedLanguage;
+                  const isActive = currentLanguage === code || i18n.language.startsWith(code);
+
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => changeLanguage(langCode)}
+                      className={`language-sheet-card ${isActive ? 'active' : ''}`}
+                      aria-label={`Switch to ${config.name}`}
+                      aria-pressed={isActive}
+                    >
+                      <span className="language-sheet-flag" aria-hidden="true">
+                        {LANGUAGE_FLAGS[langCode]}
+                      </span>
+                      <span className="language-sheet-code">{config.code.toUpperCase()}</span>
+                      <span className="language-sheet-name">{config.nativeName}</span>
+                      <span className="language-sheet-check" aria-hidden="true">✓</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>,
+          document.body
+        )}
+      </>
+    );
+  }
 
   // Menu Item variant (inline dropdown, no modal)
   if (actualVariant === 'menu-item') {

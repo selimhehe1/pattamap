@@ -315,7 +315,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <div className="mobile-menu-settings-row">
             <ThemeToggle variant="icon" />
             <div className="mobile-menu-settings-divider" />
-            <LanguageSelector variant="menu-item" />
+            <LanguageSelector variant="mobile-sheet" />
           </div>
         </div>
       </div>

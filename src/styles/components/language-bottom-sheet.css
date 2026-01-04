@@ -1,0 +1,414 @@
+/**
+ * ============================================
+ * Language Bottom Sheet - Premium Mobile UI
+ * ============================================
+ *
+ * Design: Glassmorphism bottom sheet with neon accents
+ * Theme: Nightlife premium (pink/cyan gradients)
+ *
+ * Features:
+ * - Slide-up animation from bottom
+ * - Glassmorphism backdrop blur
+ * - Neon glow effects on active state
+ * - 2x2 grid with flag emojis
+ * - Safe area support for notched devices
+ */
+
+/* ==========================================
+   BACKDROP OVERLAY
+   ========================================== */
+.language-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ==========================================
+   BOTTOM SHEET CONTAINER
+   ========================================== */
+.language-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  max-height: 85vh;
+
+  /* Glassmorphism */
+  background: rgba(13, 13, 15, 0.95);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+
+  /* Rounded top corners */
+  border-radius: 24px 24px 0 0;
+
+  /* Neon border top */
+  border-top: 2px solid rgba(232, 121, 249, 0.4);
+
+  /* Premium shadow */
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(232, 121, 249, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Animation */
+  transform: translateY(100%);
+  animation: slideUp 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  to { transform: translateY(0); }
+}
+
+.language-sheet.closing {
+  animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+  to { transform: translateY(100%); }
+}
+
+/* ==========================================
+   DRAG HANDLE
+   ========================================== */
+.language-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 8px;
+  cursor: grab;
+}
+
+.language-sheet-handle::before {
+  content: '';
+  width: 40px;
+  height: 4px;
+  background: linear-gradient(90deg,
+    rgba(232, 121, 249, 0.3),
+    rgba(0, 229, 255, 0.3)
+  );
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.language-sheet-handle:hover::before {
+  background: linear-gradient(90deg,
+    rgba(232, 121, 249, 0.5),
+    rgba(0, 229, 255, 0.5)
+  );
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+.language-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 16px;
+  border-bottom: 1px solid rgba(232, 121, 249, 0.15);
+}
+
+.language-sheet-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+
+  /* Gradient text */
+  background: linear-gradient(135deg, #E879F9, #00E5FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.language-sheet-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(0, 229, 255, 0.1));
+  border-radius: 8px;
+  color: #E879F9;
+}
+
+.language-sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid rgba(232, 121, 249, 0.2);
+  border-radius: 10px;
+  color: var(--text-secondary, #A1A1AA);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-sheet-close:hover {
+  background: rgba(232, 121, 249, 0.1);
+  border-color: rgba(232, 121, 249, 0.4);
+  color: #E879F9;
+  transform: scale(1.05);
+}
+
+.language-sheet-close:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   LANGUAGE GRID
+   ========================================== */
+.language-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* ==========================================
+   LANGUAGE CARD
+   ========================================== */
+.language-sheet-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  min-height: 100px;
+
+  /* Card styling */
+  background: linear-gradient(135deg,
+    rgba(30, 30, 36, 0.8),
+    rgba(20, 20, 26, 0.9)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Reset button styles */
+  font-family: inherit;
+  text-align: center;
+}
+
+.language-sheet-card:hover {
+  background: linear-gradient(135deg,
+    rgba(232, 121, 249, 0.08),
+    rgba(0, 229, 255, 0.04)
+  );
+  border-color: rgba(232, 121, 249, 0.25);
+  transform: translateY(-2px);
+}
+
+.language-sheet-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Active state - Neon glow */
+.language-sheet-card.active {
+  background: linear-gradient(135deg,
+    rgba(232, 121, 249, 0.15),
+    rgba(0, 229, 255, 0.08)
+  );
+  border-color: rgba(232, 121, 249, 0.4);
+  box-shadow:
+    0 0 20px rgba(232, 121, 249, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(232, 121, 249, 0.05);
+}
+
+.language-sheet-card.active:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 30px rgba(232, 121, 249, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px rgba(232, 121, 249, 0.05);
+}
+
+/* Flag emoji */
+.language-sheet-flag {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Language code */
+.language-sheet-code {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #00E5FF);
+  transition: color 0.2s ease;
+}
+
+.language-sheet-card.active .language-sheet-code {
+  color: #E879F9;
+}
+
+/* Native name */
+.language-sheet-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary, #FAFAFA);
+}
+
+/* Checkmark for active */
+.language-sheet-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #E879F9, #00E5FF);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  color: white;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.25s ease;
+}
+
+.language-sheet-card {
+  position: relative;
+}
+
+.language-sheet-card.active .language-sheet-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ==========================================
+   TRIGGER BUTTON (in mobile menu footer)
+   ========================================== */
+.language-sheet-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 40px;
+
+  background: linear-gradient(135deg,
+    rgba(232, 121, 249, 0.1),
+    rgba(0, 229, 255, 0.05)
+  );
+  border: 1px solid rgba(232, 121, 249, 0.25);
+  border-radius: 10px;
+
+  color: var(--text-primary, #FAFAFA);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-sheet-trigger:hover {
+  background: linear-gradient(135deg,
+    rgba(232, 121, 249, 0.15),
+    rgba(0, 229, 255, 0.08)
+  );
+  border-color: rgba(232, 121, 249, 0.4);
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.2);
+}
+
+.language-sheet-trigger:active {
+  transform: scale(0.97);
+}
+
+.language-sheet-trigger-icon {
+  color: #E879F9;
+}
+
+.language-sheet-trigger-code {
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+.language-sheet-card:focus-visible {
+  outline: 2px solid #00E5FF;
+  outline-offset: 2px;
+}
+
+.language-sheet-close:focus-visible {
+  outline: 2px solid #00E5FF;
+  outline-offset: 2px;
+}
+
+.language-sheet-trigger:focus-visible {
+  outline: 2px solid #00E5FF;
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+  .language-sheet,
+  .language-sheet-backdrop,
+  .language-sheet-card,
+  .language-sheet-check {
+    animation: none;
+    transition: none;
+  }
+
+  .language-sheet {
+    transform: translateY(0);
+  }
+
+  .language-sheet-card:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================
+   SMALL SCREENS
+   ========================================== */
+@media (max-width: 360px) {
+  .language-sheet-grid {
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .language-sheet-card {
+    padding: 16px 12px;
+    min-height: 90px;
+  }
+
+  .language-sheet-flag {
+    font-size: 1.75rem;
+  }
+
+  .language-sheet-name {
+    font-size: 0.875rem;
+  }
+}
