@@ -61,8 +61,9 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
       // - employment_history[] with is_current=true (from admin API)
       // - current_establishment_id directly (fallback)
       let derivedEstablishmentId = '';
-      if (initialData.current_employment && initialData.current_employment.length > 0) {
-        derivedEstablishmentId = initialData.current_employment[0].establishment_id;
+      const currentEmploymentFromApi = initialData.current_employment?.find(e => e.is_current);
+      if (currentEmploymentFromApi) {
+        derivedEstablishmentId = currentEmploymentFromApi.establishment_id;
       } else if (initialData.employment_history && initialData.employment_history.length > 0) {
         // Admin API returns employment_history - find the current one
         const currentEmployment = initialData.employment_history.find(eh => eh.is_current);
