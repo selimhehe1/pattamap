@@ -250,6 +250,28 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
+  // Get translated notification content using i18n keys from metadata
+  const getNotificationContent = (notification: Notification): { title: string; message: string } => {
+    if (notification.metadata?.i18n_key) {
+      // Transform backend key (notifications.verificationApproved) to translation key (notifications.messages.verificationApproved)
+      const messageKey = notification.metadata.i18n_key.startsWith('notifications.')
+        ? `notifications.messages.${notification.metadata.i18n_key.replace('notifications.', '')}`
+        : `notifications.messages.${notification.metadata.i18n_key}`;
+
+      const translatedMessage = t(messageKey, {
+        ...notification.metadata.i18n_params,
+        defaultValue: notification.message || ''
+      });
+
+      // Get title from notification type
+      const titleKey = `notifications.titles.${notification.type}`;
+      const translatedTitle = t(titleKey, { defaultValue: notification.title });
+
+      return { title: translatedTitle, message: translatedMessage };
+    }
+    return { title: notification.title, message: notification.message };
+  };
+
   if (!user) return null;
 
   const toggleDropdown = () => setShowDropdown(!showDropdown);
@@ -298,38 +320,41 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
               </div>
             ) : (
               <div className="notif-dropdown__list">
-                {notifications.map(notification => (
-                  <div
-                    key={notification.id}
-                    className={`notif-item ${!notification.is_read ? 'notif-item--unread' : ''} ${notification.link ? 'notif-item--clickable' : ''}`}
-                    onClick={() => handleNotificationClick(notification)}
-                  >
-                    {!notification.is_read && <div className="notif-item__dot" />}
-                    <div className="notif-item__content">
-                      <p className="notif-item__title">{notification.title}</p>
-                      <p className="notif-item__message">{notification.message}</p>
-                      <span className="notif-item__time">{formatTime(notification.created_at)}</span>
-                    </div>
-                    <div className="notif-item__actions">
-                      {!notification.is_read && (
+                {notifications.map(notification => {
+                  const { title, message } = getNotificationContent(notification);
+                  return (
+                    <div
+                      key={notification.id}
+                      className={`notif-item ${!notification.is_read ? 'notif-item--unread' : ''} ${notification.link ? 'notif-item--clickable' : ''}`}
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      {!notification.is_read && <div className="notif-item__dot" />}
+                      <div className="notif-item__content">
+                        <p className="notif-item__title">{title}</p>
+                        <p className="notif-item__message">{message}</p>
+                        <span className="notif-item__time">{formatTime(notification.created_at)}</span>
+                      </div>
+                      <div className="notif-item__actions">
+                        {!notification.is_read && (
+                          <button
+                            className="notif-item__action"
+                            onClick={(e) => handleMarkAsRead(notification.id, e)}
+                            title={t('notifications.markRead', 'Mark as read')}
+                          >
+                            <Check size={14} />
+                          </button>
+                        )}
                         <button
-                          className="notif-item__action"
-                          onClick={(e) => handleMarkAsRead(notification.id, e)}
-                          title={t('notifications.markRead', 'Mark as read')}
+                          className="notif-item__action notif-item__action--delete"
+                          onClick={(e) => handleDelete(notification.id, e)}
+                          title={t('notifications.delete', 'Delete')}
                         >
-                          <Check size={14} />
+                          <X size={14} />
                         </button>
-                      )}
-                      <button
-                        className="notif-item__action notif-item__action--delete"
-                        onClick={(e) => handleDelete(notification.id, e)}
-                        title={t('notifications.delete', 'Delete')}
-                      >
-                        <X size={14} />
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
