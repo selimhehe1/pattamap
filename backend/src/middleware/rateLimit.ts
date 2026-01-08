@@ -87,11 +87,6 @@ export const createRateLimit = (options: RateLimitOptions) => {
   } = options;
 
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Rate limiting disabled for early launch - few active users contributing heavily
-    // Re-enable when user base grows to prevent abuse
-    // Force cache bust: 2025-12-30T18:45
-    return next();
-
     try {
       const key = keyGenerator(req);
       const current = store.increment(key, windowMs);
@@ -337,6 +332,32 @@ export const availabilityCheckRateLimit = createRateLimit({
   keyGenerator: (req: Request) => {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     return `availability:${ip}`;
+  }
+});
+
+// Global rate limit for anonymous users (anti-bot protection)
+// Generous limit to allow normal browsing, blocks scrapers
+export const globalRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 300, // 300 requests per 15 minutes for anonymous
+  message: 'Too many requests. Please try again later.',
+  keyGenerator: (req: Request) => {
+    const forwardedFor = req.get('X-Forwarded-For');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (req.ip || req.connection.remoteAddress || 'unknown');
+    return `global:anon:${ip}`;
+  }
+});
+
+// Global rate limit for authenticated users (very generous for power users)
+export const globalAuthenticatedRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 1000, // 1000 requests per 15 minutes for authenticated users
+  message: 'Too many requests. Please try again later.',
+  keyGenerator: (req: Request) => {
+    const userId = req.user?.id || 'unknown';
+    const forwardedFor = req.get('X-Forwarded-For');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (req.ip || req.connection.remoteAddress || 'unknown');
+    return `global:auth:${userId}:${ip}`;
   }
 });
 

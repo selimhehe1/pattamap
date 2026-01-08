@@ -79,7 +79,9 @@ import {
   uploadRateLimit as _uploadRateLimit,
   adminRateLimit,
   commentRateLimit as _commentRateLimit,
-  healthCheckRateLimit
+  healthCheckRateLimit,
+  globalRateLimit,
+  globalAuthenticatedRateLimit
 } from './middleware/rateLimit';
 import { initRedis, cacheInvalidatePattern as _cacheInvalidatePattern, cacheDel as _cacheDel, getRedisClient as _getRedisClient, isRedisConnected as _isRedisConnected } from './config/redis';
 import { startMissionResetJobs, stopMissionResetJobs } from './jobs/missionResetJobs';
@@ -286,9 +288,12 @@ const createSessionStore = (): session.Store | undefined => {
 
   if (!useRedis || !redisUrl) {
     if (NODE_ENV === 'production') {
-      logger.warn('⚠️  PRODUCTION WARNING: No Redis configured for session store!');
-      logger.warn('⚠️  Sessions will use MemoryStore which breaks in serverless environments');
-      logger.warn('💡 Set USE_REDIS=true and REDIS_URL in environment variables');
+      logger.error('🚨 CRITICAL: Redis not configured in production!');
+      logger.error('🚨 Sessions will NOT persist across serverless instances (Vercel/Railway)');
+      logger.error('🚨 CSRF validation and auth sessions will fail randomly');
+      logger.error('💡 FIX: Set USE_REDIS=true and REDIS_URL in environment variables');
+    } else {
+      logger.warn('⚠️  No Redis configured - using MemoryStore (OK for development)');
     }
     return undefined;
   }
@@ -436,7 +441,7 @@ app.use(csrfTokenGenerator);
 // Body parsing with security limits
 app.use(express.json({
   limit: '10mb',
-  strict: false  // 🔧 RELAXED: Allow less strict JSON parsing
+  strict: true  // Strict JSON parsing - only accept valid JSON objects/arrays
 }));
 app.use(express.urlencoded({
   extended: true,
@@ -444,11 +449,16 @@ app.use(express.urlencoded({
   parameterLimit: 100
 }));
 
-// Global rate limiting - DISABLED for testing
-// TODO: Re-enable in production after testing is complete
+// Global rate limiting - Anti-bot protection
+// Authenticated users: 1000 req/15min, Anonymous: 300 req/15min
 app.use('/api', (req, res, next) => {
-  // Rate limiting disabled - just pass through
-  next();
+  // Authenticated users get much higher limits (power users)
+  // Type assertion needed because express.d.ts augmentation isn't always picked up by ts-node
+  if ((req as any).user?.id) {
+    return globalAuthenticatedRateLimit(req, res, next);
+  }
+  // Anonymous users get lower limits (anti-bot)
+  return globalRateLimit(req, res, next);
 });
 
 // Security headers middleware
