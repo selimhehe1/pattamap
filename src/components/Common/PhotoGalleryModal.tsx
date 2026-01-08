@@ -61,6 +61,15 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
 
   return (
     <div className="photo-gallery-simple-overlay-nightlife" onClick={onClose} role="button" tabIndex={0}>
+      {/* Floating close button - always visible on mobile */}
+      <button
+        onClick={onClose}
+        className="photo-gallery-floating-close"
+        aria-label={t('photoGalleryModal.ariaClose')}
+      >
+        ✕
+      </button>
+
       <div className="photo-gallery-simple-container-nightlife" role="button" tabIndex={0} onClick={(e) => e.stopPropagation()}>
 
         {/* Header minimal */}

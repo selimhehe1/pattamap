@@ -1000,6 +1000,7 @@
   inset: 0;
   cursor: pointer;
   overflow: hidden;
+  touch-action: pan-y; /* Allow vertical scroll, capture horizontal for swipe */
 }
 
 .profile-v2-photo-wrapper {

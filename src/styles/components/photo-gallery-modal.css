@@ -445,3 +445,51 @@
   height: 100%;
   will-change: transform;
 }
+
+/* ============================================
+   FLOATING CLOSE BUTTON (Mobile)
+   ============================================ */
+
+/**
+ * Bouton fermer flottant - toujours visible sur mobile
+ * Position fixe en haut à droite, au-dessus de tout
+ */
+.photo-gallery-floating-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100002; /* Au-dessus de l'overlay (100001) */
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-in-out);
+  backdrop-filter: blur(5px);
+}
+
+.photo-gallery-floating-close:hover {
+  background: rgba(255, 68, 68, 0.8);
+  border-color: #FF4444;
+  transform: scale(1.1);
+}
+
+.photo-gallery-floating-close:active {
+  transform: scale(0.95);
+}
+
+/* Visible uniquement sur mobile/tablet - le header suffit sur desktop */
+@media (min-width: 769px) {
+  .photo-gallery-floating-close {
+    display: none;
+  }
+}

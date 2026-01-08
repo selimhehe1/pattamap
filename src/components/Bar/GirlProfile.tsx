@@ -17,6 +17,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useToggleFavorite } from '../../hooks/useFavorites';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import LazyImage from '../Common/LazyImage';
+import { useSwipeGesture } from '../../hooks/useSwipeGesture';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +53,17 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
 
   // 🆕 Phase 5.3: Use centralized favorite hook with React Query optimistic updates
   const { isFavorite, toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite(girl.id);
+
+  // Swipe gesture for photo navigation on mobile
+  const { handlers: swipeHandlers } = useSwipeGesture({
+    onSwipeLeft: () => setCurrentPhotoIndex(prev =>
+      prev === girl.photos.length - 1 ? 0 : prev + 1
+    ),
+    onSwipeRight: () => setCurrentPhotoIndex(prev =>
+      prev === 0 ? girl.photos.length - 1 : prev - 1
+    ),
+    disabled: !girl.photos || girl.photos.length <= 1,
+  });
 
   // Ref for auto-focus on review form
   const reviewFormRef = useRef<HTMLDivElement>(null);
@@ -460,6 +472,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           <div
             className="profile-v2-photo"
             onClick={handlePhotoClick}
+            {...swipeHandlers}
             role="button"
             tabIndex={0}
             aria-label={t('profile.viewGallery', 'View photo gallery')}
