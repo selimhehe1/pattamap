@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { loadAdminStyles } from '../../styles/admin';
 import AdminDashboard from './AdminDashboard';
 import EstablishmentsAdmin from './EstablishmentsAdmin';
 import EmployeesAdmin from './EmployeesAdmin';
@@ -31,6 +32,11 @@ const pathToTab: Record<string, string> = {
 const AdminPanel: React.FC = () => {
   const location = useLocation();
   const _navigate = useNavigate(); // Prefixed with _ - reserved for future navigation
+
+  // Load admin CSS on mount (lazy-loaded for performance)
+  useEffect(() => {
+    loadAdminStyles();
+  }, []);
 
   // Get initial tab from URL path
   const getTabFromPath = useCallback((): string => {
