@@ -605,15 +605,8 @@ body[data-theme="light"] .auth-layout__form::-webkit-scrollbar-thumb:hover {
   color: var(--text-secondary, #A1A1AA);
 }
 
-/* Primary button spacing */
-.auth-form-container .btn--primary,
-.auth-form-login-content .btn--primary {
-  margin-top: var(--spacing-3, 12px);
-}
-
-/* Auth switch text spacing */
+/* Auth switch text alignment */
 .auth-form-container .auth-switch-text,
 .auth-form-login-content .auth-switch-text {
-  margin-top: var(--spacing-3, 12px);
   text-align: center;
 }

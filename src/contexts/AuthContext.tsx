@@ -29,6 +29,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isMountedRef = useRef(true);
   const sessionCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 🔧 FIX: Use ref for user to prevent checkAuthStatus recreation on user change
+  const userRef = useRef<User | null>(null);
+
+  // 🔧 FIX: Prevent multiple "session expired" notifications
+  const sessionExpiredNotifiedRef = useRef(false);
+
+  // Keep userRef in sync with user state
+  useEffect(() => {
+    userRef.current = user;
+    // Reset notification flag when user logs in
+    if (user) {
+      sessionExpiredNotifiedRef.current = false;
+    }
+  }, [user]);
+
   // 🔧 FIX A3: Auth check with timeout
   const checkAuthStatus = useCallback(async (isPeriodicCheck = false) => {
     // Create abort controller for timeout
@@ -83,8 +98,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logger.debug('[AuthContext] User loaded, profile will be fetched via useEffect if needed');
       } else {
         // Not authenticated or token expired
-        if (isPeriodicCheck && user) {
+        // 🔧 FIX: Use ref to check user state and prevent multiple notifications
+        if (isPeriodicCheck && userRef.current && !sessionExpiredNotifiedRef.current) {
           logger.warn('[AuthContext] Session expired - user will be logged out');
+          sessionExpiredNotifiedRef.current = true; // Prevent multiple notifications
           notification.warning('Votre session a expiré. Veuillez vous reconnecter.');
         }
         setUser(null);
@@ -114,7 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
       }
     }
-  }, [user]);
+  }, []); // 🔧 FIX: Removed 'user' dependency - now uses userRef to prevent recreation
 
   // 🔧 FIX A3: Initial auth check on mount
   useEffect(() => {

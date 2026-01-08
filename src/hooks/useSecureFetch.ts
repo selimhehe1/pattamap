@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCSRF } from '../contexts/CSRFContext';
 import { logger } from '../utils/logger';
@@ -72,8 +72,16 @@ interface _SecureFetchResult {
  * - `isQueuedResponse`: Function to check if response was queued for offline sync
  */
 export const useSecureFetch = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { getCSRFHeaders, refreshToken, loading: csrfLoading } = useCSRF();
+
+  // 🔧 FIX: Track if user is already logged out to prevent multiple logout calls
+  const isLoggedOutRef = useRef(false);
+
+  // Update ref when user changes
+  useEffect(() => {
+    isLoggedOutRef.current = !user;
+  }, [user]);
 
   const secureFetch = useCallback(async (url: string, options: SecureFetchOptions = {}): Promise<Response> => {
     const { requireAuth = true, offlineQueue = false, offlineDescription, forceCSRFRefresh = false, ...fetchOptions } = options;
@@ -225,14 +233,21 @@ export const useSecureFetch = () => {
             const retryResponse = await fetch(url, defaultOptions);
             return retryResponse;
           } else {
-            // Refresh failed, logout user
+            // Refresh failed, logout user only if not already logged out
             logger.warn('🔄 Token refresh failed, logging out user');
-            await logout();
+            if (!isLoggedOutRef.current) {
+              isLoggedOutRef.current = true; // Prevent multiple logout calls
+              await logout();
+            }
             throw new Error('Session expired, please login again');
           }
         } catch (refreshError) {
           logger.error('🔄 Token refresh error:', refreshError);
-          await logout();
+          // Only logout if not already logged out
+          if (!isLoggedOutRef.current) {
+            isLoggedOutRef.current = true; // Prevent multiple logout calls
+            await logout();
+          }
           throw new Error('Authentication required');
         }
       }

@@ -57,6 +57,17 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   // Ref for auto-focus on review form
   const reviewFormRef = useRef<HTMLDivElement>(null);
 
+  // 🔧 FIX: Track component mount state to prevent state updates after unmount
+  const isMountedRef = useRef(true);
+
+  // 🔧 FIX: Cleanup on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Auto-focus on review form when opened
   useEffect(() => {
     if (showReviewForm && reviewFormRef.current) {
