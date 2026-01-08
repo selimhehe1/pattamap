@@ -252,6 +252,14 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
 
   // Get translated notification content using i18n keys from metadata
   const getNotificationContent = (notification: Notification): { title: string; message: string } => {
+    // Always try to get a translated title from the notification type
+    const titleKey = `notifications.titles.${notification.type}`;
+    const translatedTitle = t(titleKey, { defaultValue: '' });
+
+    // Use translated title if available, otherwise use notification.title (but avoid generic "Notification")
+    const finalTitle = translatedTitle ||
+      (notification.title && notification.title !== 'Notification' ? notification.title : t('notifications.titles.other', 'Notification'));
+
     if (notification.metadata?.i18n_key) {
       // Transform backend key (notifications.verificationApproved) to translation key (notifications.messages.verificationApproved)
       const messageKey = notification.metadata.i18n_key.startsWith('notifications.')
@@ -263,13 +271,10 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
         defaultValue: notification.message || ''
       });
 
-      // Get title from notification type
-      const titleKey = `notifications.titles.${notification.type}`;
-      const translatedTitle = t(titleKey, { defaultValue: notification.title });
-
-      return { title: translatedTitle, message: translatedMessage };
+      return { title: finalTitle, message: translatedMessage };
     }
-    return { title: notification.title, message: notification.message };
+
+    return { title: finalTitle, message: notification.message };
   };
 
   if (!user) return null;
