@@ -16,6 +16,11 @@ declare module 'express-session' {
   }
 }
 
+// Extend Express Request to include csrfToken
+interface CsrfRequest extends Request {
+  csrfToken?: string;
+}
+
 // Générer un token CSRF sécurisé
 // 🔧 Exported for use in authController to regenerate token after auth
 export const generateCSRFToken = (): string => {
@@ -24,6 +29,9 @@ export const generateCSRFToken = (): string => {
 
 // Middleware pour générer le token CSRF
 export const csrfTokenGenerator = (req: Request, res: Response, next: NextFunction) => {
+  // Cast to CsrfRequest for csrfToken property access
+  const csrfReq = req as CsrfRequest;
+
   // 🔧 FIX: Force token regeneration when explicitly requesting /api/csrf-token
   // This fixes stale/corrupted tokens from sessions created before session.save() fix
   const isExplicitTokenRequest = req.originalUrl === '/api/csrf-token' || req.path === '/csrf-token';
@@ -52,7 +60,7 @@ export const csrfTokenGenerator = (req: Request, res: Response, next: NextFuncti
       });
 
       // Rendre le token disponible pour les vues/API
-      req.csrfToken = req.session.csrfToken;
+      csrfReq.csrfToken = req.session.csrfToken;
 
       // ✅ Call next() ONLY after session is saved
       next();
@@ -61,7 +69,7 @@ export const csrfTokenGenerator = (req: Request, res: Response, next: NextFuncti
     logger.debug('CSRF token reused from session');
 
     // Rendre le token disponible pour les vues/API
-    req.csrfToken = req.session.csrfToken;
+    csrfReq.csrfToken = req.session.csrfToken;
 
     // ✅ Call next() for existing token case
     next();
@@ -186,7 +194,8 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
 
 // Route pour obtenir le token CSRF (pour le frontend)
 export const getCSRFToken = (req: Request, res: Response) => {
-  const token = req.csrfToken || req.session.csrfToken;
+  const csrfReq = req as CsrfRequest;
+  const token = csrfReq.csrfToken || req.session.csrfToken;
 
   if (!token) {
     logger.error('CSRF token not available');

@@ -4,8 +4,11 @@ import { logger } from '../utils/logger';
 import { notifyNewFavorite } from '../utils/notificationHelper';
 import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
+// Helper to safely access user from request (type augmentation workaround for ts-node)
+const getUser = (req: Request) => (req as any).user as { id: string } | undefined;
+
 export const getFavorites = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = getUser(req)?.id;
 
   if (!userId) {
     throw UnauthorizedError();
@@ -157,7 +160,7 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = getUser(req)?.id;
   const { employee_id } = req.body;
 
   if (!userId) {
@@ -238,7 +241,7 @@ export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const removeFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = getUser(req)?.id;
   const { employee_id } = req.params;
 
   if (!userId) {
@@ -263,7 +266,7 @@ export const removeFavorite = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const checkFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = getUser(req)?.id;
   const { employee_id } = req.params;
 
   if (!userId) {

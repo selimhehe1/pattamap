@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 // Force reload with NULL NULL fix
 // Load environment variables FIRST
 import dotenv from 'dotenv';

@@ -9,6 +9,19 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { Request, Response, NextFunction } from 'express';
 
+// Define user interface locally to avoid circular dependency with auth middleware
+interface RequestUser {
+  id: string;
+  pseudonym: string;
+  email: string;
+  role: 'user' | 'moderator' | 'admin';
+  is_active: boolean;
+}
+
+interface RequestWithUser extends Request {
+  user?: RequestUser;
+}
+
 /**
  * Initialize Sentry for Node.js/Express application
  * Call this BEFORE loading any other modules
@@ -152,7 +165,7 @@ export const setSentryUser = (user: { id: string; pseudonym?: string; email?: st
 /**
  * Set user context from Express request
  */
-export const setSentryUserFromRequest = (req: Request) => {
+export const setSentryUserFromRequest = (req: RequestWithUser) => {
   const user = req.user;
   if (user) {
     setSentryUser({
