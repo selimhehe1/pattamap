@@ -12,8 +12,7 @@ import { useModal } from '../../contexts/ModalContext';
 import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import ClaimEmployeeModal from '../Employee/ClaimEmployeeModal';
 import EmployeeVerificationStatusCard from '../Employee/EmployeeVerificationStatusCard';
-import ValidationBadge from '../Employee/ValidationBadge';
-import ValidationVoteButtons from '../Employee/ValidationVoteButtons';
+import ValidationSection from '../Employee/ValidationSection';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useToggleFavorite } from '../../hooks/useFavorites';
 import PhotoGalleryModal from '../Common/PhotoGalleryModal';
@@ -696,7 +695,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           )}
 
           {/* ====== COMMUNITY VALIDATION ====== */}
-          {!girl.user_id && !girl.is_self_profile && !girl.is_verified && (
+          {!girl.user_id && !girl.is_self_profile && (
             <motion.div
               className="profile-v2-section profile-v2-section--validation"
               initial={{ opacity: 0, y: 20 }}
@@ -707,8 +706,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
                 <Search size={16} />
                 {t('profile.communityValidation', 'Community Validation')}
               </h3>
-              <ValidationBadge employeeId={girl.id} />
-              <ValidationVoteButtons employeeId={girl.id} />
+              <ValidationSection employeeId={girl.id} />
             </motion.div>
           )}
 

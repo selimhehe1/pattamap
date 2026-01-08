@@ -174,7 +174,7 @@
  */
 @media (max-width: 48rem) {
   .page-content-with-header-nightlife {
-    padding-top: calc(var(--height-header-mobile) + 0.75rem); /* ~64px */
+    padding-top: calc(var(--height-header-mobile) + 1.5rem); /* ~76px - more breathing room */
     min-height: calc(100vh - var(--height-header-mobile));
   }
 
@@ -221,7 +221,7 @@
  */
 @media (max-width: 40rem) {
   .page-content-with-header-nightlife {
-    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
+    padding-top: calc(var(--height-header-mobile) + 1.25rem); /* ~72px */
     min-height: calc(100vh - var(--height-header-mobile));
   }
 
@@ -240,7 +240,7 @@
  */
 @media (max-width: 30rem) {
   .page-content-with-header-nightlife {
-    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
+    padding-top: calc(var(--height-header-mobile) + 1rem); /* ~68px */
     min-height: auto; /* Remove forced min-height on mobile */
   }
 
@@ -271,7 +271,7 @@
  */
 @media (max-width: 23.4375rem) {
   .page-content-with-header-nightlife {
-    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
+    padding-top: calc(var(--height-header-mobile) + 1rem); /* ~68px */
     min-height: calc(100vh - var(--height-header-mobile));
   }
 

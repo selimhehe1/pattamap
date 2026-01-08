@@ -1,0 +1,245 @@
+/* ========================================
+ * Validation Section Component Styles
+ * Unified component for validation voting
+ * Version: v11.0
+ * Date: 2025-01-08
+ * ======================================== */
+
+/* Base section styles */
+.validation-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.75rem;
+}
+
+/* Loading state */
+.validation-section--loading {
+  flex-direction: row;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  gap: 0.5rem;
+}
+
+.validation-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Login required state */
+.validation-section--login-required {
+  flex-direction: row;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  gap: 0.5rem;
+}
+
+/* Stats display (after voting) */
+.validation-section--stats {
+  flex-direction: row;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  gap: 0.75rem;
+}
+
+.validation-section--positive {
+  border-color: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.validation-section--negative {
+  border-color: rgba(255, 68, 68, 0.3);
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.validation-section--neutral {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Stats container */
+.validation-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.stat--positive {
+  color: #00ff88;
+}
+
+.stat--negative {
+  color: #ff4444;
+}
+
+.stat-count {
+  font-size: 0.9rem;
+}
+
+.stat-separator {
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 300;
+}
+
+/* Warning indicator */
+.validation-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ff4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 68, 68, 0.1);
+  border-radius: 0.25rem;
+}
+
+/* Vote section */
+.validation-section--vote {
+  padding: 1rem;
+}
+
+.vote-prompt {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Vote buttons */
+.vote-buttons {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.vote-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+}
+
+.vote-btn--positive {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.3);
+  color: #00ff88;
+}
+
+.vote-btn--positive:hover:not(:disabled) {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
+}
+
+.vote-btn--negative {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+}
+
+.vote-btn--negative:hover:not(:disabled) {
+  background: rgba(255, 68, 68, 0.2);
+  border-color: rgba(255, 68, 68, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.2);
+}
+
+.vote-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Current stats preview (before voting) */
+.current-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+.current-stats .stat {
+  font-weight: 500;
+}
+
+.current-stats .stat--positive {
+  color: rgba(0, 255, 136, 0.7);
+}
+
+.current-stats .stat--negative {
+  color: rgba(255, 68, 68, 0.7);
+}
+
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+  .vote-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .vote-btn {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+  .validation-section {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .validation-section--vote {
+    padding: 0.75rem;
+  }
+
+  .vote-prompt {
+    font-size: 0.8rem;
+  }
+
+  .vote-btn {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .stat-count {
+    font-size: 0.85rem;
+  }
+
+  .validation-warning {
+    font-size: 0.7rem;
+  }
+
+  .current-stats {
+    font-size: 0.75rem;
+  }
+}
