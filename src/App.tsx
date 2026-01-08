@@ -36,6 +36,7 @@ import './styles/components/modals.css';
 import './styles/global/utilities.css';
 import './styles/utilities/typography.css';
 import './styles/utilities/layout-containers.css';
+import './styles/layout/page-layout.css'; // Page containers + header compensation
 import './styles/components/buttons.css';
 import './styles/components/autocomplete.css';
 import './styles/components/auth.css';
