@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ClipboardList, Check, X, Loader2, FileText } from 'lucide-react';
+import { ClipboardList, Check, X, FileText, Loader2 } from 'lucide-react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
+import { SkeletonTable } from '../Common/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import notification from '../../utils/notification';
@@ -188,10 +189,7 @@ const MyOwnershipRequests: React.FC = () => {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading your requests...</p>
-        </div>
+        <SkeletonTable variant="list" rows={3} showHeader={false} />
       )}
 
       {/* Empty state */}

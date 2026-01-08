@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Crown, Settings, FileEdit, DollarSign, Camera, Users, BarChart3, Lock, Ban, Trophy, Building2, Eye, MessageCircle, Loader2, MapPin, Calendar, Pencil } from 'lucide-react';
+import { Crown, Settings, FileEdit, DollarSign, Camera, Users, BarChart3, Lock, Ban, Trophy, Building2, Eye, MessageCircle, MapPin, Calendar, Pencil } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSecureFetch } from '../hooks/useSecureFetch';
 import { Establishment } from '../types';
@@ -9,6 +9,7 @@ import { isFeatureEnabled, FEATURES } from '../utils/featureFlags';
 import OwnerEstablishmentEditModal from '../components/Owner/OwnerEstablishmentEditModal'; // 🆕 v10.1
 import MyEmployeesList from '../components/Owner/MyEmployeesList'; // 🆕 v10.3 Phase 0
 import VIPPurchaseModal from '../components/Owner/VIPPurchaseModal'; // 🆕 v10.3 Phase 5
+import { SkeletonGallery } from '../components/Common/Skeleton';
 import '../styles/pages/my-establishments.css';
 
 // Feature flag check
@@ -200,10 +201,7 @@ const MyEstablishmentsPage: React.FC = () => {
       {/* Establishments Grid */}
       <div className="my-establishments-content">
         {isLoading ? (
-          <div className="loading-container">
-            <div className="loading-spinner"><Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>
-            <div className="loading-text">Loading your establishments...</div>
-          </div>
+          <SkeletonGallery count={4} variant="establishment" />
         ) : establishments.length === 0 ? (
           <div className="empty-state-container">
             <div className="empty-state-icon"><Building2 size={48} /></div>

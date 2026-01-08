@@ -18,6 +18,7 @@ import {
   Handshake,
   Trophy
 } from 'lucide-react';
+import { SkeletonDetailPage } from '../components/Common/Skeleton';
 import '../styles/pages/GamifiedUserProfile.css';
 
 interface UserProfile {
@@ -102,14 +103,7 @@ const GamifiedUserProfile: React.FC = () => {
   }, [userId]);
 
   if (loading) {
-    return (
-      <div className="gamified-profile">
-        <div className="profile-loading">
-          <div className="profile-loading-spinner" />
-          <p>Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonDetailPage variant="employee" showSidebar={false} galleryCount={3} />;
   }
 
   if (error || !profile || !stats) {

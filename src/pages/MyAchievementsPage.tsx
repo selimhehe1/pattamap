@@ -18,12 +18,18 @@ import BadgeShowcase from '../components/Gamification/BadgeShowcase';
 import MissionsDashboard from '../components/Gamification/MissionsDashboard';
 import Leaderboard from '../components/Gamification/Leaderboard';
 import SEOHead from '../components/Common/SEOHead';
+import { SkeletonDetailPage } from '../components/Common/Skeleton';
 import '../styles/pages/MyAchievementsPage.css';
 
 const MyAchievementsPage: React.FC = () => {
   const { user } = useAuth();
-  const { userProgress, loading: _loading } = useGamification();
+  const { userProgress, loading } = useGamification();
   const [activeTab, setActiveTab] = useState<'overview' | 'badges' | 'missions' | 'leaderboard'>('overview');
+
+  // Loading state
+  if (loading) {
+    return <SkeletonDetailPage variant="employee" showSidebar={false} galleryCount={4} />;
+  }
 
   if (!user) {
     return (
