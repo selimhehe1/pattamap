@@ -311,6 +311,45 @@
 }
 
 /* ============================================
+   RESPONSIVE - LANDSCAPE MODE (short height)
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Hide hero in landscape to maximize form space */
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-layout__hero {
+    display: none;
+  }
+
+  .auth-layout__form {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+    overflow-y: auto;
+  }
+
+  /* Show mobile header in landscape */
+  .auth-mobile-header {
+    display: flex;
+    margin-bottom: var(--spacing-3, 12px);
+  }
+
+  .auth-form-container {
+    max-width: 480px;
+  }
+
+  .auth-back-link {
+    position: relative;
+    top: auto;
+    left: auto;
+    margin-bottom: var(--spacing-2, 8px);
+  }
+}
+
+/* ============================================
    RESPONSIVE - MOBILE (< 768px)
    ============================================ */
 
