@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { logger } from '../utils/logger';
 
+// Timeout constants
+const CSRF_FETCH_TIMEOUT_MS = 10000; // 10 second timeout for CSRF token fetch
+
 interface CSRFResponse {
   csrfToken: string;
   sessionId?: string;
@@ -27,16 +30,17 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isMountedRef = useRef(true);
   // Track if initial fetch has completed to avoid re-fetching on StrictMode re-mount
   const initialFetchCompleteRef = useRef(false);
+  // Track if currently fetching to prevent race conditions (replaces DOM dataset)
+  const isFetchingRef = useRef(false);
 
   const fetchCSRFToken = useCallback(async (signal: AbortSignal | null, force = false): Promise<string | null> => {
-    // Use a ref or check if currently fetching to prevent race conditions
-    // Allow forced refresh or check if already fetching
-    if (document.body.dataset.csrfFetching === 'true' && !force) {
+    // Use ref to prevent race conditions (type-safe, no DOM pollution)
+    if (isFetchingRef.current && !force) {
       logger.debug('CSRF fetch skipped - already fetching');
       return null;
     }
 
-    document.body.dataset.csrfFetching = 'true';
+    isFetchingRef.current = true;
 
     try {
       if (isMountedRef.current) {
@@ -48,8 +52,8 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Add timeout to prevent hanging requests
       const timeoutId = setTimeout(() => {
-        logger.warn('CSRF fetch timeout reached (10s)');
-      }, 10000); // 10 second timeout
+        logger.warn(`CSRF fetch timeout reached (${CSRF_FETCH_TIMEOUT_MS}ms)`);
+      }, CSRF_FETCH_TIMEOUT_MS);
 
       const fetchOptions: RequestInit = {
         method: 'GET',
@@ -102,7 +106,7 @@ export const CSRFProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return null;
     } finally {
-      document.body.dataset.csrfFetching = 'false';
+      isFetchingRef.current = false;
     }
   }, []);
 
