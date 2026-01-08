@@ -576,36 +576,7 @@ body[data-theme="light"] .auth-layout__form::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 
-/* ============================================
-   AUTH FORM ELEMENTS SPACING
-   ============================================ */
-
 /* ForgotPasswordForm specific spacing */
 .form-layout--forgot-password {
   gap: var(--spacing-4, 16px);
-}
-
-/* Form group styling */
-.auth-form-container .form-group,
-.auth-form-login-content .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2, 8px);
-}
-
-/* Input labels */
-.auth-form-container .form-label,
-.auth-form-login-content .form-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-1, 4px);
-  font-size: var(--font-sm, 0.875rem);
-  font-weight: var(--font-weight-medium, 500);
-  color: var(--text-secondary, #A1A1AA);
-}
-
-/* Auth switch text alignment */
-.auth-form-container .auth-switch-text,
-.auth-form-login-content .auth-switch-text {
-  text-align: center;
 }
