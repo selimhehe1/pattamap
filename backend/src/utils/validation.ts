@@ -400,9 +400,18 @@ export const sanitizeErrorForClient = (error: unknown, context?: string): string
   return contextMessages[context || ''] || 'Une erreur est survenue';
 };
 
+// Type for sanitized filter parameters - maintains type info while ensuring values are safe
+export type SanitizedFilterParams<T> = {
+  [K in keyof T]: T[K] extends string ? string :
+                  T[K] extends number ? number :
+                  T[K] extends boolean ? boolean :
+                  string | number | boolean;
+};
+
 // Validate and prepare filter parameters for safe SQL usage
-export const prepareFilterParams = (params: Record<string, any>): Record<string, any> => {
-  const sanitized: Record<string, any> = {};
+// Returns same shape as input but with validated/sanitized values
+export const prepareFilterParams = <T extends Record<string, unknown>>(params: T): SanitizedFilterParams<T> => {
+  const sanitized: Record<string, string | number | boolean> = {};
 
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === null) {
@@ -416,13 +425,13 @@ export const prepareFilterParams = (params: Record<string, any>): Record<string,
 
     if (typeof value === 'string') {
       const validation = validateTextInput(value, 0, 1000, true);
-      if (!validation.valid) {
+      if (!validation.valid || validation.sanitized === undefined) {
         throw new Error(`Invalid value for ${key}: ${validation.error}`);
       }
       sanitized[key] = validation.sanitized;
     } else if (typeof value === 'number') {
       const validation = validateNumericInput(value);
-      if (!validation.valid) {
+      if (!validation.valid || validation.value === undefined) {
         throw new Error(`Invalid numeric value for ${key}: ${validation.error}`);
       }
       sanitized[key] = validation.value;
@@ -433,5 +442,5 @@ export const prepareFilterParams = (params: Record<string, any>): Record<string,
     }
   }
 
-  return sanitized;
+  return sanitized as SanitizedFilterParams<T>;
 };

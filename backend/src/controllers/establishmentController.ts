@@ -87,7 +87,7 @@ export const getEstablishments = asyncHandler(async (req: AuthRequest, res: Resp
   // Validate search term
   if (validatedParams.search) {
     const searchValidation = validateTextInput(validatedParams.search, 0, 100);
-    if (!searchValidation.valid) {
+    if (!searchValidation.valid || searchValidation.sanitized === undefined) {
       throw BadRequestError(`Invalid search parameter: ${searchValidation.error}`);
     }
     validatedParams.search = searchValidation.sanitized;

@@ -91,3 +91,10 @@ tests/e2e/.auth/
 
 .vercel
 .env*.local
+
+# Sensitive test files (never commit)
+*cookies*.txt
+*session*.txt
+login_*.json
+login_*.txt
+*_cookies.txt

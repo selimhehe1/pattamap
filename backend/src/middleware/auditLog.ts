@@ -3,6 +3,20 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from './auth';
 import { logger } from '../utils/logger';
 
+// Type-safe audit log details
+export interface AuditLogDetails {
+  method?: string;
+  url?: string;
+  duration?: number;
+  statusCode?: number;
+  level?: AuditLevel;
+  requestBody?: Record<string, unknown>;
+  queryParams?: Record<string, unknown>;
+  error?: string;
+  loginMethod?: string;
+  [key: string]: unknown;
+}
+
 export interface AuditLogEntry {
   user_id: string;
   user_role: string;
@@ -12,7 +26,7 @@ export interface AuditLogEntry {
   resource_id?: string;
   ip_address: string;
   user_agent: string;
-  details?: Record<string, any>;
+  details?: AuditLogDetails;
   status: 'success' | 'failed' | 'denied';
   timestamp: string;
 }
@@ -111,7 +125,7 @@ export const auditLogger = (action: string, resourceType: string, level: AuditLe
         }
 
         // Extract relevant details from request and response
-        const details: Record<string, any> = {
+        const details: AuditLogDetails = {
           method: req.method,
           url: req.originalUrl,
           duration: duration,
@@ -185,7 +199,7 @@ export const auditAdminLogin = (req: AuthRequest, success: boolean) => {
   });
 };
 
-export const auditUserAction = (req: AuthRequest, action: string, targetUserId: string, details?: Record<string, any>) => {
+export const auditUserAction = (req: AuthRequest, action: string, targetUserId: string, details?: AuditLogDetails) => {
   createAuditLog({
     user_id: req.user?.id,
     user_role: req.user?.role,
@@ -200,7 +214,7 @@ export const auditUserAction = (req: AuthRequest, action: string, targetUserId: 
   });
 };
 
-export const auditContentAction = (req: AuthRequest, action: string, contentType: string, contentId: string, details?: Record<string, any>) => {
+export const auditContentAction = (req: AuthRequest, action: string, contentType: string, contentId: string, details?: AuditLogDetails) => {
   createAuditLog({
     user_id: req.user?.id,
     user_role: req.user?.role,

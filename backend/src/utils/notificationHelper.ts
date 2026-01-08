@@ -4,6 +4,139 @@ import { NotificationType, CreateNotificationRequest } from '../types';
 import { sendPushToUser } from '../services/pushService';
 import { sanitizeInternalLink } from './validation'; // 🔧 FIX N2
 
+// ============================================================================
+// SHARED CONSTANTS - Content type mappings to reduce duplication
+// ============================================================================
+
+/** Maps content types to their corresponding notification types for approval */
+export const CONTENT_APPROVED_TYPE_MAP: Record<string, NotificationType> = {
+  employee: 'employee_approved',
+  establishment: 'establishment_approved',
+  comment: 'comment_approved'
+};
+
+/** Maps content types to their corresponding notification types for rejection */
+export const CONTENT_REJECTED_TYPE_MAP: Record<string, NotificationType> = {
+  employee: 'employee_rejected',
+  establishment: 'establishment_rejected',
+  comment: 'comment_rejected'
+};
+
+/** Maps content types to their i18n keys for approval */
+export const CONTENT_APPROVED_I18N_MAP: Record<string, string> = {
+  employee: 'notifications.employeeApproved',
+  establishment: 'notifications.establishmentApproved',
+  comment: 'notifications.commentApproved'
+};
+
+/** Maps content types to their i18n keys for rejection */
+export const CONTENT_REJECTED_I18N_MAP: Record<string, string> = {
+  employee: 'notifications.employeeRejected',
+  establishment: 'notifications.establishmentRejected',
+  comment: 'notifications.commentRejected'
+};
+
+/** Maps employee update types to notification types */
+export const EMPLOYEE_UPDATE_TYPE_MAP: Record<string, NotificationType> = {
+  profile: 'employee_profile_updated',
+  photos: 'employee_photos_updated',
+  position: 'employee_position_changed'
+};
+
+/** Maps employee update types to i18n keys */
+export const EMPLOYEE_UPDATE_I18N_MAP: Record<string, string> = {
+  profile: 'notifications.employeeProfileUpdated',
+  photos: 'notifications.employeePhotosUpdated',
+  position: 'notifications.employeePositionChanged'
+};
+
+// ============================================================================
+// SHARED HELPERS - Reduce code duplication
+// ============================================================================
+
+export type UserRole = 'admin' | 'moderator' | 'user';
+
+/**
+ * Fetch user IDs by role(s)
+ * @param roles - Single role or array of roles to fetch
+ * @param activeOnly - Whether to filter by is_active (default: false for backward compat)
+ * @returns Array of user IDs or empty array if none found
+ */
+export const fetchUserIdsByRole = async (
+  roles: UserRole | UserRole[],
+  activeOnly: boolean = false
+): Promise<string[]> => {
+  try {
+    const roleArray = Array.isArray(roles) ? roles : [roles];
+
+    let query = supabase
+      .from('users')
+      .select('id');
+
+    if (roleArray.length === 1) {
+      query = query.eq('role', roleArray[0]);
+    } else {
+      query = query.in('role', roleArray);
+    }
+
+    if (activeOnly) {
+      query = query.eq('is_active', true);
+    }
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+      logger.warn(`No users found with role(s): ${roleArray.join(', ')}`);
+      return [];
+    }
+
+    return data.map(u => u.id);
+  } catch (error) {
+    logger.error('Fetch users by role error:', error);
+    return [];
+  }
+};
+
+/**
+ * Send notifications to multiple users with Promise.allSettled
+ * Handles logging and failure tracking automatically
+ *
+ * @param userIds - Array of user IDs to notify
+ * @param notificationBuilder - Function that creates notification params for each user
+ * @param context - Context string for logging (e.g., 'admin ownership request')
+ */
+export const notifyMultipleUsers = async (
+  userIds: string[],
+  notificationBuilder: (userId: string) => CreateNotificationRequest,
+  context: string
+): Promise<{ successCount: number; failedCount: number }> => {
+  if (userIds.length === 0) {
+    logger.warn(`No users to notify for: ${context}`);
+    return { successCount: 0, failedCount: 0 };
+  }
+
+  const notificationPromises = userIds.map(userId =>
+    createNotification(notificationBuilder(userId))
+  );
+
+  const results = await Promise.allSettled(notificationPromises);
+  const failed = results.filter(r => r.status === 'rejected');
+  const successCount = results.length - failed.length;
+  const failedCount = failed.length;
+
+  if (failedCount > 0) {
+    logger.warn(`Some ${context} notifications failed`, { failedCount, totalCount: results.length });
+  }
+
+  logger.info(`Users notified: ${context}`, {
+    userCount: userIds.length,
+    successCount,
+    failedCount
+  });
+
+  return { successCount, failedCount };
+};
+
 /**
  * Create a new in-app notification for a user
  * Automatically sends push notification if user has subscriptions
@@ -19,7 +152,7 @@ import { sanitizeInternalLink } from './validation'; // 🔧 FIX N2
 export const createNotification = async (params: CreateNotificationRequest): Promise<string | null> => {
   try {
     // Build metadata object for i18n support
-    const metadata: Record<string, any> = {};
+    const metadata: Record<string, unknown> = {};
     if (params.i18n_key) {
       metadata.i18n_key = params.i18n_key;
       if (params.i18n_params) {
@@ -119,48 +252,26 @@ export const notifyAdminsNewOwnershipRequest = async (
   isNewEstablishment: boolean = false
 ): Promise<void> => {
   try {
-    // Get all admin users
-    const { data: admins, error } = await supabase
-      .from('users')
-      .select('id')
-      .eq('role', 'admin');
+    const adminIds = await fetchUserIdsByRole('admin');
+    if (adminIds.length === 0) return;
 
-    if (error || !admins || admins.length === 0) {
-      logger.warn('No admins found to notify');
-      return;
-    }
-
-    // Use different i18n key when establishment is being created
     const i18nKey = isNewEstablishment
       ? 'notifications.newOwnershipRequestWithEstablishment'
       : 'notifications.newOwnershipRequest';
 
-    // Create notification for each admin using Promise.all
-    const notificationPromises = admins.map(admin =>
-      createNotification({
-        user_id: admin.id,
+    await notifyMultipleUsers(
+      adminIds,
+      (userId) => ({
+        user_id: userId,
         type: 'new_ownership_request',
         i18n_key: i18nKey,
         i18n_params: { requesterPseudonym, establishmentName },
         link: '/admin/establishment-owners?tab=pending',
         related_entity_type: 'ownership_request',
         related_entity_id: requestId
-      })
+      }),
+      `admin ownership request (${requestId})`
     );
-
-    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some admin notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Admins notified about new ownership request', {
-      requestId,
-      adminCount: admins.length,
-      isNewEstablishment,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify admins error:', error);
   }
@@ -352,24 +463,12 @@ export const notifyUserContentApproved = async (
   contentId?: string
 ): Promise<void> => {
   try {
-    const typeMap = {
-      employee: 'employee_approved',
-      establishment: 'establishment_approved',
-      comment: 'comment_approved'
-    };
-
-    const i18nKeyMap = {
-      employee: 'notifications.employeeApproved',
-      establishment: 'notifications.establishmentApproved',
-      comment: 'notifications.commentApproved'
-    };
-
     const link = contentId ? `/${contentType}/${contentId}` : undefined;
 
     await createNotification({
       user_id: userId,
-      type: typeMap[contentType] as NotificationType,
-      i18n_key: i18nKeyMap[contentType],
+      type: CONTENT_APPROVED_TYPE_MAP[contentType],
+      i18n_key: CONTENT_APPROVED_I18N_MAP[contentType],
       i18n_params: { contentType, contentName },
       link,
       related_entity_type: contentType,
@@ -396,22 +495,10 @@ export const notifyUserContentRejected = async (
   contentId?: string
 ): Promise<void> => {
   try {
-    const typeMap = {
-      employee: 'employee_rejected',
-      establishment: 'establishment_rejected',
-      comment: 'comment_rejected'
-    };
-
-    const i18nKeyMap = {
-      employee: 'notifications.employeeRejected',
-      establishment: 'notifications.establishmentRejected',
-      comment: 'notifications.commentRejected'
-    };
-
     await createNotification({
       user_id: userId,
-      type: typeMap[contentType] as NotificationType,
-      i18n_key: i18nKeyMap[contentType],
+      type: CONTENT_REJECTED_TYPE_MAP[contentType],
+      i18n_key: CONTENT_REJECTED_I18N_MAP[contentType],
       i18n_params: { contentType, reason },
       related_entity_type: contentType,
       related_entity_id: contentId
@@ -542,31 +629,21 @@ export const notifyFavoriteAvailable = async (
       return;
     }
 
-    // Create notification for each user using Promise.all
-    const notificationPromises = favorites.map(fav =>
-      createNotification({
-        user_id: fav.user_id,
+    const userIds = favorites.map(f => f.user_id);
+
+    await notifyMultipleUsers(
+      userIds,
+      (userId) => ({
+        user_id: userId,
         type: 'favorite_available',
         i18n_key: 'notifications.favoriteAvailable',
         i18n_params: { employeeName, establishmentName: establishmentName || '' },
         link: `/employee/${employeeId}`,
         related_entity_type: 'employee',
         related_entity_id: employeeId
-      })
+      }),
+      `favorite available (${employeeName})`
     );
-
-    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some favorite notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Users notified: favorite available', {
-      employeeId,
-      userCount: favorites.length,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify favorite available error:', error);
   }
@@ -590,44 +667,19 @@ export const notifyEmployeeUpdate = async (
   employeeId: string
 ): Promise<void> => {
   try {
-    const typeMap = {
-      profile: 'employee_profile_updated',
-      photos: 'employee_photos_updated',
-      position: 'employee_position_changed'
-    };
-
-    const i18nKeyMap = {
-      profile: 'notifications.employeeProfileUpdated',
-      photos: 'notifications.employeePhotosUpdated',
-      position: 'notifications.employeePositionChanged'
-    };
-
-    // Create notification for each follower using Promise.all
-    const notificationPromises = userIds.map(userId =>
-      createNotification({
+    await notifyMultipleUsers(
+      userIds,
+      (userId) => ({
         user_id: userId,
-        type: typeMap[updateType] as NotificationType,
-        i18n_key: i18nKeyMap[updateType],
+        type: EMPLOYEE_UPDATE_TYPE_MAP[updateType],
+        i18n_key: EMPLOYEE_UPDATE_I18N_MAP[updateType],
         i18n_params: { employeeName },
         link: `/employee/${employeeId}`,
         related_entity_type: 'employee',
         related_entity_id: employeeId
-      })
+      }),
+      `employee ${updateType} update (${employeeId})`
     );
-
-    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some employee update notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Users notified: employee update', {
-      employeeId,
-      updateType,
-      userCount: userIds.length,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify employee update error:', error);
   }
@@ -651,43 +703,22 @@ export const notifyAdminsPendingContent = async (
   itemId: string
 ): Promise<void> => {
   try {
-    // Get all admins and moderators
-    const { data: admins, error } = await supabase
-      .from('users')
-      .select('id')
-      .in('role', ['admin', 'moderator']);
+    const staffIds = await fetchUserIdsByRole(['admin', 'moderator']);
+    if (staffIds.length === 0) return;
 
-    if (error || !admins || admins.length === 0) {
-      logger.warn('No admins/moderators found to notify');
-      return;
-    }
-
-    // Create notification for each admin/moderator using Promise.all
-    const notificationPromises = admins.map(admin =>
-      createNotification({
-        user_id: admin.id,
+    await notifyMultipleUsers(
+      staffIds,
+      (userId) => ({
+        user_id: userId,
         type: 'new_content_pending',
         i18n_key: 'notifications.newContentPending',
         i18n_params: { submitterName, contentType, contentName },
         link: `/admin/moderation?item=${itemId}`,
         related_entity_type: contentType,
         related_entity_id: itemId
-      })
+      }),
+      `pending ${contentType} content (${itemId})`
     );
-
-    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some admin pending content notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Admins notified: new content pending', {
-      contentType,
-      itemId,
-      adminCount: admins.length,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify admins pending content error:', error);
   }
@@ -705,42 +736,22 @@ export const notifyModeratorsNewReport = async (
   reportId: string
 ): Promise<void> => {
   try {
-    // Get all admins and moderators
-    const { data: moderators, error } = await supabase
-      .from('users')
-      .select('id')
-      .in('role', ['admin', 'moderator']);
+    const staffIds = await fetchUserIdsByRole(['admin', 'moderator']);
+    if (staffIds.length === 0) return;
 
-    if (error || !moderators || moderators.length === 0) {
-      logger.warn('No moderators found to notify');
-      return;
-    }
-
-    // Create notification for each moderator using Promise.all
-    const notificationPromises = moderators.map(mod =>
-      createNotification({
-        user_id: mod.id,
+    await notifyMultipleUsers(
+      staffIds,
+      (userId) => ({
+        user_id: userId,
         type: 'new_report',
         i18n_key: 'notifications.newReport',
         i18n_params: { reportReason, reportedContent },
         link: `/admin/reports?reportId=${reportId}`,
         related_entity_type: 'report',
         related_entity_id: reportId
-      })
+      }),
+      `new report (${reportId})`
     );
-
-    // 🔧 FIX N1: Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some moderator report notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Moderators notified: new report', {
-      reportId,
-      moderatorCount: moderators.length,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify moderators new report error:', error);
   }

@@ -5,9 +5,8 @@
  * Extracted from notificationHelper.ts to reduce file size.
  */
 
-import { supabase } from '../config/supabase';
 import { logger } from './logger';
-import { createNotification } from './notificationHelper';
+import { createNotification, fetchUserIdsByRole, notifyMultipleUsers } from './notificationHelper';
 
 // =====================================================
 // VERIFICATION SYSTEM NOTIFICATIONS (Phase 1.1)
@@ -131,43 +130,22 @@ export const notifyAdminsNewVerificationRequest = async (
   verificationId: string
 ): Promise<void> => {
   try {
-    // Get all admin users
-    const { data: admins, error } = await supabase
-      .from('users')
-      .select('id')
-      .eq('role', 'admin');
+    const adminIds = await fetchUserIdsByRole('admin');
+    if (adminIds.length === 0) return;
 
-    if (error || !admins || admins.length === 0) {
-      logger.warn('No admins found to notify');
-      return;
-    }
-
-    // Create notification for each admin using Promise.all
-    const notificationPromises = admins.map(admin =>
-      createNotification({
-        user_id: admin.id,
+    await notifyMultipleUsers(
+      adminIds,
+      (userId) => ({
+        user_id: userId,
         type: 'new_verification_request',
         i18n_key: 'notifications.newVerificationRequest',
         i18n_params: { employeeName },
         link: '/admin/verifications/manual-review',
         related_entity_type: 'employee_verification',
         related_entity_id: verificationId
-      })
+      }),
+      `verification request (${verificationId})`
     );
-
-    // Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some verification request notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-
-    logger.info('Admins notified about new verification request', {
-      employeeName,
-      verificationId,
-      adminCount: admins.length,
-      successCount: results.length - failed.length
-    });
   } catch (error) {
     logger.error('Notify admins verification request error:', error);
   }
@@ -309,38 +287,22 @@ export const notifyAdminsNewEditProposal = async (
   entityName: string
 ): Promise<void> => {
   try {
-    // Get all admins
-    const { data: admins, error } = await supabase
-      .from('users')
-      .select('id')
-      .eq('role', 'admin')
-      .eq('is_active', true);
+    const adminIds = await fetchUserIdsByRole('admin', true); // activeOnly = true
+    if (adminIds.length === 0) return;
 
-    if (error || !admins || admins.length === 0) {
-      logger.warn('No active admins found for edit proposal notification');
-      return;
-    }
-
-    // Create notification for each admin
-    const notificationPromises = admins.map((admin) =>
-      createNotification({
-        user_id: admin.id,
+    await notifyMultipleUsers(
+      adminIds,
+      (userId) => ({
+        user_id: userId,
         type: 'edit_proposal_submitted',
         i18n_key: 'notifications.editProposalSubmitted',
         i18n_params: { proposerName, entityType, entityName },
         link: `/admin/proposals`,
         related_entity_type: 'edit_proposal',
         related_entity_id: proposalId
-      })
+      }),
+      `edit proposal (${proposalId})`
     );
-
-    // Use Promise.allSettled to prevent one failure from stopping all notifications
-    const results = await Promise.allSettled(notificationPromises);
-    const failed = results.filter(r => r.status === 'rejected');
-    if (failed.length > 0) {
-      logger.warn('Some edit proposal notifications failed', { failedCount: failed.length, totalCount: results.length });
-    }
-    logger.info('Admins notified: new edit proposal', { proposalId, entityType, entityName, successCount: results.length - failed.length });
   } catch (error) {
     logger.error('Notify admins new edit proposal error:', error);
   }

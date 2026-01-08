@@ -1,44 +1,45 @@
 /**
  * useAppModals - Application Modal Management Hook
  *
- * Refactored to use ModalContext for centralized modal management.
- * All modals are now rendered via ModalRenderer automatically.
- *
- * Benefits:
- * - Single source of truth for modal state
- * - Automatic scroll locking
- * - Consistent animations via ModalRenderer
- * - Escape key handling
- * - Proper focus management
+ * Composes all modal hooks into a single unified interface.
+ * For specific use cases, individual hooks can be imported directly:
+ * - useAuthModals: Login, Register, Forgot Password
+ * - useEmployeeFormModal: Employee creation/editing
+ * - useEstablishmentFormModal: Establishment creation
+ * - useProfileModals: Profile wizard, Edit profile, User info
  */
 
-import { useCallback, useState, lazy } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useCallback } from 'react';
 import { useModal } from '../contexts/ModalContext';
-import { useSecureFetch } from './useSecureFetch';
 import { Employee, Establishment } from '../types';
-import { logger } from '../utils/logger';
-import notification from '../utils/notification';
 
-// Lazy-loaded modal components
-const LoginForm = lazy(() => import('../components/Auth/LoginForm'));
-const MultiStepRegisterForm = lazy(() => import('../components/Auth/MultiStepRegisterForm'));
-const EmployeeProfileWizard = lazy(() => import('../components/Employee/EmployeeProfileWizard'));
-const EditEmployeeModal = lazy(() => import('../components/Employee/EditEmployeeModal'));
-const UserInfoModal = lazy(() => import('../components/User/UserInfoModal'));
-const EmployeeForm = lazy(() => import('../components/Forms/EmployeeForm'));
-const EstablishmentForm = lazy(() => import('../components/Forms/EstablishmentForm'));
+// Import individual modal hooks
+import {
+  useAuthModals,
+  AUTH_MODAL_IDS
+} from './modals/useAuthModals';
 
-// Modal IDs as constants for consistency
+import {
+  useEmployeeFormModal,
+  EMPLOYEE_FORM_MODAL_ID
+} from './modals/useEmployeeFormModal';
+
+import {
+  useEstablishmentFormModal,
+  ESTABLISHMENT_FORM_MODAL_ID
+} from './modals/useEstablishmentFormModal';
+
+import {
+  useProfileModals,
+  PROFILE_MODAL_IDS
+} from './modals/useProfileModals';
+
+// Re-export MODAL_IDS for backward compatibility
 export const MODAL_IDS = {
-  LOGIN: 'app-login',
-  REGISTER: 'app-register',
-  FORGOT_PASSWORD: 'app-forgot-password',
-  EMPLOYEE_FORM: 'app-employee-form',
-  ESTABLISHMENT_FORM: 'app-establishment-form',
-  EMPLOYEE_WIZARD: 'app-employee-wizard',
-  EDIT_MY_PROFILE: 'app-edit-my-profile',
-  USER_INFO: 'app-user-info'
+  ...AUTH_MODAL_IDS,
+  EMPLOYEE_FORM: EMPLOYEE_FORM_MODAL_ID,
+  ESTABLISHMENT_FORM: ESTABLISHMENT_FORM_MODAL_ID,
+  ...PROFILE_MODAL_IDS
 } as const;
 
 interface AppModalsState {
@@ -48,432 +49,105 @@ interface AppModalsState {
 }
 
 interface AppModalsActions {
-  // Open modals
+  // Auth modals
   openLoginForm: () => void;
   openRegisterForm: () => void;
   openForgotPasswordForm: () => void;
-  openEmployeeForm: (editData?: Employee, selfProfile?: boolean) => void;
-  openEstablishmentForm: () => void;
-  openEmployeeProfileWizard: () => void;
-  openEditMyProfileModal: () => void;
-  openUserInfoModal: () => void;
-  // Close modals
   closeLoginForm: () => void;
   closeRegisterForm: () => void;
   closeForgotPasswordForm: () => void;
-  closeEmployeeForm: () => void;
-  closeEstablishmentForm: () => void;
-  closeEmployeeProfileWizard: () => void;
-  closeEditMyProfileModal: () => void;
-  closeUserInfoModal: () => void;
-  // Switch modals
   switchLoginToRegister: () => void;
   switchRegisterToLogin: () => void;
   switchLoginToForgotPassword: () => void;
   switchForgotPasswordToLogin: () => void;
-  // Handlers
+  // Employee form
+  openEmployeeForm: (editData?: Employee, selfProfile?: boolean) => void;
+  closeEmployeeForm: () => void;
   handleSubmitEmployee: (employeeData: Partial<Employee>) => Promise<void>;
+  // Establishment form
+  openEstablishmentForm: () => void;
+  closeEstablishmentForm: () => void;
   handleSubmitEstablishment: (establishmentData: Partial<Establishment>) => Promise<void>;
+  // Profile modals
+  openEmployeeProfileWizard: () => void;
+  closeEmployeeProfileWizard: () => void;
+  openEditMyProfileModal: () => void;
+  closeEditMyProfileModal: () => void;
+  openUserInfoModal: () => void;
+  closeUserInfoModal: () => void;
   handleEditMyProfile: () => void;
   handleWizardCreateProfile: () => void;
-  // Check if modal is open
+  // Utility
   isModalOpen: (modalId: string) => boolean;
 }
 
 export type UseAppModalsReturn = AppModalsState & AppModalsActions;
 
 export const useAppModals = (): UseAppModalsReturn => {
-  const { secureFetch } = useSecureFetch();
-  const { user, refreshLinkedProfile } = useAuth();
-  const { openModal, closeModal, isModalOpen } = useModal();
+  const { isModalOpen } = useModal();
 
-  // Form-specific states (not modal visibility)
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSelfProfile, setIsSelfProfile] = useState(false);
-  const [editingEmployeeData, setEditingEmployeeData] = useState<Employee | null>(null);
-
-  // ==========================================
-  // Login Modal
-  // ==========================================
-  const openLoginForm = useCallback(() => {
-    openModal(MODAL_IDS.LOGIN, LoginForm, {
-      onClose: () => closeModal(MODAL_IDS.LOGIN),
-      embedded: true, // Render without overlay since Modal.tsx provides one
-      onSwitchToRegister: () => {
-        closeModal(MODAL_IDS.LOGIN);
-        openModal(MODAL_IDS.REGISTER, MultiStepRegisterForm, {
-          onClose: () => closeModal(MODAL_IDS.REGISTER),
-          onSwitchToLogin: () => {
-            closeModal(MODAL_IDS.REGISTER);
-            openModal(MODAL_IDS.LOGIN, LoginForm, {
-              onClose: () => closeModal(MODAL_IDS.LOGIN),
-              embedded: true // Render without overlay since Modal.tsx provides one
-            }, { size: 'medium' });
-          }
-        }, { size: 'large' });
-      }
-    }, { size: 'medium' });
-  }, [openModal, closeModal]);
-
-  const closeLoginForm = useCallback(() => {
-    closeModal(MODAL_IDS.LOGIN);
-  }, [closeModal]);
-
-  // ==========================================
-  // Register Modal
-  // ==========================================
-  const openRegisterForm = useCallback(() => {
-    openModal(MODAL_IDS.REGISTER, MultiStepRegisterForm, {
-      onClose: () => closeModal(MODAL_IDS.REGISTER),
-      onSwitchToLogin: () => {
-        closeModal(MODAL_IDS.REGISTER);
-        openLoginForm();
-      }
-    }, { size: 'large' });
-  }, [openModal, closeModal, openLoginForm]);
-
-  const closeRegisterForm = useCallback(() => {
-    closeModal(MODAL_IDS.REGISTER);
-  }, [closeModal]);
-
-  // ==========================================
-  // Forgot Password Modal (placeholder)
-  // ==========================================
-  const openForgotPasswordForm = useCallback(() => {
-    // TODO: Implement ForgotPasswordForm component
-    logger.debug('Forgot password form not yet implemented');
-  }, []);
-
-  const closeForgotPasswordForm = useCallback(() => {
-    closeModal(MODAL_IDS.FORGOT_PASSWORD);
-  }, [closeModal]);
-
-  // ==========================================
-  // Employee Form Modal
-  // ==========================================
-  const openEmployeeForm = useCallback((editData?: Employee, selfProfile?: boolean) => {
-    setEditingEmployeeData(editData || null);
-    setIsSelfProfile(selfProfile || false);
-
-    // Define submit handler inline to capture latest state
-    const submitHandler = async (employeeData: Partial<Employee>) => {
-      setIsSubmitting(true);
-      try {
-        let endpoint: string;
-        let method: string;
-
-        if (editData) {
-          endpoint = `${import.meta.env.VITE_API_URL}/api/employees/${editData.id}`;
-          method = 'PUT';
-        } else if (selfProfile) {
-          endpoint = `${import.meta.env.VITE_API_URL}/api/employees/my-profile`;
-          method = 'POST';
-        } else {
-          endpoint = `${import.meta.env.VITE_API_URL}/api/employees`;
-          method = 'POST';
-        }
-
-        const response = await secureFetch(endpoint, {
-          method,
-          body: JSON.stringify(employeeData),
-          forceCSRFRefresh: true // Force fresh token after photo upload (React state may be stale)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to submit employee');
-        }
-
-        closeModal(MODAL_IDS.EMPLOYEE_FORM);
-        setEditingEmployeeData(null);
-        setIsSelfProfile(false);
-
-        if (editData && refreshLinkedProfile) {
-          await refreshLinkedProfile();
-        }
-
-        const successMessage = editData
-          ? 'Profile updated successfully!'
-          : (selfProfile ? 'Your employee profile has been created! Waiting for admin approval.' : 'Employee added successfully!');
-
-        notification.success(successMessage);
-      } catch (error) {
-        logger.error('Failed to submit employee', error);
-        notification.error(error instanceof Error ? error.message : 'Failed to submit employee');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    openModal(MODAL_IDS.EMPLOYEE_FORM, EmployeeForm, {
-      initialData: editData,
-      isLoading: isSubmitting,
-      onSubmit: submitHandler,
-      onCancel: () => {
-        closeModal(MODAL_IDS.EMPLOYEE_FORM);
-        setEditingEmployeeData(null);
-        setIsSelfProfile(false);
-      }
-    }, { size: 'large', closeOnOverlayClick: false });
-  }, [openModal, closeModal, isSubmitting, secureFetch, refreshLinkedProfile]);
-
-  const closeEmployeeForm = useCallback(() => {
-    closeModal(MODAL_IDS.EMPLOYEE_FORM);
-    setEditingEmployeeData(null);
-    setIsSelfProfile(false);
-  }, [closeModal]);
-
-  // ==========================================
-  // Establishment Form Modal
-  // ==========================================
-  const openEstablishmentForm = useCallback(() => {
-    // Define submit handler inline to capture latest state
-    const submitHandler = async (establishmentData: Partial<Establishment>) => {
-      setIsSubmitting(true);
-      try {
-        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
-          method: 'POST',
-          body: JSON.stringify(establishmentData)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to submit establishment');
-        }
-
-        closeModal(MODAL_IDS.ESTABLISHMENT_FORM);
-        notification.success('Establishment added successfully!');
-      } catch (error) {
-        logger.error('Failed to submit establishment', error);
-        notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    openModal(MODAL_IDS.ESTABLISHMENT_FORM, EstablishmentForm, {
-      onSubmit: submitHandler,
-      isLoading: isSubmitting,
-      onCancel: () => closeModal(MODAL_IDS.ESTABLISHMENT_FORM)
-    }, { size: 'large', closeOnOverlayClick: false });
-  }, [openModal, closeModal, secureFetch, isSubmitting]);
-
-  const closeEstablishmentForm = useCallback(() => {
-    closeModal(MODAL_IDS.ESTABLISHMENT_FORM);
-  }, [closeModal]);
-
-  // ==========================================
-  // Employee Profile Wizard Modal
-  // ==========================================
-  const openEmployeeProfileWizard = useCallback(() => {
-    openModal(MODAL_IDS.EMPLOYEE_WIZARD, EmployeeProfileWizard, {
-      onClose: () => closeModal(MODAL_IDS.EMPLOYEE_WIZARD),
-      onCreateProfile: () => {
-        closeModal(MODAL_IDS.EMPLOYEE_WIZARD);
-        setIsSelfProfile(true);
-        openEmployeeForm(undefined, true);
-      }
-    }, { size: 'medium' });
-  }, [openModal, closeModal, openEmployeeForm]);
-
-  const closeEmployeeProfileWizard = useCallback(() => {
-    closeModal(MODAL_IDS.EMPLOYEE_WIZARD);
-  }, [closeModal]);
-
-  // ==========================================
-  // Edit My Profile Modal
-  // ==========================================
-  const openEditMyProfileModal = useCallback(() => {
-    openModal(MODAL_IDS.EDIT_MY_PROFILE, EditEmployeeModal, {
-      isOpen: true,
-      onClose: () => closeModal(MODAL_IDS.EDIT_MY_PROFILE),
-      onProfileUpdated: async () => {
-        if (refreshLinkedProfile) {
-          await refreshLinkedProfile();
-        }
-        logger.debug('Profile updated successfully via modal');
-      }
-    }, { size: 'profile' });
-  }, [openModal, closeModal, refreshLinkedProfile]);
-
-  const closeEditMyProfileModal = useCallback(() => {
-    closeModal(MODAL_IDS.EDIT_MY_PROFILE);
-  }, [closeModal]);
-
-  // ==========================================
-  // User Info Modal
-  // ==========================================
-  const openUserInfoModal = useCallback(() => {
-    if (!user) {
-      logger.warn('Cannot open user info modal: no user');
-      return;
-    }
-    openModal(MODAL_IDS.USER_INFO, UserInfoModal, {
-      user,
-      onClose: () => closeModal(MODAL_IDS.USER_INFO)
-    }, { size: 'medium' });
-  }, [openModal, closeModal, user]);
-
-  const closeUserInfoModal = useCallback(() => {
-    closeModal(MODAL_IDS.USER_INFO);
-  }, [closeModal]);
-
-  // ==========================================
-  // Switch Actions
-  // ==========================================
-  const switchLoginToRegister = useCallback(() => {
-    closeLoginForm();
-    openRegisterForm();
-  }, [closeLoginForm, openRegisterForm]);
-
-  const switchRegisterToLogin = useCallback(() => {
-    closeRegisterForm();
-    openLoginForm();
-  }, [closeRegisterForm, openLoginForm]);
-
-  const switchLoginToForgotPassword = useCallback(() => {
-    closeLoginForm();
-    openForgotPasswordForm();
-  }, [closeLoginForm, openForgotPasswordForm]);
-
-  const switchForgotPasswordToLogin = useCallback(() => {
-    closeForgotPasswordForm();
-    openLoginForm();
-  }, [closeForgotPasswordForm, openLoginForm]);
-
-  // ==========================================
-  // Handle Edit My Profile (with force reopen)
-  // ==========================================
-  const handleEditMyProfile = useCallback(() => {
-    logger.debug('handleEditMyProfile called');
-
-    if (isModalOpen(MODAL_IDS.EDIT_MY_PROFILE)) {
-      logger.debug('Modal already open, forcing close then reopen...');
-      closeEditMyProfileModal();
-      setTimeout(() => {
-        openEditMyProfileModal();
-      }, 50);
-    } else {
-      openEditMyProfileModal();
-    }
-  }, [isModalOpen, closeEditMyProfileModal, openEditMyProfileModal]);
+  // Compose individual hooks
+  const authModals = useAuthModals();
+  const employeeFormModal = useEmployeeFormModal();
+  const establishmentFormModal = useEstablishmentFormModal();
+  const profileModals = useProfileModals();
 
   // ==========================================
   // Handle Wizard Create Profile
   // ==========================================
   const handleWizardCreateProfile = useCallback(() => {
-    closeEmployeeProfileWizard();
-    setIsSelfProfile(true);
-    openEmployeeForm(undefined, true);
-  }, [closeEmployeeProfileWizard, openEmployeeForm]);
+    profileModals.closeEmployeeProfileWizard();
+    employeeFormModal.openEmployeeForm(undefined, true);
+  }, [profileModals, employeeFormModal]);
 
   // ==========================================
-  // Submit Handlers
+  // Wrap openEmployeeProfileWizard to connect to employee form
   // ==========================================
-  const handleSubmitEmployee = useCallback(async (employeeData: Partial<Employee>) => {
-    setIsSubmitting(true);
-    try {
-      let endpoint: string;
-      let method: string;
-
-      if (editingEmployeeData) {
-        endpoint = `${import.meta.env.VITE_API_URL}/api/employees/${editingEmployeeData.id}`;
-        method = 'PUT';
-      } else if (isSelfProfile) {
-        endpoint = `${import.meta.env.VITE_API_URL}/api/employees/my-profile`;
-        method = 'POST';
-      } else {
-        endpoint = `${import.meta.env.VITE_API_URL}/api/employees`;
-        method = 'POST';
-      }
-
-      const response = await secureFetch(endpoint, {
-        method,
-        body: JSON.stringify(employeeData),
-        forceCSRFRefresh: true // Force fresh token after photo upload (React state may be stale)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit employee');
-      }
-
-      closeEmployeeForm();
-
-      if (editingEmployeeData && refreshLinkedProfile) {
-        await refreshLinkedProfile();
-      }
-
-      const successMessage = editingEmployeeData
-        ? 'Profile updated successfully!'
-        : (isSelfProfile ? 'Your employee profile has been created! Waiting for admin approval.' : 'Employee added successfully!');
-
-      notification.success(successMessage);
-    } catch (error) {
-      logger.error('Failed to submit employee', error);
-      notification.error(error instanceof Error ? error.message : 'Failed to submit employee');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [editingEmployeeData, isSelfProfile, secureFetch, refreshLinkedProfile, closeEmployeeForm]);
-
-  const handleSubmitEstablishment = useCallback(async (establishmentData: Partial<Establishment>) => {
-    setIsSubmitting(true);
-    try {
-      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
-        method: 'POST',
-        body: JSON.stringify(establishmentData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit establishment');
-      }
-
-      closeEstablishmentForm();
-      notification.success('Establishment added successfully!');
-    } catch (error) {
-      logger.error('Failed to submit establishment', error);
-      notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [secureFetch, closeEstablishmentForm]);
+  const openEmployeeProfileWizard = useCallback(() => {
+    profileModals.openEmployeeProfileWizard(() => {
+      employeeFormModal.openEmployeeForm(undefined, true);
+    });
+  }, [profileModals, employeeFormModal]);
 
   return {
-    // State
-    isSubmitting,
-    isSelfProfile,
-    editingEmployeeData,
-    // Open actions
-    openLoginForm,
-    openRegisterForm,
-    openForgotPasswordForm,
-    openEmployeeForm,
-    openEstablishmentForm,
+    // State from employee form modal
+    isSubmitting: employeeFormModal.isSubmitting || establishmentFormModal.isSubmitting,
+    isSelfProfile: employeeFormModal.isSelfProfile,
+    editingEmployeeData: employeeFormModal.editingEmployeeData,
+
+    // Auth modal actions
+    openLoginForm: authModals.openLoginForm,
+    openRegisterForm: authModals.openRegisterForm,
+    openForgotPasswordForm: authModals.openForgotPasswordForm,
+    closeLoginForm: authModals.closeLoginForm,
+    closeRegisterForm: authModals.closeRegisterForm,
+    closeForgotPasswordForm: authModals.closeForgotPasswordForm,
+    switchLoginToRegister: authModals.switchLoginToRegister,
+    switchRegisterToLogin: authModals.switchRegisterToLogin,
+    switchLoginToForgotPassword: authModals.switchLoginToForgotPassword,
+    switchForgotPasswordToLogin: authModals.switchForgotPasswordToLogin,
+
+    // Employee form actions
+    openEmployeeForm: employeeFormModal.openEmployeeForm,
+    closeEmployeeForm: employeeFormModal.closeEmployeeForm,
+    handleSubmitEmployee: employeeFormModal.handleSubmitEmployee,
+
+    // Establishment form actions
+    openEstablishmentForm: establishmentFormModal.openEstablishmentForm,
+    closeEstablishmentForm: establishmentFormModal.closeEstablishmentForm,
+    handleSubmitEstablishment: establishmentFormModal.handleSubmitEstablishment,
+
+    // Profile modal actions
     openEmployeeProfileWizard,
-    openEditMyProfileModal,
-    openUserInfoModal,
-    // Close actions
-    closeLoginForm,
-    closeRegisterForm,
-    closeForgotPasswordForm,
-    closeEmployeeForm,
-    closeEstablishmentForm,
-    closeEmployeeProfileWizard,
-    closeEditMyProfileModal,
-    closeUserInfoModal,
-    // Switch actions
-    switchLoginToRegister,
-    switchRegisterToLogin,
-    switchLoginToForgotPassword,
-    switchForgotPasswordToLogin,
-    // Handlers
-    handleSubmitEmployee,
-    handleSubmitEstablishment,
-    handleEditMyProfile,
+    closeEmployeeProfileWizard: profileModals.closeEmployeeProfileWizard,
+    openEditMyProfileModal: profileModals.openEditMyProfileModal,
+    closeEditMyProfileModal: profileModals.closeEditMyProfileModal,
+    openUserInfoModal: profileModals.openUserInfoModal,
+    closeUserInfoModal: profileModals.closeUserInfoModal,
+    handleEditMyProfile: profileModals.handleEditMyProfile,
     handleWizardCreateProfile,
-    // Check
+
+    // Utility
     isModalOpen
   };
 };

@@ -8,6 +8,8 @@
  * - Browser-optimized formatting
  */
 
+import { captureSentryException, captureSentryMessage } from '../config/sentry';
+
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
@@ -157,14 +159,11 @@ class Logger {
     // Send to Sentry in production
     if (!this.isDevelopment) {
       try {
-        // Dynamic import to avoid circular dependencies
-        import('../config/sentry').then(({ captureSentryException, captureSentryMessage }) => {
-          if (error instanceof Error) {
-            captureSentryException(error, { message, ...options?.context });
-          } else {
-            captureSentryMessage(`${message}: ${JSON.stringify(error)}`, 'error');
-          }
-        });
+        if (error instanceof Error) {
+          captureSentryException(error, { message, ...options?.context });
+        } else {
+          captureSentryMessage(`${message}: ${JSON.stringify(error)}`, 'error');
+        }
       } catch (sentryError) {
         // Fail silently if Sentry is not available
         console.warn('Failed to send error to Sentry', sentryError);
