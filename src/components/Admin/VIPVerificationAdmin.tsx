@@ -344,12 +344,11 @@ const VIPVerificationAdmin: React.FC = () => {
   // Show loading while auth is being checked
   if (authLoading) {
     return (
-      <div className="vip-verification-admin">
-        <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
-        <div className="loading-state">
-          <div className="spinner"><Clock size={32} /></div>
-          <p>{t('common.loading', 'Loading...')}</p>
+      <div className="vip-verification-admin command-content-section">
+        <div className="cmd-section-header">
+          <h2 className="cmd-section-title">{t('vipVerification.title', 'VIP Payment Verification')}</h2>
         </div>
+        <SkeletonTable variant="list" rows={4} showHeader={false} />
       </div>
     );
   }
@@ -361,12 +360,12 @@ const VIPVerificationAdmin: React.FC = () => {
 
   if (loading && transactions.length === 0) {
     return (
-      <div className="vip-verification-admin">
-        <h2>{t('vipVerification.title', 'VIP Payment Verification')}</h2>
-        <div className="loading-state">
-          <div className="spinner"><Clock size={32} /></div>
-          <p>{t('vipVerification.loading', 'Loading transactions...')}</p>
+      <div className="vip-verification-admin command-content-section">
+        <div className="cmd-section-header">
+          <h2 className="cmd-section-title">{t('vipVerification.title', 'VIP Payment Verification')}</h2>
+          <p className="cmd-section-subtitle">{t('vipVerification.subtitle', 'Verify cash payments for VIP subscriptions')}</p>
         </div>
+        <SkeletonTable variant="list" rows={6} showHeader={false} />
       </div>
     );
   }

@@ -6,6 +6,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { EmployeeClaimRequest } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonTable } from '../Common/Skeleton';
 import EmployeeClaimCard from './EmployeeClaimCard';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -321,7 +322,7 @@ const EmployeeClaimsAdmin: React.FC<EmployeeClaimsAdminProps> = ({ onTabChange }
 
       {/* Claims List */}
       {isLoading ? (
-        <LoadingFallback message={t('admin.claims.loadingClaims')} variant="inline" />
+        <SkeletonTable variant="list" rows={5} showHeader={false} />
       ) : claims.length === 0 ? (
         <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
           <h3 className="cmd-card__title" style={{ color: 'var(--color-cyan)', marginBottom: '10px' }}>

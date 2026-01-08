@@ -65,16 +65,14 @@ const SkeletonDetailPage: React.FC<SkeletonDetailPageProps> = ({
 
         {/* Title */}
         <SkeletonBase
-          width="60%"
+          width={300}
           height={32}
-          style={{ maxWidth: '400px' }}
         />
 
         {/* Subtitle/Status */}
         <SkeletonBase
-          width="40%"
+          width={200}
           height={20}
-          style={{ maxWidth: '250px' }}
         />
 
         {/* Action buttons */}

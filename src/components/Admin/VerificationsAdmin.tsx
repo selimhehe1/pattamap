@@ -14,6 +14,7 @@ import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonGallery } from '../Common/Skeleton';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import '../../styles/admin/verifications-admin.css';
@@ -254,7 +255,15 @@ const VerificationsAdmin: React.FC<VerificationsAdminProps> = ({ onTabChange }) 
   };
 
   if (isLoading) {
-    return <LoadingFallback message="Loading verifications..." variant="inline" />;
+    return (
+      <div className="command-content-section">
+        <AdminBreadcrumb
+          currentSection="Profile Verifications"
+          onBackToDashboard={() => onTabChange('overview')}
+        />
+        <SkeletonGallery count={6} variant="employee" />
+      </div>
+    );
   }
 
   return (

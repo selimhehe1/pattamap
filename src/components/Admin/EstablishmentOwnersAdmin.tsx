@@ -14,6 +14,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonTable } from '../Common/Skeleton';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
 import {
@@ -505,7 +506,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       {viewMode === 'owners' && (
         <>
           {isLoading ? (
-            <LoadingFallback message="Loading establishments..." variant="inline" />
+            <SkeletonTable variant="card-grid" rows={6} showHeader={false} />
           ) : establishments.length === 0 ? (
             <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
               <h3 className="cmd-card__title" style={{ color: 'var(--color-gold)', marginBottom: '10px' }}>
@@ -536,7 +537,7 @@ const EstablishmentOwnersAdmin: React.FC<EstablishmentOwnersAdminProps> = ({ onT
       {viewMode === 'requests' && (
         <>
           {isLoading ? (
-            <LoadingFallback message="Loading ownership requests..." variant="inline" />
+            <SkeletonTable variant="list" rows={4} showHeader={false} />
           ) : ownershipRequests.length === 0 ? (
             <div className="cmd-card cmd-card--empty" style={{ textAlign: 'center', padding: '40px' }}>
               <h3 className="cmd-card__title" style={{ color: 'var(--color-gold)', marginBottom: '10px' }}>

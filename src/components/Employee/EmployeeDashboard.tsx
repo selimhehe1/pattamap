@@ -5,6 +5,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { useAppModals } from '../../hooks/useAppModals';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonDetailPage } from '../Common/Skeleton';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import RequestVerificationModal from './RequestVerificationModal';
@@ -221,7 +222,7 @@ const EmployeeDashboard: React.FC = () => {
 
   // Check loading state BEFORE checking if profile exists
   if (isLoading) {
-    return <LoadingFallback message={t('common.loading', 'Loading...')} variant="page" />;
+    return <SkeletonDetailPage variant="employee" showSidebar={true} galleryCount={3} />;
   }
 
   // État Pending : Profil en attente d'approbation admin
