@@ -477,7 +477,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
             tabIndex={0}
             aria-label={t('profile.viewGallery', 'View photo gallery')}
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout">
               <motion.div
                 key={currentPhotoIndex}
                 initial={{ opacity: 0 }}
