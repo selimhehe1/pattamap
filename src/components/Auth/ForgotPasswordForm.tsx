@@ -148,7 +148,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="form-layout" noValidate>
+      <form onSubmit={handleSubmit} className="form-layout form-layout--forgot-password" noValidate>
         <div className="form-group">
           <label className="form-label">
             <Mail size={14} />{t('auth.email')}

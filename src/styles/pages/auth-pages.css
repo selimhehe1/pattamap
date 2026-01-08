@@ -580,10 +580,9 @@ body[data-theme="light"] .auth-layout__form::-webkit-scrollbar-thumb:hover {
    AUTH FORM ELEMENTS SPACING
    ============================================ */
 
-/* Override form-layout gap for auth forms - more breathing room */
-.auth-form-container .form-layout,
-.auth-form-login-content .form-layout {
-  gap: var(--spacing-5, 20px);
+/* ForgotPasswordForm specific spacing */
+.form-layout--forgot-password {
+  gap: var(--spacing-4, 16px);
 }
 
 /* Form group styling */

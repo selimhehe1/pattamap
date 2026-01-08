@@ -155,9 +155,18 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   };
 
   const loadReviews = async () => {
+    // 🔧 FIX: Don't start loading if component is already unmounted
+    if (!isMountedRef.current) return;
+
     setIsLoadingReviews(true);
     try {
-      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`);
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`, {
+        requireAuth: false // 🔧 FIX: Don't require auth for reading comments - prevents 401 logout cascade
+      });
+
+      // 🔧 FIX: Check if component is still mounted before updating state
+      if (!isMountedRef.current) return;
+
       if (response.ok) {
         const data = await response.json();
         const flatComments = data.comments || [];
@@ -167,9 +176,15 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
         setReviews(threadedReviews);
       }
     } catch (error) {
-      logger.error('Failed to load reviews:', error);
+      // 🔧 FIX: Only log error if component is still mounted
+      if (isMountedRef.current) {
+        logger.error('Failed to load reviews:', error);
+      }
     } finally {
-      setIsLoadingReviews(false);
+      // 🔧 FIX: Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setIsLoadingReviews(false);
+      }
     }
   };
 
@@ -196,6 +211,9 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   };
 
   const handleReplySubmit = async (reviewId: string, content: string) => {
+    // 🔧 FIX: Don't proceed if component is unmounted
+    if (!isMountedRef.current) return;
+
     try {
       const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments`, {
         method: 'POST',
@@ -206,11 +224,20 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
         })
       });
 
+      // 🔧 FIX: Check mount state before updating
+      if (!isMountedRef.current) return;
+
       if (response.ok) {
         // Recharger les reviews et récupérer les nouvelles données
         setIsLoadingReviews(true);
         try {
-          const reviewResponse = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`);
+          const reviewResponse = await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments?employee_id=${girl.id}`, {
+            requireAuth: false // 🔧 FIX: Don't require auth for reading comments
+          });
+
+          // 🔧 FIX: Check mount state before updating
+          if (!isMountedRef.current) return;
+
           if (reviewResponse.ok) {
             const data = await reviewResponse.json();
             const flatComments = data.comments || [];
@@ -228,13 +255,17 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
             });
           }
         } finally {
-          setIsLoadingReviews(false);
+          if (isMountedRef.current) {
+            setIsLoadingReviews(false);
+          }
         }
       } else {
         throw new Error('Failed to submit reply');
       }
     } catch (error) {
-      logger.error('Failed to submit reply:', error);
+      if (isMountedRef.current) {
+        logger.error('Failed to submit reply:', error);
+      }
       throw error;
     }
   };
