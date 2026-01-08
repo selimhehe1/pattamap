@@ -312,9 +312,32 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             </button>
           </div>
 
-          {/* 🔧 FIX A4: Forgot Password link */}
-          {onSwitchToForgotPassword && (
-            <div style={{ textAlign: 'right', marginTop: '-8px' }}>
+          {error && (
+            <div className="error-message-nightlife error-shake" data-testid="login-error">
+              <AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {error}
+            </div>
+          )}
+
+          {/* Sign In button + Forgot Password on same line */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
+              data-testid="login-button"
+              style={{ ...lightModeStyles.primaryButton, flex: 'none' }}
+            >
+              {isLoading ? (
+                <span className="loading-flex">
+                  <span className="loading-spinner-small-nightlife"></span>
+                  {t('auth.signingIn')}
+                </span>
+              ) : (
+                <><LogIn size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('auth.signIn')}</>
+              )}
+            </button>
+
+            {onSwitchToForgotPassword && (
               <button
                 type="button"
                 onClick={onSwitchToForgotPassword}
@@ -324,31 +347,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
               >
                 {t('auth.forgotPassword')}
               </button>
-            </div>
-          )}
-
-          {error && (
-            <div className="error-message-nightlife error-shake" data-testid="login-error">
-              <AlertTriangle size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
-            data-testid="login-button"
-            style={lightModeStyles.primaryButton}
-          >
-            {isLoading ? (
-              <span className="loading-flex">
-                <span className="loading-spinner-small-nightlife"></span>
-                {t('auth.signingIn')}
-              </span>
-            ) : (
-              <><LogIn size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> {t('auth.signIn')}</>
             )}
-          </button>
+          </div>
 
           <div className="auth-switch-text">
             <span className="auth-switch-label" style={lightModeStyles.authSwitchLabel}>

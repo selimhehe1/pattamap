@@ -38,6 +38,7 @@ interface AdminCommandSidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   isMobileOpen: boolean;
+  onMobileOpen: () => void;
   onMobileClose: () => void;
   stats: {
     pendingEstablishments: number;
@@ -61,6 +62,7 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
   isMobileOpen,
+  onMobileOpen,
   onMobileClose,
   stats,
   user: _user,
@@ -168,7 +170,7 @@ const AdminCommandSidebar: React.FC<AdminCommandSidebarProps> = ({
       {/* Mobile Toggle Button */}
       <button
         className="command-sidebar__mobile-toggle"
-        onClick={() => onTabChange(activeTab)}
+        onClick={onMobileOpen}
         aria-label="Open navigation menu"
       >
         <Menu size={24} />

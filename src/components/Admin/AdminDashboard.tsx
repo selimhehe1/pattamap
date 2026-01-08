@@ -256,6 +256,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab, onTabChange 
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         isMobileOpen={isMobileSidebarOpen}
+        onMobileOpen={() => setIsMobileSidebarOpen(true)}
         onMobileClose={() => setIsMobileSidebarOpen(false)}
         stats={stats}
         user={{ pseudonym: user.pseudonym, role: user.role }}
