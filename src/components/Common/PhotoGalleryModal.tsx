@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LazyImage from './LazyImage';
+import { useGalleryGestures } from '../../hooks/useGalleryGestures';
 
 interface PhotoGalleryModalProps {
   photos: string[];
@@ -25,6 +26,17 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   const goToPrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
   }, [photos.length]);
+
+  // Touch gestures for mobile (swipe + pinch-to-zoom)
+  const { handlers, imageStyle, isZoomed, resetZoom } = useGalleryGestures({
+    onNext: goToNext,
+    onPrevious: goToPrevious,
+  });
+
+  // Reset zoom when changing photo
+  useEffect(() => {
+    resetZoom();
+  }, [currentIndex, resetZoom]);
 
   useEffect(() => {
     // Lock body scroll
@@ -65,20 +77,26 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
           </button>
         </div>
 
-        {/* Image centrée */}
-        <div className="photo-gallery-simple-content-nightlife">
-          <LazyImage
-            src={photos[currentIndex]}
-            alt={t('photoGalleryModal.altTextPhoto', { employeeName, currentIndex: currentIndex + 1, totalPhotos: photos.length })}
-            cloudinaryPreset="galleryLarge"
-            className="photo-gallery-simple-image-nightlife"
-            objectFit="contain"
-            showLoadingSpinner={true}
-          />
+        {/* Image centrée avec gestes tactiles */}
+        <div
+          className="photo-gallery-simple-content-nightlife"
+          {...handlers}
+          data-zoomed={isZoomed}
+        >
+          <div style={imageStyle} className="photo-gallery-simple-image-wrapper">
+            <LazyImage
+              src={photos[currentIndex]}
+              alt={t('photoGalleryModal.altTextPhoto', { employeeName, currentIndex: currentIndex + 1, totalPhotos: photos.length })}
+              cloudinaryPreset="galleryLarge"
+              className="photo-gallery-simple-image-nightlife"
+              objectFit="contain"
+              showLoadingSpinner={true}
+            />
+          </div>
         </div>
 
-        {/* Navigation arrows (seulement si plusieurs photos) */}
-        {photos.length > 1 && (
+        {/* Navigation arrows (seulement si plusieurs photos et non zoomé) */}
+        {photos.length > 1 && !isZoomed && (
           <>
             <button
               onClick={goToPrevious}

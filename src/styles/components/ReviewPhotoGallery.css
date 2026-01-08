@@ -294,3 +294,46 @@
     aspect-ratio: 4/3;
   }
 }
+
+/* ============================================
+   TOUCH GESTURES SUPPORT (Mobile)
+   ============================================ */
+
+/**
+ * Prevent pull-to-refresh and overscroll on mobile lightbox
+ */
+.review-lightbox-overlay {
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+/**
+ * Allow pinch-zoom gestures in content area
+ */
+.review-lightbox-content {
+  touch-action: pan-y pinch-zoom;
+}
+
+/**
+ * When zoomed, disable all browser touch actions
+ */
+.review-lightbox-content[data-zoomed="true"] {
+  touch-action: none;
+}
+
+/**
+ * Image wrapper for zoom transforms
+ */
+.review-lightbox-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+/**
+ * Ensure smooth zoom transitions on image
+ */
+.review-lightbox-image {
+  will-change: transform;
+}

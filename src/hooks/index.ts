@@ -83,3 +83,13 @@ export type {
 // Accessibility (Phase 4 - WCAG AAA)
 export { useLiveAnnouncer } from './useLiveAnnouncer';
 export type { AriaPoliteness } from './useLiveAnnouncer';
+
+// Touch Gestures (Mobile Photo Galleries)
+export { useSwipeGesture } from './useSwipeGesture';
+export type { UseSwipeGestureOptions, UseSwipeGestureReturn } from './useSwipeGesture';
+
+export { usePinchZoom } from './usePinchZoom';
+export type { UsePinchZoomOptions, UsePinchZoomReturn } from './usePinchZoom';
+
+export { useGalleryGestures } from './useGalleryGestures';
+export type { UseGalleryGesturesOptions, UseGalleryGesturesReturn } from './useGalleryGestures';

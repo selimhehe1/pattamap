@@ -406,3 +406,42 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* ============================================
+   TOUCH GESTURES SUPPORT (Mobile)
+   ============================================ */
+
+/**
+ * Prevent pull-to-refresh and overscroll on mobile
+ */
+.photo-gallery-simple-overlay-nightlife {
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+/**
+ * Allow pinch-zoom gestures in content area
+ */
+.photo-gallery-simple-content-nightlife {
+  touch-action: pan-y pinch-zoom;
+}
+
+/**
+ * When zoomed, disable all browser touch actions
+ * to let our custom handlers manage everything
+ */
+.photo-gallery-simple-content-nightlife[data-zoomed="true"] {
+  touch-action: none;
+}
+
+/**
+ * Image wrapper for zoom transforms
+ */
+.photo-gallery-simple-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}

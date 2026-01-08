@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ZoomIn } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LazyImage from '../Common/LazyImage';
+import { useGalleryGestures } from '../../hooks/useGalleryGestures';
 import '../../styles/components/ReviewPhotoGallery.css';
 
 /**
@@ -71,6 +72,17 @@ const ReviewPhotoGallery: React.FC<ReviewPhotoGalleryProps> = ({
     e?.stopPropagation();
     setCurrentIndex((prev) => (prev < photosCount - 1 ? prev + 1 : 0));
   }, [photosCount]);
+
+  // Touch gestures for mobile lightbox (swipe + pinch-to-zoom)
+  const { handlers, imageStyle, isZoomed, resetZoom } = useGalleryGestures({
+    onNext: () => goToNext(),
+    onPrevious: () => goToPrevious(),
+  });
+
+  // Reset zoom when changing photo or closing lightbox
+  useEffect(() => {
+    resetZoom();
+  }, [currentIndex, lightboxOpen, resetZoom]);
 
   // Handle keyboard navigation - MUST be called before any early returns
   useEffect(() => {
@@ -158,8 +170,8 @@ const ReviewPhotoGallery: React.FC<ReviewPhotoGalleryProps> = ({
             ✕
           </button>
 
-          {/* Navigation Arrows */}
-          {sortedPhotos.length > 1 && (
+          {/* Navigation Arrows (hidden when zoomed) */}
+          {sortedPhotos.length > 1 && !isZoomed && (
             <>
               <button
                 className="review-lightbox-nav review-lightbox-prev"
@@ -178,16 +190,20 @@ const ReviewPhotoGallery: React.FC<ReviewPhotoGalleryProps> = ({
             </>
           )}
 
-          {/* Image Container */}
+          {/* Image Container with touch gestures */}
           <div
             className="review-lightbox-content"
             onClick={(e) => e.stopPropagation()}
+            {...handlers}
+            data-zoomed={isZoomed}
           >
-            <img
-              src={sortedPhotos[currentIndex].photo_url}
-              alt={t('reviews.photos.photoAlt', { index: currentIndex + 1 })}
-              className="review-lightbox-image"
-            />
+            <div style={imageStyle} className="review-lightbox-image-wrapper">
+              <img
+                src={sortedPhotos[currentIndex].photo_url}
+                alt={t('reviews.photos.photoAlt', { index: currentIndex + 1 })}
+                className="review-lightbox-image"
+              />
+            </div>
 
             {/* Photo Counter */}
             {sortedPhotos.length > 1 && (
