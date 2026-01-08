@@ -10,3 +10,5 @@ export { default as SkeletonAvatar } from './SkeletonAvatar';
 export { default as SkeletonText } from './SkeletonText';
 export { default as SkeletonCard } from './SkeletonCard';
 export { default as SkeletonGallery } from './SkeletonGallery';
+export { default as SkeletonDetailPage } from './SkeletonDetailPage';
+export { default as SkeletonTable } from './SkeletonTable';

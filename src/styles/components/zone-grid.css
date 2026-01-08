@@ -191,7 +191,7 @@
 @media (max-width: 768px) {
   .zone-grid-container {
     padding: var(--spacing-4, 1rem);
-    padding-top: calc(var(--height-header-mobile, 70px) + var(--spacing-4, 1rem));
+    /* padding-top handled by page-content-with-header-nightlife wrapper */
   }
 
   .zone-grid-title {

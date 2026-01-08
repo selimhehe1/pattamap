@@ -17,6 +17,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonTable } from '../Common/Skeleton';
 import AdminEstablishmentCard from './AdminEstablishmentCard';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -402,7 +403,7 @@ const EstablishmentsAdmin: React.FC<EstablishmentsAdminProps> = ({ onTabChange }
 
       {/* Content */}
       {isLoading ? (
-        <LoadingFallback message={t('admin.loadingEstablishments')} variant="inline" />
+        <SkeletonTable variant="card-grid" rows={6} showHeader={false} />
       ) : filter === 'pending-edits' ? (
         <EditProposalsSection
           editProposals={editProposals}

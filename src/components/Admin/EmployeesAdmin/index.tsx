@@ -9,6 +9,7 @@ import { Check, X, Loader2, Ban, CheckCircle, MailX, Users, UsersRound } from 'l
 import { GirlProfile } from '../../../routes/lazyComponents';
 import AdminBreadcrumb from '../../Common/AdminBreadcrumb';
 import LoadingFallback from '../../Common/LoadingFallback';
+import { SkeletonGallery } from '../../Common/Skeleton';
 import { useEmployeesAdmin } from './hooks/useEmployeesAdmin';
 import { EmployeesFilterTabs } from './EmployeesFilterTabs';
 import { EmployeeCard } from './EmployeeCard';
@@ -96,7 +97,7 @@ const EmployeesAdmin: React.FC<EmployeesAdminProps> = ({ onTabChange }) => {
 
       {/* Content */}
       {isLoading ? (
-        <LoadingFallback message={t('admin.loadingEmployees')} variant="inline" />
+        <SkeletonGallery count={8} variant="employee" />
       ) : filter === 'pending-edits' ? (
         editProposals.length === 0 ? (
           <div className="empty-state-card">

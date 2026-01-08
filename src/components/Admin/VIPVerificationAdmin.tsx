@@ -23,6 +23,7 @@ import {
   Building2,
   Banknote
 } from 'lucide-react';
+import { SkeletonTable } from '../Common/Skeleton';
 import '../../styles/admin/VIPVerificationAdmin.css';
 
 interface VIPTransaction {

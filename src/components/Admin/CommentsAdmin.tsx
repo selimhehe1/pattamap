@@ -5,6 +5,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonTable } from '../Common/Skeleton';
 import CommentReviewCard from './CommentReviewCard';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -333,7 +334,7 @@ const CommentsAdmin: React.FC<CommentsAdminProps> = ({ onTabChange }) => {
 
       {/* Comments List */}
       {isLoading ? (
-        <LoadingFallback message={t('admin.loadingComments')} variant="inline" />
+        <SkeletonTable variant="list" rows={6} showHeader={false} />
       ) : comments.length === 0 ? (
         <div className="cmd-table__empty">
           <MailX size={48} className="cmd-table__empty-icon" />

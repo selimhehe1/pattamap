@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
 import LoadingFallback from '../Common/LoadingFallback';
+import { SkeletonTable } from '../Common/Skeleton';
 import UserAdminCard from './UserAdminCard';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -277,7 +278,7 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ onTabChange }) => {
 
       {/* Users Grid */}
       {isLoading ? (
-        <LoadingFallback message={t('admin.loadingUsers')} variant="inline" />
+        <SkeletonTable variant="list" rows={8} showHeader={false} />
       ) : filteredUsers.length === 0 ? (
         <div className="cmd-table__empty">
           <MailX size={48} />

@@ -31,9 +31,9 @@
  * </div>
  */
 .page-content-with-header-nightlife {
-  /* Desktop: Header 80px + 20px margin */
-  padding-top: 6.25rem; /* 100px */
-  min-height: calc(100vh - 6.25rem);
+  /* Desktop: Header height + comfortable margin */
+  padding-top: calc(var(--height-header-desktop) + 1rem); /* ~76px */
+  min-height: calc(100vh - var(--height-header-desktop));
 }
 
 /* ============================================
@@ -151,8 +151,8 @@
  */
 @media (max-width: 64rem) {
   .page-content-with-header-nightlife {
-    padding-top: 5.9375rem; /* 95px */
-    min-height: calc(100vh - 5.9375rem);
+    padding-top: calc(var(--height-header-desktop) + 0.75rem); /* ~72px */
+    min-height: calc(100vh - var(--height-header-desktop));
   }
 
   .page-container {
@@ -170,12 +170,12 @@
 
 /**
  * Tablet portrait (768px and below)
- * Header: ~90px (75px header + 15px margin)
+ * Uses mobile header height
  */
 @media (max-width: 48rem) {
   .page-content-with-header-nightlife {
-    padding-top: 5.625rem; /* 90px */
-    min-height: calc(100vh - 5.625rem);
+    padding-top: calc(var(--height-header-mobile) + 0.75rem); /* ~64px */
+    min-height: calc(100vh - var(--height-header-mobile));
   }
 
   .page-container {
@@ -217,13 +217,12 @@
 
 /**
  * Large phones / iPhone 14 Pro (640px and below)
- * Header: ~75px (header + margin)
- * Gained 25px vertical space
+ * Uses mobile header height (same as tablet portrait)
  */
 @media (max-width: 40rem) {
   .page-content-with-header-nightlife {
-    padding-top: 4.6875rem; /* 75px */
-    min-height: calc(100vh - 4.6875rem);
+    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
+    min-height: calc(100vh - var(--height-header-mobile));
   }
 
   .page-section {
@@ -237,12 +236,11 @@
 
 /**
  * Small phones / iPhone SE (480px and below)
- * Header: ~70px (header + margin)
- * Maximum vertical space optimization
+ * Uses mobile header height
  */
 @media (max-width: 30rem) {
   .page-content-with-header-nightlife {
-    padding-top: 4.375rem; /* 70px */
+    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
     min-height: auto; /* Remove forced min-height on mobile */
   }
 
@@ -269,13 +267,12 @@
 
 /**
  * Very small phones (<375px)
- * Header: ~68px
- * Absolute maximum vertical space for smallest devices
+ * Uses mobile header height
  */
 @media (max-width: 23.4375rem) {
   .page-content-with-header-nightlife {
-    padding-top: 4.25rem; /* 68px */
-    min-height: calc(100vh - 4.25rem);
+    padding-top: calc(var(--height-header-mobile) + 0.5rem); /* ~60px */
+    min-height: calc(100vh - var(--height-header-mobile));
   }
 
   .page-container {
