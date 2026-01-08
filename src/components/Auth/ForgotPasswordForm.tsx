@@ -15,11 +15,14 @@ import '../../styles/components/modals.css';
 interface ForgotPasswordFormProps {
   onClose: () => void;
   onSwitchToLogin: () => void;
+  /** When true, renders without its own overlay (for use inside page layouts) */
+  embedded?: boolean;
 }
 
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onClose,
-  onSwitchToLogin
+  onSwitchToLogin,
+  embedded = false
 }) => {
   const { t } = useTranslation();
   const { csrfToken } = useCSRF();
@@ -78,56 +81,10 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     }
   };
 
-  // Success state - show confirmation
-  if (isSubmitted) {
-    return (
-      <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="forgot-password-modal">
-        <div className="modal-content-unified modal--medium">
-          <button
-            onClick={onClose}
-            className="modal-close-btn"
-            aria-label={t('common.close')}
-          >
-            ×
-          </button>
-
-          <div className="modal-header">
-            <div style={{ marginBottom: '16px' }}><Mail size={48} /></div>
-            <h2 className="header-title-nightlife">
-              {t('auth.checkYourEmail')}
-            </h2>
-            <p className="modal-subtitle" style={{ marginTop: '12px' }}>
-              {t('auth.resetInstructions')}
-            </p>
-          </div>
-
-          <div style={{
-            background: 'rgba(0, 229, 255, 0.1)',
-            border: '1px solid rgba(0, 229, 255, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginTop: '24px'
-          }}>
-            <p style={{ color: '#cccccc', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('auth.resetNote')}
-            </p>
-          </div>
-
-          <button
-            onClick={onSwitchToLogin}
-            className="btn btn--secondary"
-            style={{ marginTop: '24px', width: '100%' }}
-          >
-            {t('auth.backToLogin')}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="forgot-password-modal">
-      <div className="modal-content-unified modal--medium">
+  // Success state content
+  const successContent = (
+    <div className={embedded ? "auth-form-login-content" : "modal-content-unified modal--medium"}>
+      {!embedded && (
         <button
           onClick={onClose}
           className="modal-close-btn"
@@ -135,71 +92,130 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         >
           ×
         </button>
+      )}
 
-        <div className="modal-header">
-          <h2 className="header-title-nightlife">
-            {t('auth.forgotPassword')}
-          </h2>
-          <p className="modal-subtitle">
-            {t('auth.forgotPasswordSubtitle')}
-          </p>
+      <div className="modal-header">
+        <div style={{ marginBottom: '16px' }}><Mail size={48} /></div>
+        <h2 className="header-title-nightlife">
+          {t('auth.checkYourEmail')}
+        </h2>
+        <p className="modal-subtitle" style={{ marginTop: '12px' }}>
+          {t('auth.resetInstructions')}
+        </p>
+      </div>
+
+      <div style={{
+        background: 'rgba(0, 229, 255, 0.1)',
+        border: '1px solid rgba(0, 229, 255, 0.3)',
+        borderRadius: '12px',
+        padding: '16px',
+        marginTop: '24px'
+      }}>
+        <p style={{ color: '#cccccc', fontSize: '14px', lineHeight: '1.6' }}>
+          {t('auth.resetNote')}
+        </p>
+      </div>
+
+      <button
+        onClick={onSwitchToLogin}
+        className="btn btn--secondary"
+        style={{ marginTop: '24px', width: '100%' }}
+      >
+        {t('auth.backToLogin')}
+      </button>
+    </div>
+  );
+
+  // Form content
+  const formContent = (
+    <div className={embedded ? "auth-form-login-content" : "modal-content-unified modal--medium"}>
+      {!embedded && (
+        <button
+          onClick={onClose}
+          className="modal-close-btn"
+          aria-label={t('common.close')}
+        >
+          ×
+        </button>
+      )}
+
+      <div className="modal-header">
+        <h2 className="header-title-nightlife">
+          {t('auth.forgotPassword')}
+        </h2>
+        <p className="modal-subtitle">
+          {t('auth.forgotPasswordSubtitle')}
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="form-layout" noValidate>
+        <div className="form-group-nightlife">
+          <label className="form-label-nightlife">
+            <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.email')}
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError('');
+            }}
+            placeholder={t('auth.enterEmail')}
+            className="input-nightlife"
+            disabled={isLoading}
+            autoComplete="email"
+            autoFocus
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="form-layout" noValidate>
-          <div className="form-group-nightlife">
-            <label className="form-label-nightlife">
-              <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.email')}
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError('');
-              }}
-              placeholder={t('auth.enterEmail')}
-              className="input-nightlife"
-              disabled={isLoading}
-              autoComplete="email"
-              autoFocus
-            />
+        {error && (
+          <div className="error-message-nightlife error-shake">
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="error-message-nightlife error-shake">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
-          >
-            {isLoading ? (
-              <span className="loading-flex">
-                <span className="loading-spinner-small-nightlife"></span>
-                {t('common.sending')}
-              </span>
-            ) : (
-              <><Mail size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.sendResetLink')}</>
-            )}
-          </button>
-
-          <div className="auth-switch-text">
-            <span className="auth-switch-label">
-              {t('auth.rememberPassword')}{' '}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
+        >
+          {isLoading ? (
+            <span className="loading-flex">
+              <span className="loading-spinner-small-nightlife"></span>
+              {t('common.sending')}
             </span>
-            <button
-              type="button"
-              onClick={onSwitchToLogin}
-              className="auth-switch-button"
-            >
-              {t('auth.backToLogin')}
-            </button>
-          </div>
-        </form>
-      </div>
+          ) : (
+            <><Mail size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('auth.sendResetLink')}</>
+          )}
+        </button>
+
+        <div className="auth-switch-text">
+          <span className="auth-switch-label">
+            {t('auth.rememberPassword')}{' '}
+          </span>
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="auth-switch-button"
+          >
+            {t('auth.backToLogin')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const content = isSubmitted ? successContent : formContent;
+
+  // If embedded, return just the content
+  if (embedded) {
+    return content;
+  }
+
+  // Standalone mode: wrap in overlay
+  return (
+    <div className="modal-overlay-unified" role="dialog" aria-modal="true" data-testid="forgot-password-modal">
+      {content}
     </div>
   );
 };

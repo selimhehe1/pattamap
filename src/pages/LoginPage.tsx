@@ -5,6 +5,7 @@ import { Helmet } from '@dr.pogodin/react-helmet';
 import { ArrowLeft } from 'lucide-react';
 import LoginForm from '../components/Auth/LoginForm';
 import MultiStepRegisterForm from '../components/Auth/MultiStepRegisterForm';
+import ForgotPasswordForm from '../components/Auth/ForgotPasswordForm';
 import AuthHero from '../components/Auth/AuthHero';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/auth-pages.css';
@@ -32,11 +33,13 @@ import '../styles/components/auth-hero.css';
  * // Direct navigation
  * navigate('/login', { state: { from: '/dashboard' } });
  */
+type AuthMode = 'login' | 'register' | 'forgot-password';
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigateWithTransition();
   const location = useLocation();
   const { user } = useAuth();
-  const [showRegister, setShowRegister] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
 
   // Get the redirect path from location state or default to appropriate page
   const from = (location.state as { from?: string })?.from || null;
@@ -68,23 +71,29 @@ const LoginPage: React.FC = () => {
   };
 
   const handleSwitchToRegister = () => {
-    setShowRegister(true);
+    setAuthMode('register');
   };
 
   const handleSwitchToLogin = () => {
-    setShowRegister(false);
+    setAuthMode('login');
   };
 
-  const currentMode = showRegister ? 'register' : 'login';
+  const handleSwitchToForgotPassword = () => {
+    setAuthMode('forgot-password');
+  };
+
+  const currentMode = authMode === 'register' ? 'register' : 'login';
 
   return (
     <>
       <Helmet>
-        <title>{showRegister ? 'Register' : 'Login'} - PattaMap</title>
+        <title>{authMode === 'register' ? 'Register' : authMode === 'forgot-password' ? 'Forgot Password' : 'Login'} - PattaMap</title>
         <meta
           name="description"
-          content={showRegister
+          content={authMode === 'register'
             ? 'Create your PattaMap account to discover the best Pattaya nightlife venues'
+            : authMode === 'forgot-password'
+            ? 'Reset your PattaMap password'
             : 'Login to access your PattaMap account'
           }
         />
@@ -117,15 +126,24 @@ const LoginPage: React.FC = () => {
 
           {/* Form Container */}
           <div className="auth-form-container">
-            {!showRegister ? (
+            {authMode === 'login' && (
               <LoginForm
                 embedded
                 onClose={handleClose}
                 onSwitchToRegister={handleSwitchToRegister}
+                onSwitchToForgotPassword={handleSwitchToForgotPassword}
                 onLoginSuccess={handleLoginSuccess}
               />
-            ) : (
+            )}
+            {authMode === 'register' && (
               <MultiStepRegisterForm
+                embedded
+                onClose={handleClose}
+                onSwitchToLogin={handleSwitchToLogin}
+              />
+            )}
+            {authMode === 'forgot-password' && (
+              <ForgotPasswordForm
                 embedded
                 onClose={handleClose}
                 onSwitchToLogin={handleSwitchToLogin}
