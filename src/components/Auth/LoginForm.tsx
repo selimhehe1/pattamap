@@ -314,7 +314,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
           {/* 🔧 FIX A4: Forgot Password link */}
           {onSwitchToForgotPassword && (
-            <div style={{ textAlign: 'right', marginTop: '-8px', marginBottom: '16px' }}>
+            <div style={{ textAlign: 'right', marginTop: '-8px' }}>
               <button
                 type="button"
                 onClick={onSwitchToForgotPassword}
