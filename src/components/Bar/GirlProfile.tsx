@@ -695,7 +695,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           )}
 
           {/* ====== COMMUNITY VALIDATION ====== */}
-          {!girl.user_id && !girl.is_self_profile && (
+          {!girl.is_self_profile && (
             <motion.div
               className="profile-v2-section profile-v2-section--validation"
               initial={{ opacity: 0, y: 20 }}
