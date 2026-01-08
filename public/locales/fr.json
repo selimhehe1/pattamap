@@ -424,7 +424,19 @@
     "signIn": "Se connecter",
     "registerHere": "S'inscrire ici",
     "showPassword": "Afficher le mot de passe",
-    "hidePassword": "Masquer le mot de passe"
+    "hidePassword": "Masquer le mot de passe",
+    "forgotPasswordSubtitle": "Entrez votre email et nous vous enverrons un lien de réinitialisation",
+    "sendResetLink": "Envoyer le lien",
+    "resetEmailSent": "Instructions envoyées !",
+    "checkYourEmail": "Vérifiez votre email",
+    "resetInstructions": "Si un compte existe avec cet email, vous recevrez des instructions pour réinitialiser votre mot de passe.",
+    "resetNote": "Vous ne voyez pas l'email ? Vérifiez votre dossier spam. Si vous ne le recevez toujours pas, l'email n'est peut-être pas enregistré dans notre système.",
+    "backToLogin": "Retour à la connexion",
+    "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+    "resetRequestFailed": "Échec de l'envoi de l'email de réinitialisation",
+    "enterEmail": "Entrez votre email",
+    "emailRequired": "Email requis",
+    "invalidEmail": "Format d'email invalide"
   },
 
   "register": {

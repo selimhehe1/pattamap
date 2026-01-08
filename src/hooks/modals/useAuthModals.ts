@@ -7,11 +7,11 @@
 
 import { useCallback, lazy } from 'react';
 import { useModal } from '../../contexts/ModalContext';
-import { logger } from '../../utils/logger';
 
 // Lazy-loaded modal components
 const LoginForm = lazy(() => import('../../components/Auth/LoginForm'));
 const MultiStepRegisterForm = lazy(() => import('../../components/Auth/MultiStepRegisterForm'));
+const ForgotPasswordForm = lazy(() => import('../../components/Auth/ForgotPasswordForm'));
 
 // Modal IDs
 export const AUTH_MODAL_IDS = {
@@ -40,27 +40,45 @@ export const useAuthModals = (): UseAuthModalsReturn => {
   const { openModal, closeModal } = useModal();
 
   // ==========================================
-  // Login Modal
+  // Helper: Open Login Modal with all callbacks
   // ==========================================
-  const openLoginForm = useCallback(() => {
+  const openLoginWithCallbacks = useCallback(() => {
+    const handleSwitchToRegister = () => {
+      closeModal(AUTH_MODAL_IDS.LOGIN);
+      openModal(AUTH_MODAL_IDS.REGISTER, MultiStepRegisterForm, {
+        onClose: () => closeModal(AUTH_MODAL_IDS.REGISTER),
+        onSwitchToLogin: () => {
+          closeModal(AUTH_MODAL_IDS.REGISTER);
+          openLoginWithCallbacks();
+        }
+      }, { size: 'large' });
+    };
+
+    const handleSwitchToForgotPassword = () => {
+      closeModal(AUTH_MODAL_IDS.LOGIN);
+      openModal(AUTH_MODAL_IDS.FORGOT_PASSWORD, ForgotPasswordForm, {
+        onClose: () => closeModal(AUTH_MODAL_IDS.FORGOT_PASSWORD),
+        onSwitchToLogin: () => {
+          closeModal(AUTH_MODAL_IDS.FORGOT_PASSWORD);
+          openLoginWithCallbacks();
+        }
+      }, { size: 'medium' });
+    };
+
     openModal(AUTH_MODAL_IDS.LOGIN, LoginForm, {
       onClose: () => closeModal(AUTH_MODAL_IDS.LOGIN),
       embedded: true,
-      onSwitchToRegister: () => {
-        closeModal(AUTH_MODAL_IDS.LOGIN);
-        openModal(AUTH_MODAL_IDS.REGISTER, MultiStepRegisterForm, {
-          onClose: () => closeModal(AUTH_MODAL_IDS.REGISTER),
-          onSwitchToLogin: () => {
-            closeModal(AUTH_MODAL_IDS.REGISTER);
-            openModal(AUTH_MODAL_IDS.LOGIN, LoginForm, {
-              onClose: () => closeModal(AUTH_MODAL_IDS.LOGIN),
-              embedded: true
-            }, { size: 'medium' });
-          }
-        }, { size: 'large' });
-      }
+      onSwitchToRegister: handleSwitchToRegister,
+      onSwitchToForgotPassword: handleSwitchToForgotPassword
     }, { size: 'medium' });
   }, [openModal, closeModal]);
+
+  // ==========================================
+  // Login Modal
+  // ==========================================
+  const openLoginForm = useCallback(() => {
+    openLoginWithCallbacks();
+  }, [openLoginWithCallbacks]);
 
   const closeLoginForm = useCallback(() => {
     closeModal(AUTH_MODAL_IDS.LOGIN);
@@ -74,22 +92,27 @@ export const useAuthModals = (): UseAuthModalsReturn => {
       onClose: () => closeModal(AUTH_MODAL_IDS.REGISTER),
       onSwitchToLogin: () => {
         closeModal(AUTH_MODAL_IDS.REGISTER);
-        openLoginForm();
+        openLoginWithCallbacks();
       }
     }, { size: 'large' });
-  }, [openModal, closeModal, openLoginForm]);
+  }, [openModal, closeModal, openLoginWithCallbacks]);
 
   const closeRegisterForm = useCallback(() => {
     closeModal(AUTH_MODAL_IDS.REGISTER);
   }, [closeModal]);
 
   // ==========================================
-  // Forgot Password Modal (placeholder)
+  // Forgot Password Modal
   // ==========================================
   const openForgotPasswordForm = useCallback(() => {
-    // TODO: Implement ForgotPasswordForm component
-    logger.debug('Forgot password form not yet implemented');
-  }, []);
+    openModal(AUTH_MODAL_IDS.FORGOT_PASSWORD, ForgotPasswordForm, {
+      onClose: () => closeModal(AUTH_MODAL_IDS.FORGOT_PASSWORD),
+      onSwitchToLogin: () => {
+        closeModal(AUTH_MODAL_IDS.FORGOT_PASSWORD);
+        openLoginWithCallbacks();
+      }
+    }, { size: 'medium' });
+  }, [openModal, closeModal, openLoginWithCallbacks]);
 
   const closeForgotPasswordForm = useCallback(() => {
     closeModal(AUTH_MODAL_IDS.FORGOT_PASSWORD);

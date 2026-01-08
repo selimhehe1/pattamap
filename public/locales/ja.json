@@ -375,8 +375,20 @@
     "signingIn": "Signing in...",
     "signIn": "Sign In",
     "registerHere": "Register here",
-    "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す",
+    "forgotPasswordSubtitle": "メールアドレスを入力すると、リセットリンクを送信します",
+    "sendResetLink": "リセットリンクを送信",
+    "resetEmailSent": "手順が送信されました！",
+    "checkYourEmail": "メールを確認してください",
+    "resetInstructions": "このメールアドレスでアカウントが存在する場合、パスワードリセットの手順が届きます。",
+    "resetNote": "メールが見つかりませんか？迷惑メールフォルダを確認してください。それでも届かない場合、このメールアドレスは登録されていない可能性があります。",
+    "backToLogin": "ログインに戻る",
+    "rememberPassword": "パスワードを覚えていますか？",
+    "resetRequestFailed": "リセットメールの送信に失敗しました",
+    "enterEmail": "メールアドレスを入力",
+    "emailRequired": "メールアドレスが必要です",
+    "invalidEmail": "無効なメールアドレス形式"
   },
 
   "register": {

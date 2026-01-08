@@ -372,7 +372,19 @@
     "signIn": "登录",
     "registerHere": "在此注册",
     "showPassword": "显示密码",
-    "hidePassword": "隐藏密码"
+    "hidePassword": "隐藏密码",
+    "forgotPasswordSubtitle": "输入您的电子邮件，我们将发送重置链接",
+    "sendResetLink": "发送重置链接",
+    "resetEmailSent": "重置指令已发送！",
+    "checkYourEmail": "检查您的电子邮件",
+    "resetInstructions": "如果存在使用此电子邮件的账户，您将收到重置密码的指令。",
+    "resetNote": "没有看到邮件？请检查垃圾邮件文件夹。如果仍未收到，该邮件可能未在我们系统中注册。",
+    "backToLogin": "返回登录",
+    "rememberPassword": "记得密码？",
+    "resetRequestFailed": "发送重置邮件失败",
+    "enterEmail": "输入您的电子邮件",
+    "emailRequired": "需要电子邮件",
+    "invalidEmail": "无效的电子邮件格式"
   },
   "register": {
     "title": "加入我们",

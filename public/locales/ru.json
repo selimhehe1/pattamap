@@ -374,7 +374,19 @@
     "signIn": "Войти",
     "registerHere": "Зарегистрироваться",
     "showPassword": "Показать пароль",
-    "hidePassword": "Скрыть пароль"
+    "hidePassword": "Скрыть пароль",
+    "forgotPasswordSubtitle": "Введите email и мы отправим ссылку для сброса",
+    "sendResetLink": "Отправить ссылку",
+    "resetEmailSent": "Инструкции отправлены!",
+    "checkYourEmail": "Проверьте вашу почту",
+    "resetInstructions": "Если аккаунт с этим email существует, вы получите инструкции по сбросу пароля.",
+    "resetNote": "Не видите письмо? Проверьте папку спам. Если письмо не приходит, возможно этот email не зарегистрирован в нашей системе.",
+    "backToLogin": "Вернуться к входу",
+    "rememberPassword": "Помните пароль?",
+    "resetRequestFailed": "Не удалось отправить письмо для сброса",
+    "enterEmail": "Введите email",
+    "emailRequired": "Требуется email",
+    "invalidEmail": "Неверный формат email"
   },
   "register": {
     "title": "Присоединяйтесь к нам",
