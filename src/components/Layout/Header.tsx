@@ -41,7 +41,8 @@ import LanguageSelector from '../Common/LanguageSelector';
 import LazyImage from '../Common/LazyImage';
 import UserAvatar from '../Common/UserAvatar';
 import NotificationBell from '../Common/NotificationBell'; // 🆕 v10.2 - Notifications (using RPC functions)
-import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
+// SyncIndicator temporarily disabled - causes React hooks error with Vite cache
+// import SyncIndicator from '../Common/SyncIndicator'; // 🆕 v10.4 - Offline sync queue indicator
 import MobileMenu from './MobileMenu'; // Phase 3 - Mobile hamburger menu
 import { useAppModals } from '../../hooks/useAppModals'; // 🆕 Phase 4.4 - Direct modal access
 import { useMediaQuery } from '../../hooks/useMediaQuery'; // Phase 3 - Responsive detection
@@ -202,8 +203,8 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Sync Indicator - shows pending offline actions */}
-          <SyncIndicator compact />
+          {/* Sync Indicator - temporarily disabled due to Vite cache issue */}
+          {/* <SyncIndicator compact /> */}
 
           {/* Notifications Bell - in header */}
           {user && <NotificationBell variant="default" />}
