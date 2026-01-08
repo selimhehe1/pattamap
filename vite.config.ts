@@ -168,6 +168,12 @@ export default defineConfig({
       'react-router-dom',
       'react/jsx-runtime',
       'react/jsx-dev-runtime'
-    ]
+    ],
+    // Force cache invalidation - increment this to force rebuild
+    esbuildOptions: {
+      define: {
+        __VITE_CACHE_VERSION__: '"2"'
+      }
+    }
   }
 });
