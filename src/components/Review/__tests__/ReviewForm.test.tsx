@@ -17,6 +17,64 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../../test-utils/test-helpers';
+
+// Mock auth contexts - MUST be before component import
+vi.mock('../../../contexts/auth', () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: 'test-user-id', pseudonym: 'testuser', email: 'test@example.com', role: 'user', is_active: true },
+    token: 'test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
+  })),
+  useUser: vi.fn(() => ({
+    user: { id: 'test-user-id', pseudonym: 'testuser', email: 'test@example.com', role: 'user', is_active: true },
+    loading: false,
+    token: 'test-token',
+    setUser: vi.fn(),
+    setToken: vi.fn(),
+    refreshUser: vi.fn(),
+    checkAuthStatus: vi.fn(),
+  })),
+  useSession: vi.fn(() => ({ isCheckingSession: false })),
+  useEmployee: vi.fn(() => ({ linkedEmployeeProfile: null, refreshLinkedProfile: vi.fn(), claimEmployeeProfile: vi.fn() })),
+  useOwnership: vi.fn(() => ({ submitOwnershipRequest: vi.fn() })),
+  useAuthCore: vi.fn(() => ({ login: vi.fn(), register: vi.fn(), logout: vi.fn() })),
+  AuthContext: { Provider: ({ children }: any) => children },
+  AuthProviders: ({ children }: any) => children,
+}));
+
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: 'test-user-id', pseudonym: 'testuser', email: 'test@example.com', role: 'user', is_active: true },
+    token: 'test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
+  })),
+  AuthContext: { Provider: ({ children }: any) => children },
+}));
+
+// Mock CSRF context
+vi.mock('../../../contexts/CSRFContext', () => ({
+  useCSRF: vi.fn(() => ({
+    csrfToken: 'test-csrf-token',
+    refreshToken: vi.fn().mockResolvedValue('test-csrf-token'),
+    setToken: vi.fn(),
+  })),
+  CSRFProvider: ({ children }: any) => children,
+}));
+
 import ReviewForm from '../ReviewForm';
 
 // Mock i18n
@@ -240,9 +298,15 @@ describe('ReviewForm Component', () => {
       const submitButton = screen.getByText('Submit Review');
       await userEvent.click(submitButton);
 
+      // First wait for onSubmit to be called (ensures form submission started)
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalled();
+      });
+
+      // Then wait for form reset
       await waitFor(() => {
         expect(textarea).toHaveValue('');
-      });
+      }, { timeout: 2000 });
     });
 
     it('should call onCancel when cancel button is clicked', async () => {

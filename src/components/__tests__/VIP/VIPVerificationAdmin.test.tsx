@@ -14,6 +14,54 @@ import React from 'react';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { renderWithProviders } from '../../../test-utils/test-helpers';
+
+// Mock auth contexts - MUST be before component import
+vi.mock('../../../contexts/auth', () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: 'admin-user-id', pseudonym: 'admin', email: 'admin@example.com', role: 'admin', is_active: true },
+    token: 'admin-test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
+  })),
+  useUser: vi.fn(() => ({
+    user: { id: 'admin-user-id', pseudonym: 'admin', email: 'admin@example.com', role: 'admin', is_active: true },
+    loading: false,
+    token: 'admin-test-token',
+    setUser: vi.fn(),
+    setToken: vi.fn(),
+    refreshUser: vi.fn(),
+    checkAuthStatus: vi.fn(),
+  })),
+  useSession: vi.fn(() => ({ isCheckingSession: false })),
+  useEmployee: vi.fn(() => ({ linkedEmployeeProfile: null, refreshLinkedProfile: vi.fn(), claimEmployeeProfile: vi.fn() })),
+  useOwnership: vi.fn(() => ({ submitOwnershipRequest: vi.fn() })),
+  useAuthCore: vi.fn(() => ({ login: vi.fn(), register: vi.fn(), logout: vi.fn() })),
+  AuthContext: { Provider: ({ children }: any) => children },
+  AuthProviders: ({ children }: any) => children,
+}));
+
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: 'admin-user-id', pseudonym: 'admin', email: 'admin@example.com', role: 'admin', is_active: true },
+    token: 'admin-test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
+  })),
+  AuthContext: { Provider: ({ children }: any) => children },
+}));
+
 import VIPVerificationAdmin from '../../Admin/VIPVerificationAdmin';
 
 // Mock logger
@@ -261,9 +309,9 @@ describe('VIPVerificationAdmin Component', () => {
 
       await waitFor(() => {
         // Default filter is 'pending', so the API should be called with status=pending
-        // The call may include empty status for 'all' filter or specific status
+        // Actual URL is /api/vip/admin/vip/transactions
         expect(mockSecureFetch).toHaveBeenCalledWith(
-          expect.stringMatching(/\/api\/admin\/vip\/transactions/)
+          expect.stringMatching(/\/api\/vip\/admin\/vip\/transactions/)
         );
       });
     });

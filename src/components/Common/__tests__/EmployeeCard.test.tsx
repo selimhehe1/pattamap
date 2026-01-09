@@ -112,7 +112,8 @@ describe('EmployeeCard Component', () => {
     it('should render nationality when provided', () => {
       render(<EmployeeCard employee={createMockEmployee({ nationality: ['Thai', 'Japanese'] })} />);
 
-      expect(screen.getByText('Thai / Japanese')).toBeInTheDocument();
+      // Component now renders first 3 chars uppercased of first nationality
+      expect(screen.getByText('THA')).toBeInTheDocument();
     });
   });
 

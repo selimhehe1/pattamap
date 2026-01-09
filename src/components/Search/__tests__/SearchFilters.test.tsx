@@ -481,8 +481,8 @@ describe('SearchFilters - Filter Fixes', () => {
         />
       );
 
-      // Check that the button has the active class
-      const freelanceButton = container.querySelector('.freelance-toggle-active');
+      // Check that the button has the active class (toggle-filter-active from ToggleFilter component)
+      const freelanceButton = container.querySelector('.toggle-filter-active');
       expect(freelanceButton).toBeInTheDocument();
     });
   });

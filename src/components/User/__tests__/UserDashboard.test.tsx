@@ -59,11 +59,52 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock AuthContext
-let mockUser: any = { id: 'user-123', email: 'test@example.com' };
+let mockUser: any = { id: 'user-123', email: 'test@example.com', pseudonym: 'testuser', role: 'user', is_active: true };
 vi.mock('../../../contexts/AuthContext', () => ({
   useAuth: () => ({
     user: mockUser,
+    token: 'test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
   }),
+  AuthContext: { Provider: ({ children }: any) => children },
+}));
+
+// Mock contexts/auth module
+vi.mock('../../../contexts/auth', () => ({
+  useAuth: () => ({
+    user: mockUser,
+    token: 'test-token',
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    linkedEmployeeProfile: null,
+    refreshLinkedProfile: vi.fn(),
+    claimEmployeeProfile: vi.fn(),
+    submitOwnershipRequest: vi.fn(),
+  }),
+  useUser: () => ({
+    user: mockUser,
+    loading: false,
+    token: 'test-token',
+    setUser: vi.fn(),
+    setToken: vi.fn(),
+    refreshUser: vi.fn(),
+    checkAuthStatus: vi.fn(),
+  }),
+  useSession: () => ({ isCheckingSession: false }),
+  useEmployee: () => ({ linkedEmployeeProfile: null, refreshLinkedProfile: vi.fn(), claimEmployeeProfile: vi.fn() }),
+  useOwnership: () => ({ submitOwnershipRequest: vi.fn() }),
+  useAuthCore: () => ({ login: vi.fn(), register: vi.fn(), logout: vi.fn() }),
+  AuthContext: { Provider: ({ children }: any) => children },
+  AuthProviders: ({ children }: any) => children,
 }));
 
 // Mock ModalContext
@@ -203,7 +244,7 @@ describe('UserDashboard Component', () => {
       employee_name: 'Jane Doe',
       employee_nickname: 'JD',
       employee_age: 25,
-      employee_nationality: 'Thai',
+      employee_nationality: ['Thai'],  // Must be array - UserDashboard checks Array.isArray()
       employee_photos: ['photo1.jpg', 'photo2.jpg'],
       employee_rating: 4.5,
       employee_comment_count: 10,
@@ -234,7 +275,8 @@ describe('UserDashboard Component', () => {
 
       // EmployeeCard renders age as just the number, not "X years"
       expect(screen.getByText('25')).toBeInTheDocument();
-      expect(screen.getByText(/Thai/)).toBeInTheDocument();
+      // EmployeeCard now renders first 3 chars uppercased of first nationality
+      expect(screen.getByText('THA')).toBeInTheDocument();
     });
 
     it('should display establishment info', () => {

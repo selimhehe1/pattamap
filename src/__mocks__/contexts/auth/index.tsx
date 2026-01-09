@@ -1,6 +1,6 @@
 /**
- * Mock for AuthContext and related auth hooks
- * Used in tests to provide mocked authentication state
+ * Mock for contexts/auth module
+ * Provides mocked authentication hooks for testing
  */
 import React, { createContext } from 'react';
 import { vi } from 'vitest';
@@ -14,8 +14,8 @@ const mockUser = {
   is_active: true,
 };
 
-// AuthContext for legacy support
-export const AuthContext = createContext<any>(null);
+// Export AuthContext for testing purposes
+export const AuthContext = createContext<any>(undefined);
 
 // Individual context hooks
 export const useUser = vi.fn(() => ({
@@ -67,4 +67,11 @@ export const AuthProviders: React.FC<{ children: React.ReactNode }> = ({ childre
   return <>{children}</>;
 };
 
-export default AuthContext;
+// Re-export types (empty for mock)
+export type UserContextType = any;
+export type SessionContextType = any;
+export type EmployeeContextType = any;
+export type OwnershipContextType = any;
+export type AuthCoreContextType = any;
+
+export default AuthProviders;

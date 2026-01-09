@@ -50,6 +50,7 @@ describe('Employee Search Helpers', () => {
       expect(result).toEqual({
         searchQuery: null,
         type: null,
+        sex: null, // v10.x - Gender filter
         nationality: null,
         ageMin: null,
         ageMax: null,
@@ -66,7 +67,8 @@ describe('Employee Search Helpers', () => {
         languages: null,
         minRating: null,
         hasPhotos: false,
-        socialMedia: null
+        socialMedia: null,
+        unclaimedOnly: false // v12.x - Filter for registration (false when not 'true')
       });
     });
 
