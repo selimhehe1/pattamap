@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Zap, Pencil, X, Send } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from './Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 export interface PromptModalProps {
@@ -162,46 +163,16 @@ const PromptModal: React.FC<PromptModalProps> = ({
             aria-labelledby="prompt-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={handleCancel}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={handleCancel} />
 
             {/* Header with icon */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className={`modal-premium__icon modal-premium__icon--${variant === 'info' ? 'info' : variant}`}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                {getIcon()}
-              </motion.div>
-              <motion.h2
-                id="prompt-modal-title"
-                className={`modal-premium__title modal-premium__title--${variant === 'info' ? 'info' : variant}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {title || t('dialog.promptTitle', 'Input Required')}
-              </motion.h2>
-              {message && (
-                <motion.p
-                  className="modal-premium__subtitle"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  {message}
-                </motion.p>
-              )}
-            </div>
+            <ModalHeader
+              title={title || t('dialog.promptTitle', 'Input Required')}
+              titleId="prompt-modal-title"
+              subtitle={message}
+              icon={getIcon()}
+              variant={variant}
+            />
 
             {/* Content */}
             <motion.div
@@ -256,32 +227,20 @@ const PromptModal: React.FC<PromptModalProps> = ({
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="modal-premium__footer"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-            >
-              <motion.button
-                className="modal-premium__btn-secondary"
-                onClick={handleCancel}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <X size={16} />
-                {cancelText || t('dialog.cancel', 'Cancel')}
-              </motion.button>
-              <motion.button
-                className={`modal-premium__btn-primary ${variant === 'danger' ? 'modal-premium__btn-danger' : variant === 'warning' ? 'modal-premium__btn-warning' : ''}`}
-                onClick={handleSubmit}
-                disabled={required && value.trim().length === 0}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Send size={16} />
-                {submitText || t('dialog.submit', 'Submit')}
-              </motion.button>
-            </motion.div>
+            <ModalFooter
+              secondaryAction={{
+                label: cancelText || t('dialog.cancel', 'Cancel'),
+                onClick: handleCancel,
+                icon: <X size={16} />
+              }}
+              primaryAction={{
+                label: submitText || t('dialog.submit', 'Submit'),
+                onClick: handleSubmit,
+                icon: <Send size={16} />,
+                disabled: required && value.trim().length === 0,
+                variant: variant === 'danger' ? 'danger' : variant === 'warning' ? 'warning' : 'primary'
+              }}
+            />
           </motion.div>
         </motion.div>
       )}

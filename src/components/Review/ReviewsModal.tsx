@@ -2,8 +2,9 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Lightbulb, BarChart3, X } from 'lucide-react';
+import { MessageSquare, Lightbulb, BarChart3 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from '../Common/Modal/index';
 import ReviewsList from './ReviewsList';
 import '../../styles/components/modal-premium-base.css';
 
@@ -85,36 +86,15 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
             aria-labelledby="reviews-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className="modal-premium__icon modal-premium__icon--info"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <MessageSquare size={32} />
-              </motion.div>
-              <motion.h2
-                id="reviews-modal-title"
-                className="modal-premium__title modal-premium__title--info"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('reviewsModal.title', { employeeName })}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={t('reviewsModal.title', { employeeName })}
+              titleId="reviews-modal-title"
+              icon={<MessageSquare size={32} />}
+              variant="info"
+            />
 
             {/* Content */}
             <motion.div
@@ -190,13 +170,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="modal-premium__footer"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              style={{ justifyContent: 'center' }}
-            >
+            <ModalFooter animationDelay={0.3} className="modal-premium__footer--centered">
               <p style={{
                 color: 'rgba(255,255,255,0.4)',
                 fontSize: '12px',
@@ -208,7 +182,7 @@ const ReviewsModal: React.FC<ReviewsModalProps> = ({
                 <Lightbulb size={14} />
                 {t('reviewsModal.footerTip')}
               </p>
-            </motion.div>
+            </ModalFooter>
           </motion.div>
         </motion.div>
       )}

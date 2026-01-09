@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Zap, Check, Info, X } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from './Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 export type ConfirmVariant = 'danger' | 'warning' | 'info' | 'success';
@@ -104,36 +105,15 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             aria-describedby="confirm-modal-message"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={handleCancel}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={handleCancel} />
 
             {/* Header with icon */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className={`modal-premium__icon modal-premium__icon--${variant}`}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                {getIcon()}
-              </motion.div>
-              <motion.h2
-                id="confirm-modal-title"
-                className={`modal-premium__title modal-premium__title--${variant}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {title || getDefaultTitle()}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={title || getDefaultTitle()}
+              titleId="confirm-modal-title"
+              icon={getIcon()}
+              variant={variant}
+            />
 
             {/* Content */}
             <motion.div
@@ -148,31 +128,19 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="modal-premium__footer"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-            >
-              <motion.button
-                className="modal-premium__btn-secondary"
-                onClick={handleCancel}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <X size={16} />
-                {cancelText || t('dialog.cancel', 'Cancel')}
-              </motion.button>
-              <motion.button
-                className={`modal-premium__btn-primary modal-premium__btn-${variant}`}
-                onClick={handleConfirm}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Check size={16} />
-                {confirmText || t('dialog.confirm', 'Confirm')}
-              </motion.button>
-            </motion.div>
+            <ModalFooter
+              secondaryAction={{
+                label: cancelText || t('dialog.cancel', 'Cancel'),
+                onClick: handleCancel,
+                icon: <X size={16} />
+              }}
+              primaryAction={{
+                label: confirmText || t('dialog.confirm', 'Confirm'),
+                onClick: handleConfirm,
+                icon: <Check size={16} />,
+                variant: variant === 'danger' ? 'danger' : variant === 'warning' ? 'warning' : 'primary'
+              }}
+            />
           </motion.div>
         </motion.div>
       )}
