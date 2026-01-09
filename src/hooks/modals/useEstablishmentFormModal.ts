@@ -3,6 +3,8 @@
  *
  * Handles the establishment form modal for creating establishments.
  * Includes submission logic and state management.
+ *
+ * REFACTORED: Consolidated duplicate submission logic into submitEstablishmentRequest helper.
  */
 
 import { useCallback, useState, lazy } from 'react';
@@ -38,6 +40,33 @@ export const useEstablishmentFormModal = (): UseEstablishmentFormModalReturn => 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ==========================================
+  // Core submission logic (single source of truth)
+  // ==========================================
+  const submitEstablishmentRequest = useCallback(async (
+    establishmentData: Partial<Establishment>
+  ): Promise<boolean> => {
+    const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
+      method: 'POST',
+      body: JSON.stringify(establishmentData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to submit establishment');
+    }
+
+    notification.success('Establishment added successfully!');
+    return true;
+  }, [secureFetch]);
+
+  // ==========================================
+  // Close Establishment Form Modal
+  // ==========================================
+  const closeEstablishmentForm = useCallback(() => {
+    closeModal(ESTABLISHMENT_FORM_MODAL_ID);
+  }, [closeModal]);
+
+  // ==========================================
   // Open Establishment Form Modal
   // ==========================================
   const openEstablishmentForm = useCallback(() => {
@@ -45,18 +74,8 @@ export const useEstablishmentFormModal = (): UseEstablishmentFormModalReturn => 
     const submitHandler = async (establishmentData: Partial<Establishment>) => {
       setIsSubmitting(true);
       try {
-        const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
-          method: 'POST',
-          body: JSON.stringify(establishmentData)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to submit establishment');
-        }
-
-        closeModal(ESTABLISHMENT_FORM_MODAL_ID);
-        notification.success('Establishment added successfully!');
+        await submitEstablishmentRequest(establishmentData);
+        closeEstablishmentForm();
       } catch (error) {
         logger.error('Failed to submit establishment', error);
         notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
@@ -68,16 +87,9 @@ export const useEstablishmentFormModal = (): UseEstablishmentFormModalReturn => 
     openModal(ESTABLISHMENT_FORM_MODAL_ID, EstablishmentForm, {
       onSubmit: submitHandler,
       isLoading: isSubmitting,
-      onCancel: () => closeModal(ESTABLISHMENT_FORM_MODAL_ID)
+      onCancel: closeEstablishmentForm
     }, { size: 'large', closeOnOverlayClick: false });
-  }, [openModal, closeModal, secureFetch, isSubmitting]);
-
-  // ==========================================
-  // Close Establishment Form Modal
-  // ==========================================
-  const closeEstablishmentForm = useCallback(() => {
-    closeModal(ESTABLISHMENT_FORM_MODAL_ID);
-  }, [closeModal]);
+  }, [openModal, isSubmitting, submitEstablishmentRequest, closeEstablishmentForm]);
 
   // ==========================================
   // Handle Submit Establishment (standalone)
@@ -85,25 +97,15 @@ export const useEstablishmentFormModal = (): UseEstablishmentFormModalReturn => 
   const handleSubmitEstablishment = useCallback(async (establishmentData: Partial<Establishment>) => {
     setIsSubmitting(true);
     try {
-      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/establishments`, {
-        method: 'POST',
-        body: JSON.stringify(establishmentData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit establishment');
-      }
-
+      await submitEstablishmentRequest(establishmentData);
       closeEstablishmentForm();
-      notification.success('Establishment added successfully!');
     } catch (error) {
       logger.error('Failed to submit establishment', error);
       notification.error(error instanceof Error ? error.message : 'Failed to submit establishment');
     } finally {
       setIsSubmitting(false);
     }
-  }, [secureFetch, closeEstablishmentForm]);
+  }, [submitEstablishmentRequest, closeEstablishmentForm]);
 
   return {
     // State
