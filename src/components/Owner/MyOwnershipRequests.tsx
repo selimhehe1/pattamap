@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ClipboardList, Check, X, FileText, Loader2 } from 'lucide-react';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { SkeletonTable } from '../Common/Skeleton';
+import LazyImage from '../Common/LazyImage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import notification from '../../utils/notification';
@@ -311,7 +312,11 @@ const MyOwnershipRequests: React.FC = () => {
                                 {url.toLowerCase().endsWith('.pdf') ? (
                                   <span className="pdf-icon"><FileText size={24} /></span>
                                 ) : (
-                                  <img src={url} alt={`Document ${index + 1}`} />
+                                  <LazyImage
+                                    src={url}
+                                    alt={`Document ${index + 1}`}
+                                    cloudinaryPreset="galleryThumb"
+                                  />
                                 )}
                               </div>
                               <span className="document-label">Document {index + 1}</span>

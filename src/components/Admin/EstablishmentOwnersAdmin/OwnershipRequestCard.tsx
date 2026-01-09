@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { OwnershipRequest } from '../types/ownershipTypes';
 import { formatDate } from './utils';
+import LazyImage from '../../Common/LazyImage';
 
 interface OwnershipRequestCardProps {
   request: OwnershipRequest;
@@ -309,11 +310,12 @@ const OwnershipRequestCard: React.FC<OwnershipRequestCardProps> = ({
                   {url.toLowerCase().endsWith('.pdf') ? (
                     <FileText size={32} />
                   ) : (
-                    <img src={url} alt={`Document ${index + 1}`} style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }} />
+                    <LazyImage
+                      src={url}
+                      alt={`Document ${index + 1}`}
+                      cloudinaryPreset="galleryThumb"
+                      style={{ width: '100%', height: '100%' }}
+                    />
                   )}
                 </div>
                 <span style={{

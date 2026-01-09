@@ -368,7 +368,11 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           {/* Mini Avatar */}
           <div className="profile-v2-header-avatar">
             {girl.photos?.[0] ? (
-              <img src={girl.photos[0]} alt={girl.name} />
+              <LazyImage
+                src={girl.photos[0]}
+                alt={girl.name}
+                cloudinaryPreset="thumbnail"
+              />
             ) : (
               <span>{girl.name?.charAt(0)?.toUpperCase()}</span>
             )}

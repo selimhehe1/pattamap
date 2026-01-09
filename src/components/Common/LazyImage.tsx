@@ -236,6 +236,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         src={currentSrc}
         alt={decorative ? '' : alt}
         loading="lazy"
+        decoding="async"
         onError={handleError}
         onLoad={handleLoad}
         style={imageStyle}
