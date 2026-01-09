@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Star, Pencil } from 'lucide-react';
+import { Star, Pencil, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StarRating from '../Common/StarRating';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useOptimisticRating } from '../../hooks/useOptimisticRating';
 import { logger } from '../../utils/logger';
 import '../../styles/components/user-rating.css';
+import '../../styles/features/employee/ValidationSection.css';
 
 interface UserRatingProps {
   employeeId: string;
@@ -145,11 +146,10 @@ const UserRating: React.FC<UserRatingProps> = ({
 
   if (!user) {
     return (
-      <div className={`user-rating-container-nightlife ${className}`}>
-        <p className="login-prompt-nightlife">
-          <a href="/auth">{t('userRating.loginLink')}</a> {t('userRating.loginPrompt')}
-        </p>
-      </div>
+      <a href="/login" className="validation-section validation-section--login-required">
+        <Lock size={16} />
+        <span>{t('userRating.loginToRate', 'Login to rate')}</span>
+      </a>
     );
   }
 

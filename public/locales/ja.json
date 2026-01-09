@@ -1140,6 +1140,7 @@
   },
 
   "userRating": {
+    "loginToRate": "ログインして評価",
     "loginPrompt": "to rate this employee",
     "loginLink": "Log in",
     "title": "Your Rating",

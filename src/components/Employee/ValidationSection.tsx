@@ -160,10 +160,10 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({ employeeId }) => 
   // User not authenticated - show login prompt
   if (!user) {
     return (
-      <div className="validation-section validation-section--login-required">
+      <a href="/login" className="validation-section validation-section--login-required">
         <Lock size={16} />
         <span>{t('validation.loginToVote')}</span>
-      </div>
+      </a>
     );
   }
 

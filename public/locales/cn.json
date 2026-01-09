@@ -1374,6 +1374,7 @@
     "whatHappensNextStep3": "一旦获得批准，您将能够编辑和管理您的资料"
   },
   "userRating": {
+    "loginToRate": "登录评分",
     "loginPrompt": "以对此员工评分",
     "loginLink": "登录",
     "title": "您的评分",

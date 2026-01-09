@@ -44,6 +44,19 @@
   gap: 0.5rem;
 }
 
+/* Login required link - clickable version */
+a.validation-section--login-required {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+a.validation-section--login-required:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* Stats display (after voting) */
 .validation-section--stats {
   flex-direction: row;

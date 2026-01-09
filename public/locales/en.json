@@ -1248,6 +1248,7 @@
   },
 
   "userRating": {
+    "loginToRate": "Login to rate",
     "loginPrompt": "to rate this employee",
     "loginLink": "Log in",
     "title": "Your Rating",

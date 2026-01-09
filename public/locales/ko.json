@@ -1140,6 +1140,7 @@
   },
 
   "userRating": {
+    "loginToRate": "로그인하여 평가",
     "loginPrompt": "to rate this employee",
     "loginLink": "Log in",
     "title": "Your Rating",

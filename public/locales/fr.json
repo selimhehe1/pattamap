@@ -1503,6 +1503,7 @@
   },
 
   "userRating": {
+    "loginToRate": "Connectez-vous pour noter",
     "loginPrompt": "pour noter cette employée",
     "loginLink": "Se connecter",
     "title": "Votre note",
