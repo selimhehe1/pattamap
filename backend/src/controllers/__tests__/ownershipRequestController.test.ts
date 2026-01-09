@@ -108,12 +108,13 @@ describe('OwnershipRequestController', () => {
         created_at: new Date().toISOString()
       };
 
-      // Mock queries: 1) get user, 2) get establishment, 3) check ownership, 4) check pending request, 5) insert
+      // Mock queries: 1) get user, 2) get establishment, 3) check user ownership, 4) check any owner, 5) check pending request, 6) insert
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockUser)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEstablishment)))
-        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
-        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))  // User doesn't own yet
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))  // No existing owner
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))  // No pending request
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRequest_entity)));
 
       await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
@@ -185,11 +186,13 @@ describe('OwnershipRequestController', () => {
       const mockEstablishment = { id: 'est-1', name: 'Test Bar' };
       const existingRequest = { id: 'req-existing', status: 'pending' };
 
+      // Mock queries: 1) user, 2) establishment, 3) check user ownership, 4) check any owner, 5) check pending request
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockUser)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEstablishment)))
-        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(existingRequest)));
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))  // User doesn't own yet
+        .mockReturnValueOnce(createMockQueryBuilder(mockNotFound()))  // No existing owner
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(existingRequest)));  // Has pending request
 
       await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 

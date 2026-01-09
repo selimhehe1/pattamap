@@ -31,7 +31,7 @@ jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
 jest.mock('../../utils/validation', () => ({
   validateImageUrls: jest.fn().mockReturnValue({ valid: true, urls: [] }),
-  validateUrlArray: jest.fn().mockReturnValue({ valid: true, urls: [] }),
+  validateUrlArray: jest.fn().mockReturnValue([]),
   escapeLikeWildcards: jest.fn((input: string) => input || ''), // Return input unchanged for tests
 }));
 jest.mock('../../utils/freelanceValidation');
@@ -83,6 +83,14 @@ describe('EmployeeController', () => {
   };
 
   beforeEach(() => {
+    // Clear all mock calls and reset implementations
+    jest.clearAllMocks();
+    
+    // Reset supabase.from to clear any leftover mockReturnValueOnce queues
+    // while keeping it as a usable mock function
+    (supabase.from as jest.Mock).mockReset();
+    (supabase.rpc as jest.Mock).mockReset();
+
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
 
@@ -104,9 +112,8 @@ describe('EmployeeController', () => {
       json: jsonMock
     };
 
-    jest.clearAllMocks();
-
-    // Mock validation helpers
+    // Reset and mock validation helpers
+    (validateImageUrls as jest.Mock).mockReset();
     (validateImageUrls as jest.Mock).mockReturnValue({ valid: true, error: null });
     jest.spyOn(freelanceValidation, 'validateFreelanceRules').mockResolvedValue({ valid: true, error: null });
     jest.spyOn(notificationHelper, 'notifyEmployeeUpdate').mockResolvedValue(undefined);
@@ -300,6 +307,19 @@ describe('EmployeeController', () => {
         })
       });
 
+      // Mock votes query (employee_existence_votes)
+      const votesSelectMock = jest.fn().mockReturnThis();
+      const votesEqMock = jest.fn().mockResolvedValue({
+        data: [],
+        error: null
+      });
+
+      (supabase.from as jest.Mock).mockReturnValueOnce({
+        select: votesSelectMock.mockReturnValue({
+          eq: votesEqMock
+        })
+      });
+
       mockRequest.params = { id: 'emp-1' };
 
       await getEmployee(mockRequest as AuthRequest, mockResponse as Response, mockNext);
@@ -312,7 +332,8 @@ describe('EmployeeController', () => {
           employment_history: [mockEmploymentHistory[1]],
           comments: mockComments,
           average_rating: 5,
-          comment_count: 1
+          comment_count: 1,
+          vote_count: 0  // v10.x: New field
         })
       });
     });
@@ -348,6 +369,7 @@ describe('EmployeeController', () => {
         name: 'New Employee',
         nickname: 'Nick',
         age: 22,
+        sex: 'female', // v10.x: required field
         nationality: ['Thai'], // v10.4: must be array
         description: 'Test description',
         photos: ['https://example.com/photo1.jpg'],
@@ -391,6 +413,7 @@ describe('EmployeeController', () => {
     it('should create employee with freelance position', async () => {
       const mockEmployeeData = {
         name: 'Freelance Employee',
+        sex: 'female', // v10.x: required field
         photos: ['https://example.com/photo1.jpg'],
         is_freelance: true,  // v10.3: freelance flag
         current_establishment_ids: ['est-1', 'est-2']  // v10.3: multiple nightclubs
@@ -428,7 +451,7 @@ describe('EmployeeController', () => {
     });
 
     it('should return 400 for missing required fields', async () => {
-      mockRequest.body = { name: 'Test' }; // Missing photos
+      mockRequest.body = { name: 'Test', sex: 'female' }; // Missing photos
 
       // Mock validateImageUrls to return error for missing photos
       (validateImageUrls as jest.Mock).mockReturnValueOnce({
@@ -449,6 +472,7 @@ describe('EmployeeController', () => {
     it('should return 400 for too many photos', async () => {
       mockRequest.body = {
         name: 'Test',
+        sex: 'female', // v10.x: required field
         photos: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'] // 6 photos (max is 5)
       };
 
@@ -471,6 +495,7 @@ describe('EmployeeController', () => {
     it('should return 400 when both establishment and freelance provided', async () => {
       mockRequest.body = {
         name: 'Test',
+        sex: 'female', // v10.x: required field
         photos: ['https://example.com/p1.jpg'],
         is_freelance: false,  // Not freelance
         current_establishment_id: 'est-1',  // Single establishment
@@ -494,6 +519,7 @@ describe('EmployeeController', () => {
     it('should return 400 when freelance works at non-nightclub establishment', async () => {
       mockRequest.body = {
         name: 'Test Freelance',
+        sex: 'female', // v10.x: required field
         photos: ['https://example.com/p1.jpg'],
         is_freelance: true,
         current_establishment_ids: ['bar-est-1']  // Not a nightclub
@@ -928,7 +954,7 @@ describe('EmployeeController', () => {
         .mockReturnValueOnce(notificationBuilder);
 
       // Mock RPC call for claim creation (now uses RPC instead of direct insert)
-      (supabase.rpc as jest.Mock) = jest.fn().mockResolvedValue({
+      (supabase.rpc as jest.Mock).mockResolvedValueOnce({
         data: 'claim-1',
         error: null
       });
@@ -1093,28 +1119,41 @@ describe('EmployeeController', () => {
       mockRequest.user!.role = 'admin';
       mockRequest.params = { claimId: 'claim-1' };
 
-      // Mock get claim
+      // Mock get claim from moderation_queue
       const claimBuilder = createQueryBuilder({
-        data: { id: 'claim-1', user_id: 'user-456', employee_id: 'emp-1', status: 'pending' },
+        data: {
+          id: 'claim-1',
+          item_id: 'emp-1',
+          item_type: 'employee_claim',
+          submitted_by: 'user-456',
+          status: 'pending',
+          request_metadata: { claim_type: 'claim_existing' }  // Not self_profile
+        },
         error: null
       });
 
-      // Mock update claim status
-      const updateClaimBuilder = createQueryBuilder({
-        data: { id: 'claim-1', status: 'approved' },
+      // Mock RPC for approving claim
+      (supabase.rpc as jest.Mock).mockResolvedValueOnce({
+        data: true,
         error: null
       });
 
-      // Mock create link
-      const linkBuilder = createQueryBuilder({
-        data: { user_id: 'user-456', employee_id: 'emp-1' },
+      // Mock get employee name for notification
+      const employeeBuilder = createQueryBuilder({
+        data: { name: 'Test Employee' },
+        error: null
+      });
+
+      // Mock insert notification
+      const notificationBuilder = createQueryBuilder({
+        data: { id: 'notif-1' },
         error: null
       });
 
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(claimBuilder)
-        .mockReturnValueOnce(updateClaimBuilder)
-        .mockReturnValueOnce(linkBuilder);
+        .mockReturnValueOnce(employeeBuilder)
+        .mockReturnValueOnce(notificationBuilder);
 
       await approveClaimRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
 
