@@ -36,11 +36,16 @@ const UserDashboard: React.FC = () => {
     nickname: favorite.employee_nickname,
     photos: favorite.employee_photos || [],
     age: favorite.employee_age,
-    sex: favorite.employee_sex || 'female', // v10.x - Default to female if not set
+    sex: favorite.employee_sex || 'female',
     nationality: Array.isArray(favorite.employee_nationality)
       ? favorite.employee_nationality
       : [],
     average_rating: favorite.employee_rating ?? favorite.average_rating,
+    is_verified: favorite.employee_is_verified,
+    verified_at: favorite.employee_verified_at,
+    vote_count: favorite.employee_vote_count,
+    is_vip: favorite.employee_is_vip,
+    vip_expires_at: favorite.employee_vip_expires_at,
     current_employment: favorite.current_establishment
       ? [{
           id: `emp-${favorite.employee_id}`,

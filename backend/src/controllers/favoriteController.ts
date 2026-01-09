@@ -44,13 +44,19 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       photos?: string[];
       description?: string;
       social_media?: Record<string, string>;
+      sex?: 'male' | 'female' | 'ladyboy';
+      is_verified?: boolean;
+      verified_at?: string;
+      vote_count?: number;
+      is_vip?: boolean;
+      vip_expires_at?: string;
     }
 
     // Fetch each employee individually - this approach works reliably
     const employeePromises = employeeIds.map(async (empId: string) => {
       const { data, error } = await supabase
         .from('employees')
-        .select('id, name, nickname, age, nationality, photos, description, social_media')
+        .select('id, name, nickname, age, nationality, photos, description, social_media, sex, is_verified, verified_at, vote_count, is_vip, vip_expires_at')
         .eq('id', empId)
         .single();
 
@@ -131,9 +137,15 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
         employee_nickname: emp?.nickname,
         employee_photos: emp?.photos || [],
         employee_age: emp?.age,
+        employee_sex: emp?.sex,
         employee_nationality: emp?.nationality,
         employee_description: emp?.description,
         employee_social_media: emp?.social_media,
+        employee_is_verified: emp?.is_verified,
+        employee_verified_at: emp?.verified_at,
+        employee_vote_count: emp?.vote_count,
+        employee_is_vip: emp?.is_vip,
+        employee_vip_expires_at: emp?.vip_expires_at,
         employee_rating: avgRating,
         employee_comment_count: ratingData?.count || 0,
         current_establishment: establishment ? {

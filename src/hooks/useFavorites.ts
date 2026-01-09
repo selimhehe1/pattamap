@@ -32,11 +32,16 @@ export interface Favorite {
   employee_nickname?: string;
   employee_photos: string[];
   employee_age?: number;
-  employee_sex?: 'male' | 'female' | 'ladyboy'; // v10.x - Gender
+  employee_sex?: 'male' | 'female' | 'ladyboy';
   employee_nationality?: string[] | null;
   employee_rating?: number;
   employee_comment_count?: number;
   employee_social_media?: Record<string, string>;
+  employee_is_verified?: boolean;
+  employee_verified_at?: string;
+  employee_vote_count?: number;
+  employee_is_vip?: boolean;
+  employee_vip_expires_at?: string;
   current_establishment?: Establishment;
   average_rating?: number;
 }
