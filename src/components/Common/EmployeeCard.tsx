@@ -158,10 +158,10 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
         </div>
       )}
 
-      {/* Vote Badge - Top Left (below Verified if present) - v10.3 */}
-      {employee.vote_count !== undefined && employee.vote_count > 0 && (
+      {/* Vote Badge - Top Left - v10.3 - Only show if NOT verified */}
+      {!employee.is_verified && employee.vote_count !== undefined && employee.vote_count > 0 && (
         <div
-          className={`employee-card-vote-badge ${employee.is_verified ? 'employee-card-vote-badge-offset' : ''}`}
+          className="employee-card-vote-badge"
           title={`${employee.vote_count} ${employee.vote_count === 1 ? 'vote' : 'votes'} for existence confirmation`}
           role="img"
           aria-label={t('employeeCard.voteCount', { count: employee.vote_count })}

@@ -276,11 +276,6 @@
   backdrop-filter: blur(4px);
 }
 
-/* Offset when Verified badge is present */
-.employee-card-vote-badge.employee-card-vote-badge-offset {
-  top: 52px; /* Position below Verified badge (10px + 36px height + 6px gap) */
-}
-
 /* ========================================
    OVERLAY GRADIENT (Bottom)
    ======================================== */
