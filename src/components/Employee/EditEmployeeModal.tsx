@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XCircle, RefreshCw, X, UserCog, Loader2, Info } from 'lucide-react';
+import { XCircle, RefreshCw, UserCog, Loader2, Info } from 'lucide-react';
 import notification from '../../utils/notification';
 import { useTranslation } from 'react-i18next';
 import EmployeeForm from '../Forms/EmployeeForm';
@@ -9,6 +9,7 @@ import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { Employee, EmployeeFormData } from '../../types';
 import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 interface EditEmployeeModalProps {
@@ -158,36 +159,16 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             aria-labelledby="edit-my-profile-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              aria-label={t('editMyProfileModal.ariaCloseModal')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header - Form style (left-aligned) */}
-            <div className="modal-premium__header modal-premium__header--form">
-              <motion.div
-                className="modal-premium__icon modal-premium__icon--info"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <UserCog size={24} />
-              </motion.div>
-              <motion.h2
-                id="edit-my-profile-modal-title"
-                className="modal-premium__title modal-premium__title--info"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('editMyProfileModal.title')}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={t('editMyProfileModal.title')}
+              titleId="edit-my-profile-modal-title"
+              icon={<UserCog size={24} />}
+              variant="info"
+              layout="form"
+            />
 
             {/* Content */}
             <motion.div

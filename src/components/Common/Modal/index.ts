@@ -11,7 +11,7 @@ export { ModalCloseButton } from './ModalCloseButton';
 export type { ModalCloseButtonProps } from './ModalCloseButton';
 
 export { ModalHeader } from './ModalHeader';
-export type { ModalHeaderProps, ModalVariant } from './ModalHeader';
+export type { ModalHeaderProps, ModalVariant, ModalLayout } from './ModalHeader';
 
 export { ModalFooter } from './ModalFooter';
 export type { ModalFooterProps, ModalFooterAction, ModalFooterVariant } from './ModalFooter';

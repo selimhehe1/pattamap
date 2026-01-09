@@ -9,6 +9,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export type ModalVariant = 'info' | 'success' | 'warning' | 'danger';
+export type ModalLayout = 'centered' | 'form';
 
 export interface ModalHeaderProps {
   /** Modal title */
@@ -21,6 +22,8 @@ export interface ModalHeaderProps {
   icon?: React.ReactNode;
   /** Variant affects icon/title colors */
   variant?: ModalVariant;
+  /** Layout style: centered (default) or form (left-aligned) */
+  layout?: ModalLayout;
   /** Whether to show icon with animations */
   withIcon?: boolean;
   /** Custom className */
@@ -33,12 +36,22 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
   subtitle,
   icon,
   variant = 'info',
+  layout = 'centered',
   withIcon = true,
   className = ''
 }) => {
-  const headerClass = withIcon && icon
-    ? 'modal-premium__header modal-premium__header--with-icon'
-    : 'modal-premium__header';
+  const isFormLayout = layout === 'form';
+
+  const headerClass = isFormLayout
+    ? 'modal-premium__header modal-premium__header--form'
+    : withIcon && icon
+      ? 'modal-premium__header modal-premium__header--with-icon'
+      : 'modal-premium__header';
+
+  // Animation direction based on layout
+  const titleAnimation = isFormLayout
+    ? { initial: { opacity: 0, x: -10 }, animate: { opacity: 1, x: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
 
   return (
     <div className={`${headerClass} ${className}`}>
@@ -56,8 +69,8 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
       <motion.h2
         id={titleId}
         className={`modal-premium__title modal-premium__title--${variant}`}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={titleAnimation.initial}
+        animate={titleAnimation.animate}
         transition={{ delay: 0.15 }}
       >
         {title}

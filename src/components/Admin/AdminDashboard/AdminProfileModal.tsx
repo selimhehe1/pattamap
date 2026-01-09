@@ -21,10 +21,10 @@ import {
   BarChart3,
   Building2,
   Users,
-  MessageSquare,
-  X
+  MessageSquare
 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../../animations/variants';
+import { ModalCloseButton, ModalFooter } from '../../Common/Modal/index';
 import type { AdminProfileModalProps } from './types';
 
 // Role-based color helper
@@ -74,15 +74,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
           aria-labelledby="admin-profile-modal-title"
         >
           {/* Close Button */}
-          <motion.button
-            className="modal-premium__close"
-            onClick={onClose}
-            aria-label={t('common.close')}
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <X size={18} />
-          </motion.button>
+          <ModalCloseButton onClick={onClose} />
 
           {/* Header with Icon */}
           <div className="modal-premium__header modal-premium__header--form">
@@ -297,23 +289,14 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
           </motion.div>
 
           {/* Footer */}
-          <motion.div
-            className="modal-premium__footer"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            style={{ justifyContent: 'center' }}
-          >
-            <motion.button
-              className="modal-premium__btn-primary"
-              onClick={onClose}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              style={{ width: '100%', maxWidth: '200px' }}
-            >
-              {t('common.close')}
-            </motion.button>
-          </motion.div>
+          <ModalFooter
+            animationDelay={0.6}
+            className="modal-premium__footer--centered"
+            primaryAction={{
+              label: t('common.close'),
+              onClick: onClose
+            }}
+          />
         </motion.div>
       </motion.div>
     </AnimatePresence>
