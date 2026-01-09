@@ -1,9 +1,13 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+/**
+ * NationalityTagsInput - Nationality selection tags input
+ *
+ * Refactored to use GenericTagsInput for better maintainability.
+ */
+
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Lightbulb, AlertTriangle } from 'lucide-react';
-import { ALL_COUNTRIES, getCountryLabel } from '../../constants/countries';
-import { logger } from '../../utils/logger';
+import { ALL_COUNTRIES, getCountryLabel, CountryOption } from '../../constants/countries';
+import GenericTagsInput from './GenericTagsInput';
 import '../../styles/components/NationalityTagsInput.css';
 
 interface NationalityTagsInputProps {
@@ -28,363 +32,46 @@ export const NationalityTagsInput: React.FC<NationalityTagsInputProps> = ({
   disabled = false,
   maxSelection = 2
 }) => {
-  const { t: _t, i18n } = useTranslation();
-  const currentLang = (i18n.language.split('-')[0] || 'en') as 'en' | 'th' | 'ru' | 'cn' | 'fr' | 'hi';
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language.split('-')[0] || 'en';
 
-  const [inputValue, setInputValue] = useState<string>('');
-  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  // Custom label getter using the countries module
+  const getLabel = useCallback((option: CountryOption, lang: string): string => {
+    return getCountryLabel(option.value, lang as 'en' | 'th' | 'ru' | 'cn' | 'fr' | 'hi');
+  }, []);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // Helper text based on selection count
+  const helperTextByCount = useCallback((count: number): string | null => {
+    if (count === 0) return 'Click to select your nationality (max 2 for half/mixed)';
+    if (count === 1) return 'Click to add a second nationality for half/mixed heritage';
+    if (count === 2) return '2 nationalities selected (Half/Mixed)';
+    return null;
+  }, []);
 
-  // Get selected nationalities (ensure array and handle legacy string values)
-  const selectedNationalities = useMemo(() => {
-    if (!value) return [];
-    if (Array.isArray(value)) return value;
-    // Legacy: convert string to array (in case of old data from before type was string[])
-    const legacyValue = value as unknown;
-    if (typeof legacyValue === 'string' && legacyValue.trim()) {
-      return [legacyValue];
-    }
-    return [];
-  }, [value]);
-
-  const canAddMore = selectedNationalities.length < maxSelection;
-
-  // Fuzzy search: matches characters in order (tolerates typos)
-  const fuzzyMatch = (search: string, text: string): boolean => {
-    const searchLower = search.toLowerCase();
-    const textLower = text.toLowerCase();
-
-    // Exact match
-    if (textLower.includes(searchLower)) return true;
-
-    // Fuzzy match: characters in order
-    let searchIndex = 0;
-    for (let i = 0; i < textLower.length && searchIndex < searchLower.length; i++) {
-      if (textLower[i] === searchLower[searchIndex]) searchIndex++;
-    }
-    return searchIndex === searchLower.length;
-  };
-
-  // Filter countries based on input value
-  const filteredSuggestions = useMemo(() => {
-    if (!inputValue.trim()) {
-      return ALL_COUNTRIES.slice(0, 20); // Show top 20 by default
-    }
-
-    return ALL_COUNTRIES.filter(country => {
-      // Already selected
-      if (selectedNationalities.includes(country.value)) return false;
-
-      // Search in current language label
-      const currentLabel = country.label[currentLang];
-      // Also search in English value
-      const englishValue = country.value;
-
-      return fuzzyMatch(inputValue, currentLabel) || fuzzyMatch(inputValue, englishValue);
-    }).slice(0, 10); // Limit to 10 suggestions
-  }, [inputValue, selectedNationalities, currentLang]);
-
-  // Debug logging (after filteredSuggestions is defined)
-  useEffect(() => {
-    logger.debug('NationalityTagsInput:', {
-      value,
-      selectedNationalities,
-      canAddMore,
-      showSuggestions,
-      inputValue,
-      filteredCount: filteredSuggestions.length
-    });
-  }, [value, selectedNationalities, showSuggestions, inputValue, filteredSuggestions, canAddMore]);
-
-  // Handle clicking outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      // Don't close if clicking inside the container
-      if (containerRef.current && containerRef.current.contains(target)) {
-        return;
-      }
-
-      // Don't close if clicking inside the portal dropdown
-      if (target.closest('.nationality-suggestions-portal')) {
-        return;
-      }
-
-      // Close dropdown
-      setShowSuggestions(false);
-      setFocusedIndex(-1);
-    };
-
-    if (showSuggestions) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showSuggestions]);
-
-  // Calculate dropdown position - always show below for stability
-  useEffect(() => {
-    if (showSuggestions && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 4,  // Always below the input
-        left: rect.left,
-        width: rect.width
-      });
-    }
-  }, [showSuggestions]);
-
-  // Handle adding a nationality
-  const handleAddNationality = (countryValue: string) => {
-    if (!canAddMore) return;
-
-    const newSelection = [...selectedNationalities, countryValue];
-    onChange(newSelection);
-    setInputValue('');
-    setShowSuggestions(false);
-    setFocusedIndex(-1);
-
-    // Keep focus on input
-    inputRef.current?.focus();
-  };
-
-  // Handle removing a nationality
-  const handleRemoveNationality = (countryValue: string) => {
-    const newSelection = selectedNationalities.filter(n => n !== countryValue);
-    onChange(newSelection.length > 0 ? newSelection : null);
-
-    // Keep focus on input
-    inputRef.current?.focus();
-  };
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-    setShowSuggestions(true);
-    setFocusedIndex(-1);
-  };
-
-  // Handle input focus
-  const handleInputFocus = () => {
-    // Don't auto-open dropdown on focus to avoid reopening after selection
-    // Dropdown will open when user clicks container or starts typing
-    logger.debug('Input focused, canAddMore:', canAddMore);
-  };
-
-  // Handle container click to show dropdown even if empty
-  const handleContainerClickToShow = () => {
-    if (!disabled && canAddMore) {
-      logger.debug('Container clicked, showing suggestions');
-      setShowSuggestions(true);
-      // Focus input after showing suggestions
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 0);
-    }
-  };
-
-  // Handle keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Escape: Close suggestions
-    if (e.key === 'Escape') {
-      setShowSuggestions(false);
-      setFocusedIndex(-1);
-      return;
-    }
-
-    // Backspace on empty input: Remove last tag
-    if (e.key === 'Backspace' && inputValue === '' && selectedNationalities.length > 0) {
-      e.preventDefault();
-      handleRemoveNationality(selectedNationalities[selectedNationalities.length - 1]);
-      return;
-    }
-
-    if (!showSuggestions || filteredSuggestions.length === 0) return;
-
-    // Arrow Down: Next suggestion
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setFocusedIndex(prev => (prev < filteredSuggestions.length - 1 ? prev + 1 : prev));
-      return;
-    }
-
-    // Arrow Up: Previous suggestion
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setFocusedIndex(prev => (prev > 0 ? prev - 1 : 0));
-      return;
-    }
-
-    // Enter or Tab: Select focused suggestion
-    if ((e.key === 'Enter' || e.key === 'Tab') && focusedIndex >= 0) {
-      e.preventDefault();
-      handleAddNationality(filteredSuggestions[focusedIndex].value);
-      return;
-    }
-  };
-
-  // Handle container click (show dropdown and focus input)
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // Don't trigger if clicking on a remove button
-    if ((e.target as HTMLElement).closest('.nationality-tag-remove')) {
-      return;
-    }
-
-    if (!disabled) {
-      handleContainerClickToShow();
-    }
-  };
-
-  // Get display label for nationality
-  const getDisplayLabel = (countryValue: string): string => {
-    return getCountryLabel(countryValue, currentLang);
-  };
-
-  // Determine placeholder text
-  const getPlaceholder = (): string => {
-    if (selectedNationalities.length === 0) {
-      return 'Type to search countries...';
-    } else if (canAddMore) {
-      return 'Add another...';
-    } else {
-      return '';
-    }
-  };
+  // Max indicator text
+  const maxIndicatorText = useCallback((count: number): string => {
+    return count === 2 ? '(Half/Mixed)' : '';
+  }, []);
 
   return (
-    <div className="nationality-tags-input-wrapper">
-      <div
-        ref={containerRef}
-        className={`nationality-tags-input-container ${disabled ? 'nationality-tags-input-disabled' : ''} ${showSuggestions ? 'nationality-tags-input-focused' : ''}`}
-        onClick={handleContainerClick}
-      >
-        {/* Selected nationalities as tags */}
-        {selectedNationalities.map((nationality) => (
-          <div key={nationality} className="nationality-tag">
-            <span className="nationality-tag-text">{getDisplayLabel(nationality)}</span>
-            {!disabled && (
-              <button
-                type="button"
-                className="nationality-tag-remove"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveNationality(nationality);
-                }}
-                aria-label={`Remove ${getDisplayLabel(nationality)}`}
-              >
-                ×
-              </button>
-            )}
-          </div>
-        ))}
-
-        {/* Input field */}
-        {canAddMore && !disabled && (
-          <input
-            ref={inputRef}
-            type="text"
-            className="nationality-tags-input-field"
-            value={inputValue}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            onKeyDown={handleKeyDown}
-            placeholder={getPlaceholder()}
-            disabled={disabled}
-            autoComplete="off"
-          />
-        )}
-
-        {/* Max reached indicator */}
-        {!canAddMore && selectedNationalities.length > 0 && (
-          <span className="nationality-tags-input-max">
-            {selectedNationalities.length === 2 ? '(Half/Mixed)' : ''}
-          </span>
-        )}
-      </div>
-
-      {/* Suggestions dropdown (rendered in portal) */}
-      {showSuggestions && canAddMore && dropdownPosition && (
-        <>
-          {filteredSuggestions.length > 0 && ReactDOM.createPortal(
-            <div
-              className="nationality-suggestions nationality-suggestions-portal"
-              style={{
-                position: 'fixed',
-                top: `${dropdownPosition.top}px`,
-                left: `${dropdownPosition.left}px`,
-                width: `${dropdownPosition.width}px`,
-                zIndex: 100002
-              }}
-            >
-              {filteredSuggestions.map((country, index) => (
-                <div
-                  key={country.value}
-                  className={`nationality-suggestion-item ${index === focusedIndex ? 'nationality-suggestion-item-focused' : ''}`}
-                  onClick={() => handleAddNationality(country.value)}
-                  onMouseEnter={() => setFocusedIndex(index)}
-                >
-                  {country.label[currentLang]}
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-
-          {/* No results message */}
-          {inputValue && filteredSuggestions.length === 0 && ReactDOM.createPortal(
-            <div
-              className="nationality-suggestions nationality-suggestions-portal"
-              style={{
-                position: 'fixed',
-                top: `${dropdownPosition.top}px`,
-                left: `${dropdownPosition.left}px`,
-                width: `${dropdownPosition.width}px`,
-                zIndex: 100002
-              }}
-            >
-              <div className="nationality-suggestion-item nationality-suggestion-item-disabled">
-                No countries found
-              </div>
-            </div>,
-            document.body
-          )}
-        </>
-      )}
-
-      {/* Helper text */}
-      {selectedNationalities.length === 0 && !showSuggestions && (
-        <div className="nationality-helper-text">
-          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Click to select your nationality (max 2 for half/mixed)
-        </div>
-      )}
-      {selectedNationalities.length === 1 && !showSuggestions && (
-        <div className="nationality-helper-text">
-          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Click to add a second nationality for half/mixed heritage
-        </div>
-      )}
-      {selectedNationalities.length === 2 && (
-        <div className="nationality-helper-text">
-          <Lightbulb size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> 2 nationalities selected (Half/Mixed)
-        </div>
-      )}
-
-      {/* Error message */}
-      {error && (
-        <div className="nationality-error-text">
-          <AlertTriangle size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {error}
-        </div>
-      )}
-    </div>
+    <GenericTagsInput
+      value={value}
+      onChange={onChange}
+      options={ALL_COUNTRIES as unknown as CountryOption[]}
+      currentLang={currentLang}
+      maxSelection={maxSelection}
+      error={error}
+      disabled={disabled}
+      placeholderEmpty="Type to search countries..."
+      placeholderMore="Add another..."
+      noResultsMessage="No countries found"
+      helperTextByCount={helperTextByCount}
+      maxIndicatorText={maxIndicatorText}
+      maxSuggestions={10}
+      defaultSuggestionsCount={20}
+      getLabel={getLabel}
+    />
   );
 };
 
 export default NationalityTagsInput;
-
