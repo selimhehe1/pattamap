@@ -1,5 +1,5 @@
 import { useCallback, useRef, CSSProperties } from 'react';
-import { useSwipeGesture, UseSwipeGestureOptions } from './useSwipeGesture';
+import { useSwipeGesture } from './useSwipeGesture';
 import { usePinchZoom, UsePinchZoomOptions } from './usePinchZoom';
 
 export interface UseGalleryGesturesOptions {

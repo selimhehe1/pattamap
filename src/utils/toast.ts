@@ -19,7 +19,7 @@ import { ReactNode } from 'react';
  * - Full Framer Motion integration
  */
 
-import notification, {
+import _notification, {
   showSuccess as newShowSuccess,
   showError as newShowError,
   showWarning as newShowWarning,

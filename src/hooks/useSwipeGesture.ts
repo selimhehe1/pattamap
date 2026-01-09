@@ -87,7 +87,7 @@ export function useSwipeGesture(options: UseSwipeGestureOptions): UseSwipeGestur
     }
   }, [disabled]);
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+  const handleTouchEnd = useCallback((_e: React.TouchEvent) => {
     if (disabled || !swipeRef.current) {
       setIsSwiping(false);
       return;

@@ -63,7 +63,7 @@ const MyEmployeesList: React.FC<Props> = ({
       }
     };
     fetchEmployees();
-  }, [establishmentId, secureFetch, refreshCounter]);
+  }, [establishmentId, secureFetch, refreshCounter, t]);
 
   const handleBuyVIP = (employeeId: string) => {
     const employee = employees.find(emp => emp.id === employeeId);

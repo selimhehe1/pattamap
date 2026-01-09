@@ -1,4 +1,5 @@
-/// <reference path="./types/express.d.ts" />
+// Express type extensions (for req.user, req.csrfToken)
+import './types/express.d';
 // Force reload with NULL NULL fix
 // Load environment variables FIRST
 import dotenv from 'dotenv';

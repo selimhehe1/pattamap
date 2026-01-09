@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { useAppModals } from '../../hooks/useAppModals';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonDetailPage } from '../Common/Skeleton';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';

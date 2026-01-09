@@ -8,7 +8,7 @@
  * - Subscribes to notification store
  */
 
-import { memo, useSyncExternalStore, useCallback } from 'react';
+import { memo, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence } from 'framer-motion';
 import { notificationStore, Notification } from '../../stores/notificationStore';

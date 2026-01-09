@@ -139,8 +139,14 @@ const MobileFiltersChips: React.FC<MobileFiltersChipsProps> = memo(({
   const isFreelance = filters.type === 'freelance';
   const hasPhotos = filters.has_photos === 'true';
   const currentSex = filters.sex;
-  const selectedLanguages = filters.languages ? filters.languages.split(',') : [];
-  const selectedSocial = filters.social_media ? filters.social_media.split(',') : [];
+  const selectedLanguages = React.useMemo(() =>
+    filters.languages ? filters.languages.split(',') : [],
+    [filters.languages]
+  );
+  const selectedSocial = React.useMemo(() =>
+    filters.social_media ? filters.social_media.split(',') : [],
+    [filters.social_media]
+  );
   const currentRating = filters.min_rating ? Number(filters.min_rating) : 0;
 
   // Check if current age matches a preset

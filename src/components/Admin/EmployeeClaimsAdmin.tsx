@@ -5,7 +5,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { EmployeeClaimRequest } from '../../types';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonTable } from '../Common/Skeleton';
 import EmployeeClaimCard from './EmployeeClaimCard';
 import { logger } from '../../utils/logger';

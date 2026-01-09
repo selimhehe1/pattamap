@@ -98,7 +98,7 @@ export function useStepNavigation({
    * Check if credentials availability allows proceeding
    * Returns error message if blocked, null if OK
    */
-  const checkAvailabilityBlock = (): string | null => {
+  const checkAvailabilityBlock = useCallback((): string | null => {
     if (availabilityStatus?.pseudonym === 'taken') {
       return t('register.pseudonymTaken', 'This pseudonym is already taken');
     }
@@ -106,7 +106,7 @@ export function useStepNavigation({
       return t('register.emailTaken', 'This email is already registered');
     }
     return null;
-  };
+  }, [availabilityStatus, t]);
 
   const handleNext = useCallback(() => {
     // Step 1 → Step 2
@@ -197,7 +197,7 @@ export function useStepNavigation({
       // For claim/regular/owner, submit is handled by form onSubmit
     }
     // Step 4 → Submit (handled by form onSubmit)
-  }, [currentStep, formData, setCurrentStep, t, availabilityStatus]);
+  }, [currentStep, formData, setCurrentStep, t, checkAvailabilityBlock]);
 
   const handlePrevious = useCallback(() => {
     if (currentStep === 4) {

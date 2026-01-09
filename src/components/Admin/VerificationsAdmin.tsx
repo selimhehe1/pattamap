@@ -13,7 +13,6 @@ import useSecureFetch from '../../hooks/useSecureFetch';
 import { useModal } from '../../contexts/ModalContext';
 import { GirlProfile } from '../../routes/lazyComponents';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonGallery } from '../Common/Skeleton';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';

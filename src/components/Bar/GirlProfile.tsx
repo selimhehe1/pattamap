@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Cake, Share2, Globe, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Share2, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';

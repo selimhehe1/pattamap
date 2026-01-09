@@ -147,7 +147,7 @@ function GenericTagsInput<T extends TagOption>({
     }
 
     return filtered;
-  }, [inputValue, selectedValues, options, currentLang, getLabel, maxSuggestions, defaultSuggestionsCount]);
+  }, [inputValue, selectedValues, options, getLabel, maxSuggestions, defaultSuggestionsCount]);
 
   // Handle clicking outside to close dropdown
   useEffect(() => {

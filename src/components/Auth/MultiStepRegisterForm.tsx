@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Loader2, Lock, KeyRound, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Lock, KeyRound, Mail, User } from 'lucide-react';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useEmployeeSearch } from '../../hooks/useEmployees';
@@ -158,7 +158,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // 🆕 v10.x - Owner establishment claim state (Step 2 - Owner)
   const [ownerEstablishmentSearch, setOwnerEstablishmentSearch] = useState('');
-  const [_uploadingOwnershipDocs, setUploadingOwnershipDocs] = useState(false);
+  const [_uploadingOwnershipDocs, _setUploadingOwnershipDocs] = useState(false);
   const [ownershipDocErrors, setOwnershipDocErrors] = useState<string>('');
 
 
@@ -358,8 +358,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   const {
     handleSubmit,
     isLoading,
-    uploadingPhotos: uploadingPhotosSubmit,
-    uploadingOwnershipDocs,
+    uploadingPhotos: _uploadingPhotosSubmit,
+    uploadingOwnershipDocs: _uploadingOwnershipDocsSubmit,
     submitError,
     setSubmitError
   } = useRegistrationSubmit({

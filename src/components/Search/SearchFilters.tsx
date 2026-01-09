@@ -106,7 +106,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
 
   // 📱 Mobile filters collapse state
   const [isMobile, setIsMobile] = React.useState(false);
-  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
+  const [_isFiltersOpen, setIsFiltersOpen] = React.useState(false);
 
   // 🎯 Références pour gestion focus et requêtes
   const inputRef = React.useRef<HTMLInputElement>(null);

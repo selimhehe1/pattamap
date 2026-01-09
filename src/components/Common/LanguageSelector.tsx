@@ -13,7 +13,7 @@
  * - Accessible (aria-labels, keyboard nav)
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
@@ -72,7 +72,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   };
 
   // Close sheet with animation
-  const closeSheet = () => {
+  const closeSheet = useCallback(() => {
     if (showSheet) {
       setSheetClosing(true);
       setTimeout(() => {
@@ -80,7 +80,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         setSheetClosing(false);
       }, 300); // Match animation duration
     }
-  };
+  }, [showSheet]);
 
   const currentLanguage = i18n.language as SupportedLanguage;
   const currentConfig = SUPPORTED_LANGUAGES[currentLanguage] || SUPPORTED_LANGUAGES.en;
@@ -162,7 +162,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         document.body.style.overflow = '';
       };
     }
-  }, [showSheet]);
+  }, [showSheet, closeSheet]);
 
   // Position dropdown when it opens (menu-item variant only)
   useEffect(() => {

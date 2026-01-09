@@ -8,7 +8,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { X, Check, Send, Loader2 } from 'lucide-react';
+import { X, Check, Loader2 } from 'lucide-react';
 
 export type ModalFooterVariant = 'info' | 'success' | 'warning' | 'danger';
 

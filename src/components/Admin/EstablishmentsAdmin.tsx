@@ -16,7 +16,6 @@ import { useModal } from '../../contexts/ModalContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonTable } from '../Common/Skeleton';
 import AdminEstablishmentCard from './AdminEstablishmentCard';
 import { logger } from '../../utils/logger';

@@ -13,7 +13,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useDialog } from '../../hooks/useDialog';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonTable } from '../Common/Skeleton';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';

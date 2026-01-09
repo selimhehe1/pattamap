@@ -55,7 +55,7 @@ export const DEFAULT_DURATIONS: Record<NotificationType, number> = {
 
 const createNotificationStore = () => {
   let notifications: Notification[] = [];
-  let listeners: Set<Listener> = new Set();
+  const listeners: Set<Listener> = new Set();
   let idCounter = 0;
 
   const generateId = (): string => {

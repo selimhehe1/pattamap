@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import StarRating from '../Common/StarRating';
 import AdminBreadcrumb from '../Common/AdminBreadcrumb';
-import LoadingFallback from '../Common/LoadingFallback';
 import { SkeletonTable } from '../Common/Skeleton';
 import CommentReviewCard from './CommentReviewCard';
 import { logger } from '../../utils/logger';

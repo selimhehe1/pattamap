@@ -66,7 +66,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = memo(({
   // Find the CURRENT employment (is_current === true), not just the first one
   const currentEmploymentRecord = employee.current_employment?.find(ce => ce.is_current);
 
-  const hasCurrentEmployment = !!currentEmploymentRecord;
+  const _hasCurrentEmployment = !!currentEmploymentRecord;
 
   const currentEstablishment = currentEmploymentRecord?.establishment ?? null;
 
