@@ -267,6 +267,32 @@
 }
 
 /* ============================================
+   LANGUAGE SELECTOR - TOP RIGHT
+   ============================================ */
+
+.auth-language-selector {
+  position: absolute;
+  top: var(--spacing-6, 24px);
+  right: var(--spacing-6, 24px);
+  z-index: 10;
+}
+
+/* Match the glassmorphism style of auth-back-link */
+.auth-language-selector .language-selector-btn {
+  background: rgba(30, 30, 36, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-full, 9999px);
+  backdrop-filter: blur(8px);
+  padding: var(--spacing-2, 8px) var(--spacing-4, 16px);
+  transition: all var(--duration-normal, 0.3s) var(--ease-out);
+}
+
+.auth-language-selector .language-selector-btn:hover {
+  background: rgba(40, 40, 48, 0.8);
+  border-color: rgba(232, 121, 249, 0.3);
+}
+
+/* ============================================
    RESPONSIVE - TABLET (768px - 1024px)
    ============================================ */
 
@@ -307,6 +333,11 @@
   .auth-back-link {
     top: var(--spacing-4, 16px);
     left: var(--spacing-4, 16px);
+  }
+
+  .auth-language-selector {
+    top: var(--spacing-4, 16px);
+    right: var(--spacing-4, 16px);
   }
 }
 
@@ -406,6 +437,18 @@
     left: auto;
     align-self: flex-start;
     margin-bottom: var(--spacing-4, 16px);
+    padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+    font-size: var(--font-xs, 0.75rem);
+  }
+
+  /* Language selector for mobile - positioned in top controls row */
+  .auth-language-selector {
+    position: absolute;
+    top: var(--spacing-4, 16px);
+    right: var(--spacing-4, 16px);
+  }
+
+  .auth-language-selector .language-selector-btn {
     padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
     font-size: var(--font-xs, 0.75rem);
   }
@@ -524,6 +567,18 @@ body[data-theme="light"] .auth-back-link {
 }
 
 body[data-theme="light"] .auth-back-link:hover {
+  color: #1a1a1a;
+  background: #FFFFFF;
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+body[data-theme="light"] .auth-language-selector .language-selector-btn {
+  color: #64748B;
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .auth-language-selector .language-selector-btn:hover {
   color: #1a1a1a;
   background: #FFFFFF;
   border-color: rgba(180, 83, 9, 0.3);

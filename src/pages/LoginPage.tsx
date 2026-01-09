@@ -7,6 +7,7 @@ import LoginForm from '../components/Auth/LoginForm';
 import MultiStepRegisterForm from '../components/Auth/MultiStepRegisterForm';
 import ForgotPasswordForm from '../components/Auth/ForgotPasswordForm';
 import AuthHero from '../components/Auth/AuthHero';
+import LanguageSelector from '../components/Common/LanguageSelector';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/auth-pages.css';
 import '../styles/components/auth-hero.css';
@@ -106,6 +107,11 @@ const LoginPage: React.FC = () => {
           <ArrowLeft size={16} />
           <span>Home</span>
         </Link>
+
+        {/* Language Selector - Top Right */}
+        <div className="auth-language-selector">
+          <LanguageSelector variant="dropdown" />
+        </div>
 
         {/* Hero Section (Desktop & Tablet only) */}
         <div className="auth-layout__hero">
