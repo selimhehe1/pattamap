@@ -12,6 +12,7 @@ import ModalRenderer from './components/Common/ModalRenderer';
 import SkipToContent from './components/Layout/SkipToContent';
 import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
+import RouteErrorFallback from './components/Common/RouteErrorFallback';
 import OfflineBanner from './components/Common/OfflineBanner';
 
 // Lazy load heavy components for bundle optimization
@@ -204,45 +205,89 @@ const AppContent: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/establishments" element={<EstablishmentsPage />} />
-              <Route path="/bar/:zone/:slug" element={<BarDetailPage />} />
-              <Route path="/bar/:id" element={<BarDetailPage />} />
+              <Route path="/bar/:zone/:slug" element={
+                <ErrorBoundary
+                  boundaryName="BarDetail"
+                  fallback={<RouteErrorFallback error={new Error('Failed to load bar details')} resetError={() => window.location.reload()} routeName="Bar Details" />}
+                >
+                  <BarDetailPage />
+                </ErrorBoundary>
+              } />
+              <Route path="/bar/:id" element={
+                <ErrorBoundary
+                  boundaryName="BarDetail"
+                  fallback={<RouteErrorFallback error={new Error('Failed to load bar details')} resetError={() => window.location.reload()} routeName="Bar Details" />}
+                >
+                  <BarDetailPage />
+                </ErrorBoundary>
+              } />
 
               {/* ========================================
                   PROTECTED ROUTES - Require Authentication
                   ======================================== */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <UserDashboard />
+                  <ErrorBoundary
+                    boundaryName="UserDashboard"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load dashboard')} resetError={() => window.location.reload()} routeName="Dashboard" />}
+                  >
+                    <UserDashboard />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
               <Route path="/my-establishments" element={
                 <ProtectedRoute requiredAccountTypes={['establishment_owner']}>
-                  <MyEstablishmentsPage />
+                  <ErrorBoundary
+                    boundaryName="MyEstablishments"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load establishments')} resetError={() => window.location.reload()} routeName="My Establishments" />}
+                  >
+                    <MyEstablishmentsPage />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
               <Route path="/my-ownership-requests" element={
                 <ProtectedRoute>
-                  <MyOwnershipRequests />
+                  <ErrorBoundary
+                    boundaryName="OwnershipRequests"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load requests')} resetError={() => window.location.reload()} routeName="Ownership Requests" />}
+                  >
+                    <MyOwnershipRequests />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
               <Route path="/employee/dashboard" element={
                 <ProtectedRoute requiredAccountTypes={['employee']}>
-                  <EmployeeDashboard />
+                  <ErrorBoundary
+                    boundaryName="EmployeeDashboard"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load employee dashboard')} resetError={() => window.location.reload()} routeName="Employee Dashboard" />}
+                  >
+                    <EmployeeDashboard />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
               <Route path="/achievements" element={
                 <ProtectedRoute>
-                  <MyAchievementsPage />
+                  <ErrorBoundary
+                    boundaryName="Achievements"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load achievements')} resetError={() => window.location.reload()} routeName="Achievements" />}
+                  >
+                    <MyAchievementsPage />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
               <Route path="/user/:userId" element={
                 <ProtectedRoute>
-                  <GamifiedUserProfile />
+                  <ErrorBoundary
+                    boundaryName="UserProfile"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load profile')} resetError={() => window.location.reload()} routeName="User Profile" />}
+                  >
+                    <GamifiedUserProfile />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
@@ -251,7 +296,12 @@ const AppContent: React.FC = () => {
                   ======================================== */}
               <Route path="/admin/*" element={
                 <ProtectedRoute requiredRoles={['admin', 'moderator']}>
-                  <AdminPanel />
+                  <ErrorBoundary
+                    boundaryName="AdminPanel"
+                    fallback={<RouteErrorFallback error={new Error('Failed to load admin panel')} resetError={() => window.location.reload()} routeName="Admin Panel" />}
+                  >
+                    <AdminPanel />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               } />
 
