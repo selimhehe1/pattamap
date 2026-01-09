@@ -47,7 +47,6 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       sex?: 'male' | 'female' | 'ladyboy';
       is_verified?: boolean;
       verified_at?: string;
-      vote_count?: number;
       is_vip?: boolean;
       vip_expires_at?: string;
     }
@@ -56,7 +55,7 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
     const employeePromises = employeeIds.map(async (empId: string) => {
       const { data, error } = await supabase
         .from('employees')
-        .select('id, name, nickname, age, nationality, photos, description, social_media, sex, is_verified, verified_at, vote_count, is_vip, vip_expires_at')
+        .select('id, name, nickname, age, nationality, photos, description, social_media, sex, is_verified, verified_at, is_vip, vip_expires_at')
         .eq('id', empId)
         .single();
 
@@ -98,6 +97,12 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       .select('employee_id, rating')
       .in('employee_id', employeeIds);
 
+    // Batch fetch all votes for vote_count
+    const { data: allVotes } = await supabase
+      .from('employee_existence_votes')
+      .select('employee_id')
+      .in('employee_id', employeeIds);
+
     // Create lookup maps for O(1) access
     interface EstablishmentData {
       id: string;
@@ -119,6 +124,13 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       existing.total += comment.rating || 0;
       existing.count += 1;
       ratingsMap.set(comment.employee_id, existing);
+    });
+
+    // Calculate vote counts per employee
+    const votesMap = new Map<string, number>();
+    (allVotes || []).forEach((vote: { employee_id: string }) => {
+      const existing = votesMap.get(vote.employee_id) || 0;
+      votesMap.set(vote.employee_id, existing + 1);
     });
 
     const favoritesWithEstablishment = (favorites || []).map((fav: FavoriteRecord) => {
@@ -143,7 +155,7 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
         employee_social_media: emp?.social_media,
         employee_is_verified: emp?.is_verified,
         employee_verified_at: emp?.verified_at,
-        employee_vote_count: emp?.vote_count,
+        employee_vote_count: votesMap.get(fav.employee_id) || 0,
         employee_is_vip: emp?.is_vip,
         employee_vip_expires_at: emp?.vip_expires_at,
         employee_rating: avgRating,
