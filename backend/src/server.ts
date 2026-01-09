@@ -1,5 +1,5 @@
 // Express type extensions (for req.user, req.csrfToken)
-import './types/express.d';
+// TypeScript automatically picks up .d.ts files from ./types/ via tsconfig.json
 // Force reload with NULL NULL fix
 // Load environment variables FIRST
 import dotenv from 'dotenv';
