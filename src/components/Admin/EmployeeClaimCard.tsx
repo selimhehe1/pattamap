@@ -9,12 +9,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import AdminCardFooter from './AdminCardFooter';
 import {
   User,
   Eye,
   CheckCircle,
   XCircle,
-  Loader2,
   Clock,
   Check
 } from 'lucide-react';
@@ -163,42 +163,12 @@ export const EmployeeClaimCard: React.FC<EmployeeClaimCardProps> = ({
 
       {/* 7. Footer actions (pending only) */}
       {isPending && (
-        <div className="aec-footer">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onApprove(claim.id);
-            }}
-            disabled={isProcessing}
-            className="aec-footer-btn aec-footer-btn--approve"
-          >
-            {isProcessing ? (
-              <Loader2 size={14} className="aec-icon--spin" />
-            ) : (
-              <>
-                <CheckCircle />
-                {t('admin.approve')}
-              </>
-            )}
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onReject(claim.id);
-            }}
-            disabled={isProcessing}
-            className="aec-footer-btn aec-footer-btn--reject"
-          >
-            {isProcessing ? (
-              <Loader2 size={14} className="aec-icon--spin" />
-            ) : (
-              <>
-                <XCircle />
-                {t('admin.reject')}
-              </>
-            )}
-          </button>
-        </div>
+        <AdminCardFooter
+          itemId={claim.id}
+          isProcessing={isProcessing}
+          onApprove={onApprove}
+          onReject={onReject}
+        />
       )}
 
       {/* 8. Neon border */}

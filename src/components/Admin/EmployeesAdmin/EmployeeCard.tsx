@@ -10,6 +10,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../../hooks/use3DTilt';
 import Tooltip from '../../Common/Tooltip';
+import AdminCardFooter from '../AdminCardFooter';
 import {
   User,
   Calendar,
@@ -220,42 +221,12 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
       {/* 7. Footer actions (pending only) */}
       {isPending && (
-        <div className="aec-footer">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onApprove(employee.id);
-            }}
-            disabled={isProcessing}
-            className="aec-footer-btn aec-footer-btn--approve"
-          >
-            {isProcessing ? (
-              <Loader2 size={14} className="aec-icon--spin" />
-            ) : (
-              <>
-                <CheckCircle />
-                {t('admin.approve')}
-              </>
-            )}
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onReject(employee.id);
-            }}
-            disabled={isProcessing}
-            className="aec-footer-btn aec-footer-btn--reject"
-          >
-            {isProcessing ? (
-              <Loader2 size={14} className="aec-icon--spin" />
-            ) : (
-              <>
-                <XCircle />
-                {t('admin.reject')}
-              </>
-            )}
-          </button>
-        </div>
+        <AdminCardFooter
+          itemId={employee.id}
+          isProcessing={isProcessing}
+          onApprove={onApprove}
+          onReject={onReject}
+        />
       )}
 
       {/* 8. Neon border */}

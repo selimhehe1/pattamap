@@ -6,19 +6,16 @@
  * - src/styles/admin/admin-employee-card.css (.aec-* and .arc-* classes)
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import AdminCardFooter from './AdminCardFooter';
 import {
   Eye,
-  CheckCircle,
-  XCircle,
-  Loader2,
   AlertTriangle,
   User,
   ArrowRight,
-  Check,
-  FileEdit
+  Check
 } from 'lucide-react';
 import StarRating from '../Common/StarRating';
 
@@ -104,6 +101,11 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
   const isPending = comment.status === 'pending';
   const isReported = comment.reports && comment.reports.length > 0;
   const showFooter = isPending || isReported;
+
+  // Wrapper callbacks to convert string id back to number
+  const handleApprove = useCallback((id: string) => onApprove(Number(id)), [onApprove]);
+  const handleReject = useCallback((id: string) => onReject(Number(id)), [onReject]);
+  const handleDismiss = useCallback((id: string) => onDismissReports?.(Number(id)), [onDismissReports]);
 
   // Employee display
   const employeeName = comment.employee?.nickname || comment.employee?.name || t('admin.unknownEmployee');
@@ -215,65 +217,13 @@ export const CommentReviewCard: React.FC<CommentReviewCardProps> = ({
 
       {/* 10. Footer actions (pending/reported) */}
       {showFooter && (
-        <div className="aec-footer">
-          {isPending && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onApprove(comment.id);
-                }}
-                disabled={isProcessing}
-                className="aec-footer-btn aec-footer-btn--approve"
-              >
-                {isProcessing ? (
-                  <Loader2 size={14} className="aec-icon--spin" />
-                ) : (
-                  <>
-                    <CheckCircle size={14} />
-                    {t('admin.approve')}
-                  </>
-                )}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReject(comment.id);
-                }}
-                disabled={isProcessing}
-                className="aec-footer-btn aec-footer-btn--reject"
-              >
-                {isProcessing ? (
-                  <Loader2 size={14} className="aec-icon--spin" />
-                ) : (
-                  <>
-                    <XCircle size={14} />
-                    {t('admin.reject')}
-                  </>
-                )}
-              </button>
-            </>
-          )}
-          {isReported && onDismissReports && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDismissReports(comment.id);
-              }}
-              disabled={isProcessing}
-              className="aec-footer-btn aec-footer-btn--dismiss"
-            >
-              {isProcessing ? (
-                <Loader2 size={14} className="aec-icon--spin" />
-              ) : (
-                <>
-                  <FileEdit size={14} />
-                  {t('admin.dismiss')}
-                </>
-              )}
-            </button>
-          )}
-        </div>
+        <AdminCardFooter
+          itemId={String(comment.id)}
+          isProcessing={isProcessing}
+          onApprove={isPending ? handleApprove : undefined}
+          onReject={isPending ? handleReject : undefined}
+          onDismiss={isReported && onDismissReports ? handleDismiss : undefined}
+        />
       )}
 
       {/* 11. Neon border */}
