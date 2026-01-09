@@ -117,6 +117,8 @@ describe('FavoriteController', () => {
 
       const mockRatings = [{ employee_id: 'emp-1', rating: 5 }, { employee_id: 'emp-1', rating: 4 }];
 
+      const mockVotes = [{ employee_id: 'emp-1' }, { employee_id: 'emp-1' }, { employee_id: 'emp-1' }];
+
       const mockEmployee = {
         id: 'emp-1',
         name: 'Alice',
@@ -125,15 +127,20 @@ describe('FavoriteController', () => {
         nationality: ['Thai'],
         photos: ['photo1.jpg'],
         description: 'Friendly',
-        social_media: { instagram: '@alice' }
+        social_media: { instagram: '@alice' },
+        is_verified: false,
+        verified_at: null,
+        is_vip: false,
+        vip_expires_at: null
       };
 
-      // Mock queries: 1) get favorites, 2) get employee, 3) get employment, 4) get ratings
+      // Mock queries: 1) get favorites, 2) get employee, 3) get employment, 4) get ratings, 5) get votes
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockFavorites)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployee)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployment)))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRatings)));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRatings)))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockVotes)));
 
       await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -145,6 +152,7 @@ describe('FavoriteController', () => {
             employee_nickname: 'Ali',
             employee_rating: 4.5,
             employee_comment_count: 2,
+            employee_vote_count: 3,
             current_establishment: expect.objectContaining({
               name: 'Test Bar',
               zone: 'walking_street'
@@ -156,8 +164,9 @@ describe('FavoriteController', () => {
     });
 
     it('should return empty array when user has no favorites', async () => {
-      // Mock all 3 queries: favorites, employment, comments (even though last 2 will get empty arrays)
+      // Mock all 4 queries: favorites, employment, comments, votes (even though last 3 will get empty arrays)
       (supabase.from as jest.Mock)
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
