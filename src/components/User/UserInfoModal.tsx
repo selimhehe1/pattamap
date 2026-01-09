@@ -12,10 +12,10 @@ import {
   Star,
   MessageCircle,
   FileEdit,
-  X,
   Camera
 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from '../Common/Modal/index';
 import UserAvatar from '../Common/UserAvatar';
 import AvatarEditModal from './AvatarEditModal';
 import '../../styles/components/modal-premium-base.css';
@@ -106,36 +106,15 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, onUserUpda
             aria-labelledby="user-info-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header with icon */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className="modal-premium__icon modal-premium__icon--info"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <UserIcon size={32} />
-              </motion.div>
-              <motion.h2
-                id="user-info-modal-title"
-                className="modal-premium__title modal-premium__title--info"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('userInfo.title', 'User Profile')}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={t('userInfo.title', 'User Profile')}
+              titleId="user-info-modal-title"
+              icon={<UserIcon size={32} />}
+              variant="info"
+            />
 
             {/* Content */}
             <motion.div
@@ -268,23 +247,14 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ user, onClose, onUserUpda
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="modal-premium__footer"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              style={{ justifyContent: 'center' }}
-            >
-              <motion.button
-                className="modal-premium__btn-primary"
-                onClick={onClose}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ width: '100%', maxWidth: '200px' }}
-              >
-                {t('common.close', 'Close')}
-              </motion.button>
-            </motion.div>
+            <ModalFooter
+              animationDelay={0.5}
+              className="modal-premium__footer--centered"
+              primaryAction={{
+                label: t('common.close', 'Close'),
+                onClick: onClose
+              }}
+            />
           </motion.div>
         </motion.div>
       )}

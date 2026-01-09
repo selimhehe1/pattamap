@@ -24,6 +24,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 import '../../styles/features/owner/VIPPurchaseModal.css';
 
@@ -525,17 +526,7 @@ const VIPPurchaseModal: React.FC<Props> = ({ subscriptionType, entity, onClose, 
             aria-labelledby="vip-purchase-modal-title"
           >
             {/* Close button (only show if not in success state) */}
-            {!success && (
-              <motion.button
-                className="modal-premium__close"
-                onClick={onClose}
-                aria-label={t('common.close', 'Close')}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <X size={18} />
-              </motion.button>
-            )}
+            {!success && <ModalCloseButton onClick={onClose} />}
 
             {renderContent()}
           </motion.div>

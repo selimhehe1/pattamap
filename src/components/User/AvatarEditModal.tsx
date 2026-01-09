@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Upload, Trash2, X, Loader2, Check } from 'lucide-react';
 import { User } from '../../types';
-import { useAuth } from '../../contexts/AuthContext';
 import UserAvatar from '../Common/UserAvatar';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader } from '../Common/Modal/index';
 import notification from '../../utils/notification';
 import '../../styles/components/modal-premium-base.css';
 
@@ -203,38 +203,15 @@ const AvatarEditModal: React.FC<AvatarEditModalProps> = ({
             aria-labelledby="avatar-edit-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={handleCancel}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={isUploading || isDeleting}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={handleCancel} />
 
             {/* Header */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className="modal-premium__icon"
-                style={{ background: 'linear-gradient(135deg, #E879F9, #00E5FF)' }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <Camera size={32} color="#fff" />
-              </motion.div>
-              <motion.h2
-                id="avatar-edit-modal-title"
-                className="modal-premium__title"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('avatar.editTitle', 'Edit Profile Photo')}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={t('avatar.editTitle', 'Edit Profile Photo')}
+              titleId="avatar-edit-modal-title"
+              icon={<Camera size={32} />}
+              variant="info"
+            />
 
             {/* Content */}
             <motion.div

@@ -3,10 +3,11 @@ import { createPortal } from 'react-dom';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
+import { X, AlertTriangle, Trash2 } from 'lucide-react';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 interface RequestSelfRemovalModalProps {
@@ -102,36 +103,14 @@ const RequestSelfRemovalModal: React.FC<RequestSelfRemovalModalProps> = ({
             aria-modal="true"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              disabled={isSubmitting}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className="modal-premium__icon modal-premium__icon--danger"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <AlertTriangle size={32} />
-              </motion.div>
-              <motion.h2
-                className="modal-premium__title modal-premium__title--danger"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('employeeDashboard.requestRemoval', 'Request Profile Removal')}
-              </motion.h2>
-            </div>
+            <ModalHeader
+              title={t('employeeDashboard.requestRemoval', 'Request Profile Removal')}
+              icon={<AlertTriangle size={32} />}
+              variant="danger"
+            />
 
             {/* Content */}
             <motion.div
@@ -243,45 +222,23 @@ const RequestSelfRemovalModal: React.FC<RequestSelfRemovalModalProps> = ({
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="modal-premium__footer"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <motion.button
-                className="modal-premium__btn-secondary"
-                onClick={onClose}
-                disabled={isSubmitting}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <X size={16} />
-                {t('common.cancel', 'Cancel')}
-              </motion.button>
-              <motion.button
-                className="modal-premium__btn-primary modal-premium__btn-danger"
-                onClick={handleSubmit}
-                disabled={!isValidExplanation || isSubmitting}
-                style={{ opacity: !isValidExplanation ? 0.5 : 1 }}
-                whileHover={{ scale: isSubmitting || !isValidExplanation ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting || !isValidExplanation ? 1 : 0.98 }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                      <Loader2 size={16} />
-                    </motion.span>
-                    {t('common.submitting', 'Submitting...')}
-                  </>
-                ) : (
-                  <>
-                    <Trash2 size={16} />
-                    {t('employeeDashboard.submitRemovalRequest', 'Submit Removal Request')}
-                  </>
-                )}
-              </motion.button>
-            </motion.div>
+            <ModalFooter
+              animationDelay={0.4}
+              secondaryAction={{
+                label: t('common.cancel', 'Cancel'),
+                onClick: onClose,
+                icon: <X size={16} />,
+                disabled: isSubmitting
+              }}
+              primaryAction={{
+                label: isSubmitting ? t('common.submitting', 'Submitting...') : t('employeeDashboard.submitRemovalRequest', 'Submit Removal Request'),
+                onClick: handleSubmit,
+                icon: <Trash2 size={16} />,
+                disabled: !isValidExplanation,
+                loading: isSubmitting,
+                variant: 'danger'
+              }}
+            />
           </motion.div>
         </motion.div>
       )}
