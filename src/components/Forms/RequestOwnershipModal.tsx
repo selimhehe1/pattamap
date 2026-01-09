@@ -14,8 +14,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { Establishment, EstablishmentCategory } from '../../types';
-import { Trophy, X, Rocket, Loader2 } from 'lucide-react';
+import { Trophy, Rocket, Loader2 } from 'lucide-react';
 import { premiumBackdropVariants, premiumModalVariants } from '../../animations/variants';
+import { ModalCloseButton } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 import '../../styles/components/form-components.css';
 import '../../styles/utilities/layout-utilities.css';
@@ -243,15 +244,7 @@ const RequestOwnershipModal: React.FC<RequestOwnershipModalProps> = ({ onClose, 
           style={{ padding: '30px' }}
         >
           {/* Close Button */}
-          <motion.button
-            className="modal-premium__close"
-            onClick={onClose}
-            aria-label="Close"
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <X size={18} />
-          </motion.button>
+          {onClose && <ModalCloseButton onClick={onClose} />}
 
           {/* Header */}
           <div style={{

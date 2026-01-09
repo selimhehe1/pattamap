@@ -20,13 +20,13 @@ import {
   CheckCircle,
   XCircle,
   Building2,
-  User,
-  X
+  User
 } from 'lucide-react';
 import LazyImage from '../../Common/LazyImage';
 import SanitizedText from '../../Common/SanitizedText';
 import type { AdminEmployee } from './types';
 import { premiumBackdropVariants, premiumModalVariants } from '../../../animations/variants';
+import { ModalCloseButton } from '../../Common/Modal/index';
 import '../../../styles/components/modal-premium-base.css';
 
 interface EmployeeDetailModalProps {
@@ -89,15 +89,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
             aria-labelledby="employee-detail-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              aria-label={t('common.close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header */}
             <div className="modal-premium__header modal-premium__header--with-icon">
