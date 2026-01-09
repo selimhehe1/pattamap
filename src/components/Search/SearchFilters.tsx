@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Search, Trash2, Check, Building2,
-  Cake, Globe, MapPin, Tag,
-  Loader2, Pencil, Lightbulb, AlertTriangle,
+  Globe, MapPin, Tag,
+  Loader2, Pencil, Lightbulb,
   // v11.0 - New filter icons
-  Languages, Star, Image, MessageCircle, User, Sparkles,
+  Image, User, Sparkles,
   // v11.1 - Freelance toggle
   Briefcase
 } from 'lucide-react';
@@ -15,6 +15,16 @@ import { logger } from '../../utils/logger';
 import FilterSection from './FilterSection';
 import CustomSelect from '../Common/CustomSelect';
 import MobileFiltersChips from './MobileFiltersChips';
+// v12.0 - Extracted filter sub-components
+import {
+  AgeRangeSlider,
+  GenderChips,
+  LanguageChips,
+  RatingFilter,
+  ToggleFilter,
+  SocialMediaChips
+} from './filters';
+import { useAgeRange } from '../../hooks/useAgeRange';
 import '../../styles/layout/search-layout.css';
 import '../../styles/components/quick-filter-chips.css';
 
@@ -79,9 +89,17 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     loading: false
   });
 
-  // 🎯 États locaux pour champs age (éviter perte focus)
-  const [localAgeMin, setLocalAgeMin] = React.useState(filters.age_min);
-  const [localAgeMax, setLocalAgeMax] = React.useState(filters.age_max);
+  // 🎯 v12.0 - Age range hook (replaces local state + handlers)
+  const {
+    localAgeMin,
+    localAgeMax,
+    ageError,
+    ageMinRef,
+    ageMaxRef,
+    handleAgeMinChange,
+    handleAgeMaxChange,
+    resetAgeRange
+  } = useAgeRange(filters.age_min, filters.age_max, onFilterChange);
 
   // 🎯 État local pour search query (instant feedback, 0ms lag)
   const [localQuery, setLocalQuery] = React.useState(filters.q);
@@ -90,22 +108,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   const [isMobile, setIsMobile] = React.useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
 
-  // ⚠️ Age validation error state
-  const [ageError, setAgeError] = React.useState<string>('');
-
   // 🎯 Références pour gestion focus et requêtes
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ageMinRef = React.useRef<HTMLInputElement>(null);
-  const ageMaxRef = React.useRef<HTMLInputElement>(null);
   const debounceTimeoutRef = React.useRef<number | undefined>(undefined);
-  const ageDebounceTimeoutRef = React.useRef<number | undefined>(undefined);
   const abortControllerRef = React.useRef<AbortController | null>(null);
   const wasTypingRef = React.useRef<boolean>(false);
-  const wasTypingAgeRef = React.useRef<{ min: boolean; max: boolean }>({ min: false, max: false });
-
-  // 🎯 Refs to track latest age values without causing effect re-runs (fix infinite loop)
-  const localAgeMinRef = React.useRef<string>(localAgeMin);
-  const localAgeMaxRef = React.useRef<string>(localAgeMax);
 
   // 🏢 Establishment autocomplete state
   const [establishmentSearch, setEstablishmentSearch] = React.useState('');
@@ -151,18 +158,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   }, [filters.zone, availableFilters.establishments]);
 
 
-  // 🎯 CONSOLIDATED: Sync all local states with parent props in one effect
-  // This reduces re-renders from 5 separate effects to 1
+  // 🎯 Sync search query with parent props
+  // Age sync is now handled by useAgeRange hook
   React.useEffect(() => {
-    // Sync age values
-    setLocalAgeMin(filters.age_min);
-    setLocalAgeMax(filters.age_max);
-    // Sync search query
     setLocalQuery(filters.q);
-    // Keep refs in sync for cleanup (no state update needed)
-    localAgeMinRef.current = filters.age_min;
-    localAgeMaxRef.current = filters.age_max;
-  }, [filters.age_min, filters.age_max, filters.q]);
+  }, [filters.q]);
 
   // 📱 Detect mobile viewport and update state
   React.useEffect(() => {
@@ -210,29 +210,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     }
   }, [isTyping, loading]);
 
-  // 🎯 CONSOLIDATED: Hook pour restaurer le focus des champs age (2 effects → 1)
-  React.useEffect(() => {
-    if (!loading) {
-      // Focus age min if user was typing
-      if (wasTypingAgeRef.current.min && ageMinRef.current && document.activeElement !== ageMinRef.current) {
-        const timeoutId = setTimeout(() => {
-          if (ageMinRef.current && wasTypingAgeRef.current.min) {
-            ageMinRef.current.focus();
-          }
-        }, 10);
-        return () => clearTimeout(timeoutId);
-      }
-      // Focus age max if user was typing
-      if (wasTypingAgeRef.current.max && ageMaxRef.current && document.activeElement !== ageMaxRef.current) {
-        const timeoutId = setTimeout(() => {
-          if (ageMaxRef.current && wasTypingAgeRef.current.max) {
-            ageMaxRef.current.focus();
-          }
-        }, 10);
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [loading]);
+  // Note: Age focus restoration is now handled by useAgeRange hook
 
   // 🏢 Sync establishment search input with selected establishment
   React.useEffect(() => {
@@ -252,10 +230,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
   const handleClearFilters = () => {
     // ✅ Clear all local states immediately for instant UI feedback
     setLocalQuery('');
-    setLocalAgeMin('');
-    setLocalAgeMax('');
     wasTypingRef.current = false;
-    wasTypingAgeRef.current = { min: false, max: false };
+
+    // ✅ v12.0 - Reset age via hook
+    resetAgeRange();
 
     // ✅ Reset establishment search states
     setEstablishmentSearch('');
@@ -413,80 +391,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
     });
   }, [onQueryChange]);
 
-  // 🎯 Handlers pour champs age avec debouncing et focus management - Optimized for scheduler
-  const handleAgeMinChange = React.useCallback((value: string) => {
-    wasTypingAgeRef.current.min = true;
-    setLocalAgeMin(value);
-
-    // ⚠️ Age validation (18-60 years)
-    if (value !== '' && value !== '0') {
-      const age = parseInt(value, 10);
-      if (isNaN(age) || age < 18 || age > 60) {
-        setAgeError(t('search.ageValidation.outOfRange'));
-        return; // Don't update parent if invalid
-      }
-    }
-
-    // Clear error if valid
-    setAgeError('');
-
-    // Clear previous timeout
-    if (ageDebounceTimeoutRef.current) {
-      clearTimeout(ageDebounceTimeoutRef.current);
-    }
-
-    // Debounced update to parent with longer delay to avoid scheduler violations
-    ageDebounceTimeoutRef.current = window.setTimeout(() => {
-      onFilterChange('age_min', value);
-      wasTypingAgeRef.current.min = false;
-    }, 500); // 🎯 Increased from 300ms to 500ms
-  }, [onFilterChange, t]);
-
-  const handleAgeMaxChange = React.useCallback((value: string) => {
-    wasTypingAgeRef.current.max = true;
-    setLocalAgeMax(value);
-
-    // ⚠️ Age validation (18-60 years)
-    if (value !== '' && value !== '0') {
-      const age = parseInt(value, 10);
-      if (isNaN(age) || age < 18 || age > 60) {
-        setAgeError(t('search.ageValidation.outOfRange'));
-        return; // Don't update parent if invalid
-      }
-    }
-
-    // Clear error if valid
-    setAgeError('');
-
-    // Clear previous timeout
-    if (ageDebounceTimeoutRef.current) {
-      clearTimeout(ageDebounceTimeoutRef.current);
-    }
-
-    // Debounced update to parent with longer delay to avoid scheduler violations
-    ageDebounceTimeoutRef.current = window.setTimeout(() => {
-      onFilterChange('age_max', value);
-      wasTypingAgeRef.current.max = false;
-    }, 500); // 🎯 Increased from 300ms to 500ms
-  }, [onFilterChange, t]);
-
-  // ✅ Cleanup debounce on unmount - Flush pending age values to avoid data loss
-  // 🐛 FIX: Use refs instead of state in deps to prevent infinite loop
-  React.useEffect(() => {
-    return () => {
-      if (ageDebounceTimeoutRef.current) {
-        clearTimeout(ageDebounceTimeoutRef.current);
-        // Flush pending values immediately before unmount (only non-empty values)
-        // Use refs to access latest values without causing effect re-runs
-        if (wasTypingAgeRef.current.min && localAgeMinRef.current !== '') {
-          onFilterChange('age_min', localAgeMinRef.current);
-        }
-        if (wasTypingAgeRef.current.max && localAgeMaxRef.current !== '') {
-          onFilterChange('age_max', localAgeMaxRef.current);
-        }
-      }
-    };
-  }, [onFilterChange]); // ✅ Only onFilterChange in deps - prevents infinite loop
+  // Note: Age handlers are now provided by useAgeRange hook
 
   // Count active filters - Memoized to prevent recalculation on every render
   // ✅ Exclude default values to prevent showing "Clear (1)" when no real filters active
@@ -700,109 +605,34 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         marginBottom: '1rem'
       }} />
 
-      {/* ============================================
-         VERIFIED PROFILES TOGGLE - v11.x
-         ============================================ */}
-        <div className="verified-toggle-container" style={{ marginBottom: '1rem' }}>
-          <button
-            type="button"
-            onClick={() => {
-              onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true');
-            }}
-            disabled={loading}
-            className={`verified-toggle ${filters.is_verified === 'true' ? 'verified-toggle-active' : ''}`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              width: '100%',
-              padding: '12px 16px',
-              background: filters.is_verified === 'true'
-                ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(34, 211, 238, 0.2))'
-                : 'rgba(255, 255, 255, 0.05)',
-              border: filters.is_verified === 'true'
-                ? '2px solid #00E5FF'
-                : '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              color: filters.is_verified === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: filters.is_verified === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
-            }}
-          >
-            <Check size={18} />
-            <span>{t('search.verifiedOnly', 'Verified Profiles Only')}</span>
-            {filters.is_verified === 'true' && (
-              <Check size={16} style={{ marginLeft: 'auto' }} />
-            )}
-          </button>
-        </div>
+      {/* Verified Profiles Toggle - v12.0 extracted component */}
+      <ToggleFilter
+        isActive={filters.is_verified === 'true'}
+        onToggle={() => onFilterChange('is_verified', filters.is_verified === 'true' ? '' : 'true')}
+        label={t('search.verifiedOnly', 'Verified Profiles Only')}
+        icon={Check}
+        activeColor="#00E5FF"
+        disabled={loading}
+      />
 
-      {/* ============================================
-         FREELANCE TOGGLE - Separate (v11.1 fix #3)
-         ============================================ */}
-        <div className="freelance-toggle-container" style={{ marginBottom: '1rem' }}>
-          <button
-            type="button"
-            onClick={() => {
-              const newType = filters.type === 'freelance' ? 'all' : 'freelance';
-              onFilterChange('type', newType);
-              // Reset establishment when switching to freelance
-              if (newType === 'freelance') {
-                onFilterChange('establishment_id', '');
-              }
-            }}
-            disabled={loading}
-            className={`freelance-toggle ${filters.type === 'freelance' ? 'freelance-toggle-active' : ''}`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              width: '100%',
-              padding: '12px 16px',
-              background: filters.type === 'freelance'
-                ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.25), rgba(168, 85, 247, 0.2))'
-                : 'rgba(255, 255, 255, 0.05)',
-              border: filters.type === 'freelance'
-                ? '2px solid #E879F9'
-                : '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              color: filters.type === 'freelance' ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: filters.type === 'freelance' ? '0 0 20px rgba(232, 121, 249, 0.3)' : 'none'
-            }}
-          >
-            <Briefcase size={18} />
-            <span>{t('search.freelanceOnly', 'Freelance Only')}</span>
-            {filters.type === 'freelance' && (
-              <Check size={16} style={{ marginLeft: 'auto' }} />
-            )}
-          </button>
-          {filters.type === 'freelance' && (
-            <div style={{
-              marginTop: '8px',
-              padding: '8px 12px',
-              background: 'rgba(232, 121, 249, 0.1)',
-              border: '1px solid rgba(232, 121, 249, 0.2)',
-              borderRadius: '8px',
-              fontSize: '11px',
-              color: 'rgba(255, 255, 255, 0.6)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <Lightbulb size={12} color="#E879F9" />
-              {t('search.freelanceInfo', 'Freelancers work independently or in nightclubs')}
-            </div>
-          )}
-        </div>
+      {/* Freelance Toggle - v12.0 extracted component */}
+      <ToggleFilter
+        isActive={filters.type === 'freelance'}
+        onToggle={() => {
+          const newType = filters.type === 'freelance' ? 'all' : 'freelance';
+          onFilterChange('type', newType);
+          // Reset establishment when switching to freelance
+          if (newType === 'freelance') {
+            onFilterChange('establishment_id', '');
+          }
+        }}
+        label={t('search.freelanceOnly', 'Freelance Only')}
+        icon={Briefcase}
+        activeColor="#E879F9"
+        disabled={loading}
+        infoText={t('search.freelanceInfo', 'Freelancers work independently or in nightclubs')}
+        infoIcon={Lightbulb}
+      />
 
       {/* ============================================
          SECTION 2: PROFIL (Profile)
@@ -813,217 +643,24 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         defaultExpanded={true}
         activeCount={sectionFilterCounts.profile}
       >
-      {/* Age Range - Dual Slider (v11.1 fix #2) */}
-      <div className="filter-group">
-        <label className="label-nightlife filter-label-with-icon" style={{ marginBottom: '12px' }}>
-          <Cake size={18} /> {t('search.ageRange')}
-        </label>
+      {/* Age Range - v12.0 extracted component */}
+      <AgeRangeSlider
+        localAgeMin={localAgeMin}
+        localAgeMax={localAgeMax}
+        ageError={ageError}
+        ageMinRef={ageMinRef}
+        ageMaxRef={ageMaxRef}
+        onAgeMinChange={handleAgeMinChange}
+        onAgeMaxChange={handleAgeMaxChange}
+        disabled={loading}
+      />
 
-        {/* Age value display */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-          padding: '8px 12px',
-          background: 'rgba(232, 121, 249, 0.1)',
-          borderRadius: '10px',
-          border: '1px solid rgba(232, 121, 249, 0.2)'
-        }}>
-          <span style={{ color: '#E879F9', fontSize: '14px', fontWeight: '600' }}>
-            {localAgeMin || '18'}
-          </span>
-          <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>
-            {t('search.yearsOld', 'years')}
-          </span>
-          <span style={{ color: '#00E5FF', fontSize: '14px', fontWeight: '600' }}>
-            {localAgeMax || '60'}
-          </span>
-        </div>
-
-        {/* Dual Range Slider Container */}
-        <div className="age-range-slider" style={{
-          position: 'relative',
-          height: '40px',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          {/* Track background */}
-          <div style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            height: '6px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '3px'
-          }} />
-
-          {/* Active track (colored portion between thumbs) */}
-          <div style={{
-            position: 'absolute',
-            height: '6px',
-            background: 'linear-gradient(90deg, #E879F9, #00E5FF)',
-            borderRadius: '3px',
-            left: `${((Number(localAgeMin || 18) - 18) / (60 - 18)) * 100}%`,
-            right: `${100 - ((Number(localAgeMax || 60) - 18) / (60 - 18)) * 100}%`,
-            boxShadow: '0 0 10px rgba(232, 121, 249, 0.5)'
-          }} />
-
-          {/* Min slider - Phase 3.1: pointer-events gérés par CSS */}
-          <input
-            ref={ageMinRef}
-            type="range"
-            min="18"
-            max="60"
-            value={localAgeMin || '18'}
-            onChange={(e) => {
-              const newMin = e.target.value;
-              const currentMax = Number(localAgeMax || 60);
-              // Prevent min from exceeding max
-              if (Number(newMin) <= currentMax) {
-                handleAgeMinChange(newMin);
-              }
-            }}
-            disabled={loading}
-            className="age-range-input age-range-min"
-            data-testid="age-min-input"
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '6px',
-              background: 'transparent',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              zIndex: 3
-            }}
-          />
-
-          {/* Max slider - Phase 3.1: pointer-events gérés par CSS */}
-          <input
-            ref={ageMaxRef}
-            type="range"
-            min="18"
-            max="60"
-            value={localAgeMax || '60'}
-            onChange={(e) => {
-              const newMax = e.target.value;
-              const currentMin = Number(localAgeMin || 18);
-              // Prevent max from going below min
-              if (Number(newMax) >= currentMin) {
-                handleAgeMaxChange(newMax);
-              }
-            }}
-            disabled={loading}
-            className="age-range-input age-range-max"
-            data-testid="age-max-input"
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '6px',
-              background: 'transparent',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              zIndex: 2
-            }}
-          />
-        </div>
-
-        {/* Min/Max labels */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.4)',
-          marginTop: '4px'
-        }}>
-          <span>18</span>
-          <span>60</span>
-        </div>
-
-        {/* ⚠️ Age validation error message */}
-        {ageError && (
-          <div style={{
-            marginTop: '8px',
-            padding: '10px 12px',
-            background: 'rgba(255, 71, 87, 0.1)',
-            border: '1px solid rgba(255, 71, 87, 0.4)',
-            borderRadius: 'var(--border-radius-lg)',
-            color: 'var(--color-error)',
-            fontSize: 'var(--font-xs)',
-            fontWeight: 'var(--font-weight-semibold)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <AlertTriangle size={16} />
-            <span>{ageError}</span>
-          </div>
-        )}
-      </div>
-
-      {/* 🆕 v10.x - Gender Filter */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <User size={20} /> {t('search.gender', 'Gender')}
-        </label>
-        <div className="gender-chips-container" style={{
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: '8px',
-          marginTop: '8px'
-        }}>
-          {[
-            { value: 'female', label: t('employee.sex.female', 'Female'), icon: '♀' },
-            { value: 'male', label: t('employee.sex.male', 'Male'), icon: '♂' },
-            { value: 'ladyboy', label: t('employee.sex.ladyboy', 'Ladyboy'), icon: '⚧' }
-          ].map(gender => {
-            const isSelected = filters.sex === gender.value;
-
-            return (
-              <button
-                key={gender.value}
-                type="button"
-                title={gender.label}
-                onClick={() => {
-                  // Toggle: if clicking on current selection, clear it
-                  if (isSelected) {
-                    onFilterChange('sex', '');
-                  } else {
-                    onFilterChange('sex', gender.value);
-                  }
-                }}
-                disabled={loading}
-                className={`gender-chip ${isSelected ? 'gender-chip-active' : ''}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '10px 16px',
-                  background: isSelected
-                    ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(168, 85, 247, 0.2))'
-                    : 'rgba(255, 255, 255, 0.05)',
-                  border: isSelected
-                    ? '2px solid #E879F9'
-                    : '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '12px',
-                  color: isSelected ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '20px',
-                  fontWeight: isSelected ? '600' : '500',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isSelected ? '0 0 15px rgba(232, 121, 249, 0.3)' : 'none',
-                  flex: '1 1 auto',
-                  minWidth: '50px'
-                }}
-              >
-                <span>{gender.icon}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Gender Filter - v12.0 extracted component */}
+      <GenderChips
+        selectedGender={filters.sex}
+        onGenderChange={(gender) => onFilterChange('sex', gender)}
+        disabled={loading}
+      />
 
       {/* Nationality - Phase 3.4: Custom styled dropdown */}
       <div className="filter-section">
@@ -1282,237 +919,36 @@ const SearchFilters: React.FC<SearchFiltersProps> = React.memo(({
         defaultExpanded={true}
         activeCount={sectionFilterCounts.quality}
       >
-      {/* Languages Filter - Multi-select chips */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <Languages size={20} /> {t('search.languages', 'Languages')}
-        </label>
-        <div className="language-chips-container" style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
-          marginTop: '8px'
-        }}>
-          {[
-            { code: 'Thai', flag: '🇹🇭' },
-            { code: 'English', flag: '🇬🇧' },
-            { code: 'Chinese', flag: '🇨🇳' },
-            { code: 'Russian', flag: '🇷🇺' },
-            { code: 'Korean', flag: '🇰🇷' },
-            { code: 'Japanese', flag: '🇯🇵' },
-            { code: 'German', flag: '🇩🇪' }
-          ].map(lang => {
-            const selectedLanguages = filters.languages ? filters.languages.split(',') : [];
-            const isSelected = selectedLanguages.includes(lang.code);
+      {/* Languages Filter - v12.0 extracted component */}
+      <LanguageChips
+        selectedLanguages={filters.languages}
+        onLanguagesChange={(languages) => onFilterChange('languages', languages)}
+        disabled={loading}
+      />
 
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                onClick={() => {
-                  let newLanguages: string[];
-                  if (isSelected) {
-                    newLanguages = selectedLanguages.filter(l => l !== lang.code);
-                  } else {
-                    newLanguages = [...selectedLanguages, lang.code];
-                  }
-                  onFilterChange('languages', newLanguages.filter(Boolean).join(','));
-                }}
-                disabled={loading}
-                className={`language-chip ${isSelected ? 'language-chip-active' : ''}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  background: isSelected
-                    ? 'linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(0, 229, 255, 0.2))'
-                    : 'rgba(255, 255, 255, 0.05)',
-                  border: isSelected
-                    ? '2px solid #E879F9'
-                    : '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '20px',
-                  color: isSelected ? '#E879F9' : 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '13px',
-                  fontWeight: isSelected ? '600' : '500',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isSelected ? '0 0 15px rgba(232, 121, 249, 0.3)' : 'none'
-                }}
-              >
-                <span>{lang.flag}</span>
-                <span>{lang.code}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Rating Filter - v12.0 extracted component */}
+      <RatingFilter
+        minRating={filters.min_rating}
+        onRatingChange={(rating) => onFilterChange('min_rating', rating)}
+        disabled={loading}
+      />
 
-      {/* Rating Filter - Star slider */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <Star size={20} /> {t('search.minRating', 'Minimum Rating')}
-        </label>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginTop: '8px'
-        }}>
-          <div style={{
-            display: 'flex',
-            gap: '4px'
-          }}>
-            {[1, 2, 3, 4, 5].map(star => {
-              const currentRating = filters.min_rating ? Number(filters.min_rating) : 0;
-              const isActive = star <= currentRating;
+      {/* Has Photos Filter - v12.0 extracted component */}
+      <ToggleFilter
+        isActive={filters.has_photos === 'true'}
+        onToggle={() => onFilterChange('has_photos', filters.has_photos === 'true' ? '' : 'true')}
+        label={t('search.hasPhotos', 'With Photos Only')}
+        icon={Image}
+        activeColor="#00E5FF"
+        disabled={loading}
+      />
 
-              return (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => {
-                    // Toggle: if clicking on current rating, clear it
-                    if (currentRating === star) {
-                      onFilterChange('min_rating', '');
-                    } else {
-                      onFilterChange('min_rating', String(star));
-                    }
-                  }}
-                  disabled={loading}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    padding: '4px',
-                    transition: 'transform 0.2s ease'
-                  }}
-                  title={`${star} ${t('search.starsOrMore', 'stars or more')}`}
-                >
-                  <Star
-                    size={24}
-                    fill={isActive ? '#FFD700' : 'transparent'}
-                    color={isActive ? '#FFD700' : 'rgba(255, 255, 255, 0.3)'}
-                    style={{
-                      filter: isActive ? 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.5))' : 'none',
-                      transition: 'all 0.2s ease'
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-          {filters.min_rating && (
-            <span style={{
-              fontSize: '13px',
-              color: '#FFD700',
-              fontWeight: '600'
-            }}>
-              {filters.min_rating}+ {t('search.stars', 'stars')}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Has Photos Filter - Toggle */}
-      <div className="filter-section">
-        <button
-          type="button"
-          onClick={() => onFilterChange('has_photos', filters.has_photos === 'true' ? '' : 'true')}
-          disabled={loading}
-          className={`photos-filter-toggle ${filters.has_photos === 'true' ? 'photos-filter-active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            width: '100%',
-            padding: '12px 16px',
-            background: filters.has_photos === 'true'
-              ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.1))'
-              : 'rgba(255, 255, 255, 0.05)',
-            border: filters.has_photos === 'true'
-              ? '2px solid #00E5FF'
-              : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            color: filters.has_photos === 'true' ? '#00E5FF' : 'rgba(255, 255, 255, 0.8)',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: filters.has_photos === 'true' ? '0 0 20px rgba(0, 229, 255, 0.3)' : 'none'
-          }}
-        >
-          <Image size={20} />
-          <span>{t('search.hasPhotos', 'With Photos Only')}</span>
-          {filters.has_photos === 'true' && (
-            <Check size={16} style={{ marginLeft: 'auto' }} />
-          )}
-        </button>
-      </div>
-
-      {/* Social Media Filter - Checkboxes */}
-      <div className="filter-section">
-        <label className="label-nightlife filter-label-with-icon">
-          <MessageCircle size={20} /> {t('search.socialMedia', 'Social Media')}
-        </label>
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
-          marginTop: '8px'
-        }}>
-          {[
-            { id: 'instagram', label: 'Instagram', icon: '📸', color: '#E1306C' },
-            { id: 'line', label: 'LINE', icon: '💬', color: '#00B900' },
-            { id: 'whatsapp', label: 'WhatsApp', icon: '📱', color: '#25D366' },
-            { id: 'telegram', label: 'Telegram', icon: '✈️', color: '#0088CC' },
-            { id: 'facebook', label: 'Facebook', icon: '👤', color: '#1877F2' }
-          ].map(platform => {
-            const selectedPlatforms = filters.social_media ? filters.social_media.split(',') : [];
-            const isSelected = selectedPlatforms.includes(platform.id);
-
-            return (
-              <button
-                key={platform.id}
-                type="button"
-                onClick={() => {
-                  let newPlatforms: string[];
-                  if (isSelected) {
-                    newPlatforms = selectedPlatforms.filter(p => p !== platform.id);
-                  } else {
-                    newPlatforms = [...selectedPlatforms, platform.id];
-                  }
-                  onFilterChange('social_media', newPlatforms.filter(Boolean).join(','));
-                }}
-                disabled={loading}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  background: isSelected
-                    ? `linear-gradient(135deg, ${platform.color}33, ${platform.color}22)`
-                    : 'rgba(255, 255, 255, 0.05)',
-                  border: isSelected
-                    ? `2px solid ${platform.color}`
-                    : '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '10px',
-                  color: isSelected ? platform.color : 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '12px',
-                  fontWeight: isSelected ? '600' : '500',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isSelected ? `0 0 12px ${platform.color}44` : 'none'
-                }}
-              >
-                <span>{platform.icon}</span>
-                <span>{platform.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Social Media Filter - v12.0 extracted component */}
+      <SocialMediaChips
+        selectedPlatforms={filters.social_media}
+        onPlatformsChange={(platforms) => onFilterChange('social_media', platforms)}
+        disabled={loading}
+      />
       </FilterSection>
 
       {/* Sort removed from filters - now in SearchPage near cards (v11.1 fix #5) */}
