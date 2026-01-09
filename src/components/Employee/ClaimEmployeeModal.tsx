@@ -20,6 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 interface ClaimEmployeeModalProps {
@@ -206,44 +207,16 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
             aria-labelledby="claim-employee-modal-title"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={onClose}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={onClose} />
 
             {/* Header */}
-            <div className="modal-premium__header modal-premium__header--with-icon">
-              <motion.div
-                className="modal-premium__icon modal-premium__icon--info"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <Link size={32} />
-              </motion.div>
-              <motion.h2
-                id="claim-employee-modal-title"
-                className="modal-premium__title modal-premium__title--info"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                {t('claimEmployeeModal.title')}
-              </motion.h2>
-              <motion.p
-                className="modal-premium__subtitle"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                {t('claimEmployeeModal.subtitle')}
-              </motion.p>
-            </div>
+            <ModalHeader
+              title={t('claimEmployeeModal.title')}
+              titleId="claim-employee-modal-title"
+              subtitle={t('claimEmployeeModal.subtitle')}
+              icon={<Link size={32} />}
+              variant="info"
+            />
 
             {/* Content */}
             <motion.div
@@ -496,48 +469,23 @@ const ClaimEmployeeModal: React.FC<ClaimEmployeeModalProps> = ({
                 </motion.div>
 
                 {/* Footer */}
-                <motion.div
-                  className="modal-premium__footer"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.45 }}
-                >
-                  <motion.button
-                    type="button"
-                    className="modal-premium__btn-secondary"
-                    onClick={onClose}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <X size={16} />
-                    {t('common.cancel', 'Cancel')}
-                  </motion.button>
-                  <motion.button
-                    type="submit"
-                    className="modal-premium__btn-primary modal-premium__btn-success"
-                    disabled={isLoading || !selectedEmployee || message.trim().length < 10}
-                    style={{ opacity: !selectedEmployee || message.trim().length < 10 ? 0.5 : 1 }}
-                    whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                    whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                  >
-                    {isLoading ? (
-                      <>
-                        <motion.span
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        >
-                          <Loader2 size={16} />
-                        </motion.span>
-                        {t('claimEmployeeModal.buttonSubmitting')}
-                      </>
-                    ) : (
-                      <>
-                        <Rocket size={16} />
-                        {t('claimEmployeeModal.buttonSubmitClaim')}
-                      </>
-                    )}
-                  </motion.button>
-                </motion.div>
+                <ModalFooter
+                  animationDelay={0.45}
+                  secondaryAction={{
+                    label: t('common.cancel', 'Cancel'),
+                    onClick: onClose,
+                    icon: <X size={16} />
+                  }}
+                  primaryAction={{
+                    label: isLoading ? t('claimEmployeeModal.buttonSubmitting') : t('claimEmployeeModal.buttonSubmitClaim'),
+                    onClick: () => {},
+                    type: 'submit',
+                    icon: <Rocket size={16} />,
+                    disabled: !selectedEmployee || message.trim().length < 10,
+                    loading: isLoading,
+                    variant: 'success'
+                  }}
+                />
               </form>
             </motion.div>
           </motion.div>

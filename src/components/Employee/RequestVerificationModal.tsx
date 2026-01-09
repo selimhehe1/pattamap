@@ -3,10 +3,11 @@ import { createPortal } from 'react-dom';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Eye, Camera, Upload, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Check, X, Eye, Camera, Upload, ShieldCheck, AlertTriangle } from 'lucide-react';
 import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { premiumModalVariants, premiumBackdropVariants } from '../../animations/variants';
+import { ModalCloseButton, ModalHeader, ModalFooter } from '../Common/Modal/index';
 import '../../styles/components/modal-premium-base.css';
 
 interface RequestVerificationModalProps {
@@ -145,24 +146,11 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
   const renderVerificationForm = () => (
     <>
       {/* Header */}
-      <div className="modal-premium__header modal-premium__header--with-icon">
-        <motion.div
-          className="modal-premium__icon modal-premium__icon--info"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          <ShieldCheck size={32} />
-        </motion.div>
-        <motion.h2
-          className="modal-premium__title modal-premium__title--info"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          {t('verificationModal.title', 'Verify Your Profile')}
-        </motion.h2>
-      </div>
+      <ModalHeader
+        title={t('verificationModal.title', 'Verify Your Profile')}
+        icon={<ShieldCheck size={32} />}
+        variant="info"
+      />
 
       {/* Content */}
       <motion.div
@@ -296,45 +284,23 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
       </motion.div>
 
       {/* Footer */}
-      <motion.div
-        className="modal-premium__footer"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <motion.button
-          className="modal-premium__btn-secondary"
-          onClick={handleClose}
-          disabled={isUploading}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <X size={16} />
-          {t('common.cancel', 'Cancel')}
-        </motion.button>
-        <motion.button
-          className="modal-premium__btn-primary modal-premium__btn-success"
-          onClick={handleSubmitVerification}
-          disabled={!selectedFile || isUploading}
-          style={{ opacity: !selectedFile ? 0.5 : 1 }}
-          whileHover={{ scale: isUploading ? 1 : 1.02 }}
-          whileTap={{ scale: isUploading ? 1 : 0.98 }}
-        >
-          {isUploading ? (
-            <>
-              <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                <Loader2 size={16} />
-              </motion.span>
-              {t('verificationModal.submitting', 'Submitting...')}
-            </>
-          ) : (
-            <>
-              <ShieldCheck size={16} />
-              {t('verificationModal.submit', 'Submit Verification')}
-            </>
-          )}
-        </motion.button>
-      </motion.div>
+      <ModalFooter
+        animationDelay={0.4}
+        secondaryAction={{
+          label: t('common.cancel', 'Cancel'),
+          onClick: handleClose,
+          icon: <X size={16} />,
+          disabled: isUploading
+        }}
+        primaryAction={{
+          label: isUploading ? t('verificationModal.submitting', 'Submitting...') : t('verificationModal.submit', 'Submit Verification'),
+          onClick: handleSubmitVerification,
+          icon: <ShieldCheck size={16} />,
+          disabled: !selectedFile,
+          loading: isUploading,
+          variant: 'success'
+        }}
+      />
     </>
   );
 
@@ -388,22 +354,14 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
           </p>
         </motion.div>
 
-        <motion.div
-          className="modal-premium__footer"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          style={{ justifyContent: 'center' }}
-        >
-          <motion.button
-            className="modal-premium__btn-primary"
-            onClick={handleClose}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {t('common.close', 'Close')}
-          </motion.button>
-        </motion.div>
+        <ModalFooter
+          animationDelay={0.4}
+          className="modal-premium__footer--centered"
+          primaryAction={{
+            label: t('common.close', 'Close'),
+            onClick: handleClose
+          }}
+        />
       </>
     );
   };
@@ -430,16 +388,7 @@ const RequestVerificationModal: React.FC<RequestVerificationModalProps> = ({
             aria-modal="true"
           >
             {/* Close button */}
-            <motion.button
-              className="modal-premium__close"
-              onClick={handleClose}
-              disabled={isUploading}
-              aria-label={t('common.close', 'Close')}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X size={18} />
-            </motion.button>
+            <ModalCloseButton onClick={handleClose} />
 
             {!verificationResult ? renderVerificationForm() : renderVerificationResult()}
           </motion.div>

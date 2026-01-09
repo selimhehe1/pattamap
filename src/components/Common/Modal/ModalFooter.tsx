@@ -24,7 +24,9 @@ export interface ModalFooterAction {
   /** Whether button is in loading state */
   loading?: boolean;
   /** Button variant */
-  variant?: 'primary' | 'secondary' | 'danger' | 'warning';
+  variant?: 'primary' | 'secondary' | 'danger' | 'warning' | 'success';
+  /** Button type for forms */
+  type?: 'button' | 'submit';
 }
 
 export interface ModalFooterProps {
@@ -54,21 +56,32 @@ const ActionButton: React.FC<{
         return 'modal-premium__btn-primary modal-premium__btn-danger';
       case 'warning':
         return 'modal-premium__btn-primary modal-premium__btn-warning';
+      case 'success':
+        return 'modal-premium__btn-primary modal-premium__btn-success';
       default:
         return 'modal-premium__btn-primary';
     }
   };
 
+  const isDisabled = action.disabled || action.loading;
+
   return (
     <motion.button
+      type={action.type || 'button'}
       className={getButtonClass()}
       onClick={action.onClick}
-      disabled={action.disabled || action.loading}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      disabled={isDisabled}
+      style={isDisabled ? { opacity: 0.5 } : undefined}
+      whileHover={{ scale: isDisabled ? 1 : 1.02 }}
+      whileTap={{ scale: isDisabled ? 1 : 0.98 }}
     >
       {action.loading ? (
-        <Loader2 size={16} className="animate-spin" />
+        <motion.span
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        >
+          <Loader2 size={16} />
+        </motion.span>
       ) : (
         action.icon
       )}
