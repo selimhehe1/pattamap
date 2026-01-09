@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 
 // ==========================================
 // 🔧 TYPE SAFETY FIX - Removed all 'any' types
@@ -151,6 +151,8 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // eslint-disable-next-line react-hooks/exhaustive-deps -- closeModal is stable (useCallback with no deps)
   }, []);
 
+  // 🚀 PERF: isModalOpen and getTopModalId are memoized with modals dependency
+  // They need to update when modals change, but the value object is memoized separately
   const isModalOpen = useCallback((id: string) => {
     return modals.some(modal => modal.id === id);
   }, [modals]);
@@ -159,7 +161,9 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return modals.length > 0 ? modals[modals.length - 1].id : null;
   }, [modals]);
 
-  const value: ModalContextType = {
+  // 🚀 PERF FIX: Memoize context value to prevent unnecessary re-renders
+  // Without this, a new object is created on every render, causing all consumers to re-render
+  const value = useMemo<ModalContextType>(() => ({
     modals,
     openModal,
     closeModal,
@@ -167,7 +171,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     updateModalProps,
     isModalOpen,
     getTopModalId
-  };
+  }), [modals, openModal, closeModal, closeAllModals, updateModalProps, isModalOpen, getTopModalId]);
 
   return (
     <ModalContext.Provider value={value}>
