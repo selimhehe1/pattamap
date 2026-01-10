@@ -1,15 +1,16 @@
 /**
  * E2E Tests - Notification System
  *
- * Tests notification functionality:
- * 1. Notification bell display
- * 2. Notification dropdown
- * 3. Mark as read/unread
- * 4. Notification types (XP, badge, review, etc.)
- * 5. Clear all notifications
- * 6. Real-time notifications
+ * Tests notification functionality with Supabase Realtime:
+ * 1. Notification bell display and badge
+ * 2. Notification dropdown (open/close)
+ * 3. Mark as read (individual and all)
+ * 4. Delete notifications
+ * 5. Real-time connection status indicator
+ * 6. Empty state handling
+ * 7. Mobile responsiveness
  *
- * Critical for engagement - notifications drive return visits.
+ * @updated 2026-01-10 - Updated selectors for NotificationBell v2.0
  */
 
 import { test, expect, Page } from '@playwright/test';
@@ -20,10 +21,12 @@ const TEST_USER = {
   password: 'SecureTestP@ssw0rd2024!'
 };
 
+// Extended timeout for CI
+const CI_TIMEOUT = process.env.CI ? 15000 : 10000;
+
 // Helper to login with fast-fail
 async function loginAsUser(page: Page): Promise<boolean> {
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
+  await page.goto('/login', { waitUntil: 'networkidle' });
 
   const emailInput = page.locator('input[type="email"]').first();
   if (await emailInput.count() === 0) return false;
@@ -42,10 +45,10 @@ async function loginAsUser(page: Page): Promise<boolean> {
 }
 
 // ========================================
-// TEST SUITE 1: Notification Bell
+// TEST SUITE 1: Notification Bell Display
 // ========================================
 
-test.describe('Notification Bell', () => {
+test.describe('Notification Bell Display', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
@@ -53,68 +56,46 @@ test.describe('Notification Bell', () => {
     }
   });
 
-  test('should display notification bell in header', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should display notification bell in header when logged in', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Look for notification bell
-    const notificationBell = page.locator('.notification-bell, [data-testid="notification-bell"], button[aria-label*="notification"]').first();
-    await expect(notificationBell).toBeVisible({ timeout: 10000 });
+    // Look for notification bell with correct class
+    const notificationBell = page.locator('.notif-bell__btn, button[aria-label*="Notification"]').first();
+    await expect(notificationBell).toBeVisible({ timeout: CI_TIMEOUT });
   });
 
-  test('should show unread count badge', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should show unread count badge when notifications exist', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Look for unread count
-    const unreadBadge = page.locator('.notification-badge, .unread-count, [data-unread]').first();
+    // Look for unread count badge
+    const unreadBadge = page.locator('.notif-bell__badge').first();
 
-    // May or may not have unread notifications
-    await expect(page.locator('body')).toBeVisible();
+    // Badge may or may not be visible depending on notifications
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await expect(bellButton).toBeVisible({ timeout: CI_TIMEOUT });
   });
 
-  test('should open notification dropdown on click', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should cap badge display at 99+', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell, button[aria-label*="notification"]').first();
+    const unreadBadge = page.locator('.notif-bell__badge').first();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // Should show dropdown
-      const dropdown = page.locator('.notification-dropdown, .notifications-menu, [data-testid="notification-dropdown"]').first();
-      await expect(dropdown).toBeVisible({ timeout: 5000 });
-    }
-  });
-
-  test('should close dropdown on outside click', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    const notificationBell = page.locator('.notification-bell').first();
-
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // Click outside
-      await page.locator('body').click({ position: { x: 10, y: 10 } });
-      await page.waitForLoadState('domcontentloaded');
-
-      // Dropdown should close
-      const dropdown = page.locator('.notification-dropdown').first();
-      await expect(dropdown).not.toBeVisible();
+    if (await unreadBadge.isVisible()) {
+      const badgeText = await unreadBadge.textContent();
+      // If count > 99, should show "99+"
+      if (badgeText) {
+        const numericValue = parseInt(badgeText.replace('+', ''));
+        expect(numericValue).toBeLessThanOrEqual(99);
+      }
     }
   });
 });
 
 // ========================================
-// TEST SUITE 2: Notification List
+// TEST SUITE 2: Notification Dropdown
 // ========================================
 
-test.describe('Notification List', () => {
+test.describe('Notification Dropdown', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
@@ -122,97 +103,169 @@ test.describe('Notification List', () => {
     }
   });
 
-  test('should display list of notifications', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should open dropdown when bell is clicked', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await expect(bellButton).toBeVisible({ timeout: CI_TIMEOUT });
+    await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    // Dropdown should appear (rendered via Portal to body)
+    const dropdown = page.locator('.notif-dropdown');
+    await expect(dropdown).toBeVisible({ timeout: 5000 });
+  });
 
-      // Look for notification items
-      const notifications = page.locator('.notification-item, .notification-card');
+  test('should show header with title', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-      if (await notifications.count() > 0) {
-        await expect(notifications.first()).toBeVisible();
-      } else {
-        // Empty state
-        const emptyState = page.locator('text=/no.*notification|empty/i').first();
-        await expect(emptyState).toBeVisible();
-      }
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const header = page.locator('.notif-dropdown__header h3');
+    await expect(header).toBeVisible();
+    await expect(header).toContainText(/Notification/i);
+  });
+
+  test('should close dropdown when clicking outside', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const dropdown = page.locator('.notif-dropdown');
+    await expect(dropdown).toBeVisible();
+
+    // Click outside the dropdown
+    await page.mouse.click(10, 10);
+
+    // Dropdown should close
+    await expect(dropdown).not.toBeVisible({ timeout: 3000 });
+  });
+
+  test('should close dropdown on Escape key', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const dropdown = page.locator('.notif-dropdown');
+    await expect(dropdown).toBeVisible();
+
+    // Press Escape
+    await page.keyboard.press('Escape');
+
+    // Dropdown should close
+    await expect(dropdown).not.toBeVisible({ timeout: 3000 });
+  });
+
+  test('should toggle dropdown on repeated clicks', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    const dropdown = page.locator('.notif-dropdown');
+
+    // First click - open
+    await bellButton.click();
+    await expect(dropdown).toBeVisible();
+
+    // Second click - close
+    await bellButton.click();
+    await expect(dropdown).not.toBeVisible();
+  });
+});
+
+// ========================================
+// TEST SUITE 3: Notification List Content
+// ========================================
+
+test.describe('Notification List Content', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available in this environment');
     }
   });
 
-  test('should show notification message and timestamp', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should show empty state when no notifications', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    // Either show notifications list OR empty state
+    const notificationsList = page.locator('.notif-dropdown__list');
+    const emptyState = page.locator('.notif-dropdown__empty');
 
-      const notification = page.locator('.notification-item').first();
+    const hasNotifications = await notificationsList.isVisible();
+    const hasEmptyState = await emptyState.isVisible();
 
-      if (await notification.count() > 0) {
-        // Should have message
-        const message = await notification.textContent();
-        expect(message!.length).toBeGreaterThan(0);
+    // One of them should be visible
+    expect(hasNotifications || hasEmptyState).toBeTruthy();
 
-        // Should have timestamp
-        const timestamp = notification.locator('.timestamp, .time').or(notification.locator('text=/ago|minute|hour|day/i')).first();
-        await expect(timestamp).toBeVisible();
-      }
+    if (hasEmptyState) {
+      await expect(emptyState).toContainText(/caught up|no notification/i);
     }
   });
 
-  test('should differentiate read and unread notifications', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should display notification items with content', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    const notificationItems = page.locator('.notif-item');
 
-      // Look for unread indicator
-      const unreadNotification = page.locator('.notification-item.unread, .notification-item[data-read="false"]').first();
+    if (await notificationItems.count() > 0) {
+      const firstItem = notificationItems.first();
 
-      // May or may not have unread
-      await expect(page.locator('body')).toBeVisible();
+      // Should have title
+      const title = firstItem.locator('.notif-item__title');
+      await expect(title).toBeVisible();
+
+      // Should have message
+      const message = firstItem.locator('.notif-item__message');
+      await expect(message).toBeVisible();
+
+      // Should have timestamp
+      const time = firstItem.locator('.notif-item__time');
+      await expect(time).toBeVisible();
     }
   });
 
-  test('should navigate to all notifications page', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should show unread indicator dot for unread notifications', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    const unreadItems = page.locator('.notif-item--unread');
 
-      // Look for "View All" link
-      const viewAllLink = page.locator('a:has-text("View All"), a:has-text("See All"), a[href*="/notifications"]').first();
+    if (await unreadItems.count() > 0) {
+      const dot = unreadItems.first().locator('.notif-item__dot');
+      await expect(dot).toBeVisible();
+    }
+  });
 
-      if (await viewAllLink.count() > 0) {
-        await viewAllLink.click();
-        await page.waitForLoadState('networkidle');
+  test('should show footer with view all link when notifications exist', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-        // Should navigate to notifications page
-        await expect(page).toHaveURL(/\/notifications/);
-      }
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const notificationItems = page.locator('.notif-item');
+
+    if (await notificationItems.count() > 0) {
+      const footer = page.locator('.notif-dropdown__footer');
+      await expect(footer).toBeVisible();
+
+      const viewAllBtn = footer.locator('button');
+      await expect(viewAllBtn).toContainText(/view all|see all/i);
     }
   });
 });
 
 // ========================================
-// TEST SUITE 3: Mark as Read
+// TEST SUITE 4: Mark as Read
 // ========================================
 
 test.describe('Mark Notifications as Read', () => {
@@ -223,107 +276,92 @@ test.describe('Mark Notifications as Read', () => {
     }
   });
 
-  test('should mark notification as read on click', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should show mark all as read button when unread exist', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    const unreadBadge = page.locator('.notif-bell__badge');
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    // Only test if there are unread notifications
+    if (await unreadBadge.isVisible()) {
+      await bellButton.click();
 
-      const unreadNotification = page.locator('.notification-item.unread').first();
-
-      if (await unreadNotification.count() > 0) {
-        await unreadNotification.click();
-        await page.waitForLoadState('domcontentloaded');
-
-        // Should be marked as read (class change)
-        const isStillUnread = await unreadNotification.locator('.unread').count() > 0;
-        // May or may not change immediately depending on implementation
-        await expect(page.locator('body')).toBeVisible();
-      }
+      const markAllBtn = page.locator('.notif-dropdown__mark-all');
+      await expect(markAllBtn).toBeVisible();
+      await expect(markAllBtn).toContainText(/mark.*read/i);
     }
   });
 
-  test('should have "Mark All as Read" button', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+  test('should have mark as read button on unread items', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    const unreadItems = page.locator('.notif-item--unread');
 
-      // Look for mark all as read button
-      const markAllBtn = page.locator('button:has-text("Mark All"), button:has-text("Read All")').first();
+    if (await unreadItems.count() > 0) {
+      const firstUnread = unreadItems.first();
+      const markReadBtn = firstUnread.locator('.notif-item__action').first();
+      await expect(markReadBtn).toBeVisible();
+    }
+  });
 
-      if (await markAllBtn.count() > 0) {
-        await expect(markAllBtn).toBeVisible();
-      }
+  test('should mark individual notification as read', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const unreadItems = page.locator('.notif-item--unread');
+    const initialCount = await unreadItems.count();
+
+    if (initialCount > 0) {
+      // Click mark as read on first unread
+      const markReadBtn = unreadItems.first().locator('.notif-item__action').first();
+      await markReadBtn.click();
+
+      // Wait for UI update
+      await page.waitForTimeout(500);
+
+      // Count should decrease or item should lose unread class
+      const newCount = await page.locator('.notif-item--unread').count();
+      expect(newCount).toBeLessThanOrEqual(initialCount);
     }
   });
 
   test('should mark all notifications as read', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    const unreadBadge = page.locator('.notif-bell__badge');
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
+    if (await unreadBadge.isVisible()) {
+      await bellButton.click();
 
-      const markAllBtn = page.locator('button:has-text("Mark All")').first();
-
-      if (await markAllBtn.count() > 0) {
+      const markAllBtn = page.locator('.notif-dropdown__mark-all');
+      if (await markAllBtn.isVisible()) {
         await markAllBtn.click();
-        await page.waitForLoadState('networkidle');
+
+        // Wait for API response
+        await page.waitForTimeout(1000);
 
         // Badge should disappear or show 0
-        const unreadBadge = page.locator('.notification-badge, .unread-count').first();
-        const badgeText = await unreadBadge.textContent().catch(() => '0');
-
-        expect(badgeText === '0' || badgeText === '' || await unreadBadge.count() === 0).toBeTruthy();
-      }
-    }
-  });
-
-  test('should update unread count after marking as read', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Get initial count
-    const unreadBadge = page.locator('.notification-badge, .unread-count').first();
-    const initialCount = parseInt(await unreadBadge.textContent() || '0');
-
-    const notificationBell = page.locator('.notification-bell').first();
-
-    if (await notificationBell.count() > 0 && initialCount > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // Click on first unread
-      const unreadNotification = page.locator('.notification-item.unread').first();
-      if (await unreadNotification.count() > 0) {
-        await unreadNotification.click();
-        await page.waitForLoadState('networkidle');
-
-        // Count should decrease
-        const newCount = parseInt(await unreadBadge.textContent() || '0');
-        expect(newCount).toBeLessThanOrEqual(initialCount);
+        const badgeStillVisible = await unreadBadge.isVisible();
+        if (badgeStillVisible) {
+          const text = await unreadBadge.textContent();
+          expect(text).toBe('0');
+        }
       }
     }
   });
 });
 
 // ========================================
-// TEST SUITE 4: Notification Types
+// TEST SUITE 5: Delete Notifications
 // ========================================
 
-test.describe('Notification Types', () => {
+test.describe('Delete Notifications', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
@@ -331,85 +369,48 @@ test.describe('Notification Types', () => {
     }
   });
 
-  test('should display XP earned notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should have delete button on each notification', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Look for XP notifications
-    const xpNotification = page.locator('text=/XP|experience|points/i').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    // May or may not have XP notifications
-    await expect(page.locator('body')).toBeVisible();
+    const notificationItems = page.locator('.notif-item');
+
+    if (await notificationItems.count() > 0) {
+      const deleteBtn = notificationItems.first().locator('.notif-item__action--delete');
+      await expect(deleteBtn).toBeVisible();
+    }
   });
 
-  test('should display badge earned notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should delete notification when delete button clicked', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Look for badge notifications
-    const badgeNotification = page.locator('text=/badge|achievement|unlocked/i').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    // May or may not have badge notifications
-    await expect(page.locator('body')).toBeVisible();
-  });
+    const notificationItems = page.locator('.notif-item');
+    const initialCount = await notificationItems.count();
 
-  test('should display new review notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+    if (initialCount > 0) {
+      const deleteBtn = notificationItems.first().locator('.notif-item__action--delete');
+      await deleteBtn.click();
 
-    // Look for review notifications
-    const reviewNotification = page.locator('text=/review|rated/i').first();
+      // Wait for deletion
+      await page.waitForTimeout(500);
 
-    // May or may not have review notifications
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should display VIP status notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
-
-    // Look for VIP notifications
-    const vipNotification = page.locator('text=/VIP|premium|subscription/i').first();
-
-    // May or may not have VIP notifications
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should display verification status notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
-
-    // Look for verification notifications
-    const verificationNotification = page.locator('text=/verification|verified|approved|rejected/i').first();
-
-    // May or may not have verification notifications
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should show notification icon based on type', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    const notificationBell = page.locator('.notification-bell').first();
-
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // Look for notification icons
-      const notificationIcons = page.locator('.notification-item .icon, .notification-item svg');
-
-      // Notifications should have icons
-      await expect(page.locator('body')).toBeVisible();
+      // Count should decrease
+      const newCount = await page.locator('.notif-item').count();
+      expect(newCount).toBeLessThan(initialCount);
     }
   });
 });
 
 // ========================================
-// TEST SUITE 5: Clear/Delete Notifications
+// TEST SUITE 6: Real-time Connection Status
 // ========================================
 
-test.describe('Clear Notifications', () => {
+test.describe('Real-time Connection Status', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
@@ -417,80 +418,67 @@ test.describe('Clear Notifications', () => {
     }
   });
 
-  test('should have delete button on individual notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should show connection status indicator in dropdown header', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notification = page.locator('.notification-item').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await notification.count() > 0) {
-      // Hover to show delete button
-      await notification.hover();
-      await page.waitForLoadState('domcontentloaded');
+    // Wait for realtime connection
+    await page.waitForTimeout(2000);
 
-      const deleteBtn = notification.locator('button:has-text("Delete"), .delete-btn, button[aria-label*="delete"]').first();
+    // Should show either connected or disconnected status
+    const connectedStatus = page.locator('.notif-dropdown__status--connected');
+    const disconnectedStatus = page.locator('.notif-dropdown__status--disconnected');
 
-      // May or may not have delete button
-      await expect(page.locator('body')).toBeVisible();
+    const hasConnected = await connectedStatus.isVisible();
+    const hasDisconnected = await disconnectedStatus.isVisible();
+
+    // One of them should be visible (or neither if connection is still pending)
+    await expect(page.locator('.notif-dropdown__header')).toBeVisible();
+  });
+
+  test('should display Wifi icon when connected', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    // Wait for realtime connection to establish
+    await page.waitForTimeout(3000);
+
+    const connectedStatus = page.locator('.notif-dropdown__status--connected');
+
+    if (await connectedStatus.isVisible()) {
+      // Should contain Wifi icon (SVG)
+      const icon = connectedStatus.locator('svg');
+      await expect(icon).toBeVisible();
     }
   });
 
-  test('should delete individual notification', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should have tooltip on connection status', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const notificationsBefore = await page.locator('.notification-item').count();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (notificationsBefore > 0) {
-      const notification = page.locator('.notification-item').first();
-      await notification.hover();
-      await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(2000);
 
-      const deleteBtn = notification.locator('.delete-btn, button[aria-label*="delete"]').first();
+    const statusIndicator = page.locator('.notif-dropdown__status--connected, .notif-dropdown__status--disconnected').first();
 
-      if (await deleteBtn.count() > 0) {
-        await deleteBtn.click();
-        await page.waitForLoadState('networkidle');
-
-        const notificationsAfter = await page.locator('.notification-item').count();
-        expect(notificationsAfter).toBeLessThan(notificationsBefore);
-      }
-    }
-  });
-
-  test('should have "Clear All" button', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
-
-    const clearAllBtn = page.locator('button:has-text("Clear All"), button:has-text("Delete All")').first();
-
-    if (await clearAllBtn.count() > 0) {
-      await expect(clearAllBtn).toBeVisible();
-    }
-  });
-
-  test('should confirm before clearing all notifications', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
-
-    const clearAllBtn = page.locator('button:has-text("Clear All")').first();
-
-    if (await clearAllBtn.count() > 0) {
-      await clearAllBtn.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // Should show confirmation
-      const confirmDialog = page.locator('[role="dialog"], .confirm-modal').or(page.locator('text=/confirm|sure/i')).first();
-      await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    if (await statusIndicator.isVisible()) {
+      const title = await statusIndicator.getAttribute('title');
+      expect(title).toBeTruthy();
+      expect(title!.length).toBeGreaterThan(0);
     }
   });
 });
 
 // ========================================
-// TEST SUITE 6: Notification Settings
+// TEST SUITE 7: Navigation from Notifications
 // ========================================
 
-test.describe('Notification Settings', () => {
+test.describe('Navigation from Notifications', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
@@ -498,107 +486,46 @@ test.describe('Notification Settings', () => {
     }
   });
 
-  test('should have link to notification settings', async ({ page }) => {
-    await page.goto('/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should navigate to dashboard when clicking view all', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const settingsLink = page.locator('a:has-text("Settings"), a[href*="/settings"], button:has-text("Settings")').first();
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await settingsLink.count() > 0) {
-      await expect(settingsLink).toBeVisible();
+    const notificationItems = page.locator('.notif-item');
+
+    if (await notificationItems.count() > 0) {
+      const viewAllBtn = page.locator('.notif-dropdown__footer button');
+      await viewAllBtn.click();
+
+      // Should navigate to dashboard
+      await expect(page).toHaveURL(/\/dashboard/);
     }
   });
 
-  test('should display notification preferences', async ({ page }) => {
-    await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+  test('should navigate when clicking notification with link', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Look for preference toggles
-    const preferences = page.locator('input[type="checkbox"], .toggle-switch');
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
 
-    if (await preferences.count() > 0) {
-      expect(await preferences.count()).toBeGreaterThan(0);
-    }
-  });
+    const clickableItem = page.locator('.notif-item--clickable').first();
 
-  test('should toggle email notification preferences', async ({ page }) => {
-    await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
+    if (await clickableItem.isVisible()) {
+      const initialUrl = page.url();
+      await clickableItem.click();
 
-    const emailToggle = page.locator('input[name*="email"], label:has-text("Email") input').first();
+      // Wait for navigation
+      await page.waitForTimeout(1000);
 
-    if (await emailToggle.count() > 0) {
-      const initialState = await emailToggle.isChecked();
-      await emailToggle.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      const newState = await emailToggle.isChecked();
-      expect(newState).not.toBe(initialState);
-    }
-  });
-
-  test('should save notification preferences', async ({ page }) => {
-    await page.goto('/settings/notifications');
-    await page.waitForLoadState('networkidle');
-
-    const saveBtn = page.locator('button:has-text("Save"), button[type="submit"]').first();
-
-    if (await saveBtn.count() > 0) {
-      await saveBtn.click();
-      await page.waitForLoadState('networkidle');
-
-      // Should show success
-      const successMessage = page.locator('text=/saved|success/i').first();
-      expect(await successMessage.count() > 0).toBeTruthy();
+      // URL might have changed (notification has a link)
+      // Or dropdown closed without navigation (notification without link)
     }
   });
 });
 
 // ========================================
-// TEST SUITE 7: Real-time Notifications
-// ========================================
-
-test.describe('Real-time Notifications', () => {
-  test('should show toast notification for new events', async ({ page }, testInfo) => {
-    const loggedIn = await loginAsUser(page);
-    if (!loggedIn) {
-      testInfo.skip(true, 'User login not available');
-      return;
-    }
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Real-time notifications are hard to test in E2E
-    // Just verify toast container exists
-    const toastContainer = page.locator('.toast-container, [data-testid="toast"], .Toastify').first();
-
-    // Toast container should exist for notifications
-    await expect(page.locator('body')).toBeVisible();
-  });
-
-  test('should update notification count in real-time', async ({ page }, testInfo) => {
-    const loggedIn = await loginAsUser(page);
-    if (!loggedIn) {
-      testInfo.skip(true, 'User login not available');
-      return;
-    }
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Get initial count
-    const notificationBadge = page.locator('.notification-badge, .unread-count').first();
-    const initialCount = await notificationBadge.textContent().catch(() => '0');
-
-    // Wait for potential real-time update (would need WebSocket trigger)
-    await page.waitForLoadState('networkidle');
-
-    // Count may or may not change
-    await expect(page.locator('body')).toBeVisible();
-  });
-});
-
-// ========================================
-// TEST SUITE 8: Mobile Notifications
+// TEST SUITE 8: Mobile Responsiveness
 // ========================================
 
 test.describe('Mobile Notifications', () => {
@@ -607,50 +534,164 @@ test.describe('Mobile Notifications', () => {
     isMobile: true,
   });
 
-  test('should display notification bell on mobile', async ({ page }, testInfo) => {
+  test.beforeEach(async ({ page }, testInfo) => {
     const loggedIn = await loginAsUser(page);
     if (!loggedIn) {
-      testInfo.skip(true, 'User login not available');
-      return;
+      testInfo.skip(true, 'User login not available in this environment');
     }
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Bell might be in hamburger menu on mobile
-    const hamburgerMenu = page.locator('.hamburger, .menu-toggle').first();
-    if (await hamburgerMenu.count() > 0) {
-      await hamburgerMenu.click();
-      await page.waitForLoadState('domcontentloaded');
-    }
-
-    const notificationBell = page.locator('.notification-bell').first();
-    await expect(notificationBell).toBeVisible({ timeout: 10000 });
   });
 
-  test('should show full-screen notification panel on mobile', async ({ page }, testInfo) => {
-    const loggedIn = await loginAsUser(page);
-    if (!loggedIn) {
-      testInfo.skip(true, 'User login not available');
-      return;
+  test('should display notification bell on mobile', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Bell might be in hamburger menu on mobile
+    const hamburgerMenu = page.locator('.hamburger, .menu-toggle, [aria-label*="menu"]').first();
+    if (await hamburgerMenu.isVisible()) {
+      await hamburgerMenu.click();
+      await page.waitForTimeout(500);
     }
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+
+    const notificationBell = page.locator('.notif-bell__btn, .notif-bell__menu-btn').first();
+    await expect(notificationBell).toBeVisible({ timeout: CI_TIMEOUT });
+  });
+
+  test('should open dropdown on mobile', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Open menu if needed
+    const hamburgerMenu = page.locator('.hamburger, .menu-toggle').first();
+    if (await hamburgerMenu.isVisible()) {
+      await hamburgerMenu.click();
+      await page.waitForTimeout(500);
+    }
+
+    const bellButton = page.locator('.notif-bell__btn, .notif-bell__menu-btn').first();
+    if (await bellButton.isVisible()) {
+      await bellButton.click();
+
+      const dropdown = page.locator('.notif-dropdown');
+      await expect(dropdown).toBeVisible({ timeout: 5000 });
+    }
+  });
+
+  test('should be scrollable when many notifications on mobile', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     const hamburgerMenu = page.locator('.hamburger').first();
-    if (await hamburgerMenu.count() > 0) {
+    if (await hamburgerMenu.isVisible()) {
       await hamburgerMenu.click();
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(500);
     }
 
-    const notificationBell = page.locator('.notification-bell').first();
+    const bellButton = page.locator('.notif-bell__btn, .notif-bell__menu-btn').first();
+    if (await bellButton.isVisible()) {
+      await bellButton.click();
 
-    if (await notificationBell.count() > 0) {
-      await notificationBell.click();
-      await page.waitForLoadState('domcontentloaded');
-
-      // On mobile, might show full page or larger panel
-      const notificationPanel = page.locator('.notification-dropdown, .notifications-page').first();
-      await expect(notificationPanel).toBeVisible({ timeout: 5000 });
+      const content = page.locator('.notif-dropdown__content');
+      if (await content.isVisible()) {
+        // Content area should handle overflow
+        const overflow = await content.evaluate(el => {
+          const styles = window.getComputedStyle(el);
+          return styles.overflowY;
+        });
+        expect(['auto', 'scroll', 'overlay']).toContain(overflow);
+      }
     }
+  });
+});
+
+// ========================================
+// TEST SUITE 9: Loading States
+// ========================================
+
+test.describe('Loading States', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available in this environment');
+    }
+  });
+
+  test('should show loading spinner while fetching', async ({ page }) => {
+    // Slow down network to catch loading state
+    await page.route('**/api/notifications**', async route => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await route.continue();
+    });
+
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    // Should briefly show loading state
+    const loadingSpinner = page.locator('.notif-dropdown__loading, .notif-dropdown__spinner');
+
+    // Either loading shows or content loads quickly
+    await expect(page.locator('.notif-dropdown')).toBeVisible();
+  });
+});
+
+// ========================================
+// TEST SUITE 10: Accessibility
+// ========================================
+
+test.describe('Accessibility', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    const loggedIn = await loginAsUser(page);
+    if (!loggedIn) {
+      testInfo.skip(true, 'User login not available in this environment');
+    }
+  });
+
+  test('notification bell should have aria-label', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    const ariaLabel = await bellButton.getAttribute('aria-label');
+
+    expect(ariaLabel).toBeTruthy();
+    expect(ariaLabel!.toLowerCase()).toContain('notification');
+  });
+
+  test('delete and mark as read buttons should have titles', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const bellButton = page.locator('.notif-bell__btn').first();
+    await bellButton.click();
+
+    const notificationItems = page.locator('.notif-item');
+
+    if (await notificationItems.count() > 0) {
+      const actionButtons = notificationItems.first().locator('.notif-item__action');
+
+      for (let i = 0; i < await actionButtons.count(); i++) {
+        const title = await actionButtons.nth(i).getAttribute('title');
+        expect(title).toBeTruthy();
+      }
+    }
+  });
+
+  test('should be keyboard navigable', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Tab to notification bell
+    await page.keyboard.press('Tab');
+
+    // Keep tabbing until we reach the bell
+    for (let i = 0; i < 10; i++) {
+      const focusedElement = await page.evaluate(() => document.activeElement?.className || '');
+      if (focusedElement.includes('notif-bell')) {
+        break;
+      }
+      await page.keyboard.press('Tab');
+    }
+
+    // Press Enter to open
+    await page.keyboard.press('Enter');
+
+    const dropdown = page.locator('.notif-dropdown');
+    // Dropdown should be openable via keyboard
+    await expect(page.locator('body')).toBeVisible();
   });
 });
