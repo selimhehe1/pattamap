@@ -1,0 +1,12 @@
+# Supabase Configuration
+# See: https://supabase.com/docs/guides/cli/config
+
+[api]
+enabled = true
+
+[auth]
+enabled = true
+# Custom email hook to send multilingual emails
+[auth.hook.send_email]
+enabled = true
+uri = "pg-functions://functions/send-auth-email"

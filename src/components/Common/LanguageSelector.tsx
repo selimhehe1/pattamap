@@ -18,6 +18,7 @@ import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../utils/i18n';
+import { useSupabaseAuth } from '../../contexts/auth/SupabaseAuthContext';
 import '../../styles/components/language-selector.css';
 import '../../styles/components/language-bottom-sheet.css';
 
@@ -54,6 +55,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   className = '',
 }) => {
   const { i18n } = useTranslation();
+  const { updateUserLanguage } = useSupabaseAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
@@ -66,6 +68,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const changeLanguage = (lng: SupportedLanguage) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('pattamap_language', lng);
+    // Sync with Supabase user_metadata for email language preference
+    updateUserLanguage(lng);
     setShowDropdown(false); // Close dropdown after selection
     setShowModal(false); // Close modal after selection
     closeSheet(); // Close sheet after selection

@@ -3,6 +3,7 @@ import { Session, User as SupabaseUser, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../../config/supabase';
 import { User } from '../../types';
 import { logger } from '../../utils/logger';
+import i18n from '../../utils/i18n';
 
 export interface SupabaseAuthContextType {
   session: Session | null;
@@ -14,6 +15,7 @@ export interface SupabaseAuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  updateUserLanguage: (language: string) => Promise<void>;
   syncUserWithBackend: (session: Session) => Promise<User | null>;
 }
 
@@ -155,7 +157,8 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       options: {
         data: {
           pseudonym: metadata.pseudonym,
-          account_type: metadata.account_type || 'regular'
+          account_type: metadata.account_type || 'regular',
+          language: i18n.language // Store user's preferred language for emails
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`
       }
@@ -210,6 +213,25 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     }
   }, []);
 
+  const updateUserLanguage = useCallback(async (language: string) => {
+    // Only update if user is logged in
+    if (!session) {
+      logger.debug('[SupabaseAuth] No session, skipping language update');
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      data: { language }
+    });
+
+    if (error) {
+      logger.error('[SupabaseAuth] Language update failed:', error);
+      // Don't throw - this is a non-critical operation
+    } else {
+      logger.debug('[SupabaseAuth] Language updated to:', language);
+    }
+  }, [session]);
+
   const value: SupabaseAuthContextType = {
     session,
     supabaseUser,
@@ -220,6 +242,7 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     signOut,
     resetPassword,
     updatePassword,
+    updateUserLanguage,
     syncUserWithBackend
   };
 
