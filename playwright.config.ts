@@ -53,11 +53,11 @@ export default defineConfig({
   // Global test settings
   use: {
     // Base URL for navigation
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
 
-    // Timeouts (optimized for reliability)
+    // Timeouts (optimized for CI reliability)
     actionTimeout: 15 * 1000, // 15s per action (increased for complex interactions)
-    navigationTimeout: 20 * 1000, // 20s page load (increased for CI environment)
+    navigationTimeout: process.env.CI ? 30 * 1000 : 20 * 1000, // 30s in CI, 20s locally
 
     // Screenshots & videos
     screenshot: 'only-on-failure', // Capture on test failure

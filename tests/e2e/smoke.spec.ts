@@ -5,9 +5,17 @@
  * Run on every push to main/develop.
  *
  * For comprehensive tests, see the nightly E2E workflow.
+ *
+ * @updated 2026-01-10 - Improved timeouts and wait strategies for CI reliability
  */
 
 import { test, expect } from '@playwright/test';
+
+// API base URL - use environment variable or default to localhost
+const API_BASE_URL = process.env.PLAYWRIGHT_API_URL || 'http://localhost:8080';
+
+// Extended timeout for CI environments (slower than local)
+const CI_TIMEOUT = process.env.CI ? 20000 : 10000;
 
 test.describe('Smoke Tests - Core Functionality', () => {
 
@@ -15,38 +23,35 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // 1. App Loads Successfully
   // ========================================
   test('homepage loads correctly', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // App should render without crashing
     await expect(page.locator('body')).toBeVisible();
 
     // Should have header
     const header = page.locator('header').or(page.locator('[class*="header"]'));
-    await expect(header.first()).toBeVisible({ timeout: 10000 });
+    await expect(header.first()).toBeVisible({ timeout: CI_TIMEOUT });
   });
 
   // ========================================
   // 2. Navigation Works
   // ========================================
   test('main navigation is accessible', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // Should be able to navigate (map or list view should exist)
     const mainContent = page.locator('main')
       .or(page.locator('[class*="map"]'))
       .or(page.locator('[class*="content"]'));
 
-    await expect(mainContent.first()).toBeVisible({ timeout: 10000 });
+    await expect(mainContent.first()).toBeVisible({ timeout: CI_TIMEOUT });
   });
 
   // ========================================
   // 3. Search Functionality
   // ========================================
   test('search page is accessible', async ({ page }) => {
-    await page.goto('/search');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/search', { waitUntil: 'networkidle' });
 
     // Search page should load
     const searchInput = page.locator('input[type="search"], input[placeholder*="Search"], input[placeholder*="search"]');
@@ -60,8 +65,8 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // 4. API Health Check
   // ========================================
   test('backend API is responding', async ({ page }) => {
-    // Direct API health check
-    const response = await page.request.get('http://localhost:8080/api/health').catch(() => null);
+    // Direct API health check using configurable base URL
+    const response = await page.request.get(`${API_BASE_URL}/api/health`).catch(() => null);
 
     // API should respond (200 or 404 for missing endpoint is fine - means server is up)
     if (response) {
@@ -92,8 +97,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // ========================================
   test('login functionality is accessible', async ({ page }) => {
     // Try to access a protected route or login page
-    await page.goto('/dashboard');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
     // Should either show login form or redirect
     const pageContent = await page.content();
@@ -110,8 +114,7 @@ test.describe('Smoke Tests - Core Functionality', () => {
   // 7. Zone/Map Page Works
   // ========================================
   test('zone selection is functional', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // Page should load without crashing
     const bodyVisible = await page.locator('body').isVisible();
