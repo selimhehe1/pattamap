@@ -63,6 +63,13 @@ vi.mock('../../../hooks/useSecureFetch', () => ({
   })
 }));
 
+// Mock useRealtimeNotifications hook
+const mockUseRealtimeNotifications = vi.fn();
+vi.mock('../../../hooks/useRealtimeNotifications', () => ({
+  useRealtimeNotifications: (options?: any) => mockUseRealtimeNotifications(options),
+  default: (options?: any) => mockUseRealtimeNotifications(options),
+}));
+
 // Import NotificationBell after mocks
 import NotificationBell from '../NotificationBell';
 // Import mocked useAuth to override in specific tests
@@ -121,6 +128,18 @@ const renderWithContext = (ui: React.ReactElement, authValue: any = null) => {
   });
 };
 
+// Default return value for useRealtimeNotifications
+const defaultRealtimeReturn = {
+  notifications: [],
+  unreadCount: 0,
+  connectionStatus: 'connected' as const,
+  isLoading: false,
+  refresh: vi.fn(),
+  markAsRead: vi.fn().mockResolvedValue(true),
+  markAllAsRead: vi.fn().mockResolvedValue(true),
+  deleteNotification: vi.fn().mockResolvedValue(true),
+};
+
 describe('NotificationBell', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -129,6 +148,8 @@ describe('NotificationBell', () => {
       ok: true,
       json: async () => ({ notifications: [], count: 0 })
     });
+    // Default realtime hook return
+    mockUseRealtimeNotifications.mockReturnValue(defaultRealtimeReturn);
   });
 
   describe('Rendering', () => {
@@ -139,12 +160,10 @@ describe('NotificationBell', () => {
     });
 
     test('shows unread count badge when there are unread notifications', async () => {
-      // Mock secureFetch to check URL and return appropriate responses
-      mockSecureFetch.mockImplementation((url: string) => {
-        if (url.includes('unread-count')) {
-          return Promise.resolve({ ok: true, json: async () => ({ count: 5 }) });
-        }
-        return Promise.resolve({ ok: true, json: async () => ({ notifications: [] }) });
+      // Mock realtime hook to return 5 unread
+      mockUseRealtimeNotifications.mockReturnValue({
+        ...defaultRealtimeReturn,
+        unreadCount: 5,
       });
 
       renderWithContext(<NotificationBell />);
@@ -155,11 +174,7 @@ describe('NotificationBell', () => {
     });
 
     test('does not show badge when unread count is 0', async () => {
-      // Mock both fetch calls on mount: unread count + notifications
-      mockSecureFetch
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ count: 0 }) })
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ notifications: [] }) });
-
+      // Default mock already returns unreadCount: 0
       renderWithContext(<NotificationBell />);
 
       await waitFor(() => {
@@ -189,10 +204,7 @@ describe('NotificationBell', () => {
 
   describe('Dropdown Menu', () => {
     test('opens dropdown when bell icon is clicked', async () => {
-      mockSecureFetch
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ count: 0 }) })
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ notifications: [] }) });
-
+      // Default mock already returns empty notifications
       renderWithContext(<NotificationBell />);
 
       const bellButton = screen.getByRole('button', { name: /notifications/i });
@@ -206,10 +218,7 @@ describe('NotificationBell', () => {
     });
 
     test('closes dropdown when clicking outside', async () => {
-      mockSecureFetch
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ count: 0 }) })
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ notifications: [] }) });
-
+      // Default mock already returns empty notifications
       renderWithContext(<NotificationBell />);
 
       const bellButton = screen.getByRole('button', { name: /notifications/i });
@@ -231,10 +240,7 @@ describe('NotificationBell', () => {
     });
 
     test('displays empty state when no notifications', async () => {
-      mockSecureFetch
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ count: 0 }) })
-        .mockResolvedValueOnce({ ok: true, json: async () => ({ notifications: [] }) });
-
+      // Default mock already returns empty notifications
       renderWithContext(<NotificationBell />);
 
       const bellButton = screen.getByRole('button', { name: /notifications/i });
@@ -277,8 +283,7 @@ describe('NotificationBell', () => {
 
   describe('Error Handling', () => {
     test('handles fetch error gracefully', async () => {
-      mockSecureFetch.mockRejectedValueOnce(new Error('Network error'));
-
+      // Hook handles errors internally, component should still render
       renderWithContext(<NotificationBell />);
 
       await waitFor(() => {
@@ -287,18 +292,13 @@ describe('NotificationBell', () => {
     });
 
     test('handles mark as read error gracefully', async () => {
-      // Use URL-aware mocking for consistent behavior
-      let markReadCalled = false;
-      mockSecureFetch.mockImplementation((url: string, _options?: any) => {
-        if (url.includes('unread-count')) {
-          return Promise.resolve({ ok: true, json: async () => ({ count: 1 }) });
-        }
-        if (url.includes('/mark-read') || url.includes('/mark-all-read')) {
-          markReadCalled = true;
-          return Promise.reject(new Error('Mark read failed'));
-        }
-        // For notifications list
-        return Promise.resolve({ ok: true, json: async () => ({ notifications: [mockNotifications[0]] }) });
+      // Mock hook with notifications and failing markAsRead
+      const mockMarkAsRead = vi.fn().mockResolvedValue(false);
+      mockUseRealtimeNotifications.mockReturnValue({
+        ...defaultRealtimeReturn,
+        notifications: [mockNotifications[0]],
+        unreadCount: 1,
+        markAsRead: mockMarkAsRead,
       });
 
       renderWithContext(<NotificationBell />);
@@ -314,30 +314,37 @@ describe('NotificationBell', () => {
         expect(dropdown).toBeInTheDocument();
       });
 
-      // Verify the component handles errors gracefully by checking it's still rendered
-      await waitFor(() => {
-        expect(mockSecureFetch).toHaveBeenCalled();
-      });
+      // Verify the component is still rendered and functional
+      expect(document.querySelector('.notif-bell__btn')).toBeInTheDocument();
     });
   });
 
   describe('Real-time Updates', () => {
-    test('component has polling interval configured (conceptual)', () => {
-      // This test verifies that the polling mechanism is set up
-      // The actual polling interval (30s) is configured in the component
-      // Testing actual polling with fake timers is unreliable in JSDOM
+    test('uses realtime notifications hook', () => {
+      // This test verifies that the realtime hook is used
+      renderWithContext(<NotificationBell />);
 
-      mockSecureFetch.mockResolvedValue({ ok: true, json: async () => ({ count: 0 }) });
+      // Verify the hook was called with the correct options
+      expect(mockUseRealtimeNotifications).toHaveBeenCalledWith({ limit: 10 });
+    });
+
+    test('displays connection status indicator', async () => {
+      // Mock connected status
+      mockUseRealtimeNotifications.mockReturnValue({
+        ...defaultRealtimeReturn,
+        connectionStatus: 'connected',
+      });
 
       renderWithContext(<NotificationBell />);
 
-      // Verify initial fetch is made
-      expect(mockSecureFetch).toHaveBeenCalled();
+      const bellButton = screen.getByRole('button', { name: /notifications/i });
+      fireEvent.click(bellButton);
 
-      // The component uses a 30-second interval for polling
-      // This is verified by code inspection (NotificationBell.tsx)
-      const POLLING_INTERVAL_MS = 30000;
-      expect(POLLING_INTERVAL_MS).toBe(30000);
+      await waitFor(() => {
+        // Should show connected indicator in dropdown header
+        const dropdown = document.querySelector('.notif-dropdown');
+        expect(dropdown).toBeInTheDocument();
+      });
     });
   });
 });

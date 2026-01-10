@@ -1,141 +1,55 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+/**
+ * NotificationBell - Real-time notification bell component
+ *
+ * Uses Supabase Realtime for instant notification updates.
+ * Falls back to polling if Realtime connection fails.
+ *
+ * @version 2.0.0
+ * @updated 2026-01-10 - Migrated to Supabase Realtime
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
-import { useSecureFetch } from '../../hooks/useSecureFetch';
 import { useAuth } from '../../contexts/AuthContext';
-import { logger } from '../../utils/logger';
-import { Bell, Check, X, Sparkles } from 'lucide-react';
+import { useRealtimeNotifications, DatabaseNotification, ConnectionStatus } from '../../hooks/useRealtimeNotifications';
+import { Bell, Check, X, Sparkles, Wifi, WifiOff } from 'lucide-react';
 import '../../styles/components/notification-bell.css';
-
-// Notification types (kept for backend compatibility)
-type NotificationType =
-  | 'ownership_request_submitted' | 'ownership_request_approved' | 'ownership_request_rejected' | 'new_ownership_request'
-  | 'verification_submitted' | 'verification_approved' | 'verification_rejected' | 'verification_revoked'
-  | 'vip_purchase_confirmed' | 'vip_payment_verified' | 'vip_payment_rejected' | 'vip_subscription_cancelled'
-  | 'edit_proposal_submitted' | 'edit_proposal_approved' | 'edit_proposal_rejected'
-  | 'establishment_owner_assigned' | 'establishment_owner_removed' | 'establishment_owner_permissions_updated'
-  | 'employee_approved' | 'employee_rejected' | 'establishment_approved' | 'establishment_rejected'
-  | 'comment_approved' | 'comment_rejected' | 'comment_removed'
-  | 'comment_reply' | 'comment_mention' | 'new_favorite' | 'favorite_available'
-  | 'employee_profile_updated' | 'employee_photos_updated' | 'employee_position_changed'
-  | 'new_content_pending' | 'new_report' | 'moderation_action_required'
-  | 'system' | 'other';
-
-interface Notification {
-  id: string;
-  user_id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  link?: string;
-  is_read: boolean;
-  created_at: string;
-  related_entity_type?: string;
-  related_entity_id?: string;
-  metadata?: {
-    i18n_key?: string;
-    i18n_params?: Record<string, string | number | boolean | null>;
-    [key: string]: string | number | boolean | null | Record<string, string | number | boolean | null> | undefined;
-  };
-}
-
-const BASE_POLL_INTERVAL_MS = 30000;
-const MAX_POLL_INTERVAL_MS = 300000;
 
 interface NotificationBellProps {
   variant?: 'default' | 'menu-item';
 }
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default' }) => {
-  const { secureFetch } = useSecureFetch();
   const { user } = useAuth();
   const navigate = useNavigateWithTransition();
   const { t } = useTranslation();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Use the real-time notifications hook
+  const {
+    notifications,
+    unreadCount,
+    connectionStatus,
+    isLoading,
+    refresh,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useRealtimeNotifications({ limit: 10 });
+
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const consecutiveErrorsRef = useRef(0);
-  const currentIntervalRef = useRef(BASE_POLL_INTERVAL_MS);
 
-  const API_URL = import.meta.env.VITE_API_URL || '';
-
-  // Fetch unread count
-  const fetchUnreadCount = useCallback(async (): Promise<boolean> => {
-    if (!user) return true;
-    try {
-      const response = await secureFetch(`${API_URL}/api/notifications/unread-count`);
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCount(data.count || 0);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      logger.error('Failed to fetch unread count:', error);
-      return false;
-    }
-  }, [user, secureFetch, API_URL]);
-
-  // Fetch notifications
-  const fetchNotifications = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const response = await secureFetch(`${API_URL}/api/notifications?limit=10`);
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-      }
-    } catch (error) {
-      logger.error('Failed to fetch notifications:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, secureFetch, API_URL]);
-
-  // Polling with exponential backoff
-  useEffect(() => {
-    if (user) {
-      fetchUnreadCount();
-      fetchNotifications();
-      consecutiveErrorsRef.current = 0;
-      currentIntervalRef.current = BASE_POLL_INTERVAL_MS;
-
-      let timeoutId: NodeJS.Timeout;
-      const scheduleNextPoll = () => {
-        timeoutId = setTimeout(async () => {
-          const success = await fetchUnreadCount();
-          if (success) {
-            consecutiveErrorsRef.current = 0;
-            currentIntervalRef.current = BASE_POLL_INTERVAL_MS;
-          } else {
-            consecutiveErrorsRef.current++;
-            currentIntervalRef.current = Math.min(
-              BASE_POLL_INTERVAL_MS * Math.pow(2, consecutiveErrorsRef.current),
-              MAX_POLL_INTERVAL_MS
-            );
-          }
-          scheduleNextPoll();
-        }, currentIntervalRef.current);
-      };
-      scheduleNextPoll();
-      return () => clearTimeout(timeoutId);
-    }
-  }, [user, fetchUnreadCount, fetchNotifications]);
-
-  // Fetch when dropdown opens
+  // Refresh when dropdown opens
   useEffect(() => {
     if (showDropdown && user) {
-      fetchNotifications();
+      refresh();
     }
-  }, [showDropdown, user, fetchNotifications]);
+  }, [showDropdown, user, refresh]);
 
   // Click outside to close
   useEffect(() => {
@@ -182,51 +96,27 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showDropdown]);
 
-  // Mark as read
+  // Handle mark as read
   const handleMarkAsRead = async (notificationId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    try {
-      const response = await secureFetch(`${API_URL}/api/notifications/${notificationId}/read`, { method: 'PATCH' });
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n));
-        await fetchUnreadCount();
-      }
-    } catch (error) {
-      logger.error('Failed to mark as read:', error);
-    }
+    await markAsRead(notificationId);
   };
 
-  // Mark all as read
+  // Handle mark all as read
   const handleMarkAllAsRead = async () => {
-    try {
-      const response = await secureFetch(`${API_URL}/api/notifications/mark-all-read`, { method: 'PATCH' });
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-        setUnreadCount(0);
-      }
-    } catch (error) {
-      logger.error('Failed to mark all as read:', error);
-    }
+    await markAllAsRead();
   };
 
-  // Delete notification
+  // Handle delete notification
   const handleDelete = async (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      const response = await secureFetch(`${API_URL}/api/notifications/${notificationId}`, { method: 'DELETE' });
-      if (response.ok) {
-        setNotifications(prev => prev.filter(n => n.id !== notificationId));
-        await fetchUnreadCount();
-      }
-    } catch (error) {
-      logger.error('Failed to delete notification:', error);
-    }
+    await deleteNotification(notificationId);
   };
 
-  // Click notification
-  const handleNotificationClick = async (notification: Notification) => {
+  // Handle notification click
+  const handleNotificationClick = async (notification: DatabaseNotification) => {
     if (!notification.is_read) {
-      await handleMarkAsRead(notification.id);
+      await markAsRead(notification.id);
     }
     if (notification.link) {
       setShowDropdown(false);
@@ -250,24 +140,24 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
-  // Get translated notification content using i18n keys from metadata
-  const getNotificationContent = (notification: Notification): { title: string; message: string } => {
+  // Get translated notification content
+  const getNotificationContent = (notification: DatabaseNotification): { title: string; message: string } => {
     // Always try to get a translated title from the notification type
     const titleKey = `notifications.titles.${notification.type}`;
     const translatedTitle = t(titleKey, { defaultValue: '' });
 
-    // Use translated title if available, otherwise use notification.title (but avoid generic "Notification")
+    // Use translated title if available, otherwise use notification.title
     const finalTitle = translatedTitle ||
       (notification.title && notification.title !== 'Notification' ? notification.title : t('notifications.titles.other', 'Notification'));
 
-    if (notification.metadata?.i18n_key) {
-      // Transform backend key (notifications.verificationApproved) to translation key (notifications.messages.verificationApproved)
-      const messageKey = notification.metadata.i18n_key.startsWith('notifications.')
-        ? `notifications.messages.${notification.metadata.i18n_key.replace('notifications.', '')}`
-        : `notifications.messages.${notification.metadata.i18n_key}`;
+    if (notification.i18n_key) {
+      // Transform backend key to translation key
+      const messageKey = notification.i18n_key.startsWith('notifications.')
+        ? `notifications.messages.${notification.i18n_key.replace('notifications.', '')}`
+        : `notifications.messages.${notification.i18n_key}`;
 
       const translatedMessage = t(messageKey, {
-        ...notification.metadata.i18n_params,
+        ...notification.i18n_params,
         defaultValue: notification.message || ''
       });
 
@@ -275,6 +165,24 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
     }
 
     return { title: finalTitle, message: notification.message };
+  };
+
+  // Get connection status indicator
+  const getConnectionIndicator = (): React.ReactNode => {
+    if (connectionStatus === 'connected') {
+      return (
+        <span className="notif-dropdown__status notif-dropdown__status--connected" title={t('notifications.realtime.connected', 'Real-time updates active')}>
+          <Wifi size={12} />
+        </span>
+      );
+    } else if (connectionStatus === 'error' || connectionStatus === 'disconnected') {
+      return (
+        <span className="notif-dropdown__status notif-dropdown__status--disconnected" title={t('notifications.realtime.disconnected', 'Using polling mode')}>
+          <WifiOff size={12} />
+        </span>
+      );
+    }
+    return null;
   };
 
   if (!user) return null;
@@ -304,7 +212,10 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ variant = 'default'
         >
           {/* Header */}
           <div className="notif-dropdown__header">
-            <h3>{t('notifications.title', 'Notifications')}</h3>
+            <h3>
+              {t('notifications.title', 'Notifications')}
+              {getConnectionIndicator()}
+            </h3>
             {unreadCount > 0 && (
               <button className="notif-dropdown__mark-all" onClick={handleMarkAllAsRead}>
                 {t('notifications.markAllRead', 'Mark all read')}
