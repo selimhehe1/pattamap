@@ -23,6 +23,12 @@ jest.mock('../../config/sentry');
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 jest.mock('../../middleware/csrf');
+jest.mock('../../config/redis', () => ({
+  blacklistToken: jest.fn().mockResolvedValue(undefined),
+  isTokenBlacklisted: jest.fn().mockResolvedValue(false),
+  getRedisClient: jest.fn().mockReturnValue(null),
+  isRedisConnected: jest.fn().mockReturnValue(false)
+}));
 
 // Mock global fetch for HaveIBeenPwned API
 global.fetch = jest.fn();
@@ -43,6 +49,8 @@ describe('AuthController', () => {
 
     mockRequest = {
       body: {},
+      headers: {},
+      cookies: {},
       session: {
         csrfToken: 'initial-csrf-token',
         save: jest.fn((callback: (err?: Error) => void) => callback())

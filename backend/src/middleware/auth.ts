@@ -3,6 +3,7 @@ import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
 import { setSentryUserFromRequest } from '../config/sentry';
+import { isTokenBlacklisted } from '../config/redis';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -83,6 +84,16 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       return res.status(401).json({
         error: 'Invalid token',
         code: 'TOKEN_INVALID'
+      });
+    }
+
+    // 🛡️ SECURITY: Check if token has been blacklisted (e.g., after logout)
+    const blacklisted = await isTokenBlacklisted(token);
+    if (blacklisted) {
+      logger.debug('Auth failed', { reason: 'token_blacklisted' });
+      return res.status(401).json({
+        error: 'Token has been revoked',
+        code: 'TOKEN_REVOKED'
       });
     }
 

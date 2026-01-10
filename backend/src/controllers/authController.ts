@@ -10,6 +10,7 @@ import { escapeLikeWildcards } from '../utils/validation';
 import { revokeAllUserTokens } from '../middleware/refreshToken';
 import { checkPasswordBreach } from '../utils/passwordSecurity';
 import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
+import { blacklistToken } from '../config/redis';
 
 // Cookie security configuration (shared with server.ts)
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -544,6 +545,32 @@ export const changePassword = asyncHandler(async (req: AuthRequest, res: Respons
 
 // Logout endpoint to clear cookies
 export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
+    // 🛡️ SECURITY: Blacklist the current token to prevent reuse
+    const token = req.cookies?.['auth-token'] ||
+      (req.headers['authorization']?.startsWith('Bearer ') ? req.headers['authorization'].substring(7) : null);
+
+    if (token) {
+      try {
+        // Decode token to get expiry time (without verifying, since we just want the TTL)
+        const decoded = jwt.decode(token) as { exp?: number } | null;
+        if (decoded?.exp) {
+          // Calculate remaining TTL
+          const remainingTtl = decoded.exp - Math.floor(Date.now() / 1000);
+          if (remainingTtl > 0) {
+            // Blacklist token for its remaining lifetime
+            await blacklistToken(token, remainingTtl);
+            logger.debug('Token blacklisted on logout', {
+              userId: req.user?.id,
+              ttlSeconds: remainingTtl
+            });
+          }
+        }
+      } catch (error) {
+        // Don't fail logout if blacklisting fails
+        logger.warn('Failed to blacklist token on logout:', error);
+      }
+    }
+
     // Clear the httpOnly cookie
     res.clearCookie('auth-token', {
       httpOnly: true,
@@ -672,11 +699,15 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
       .eq('password_reset_token', tokenHash)
       .single();
 
+    // 🛡️ SECURITY: Use same error message for invalid AND expired tokens
+    // This prevents attackers from distinguishing between valid-but-expired vs never-existed tokens
+    const GENERIC_TOKEN_ERROR = 'Invalid or expired reset token. Please request a new password reset.';
+
     if (userError || !user) {
       logger.warn('Invalid password reset token used', {
         tokenHashPrefix: tokenHash.substring(0, 8)
       });
-      throw BadRequestError('Invalid or expired reset token');
+      throw BadRequestError(GENERIC_TOKEN_ERROR);
     }
 
     // Check if token has expired
@@ -685,7 +716,7 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
         userId: user.id,
         expiredAt: user.password_reset_expires
       });
-      throw BadRequestError('Reset token has expired. Please request a new password reset.');
+      throw BadRequestError(GENERIC_TOKEN_ERROR);
     }
 
     // Hash the new password

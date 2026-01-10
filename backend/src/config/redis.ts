@@ -306,3 +306,67 @@ export const closeRedis = async (): Promise<void> => {
     logger.info('✅ Memory cache cleared');
   }
 };
+
+// ==========================================
+// 🛡️ SECURITY: Token Blacklist System
+// ==========================================
+
+const TOKEN_BLACKLIST_PREFIX = 'blacklist:token:';
+
+/**
+ * Add a token to the blacklist
+ * Token will be automatically removed after its expiry time
+ *
+ * @param token - The JWT token to blacklist
+ * @param expiresInSeconds - TTL for the blacklist entry (should match token expiry)
+ */
+export const blacklistToken = async (token: string, expiresInSeconds: number): Promise<void> => {
+  try {
+    if (!redisClient) {
+      logger.warn('Redis not initialized, token blacklist skipped');
+      return;
+    }
+
+    // Use token hash as key to avoid storing the actual token
+    const crypto = await import('crypto');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const key = `${TOKEN_BLACKLIST_PREFIX}${tokenHash}`;
+
+    if (isRedisAvailable && redisClient instanceof Redis) {
+      await redisClient.setex(key, expiresInSeconds, '1');
+    } else {
+      await (redisClient as MemoryCache).set(key, '1', expiresInSeconds);
+    }
+
+    logger.debug('Token blacklisted', {
+      tokenHashPrefix: tokenHash.substring(0, 8),
+      ttlSeconds: expiresInSeconds
+    });
+  } catch (error) {
+    logger.error('Failed to blacklist token:', error);
+  }
+};
+
+/**
+ * Check if a token is blacklisted
+ *
+ * @param token - The JWT token to check
+ * @returns true if token is blacklisted, false otherwise
+ */
+export const isTokenBlacklisted = async (token: string): Promise<boolean> => {
+  try {
+    if (!redisClient) {
+      return false;
+    }
+
+    const crypto = await import('crypto');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const key = `${TOKEN_BLACKLIST_PREFIX}${tokenHash}`;
+
+    const result = await redisClient.get(key);
+    return result !== null;
+  } catch (error) {
+    logger.error('Failed to check token blacklist:', error);
+    return false; // Fail open to avoid blocking legitimate requests
+  }
+};

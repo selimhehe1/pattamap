@@ -35,6 +35,12 @@ jest.mock('../../utils/logger', () => ({
   }
 }));
 
+// Mock Redis (use memory fallback for tests)
+jest.mock('../../config/redis', () => ({
+  getRedisClient: jest.fn(() => null),
+  isRedisConnected: jest.fn(() => false)
+}));
+
 describe('rateLimit Middleware', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -84,40 +90,40 @@ describe('rateLimit Middleware', () => {
   });
 
   describe('MemoryRateLimitStore', () => {
-    it('should return null for non-existent key', () => {
-      const result = rateLimitStore.get('non-existent-key');
+    it('should return null for non-existent key', async () => {
+      const result = await rateLimitStore.get('non-existent-key');
       expect(result).toBeNull();
     });
 
-    it('should increment count for new key', () => {
-      const result = rateLimitStore.increment('new-key', 60000);
+    it('should increment count for new key', async () => {
+      const result = await rateLimitStore.increment('new-key', 60000);
       expect(result.count).toBe(1);
       expect(result.resetTime).toBeGreaterThan(Date.now());
     });
 
-    it('should increment count for existing key', () => {
-      rateLimitStore.increment('existing-key', 60000);
-      const result = rateLimitStore.increment('existing-key', 60000);
+    it('should increment count for existing key', async () => {
+      await rateLimitStore.increment('existing-key', 60000);
+      const result = await rateLimitStore.increment('existing-key', 60000);
       expect(result.count).toBe(2);
     });
 
     it('should reset count after window expires', async () => {
       // Set a very short window (10ms)
-      rateLimitStore.increment('short-window-key', 10);
+      await rateLimitStore.increment('short-window-key', 10);
 
       // Wait for window to expire
       await new Promise(resolve => setTimeout(resolve, 20));
 
       // Should return null since entry expired
-      const result = rateLimitStore.get('short-window-key');
+      const result = await rateLimitStore.get('short-window-key');
       expect(result).toBeNull();
     });
 
-    it('should start fresh after destroy', () => {
-      rateLimitStore.increment('test-key', 60000);
+    it('should start fresh after destroy', async () => {
+      await rateLimitStore.increment('test-key', 60000);
       rateLimitStore.destroy();
 
-      const result = rateLimitStore.get('test-key');
+      const result = await rateLimitStore.get('test-key');
       expect(result).toBeNull();
     });
   });

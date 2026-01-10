@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { register, login, getProfile, logout, forgotPassword, resetPassword, checkAvailability, logoutAll } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
-import { availabilityCheckRateLimit } from '../middleware/rateLimit';
+import { availabilityCheckRateLimit, authRateLimit } from '../middleware/rateLimit';
 import { refreshAccessToken } from '../middleware/refreshToken';
 
 const router = Router();
@@ -199,7 +199,8 @@ router.get('/profile', authenticateToken, getProfile);
  *         description: Invalid email format
  */
 // No CSRF for forgot-password - public endpoint
-router.post('/forgot-password', forgotPassword);
+// 🛡️ SECURITY FIX: Added rate limiting to prevent brute-force token enumeration
+router.post('/forgot-password', authRateLimit, forgotPassword);
 
 /**
  * @swagger
@@ -241,7 +242,8 @@ router.post('/forgot-password', forgotPassword);
  *         description: Invalid token, expired token, or weak password
  */
 // No CSRF for reset-password - uses token-based auth
-router.post('/reset-password', resetPassword);
+// 🛡️ SECURITY FIX: Added rate limiting to prevent brute-force token attacks
+router.post('/reset-password', authRateLimit, resetPassword);
 
 /**
  * @swagger

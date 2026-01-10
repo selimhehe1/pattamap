@@ -1,20 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
+import { getRedisClient, isRedisConnected } from '../config/redis';
+import Redis from 'ioredis';
 
 // Helper to safely access user from request (type augmentation workaround for ts-node)
 const getUserId = (req: Request): string => {
   return (req as any).user?.id || 'anonymous';
 };
 
-interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetTime: number;
-  };
+// ==========================================
+// 🛡️ Rate Limit Store Interface
+// ==========================================
+
+interface RateLimitEntry {
+  count: number;
+  resetTime: number;
 }
 
-class MemoryRateLimitStore {
-  private store: RateLimitStore = {};
+interface IRateLimitStore {
+  get(key: string): Promise<RateLimitEntry | null>;
+  increment(key: string, windowMs: number): Promise<RateLimitEntry>;
+  decrement(key: string): Promise<void>;
+}
+
+// ==========================================
+// 🗄️ Memory-based Rate Limit Store (Fallback)
+// ==========================================
+
+class MemoryRateLimitStore implements IRateLimitStore {
+  private store: { [key: string]: RateLimitEntry } = {};
   private cleanupInterval: NodeJS.Timeout;
 
   constructor() {
@@ -33,7 +47,7 @@ class MemoryRateLimitStore {
     }
   }
 
-  get(key: string): { count: number; resetTime: number } | null {
+  async get(key: string): Promise<RateLimitEntry | null> {
     const entry = this.store[key];
     if (!entry || entry.resetTime < Date.now()) {
       return null;
@@ -41,7 +55,7 @@ class MemoryRateLimitStore {
     return entry;
   }
 
-  increment(key: string, windowMs: number): { count: number; resetTime: number } {
+  async increment(key: string, windowMs: number): Promise<RateLimitEntry> {
     const now = Date.now();
     const resetTime = now + windowMs;
 
@@ -55,9 +69,144 @@ class MemoryRateLimitStore {
     return existing;
   }
 
+  async decrement(key: string): Promise<void> {
+    const entry = this.store[key];
+    if (entry && entry.count > 0) {
+      entry.count--;
+    }
+  }
+
   destroy(): void {
     clearInterval(this.cleanupInterval);
     this.store = {};
+  }
+}
+
+// ==========================================
+// 🔴 Redis-based Rate Limit Store (Persistent)
+// ==========================================
+
+const RATE_LIMIT_PREFIX = 'ratelimit:';
+
+class RedisRateLimitStore implements IRateLimitStore {
+  async get(key: string): Promise<RateLimitEntry | null> {
+    try {
+      const client = getRedisClient();
+      if (!(client instanceof Redis)) {
+        return null;
+      }
+
+      const data = await client.get(`${RATE_LIMIT_PREFIX}${key}`);
+      if (!data) return null;
+
+      const entry = JSON.parse(data) as RateLimitEntry;
+      if (entry.resetTime < Date.now()) {
+        return null;
+      }
+      return entry;
+    } catch (error) {
+      logger.error('Redis rate limit get error:', error);
+      return null;
+    }
+  }
+
+  async increment(key: string, windowMs: number): Promise<RateLimitEntry> {
+    try {
+      const client = getRedisClient();
+      if (!(client instanceof Redis)) {
+        throw new Error('Redis not available');
+      }
+
+      const fullKey = `${RATE_LIMIT_PREFIX}${key}`;
+      const now = Date.now();
+
+      // Get existing entry
+      const existing = await this.get(key);
+
+      let entry: RateLimitEntry;
+      if (!existing || existing.resetTime < now) {
+        // Create new entry
+        entry = { count: 1, resetTime: now + windowMs };
+      } else {
+        // Increment existing
+        entry = { count: existing.count + 1, resetTime: existing.resetTime };
+      }
+
+      // Store with TTL (convert windowMs to seconds, add buffer)
+      const ttlSeconds = Math.ceil(windowMs / 1000) + 60; // Add 60s buffer
+      await client.setex(fullKey, ttlSeconds, JSON.stringify(entry));
+
+      return entry;
+    } catch (error) {
+      logger.error('Redis rate limit increment error:', error);
+      // Return a default to not block the request
+      return { count: 1, resetTime: Date.now() + windowMs };
+    }
+  }
+
+  async decrement(key: string): Promise<void> {
+    try {
+      const client = getRedisClient();
+      if (!(client instanceof Redis)) {
+        return;
+      }
+
+      const fullKey = `${RATE_LIMIT_PREFIX}${key}`;
+      const entry = await this.get(key);
+
+      if (entry && entry.count > 0) {
+        entry.count--;
+        const ttlSeconds = Math.ceil((entry.resetTime - Date.now()) / 1000) + 60;
+        if (ttlSeconds > 0) {
+          await client.setex(fullKey, ttlSeconds, JSON.stringify(entry));
+        }
+      }
+    } catch (error) {
+      logger.error('Redis rate limit decrement error:', error);
+    }
+  }
+}
+
+// ==========================================
+// 🔄 Hybrid Store (Redis with Memory Fallback)
+// ==========================================
+
+class HybridRateLimitStore implements IRateLimitStore {
+  private memoryStore: MemoryRateLimitStore;
+  private redisStore: RedisRateLimitStore;
+
+  constructor() {
+    this.memoryStore = new MemoryRateLimitStore();
+    this.redisStore = new RedisRateLimitStore();
+  }
+
+  private useRedis(): boolean {
+    return isRedisConnected();
+  }
+
+  async get(key: string): Promise<RateLimitEntry | null> {
+    if (this.useRedis()) {
+      return this.redisStore.get(key);
+    }
+    return this.memoryStore.get(key);
+  }
+
+  async increment(key: string, windowMs: number): Promise<RateLimitEntry> {
+    if (this.useRedis()) {
+      return this.redisStore.increment(key, windowMs);
+    }
+    return this.memoryStore.increment(key, windowMs);
+  }
+
+  async decrement(key: string): Promise<void> {
+    if (this.useRedis()) {
+      return this.redisStore.decrement(key);
+    }
+    return this.memoryStore.decrement(key);
+  }
+
+  destroy(): void {
+    this.memoryStore.destroy();
   }
 }
 
@@ -70,7 +219,8 @@ interface RateLimitOptions {
   keyGenerator?: (req: Request) => string;
 }
 
-const store = new MemoryRateLimitStore();
+// 🛡️ Use hybrid store: Redis when available, memory as fallback
+const store = new HybridRateLimitStore();
 
 // Generate rate limit key from request
 // Uses X-Forwarded-For for proxied requests (Railway, Vercel, etc.)
@@ -94,7 +244,7 @@ export const createRateLimit = (options: RateLimitOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const key = keyGenerator(req);
-      const current = store.increment(key, windowMs);
+      const current = await store.increment(key, windowMs);
 
       // Set rate limit headers
       res.set({
@@ -128,11 +278,10 @@ export const createRateLimit = (options: RateLimitOptions) => {
             (skipFailedRequests && statusCode >= 400);
 
           if (shouldSkip) {
-            // Decrement counter for skipped requests
-            const entry = store.get(key);
-            if (entry && entry.count > 0) {
-              entry.count--;
-            }
+            // Decrement counter for skipped requests (async, fire-and-forget)
+            store.decrement(key).catch(err => {
+              logger.error('Failed to decrement rate limit counter:', err);
+            });
           }
 
           return originalSend.call(this, body);
