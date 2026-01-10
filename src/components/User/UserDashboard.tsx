@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
-import { Edit, Star, MailX, Search } from 'lucide-react';
+import { Edit, Star, MailX, Search, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
@@ -9,6 +9,7 @@ import { useFavorites, useRemoveFavorite, Favorite } from '../../hooks/useFavori
 import { GirlProfile } from '../../routes/lazyComponents';
 import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import EmployeeCard from '../Common/EmployeeCard';
+import PushNotificationSettings from './PushNotificationSettings';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -59,6 +60,8 @@ const UserDashboard: React.FC = () => {
           updated_at: favorite.created_at,
         }]
       : [],
+    is_freelance: favorite.employee_is_freelance,
+    independent_position: favorite.employee_independent_position as Employee['independent_position'],
     created_at: favorite.created_at,
     status: 'approved',
     self_removal_requested: false,
@@ -194,6 +197,15 @@ const UserDashboard: React.FC = () => {
           ))}
         </div>
       )}
+
+        {/* Push Notification Settings Section */}
+        <div className="settings-section-nightlife" style={{ marginTop: '40px' }}>
+          <h2 className="header-title-nightlife" style={{ fontSize: '20px', marginBottom: '20px' }}>
+            <Settings size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            {t('userDashboard.settingsTitle', 'Settings')}
+          </h2>
+          <PushNotificationSettings />
+        </div>
       </div>
 
       {/* Edit My Profile Modal */}

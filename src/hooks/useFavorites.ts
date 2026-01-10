@@ -42,6 +42,14 @@ export interface Favorite {
   employee_vote_count?: number;
   employee_is_vip?: boolean;
   employee_vip_expires_at?: string;
+  employee_is_freelance?: boolean;
+  employee_independent_position?: {
+    id: string;
+    employee_id: string;
+    is_active: boolean;
+    zone?: string;
+    location_details?: string;
+  } | null;
   current_establishment?: Establishment;
   average_rating?: number;
 }

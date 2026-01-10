@@ -49,13 +49,14 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       verified_at?: string;
       is_vip?: boolean;
       vip_expires_at?: string;
+      is_freelance?: boolean;
     }
 
     // Fetch each employee individually - this approach works reliably
     const employeePromises = employeeIds.map(async (empId: string) => {
       const { data, error } = await supabase
         .from('employees')
-        .select('id, name, nickname, age, nationality, photos, description, social_media, sex, is_verified, verified_at, is_vip, vip_expires_at')
+        .select('id, name, nickname, age, nationality, photos, description, social_media, sex, is_verified, verified_at, is_vip, vip_expires_at, is_freelance')
         .eq('id', empId)
         .single();
 
@@ -103,6 +104,13 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       .select('employee_id')
       .in('employee_id', employeeIds);
 
+    // Batch fetch independent positions for freelance badge
+    const { data: allIndependentPositions } = await supabase
+      .from('independent_positions')
+      .select('*')
+      .in('employee_id', employeeIds)
+      .eq('is_active', true);
+
     // Create lookup maps for O(1) access
     interface EstablishmentData {
       id: string;
@@ -133,6 +141,19 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       votesMap.set(vote.employee_id, existing + 1);
     });
 
+    // Create independent positions lookup map
+    interface IndependentPositionData {
+      id: string;
+      employee_id: string;
+      is_active: boolean;
+      zone?: string;
+      location_details?: string;
+    }
+    const independentPositionsMap = new Map<string, IndependentPositionData>();
+    (allIndependentPositions || []).forEach((pos: IndependentPositionData) => {
+      independentPositionsMap.set(pos.employee_id, pos);
+    });
+
     const favoritesWithEstablishment = (favorites || []).map((fav: FavoriteRecord) => {
       const ratingData = ratingsMap.get(fav.employee_id);
       const avgRating = ratingData && ratingData.count > 0
@@ -141,6 +162,8 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
       const establishment = employmentMap.get(fav.employee_id);
       // Get employee from our lookup map
       const emp = employeeMap.get(fav.employee_id);
+      // Get independent position for freelance badge
+      const independentPosition = independentPositionsMap.get(fav.employee_id);
 
       return {
         id: fav.id,
@@ -158,6 +181,8 @@ export const getFavorites = asyncHandler(async (req: Request, res: Response) => 
         employee_vote_count: votesMap.get(fav.employee_id) || 0,
         employee_is_vip: emp?.is_vip,
         employee_vip_expires_at: emp?.vip_expires_at,
+        employee_is_freelance: emp?.is_freelance,
+        employee_independent_position: independentPosition || null,
         employee_rating: avgRating,
         employee_comment_count: ratingData?.count || 0,
         current_establishment: establishment ? {
