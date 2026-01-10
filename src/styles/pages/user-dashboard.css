@@ -355,7 +355,7 @@
 
 .favorite-remove-button {
   position: absolute;
-  top: 12px;
+  top: 50px; /* Below VERIFIED/VOTES badge to avoid overlap */
   left: 12px;
   z-index: 10;
   background: rgba(0, 0, 0, 0.6);
@@ -408,7 +408,7 @@
   .favorite-remove-button {
     width: 32px;
     height: 32px;
-    top: 8px;
+    top: 42px; /* Below badges on mobile */
     left: 8px;
   }
 }
