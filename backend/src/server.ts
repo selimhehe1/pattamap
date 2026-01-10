@@ -617,13 +617,22 @@ app.use((err: Error, req: express.Request, res: express.Response, _next: express
     logger.warn('Server will continue without automatic mission resets');
   }
 
-  app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`, {
-      environment: NODE_ENV,
-      version: '2.0.0-secure'
+  // Only start listening when NOT running on Vercel serverless
+  // Vercel sets VERCEL=1 in the environment
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`, {
+        environment: NODE_ENV,
+        version: '2.0.0-secure'
+      });
     });
-  });
+  } else {
+    logger.info('Running on Vercel serverless - skipping app.listen()');
+  }
 })();
+
+// Export app for Vercel serverless functions
+export default app;
 
 // Graceful shutdown - stop cron jobs
 process.on('SIGTERM', () => {
