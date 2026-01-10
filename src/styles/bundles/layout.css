@@ -1,0 +1,12 @@
+/**
+ * LAYOUT BUNDLE
+ * Page layouts, header, search layout
+ *
+ * @bundle layout
+ * @order 3
+ */
+
+@import '../layout/page-layout.css';
+@import '../layout/page.css';
+@import '../layout/header.css';
+@import '../layout/search-layout.css';

@@ -1,0 +1,24 @@
+/**
+ * COMPONENTS CORE BUNDLE
+ * Essential UI components: buttons, modals, forms, auth
+ *
+ * @bundle components-core
+ * @order 4
+ */
+
+/* Modals & Dialogs */
+@import '../components/modals.css';
+@import '../components/dialog-modals.css';
+@import '../components/modal-premium-base.css';
+@import '../components/edit-modal-premium.css';
+
+/* Forms & Inputs */
+@import '../components/buttons.css';
+@import '../components/form-components.css';
+@import '../components/form-unified.css';
+@import '../components/autocomplete.css';
+@import '../components/NationalityTagsInput.css';
+
+/* Authentication */
+@import '../components/auth.css';
+@import '../components/auth-hero.css';

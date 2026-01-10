@@ -1,0 +1,25 @@
+/**
+ * COMPONENTS FEATURES BUNDLE
+ * Feature-specific components: employees, establishments, reviews
+ *
+ * @bundle components-features
+ * @order 6
+ */
+
+/* Employee Components */
+@import '../components/employee-profile.css';
+@import '../components/employee-dashboard.css';
+@import '../components/employee-wizard.css';
+@import '../components/employees-grid-view.css';
+
+/* Establishment Components */
+@import '../components/establishment-ui.css';
+@import '../components/establishment-list-view.css';
+@import '../components/sidebar-establishment.css';
+@import '../components/zone-grid.css';
+
+/* Reviews */
+@import '../components/reviews.css';
+
+/* Ownership */
+@import '../components/my-ownership-requests.css';

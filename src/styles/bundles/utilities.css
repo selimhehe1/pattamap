@@ -1,0 +1,12 @@
+/**
+ * UTILITIES BUNDLE
+ * Global utilities, typography, layout helpers
+ *
+ * @bundle utilities
+ * @order 2
+ */
+
+@import '../global/utilities.css';
+@import '../utilities/typography.css';
+@import '../utilities/layout-containers.css';
+@import '../utilities/layout-utilities.css';

@@ -1,0 +1,10 @@
+/**
+ * BASE BUNDLE
+ * Foundation styles: scrollbars, accessibility
+ *
+ * @bundle base
+ * @order 1 (after design-system.css)
+ */
+
+@import '../base/scrollbars.css';
+@import '../base/accessibility.css';

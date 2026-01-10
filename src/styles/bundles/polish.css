@@ -1,0 +1,13 @@
+/**
+ * POLISH BUNDLE
+ * Theme overrides, fixes, and final polish
+ * Should be loaded last for CSS specificity
+ *
+ * @bundle polish
+ * @order 10 (last)
+ */
+
+@import '../theme-overrides.css';
+@import '../css-pro-polish.css';
+@import '../header-ultra-visibility.css';
+@import '../css-consolidated-fixes.css';

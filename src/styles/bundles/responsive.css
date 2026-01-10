@@ -1,0 +1,10 @@
+/**
+ * RESPONSIVE BUNDLE
+ * Responsive and viewport-specific styles
+ *
+ * @bundle responsive
+ * @order 8
+ */
+
+@import '../responsive/large-desktop.css';
+@import '../responsive/landscape.css';

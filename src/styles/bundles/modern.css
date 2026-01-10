@@ -1,0 +1,12 @@
+/**
+ * MODERN CSS BUNDLE
+ * Modern CSS features: container queries, view transitions
+ *
+ * @bundle modern
+ * @order 11
+ */
+
+@import '../modern/index.css';
+@import '../modern/container-queries.css';
+@import '../modern/view-transitions.css';
+@import '../modern/scroll-animations.css';

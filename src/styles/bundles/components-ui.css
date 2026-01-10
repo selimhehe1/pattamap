@@ -1,0 +1,41 @@
+/**
+ * COMPONENTS UI BUNDLE
+ * UI components: cards, navigation, media, misc
+ *
+ * @bundle components-ui
+ * @order 5
+ */
+
+/* Cards */
+@import '../components/cards.css';
+@import '../components/card-animations.css';
+@import '../components/employee-card.css';
+@import '../components/establishment-card.css';
+
+/* Navigation & Menus */
+@import '../components/mobile-menu.css';
+@import '../components/tab-navigation.css';
+@import '../components/pagination.css';
+@import '../components/language-selector.css';
+@import '../components/language-bottom-sheet.css';
+@import '../components/quick-filter-chips.css';
+
+/* Media */
+@import '../components/photos.css';
+@import '../components/photo-gallery-modal.css';
+@import '../components/ReviewPhotoGallery.css';
+
+/* Feedback & Status */
+@import '../components/tooltip.css';
+@import '../components/EmptyState.css';
+@import '../components/AccessDenied.css';
+@import '../components/offline-banner.css';
+@import '../components/SyncIndicator.css';
+@import '../components/notification-bell.css';
+
+/* Misc UI */
+@import '../components/social-icons.css';
+@import '../components/share-button.css';
+@import '../components/user-rating.css';
+@import '../components/verified-badge.css';
+@import '../components/ThemeToggle.css';

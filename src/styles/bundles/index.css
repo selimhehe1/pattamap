@@ -1,0 +1,35 @@
+/**
+ * ============================================
+ * CSS BUNDLES - MASTER INDEX
+ * ============================================
+ *
+ * This file documents all CSS bundles and their load order.
+ * Do NOT import this file - it's for documentation only.
+ *
+ * IMPORT ORDER IN App.tsx:
+ * 1. design-system.css  - CSS variables & tokens (MUST BE FIRST)
+ * 2. bundles/base.css   - Scrollbars, accessibility
+ * 3. bundles/utilities.css - Typography, layout helpers
+ * 4. bundles/layout.css - Page layout, header
+ * 5. bundles/components-core.css - Buttons, modals, forms
+ * 6. bundles/components-ui.css - Cards, navigation, media
+ * 7. bundles/components-features.css - Employee, establishment
+ * 8. App.css - App-specific styles
+ * 9. bundles/animations.css - All animations
+ * 10. bundles/responsive.css - Responsive breakpoints
+ * 11. bundles/notifications.css - Toast notifications
+ * 12. bundles/modern.css - Modern CSS features
+ * 13. bundles/polish.css - Final fixes (MUST BE LAST)
+ *
+ * CONSOLIDATION SUMMARY:
+ * - Before: 110 CSS files with 25+ imports in App.tsx
+ * - After: 12 bundle imports in App.tsx
+ *
+ * Individual component files are preserved for:
+ * - Lazy-loaded components (admin, pages)
+ * - Component-specific imports
+ * - Code splitting optimization
+ *
+ * @version 1.0.0
+ * @created 2026-01-10
+ */

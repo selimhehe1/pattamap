@@ -1,0 +1,10 @@
+/**
+ * ANIMATIONS BUNDLE
+ * All animation styles
+ *
+ * @bundle animations
+ * @order 7
+ */
+
+@import '../animations/scroll-animations.css';
+@import '../animations/shared-animations.css';

@@ -27,36 +27,50 @@ import PageTransition from './components/Common/PageTransition';
 
 /**
  * ============================================
- * CSS IMPORT ORDER - DO NOT CHANGE
+ * CSS IMPORT ORDER - CONSOLIDATED BUNDLES
  * ============================================
+ * Refactored 2026-01-10: 25+ imports → 12 bundles
+ * See src/styles/bundles/index.css for documentation
  */
+
+// 1. Design System (CSS variables - MUST BE FIRST)
 import './styles/design-system.css';
-import './styles/base/scrollbars.css';
-import './styles/base/accessibility.css';
-import './styles/components/modals.css';
-import './styles/global/utilities.css';
-import './styles/utilities/typography.css';
-import './styles/utilities/layout-containers.css';
-import './styles/layout/page-layout.css'; // Page containers + header compensation
-import './styles/components/buttons.css';
-import './styles/components/autocomplete.css';
-import './styles/components/auth.css';
-import './styles/components/EmptyState.css';
-import './styles/components/mobile-menu.css'; // Phase 3 - Mobile hamburger menu
-// Admin CSS moved to lazy-loading in AdminPanel.tsx for better initial load performance
+
+// 2. Base styles (scrollbars, accessibility)
+import './styles/bundles/base.css';
+
+// 3. Utilities (typography, layout helpers)
+import './styles/bundles/utilities.css';
+
+// 4. Layout (page layout, header)
+import './styles/bundles/layout.css';
+
+// 5. Core components (buttons, modals, forms, auth)
+import './styles/bundles/components-core.css';
+
+// 6. UI components (cards, navigation, media)
+import './styles/bundles/components-ui.css';
+
+// 7. Feature components (employee, establishment)
+import './styles/bundles/components-features.css';
+
+// 8. App-specific styles
 import './App.css';
-// REMOVED: import './styles/nightlife-theme.css'; - Legacy 9,145 line file deprecated
-import './styles/responsive/large-desktop.css';
-import './styles/responsive/landscape.css';
-import './styles/theme-overrides.css';
-import './styles/css-pro-polish.css';
-import './styles/header-ultra-visibility.css';
-import './styles/animations/scroll-animations.css';
-import './styles/animations/shared-animations.css'; // Phase 6 - Shared animation utilities
-import './styles/features/notifications/NeonToast.css'; // Neon Glass Toast System
-import './styles/features/notifications/NeonToastAnimations.css'; // Toast animations
-import './styles/css-consolidated-fixes.css';
-import './styles/modern/index.css'; // Phase 5.2: Container queries & scroll-driven animations
+
+// 9. Animations
+import './styles/bundles/animations.css';
+
+// 10. Responsive styles
+import './styles/bundles/responsive.css';
+
+// 11. Notifications
+import './styles/bundles/notifications.css';
+
+// 12. Modern CSS features
+import './styles/bundles/modern.css';
+
+// 13. Polish & fixes (MUST BE LAST for specificity)
+import './styles/bundles/polish.css';
 
 // Lazy load main route components for code splitting
 import {

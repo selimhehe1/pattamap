@@ -1,0 +1,10 @@
+/**
+ * NOTIFICATIONS BUNDLE
+ * Toast notifications and alerts
+ *
+ * @bundle notifications
+ * @order 9
+ */
+
+@import '../features/notifications/NeonToast.css';
+@import '../features/notifications/NeonToastAnimations.css';
