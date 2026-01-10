@@ -2,20 +2,17 @@
  * Specialized Notification Functions
  *
  * Contains VIP, Verification, Edit Proposal, and Establishment Owner notifications.
- * Extracted from notificationHelper.ts to reduce file size.
  */
 
-import { logger } from './logger';
-import { createNotification, fetchUserIdsByRole, notifyMultipleUsers } from './notificationHelper';
+import { logger } from '../logger';
+import { createNotification, fetchUserIdsByRole, notifyMultipleUsers } from './core';
 
 // =====================================================
-// VERIFICATION SYSTEM NOTIFICATIONS (Phase 1.1)
+// VERIFICATION SYSTEM NOTIFICATIONS
 // =====================================================
 
 /**
  * Notify employee when their verification is submitted
- * @param employeeLinkedUserId User ID linked to employee
- * @param employeeName Name of employee
  */
 export const notifyEmployeeVerificationSubmitted = async (
   employeeLinkedUserId: string,
@@ -40,8 +37,6 @@ export const notifyEmployeeVerificationSubmitted = async (
 
 /**
  * Notify employee when their verification is approved
- * @param employeeLinkedUserId User ID linked to employee
- * @param employeeName Name of employee
  */
 export const notifyEmployeeVerificationApproved = async (
   employeeLinkedUserId: string,
@@ -66,9 +61,6 @@ export const notifyEmployeeVerificationApproved = async (
 
 /**
  * Notify employee when their verification is rejected
- * @param employeeLinkedUserId User ID linked to employee
- * @param employeeName Name of employee
- * @param reason Rejection reason from admin
  */
 export const notifyEmployeeVerificationRejected = async (
   employeeLinkedUserId: string,
@@ -94,9 +86,6 @@ export const notifyEmployeeVerificationRejected = async (
 
 /**
  * Notify employee when their verification is revoked
- * @param employeeLinkedUserId User ID linked to employee
- * @param employeeName Name of employee
- * @param reason Revocation reason from admin
  */
 export const notifyEmployeeVerificationRevoked = async (
   employeeLinkedUserId: string,
@@ -122,8 +111,6 @@ export const notifyEmployeeVerificationRevoked = async (
 
 /**
  * Notify admins when a new verification request is submitted
- * @param employeeName Name of employee requesting verification
- * @param verificationId ID of verification request
  */
 export const notifyAdminsNewVerificationRequest = async (
   employeeName: string,
@@ -157,10 +144,6 @@ export const notifyAdminsNewVerificationRequest = async (
 
 /**
  * Notify user when their VIP purchase is confirmed
- * @param userId - ID of user who purchased VIP
- * @param tier - VIP tier (bronze, silver, gold, platinum)
- * @param duration - Duration in days
- * @param price - Price paid in THB
  */
 export const notifyVIPPurchaseConfirmed = async (
   userId: string,
@@ -187,9 +170,6 @@ export const notifyVIPPurchaseConfirmed = async (
 
 /**
  * Notify user when admin verifies their VIP payment
- * @param userId - ID of user whose payment was verified
- * @param tier - VIP tier
- * @param expiresAt - Expiration date
  */
 export const notifyVIPPaymentVerified = async (
   userId: string,
@@ -215,9 +195,6 @@ export const notifyVIPPaymentVerified = async (
 
 /**
  * Notify user when admin rejects their VIP payment
- * @param userId - ID of user whose payment was rejected
- * @param tier - VIP tier
- * @param reason - Rejection reason
  */
 export const notifyVIPPaymentRejected = async (
   userId: string,
@@ -243,9 +220,6 @@ export const notifyVIPPaymentRejected = async (
 
 /**
  * Notify user when their VIP subscription is cancelled
- * @param userId - ID of user whose subscription was cancelled
- * @param tier - VIP tier
- * @param reason - Cancellation reason
  */
 export const notifyVIPSubscriptionCancelled = async (
   userId: string,
@@ -274,11 +248,7 @@ export const notifyVIPSubscriptionCancelled = async (
 // ============================================================================
 
 /**
- * Notify admins when a new edit proposal is submitted (non-privileged users only)
- * @param proposalId - ID of the proposal
- * @param proposerName - Name of user who submitted the proposal
- * @param entityType - Type of entity being edited (employee/establishment)
- * @param entityName - Name of entity being edited
+ * Notify admins when a new edit proposal is submitted
  */
 export const notifyAdminsNewEditProposal = async (
   proposalId: string,
@@ -287,7 +257,7 @@ export const notifyAdminsNewEditProposal = async (
   entityName: string
 ): Promise<void> => {
   try {
-    const adminIds = await fetchUserIdsByRole('admin', true); // activeOnly = true
+    const adminIds = await fetchUserIdsByRole('admin', true);
     if (adminIds.length === 0) return;
 
     await notifyMultipleUsers(
@@ -310,9 +280,6 @@ export const notifyAdminsNewEditProposal = async (
 
 /**
  * Notify user when their edit proposal is approved
- * @param userId - ID of user who submitted the proposal
- * @param entityType - Type of entity (employee/establishment)
- * @param entityName - Name of entity
  */
 export const notifyEditProposalApproved = async (
   userId: string,
@@ -340,10 +307,6 @@ export const notifyEditProposalApproved = async (
 
 /**
  * Notify user when their edit proposal is rejected
- * @param userId - ID of user who submitted the proposal
- * @param entityType - Type of entity (employee/establishment)
- * @param entityName - Name of entity
- * @param reason - Rejection reason
  */
 export const notifyEditProposalRejected = async (
   userId: string,
@@ -374,10 +337,6 @@ export const notifyEditProposalRejected = async (
 
 /**
  * Notify user when they are assigned as establishment owner
- * @param userId - ID of user being assigned
- * @param establishmentName - Name of establishment
- * @param establishmentId - ID of establishment
- * @param role - Owner role (owner/manager)
  */
 export const notifyEstablishmentOwnerAssigned = async (
   userId: string,
@@ -404,9 +363,6 @@ export const notifyEstablishmentOwnerAssigned = async (
 
 /**
  * Notify user when they are removed as establishment owner
- * @param userId - ID of user being removed
- * @param establishmentName - Name of establishment
- * @param establishmentId - ID of establishment
  */
 export const notifyEstablishmentOwnerRemoved = async (
   userId: string,
@@ -432,10 +388,6 @@ export const notifyEstablishmentOwnerRemoved = async (
 
 /**
  * Notify user when their establishment owner permissions are updated
- * @param userId - ID of user whose permissions changed
- * @param establishmentName - Name of establishment
- * @param establishmentId - ID of establishment
- * @param updatedPermissions - Object describing what changed
  */
 export const notifyEstablishmentOwnerPermissionsUpdated = async (
   userId: string,
