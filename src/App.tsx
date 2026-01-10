@@ -87,8 +87,10 @@ import {
   EstablishmentsPage
 } from './routes/lazyComponents';
 
-// LoginPage - lazy loaded for direct URL access
+// Auth pages - lazy loaded for direct URL access
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const AuthCallbackPage = React.lazy(() => import('./pages/AuthCallbackPage'));
+const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage'));
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import SEOHead from './components/Common/SEOHead';
@@ -156,7 +158,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   // Hide header on full-page auth routes (login/register have their own layout)
-  const isAuthPage = location.pathname === '/login';
+  const isAuthPage = location.pathname === '/login' ||
+                     location.pathname === '/auth/callback' ||
+                     location.pathname === '/reset-password';
   // Hide header on admin routes (admin has its own CommandHeader)
   const isAdminPage = location.pathname.startsWith('/admin');
 
@@ -217,6 +221,8 @@ const AppContent: React.FC = () => {
                   ======================================== */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/establishments" element={<EstablishmentsPage />} />
               <Route path="/bar/:zone/:slug" element={

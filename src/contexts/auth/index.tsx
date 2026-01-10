@@ -2,6 +2,7 @@
  * Auth Module - Split Architecture
  *
  * This module provides authentication functionality split into focused contexts:
+ * - SupabaseAuthContext: Supabase Auth integration (OAuth, email confirmation, etc.)
  * - UserContext: User state and profile management
  * - SessionContext: Session polling and validity checks
  * - EmployeeContext: Employee-specific functionality
@@ -11,18 +12,20 @@
  * For backward compatibility, useAuth() combines all contexts into a single interface.
  */
 
-import React, { createContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useCallback } from 'react';
+import { SupabaseAuthProvider, useSupabaseAuth } from './SupabaseAuthContext';
 import { UserProvider, useUser } from './UserContext';
 import { SessionProvider, useSession } from './SessionContext';
 import { EmployeeProvider, useEmployee } from './EmployeeContext';
 import { OwnershipProvider, useOwnership } from './OwnershipContext';
 import { AuthCoreProvider, useAuthCore } from './AuthCoreContext';
-import { AuthContextType } from '../../types';
+import { AuthContextType, User } from '../../types';
 
 // Export AuthContext for testing purposes (allows direct Provider usage in tests)
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Re-export individual hooks for direct usage
+export { useSupabaseAuth } from './SupabaseAuthContext';
 export { useUser } from './UserContext';
 export { useSession } from './SessionContext';
 export { useEmployee } from './EmployeeContext';
@@ -30,6 +33,7 @@ export { useOwnership } from './OwnershipContext';
 export { useAuthCore } from './AuthCoreContext';
 
 // Re-export types
+export type { SupabaseAuthContextType } from './SupabaseAuthContext';
 export type { UserContextType } from './UserContext';
 export type { SessionContextType } from './SessionContext';
 export type { EmployeeContextType } from './EmployeeContext';
@@ -41,12 +45,19 @@ interface AuthProvidersProps {
 }
 
 /**
- * Combined AuthProviders - wraps all auth-related providers
- * Order matters: UserProvider must be outermost as others depend on it
+ * Inner providers that depend on UserContext
+ * Separated to allow SupabaseAuthProvider to access setUser
  */
-export const AuthProviders: React.FC<AuthProvidersProps> = ({ children }) => {
+const InnerProviders: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { setUser } = useUser();
+
+  // Callback to sync Supabase user with our UserContext
+  const handleUserSync = useCallback((user: User | null) => {
+    setUser(user);
+  }, [setUser]);
+
   return (
-    <UserProvider>
+    <SupabaseAuthProvider onUserSync={handleUserSync}>
       <SessionProvider>
         <EmployeeProvider>
           <OwnershipProvider>
@@ -56,6 +67,21 @@ export const AuthProviders: React.FC<AuthProvidersProps> = ({ children }) => {
           </OwnershipProvider>
         </EmployeeProvider>
       </SessionProvider>
+    </SupabaseAuthProvider>
+  );
+};
+
+/**
+ * Combined AuthProviders - wraps all auth-related providers
+ * Order matters: UserProvider must be outermost as others depend on it
+ * SupabaseAuthProvider syncs with UserContext for seamless integration
+ */
+export const AuthProviders: React.FC<AuthProvidersProps> = ({ children }) => {
+  return (
+    <UserProvider>
+      <InnerProviders>
+        {children}
+      </InnerProviders>
     </UserProvider>
   );
 };

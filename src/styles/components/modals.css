@@ -710,3 +710,101 @@ body.modal-open {
   border-radius: 50%;
   animation: modalSpin 1s linear infinite;
 }
+
+/* ============================================
+   AUTH DIVIDER (OR separator)
+   ============================================ */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 12px);
+  margin: var(--spacing-4, 16px) 0;
+}
+
+.auth-divider__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+}
+
+.auth-divider__text {
+  font-size: var(--font-sm, 0.875rem);
+  color: var(--text-secondary, #A1A1AA);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+/* Light mode */
+body[data-theme="light"] .auth-divider__line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  );
+}
+
+body[data-theme="light"] .auth-divider__text {
+  color: #64748B;
+}
+
+/* ============================================
+   GOOGLE SIGN IN BUTTON
+   ============================================ */
+
+.btn--google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3, 12px);
+  width: 100%;
+  padding: var(--spacing-3, 12px) var(--spacing-4, 16px);
+  font-size: var(--font-base, 1rem);
+  font-weight: 500;
+  color: var(--text-primary, #FAFAFA);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all var(--duration-normal, 0.3s) var(--ease-out);
+}
+
+.btn--google:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn--google:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn--google:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--google .google-icon {
+  flex-shrink: 0;
+}
+
+/* Light mode Google button */
+body[data-theme="light"] .btn--google {
+  color: #1a1a1a;
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .btn--google:hover:not(:disabled) {
+  background: #F8F9FA;
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}

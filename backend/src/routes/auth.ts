@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { register, login, getProfile, logout, forgotPassword, resetPassword, checkAvailability, logoutAll } from '../controllers/authController';
+import { register, login, getProfile, logout, forgotPassword, resetPassword, checkAvailability, logoutAll, syncSupabaseUser } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
+import { authenticateSupabaseToken } from '../middleware/supabaseAuth';
 import { csrfProtection } from '../middleware/csrf';
 import { availabilityCheckRateLimit, authRateLimit } from '../middleware/rateLimit';
 import { refreshAccessToken } from '../middleware/refreshToken';
@@ -346,5 +347,61 @@ router.post('/refresh', refreshAccessToken);
  *         description: Not authenticated
  */
 router.post('/logout-all', authenticateToken, csrfProtection, logoutAll);
+
+/**
+ * @swagger
+ * /api/auth/sync-user:
+ *   post:
+ *     summary: Sync Supabase Auth user with database
+ *     description: |
+ *       Called after Supabase Auth login/signup (OAuth, email) to ensure user exists in our database.
+ *       - For new OAuth users: creates a new user profile
+ *       - For existing users: returns the existing profile
+ *       - For legacy users: links their account to Supabase Auth
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - supabaseUserId
+ *               - email
+ *             properties:
+ *               supabaseUserId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: Supabase Auth user ID
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               pseudonym:
+ *                 type: string
+ *                 description: Optional pseudonym (auto-generated if not provided)
+ *               account_type:
+ *                 type: string
+ *                 enum: [regular, employee, establishment_owner]
+ *                 default: regular
+ *     responses:
+ *       200:
+ *         description: User synced or already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       201:
+ *         description: New user created
+ *       401:
+ *         description: Invalid or missing Supabase Auth token
+ */
+router.post('/sync-user', authenticateSupabaseToken, syncSupabaseUser);
 
 export default router;

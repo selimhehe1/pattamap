@@ -635,3 +635,161 @@ body[data-theme="light"] .auth-layout__form::-webkit-scrollbar-thumb:hover {
 .form-layout--forgot-password {
   gap: var(--spacing-4, 16px);
 }
+
+/* ============================================
+   AUTH CALLBACK PAGE
+   ============================================ */
+
+.auth-callback-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-primary, #0a0a0a);
+  padding: var(--spacing-4, 16px);
+}
+
+.auth-callback-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-8, 32px) var(--spacing-6, 24px);
+  background: var(--bg-secondary, #111111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-xl, 16px);
+  max-width: 400px;
+  width: 100%;
+  animation: authCallbackFadeIn 0.5s ease-out;
+}
+
+@keyframes authCallbackFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.auth-callback-spinner {
+  animation: authCallbackSpin 1s linear infinite;
+  color: var(--color-primary, #E879F9);
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+@keyframes authCallbackSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-callback-icon {
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+.auth-callback-icon--success {
+  color: #10B981;
+}
+
+.auth-callback-icon--error {
+  color: #EF4444;
+}
+
+.auth-callback-title {
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: var(--font-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-primary, #FAFAFA);
+  margin: 0 0 var(--spacing-2, 8px) 0;
+}
+
+.auth-callback-message {
+  font-size: var(--font-sm, 0.875rem);
+  color: var(--text-secondary, #A1A1AA);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-callback-btn {
+  margin-top: var(--spacing-6, 24px);
+}
+
+/* Light mode support */
+body[data-theme="light"] .auth-callback-page {
+  background: #FAFAFA;
+}
+
+body[data-theme="light"] .auth-callback-card {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .auth-callback-title {
+  color: #1a1a1a;
+}
+
+body[data-theme="light"] .auth-callback-message {
+  color: #64748B;
+}
+
+/* ============================================
+   RESET PASSWORD PAGE
+   ============================================ */
+
+.reset-password-success,
+.reset-password-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-6, 24px);
+}
+
+.reset-password-success-icon {
+  color: #10B981;
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+.reset-password-error-icon {
+  color: #EF4444;
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+.reset-password-success h3,
+.reset-password-error h3 {
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: var(--font-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #FAFAFA);
+  margin: 0 0 var(--spacing-2, 8px) 0;
+}
+
+.reset-password-success p,
+.reset-password-error p {
+  font-size: var(--font-sm, 0.875rem);
+  color: var(--text-secondary, #A1A1AA);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.password-requirements {
+  margin-top: var(--spacing-2, 8px);
+}
+
+body[data-theme="light"] .reset-password-success h3,
+body[data-theme="light"] .reset-password-error h3 {
+  color: #1a1a1a;
+}
+
+body[data-theme="light"] .reset-password-success p,
+body[data-theme="light"] .reset-password-error p {
+  color: #64748B;
+}

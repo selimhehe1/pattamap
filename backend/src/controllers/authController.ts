@@ -866,3 +866,193 @@ export const logoutAll = asyncHandler(async (req: AuthRequest, res: Response) =>
       message: 'Successfully logged out from all devices'
     });
 });
+
+/**
+ * Sync Supabase Auth user with our database
+ *
+ * Called after Supabase Auth login/signup to ensure user exists in our users table.
+ * For OAuth users (Google), creates a new user profile.
+ * For existing users, returns the existing profile.
+ *
+ * @route POST /api/auth/sync-user
+ * @requires Supabase Auth token in Authorization header
+ */
+export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response) => {
+  const { supabaseUserId, email, pseudonym, account_type } = req.body;
+
+  // Validate required fields
+  if (!supabaseUserId) {
+    throw BadRequestError('Supabase user ID is required');
+  }
+
+  if (!email) {
+    throw BadRequestError('Email is required');
+  }
+
+  logger.debug('[SyncUser] Syncing user', {
+    supabaseUserId,
+    email,
+    pseudonym: pseudonym || 'auto-generated'
+  });
+
+  // Check if user already exists by auth_id
+  const { data: existingUser, error: findError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('auth_id', supabaseUserId)
+    .single();
+
+  if (existingUser) {
+    logger.debug('[SyncUser] User already synced', {
+      userId: existingUser.id,
+      pseudonym: existingUser.pseudonym
+    });
+
+    return res.json({
+      message: 'User already synced',
+      user: {
+        id: existingUser.id,
+        pseudonym: existingUser.pseudonym,
+        email: existingUser.email,
+        role: existingUser.role,
+        is_active: existingUser.is_active,
+        account_type: existingUser.account_type,
+        linked_employee_id: existingUser.linked_employee_id,
+        avatar_url: existingUser.avatar_url,
+        auth_id: existingUser.auth_id
+      }
+    });
+  }
+
+  // Check if user exists by email (legacy user migration)
+  const { data: legacyUser } = await supabase
+    .from('users')
+    .select('*')
+    .ilike('email', email)
+    .single();
+
+  if (legacyUser) {
+    // Link existing user to Supabase Auth
+    const { data: updatedUser, error: updateError } = await supabase
+      .from('users')
+      .update({ auth_id: supabaseUserId })
+      .eq('id', legacyUser.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      logger.error('[SyncUser] Failed to link legacy user:', updateError);
+      throw InternalServerError('Failed to link user account');
+    }
+
+    logger.info('[SyncUser] Legacy user linked to Supabase Auth', {
+      userId: updatedUser.id,
+      pseudonym: updatedUser.pseudonym
+    });
+
+    return res.json({
+      message: 'User account linked',
+      user: {
+        id: updatedUser.id,
+        pseudonym: updatedUser.pseudonym,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        is_active: updatedUser.is_active,
+        account_type: updatedUser.account_type,
+        linked_employee_id: updatedUser.linked_employee_id,
+        avatar_url: updatedUser.avatar_url,
+        auth_id: updatedUser.auth_id
+      }
+    });
+  }
+
+  // Create new user (OAuth signup)
+  // Generate unique pseudonym if not provided
+  let finalPseudonym = pseudonym;
+  if (!finalPseudonym) {
+    // Use email prefix as base pseudonym
+    const emailPrefix = email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+    finalPseudonym = emailPrefix.slice(0, 40); // Max 40 chars to leave room for suffix
+
+    // Check if pseudonym is taken
+    const { data: existingPseudonym } = await supabase
+      .from('users')
+      .select('id')
+      .ilike('pseudonym', finalPseudonym)
+      .single();
+
+    if (existingPseudonym) {
+      // Add random suffix
+      finalPseudonym = `${finalPseudonym}_${crypto.randomBytes(3).toString('hex')}`;
+    }
+  }
+
+  // Check pseudonym uniqueness
+  const { data: pseudonymCheck } = await supabase
+    .from('users')
+    .select('id')
+    .ilike('pseudonym', finalPseudonym)
+    .single();
+
+  if (pseudonymCheck) {
+    throw ConflictError('Pseudonym already taken. Please choose another.');
+  }
+
+  // Create the user
+  const { data: newUser, error: createError } = await supabase
+    .from('users')
+    .insert({
+      auth_id: supabaseUserId,
+      email: email.toLowerCase(),
+      pseudonym: finalPseudonym,
+      password: 'SUPABASE_AUTH', // Placeholder - password managed by Supabase
+      role: 'user',
+      is_active: true,
+      account_type: account_type || 'regular'
+    })
+    .select()
+    .single();
+
+  if (createError) {
+    logger.error('[SyncUser] Failed to create user:', createError);
+    throw InternalServerError('Failed to create user account');
+  }
+
+  // Initialize gamification (user_points)
+  const { error: pointsError } = await supabase
+    .from('user_points')
+    .insert({
+      user_id: newUser.id,
+      total_xp: 0,
+      monthly_xp: 0,
+      current_level: 1,
+      current_streak_days: 0,
+      longest_streak_days: 0
+    });
+
+  if (pointsError) {
+    logger.warn('[SyncUser] Failed to initialize user_points:', pointsError);
+    // Non-critical - continue
+  }
+
+  logger.info('[SyncUser] New user created via Supabase Auth', {
+    userId: newUser.id,
+    pseudonym: newUser.pseudonym,
+    provider: 'oauth'
+  });
+
+  res.status(201).json({
+    message: 'User created successfully',
+    user: {
+      id: newUser.id,
+      pseudonym: newUser.pseudonym,
+      email: newUser.email,
+      role: newUser.role,
+      is_active: newUser.is_active,
+      account_type: newUser.account_type,
+      linked_employee_id: newUser.linked_employee_id,
+      avatar_url: newUser.avatar_url,
+      auth_id: newUser.auth_id
+    }
+  });
+});
