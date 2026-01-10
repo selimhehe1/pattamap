@@ -30,6 +30,7 @@ import { getZoneLabel } from '../utils/constants';
 import { generateEstablishmentUrl } from '../utils/slugify';
 import { Establishment } from '../types';
 import EstablishmentCard from '../components/Common/EstablishmentCard';
+import StructuredData from '../components/SEO/StructuredData';
 import '../styles/pages/establishments-page.css';
 import '../styles/components/establishment-card.css';
 
@@ -156,8 +157,28 @@ const EstablishmentsPage: React.FC = () => {
     );
   }
 
+  // Breadcrumb items for SEO
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Zones', url: '/zones' },
+    { name: getZoneLabel(zone), url: `/zone/${zone}` },
+  ];
+
   return (
     <div className="establishments-page">
+      {/* SEO: Structured Data for search engines */}
+      {filteredEstablishments.length > 0 && (
+        <StructuredData
+          type="ItemList"
+          establishments={filteredEstablishments}
+          zone={zone}
+        />
+      )}
+      <StructuredData
+        type="BreadcrumbList"
+        items={breadcrumbItems}
+      />
+
       {/* Premium Hero Section */}
       <section className="zone-hero">
         <div className="zone-hero-bg" />

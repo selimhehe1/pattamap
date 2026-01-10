@@ -17,8 +17,10 @@ import { BarDetailLoadingState } from './BarDetailLoadingState';
 import { BarDetailHeader } from './BarDetailHeader';
 import { BarDetailContent } from './BarDetailContent';
 import EstablishmentEditModal from '../../Forms/EstablishmentEditModal';
+import StructuredData from '../../SEO/StructuredData';
 import { logger } from '../../../utils/logger';
 import notification from '../../../utils/notification';
+import { getZoneLabel } from '../../../utils/constants';
 import '../../../styles/components/employee-profile.css';
 import '../../../styles/pages/establishment.css';
 import '../../../styles/components/photos.css';
@@ -169,12 +171,31 @@ const BarDetailPage: React.FC = () => {
     return <BarDetailLoadingState type="empty" />;
   }
 
+  // Generate breadcrumb items for SEO
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Zones', url: '/zones' },
+    ...(bar.zone ? [{ name: getZoneLabel(bar.zone), url: `/zone/${bar.zone}` }] : []),
+    { name: bar.name, url: `/bar/${bar.zone || 'pattaya'}/${bar.id}` },
+  ];
+
   return (
     <div
       id="main-content"
       className="bg-nightlife-gradient-main establishment-page-container-nightlife page-content-with-header-nightlife"
       tabIndex={-1}
     >
+      {/* SEO: Structured Data for search engines */}
+      <StructuredData
+        type="LocalBusiness"
+        establishment={bar}
+        employeeCount={girls.length}
+      />
+      <StructuredData
+        type="BreadcrumbList"
+        items={breadcrumbItems}
+      />
+
       {/* Scroll Progress Bar */}
       <div className="scroll-progress-bar-gradient" aria-hidden="true" />
 
