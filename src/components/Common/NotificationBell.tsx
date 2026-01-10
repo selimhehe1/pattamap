@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { useRealtimeNotifications, DatabaseNotification, ConnectionStatus } from '../../hooks/useRealtimeNotifications';
+import { useRealtimeNotifications, DatabaseNotification } from '../../hooks/useRealtimeNotifications';
 import { Bell, Check, X, Sparkles, Wifi, WifiOff } from 'lucide-react';
 import '../../styles/components/notification-bell.css';
 

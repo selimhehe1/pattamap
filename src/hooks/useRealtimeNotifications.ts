@@ -390,10 +390,12 @@ export function useRealtimeNotifications(
             reconnectAttemptsRef.current++;
             logger.info(`[Realtime] Attempting reconnect (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
             setTimeout(setupSubscription, RECONNECT_DELAY * reconnectAttemptsRef.current);
-          } else if (enablePollingFallback) {
-            // Fall back to polling
+          } else if (enablePollingFallback && !pollingIntervalRef.current) {
+            // Fall back to polling (inline to avoid circular dependency)
             logger.warn('[Realtime] Max reconnect attempts reached, falling back to polling');
-            startPollingFallback();
+            pollingIntervalRef.current = setInterval(() => {
+              refresh();
+            }, pollingInterval);
           }
         } else if (status === 'CLOSED') {
           logger.debug('[Realtime] Channel closed');
@@ -402,12 +404,12 @@ export function useRealtimeNotifications(
       });
 
     channelRef.current = channel;
-  }, [user?.id, handleInsert, handleUpdate, handleDelete, enablePollingFallback]);
+  }, [user?.id, handleInsert, handleUpdate, handleDelete, enablePollingFallback, refresh, pollingInterval]);
 
   /**
-   * Start polling fallback
+   * Start polling fallback (kept for external use if needed)
    */
-  const startPollingFallback = useCallback(() => {
+  const _startPollingFallback = useCallback(() => {
     if (pollingIntervalRef.current) return;
 
     logger.info('[Realtime] Starting polling fallback');

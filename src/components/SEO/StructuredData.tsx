@@ -53,8 +53,9 @@ type StructuredDataProps = LocalBusinessProps | ItemListProps | BreadcrumbProps;
  */
 const sanitizeString = (str: string | undefined | null): string => {
   if (!str) return '';
-  // Remove control characters and limit length
-  return str.replace(/[\x00-\x1F\x7F]/g, '').substring(0, 500);
+  // Remove control characters (ASCII 0-31 and 127) and limit length
+  // eslint-disable-next-line no-control-regex
+  return str.replace(/[\u0000-\u001F\u007F]/g, '').substring(0, 500);
 };
 
 /**
