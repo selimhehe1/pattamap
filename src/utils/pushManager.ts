@@ -156,7 +156,7 @@ export const requestNotificationPermission = async (): Promise<NotificationPermi
  */
 const getVapidPublicKey = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/vapid-public-key`, {
+    const response = await fetch(`${API_BASE_URL}/api/push/vapid-public-key`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -235,7 +235,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
       }
     };
 
-    const response = await fetch(`${API_BASE_URL}/push/subscribe`, {
+    const response = await fetch(`${API_BASE_URL}/api/push/subscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -281,7 +281,7 @@ export const unsubscribeFromPush = async (): Promise<boolean> => {
     if (IS_DEV) console.log('[Push Manager] Browser unsubscribe result:', unsubscribed);
 
     // Remove from backend
-    const response = await fetch(`${API_BASE_URL}/push/unsubscribe`, {
+    const response = await fetch(`${API_BASE_URL}/api/push/unsubscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -335,7 +335,7 @@ export const isPushSubscribed = async (): Promise<boolean> => {
  */
 export const getPushStatus = async (): Promise<PushStatus> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/push/status`, {
+    const response = await fetch(`${API_BASE_URL}/api/push/status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
