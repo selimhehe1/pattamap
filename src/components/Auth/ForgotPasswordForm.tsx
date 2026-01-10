@@ -1,14 +1,14 @@
 /**
- * 🔧 FIX A4: Forgot Password Form Component
+ * Forgot Password Form Component
  *
- * Allows users to request a password reset link
- * Currently logs token for manual intervention until email service is configured
+ * Allows users to request a password reset link via Supabase Auth.
+ * Supabase handles email delivery automatically.
  */
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail } from 'lucide-react';
-import { useCSRF } from '../../contexts/CSRFContext';
+import { useSupabaseAuth } from '../../contexts/auth/SupabaseAuthContext';
 import notification from '../../utils/notification';
 import '../../styles/components/modals.css';
 
@@ -25,7 +25,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   embedded = false
 }) => {
   const { t } = useTranslation();
-  const { csrfToken } = useCSRF();
+  const { resetPassword } = useSupabaseAuth();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -50,24 +50,8 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/forgot-password`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
-          },
-          body: JSON.stringify({ email: email.trim() }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || t('auth.resetRequestFailed'));
-      }
+      // Use Supabase Auth to send password reset email
+      await resetPassword(email.trim());
 
       // Success - show confirmation (same message regardless of email existence for security)
       setIsSubmitted(true);
