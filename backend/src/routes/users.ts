@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
-import { requireCSRF } from '../middleware/csrf';
+import { csrfProtection } from '../middleware/csrf';
 import * as userController from '../controllers/userController';
 
 const router = express.Router();
@@ -21,7 +21,7 @@ const router = express.Router();
  *       500:
  *         description: Failed to delete account
  */
-router.delete('/me', authenticateToken, requireCSRF, userController.deleteAccount);
+router.delete('/me', authenticateToken, csrfProtection, userController.deleteAccount);
 
 /**
  * @swagger
