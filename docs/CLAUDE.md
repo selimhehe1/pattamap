@@ -471,12 +471,11 @@ npm start                    # → http://localhost:3000
 - Estimation : 5 jours pour compléter
 
 **Employee Verification System (v10.2) - 60% complet** :
-- ✅ Backend : API endpoints, Azure Face API integration
+- ✅ Backend : API endpoints, vérification manuelle admin
 - ✅ Frontend : Request verification modal
 - ⏳ Manquant :
   - Admin verification panel (review proofs)
   - Verification badge display
-  - Face comparison logic (Azure Face API)
 - Estimation : 4 jours pour compléter
 
 **Establishment Owners Dashboard (v10.1) - 80% complet** :
@@ -702,7 +701,7 @@ npm start                    # → http://localhost:3000
 
 4. **Service Tests** (2 jours)
    - gamificationService tests (XP, achievements)
-   - verificationService tests (Azure Face API)
+   - verificationService tests (vérification manuelle)
    - Target : 90%+ coverage
 
 5. **Documentation Deployment** (2 jours)
@@ -752,18 +751,13 @@ npm start                    # → http://localhost:3000
 1. **VerificationAdmin Panel** (2 jours)
    - Review verification requests
    - Proof photos viewer (gallery)
-   - Azure Face API integration (face match)
+   - Comparaison visuelle manuelle
    - Approve/reject workflow
 
 2. **Verification Badge Display** (1 jour)
    - Blue checkmark badge sur profiles
    - Tooltip "Verified by PattaMap"
    - Filter "Verified Only" dans search
-
-3. **Face Comparison Logic** (1 jour)
-   - Integrate Azure Face API detect + verify
-   - Confidence score threshold (>80%)
-   - Error handling + fallback manual review
 
 **Semaine 3 : Establishment Owners Completion** (3 jours)
 1. **Owner Dashboard Stats** (2 jours)
@@ -1117,6 +1111,20 @@ VAPID_PUBLIC_KEY=your-public-key
 VAPID_PRIVATE_KEY=your-private-key
 VAPID_SUBJECT=mailto:your-email@pattaya.guide
 ```
+
+### ⚠️ TODO: Configuration Email (SMTP) - PDPA Compliance
+
+**Variables à configurer** (backend/.env) pour les demandes de suppression de profil :
+```bash
+# SMTP Configuration (ex: Gmail)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=votre-email@gmail.com
+SMTP_PASS=votre-app-password
+ADMIN_EMAIL=admin@pattamap.com
+```
+
+> **Note**: Sans cette configuration, les demandes de suppression sont loggées mais pas envoyées par email.
 
 **User Flow**:
 1. User enables push in settings

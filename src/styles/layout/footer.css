@@ -1,0 +1,80 @@
+/**
+ * ============================================
+ * APP FOOTER - Neo-Nightlife 2025
+ * ============================================
+ *
+ * Minimalist footer with legal links
+ * Theme: Semi-transparent, glassmorphism accent
+ */
+
+.app-footer {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(10, 10, 20, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: auto;
+}
+
+.app-footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-footer-copyright {
+  color: rgba(248, 250, 252, 0.5);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.app-footer-separator {
+  color: rgba(248, 250, 252, 0.25);
+  font-size: 10px;
+  user-select: none;
+}
+
+.app-footer-link {
+  color: rgba(248, 250, 252, 0.6);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.app-footer-link:hover {
+  color: #E879F9;
+}
+
+.app-footer-link:focus-visible {
+  outline: 2px solid #E879F9;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 480px) {
+  .app-footer {
+    padding: 14px 16px;
+  }
+
+  .app-footer-content {
+    gap: 8px;
+  }
+
+  .app-footer-copyright,
+  .app-footer-link {
+    font-size: 12px;
+  }
+
+  .app-footer-separator {
+    font-size: 8px;
+  }
+}

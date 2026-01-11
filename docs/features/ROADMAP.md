@@ -70,7 +70,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - ✅ Badge "✓ Vérifié" sur profils
 - ✅ Process vérification admin
 - ✅ Filtre "Profils vérifiés uniquement"
-- ✅ Azure Face API integration
+- ✅ Vérification manuelle par admin
 - ✅ Stats taux vérification par établissement
 - ✅ Support multilingue complet (6 langues)
 

@@ -14,6 +14,7 @@ import LoadingFallback from './components/Common/LoadingFallback';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import RouteErrorFallback from './components/Common/RouteErrorFallback';
 import OfflineBanner from './components/Common/OfflineBanner';
+import Footer from './components/Layout/Footer';
 
 // Lazy load heavy components for bundle optimization
 const ZoneGrid = React.lazy(() => import('./components/Home/ZoneGrid'));
@@ -84,7 +85,9 @@ import {
   MyAchievementsPage,
   GamifiedUserProfile,
   NotFoundPage,
-  EstablishmentsPage
+  EstablishmentsPage,
+  PrivacyPolicyPage,
+  TermsOfServicePage
 } from './routes/lazyComponents';
 
 // Auth pages - lazy loaded for direct URL access
@@ -163,6 +166,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                      location.pathname === '/reset-password';
   // Hide header on admin routes (admin has its own CommandHeader)
   const isAdminPage = location.pathname.startsWith('/admin');
+  // Hide footer on legal pages (they have their own footer)
+  const isLegalPage = location.pathname === '/privacy-policy' ||
+                      location.pathname === '/terms';
 
   return (
     <>
@@ -185,6 +191,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Suspense>
 
       {children}
+
+      {/* Footer - Hidden on auth, admin, and legal pages */}
+      {!isAuthPage && !isAdminPage && !isLegalPage && (
+        <Footer />
+      )}
     </>
   );
 };
@@ -324,6 +335,12 @@ const AppContent: React.FC = () => {
                   </ErrorBoundary>
                 </ProtectedRoute>
               } />
+
+              {/* ========================================
+                  LEGAL PAGES - Public
+                  ======================================== */}
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
 
               {/* ========================================
                   404 CATCH-ALL - Must be last

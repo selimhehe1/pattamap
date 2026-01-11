@@ -19,6 +19,8 @@ export const MyAchievementsPage = lazy(() => import('../pages/MyAchievementsPage
 export const GamifiedUserProfile = lazy(() => import('../pages/GamifiedUserProfile')); // 🆕 v10.4 - User Profile with gamification
 export const NotFoundPage = lazy(() => import('../pages/NotFoundPage')); // 🆕 v10.4 - 404 Page
 export const EstablishmentsPage = lazy(() => import('../pages/EstablishmentsPage')); // Zone establishments listing
+export const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage')); // 🆕 PDPA Compliance - Privacy Policy
+export const TermsOfServicePage = lazy(() => import('../pages/TermsOfServicePage')); // 🆕 Legal - Terms of Service
 
 // Heavy modal/form components with code splitting
 export const EmployeeForm = lazy(() => import('../components/Forms/EmployeeForm'));

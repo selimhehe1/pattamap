@@ -77,7 +77,7 @@ Le projet PattaMap présente une **architecture solide** avec des pratiques mode
 - Supabase (PostgreSQL + PostGIS)
 - JWT + httpOnly cookies + CSRF
 - Redis (cache) + Helmet.js (security)
-- Cloudinary (images) + Azure Face API (vérification)
+- Cloudinary (images)
 
 **DevOps:**
 - Vercel (frontend) + Railway (backend)

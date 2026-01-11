@@ -25,7 +25,7 @@ ALTER TABLE employee_verifications
 -- Comments
 -- ============================================
 
-COMMENT ON TABLE employee_verifications IS 'Stores employee profile verification attempts and results using Azure Face API. Allows up to 3 attempts per 24h per employee (rate limited in code).';
+COMMENT ON TABLE employee_verifications IS 'Stores employee profile verification attempts and results (manual admin review). Allows up to 3 attempts per 24h per employee (rate limited in code).';
 
 -- ============================================
 -- Success Message

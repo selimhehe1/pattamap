@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Share2, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Loader2, Heart, Pencil, Link2, X, Crown, Star, Search, CheckCircle, XCircle, ChevronLeft, ChevronRight, Shield, Share2, MessageSquare, ArrowLeft, UserCheck } from 'lucide-react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
 import { Employee, Comment, ThreadedComment, ReviewSubmitData, EmployeeFormData } from '../../types';
 import ReviewForm from '../Review/ReviewForm';
@@ -11,6 +11,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
 import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import ClaimEmployeeModal from '../Employee/ClaimEmployeeModal';
+import ClaimOrDeleteModal from '../Employee/ClaimOrDeleteModal';
+import DeletionRequestModal from '../Employee/DeletionRequestModal';
 import EmployeeVerificationStatusCard from '../Employee/EmployeeVerificationStatusCard';
 import ValidationSection from '../Employee/ValidationSection';
 import { useSecureFetch } from '../../hooks/useSecureFetch';
@@ -50,6 +52,8 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEmploymentHistory, setShowEmploymentHistory] = useState(false);
+  const [showClaimOrDeleteModal, setShowClaimOrDeleteModal] = useState(false);
+  const [showDeletionRequestModal, setShowDeletionRequestModal] = useState(false);
 
   // 🆕 Phase 5.3: Use centralized favorite hook with React Query optimistic updates
   const { isFavorite, toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite(girl.id);
@@ -415,7 +419,7 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
             </button>
           )}
 
-          {/* Claim Button */}
+          {/* Claim Button (for logged-in employees) */}
           {user && user.account_type === 'employee' && !user.linked_employee_id && !girl.user_id && (
             <button
               onClick={() => setShowClaimModal(true)}
@@ -423,6 +427,18 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
               aria-label={t('common.claimProfile', 'Claim Profile')}
             >
               <Link2 size={18} />
+            </button>
+          )}
+
+          {/* "C'est moi ?" Button (for unclaimed profiles - visible to everyone) */}
+          {!girl.user_id && (
+            <button
+              onClick={() => setShowClaimOrDeleteModal(true)}
+              className="profile-v2-header-btn profile-v2-header-btn--itsme"
+              aria-label={t('claimOrDelete.itsMe', "C'est moi ?")}
+              title={t('claimOrDelete.itsMe', "C'est moi ?")}
+            >
+              <UserCheck size={18} />
             </button>
           )}
 
@@ -828,6 +844,29 @@ const GirlProfile: React.FC<GirlProfileProps> = memo(({ girl, onClose }) => {
           <ClaimEmployeeModal
             preselectedEmployee={girl}
             onClose={() => setShowClaimModal(false)}
+          />
+        )}
+
+        {/* "C'est moi ?" Modal - Claim or Delete options */}
+        {showClaimOrDeleteModal && (
+          <ClaimOrDeleteModal
+            employee={girl}
+            onClose={() => setShowClaimOrDeleteModal(false)}
+            onRequestDeletion={() => {
+              setShowClaimOrDeleteModal(false);
+              setShowDeletionRequestModal(true);
+            }}
+          />
+        )}
+
+        {/* Deletion Request Modal */}
+        {showDeletionRequestModal && (
+          <DeletionRequestModal
+            employee={girl}
+            onClose={() => setShowDeletionRequestModal(false)}
+            onSuccess={() => {
+              notification.success(t('deletionRequest.successNotification', 'Votre demande de suppression a été envoyée'));
+            }}
           />
         )}
 

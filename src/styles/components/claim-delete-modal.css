@@ -1,0 +1,413 @@
+/**
+ * ============================================
+ * CLAIM OR DELETE MODAL STYLES
+ * ============================================
+ *
+ * Styles for the "C'est moi ?" modal and deletion request form
+ * Part of PDPA compliance features
+ */
+
+/* ============================================
+   1. PROFILE PREVIEW (shared)
+   ============================================ */
+
+.claim-delete-profile-preview,
+.deletion-request-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.claim-delete-profile-photo,
+.deletion-request-profile-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(232, 121, 249, 0.3);
+}
+
+.claim-delete-profile-placeholder,
+.deletion-request-profile-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.2), rgba(0, 229, 255, 0.2));
+  border: 2px solid rgba(232, 121, 249, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #E879F9;
+}
+
+.claim-delete-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.claim-delete-profile-name,
+.deletion-request-profile-name {
+  font-weight: 600;
+  color: #F8FAFC;
+  font-size: 15px;
+}
+
+.claim-delete-profile-nickname {
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.6);
+  font-style: italic;
+}
+
+/* ============================================
+   2. OPTIONS (ClaimOrDeleteModal)
+   ============================================ */
+
+.claim-delete-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.claim-delete-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.claim-delete-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.claim-delete-option--claim:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.15);
+}
+
+.claim-delete-option--delete:hover {
+  border-color: rgba(248, 113, 113, 0.4);
+  box-shadow: 0 4px 20px rgba(248, 113, 113, 0.15);
+}
+
+.claim-delete-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.claim-delete-option--claim .claim-delete-option-icon {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00E5FF;
+}
+
+.claim-delete-option--delete .claim-delete-option-icon {
+  background: rgba(248, 113, 113, 0.15);
+  color: #F87171;
+}
+
+.claim-delete-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.claim-delete-option-title {
+  font-weight: 600;
+  color: #F8FAFC;
+  font-size: 15px;
+}
+
+.claim-delete-option-desc {
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.6);
+  line-height: 1.4;
+}
+
+/* Legal notice */
+.claim-delete-notice {
+  font-size: 12px;
+  color: rgba(248, 250, 252, 0.5);
+  line-height: 1.5;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border-left: 3px solid rgba(0, 229, 255, 0.4);
+}
+
+/* ============================================
+   3. DELETION REQUEST FORM
+   ============================================ */
+
+.deletion-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.deletion-request-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deletion-request-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deletion-request-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.deletion-request-hint {
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.5);
+  margin: 0;
+}
+
+.deletion-request-input,
+.deletion-request-textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #F8FAFC;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: inherit;
+}
+
+.deletion-request-input:focus,
+.deletion-request-textarea:focus {
+  outline: none;
+  border-color: rgba(232, 121, 249, 0.5);
+  box-shadow: 0 0 0 3px rgba(232, 121, 249, 0.1);
+}
+
+.deletion-request-input::placeholder,
+.deletion-request-textarea::placeholder {
+  color: rgba(248, 250, 252, 0.4);
+}
+
+.deletion-request-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Upload button */
+.deletion-request-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: rgba(248, 250, 252, 0.6);
+  width: 100%;
+}
+
+.deletion-request-upload:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(232, 121, 249, 0.4);
+  color: #E879F9;
+}
+
+/* Preview */
+.deletion-request-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.deletion-request-preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.deletion-request-preview-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: rgba(248, 250, 252, 0.8);
+}
+
+.deletion-request-preview-file span {
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.deletion-request-preview-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(248, 113, 113, 0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.deletion-request-preview-remove:hover {
+  background: #F87171;
+  transform: scale(1.1);
+}
+
+/* Legal text */
+.deletion-request-legal {
+  font-size: 11px;
+  color: rgba(248, 250, 252, 0.4);
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(251, 191, 36, 0.4);
+}
+
+/* Submit button */
+.deletion-request-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #E879F9 0%, #F472B6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.deletion-request-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(232, 121, 249, 0.4);
+}
+
+.deletion-request-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Success state */
+.deletion-request-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.deletion-request-success-icon {
+  color: #4ADE80;
+  animation: successPulse 1s ease-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.deletion-request-success p {
+  color: rgba(248, 250, 252, 0.8);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================
+   4. HEADER BUTTON - "C'est moi ?"
+   ============================================ */
+
+.profile-v2-header-btn--itsme {
+  background: rgba(0, 229, 255, 0.15) !important;
+  color: #00E5FF !important;
+  border: 1px solid rgba(0, 229, 255, 0.3) !important;
+}
+
+.profile-v2-header-btn--itsme:hover {
+  background: rgba(0, 229, 255, 0.25) !important;
+  border-color: rgba(0, 229, 255, 0.5) !important;
+  transform: scale(1.05);
+}
+
+/* ============================================
+   5. RESPONSIVE
+   ============================================ */
+
+@media (max-width: 480px) {
+  .claim-delete-option {
+    padding: 12px;
+  }
+
+  .claim-delete-option-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .deletion-request-upload {
+    padding: 20px 16px;
+  }
+
+  .deletion-request-submit {
+    padding: 12px 20px;
+  }
+}

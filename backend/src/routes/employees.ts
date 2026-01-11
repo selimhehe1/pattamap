@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateToken, requireRole, requireAdmin } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { searchSuggestionsRateLimit, employeeSearchRateLimit } from '../middleware/rateLimit'; // 🔧 FIX S4
+import { uploadWithDocs } from '../middleware/upload';
 import {
   getEmployees,
   getEmployee,
@@ -24,6 +25,7 @@ import {
   getEmployeeReviews,
   recordProfileView
 } from '../controllers/employeeController';
+import { submitDeletionRequest } from '../controllers/deletionRequestController';
 
 const router = Router();
 
@@ -80,6 +82,10 @@ router.delete('/:id', authenticateToken, deleteEmployee);
 
 // Self-removal (special endpoint for employees to request removal)
 router.post('/:id/request-removal', requestSelfRemoval);
+
+// 🆕 PDPA Compliance: Profile deletion request (public, no auth required)
+// Allows anyone to request deletion of their profile by providing proof of identity
+router.post('/:id/deletion-request', uploadWithDocs.single('proof'), submitDeletionRequest);
 
 // Employment history
 router.post('/:id/employment', authenticateToken, addEmployment);

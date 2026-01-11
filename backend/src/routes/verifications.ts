@@ -15,7 +15,7 @@ const router = Router();
 // ==========================================
 // EMPLOYEE VERIFICATION ROUTES (v10.2)
 // ==========================================
-// Feature: Profile verification using Azure Face API
+// Feature: Profile verification using manual admin review
 // Docs: /docs/features/PROFILE_VERIFICATION.md
 
 /**

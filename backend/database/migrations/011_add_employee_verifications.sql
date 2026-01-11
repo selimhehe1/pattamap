@@ -67,9 +67,9 @@ CREATE INDEX IF NOT EXISTS idx_employees_verified
 -- 5. Add comments for documentation
 -- ============================================
 
-COMMENT ON TABLE employee_verifications IS 'Stores employee profile verification attempts and results using Azure Face API';
+COMMENT ON TABLE employee_verifications IS 'Stores employee profile verification attempts and results (manual admin review)';
 COMMENT ON COLUMN employee_verifications.selfie_url IS 'Cloudinary URL of verification selfie with mini heart pose';
-COMMENT ON COLUMN employee_verifications.face_match_score IS 'Best face matching score (0-100) from Azure Face API comparing selfie vs all profile photos';
+COMMENT ON COLUMN employee_verifications.face_match_score IS 'Score de correspondance (historique, non utilisé - vérification manuelle)';
 COMMENT ON COLUMN employee_verifications.status IS 'Verification status: pending (processing), approved (>=75%), rejected (<65%), manual_review (65-75%), revoked (admin removed)';
 COMMENT ON COLUMN employee_verifications.auto_approved IS 'True if approved automatically by AI (score >=75%), false if manual admin approval';
 COMMENT ON COLUMN employee_verifications.admin_notes IS 'Admin notes for manual reviews or revocations (e.g., "Fake identity", "Photo mismatch")';
