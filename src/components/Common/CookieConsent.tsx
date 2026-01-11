@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   hasConsentChoice,
@@ -58,9 +57,9 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ onAccept, onDecline }) =>
           <p className="cookie-consent-description">
             {t('cookies.description', 'We use cookies to analyze site usage and improve your experience. You can accept or decline analytics cookies.')}
             {' '}
-            <Link to="/privacy-policy" className="cookie-consent-link">
+            <a href="/privacy-policy" className="cookie-consent-link">
               {t('cookies.learnMore', 'Learn more')}
-            </Link>
+            </a>
           </p>
         </div>
         <div className="cookie-consent-actions">

@@ -39,7 +39,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
   boundaryName
 }) => {
-  const isDevelopment = import.meta.env.DEV;
+const isDevelopment = import.meta.env.DEV;
 
   const handleGoHome = () => {
     window.location.href = '/';
