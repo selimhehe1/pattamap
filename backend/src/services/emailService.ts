@@ -13,6 +13,8 @@
  */
 
 import { logger } from '../utils/logger';
+import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
 interface EmailOptions {
   to: string;
@@ -44,22 +46,12 @@ const isSmtpConfigured = (): boolean => {
   );
 };
 
-// Lazy load nodemailer only when needed
-let nodemailer: typeof import('nodemailer') | null = null;
-let transporter: ReturnType<typeof import('nodemailer')['createTransport']> | null = null;
+// Transporter instance (created on first use)
+let transporter: Transporter | null = null;
 
-const getTransporter = async () => {
+const getTransporter = (): Transporter | null => {
   if (!isSmtpConfigured()) {
     return null;
-  }
-
-  if (!nodemailer) {
-    try {
-      nodemailer = await import('nodemailer');
-    } catch {
-      logger.warn('Nodemailer not installed. Run: npm install nodemailer');
-      return null;
-    }
   }
 
   if (!transporter) {
@@ -82,7 +74,7 @@ const getTransporter = async () => {
  * Falls back to console logging if SMTP is not configured
  */
 export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
-  const transport = await getTransporter();
+  const transport = getTransporter();
 
   if (!transport) {
     // Log email instead of sending
