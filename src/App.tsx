@@ -23,6 +23,8 @@ const XPToastNotifications = React.lazy(() => import('./components/Gamification/
 import { logger } from './utils/logger';
 import { NotificationProvider } from './components/Notifications';
 import { initGA, initWebVitals, trackPageView } from './utils/analytics';
+import { hasAcceptedCookies } from './utils/cookieConsent';
+import CookieConsent from './components/Common/CookieConsent';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransition from './components/Common/PageTransition';
 
@@ -359,11 +361,20 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  // Initialize GA4 and Web Vitals on app mount
+  // Initialize GA4 and Web Vitals on app mount (ONLY if cookies accepted)
   useEffect(() => {
-    initGA();
-    initWebVitals(); // Track Core Web Vitals (LCP, INP, CLS)
+    // Only initialize GA4 if user has already accepted cookies
+    if (hasAcceptedCookies()) {
+      initGA();
+      initWebVitals(); // Track Core Web Vitals (LCP, INP, CLS)
+    }
   }, []);
+
+  // Handler for when user accepts cookies via banner
+  const handleCookieAccept = () => {
+    initGA();
+    initWebVitals();
+  };
 
   return (
     <ErrorBoundary boundaryName="App">
@@ -377,6 +388,7 @@ const App: React.FC = () => {
                     <SidebarProvider>
                       <NotificationProvider>
                         <AppContent />
+                        <CookieConsent onAccept={handleCookieAccept} />
                       </NotificationProvider>
                     </SidebarProvider>
                   </ModalProvider>

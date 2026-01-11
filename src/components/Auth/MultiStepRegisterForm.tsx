@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Lock, KeyRound, Mail, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Lock, KeyRound, Mail, User, CheckSquare } from 'lucide-react';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useEmployeeSearch } from '../../hooks/useEmployees';
@@ -28,6 +29,8 @@ interface MultiStepRegisterFormProps {
 interface FormData {
   // Index signature for compatibility with useFormValidation
   [key: string]: unknown;
+  // GDPR/Terms acceptance
+  acceptedTerms: boolean;
   // Step 1
   accountType: 'regular' | 'employee' | 'establishment_owner'; // 🆕 v10.1
   // Step 2 (employee only)
@@ -100,6 +103,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
   // Form data state
   const [formData, setFormData] = useState<FormData>({
+    acceptedTerms: false,
     accountType: 'regular',
     employeePath: null,
     selectedEmployee: null,
@@ -459,6 +463,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onClick={() => {
                 clearDraft();
                 setFormData({
+                  acceptedTerms: false,
                   accountType: 'regular',
                   employeePath: null,
                   selectedEmployee: null,
@@ -662,6 +667,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onContactMeChange={(checked) => handleInputChange('ownershipContactMe', checked)}
               message={formData.ownershipRequestMessage}
               onMessageChange={(msg) => handleInputChange('ownershipRequestMessage', msg)}
+              acceptedTerms={formData.acceptedTerms}
+              onAcceptedTermsChange={(accepted) => handleInputChange('acceptedTerms', accepted)}
               isLoading={isLoading}
               onPrevious={handlePrevious}
               onNext={handleNext}
@@ -840,6 +847,54 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 </div>
               )}
 
+              {/* Terms Acceptance Checkbox - GDPR/PDPA Compliance */}
+              <div style={{
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                padding: '16px',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
+                border: `1px solid ${!formData.acceptedTerms && submitError ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`
+              }}>
+                <input
+                  type="checkbox"
+                  id="acceptedTerms"
+                  checked={formData.acceptedTerms}
+                  onChange={(e) => handleInputChange('acceptedTerms', e.target.checked)}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    marginTop: '2px',
+                    accentColor: '#10b981',
+                    cursor: 'pointer',
+                    flexShrink: 0
+                  }}
+                  required
+                />
+                <label
+                  htmlFor="acceptedTerms"
+                  style={{
+                    color: 'rgba(248, 250, 252, 0.9)',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <CheckSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#10b981' }} />
+                  {t('register.acceptTerms', 'I accept the')}{' '}
+                  <Link to="/privacy-policy" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+                    {t('register.privacyPolicy', 'Privacy Policy')}
+                  </Link>
+                  {' '}{t('register.and', 'and')}{' '}
+                  <Link to="/terms" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+                    {t('register.termsOfService', 'Terms of Service')}
+                  </Link>
+                  {' *'}
+                </label>
+              </div>
+
               {submitError && (
                 <div className="error-message-nightlife error-shake" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <AlertTriangle size={16} /> {submitError}
@@ -938,6 +993,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onEstablishmentClear={() => handleInputChange('establishmentId', '')}
               establishments={establishments}
               socialMedia={formData.socialMedia}
+              acceptedTerms={formData.acceptedTerms}
+              onAcceptedTermsChange={(accepted) => handleInputChange('acceptedTerms', accepted)}
               isLoading={isLoading}
               uploadingPhotos={uploadingPhotos}
               submitError={submitError}
@@ -960,6 +1017,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               tiktok={formData.newEstablishmentTiktok}
               onFieldChange={(field, value) => handleInputChange(field as keyof FormData, value as FormData[keyof FormData])}
               categories={categories}
+              acceptedTerms={formData.acceptedTerms}
+              onAcceptedTermsChange={(accepted) => handleInputChange('acceptedTerms', accepted)}
               isLoading={isLoading}
               submitError={submitError}
               onPrevious={handlePrevious}

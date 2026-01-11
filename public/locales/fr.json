@@ -629,6 +629,11 @@
     "selfCreatedEstablishmentMessage": "Auto-créé lors de l'inscription",
     "draftCleared": "Brouillon effacé",
     "draftClearedToast": "Brouillon effacé",
+    "acceptTerms": "J'accepte la",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions d'Utilisation",
+    "and": "et les",
+    "acceptTermsRequired": "Vous devez accepter la Politique de Confidentialité et les Conditions d'Utilisation",
     "zones": {
       "beachroad": "Beach Road",
       "walkingstreet": "Walking Street",
@@ -1043,7 +1048,37 @@
     "titleRemoveFavorite": "Cliquez pour retirer des favoris",
     "ageLabel": "{{age}} ans",
     "establishmentLabel": "Travaille actuellement à",
-    "notEmployed": "Ne travaille pas actuellement"
+    "notEmployed": "Ne travaille pas actuellement",
+    "settingsTitle": "Paramètres",
+    "dangerZone": "Zone Dangereuse",
+    "deleteAccountDescription": "Supprimez définitivement votre compte et toutes les données associées. Cette action est irréversible.",
+    "deleteAccountButton": "Supprimer mon compte"
+  },
+
+  "cookies": {
+    "title": "Paramètres des cookies",
+    "description": "Nous utilisons des cookies pour analyser l'utilisation du site et améliorer votre expérience. Vous pouvez accepter ou refuser les cookies analytiques.",
+    "learnMore": "En savoir plus",
+    "accept": "Accepter",
+    "decline": "Refuser"
+  },
+
+  "deleteAccount": {
+    "title": "Supprimer le compte",
+    "warning": "Cette action est définitive et irréversible",
+    "consequencesIntro": "La suppression de votre compte entraînera :",
+    "consequence1": "La suppression définitive de toutes vos données personnelles",
+    "consequence2": "La suppression de tous vos favoris et avis",
+    "consequence3": "La dissociation des profils d'employées que vous avez réclamés",
+    "consequence4": "La suppression de vos succès et votre progression XP",
+    "consequence5": "La suppression de toutes vos demandes de propriété",
+    "confirmPrompt": "Tapez \"{{word}}\" pour confirmer :",
+    "confirmError": "Veuillez taper \"{{word}}\" pour confirmer",
+    "cancel": "Annuler",
+    "confirmButton": "Supprimer le compte",
+    "deleting": "Suppression en cours...",
+    "success": "Votre compte a été supprimé. Au revoir !",
+    "deleteFailed": "Échec de la suppression du compte"
   },
 
   "form": {

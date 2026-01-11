@@ -1,0 +1,168 @@
+/**
+ * ============================================
+ * COOKIE CONSENT BANNER - Neo-Nightlife 2025
+ * ============================================
+ *
+ * GDPR/PDPA compliant cookie consent banner
+ * Position: fixed bottom
+ * Theme: Glassmorphism, dark with accent colors
+ */
+
+.cookie-consent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 16px 20px;
+  background: rgba(15, 15, 25, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.cookie-consent-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cookie-consent-text {
+  flex: 1;
+}
+
+.cookie-consent-title {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.cookie-consent-description {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(248, 250, 252, 0.7);
+  line-height: 1.5;
+}
+
+.cookie-consent-link {
+  color: #E879F9;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cookie-consent-link:hover {
+  color: #f0abfc;
+  text-decoration: underline;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.cookie-consent-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.cookie-consent-btn:focus-visible {
+  outline: 2px solid #E879F9;
+  outline-offset: 2px;
+}
+
+/* Decline Button - Subtle/Ghost style */
+.cookie-consent-btn-decline {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cookie-consent-btn-decline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+/* Accept Button - Primary green style */
+.cookie-consent-btn-accept {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.cookie-consent-btn-accept:hover {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE - Mobile
+   ============================================ */
+
+@media (max-width: 640px) {
+  .cookie-consent {
+    padding: 14px 16px;
+  }
+
+  .cookie-consent-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .cookie-consent-title {
+    font-size: 15px;
+  }
+
+  .cookie-consent-description {
+    font-size: 13px;
+  }
+
+  .cookie-consent-actions {
+    justify-content: stretch;
+  }
+
+  .cookie-consent-btn {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-consent {
+    animation: none;
+  }
+
+  .cookie-consent-btn-accept:hover {
+    transform: none;
+  }
+}

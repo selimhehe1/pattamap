@@ -1,8 +1,27 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
+import { requireCSRF } from '../middleware/csrf';
 import * as userController from '../controllers/userController';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /api/users/me:
+ *   delete:
+ *     summary: Delete current user's account (GDPR right to erasure)
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ *       401:
+ *         description: Authentication required
+ *       500:
+ *         description: Failed to delete account
+ */
+router.delete('/me', authenticateToken, requireCSRF, userController.deleteAccount);
 
 /**
  * @swagger

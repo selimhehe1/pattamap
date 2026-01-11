@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigateWithTransition } from '../../hooks/useNavigateWithTransition';
-import { Edit, Star, MailX, Search, Settings } from 'lucide-react';
+import { Edit, Star, MailX, Search, Settings, AlertTriangle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useModal } from '../../contexts/ModalContext';
@@ -10,6 +10,7 @@ import { GirlProfile } from '../../routes/lazyComponents';
 import EditEmployeeModal from '../Employee/EditEmployeeModal';
 import EmployeeCard from '../Common/EmployeeCard';
 import PushNotificationSettings from './PushNotificationSettings';
+import DeleteAccountModal from './DeleteAccountModal';
 import { Employee } from '../../types';
 import { logger } from '../../utils/logger';
 import notification from '../../utils/notification';
@@ -29,6 +30,7 @@ const UserDashboard: React.FC = () => {
   const removeFavoriteMutation = useRemoveFavorite();
 
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fonction de mapping Favorite → Employee pour EmployeeCard
   const favoriteToEmployee = (favorite: Favorite): Employee => ({
@@ -206,6 +208,64 @@ const UserDashboard: React.FC = () => {
           </h2>
           <PushNotificationSettings />
         </div>
+
+        {/* Danger Zone - Account Deletion */}
+        <div style={{
+          marginTop: '60px',
+          padding: '24px',
+          background: 'rgba(239, 68, 68, 0.05)',
+          borderRadius: '16px',
+          border: '1px solid rgba(239, 68, 68, 0.2)'
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#ef4444',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <AlertTriangle size={20} />
+            {t('userDashboard.dangerZone', 'Danger Zone')}
+          </h2>
+          <p style={{
+            fontSize: '14px',
+            color: 'rgba(248, 250, 252, 0.7)',
+            marginBottom: '20px',
+            lineHeight: '1.5'
+          }}>
+            {t('userDashboard.deleteAccountDescription', 'Permanently delete your account and all associated data. This action cannot be undone.')}
+          </p>
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: '2px solid rgba(239, 68, 68, 0.5)',
+              borderRadius: '8px',
+              color: '#ef4444',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+              e.currentTarget.style.borderColor = '#ef4444';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+            }}
+          >
+            <Trash2 size={16} />
+            {t('userDashboard.deleteAccountButton', 'Delete Account')}
+          </button>
+        </div>
       </div>
 
       {/* Edit My Profile Modal */}
@@ -216,6 +276,12 @@ const UserDashboard: React.FC = () => {
           // Optionally refresh data or show success message
           logger.debug('Profile updated successfully');
         }}
+      />
+
+      {/* Delete Account Confirmation Modal */}
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
       />
 
     </div>

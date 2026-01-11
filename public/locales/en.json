@@ -628,6 +628,11 @@
     "establishmentCreationFailed": "Failed to create establishment",
     "establishmentCreatedPending": "Account and establishment created! Both will be reviewed by an admin.",
     "selfCreatedEstablishmentMessage": "Self-created during registration",
+    "acceptTerms": "I accept the",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "acceptTermsRequired": "You must accept the Privacy Policy and Terms of Service",
     "zones": {
       "beachroad": "Beach Road",
       "walkingstreet": "Walking Street",
@@ -1340,7 +1345,37 @@
     "titleRemoveFavorite": "Click to remove from favorites",
     "ageLabel": "{{age}} years",
     "establishmentLabel": "Currently Working At",
-    "notEmployed": "Not currently employed"
+    "notEmployed": "Not currently employed",
+    "settingsTitle": "Settings",
+    "dangerZone": "Danger Zone",
+    "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "deleteAccountButton": "Delete Account"
+  },
+
+  "cookies": {
+    "title": "Cookie Settings",
+    "description": "We use cookies to analyze site usage and improve your experience. You can accept or decline analytics cookies.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+
+  "deleteAccount": {
+    "title": "Delete Account",
+    "warning": "This action is permanent and cannot be undone",
+    "consequencesIntro": "Deleting your account will:",
+    "consequence1": "Permanently delete all your personal data",
+    "consequence2": "Remove all your favorites and reviews",
+    "consequence3": "Unlink any employee profiles you claimed",
+    "consequence4": "Delete your achievements and XP progress",
+    "consequence5": "Remove all ownership requests",
+    "confirmPrompt": "Type \"{{word}}\" to confirm:",
+    "confirmError": "Please type \"{{word}}\" to confirm",
+    "cancel": "Cancel",
+    "confirmButton": "Delete Account",
+    "deleting": "Deleting...",
+    "success": "Your account has been deleted. Goodbye!",
+    "deleteFailed": "Failed to delete account"
   },
 
   "reviewsList": {

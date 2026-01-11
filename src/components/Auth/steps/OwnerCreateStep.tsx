@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
   Building2, Store, MapPin, Crown, BookOpen, Phone, Globe,
-  Users, AlertTriangle, Loader2, Sparkles
+  Users, AlertTriangle, Loader2, Sparkles, CheckSquare
 } from 'lucide-react';
 import FormField from '../../Common/FormField';
 import { EstablishmentCategory } from '../../../types';
@@ -24,6 +25,10 @@ interface OwnerCreateStepProps {
 
   // Categories
   categories: EstablishmentCategory[];
+
+  // Terms acceptance
+  acceptedTerms: boolean;
+  onAcceptedTermsChange: (accepted: boolean) => void;
 
   // State
   isLoading: boolean;
@@ -54,13 +59,15 @@ const OwnerCreateStep: React.FC<OwnerCreateStepProps> = ({
   tiktok,
   onFieldChange,
   categories,
+  acceptedTerms,
+  onAcceptedTermsChange,
   isLoading,
   submitError,
   onPrevious,
 }) => {
   const { t } = useTranslation();
 
-  const isFormValid = name.trim() && address.trim() && zone && categoryId;
+  const isFormValid = name.trim() && address.trim() && zone && categoryId && acceptedTerms;
 
   return (
     <div style={{
@@ -227,6 +234,55 @@ const OwnerCreateStep: React.FC<OwnerCreateStepProps> = ({
             placeholder="@username"
           />
         </div>
+      </div>
+
+      {/* Terms Acceptance Checkbox - GDPR/PDPA Compliance */}
+      <div style={{
+        marginTop: '20px',
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+        padding: '16px',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '12px',
+        border: `1px solid ${!acceptedTerms && submitError ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`
+      }}>
+        <input
+          type="checkbox"
+          id="acceptedTermsOwner"
+          checked={acceptedTerms}
+          onChange={(e) => onAcceptedTermsChange(e.target.checked)}
+          style={{
+            width: '20px',
+            height: '20px',
+            marginTop: '2px',
+            accentColor: '#10b981',
+            cursor: 'pointer',
+            flexShrink: 0
+          }}
+          required
+        />
+        <label
+          htmlFor="acceptedTermsOwner"
+          style={{
+            color: 'rgba(248, 250, 252, 0.9)',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            cursor: 'pointer'
+          }}
+        >
+          <CheckSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#10b981' }} />
+          {t('register.acceptTerms', 'I accept the')}{' '}
+          <Link to="/privacy-policy" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+            {t('register.privacyPolicy', 'Privacy Policy')}
+          </Link>
+          {' '}{t('register.and', 'and')}{' '}
+          <Link to="/terms" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+            {t('register.termsOfService', 'Terms of Service')}
+          </Link>
+          {' *'}
+        </label>
       </div>
 
       {submitError && (

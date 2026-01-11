@@ -163,3 +163,140 @@ export const getUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     }
   });
 });
+
+/**
+ * Delete user account (GDPR right to erasure)
+ * DELETE /api/users/me
+ *
+ * This endpoint:
+ * 1. Deletes user's favorites
+ * 2. Deletes user's reviews
+ * 3. Anonymizes employee profiles linked to user
+ * 4. Deletes notifications
+ * 5. Deletes user from Supabase Auth
+ * 6. Deletes user record from database
+ */
+export const deleteAccount = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    throw BadRequestError('Authentication required');
+  }
+
+  const userId = req.user.id;
+  logger.info('Starting account deletion process', { userId });
+
+  try {
+    // 1. Delete user's favorites
+    const { error: favoritesError } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', userId);
+
+    if (favoritesError) {
+      logger.warn('Failed to delete favorites:', favoritesError);
+    }
+
+    // 2. Delete user's reviews
+    const { error: reviewsError } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('user_id', userId);
+
+    if (reviewsError) {
+      logger.warn('Failed to delete reviews:', reviewsError);
+    }
+
+    // 3. Anonymize employee profiles linked to user (don't delete, just unlink)
+    const { error: employeesError } = await supabase
+      .from('employees')
+      .update({
+        user_id: null,
+        claim_status: 'unclaimed',
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId);
+
+    if (employeesError) {
+      logger.warn('Failed to anonymize employee profiles:', employeesError);
+    }
+
+    // 4. Delete notifications
+    const { error: notificationsError } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', userId);
+
+    if (notificationsError) {
+      logger.warn('Failed to delete notifications:', notificationsError);
+    }
+
+    // 5. Delete XP history (gamification)
+    const { error: xpHistoryError } = await supabase
+      .from('user_xp_history')
+      .delete()
+      .eq('user_id', userId);
+
+    if (xpHistoryError) {
+      logger.warn('Failed to delete XP history:', xpHistoryError);
+    }
+
+    // 6. Delete user achievements
+    const { error: achievementsError } = await supabase
+      .from('user_achievements')
+      .delete()
+      .eq('user_id', userId);
+
+    if (achievementsError) {
+      logger.warn('Failed to delete achievements:', achievementsError);
+    }
+
+    // 7. Delete ownership requests
+    const { error: ownershipError } = await supabase
+      .from('ownership_requests')
+      .delete()
+      .eq('user_id', userId);
+
+    if (ownershipError) {
+      logger.warn('Failed to delete ownership requests:', ownershipError);
+    }
+
+    // 8. Delete employee claim requests
+    const { error: claimError } = await supabase
+      .from('employee_claim_requests')
+      .delete()
+      .eq('user_id', userId);
+
+    if (claimError) {
+      logger.warn('Failed to delete claim requests:', claimError);
+    }
+
+    // 9. Delete user record from database
+    const { error: userDeleteError } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', userId);
+
+    if (userDeleteError) {
+      logger.error('Failed to delete user record:', userDeleteError);
+      throw BadRequestError('Failed to delete user account');
+    }
+
+    // 10. Delete from Supabase Auth
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+
+    if (authDeleteError) {
+      logger.error('Failed to delete from Supabase Auth:', authDeleteError);
+      // The user record is already deleted, so we log but don't fail
+    }
+
+    logger.info('Account deleted successfully', { userId });
+
+    res.json({
+      message: 'Account deleted successfully',
+      deleted_at: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Account deletion failed:', error);
+    throw BadRequestError('Failed to delete account. Please try again or contact support.');
+  }
+});

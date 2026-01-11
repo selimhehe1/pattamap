@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Crown, Building2, Rocket, CheckCircle, MapPin, Upload, Mail, MessageSquare, Loader2, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Crown, Building2, Rocket, CheckCircle, MapPin, Upload, Mail, MessageSquare, Loader2, Send, CheckSquare } from 'lucide-react';
 import { Establishment } from '../../../types';
 import { getZoneLabel } from '../../../utils/constants';
 import { EstablishmentAutocomplete, DocumentUploadGrid } from '../components';
@@ -35,6 +36,10 @@ interface OwnerPathStepProps {
   message: string;
   onMessageChange: (message: string) => void;
 
+  // Terms acceptance (for claim flow)
+  acceptedTerms: boolean;
+  onAcceptedTermsChange: (accepted: boolean) => void;
+
   // Navigation
   isLoading: boolean;
   onPrevious: () => void;
@@ -66,6 +71,8 @@ const OwnerPathStep: React.FC<OwnerPathStepProps> = ({
   onContactMeChange,
   message,
   onMessageChange,
+  acceptedTerms,
+  onAcceptedTermsChange,
   isLoading,
   onPrevious,
   onNext,
@@ -282,6 +289,57 @@ const OwnerPathStep: React.FC<OwnerPathStepProps> = ({
         </div>
       </label>
 
+      {/* Terms Acceptance Checkbox - GDPR/PDPA Compliance (only show for claim) */}
+      {ownerPath === 'claim' && selectedEstablishment && (
+        <div style={{
+          marginTop: '20px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px',
+          padding: '16px',
+          background: 'rgba(255,255,255,0.03)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <input
+            type="checkbox"
+            id="acceptedTermsOwnerClaim"
+            checked={acceptedTerms}
+            onChange={(e) => onAcceptedTermsChange(e.target.checked)}
+            style={{
+              width: '20px',
+              height: '20px',
+              marginTop: '2px',
+              accentColor: '#10b981',
+              cursor: 'pointer',
+              flexShrink: 0
+            }}
+            required
+          />
+          <label
+            htmlFor="acceptedTermsOwnerClaim"
+            style={{
+              color: 'rgba(248, 250, 252, 0.9)',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              cursor: 'pointer'
+            }}
+          >
+            <CheckSquare size={14} style={{ marginRight: '6px', verticalAlign: 'middle', color: '#10b981' }} />
+            {t('register.acceptTerms', 'I accept the')}{' '}
+            <Link to="/privacy-policy" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+              {t('register.privacyPolicy', 'Privacy Policy')}
+            </Link>
+            {' '}{t('register.and', 'and')}{' '}
+            <Link to="/terms" target="_blank" style={{ color: '#E879F9', textDecoration: 'none' }}>
+              {t('register.termsOfService', 'Terms of Service')}
+            </Link>
+            {' *'}
+          </label>
+        </div>
+      )}
+
       {/* Navigation Buttons */}
       <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
         <button
@@ -297,7 +355,7 @@ const OwnerPathStep: React.FC<OwnerPathStepProps> = ({
           <button
             type="button"
             onClick={onSubmit}
-            disabled={!selectedEstablishment || isLoading}
+            disabled={!selectedEstablishment || isLoading || !acceptedTerms}
             className="btn btn--success"
             style={{ flex: 2 }}
           >

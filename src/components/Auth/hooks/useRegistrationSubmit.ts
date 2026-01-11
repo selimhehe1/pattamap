@@ -15,6 +15,7 @@ interface SocialMediaData {
 
 interface FormDataForSubmit {
   accountType: 'regular' | 'employee' | 'establishment_owner';
+  acceptedTerms: boolean;
   pseudonym: string;
   email: string;
   password: string;
@@ -96,6 +97,13 @@ export function useRegistrationSubmit({
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // GDPR/PDPA: Require terms acceptance
+    if (!formData.acceptedTerms) {
+      setSubmitError(t('register.acceptTermsRequired', 'You must accept the Privacy Policy and Terms of Service'));
+      notification.error(t('register.acceptTermsRequired', 'You must accept the Privacy Policy and Terms of Service'));
+      return;
+    }
 
     if (!validateForm()) {
       notification.error(t('register.fixErrorsToast'));
