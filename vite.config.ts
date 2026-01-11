@@ -18,6 +18,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Use injectManifest to include custom push notification handlers
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       includeAssets: ['favicon.ico', 'logo192.png', 'logo512.png'],
       manifest: {
         name: 'PattaMap - Pattaya Entertainment Directory',
@@ -49,21 +53,14 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\./i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 // 1 hour
-              }
-            }
-          }
-        ]
+        // Increase the max file size for precaching (default is 2MB)
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
+      },
+      devOptions: {
+        enabled: false, // Disable SW in development to avoid caching issues
+        type: 'module'
       }
     })
   ],
