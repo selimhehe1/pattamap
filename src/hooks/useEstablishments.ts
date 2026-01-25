@@ -77,20 +77,17 @@ export const useDeleteEstablishment = establishmentHooks.useDelete;
 
 /**
  * Hook pour récupérer les établissements filtrés par zone
- * Utilise les données cachées de useEstablishments et filtre côté client
+ * Utilise l'API avec le paramètre zone pour un filtrage côté serveur
  */
 export const useEstablishmentsByZone = (zone: string | null) => {
-  const { data: allEstablishments, isLoading, error } = useEstablishments();
-
-  const filteredEstablishments = React.useMemo(() => {
-    if (!allEstablishments || !zone) return [];
-    return allEstablishments.filter(est => est.zone === zone);
-  }, [allEstablishments, zone]);
+  // Use API filtering when zone is provided, otherwise fetch all
+  const queryParams = zone ? `zone=${zone}&limit=200` : 'limit=200';
+  const result = establishmentHooks.useList(queryParams);
 
   return {
-    data: filteredEstablishments,
-    isLoading,
-    error,
-    totalCount: filteredEstablishments.length,
+    data: result.data || [],
+    isLoading: result.isLoading,
+    error: result.error,
+    totalCount: result.data?.length || 0,
   };
 };
