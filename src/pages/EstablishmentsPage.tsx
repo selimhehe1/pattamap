@@ -49,7 +49,7 @@ const zoneTaglines: Record<string, string> = {
 // Category definitions with Lucide icons
 const categories = [
   { id: 'bar', name: 'Bar', icon: <Beer size={16} /> },
-  { id: 'go-go', name: 'GoGo', icon: <Sparkles size={16} /> },
+  { id: 'gogo', name: 'GoGo', icon: <Sparkles size={16} /> },
   { id: 'massage', name: 'Massage', icon: <Heart size={16} /> },
   { id: 'club', name: 'Club', icon: <Music size={16} /> },
   { id: 'karaoke', name: 'Karaoke', icon: <Mic size={16} /> },
