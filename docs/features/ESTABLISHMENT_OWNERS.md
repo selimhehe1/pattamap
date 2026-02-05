@@ -49,15 +49,16 @@ The Establishment Owners system allows venue owners to manage their establishmen
 
 **Backend**:
 - Node.js 18+ + Express 4.18.2
-- TypeScript 5.9.2
-- PostgreSQL (via Supabase 2.57.4)
+- TypeScript ^5.9.3
+- PostgreSQL (via Supabase ^2.75.0)
 - JWT Authentication + httpOnly cookies
 
 **Frontend**:
-- React 19.1.1 + TypeScript 5.9.3
-- React Router 7.9.1
-- React Query 5.90.2
-- Framer Motion 12.23.22
+- React ^19.2.0 + TypeScript ^5.9.3
+- React Router ^7.9.4
+- React Query ^5.90.2
+- Vite ^7.2.7
+- Framer Motion ^12.23.24
 
 ### System Flow
 
@@ -642,8 +643,8 @@ CORS_ORIGIN=https://yourdomain.com
 
 **Frontend** (`.env`):
 ```bash
-REACT_APP_API_URL=https://api.yourdomain.com
-REACT_APP_ENV=production
+VITE_API_URL=https://api.yourdomain.com
+VITE_SENTRY_ENVIRONMENT=production
 ```
 
 ### Database Migration

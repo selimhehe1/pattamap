@@ -72,7 +72,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - ✅ Filtre "Profils vérifiés uniquement"
 - ✅ Vérification manuelle par admin
 - ✅ Stats taux vérification par établissement
-- ✅ Support multilingue complet (6 langues)
+- ✅ Support multilingue complet (8 langues)
 
 **Impact**: Confiance +80%, réduction fraudes
 **Controllers**: `verificationController.ts`
@@ -448,7 +448,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
   - Filtres par établissement
   - États "Login Required" et "Empty State"
 - **Menu link** "My Visits" dans Header (route `/my-visits`)
-- **i18n** 6 langues (EN/FR/TH/RU/CN/HI) - 15+ clés traductions
+- **i18n** 8 langues (EN/FR/TH/RU/CN/HI/JA/KO) - 15+ clés traductions
 - **Styles nightlife** (`src/styles/pages/visit-history.css` ~180 lignes)
 
 **Impact**: Fidélisation +30%, données analytics
@@ -666,7 +666,7 @@ L'audit a été réalisé en:
 3. **Sécurité**: CSRF protection sur toutes mutations, 7/7 vulns fixed ✅
 4. **Accessibilité**: Support lecteurs d'écran, WCAG AA minimum
 5. **Tests**: Coverage minimum 80% nouvelles features critiques
-6. **i18n**: Toute nouvelle UI doit supporter 6 langues dès le départ
+6. **i18n**: Toute nouvelle UI doit supporter 8 langues dès le départ
 7. **Documentation**: Update docs technique à chaque feature majeure
 
 ---
@@ -687,7 +687,7 @@ L'audit a été réalisé en:
 - 30+ tables database optimisées
 - 100+ composants React
 - 50+ tests (notifications seul)
-- 6 langues complètes i18n
+- 8 langues complètes i18n
 
 **Zones**:
 - 9 zones géographiques

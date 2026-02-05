@@ -1,4 +1,4 @@
-# 🛠️ Stack Technique - PattaMap
+# Stack Technique - PattaMap
 
 ## Vue d'ensemble
 
@@ -9,30 +9,70 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 ## Frontend
 
 ### Core Technologies
-- **React** 19.1.1 - Bibliothèque UI moderne avec Concurrent Mode
-- **TypeScript** 5.9.3 - Typage statique strict
-- **React Router** 7.9.1 - Navigation SPA
+- **React** ^19.2.0 - Bibliothèque UI moderne avec Concurrent Mode
+- **TypeScript** ^5.9.3 - Typage statique strict
+- **React Router** ^7.9.4 - Navigation SPA
+- **Vite** ^7.2.7 - Build tool ultra-rapide (HMR, ESM natif)
 
 ### State Management & Data Fetching
-- **React Query (TanStack Query)** 5.90.2 - Gestion état serveur, cache intelligent
-- **React Context** - État global (Auth, Modal, CSRF)
-- **Custom Hooks** - Logique réutilisable (useSecureFetch, useContainerSize)
+- **React Query (TanStack Query)** ^5.90.2 - Gestion état serveur, cache intelligent
+- **React Context** - État global (Auth split en 6 sous-contextes, Modal, CSRF, Gamification, Sidebar, Theme, MapControls)
+- **Custom Hooks** - 50+ hooks réutilisables (useSecureFetch, useContainerSize, useFocusTrap, etc.)
 
 ### UI & Styling
-- **CSS Modules** - Styles scopés par composant
-- **Nightlife Theme** - Système de thème personnalisé (dark/light)
-- **Framer Motion** 12.23.22 - Animations fluides
-- **React Hot Toast** 2.6.0 - Notifications utilisateur
+- **CSS Modules / SCSS Bundles** - Styles scopés, design system, responsive
+- **Nightlife Theme** - Système de thème personnalisé (dark/light avec ThemeToggle)
+- **Framer Motion** ^12.23.24 - Animations fluides
+- **Lucide React** ^0.545.0 - Icônes SVG modernes
+- **Recharts** ^3.5.1 - Graphiques et visualisations (XP History, analytics)
+
+### Internationalization (i18n)
+- **i18next** ^25.6.0 - Framework de traduction
+- **react-i18next** ^16.0.0 - Intégration React
+- **i18next-browser-languagedetector** ^8.2.0 - Détection langue navigateur
+- **i18next-http-backend** ^3.0.2 - Chargement traductions
+- **8 langues** : EN, TH, RU, CN, FR, HI, JA, KO (1,100+ clés, 42 composants)
 
 ### Maps & Visualization
 - **HTML5 Canvas** - Rendu des routes sur les cartes
 - **React Zoom Pan Pinch** 3.7.0 - Interactions cartes tactiles
 - **Zone System** - 9 zones géographiques
 
+### PWA & Offline
+- **vite-plugin-pwa** ^1.2.0 - PWA intégration Vite
+- **Workbox** ^7.4.0 (core, expiration, precaching, routing, strategies) - Service Worker
+- **Offline-first** - Cache strategies, offline fallback pages, background sync
+
+### HTTP & API
+- **Axios** ^1.12.2 - Client HTTP
+- **React GA4** ^2.1.0 - Google Analytics 4
+
+### Security
+- **DOMPurify** ^3.3.1 - Protection XSS (sanitize HTML)
+- **@dr.pogodin/react-helmet** ^3.0.5 - SEO meta tags sécurisés
+
 ### Build & Dev Tools
-- **React Scripts** 5.0.1 (Create React App)
-- **Source Map Explorer** 2.5.3 - Analyse bundle size
-- **Webpack Bundle Analyzer** 4.10.2 - Optimisation bundles
+- **Vite** ^7.2.7 - Dev server ultra-rapide (HMR), build optimisé
+- **@vitejs/plugin-react** ^5.1.2 - Plugin React pour Vite
+- **ESLint** ^9.39.1 + **typescript-eslint** ^8.49.0 - Linting
+- **Source Map Explorer** ^2.5.3 - Analyse bundle size
+- **Webpack Bundle Analyzer** ^4.10.2 - Visualisation bundles
+- **PurgeCSS** ^7.0.2 - Purge CSS inutilisé
+- **Sharp** ^0.34.5 - Optimisation images (build)
+
+### Testing Frontend
+- **Vitest** ^4.0.15 - Test runner (rapide, compatible Vite)
+- **@vitest/coverage-v8** ^4.0.15 - Coverage
+- **@testing-library/react** ^16.3.0 - Tests composants React
+- **@testing-library/dom** ^10.4.1 - DOM utilities
+- **@testing-library/user-event** ^13.5.0 - Simulation interactions
+- **jsdom** ^27.3.0 - DOM virtuel pour tests
+- **jest-axe** ^10.0.0 - Tests accessibilité
+- **Playwright** ^1.56.1 - Tests E2E (67 tests)
+
+### Monitoring Frontend
+- **@sentry/react** ^10.19.0 - Error tracking + Performance monitoring
+- **web-vitals** ^5.1.0 - Core Web Vitals
 
 ---
 
@@ -41,68 +81,77 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 ### Core Technologies
 - **Node.js** 18+ - Runtime JavaScript
 - **Express** 4.18.2 - Framework web minimaliste
-- **TypeScript** 5.9.2 - Typage statique strict
-- **Nodemon** 3.1.10 - Hot reload développement
+- **TypeScript** ^5.9.3 - Typage statique strict
+- **Nodemon** ^3.1.10 - Hot reload développement
 
 ### Database & Storage
-- **Supabase** 2.57.4 - PostgreSQL managed + Auth + Storage
+- **Supabase** ^2.75.0 - PostgreSQL managed + Auth + Storage
 - **PostGIS** - Extension géospatiale (zones, coordonnées)
-- **Cloudinary** 2.7.0 - Storage images (CDN)
+- **Cloudinary** ^2.7.0 - Storage images (CDN)
 
 ### Authentication & Security
-- **JWT (jsonwebtoken)** 9.0.2 - Tokens accès/refresh
-- **bcryptjs** 3.0.2 - Hashing mots de passe
-- **express-session** 1.18.2 - Sessions CSRF
-- **cookie-parser** 1.4.7 - Parsing cookies httpOnly
-- **Helmet** 8.1.0 - HTTP security headers (HSTS, CSP, X-Frame-Options)
-- **CORS** 2.8.5 - Configuration stricte origins
-
-### Middleware & Utilities
-- **Multer** 2.0.2 - Upload fichiers multipart
-- **Express Rate Limit** 8.1.0 - Protection DDoS (8 limiters granulaires)
-- **Compression** 1.8.1 - Compression Brotli/gzip réponses
-- **Custom Middleware** - Auth, CSRF, Cache, Validation
-
-### Monitoring & Logging
-- **Sentry** 10.17.0 - Error tracking + Performance monitoring
-  - **@sentry/node** - Backend monitoring
-  - **@sentry/profiling-node** - CPU profiling (optionnel)
-  - **@sentry/react** - Frontend monitoring
-- **Custom Logger** - Logs structurés (winston-like)
-
-### Testing
-- **Jest** 30.2.0 - Test runner
-- **Supertest** 7.1.4 - Tests API HTTP
-- **ts-jest** 29.4.4 - Support TypeScript
-- **@testing-library/react** 16.3.0 - Tests composants React
-- **Coverage**: 85%+ sur middleware critiques
-
-### API Documentation
-- **Swagger (swagger-jsdoc)** 6.2.8 - Spécification OpenAPI 3.0
-- **Swagger UI Express** 5.0.1 - Interface interactive `/api-docs`
+- **JWT (jsonwebtoken)** ^9.0.2 - Tokens accès/refresh
+- **bcryptjs** ^3.0.2 - Hashing mots de passe (NIST SP 800-63B compliant)
+- **express-session** ^1.18.2 - Sessions CSRF
+- **cookie-parser** ^1.4.7 - Parsing cookies httpOnly
+- **Helmet** ^8.1.0 - HTTP security headers (HSTS, CSP conditionnel, X-Frame-Options)
+- **CORS** ^2.8.5 - Configuration stricte origins
 
 ### Caching & Performance
-- **Redis (ioredis)** 5.8.0 - Cache distribué (prêt, pas encore actif)
+- **Redis (ioredis)** ^5.8.1 - Cache distribué (actif, USE_REDIS=true)
+- **@upstash/redis** ^1.36.0 - Redis serverless
+- **connect-redis** ^8.1.0 - Store sessions Redis
 - **Memory Cache** - Fallback si Redis indisponible
 - **Custom Cache Middleware** - TTL configurables par endpoint
+
+### Middleware & Utilities
+- **Multer** ^2.0.2 - Upload fichiers multipart
+- **Express Rate Limit** ^8.1.0 - Protection DDoS (8 limiters granulaires)
+- **Compression** ^1.8.1 - Compression Brotli/gzip réponses
+- **Custom Middleware** - Auth, CSRF, Cache, Validation, RefreshToken, AuditLog, AsyncHandler, SupabaseAuth
+
+### Backend Services
+- **node-cron** ^4.2.1 - Tâches planifiées (mission reset, VIP expiration)
+- **nodemailer** ^7.0.12 - Envoi emails (PDPA compliance, notifications admin)
+- **web-push** ^3.6.7 - Push notifications (VAPID, PWA)
+- **promptpay-qr** ^0.5.0 - QR codes paiement PromptPay (VIP)
+- **qrcode** ^1.5.4 - Génération QR codes
+
+### Monitoring & Logging
+- **@sentry/node** ^10.19.0 - Backend error tracking
+- **@sentry/profiling-node** ^10.19.0 - CPU profiling (optionnel)
+- **Sentry Performance** - Traces 50% sample rate
+- **Custom Logger** - Logs structurés
+
+### Testing Backend
+- **Jest** ^30.2.0 - Test runner (322+ tests)
+- **Supertest** ^7.1.4 - Tests API HTTP
+- **ts-jest** ^29.4.5 - Support TypeScript
+- **Coverage** : 85%+ sur middleware critiques
+
+### API Documentation
+- **Swagger (swagger-jsdoc)** ^6.2.8 - Spécification OpenAPI 3.0
+- **Swagger UI Express** ^5.0.1 - Interface interactive `/api-docs`
 
 ---
 
 ## DevOps & Infrastructure
 
 ### Environment Management
-- **dotenv** 17.2.2 - Variables d'environnement
+- **dotenv** ^17.2.3 - Variables d'environnement
 - **Fail-fast Validation** - Vérification vars critiques au démarrage
 
-### Deployment (Ready)
-- **PM2** - Process manager production (recommandé)
+### Deployment
+- **Vercel** - Frontend deployment (vercel.json configuré)
+- **PM2** - Process manager production backend (recommandé)
 - **Environment-based Config** - Dev/staging/production
 - **Health Check Endpoint** - `/api/health`
 
-### CI/CD (Planned)
-- GitHub Actions - Tests automatisés
-- Pre-commit Hooks - Linting, formatting
-- Automated Deployments
+### CI/CD
+- Scripts CI intégrés : `npm run ci` (lint + typecheck + build)
+- `npm run ci:full` (ci + E2E tests)
+- Backend : `npm run ci` (lint + typecheck + test:coverage + build)
+- Pre-commit hooks (à configurer avec Husky)
 
 ---
 
@@ -110,29 +159,32 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 
 ### Backend Patterns
 - **MVC Architecture** - Controllers + Routes + Services
-- **Middleware Chain** - Auth → CSRF → Rate Limit → Business Logic
+- **Middleware Chain** - Auth -> CSRF -> Rate Limit -> Business Logic
 - **Repository Pattern** - Abstraction database (Supabase client)
-- **Error Handling** - Centralisé avec Sentry
+- **Error Handling** - Centralisé avec Sentry + asyncHandler
 
 ### Frontend Patterns
-- **Component Composition** - Composants réutilisables atomiques
-- **Container/Presentational** - Séparation logique/UI
-- **Custom Hooks** - Logique métier partagée
-- **Context Providers** - État global isolé par domaine
+- **Component Composition** - Composants réutilisables atomiques (226 composants)
+- **Feature-based Organization** - Composants groupés par feature (Admin/, Auth/, Bar/, Search/, etc.)
+- **Custom Hooks** - 50+ hooks logique métier partagée
+- **Context Providers** - État global isolé par domaine (14 contextes)
+- **Lazy Loading** - React.lazy pour routes admin
 
 ### Security Patterns
 - **httpOnly Cookies** - Tokens inaccessibles JavaScript (XSS protection)
 - **CSRF Double Submit** - Validation token session + header
-- **JWT Refresh Rotation** - Tokens courte durée (15min access, 7j refresh)
+- **JWT Refresh Rotation** - Access 7j, Refresh 30j
 - **Rate Limiting Granular** - Par type d'opération (auth, upload, admin)
 - **Audit Logging** - Trail complet actions sensibles
+- **CSP Conditionnel** - Strict par défaut, relaxé pour Swagger UI
 
 ### Performance Patterns
 - **Parallel Queries (Promise.all)** - Réduction latence DB (-87%)
 - **Compression Brotli** - Réduction bande passante (-75%)
 - **Cursor Pagination** - Scalabilité pagination profonde
-- **Database Indexes** - Optimisation queries WHERE/JOIN
-- **Redis Caching** - Réduction charge DB (-80% attendu)
+- **Database Indexes** - 30+ indexes optimisation queries
+- **Redis Caching** - Réduction charge DB (-50%)
+- **PWA Offline-First** - Service Worker + cache strategies
 
 ---
 
@@ -144,11 +196,12 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 
 ### TypeScript Configuration
 - **Strict Mode** - Vérification typage maximale
-- **ES Modules** - Import/export modern JavaScript
+- **ES Modules** - Frontend (Vite), CommonJS - Backend
 - **Source Maps** - Debug production
 
 ### Code Quality
-- **ESLint** - Linting JavaScript/TypeScript
+- **ESLint** ^9.39.1 - Linting JavaScript/TypeScript
+- **typescript-eslint** ^8.49.0 - Règles TypeScript
 - **Prettier** - Formatage code (à configurer)
 - **Husky** - Git hooks (à configurer)
 
@@ -158,9 +211,10 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 
 ### Required Services
 1. **Supabase** (Database + Auth)
-   - PostgreSQL managed
+   - PostgreSQL managed (32 tables)
    - Row Level Security (RLS)
-   - Realtime subscriptions (non utilisé actuellement)
+   - Realtime subscriptions
+   - RPC Functions (notifications)
 
 2. **Cloudinary** (Images CDN)
    - Upload images établissements/employées
@@ -169,13 +223,14 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 
 3. **Sentry** (Monitoring)
    - Error tracking frontend/backend
-   - Performance monitoring (traces 10%)
+   - Performance monitoring (traces 50%)
    - User context + breadcrumbs
 
 ### Optional Services
-4. **Redis** (Cache)
+4. **Redis** (Cache - Actif)
    - Upstash (serverless) ou self-hosted
-   - Utilisé pour cache API (categories, stats, listings)
+   - Cache API (categories, stats, listings)
+   - USE_REDIS=true par défaut
 
 ---
 
@@ -184,12 +239,19 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 ### Backend (.env)
 
 ```bash
+# Server
+PORT=8080
+NODE_ENV=development|production
+
 # Database
 SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_KEY=your-anon-key
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
 
 # Authentication
 JWT_SECRET=min-32-chars-secret-key
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_EXPIRES_IN=30d
 SESSION_SECRET=session-secret-key
 
 # Cloudinary
@@ -200,63 +262,57 @@ CLOUDINARY_API_SECRET=your-secret
 # Sentry
 SENTRY_DSN=https://xxx@sentry.io/xxx
 SENTRY_ENVIRONMENT=development|production
-SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_TRACES_SAMPLE_RATE=0.5
 SENTRY_ENABLE_PROFILING=false
 
-# Redis (optional)
+# Redis (actif)
+USE_REDIS=true
 REDIS_URL=redis://localhost:6379
 
-# Server
-PORT=8080
-NODE_ENV=development|production
+# CORS
 CORS_ORIGIN=http://localhost:3000
+
+# Cookies
+COOKIE_DOMAIN=.pattamap.com
+
+# Push Notifications
+VAPID_PUBLIC_KEY=your-public-key
+VAPID_PRIVATE_KEY=your-private-key
+VAPID_SUBJECT=mailto:your-email
+
+# PromptPay (VIP)
+PROMPTPAY_MERCHANT_ID=0812345678
 ```
 
 ### Frontend (.env)
 
 ```bash
 # API
-REACT_APP_API_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 
 # Sentry
-REACT_APP_SENTRY_DSN=https://xxx@sentry.io/xxx
-REACT_APP_SENTRY_ENVIRONMENT=development
+VITE_SENTRY_DSN=https://xxx@sentry.io/xxx
+VITE_SENTRY_ENVIRONMENT=development
+
+# Feature Flags
+VITE_FEATURE_VIP_SYSTEM=false
+
+# Supabase (Auth)
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ---
 
 ## Performance Metrics
 
-### Current Performance (v9.3.0)
-- **Dashboard Stats**: 800ms → 97ms (8x faster with Promise.all)
+### Current Performance (v10.4.0)
+- **Dashboard Stats**: 800ms -> 97ms (8x faster with Promise.all)
 - **Bandwidth**: -75% (Brotli compression)
 - **Mobile Transfer Time**: -70%
-- **Test Coverage**: 85%+ (33 tests passed)
-
-### Expected Performance (with all optimizations)
-- **DB Queries**: -80% (with Redis cache)
-- **P50 Latency**: 150ms → 20ms
-- **P95 Latency**: 800ms → 100ms
-- **Infrastructure Costs**: -60%
-
----
-
-## Migration Path
-
-### Recommended Upgrades
-1. **Migrate to Vite** (from Create React App)
-   - Faster dev server (HMR)
-   - Better tree-shaking
-   - Native ESM support
-
-2. **Add Turborepo** (monorepo management)
-   - Shared packages (types, utils)
-   - Parallel builds
-
-3. **Implement GraphQL** (optional)
-   - Remplacer REST par GraphQL
-   - Resolver-based architecture
-   - Better type safety
+- **Test Coverage**: 622+ tests passing (300+ frontend, 322+ backend)
+- **P50 Latency**: ~20ms
+- **P95 Latency**: ~80ms
 
 ---
 
@@ -270,4 +326,4 @@ REACT_APP_SENTRY_ENVIRONMENT=development
 
 ---
 
-**Dernière mise à jour**: v9.3.0 (Octobre 2025)
+**Dernière mise à jour**: v10.4.0 (Février 2026)

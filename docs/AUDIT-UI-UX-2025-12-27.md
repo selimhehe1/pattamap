@@ -354,4 +354,4 @@
 - Les cartes sont des composants Canvas personnalisés
 - L'authentification semble être via modale, pas page dédiée
 - Les données proviennent d'une API backend (probablement Railway)
-- i18n configuré pour 6 langues (EN, TH, RU, CN, FR, HI)
+- i18n configuré pour 8 langues (EN, TH, RU, CN, FR, HI, JA, KO)

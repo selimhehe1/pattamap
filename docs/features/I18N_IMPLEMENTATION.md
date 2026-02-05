@@ -80,7 +80,7 @@
 
 ## 📋 Vue d'ensemble
 
-PattaMap supporte 6 langues avec détection automatique et persistance localStorage :
+PattaMap supporte 8 langues avec détection automatique et persistance localStorage :
 
 - 🇬🇧 **Anglais (EN)** - Langue par défaut, marché international (100% complete)
 - 🇹🇭 **Thaï (TH)** - Marché local (Pattaya, Thaïlande) (100% complete)
@@ -88,6 +88,8 @@ PattaMap supporte 6 langues avec détection automatique et persistance localStor
 - 🇨🇳 **Chinois (CN)** - Tourisme croissant (100% complete)
 - 🇫🇷 **Français (FR)** - Communauté européenne (100% complete)
 - 🇮🇳 **Hindi (HI)** - Marché indien croissant (100% complete)
+- 🇯🇵 **Japonais (JA)** - Tourisme japonais (100% complete)
+- 🇰🇷 **Coréen (KO)** - Tourisme coréen (100% complete)
 
 ### Objectifs atteints
 

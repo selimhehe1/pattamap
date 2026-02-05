@@ -327,7 +327,7 @@ backend/src/
 ├── config/             # 9 configs - DB, services
 ├── utils/              # Helpers, validation, logger
 ├── types/              # Types backend
-└── __tests__/          # Tests (33 tests)
+└── __tests__/          # Tests (322+ tests)
 ```
 
 **Avantages**:
@@ -1075,10 +1075,10 @@ describe('NotificationBell - Grouping', () => {
 
 #### C. Total Tests Comptabilisés
 
-**Backend**: 33 tests (85%+ coverage middleware critiques)
-**Frontend**: 50+ tests (notifications, push, utils)
+**Backend**: 322+ tests (85%+ coverage middleware critiques)
+**Frontend**: 300+ tests (contexts, hooks, components, notifications, push, utils)
 
-**Total estimé**: **83+ tests**
+**Total estimé**: **622+ tests**
 
 ### ❌ Gaps de Coverage
 

@@ -107,9 +107,9 @@ Code push → GitHub (develop)
 
 | Variable | Description |
 |----------|-------------|
-| `REACT_APP_SUPABASE_URL` | URL Supabase |
-| `REACT_APP_SUPABASE_ANON_KEY` | Cle publique Supabase |
-| `REACT_APP_API_URL` | URL du backend (api.pattamap.com) |
+| `VITE_SUPABASE_URL` | URL Supabase |
+| `VITE_SUPABASE_ANON_KEY` | Cle publique Supabase |
+| `VITE_API_URL` | URL du backend (api.pattamap.com) |
 
 ### Backend (Railway)
 

@@ -832,7 +832,7 @@ export function useVIPStatus(entityType: 'employee' | 'establishment', entityId:
     queryKey: ['vipStatus', entityType, entityId],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/vip/${entityType}/${entityId}/status`
+        `${import.meta.env.VITE_API_URL}/api/vip/${entityType}/${entityId}/status`
       );
 
       if (!response.ok) {
@@ -1691,7 +1691,7 @@ const FeaturedEstablishments: React.FC = () => {
     queryKey: ['featuredEstablishments'],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/establishments/featured`
+        `${import.meta.env.VITE_API_URL}/api/establishments/featured`
       );
       return response.json();
     }

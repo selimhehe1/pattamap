@@ -352,7 +352,7 @@ const MyEmployeesList: React.FC<Props> = ({
   const fetchEmployees = async () => {
     try {
       const response = await secureFetch(
-        `${process.env.REACT_APP_API_URL}/api/establishments/${establishmentId}/employees`
+        `${import.meta.env.VITE_API_URL}/api/establishments/${establishmentId}/employees`
       );
       const data = await response.json();
       setEmployees(data.employees || []);

@@ -95,7 +95,7 @@ The PattaMap notification system is a comprehensive solution for keeping users i
 - web-push (for PWA push notifications)
 
 **Frontend**:
-- React 19.1.1 + TypeScript 5.9.3
+- React ^19.2.0 + TypeScript ^5.9.3
 - react-i18next (i18n)
 - Service Worker API (PWA)
 

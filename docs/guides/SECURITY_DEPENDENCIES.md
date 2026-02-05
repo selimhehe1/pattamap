@@ -65,7 +65,7 @@ These dependencies run in the **user's browser** and handle sensitive operations
 
 **Configuration**:
 - Supabase: Row-Level Security (RLS) policies enabled
-- Sentry: PII scrubbing enabled, 10% performance tracing
+- Sentry: PII scrubbing enabled, 50% performance tracing
 
 ### UI & Animation
 
@@ -193,7 +193,7 @@ npm audit fix --force
 2. Create `vite.config.ts` (replace `webpack.config.js`)
 3. Update `index.html` (move to root, add `<script type="module">`)
 4. Update `package.json` scripts
-5. Migrate environment variables (`REACT_APP_*` → `VITE_*`)
+5. Migrate environment variables (`REACT_APP_*` → `VITE_*`) ✅ **Done**
 6. Test all features (especially Sentry, React Query, i18n)
 
 **Resources**:

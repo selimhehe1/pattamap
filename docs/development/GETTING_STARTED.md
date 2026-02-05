@@ -128,11 +128,11 @@ Créer fichier `.env` à la racine:
 
 ```bash
 # API Backend
-REACT_APP_API_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 
 # Sentry (optionnel)
-REACT_APP_SENTRY_DSN=https://xxx@sentry.io/xxx
-REACT_APP_SENTRY_ENVIRONMENT=development
+VITE_SENTRY_DSN=https://xxx@sentry.io/xxx
+VITE_SENTRY_ENVIRONMENT=development
 ```
 
 ### 4. Générer JWT Secret
@@ -424,7 +424,7 @@ npm test -- --coverage
 ```bash
 cd backend
 
-# Run all tests (33 tests)
+# Run all tests (322+ tests)
 npm test
 
 # Run specific test file
@@ -552,4 +552,4 @@ Une fois le projet démarré:
 
 ---
 
-**Dernière mise à jour**: v9.3.0 (Octobre 2025)
+**Dernière mise à jour**: v10.4.0 (Février 2026)

@@ -508,11 +508,11 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -524,7 +524,7 @@ export const requestNotificationPermission = async () => {
 
     if (permission === 'granted') {
       const token = await getToken(messaging, {
-        vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
       });
 
       return token;
@@ -729,7 +729,7 @@ const NotificationPermission: React.FC = () => {
 
     if (token) {
       // Save token to backend
-      await secureFetch(`${process.env.REACT_APP_API_URL}/api/notifications/register-device`, {
+      await secureFetch(`${import.meta.env.VITE_API_URL}/api/notifications/register-device`, {
         method: 'POST',
         body: JSON.stringify({ fcm_token: token })
       });
@@ -974,7 +974,7 @@ const VisitsTimeline: React.FC = () => {
   }, []);
 
   const fetchVisits = async () => {
-    const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/visits`);
+    const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/visits`);
     const data = await response.json();
     setVisits(data.visits);
   };
@@ -1023,7 +1023,7 @@ const BarDetailPage: React.FC = () => {
   const [showVisitModal, setShowVisitModal] = useState(false);
 
   const markAsVisited = async (visitData: any) => {
-    await secureFetch(`${process.env.REACT_APP_API_URL}/api/visits`, {
+    await secureFetch(`${import.meta.env.VITE_API_URL}/api/visits`, {
       method: 'POST',
       body: JSON.stringify({
         establishment_id: id,
@@ -1350,7 +1350,7 @@ export const processSyncQueue = async () => {
 
   for (const action of queue) {
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}${action.endpoint}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}${action.endpoint}`, {
         method: action.method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(action.body),
@@ -1605,7 +1605,7 @@ import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
 interface TipModalProps {
   employeeId: string;
@@ -1632,7 +1632,7 @@ const TipForm: React.FC<TipModalProps> = ({ employeeId, employeeName, onClose })
 
     try {
       // Create tip on backend
-      const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/tips`, {
+      const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/tips`, {
         method: 'POST',
         body: JSON.stringify({ employee_id: employeeId, amount, message })
       });
@@ -1955,7 +1955,7 @@ const AchievementsPage: React.FC = () => {
   }, []);
 
   const fetchAchievements = async () => {
-    const response = await secureFetch(`${process.env.REACT_APP_API_URL}/api/achievements`);
+    const response = await secureFetch(`${import.meta.env.VITE_API_URL}/api/achievements`);
     const data = await response.json();
 
     setAchievements(data.achievements);
@@ -2276,7 +2276,7 @@ const handleSubmit = async () => {
     formData.append('photos', photo);
   });
 
-  await secureFetch(`${process.env.REACT_APP_API_URL}/api/comments`, {
+  await secureFetch(`${import.meta.env.VITE_API_URL}/api/comments`, {
     method: 'POST',
     body: formData,
     headers: {} // Don't set Content-Type, browser will set multipart/form-data
@@ -2891,7 +2891,7 @@ const FeaturedListings: React.FC = () => {
 
   const fetchFeaturedAds = async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/ads/active?type=featured_listing`
+      `${import.meta.env.VITE_API_URL}/api/ads/active?type=featured_listing`
     );
     const data = await response.json();
     setFeaturedAds(data.ads);
@@ -2903,14 +2903,14 @@ const FeaturedListings: React.FC = () => {
   };
 
   const trackImpression = async (adId: string) => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/ads/${adId}/impression`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/ads/${adId}/impression`, {
       method: 'POST'
     });
   };
 
   const handleClick = async (ad: any) => {
     // Track click
-    await fetch(`${process.env.REACT_APP_API_URL}/api/ads/${ad.id}/click`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/ads/${ad.id}/click`, {
       method: 'POST'
     });
 
@@ -2963,7 +2963,7 @@ const BannerAd: React.FC = () => {
 
   const fetchBannerAd = async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/ads/active?type=banner`
+      `${import.meta.env.VITE_API_URL}/api/ads/active?type=banner`
     );
     const data = await response.json();
 
@@ -2972,7 +2972,7 @@ const BannerAd: React.FC = () => {
       setAd(randomAd);
 
       // Track impression
-      await fetch(`${process.env.REACT_APP_API_URL}/api/ads/${randomAd.id}/impression`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/ads/${randomAd.id}/impression`, {
         method: 'POST'
       });
     }
@@ -2982,7 +2982,7 @@ const BannerAd: React.FC = () => {
     if (!ad) return;
 
     // Track click
-    await fetch(`${process.env.REACT_APP_API_URL}/api/ads/${ad.id}/click`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/ads/${ad.id}/click`, {
       method: 'POST'
     });
 

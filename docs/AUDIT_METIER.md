@@ -16,7 +16,7 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 ### Points Forts ✅
 - **Innovation UX majeure** : Cartes ergonomiques parfaitement adaptées aux zones denses (10/10)
 - **Architecture solide** : Sécurité entreprise, performance optimisée (9/10)
-- **Multilingue complet** : 6 langues (EN/TH/RU/CN/FR/HI) - audience internationale (10/10)
+- **Multilingue complet** : 8 langues (EN/TH/RU/CN/FR/HI/JA/KO) - audience internationale (10/10)
 - **Système Owners** : Gestion décentralisée des établissements avec permissions granulaires (8/10)
 - **Stack technique moderne** : React 19, TypeScript strict, Node.js + Express (9/10)
 
@@ -36,7 +36,7 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 | Reviews | 52 avis communautaires |
 | Utilisateurs | 14 (user/moderator/admin/owner) |
 | Positions grilles | 322 total |
-| Tests automatisés | 33 (85%+ coverage) |
+| Tests automatisés | 622+ (85%+ middleware coverage) |
 | Revenus actuels | 0฿ |
 
 ---
@@ -85,7 +85,7 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 |---------|-------|---------------|
 | **Innovation UX** | 10/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ | Cartes ergonomiques révolutionnent navigation zones denses |
 | **Architecture technique** | 9/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐ | CSRF, rate limiting, audit logs, tests 85%+ |
-| **Multilingue** | 10/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ | 6 langues 100% coverage, audience internationale |
+| **Multilingue** | 10/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ | 8 langues 100% coverage, audience internationale |
 | **Gestion établissements** | 8/10 ⭐⭐⭐⭐⭐⭐⭐⭐ | CRUD complet, positions grilles, Owners System |
 | **Gestion employées** | 8/10 ⭐⭐⭐⭐⭐⭐⭐⭐ | Profils détaillés, historique emploi, claim system |
 | **Système reviews** | 7/10 ⭐⭐⭐⭐⭐⭐⭐ | Notes + commentaires, mais pas de photos/votes |
@@ -123,8 +123,8 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 #### B. Multilingue (i18n) - 10/10
 
 **Implémentation** :
-- 6 langues : EN/TH/RU/CN/FR/HI
-- 1,046 clés traduites (100% coverage)
+- 8 langues : EN/TH/RU/CN/FR/HI/JA/KO
+- 1,100+ clés traduites (100% coverage)
 - 42 composants internationalisés
 - Détection auto langue navigateur
 - Persistance localStorage
@@ -141,12 +141,12 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 **Protections actives** :
 - httpOnly Cookies (XSS protection)
 - CSRF Protection (custom middleware)
-- JWT Refresh Rotation (15min access / 7 days refresh)
+- JWT Refresh Rotation (Access 7j / Refresh 30j)
 - Rate Limiting (8 limiters granulaires)
 - Helmet.js (HSTS, CSP, X-Frame-Options)
 - Audit Logs (trail complet actions admin)
 
-**Tests** : 33 tests automatisés, 85%+ coverage middleware critiques
+**Tests** : 622+ tests automatisés (300+ frontend, 322+ backend), 85%+ coverage middleware critiques
 
 **Validité métier** :
 ✅ Protection données sensibles employées
@@ -259,7 +259,7 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 **Score** : 10/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
 
 **Implémentation** :
-- 6 langues : EN (Anglais), TH (Thaï), RU (Russe), CN (Chinois), FR (Français), HI (Hindi)
+- 8 langues : EN (Anglais), TH (Thaï), RU (Russe), CN (Chinois), FR (Français), HI (Hindi), JA (Japonais), KO (Coréen)
 - 1,046 clés traduites (100% coverage)
 - 42 composants internationalisés
 - Sélecteur langue Header (dropdown + inline modes)
@@ -975,9 +975,9 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 
 ✅ **Innovation UX réelle** : Cartes ergonomiques révolutionnent navigation zones denses
 ✅ **Architecture solide** : Sécurité (CSRF, rate limiting), performance (Brotli, parallel queries)
-✅ **Multilingue complet** : 6 langues 100% coverage → audience ×10
+✅ **Multilingue complet** : 8 langues 100% coverage → audience ×10
 ✅ **Système Owners fonctionnel** : Décentralisation gestion avec permissions granulaires
-✅ **Tests & qualité** : 33 tests automatisés, 85%+ coverage middleware critiques
+✅ **Tests & qualité** : 622+ tests automatisés, 85%+ coverage middleware critiques
 
 ### 9.3 Lacunes Critiques à Combler
 
@@ -1032,21 +1032,23 @@ Après une analyse approfondie de PattaMap (plateforme collaborative pour la nig
 ### 10.1 Stack Technique Confirmée
 
 **Frontend** :
-- React 19.1.1 + TypeScript 5.9.3
-- React Router 7.9.1
-- React Query 5.90.2
-- Framer Motion 12.23.22
-- react-i18next 16.0.0
+- React ^19.2.0 + TypeScript ^5.9.3
+- React Router ^7.9.4
+- React Query ^5.90.2
+- Vite ^7.2.7 (build tool)
+- Framer Motion ^12.23.24
+- react-i18next ^16.0.0 (8 langues)
 
 **Backend** :
 - Node.js 18+ + Express 4.18.2
-- TypeScript 5.9.2
-- Supabase 2.57.4 (PostgreSQL)
-- JWT 9.0.2 + httpOnly cookies
+- TypeScript ^5.9.3
+- Supabase ^2.75.0 (PostgreSQL)
+- JWT ^9.0.2 + httpOnly cookies
+- Redis (ioredis) ^5.8.1 (cache actif)
 
 **Services externes** :
-- Cloudinary 2.7.0 (images CDN)
-- Sentry 10.17.0 (monitoring)
+- Cloudinary ^2.7.0 (images CDN)
+- Sentry ^10.19.0 (monitoring, traces 50%)
 - Stripe (payments) - à setup
 - Firebase (notifications push) - à setup
 - SendGrid (emails) - à setup

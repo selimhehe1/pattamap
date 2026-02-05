@@ -8,7 +8,7 @@
 
 > **📖 For complete documentation, see [docs/CLAUDE.md](docs/CLAUDE.md) - Main entry point for developers and Claude Code**
 >
-> **🔍 Quality audit available in [AUDIT_QUALITE_CODE.md](AUDIT_QUALITE_CODE.md) - Code quality assessment and recommendations**
+> **🔍 Quality audit available in [AUDIT_QUALITE_CODE.md](docs/audits/AUDIT_QUALITE_CODE.md) - Code quality assessment and recommendations**
 
 ---
 
@@ -57,13 +57,13 @@ npm start                  # Terminal 2 → :3000
 
 ## 🏗️ Tech Stack
 
-- **Frontend**: React 19.1 + TypeScript + React Router + React Query
+- **Frontend**: React 19.2 + TypeScript + Vite + React Router + React Query
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: Supabase (PostgreSQL + PostGIS)
 - **Storage**: Cloudinary (images CDN)
 - **Auth**: JWT + httpOnly cookies + CSRF protection
 - **Monitoring**: Sentry (errors + performance tracing)
-- **Testing**: Jest + React Testing Library (622 tests, 85%+ middleware coverage)
+- **Testing**: Vitest (frontend) + Jest (backend) + Playwright (E2E) - 622 tests, 85%+ middleware coverage
 
 → **Full Stack Details**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -73,7 +73,7 @@ npm start                  # Terminal 2 → :3000
 
 - ✅ httpOnly Cookies (XSS protection)
 - ✅ CSRF Protection (custom middleware)
-- ✅ JWT Refresh Rotation (15min/7days)
+- ✅ JWT Refresh Rotation (Access 7d / Refresh 30d)
 - ✅ Rate Limiting (8 granular limiters)
 - ✅ Helmet.js (HSTS, CSP, X-Frame-Options)
 - ✅ Audit Logging (admin actions trail)

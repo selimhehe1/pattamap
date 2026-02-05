@@ -4,7 +4,7 @@
 > Ce fichier sert d'index vers toute la documentation du projet.
 
 **Version**: v10.4.0 (Reviews Améliorées Complete)
-**Dernière mise à jour**: Décembre 2025 - Reviews Améliorées + i18n 8 langues
+**Dernière mise à jour**: Février 2026 - Reviews Améliorées + i18n 8 langues
 **Statut**: ✅ Production-Ready + 622/622 tests passing
 
 ---
@@ -176,19 +176,19 @@
 - 📚 **Documentation exemplaire** : 1,056 lignes + 20+ docs techniques
 - 🔒 **Sécurité robuste** : JWT + httpOnly cookies, CSRF, 8 rate limiters
 - ⚡ **Performance optimisée** : Compression -75%, dashboard 8x plus rapide
-- 🧪 **Tests critiques** : 85%+ coverage middleware
+- 🧪 **622+ tests** : 85%+ coverage middleware, 300+ frontend, 322+ backend
 
 **Dette Technique Totale** : **157 jours** (31 semaines) - Reduced from 172 (Phase 6 -15 days)
 
 **Répartition par Catégorie** :
-- 🧪 Tests : 27 jours (Frontend 0%, Controllers <10%, E2E 0%)
-- ♻️ Refactoring : 32 jours (God components, duplication, 106 `any`)
-- ✨ Features Incomplètes : 32 jours (VIP 70%, Verification 60%)
+- 🧪 Tests : 27 jours (Frontend ~4-63%, Controllers <10%)
+- ♻️ Refactoring : 32 jours (God components partiellement résolus, duplication, ~90 `any`)
+- ✨ Features Incomplètes : 32 jours (VIP 85%, Verification 60%)
 - 📖 Documentation : 19 jours (Storybook, deployment guide)
-- ♿ Accessibilité : 17.5 jours (WCAG AA → AAA, contraste, focus)
+- ♿ Accessibilité : 17.5 jours (WCAG AA -> AAA, contraste, focus)
 - 🔒 Sécurité : 0 jours (7/7 vulnérabilités fixed - 100% ✅)
 - 📱 Mobile : 11 jours (Admin panel, touch targets)
-- ⚡ Performance : 8.5 jours (Bundle size, map re-renders, service worker)
+- ⚡ Performance : 8.5 jours (Bundle size, map re-renders)
 
 ### Vulnérabilités Identifiées
 
@@ -248,35 +248,36 @@
 
 - 🟡 **Bundle trop gros** : 400KB gzipped (Framer Motion 100KB, i18n 50KB)
 - 🟡 **Map re-renders** : 150ms par drag (besoin <16ms pour 60 FPS)
-- 🟡 **Pas de Service Worker** : Aucun support offline, pas de cache
-- 🟡 **Redis non activé** : Cache prêt mais `REDIS_ENABLED=false`
-- 🟡 **Images non lazy-loaded** : Toutes chargées immédiatement
-- 🟡 **API calls séquentiels** : Certaines pages font 3-5 appels en cascade
 
 ---
 
 ## 🛠️ Stack Technique
 
 ### Frontend
-- **React** 19.1.1 + **TypeScript** 5.9.3
-- **React Router** 7.9.1 + **React Query** 5.90.2
-- **Framer Motion** 12.23.22 (animations)
-- **React Zoom Pan Pinch** 3.7.0 (maps interactives)
+- **React** ^19.2.0 + **TypeScript** ^5.9.3
+- **React Router** ^7.9.4 + **React Query** ^5.90.2
+- **Vite** ^7.2.7 (build tool) + **Framer Motion** ^12.23.24 (animations)
+- **i18next** ^25.6.0 + **react-i18next** ^16.0.0 (8 langues)
+- **Lucide React** ^0.545.0 + **Recharts** ^3.5.1
+- **Axios** ^1.12.2 + **DOMPurify** ^3.3.1
 
 ### Backend
-- **Node.js** 18+ + **Express** 4.18.2 + **TypeScript** 5.9.2
-- **Supabase** 2.57.4 (PostgreSQL + Auth)
-- **Cloudinary** 2.7.0 (images CDN)
-- **JWT** 9.0.2 + **httpOnly cookies** + **CSRF protection**
+- **Node.js** 18+ + **Express** 4.18.2 + **TypeScript** ^5.9.3
+- **Supabase** ^2.75.0 (PostgreSQL + Auth)
+- **Cloudinary** ^2.7.0 (images CDN)
+- **JWT** ^9.0.2 + **httpOnly cookies** + **CSRF protection**
+- **Redis (ioredis)** ^5.8.1 + **@upstash/redis** ^1.36.0 (cache actif)
+- **node-cron** ^4.2.1 + **nodemailer** ^7.0.12 + **web-push** ^3.6.7
 
 ### Sécurité
-- **Helmet.js** 8.1.0 (HTTP security headers)
+- **Helmet.js** ^8.1.0 (HTTP security headers, CSP conditionnel)
 - **Rate Limiting** (8 limiters granulaires)
-- **Sentry** 10.17.0 (monitoring + performance tracing)
+- **Sentry** ^10.19.0 (monitoring + performance tracing 50%)
 
 ### Testing
-- **Jest** 30.2.0 + **Supertest** 7.1.4
-- **33 tests** (85%+ coverage middleware critiques)
+- **Vitest** ^4.0.15 (frontend, 300+ tests) + **Jest** ^30.2.0 (backend, 322+ tests)
+- **Playwright** ^1.56.1 (E2E, 67 tests)
+- **622+ tests** total (85%+ coverage middleware critiques)
 
 → **Détails complets**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -293,7 +294,7 @@ pattaya-directory/
 │   │   ├── controllers/   # Business logic
 │   │   ├── middleware/    # Auth, CSRF, Rate limit, Cache
 │   │   ├── config/        # DB, services (Supabase, Cloudinary, Redis, Sentry)
-│   │   └── __tests__/     # Tests (33 tests, 85%+ coverage)
+│   │   └── __tests__/     # Tests (322+ tests, 85%+ middleware coverage)
 │   ├── database/          # Database structure
 │   │   ├── migrations/    # SQL migrations (9 fichiers)
 │   │   ├── seeds/         # SQL seeds (4 fichiers)
@@ -373,7 +374,7 @@ npm start                    # → http://localhost:3000
 ### Protection Active
 - **httpOnly Cookies**: Tokens inaccessibles JavaScript (XSS protection)
 - **CSRF Protection**: Validation token session + header (custom middleware)
-- **JWT Refresh Rotation**: Access 15min, Refresh 7j
+- **JWT Refresh Rotation**: Access 7j, Refresh 30j
 - **Rate Limiting**: 8 limiters (auth 20req/5min, upload 10req/1min, etc.)
 - **Helmet.js**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options
 - **Audit Logs**: Trail complet actions admin/modérateur
@@ -383,7 +384,7 @@ npm start                    # → http://localhost:3000
 |-------|-----------|-----------|
 | `POST /api/comments` | authenticateToken + csrfProtection | ✅ |
 | `PUT /api/employees/:id` | authenticateToken + csrfProtection | ✅ |
-| `POST /api/admin/*` | requireAdmin + csrfProtection (bypass si auth cookie) | ✅ |
+| `POST /api/admin/*` | requireAdmin + csrfProtection | ✅ |
 
 → **Guide complet**: [backend/docs/SECURITY.md](backend/docs/SECURITY.md)
 
@@ -415,7 +416,7 @@ npm start                    # → http://localhost:3000
 
 ## ✨ Fonctionnalités
 
-### Implémentées (v10.3.2)
+### Implémentées (v10.4.0)
 ✅ **9 Zones Géographiques** - Navigation par zone
 ✅ **CRUD Complet** - Employées (76), Établissements (151)
 ✅ **Reviews** - Notes 5⭐, commentaires, modération
@@ -502,15 +503,6 @@ npm start                    # → http://localhost:3000
 - ⏳ Pas appliqué aux endpoints
 - Estimation : 2 jours pour activer
 
-**Offline Support (PWA) - Non démarré** :
-- ✅ Service worker existe (`/service-worker.js`)
-- ⏳ Manquant : Registration, cache strategies, offline pages
-- Estimation : 7 jours pour compléter
-
-**Dark Mode - Planifié** :
-- ⏳ CSS variables, theme toggle, localStorage
-- Estimation : 2 jours
-
 **Admin Audit Log Viewer** :
 - ✅ Backend : Logs complets
 - ⏳ Frontend : UI viewer, search, export CSV
@@ -530,7 +522,7 @@ npm start                    # → http://localhost:3000
    - Skip links mal stylés
 
 3. **Screen Reader Support** (3 jours) :
-   - Live regions manquantes pour contenu dynamique
+   - ARIA live regions partiellement implémentées (useLiveAnnouncer hook + LiveRegion.tsx existent, mais pas appliqués partout)
    - ARIA announcements manquants pour map interactions
    - Skip to content link non annoncé
 
@@ -540,8 +532,7 @@ npm start                    # → http://localhost:3000
    - Invalid fields non marqués (`aria-invalid`)
 
 5. **Focus Management** (2 jours) :
-   - Focus non restauré après fermeture modal
-   - Focus non piégé dans modals (focus trap manquant)
+   - Focus non restauré après fermeture modal (useFocusTrap hook existe mais pas appliqué partout)
    - Focus non déplacé vers nouveau contenu
 
 6. **Responsive Text** (1 jour) :
@@ -598,9 +589,9 @@ npm start                    # → http://localhost:3000
 ### Anti-Patterns Code (10 jours refactoring)
 
 1. **God Components** (3 jours) :
-   - `EmployeesAdmin.tsx` : 850 lignes → Split en sous-composants
-   - `EstablishmentsAdmin.tsx` : 780 lignes → Extraire filters, table, modal
-   - `vipController.ts` : 849 lignes → Extraire services
+   - ~~`EmployeesAdmin.tsx`~~ : ✅ Refactorisé en sous-composants modulaires (Phase 7)
+   - `EstablishmentsAdmin.tsx` : Partiellement refactorisé (BulkActionBar, EditProposals extraits)
+   - `vipController.ts` : 849 lignes → Partiellement refactorisé en vip/ sous-modules
 
 2. **Code Dupliqué** (2 jours) :
    - Composants admin 80% similaires → `<AdminListView>` réutilisable
@@ -638,35 +629,11 @@ npm start                    # → http://localhost:3000
 
 ---
 
-### 📅 Mois 1 - Sécurité & Stabilité (20 jours)
+### 📅 Mois 1 - Tests & Stabilité (12 jours)
 
-**Focus** : Éliminer vulnérabilités, solidifier tests
+**Focus** : Solidifier tests (sécurité 7/7 ✅ done Phase 6)
 
-**Semaine 1-2 : Sécurité Critique** (8 jours)
-1. **Fix CSRF Bypass** (1 jour) 🔴 **URGENT**
-   - Supprimer bypass sur `/api/admin/*`
-   - Enforcer CSRF sur TOUTES mutations
-   - Location : `backend/src/middleware/csrf.ts:91`
-
-2. **Password Policy Renforcée** (1 jour) 🔴 **URGENT**
-   - Min 12 chars + uppercase + lowercase + number + symbol
-   - Intégrer HaveIBeenPwned API (breach checking)
-   - Location : `backend/src/controllers/authController.ts`
-
-3. **Fix Cookies Session Dev** (0.5 jour)
-   - Utiliser `https://localhost` avec self-signed cert
-   - `secure: true` même en dev
-
-4. **Tests SQL Injection** (1 jour)
-   - Fuzzing sur tous endpoints avec paramètres
-   - Tests avec payloads malicieux classiques
-
-5. **Audit Sécurité** (4.5 jours)
-   - Automated scanning (OWASP ZAP, Burp Suite) - 1j
-   - Manual penetration testing - 3j
-   - Fix findings - 0.5j
-
-**Semaine 3 : Tests Controllers** (5 jours)
+**Semaine 1-2 : Tests Controllers** (5 jours)
 1. **authController Tests** (1.5 jour)
    - Login, register, logout, refresh token
    - Error cases, edge cases
@@ -685,19 +652,12 @@ npm start                    # → http://localhost:3000
    - Purchase, verify, cancel flows
    - Payment methods, admin actions
 
-**Semaine 4 : Monitoring & Documentation** (7 jours)
-1. **Performance Monitoring** (1 jour)
-   - Sentry sample rate 10% → 50%
-   - Custom metrics (API latency, cache hit rate)
-   - Alerts sur P95 >200ms
+**Semaine 3-4 : Monitoring & Documentation** (7 jours)
+1. ~~**Performance Monitoring**~~ ✅ Done (Sentry 50%, Redis actif)
 
-2. **Security Headers** (0.5 jour)
-   - Fix CSP (remove `unsafe-inline` ou use nonce)
-   - Add SRI hashes sur scripts CDN
-   - Add security.txt
+2. ~~**Security Headers**~~ ✅ Done (CSP conditionnel, SRI N/A, rate limit health check)
 
-3. **Rate Limit Health Check** (0.5 jour)
-   - Add rate limit 1000 req/min sur `/api/health`
+3. **Add security.txt** (0.5 jour)
 
 4. **Service Tests** (2 jours)
    - gamificationService tests (XP, achievements)
@@ -716,11 +676,11 @@ npm start                    # → http://localhost:3000
    - Auto-deploy staging on merge
 
 **Livrables Mois 1** :
-- ✅ 0 vulnérabilités critiques/high
-- ✅ 80%+ coverage controllers
-- ✅ 90%+ coverage services
-- ✅ Performance monitoring actif
-- ✅ Deployment guide complet
+- ✅ 0 vulnérabilités critiques/high (déjà fait Phase 6)
+- 80%+ coverage controllers
+- 90%+ coverage services
+- ✅ Performance monitoring actif (déjà fait - Sentry 50%)
+- Deployment guide complet
 
 ---
 
@@ -1094,7 +1054,7 @@ Le système de notifications PattaMap combine **PWA Push Notifications** (Phase 
 - ✅ Dual grouping modes (Type / Date)
 - ✅ Advanced filtering (6 category filters + unread)
 - ✅ Batch operations (mark groups as read)
-- ✅ i18n support (6 languages, 28 keys)
+- ✅ i18n support (8 languages, 28 keys)
 
 **Tests** (100% complétés):
 - ✅ NotificationBell.test.tsx (13 suites, 40+ tests)
@@ -1159,7 +1119,7 @@ ADMIN_EMAIL=admin@pattamap.com
 - **Batch Actions**: Mark entire groups as read with Promise.all
 - **Collapsible Groups**: Smooth expand/collapse animations
 - **Visual Design**: 21 distinct emoji icons, sticky headers, responsive mobile
-- **Multilingual**: 28 translation keys × 6 languages (EN/TH/RU/CN/FR/HI)
+- **Multilingual**: 28 translation keys x 8 languages (EN/TH/RU/CN/FR/HI/JA/KO)
 
 **CSS Architecture** (~260 lines):
 - `.notification-filters` - Filter button row
@@ -1240,7 +1200,7 @@ WHERE proname IN ('get_user_notifications', 'mark_notification_read',
 - ✅ Rétention +40% (push notifications)
 - ✅ Engagement +60% (enhanced UI)
 - ✅ Organisation améliorée (grouping/filtering)
-- ✅ Expérience multilingue (6 langues)
+- ✅ Expérience multilingue (8 langues)
 - ✅ 50+ tests (quality assurance)
 
 ### Ressources
@@ -1458,18 +1418,18 @@ Types: feat, fix, docs, style, refactor, test, chore
 ### Commandes
 
 ```bash
-# Backend
+# Backend (Jest - 322+ tests)
 cd backend
-npm test                 # Run all (33 tests)
+npm test                 # Run all tests
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
 
-# Frontend
-npm test                 # Run all (~300 tests)
-npm test -- --watch      # Watch mode
+# Frontend (Vitest - 300+ tests)
+npm test                 # Run all tests
+npm run test:ci          # Coverage report
 
-# E2E
-npm run test:e2e         # Run all E2E (67 tests)
+# E2E (Playwright - 67 tests)
+npm run test:e2e         # Run all E2E
 ```
 
 ### Coverage Actuelle
@@ -1550,7 +1510,7 @@ src/components/Search/__tests__/
 - [VIP_SYSTEM.md](docs/features/VIP_SYSTEM.md) - **v10.3** Système VIP complet (107KB)
 - [ESTABLISHMENT_OWNERS.md](docs/features/ESTABLISHMENT_OWNERS.md) - **v10.1** Système propriétaires
 - [OWNER_EMPLOYEE_MANAGEMENT.md](docs/features/OWNER_EMPLOYEE_MANAGEMENT.md) - Gestion employés
-- [I18N_IMPLEMENTATION.md](docs/features/I18N_IMPLEMENTATION.md) - Multilingue (6 langues)
+- [I18N_IMPLEMENTATION.md](docs/features/I18N_IMPLEMENTATION.md) - Multilingue (8 langues)
 - [NOTIFICATIONS_SYSTEM.md](docs/features/NOTIFICATIONS_SYSTEM.md) - **v10.2** PWA Push
 - [GAMIFICATION_SYSTEM.md](docs/features/GAMIFICATION_SYSTEM.md) - XP, badges, missions
 - [BADGE_SYSTEM.md](docs/features/BADGE_SYSTEM.md) - Système de badges
@@ -1602,7 +1562,7 @@ src/components/Search/__tests__/
 npm run analyze          # → source-map-explorer
 
 # Backend performance
-# → Sentry Performance dashboard (traces 10%)
+# → Sentry Performance dashboard (traces 50%)
 ```
 
 ### Visual Debugging - Screenshots Automatiques 📸
@@ -1648,7 +1608,7 @@ node scripts/screenshot.js landscape
 
 ## 🤖 Agents Spécialisés
 
-PattaMap dispose de **7 agents spécialisés** pour tâches spécifiques. Ils sont automatiquement invoqués selon le contexte, mais peuvent être appelés explicitement si nécessaire.
+PattaMap dispose de **4 agents spécialisés** pour tâches spécifiques. Ils sont automatiquement invoqués selon le contexte, mais peuvent être appelés explicitement si nécessaire.
 
 ### Agents de Navigation & Compréhension
 
@@ -1667,24 +1627,9 @@ PattaMap dispose de **7 agents spécialisés** pour tâches spécifiques. Ils so
 **pattamap-react-expert** ⚛️
 - **Expertise**: Composants React, React Query, performance
 - **Quand utiliser**: Créer/modifier composants, optimiser performance React
-- **Exemple**: "Je veux créer une nouvelle carte pour Jomtien avec grille 2×10"
-
-**pattamap-map-architect** 🗺️
-- **Expertise**: Système de zones, navigation, layouts custom
-- **Quand utiliser**: Créer nouvelles zones, optimiser rendu Canvas, modifier grilles
-- **Exemple**: "Créer une carte topographique en L-shape pour nouvelle zone"
-
-**pattamap-database-manager** 💾
-- **Expertise**: Migrations Supabase, seeds, indexes, RLS policies
-- **Quand utiliser**: Modifier schéma DB, créer seeds, optimiser requêtes
-- **Exemple**: "Ajouter colonne is_verified à la table employees"
+- **Exemple**: "Je veux créer une nouvelle carte pour Jomtien avec grille 2x10"
 
 ### Agents de Stratégie
-
-**pattamap-roadmap-implementer** 🚀
-- **Expertise**: Implémentation features roadmap (i18n, PWA, Freemium, Gamification)
-- **Quand utiliser**: Développer features planifiées dans docs/features/ROADMAP.md
-- **Exemple**: "Implémenter le système multilingue (EN/TH/RU/CN)"
 
 **pattamap-qa-mission-control** 🎯
 - **Expertise**: Quality Assurance + Mission Control (anti-drift)
@@ -1749,7 +1694,7 @@ cd backend && npm run build  # Backend → dist/
 
 # Tests
 npm test                     # Frontend
-cd backend && npm test       # Backend (33 tests)
+cd backend && npm test       # Backend (322+ tests)
 
 # Analyze
 npm run analyze              # Bundle size
@@ -1796,7 +1741,7 @@ lsof -ti:8080 | xargs kill -9
 
 ---
 
-## 📊 Métriques Actuelles (v10.3.2)
+## 📊 Métriques Actuelles (v10.4.0)
 
 ### Données Business
 
@@ -1811,21 +1756,22 @@ lsof -ti:8080 | xargs kill -9
 | **Positions grilles** | 322 total |
 | **Establishment Owners** | System actif (v10.1) |
 | **Notifications System** | PWA Push + Enhanced UI (v10.2) - 21 types |
-| **VIP Subscriptions** | Backend actif (v10.3) - Frontend en cours |
+| **VIP Subscriptions** | Backend actif (v10.3) - Frontend désactivé via feature flag |
 
 ### Santé Technique
 
 | Métrique | Valeur | Cible | Status |
 |----------|--------|-------|--------|
 | **Score de Santé** | 7.5/10 | 9/10 | 🟡 Bon |
-| **Dette Technique** | 172 jours | <30 jours | 🔴 Élevée |
-| **Vulnérabilités** | 7 identifiées | 0 | 🔴 Critique |
-| **Tests Backend** | 33 tests | 200+ tests | 🟡 Moyen |
+| **Dette Technique** | 157 jours | <30 jours | 🔴 Élevée |
+| **Vulnérabilités** | 0 (7/7 fixed) | 0 | ✅ Résolu |
+| **Tests Backend** | 322+ tests | 200+ tests | ✅ Excellent |
+| **Tests Frontend** | 300+ tests | 200+ tests | ✅ Bon |
 | **Coverage Middleware** | 85%+ | 85%+ | ✅ Excellent |
 | **Coverage Controllers** | <10% | 80%+ | 🔴 Faible |
-| **Coverage Frontend** | 0% | 70%+ | 🔴 Aucun |
-| **Instances `any`** | 106 | 0 | 🟡 À réduire |
-| **God Components** | 3 fichiers >800 lignes | 0 | 🟡 Refactoring |
+| **Coverage Frontend** | ~4-63% | 70%+ | 🟡 En progrès |
+| **Instances `any`** | ~90 | 0 | 🟡 À réduire |
+| **God Components** | 1-2 fichiers >800 lignes | 0 | 🟡 Refactoring |
 | **Performance P50** | ~20ms | <50ms | ✅ Excellent |
 | **Performance P95** | ~80ms | <100ms | ✅ Excellent |
 | **Bundle Frontend** | 400KB gzipped | <300KB | 🟡 À optimiser |
@@ -1838,65 +1784,52 @@ lsof -ti:8080 | xargs kill -9
 
 | Catégorie | Jours | % Total | Priorité |
 |-----------|-------|---------|----------|
-| 🧪 Tests | 27 | 16% | 🔴 Haute |
-| ♻️ Refactoring | 32 | 19% | 🟡 Moyenne |
-| ✨ Features | 32 | 19% | 🟡 Moyenne |
-| 📖 Documentation | 19 | 11% | 🟢 Basse |
-| ♿ Accessibilité | 17.5 | 10% | 🟡 Moyenne |
-| 🔒 Sécurité | 15 | 9% | 🔴 Haute |
-| 📱 Mobile | 11 | 6% | 🟡 Moyenne |
+| 🧪 Tests | 27 | 17% | 🔴 Haute |
+| ♻️ Refactoring | 32 | 20% | 🟡 Moyenne |
+| ✨ Features | 32 | 20% | 🟡 Moyenne |
+| 📖 Documentation | 19 | 12% | 🟢 Basse |
+| ♿ Accessibilité | 17.5 | 11% | 🟡 Moyenne |
+| 🔒 Sécurité | 0 | 0% | ✅ Résolu |
+| 📱 Mobile | 11 | 7% | 🟡 Moyenne |
 | ⚡ Performance | 8.5 | 5% | 🟡 Moyenne |
-| **TOTAL** | **172** | **100%** | - |
+| **TOTAL** | **157** | **100%** | - |
 
 ---
 
 ## 🚀 Prochaines Étapes
 
-### Actions Immédiates (Cette Semaine - 12h)
+### Actions Immédiates
 
-**🔴 PRIORITÉ CRITIQUE** :
+**Prochaines priorités** :
 
-1. **Merge branche `feature/profile-layout-refactor`** (2h)
-   - Review PR, vérifier tests, merger to main
-   - Supprimer branche après merge
+1. **Compléter tests controllers backend** (5j)
+   - authController, employeeController, establishmentController, vipController
+   - Target : 80%+ coverage
 
-2. **Fix CSRF Bypass Vulnerability** (4h) 🔴
-   - Location: `backend/src/middleware/csrf.ts:91`
-   - Supprimer bypass sur `/api/admin/*`
-   - Tester tous endpoints admin avec CSRF
+2. **Réduire bundle frontend** (2j)
+   - Lazy load Framer Motion, split i18n par langue
+   - Target : 400KB -> 280KB (-30%)
 
-3. **Activer Redis Cache** (2h)
-   - Set `REDIS_ENABLED=true` dans `backend/.env`
-   - Monitor cache hit rate (cible >80%)
-   - Impact attendu: -50% charge DB
+3. **Optimiser Map rendering** (2j)
+   - React.memo, CSS transforms pour drag
+   - Target : 150ms -> 60ms
 
-4. **Setup Sentry Performance Monitoring** (2h)
-   - Augmenter sample rate: 10% → 50%
-   - Ajouter custom metrics (API latency, cache hit rate)
-   - Configurer alerts P95 >200ms
+4. **Compléter VIP Frontend** (3j)
+   - VIP sorting dans SearchPage
+   - PromptPay QR generation
 
-5. **Créer GitHub Issues Top Bugs** (2h)
-   - Créer issues pour 10 bugs critiques
-   - Labels: security, performance, accessibility
-   - Assigner priorités et estimations
-
-**Résultat attendu fin de semaine** :
-- ✅ Branche profile refactor mergée
-- ✅ 0 vulnérabilités critiques
-- ✅ Redis cache actif (-50% DB load)
-- ✅ Performance monitoring complet
-- ✅ Backlog priorisé
+5. **CI/CD Pipeline** (1j)
+   - GitHub Actions : Tests on PR
+   - Coverage thresholds
 
 ### Roadmap 3 Mois (Détaillée)
 
 **Voir section complète** : [🎯 Recommandations Prioritaires](#-recommandations-prioritaires) ci-dessus
 
 **Résumé** :
-- **Mois 1** : Sécurité & Stabilité (20 jours)
+- **Mois 1** : Tests & Stabilité (sécurité ✅ done, focus tests controllers + services)
 - **Mois 2** : Compléter Features v10.x (18 jours)
 - **Mois 3** : Performance & UX (17 jours)
-
-**Total** : 55 jours → Production-grade à 100%
 
 ---
 
@@ -1928,9 +1861,7 @@ lsof -ti:8080 | xargs kill -9
 5. **Utiliser Agents Spécialisés** :
    - Navigation code → `pattamap-code-navigator`
    - Debug → `pattamap-debugger`
-   - React/Maps → `pattamap-react-expert`, `pattamap-map-architect`
-   - Database → `pattamap-database-manager`
-   - Roadmap features → `pattamap-roadmap-implementer`
+   - React → `pattamap-react-expert`
    - QA → `pattamap-qa-mission-control`
 
 **Pour Développeurs** :
@@ -1951,13 +1882,13 @@ lsof -ti:8080 | xargs kill -9
    - Valider accessibilité WCAG AA minimum
 
 4. **Urgences Identifiées** :
-   - **Sécurité** : 7 vulnérabilités à corriger (15 jours)
-   - **Tests** : 0% frontend, <10% controllers (27 jours)
-   - **Performance** : Map rendering 150ms→60ms (8.5 jours)
-   - **Accessibilité** : WCAG AA→AAA (17.5 jours)
+   - **Sécurité** : ✅ 7/7 vulnérabilités corrigées (Phase 6)
+   - **Tests** : ~4-63% frontend, <10% controllers (27 jours)
+   - **Performance** : Map rendering 150ms->60ms (8.5 jours)
+   - **Accessibilité** : WCAG AA->AAA (17.5 jours)
 
 ---
 
 **🏮 PattaMap - Naviguer Pattaya Nightlife avec Innovation**
 
-**Version**: v10.4.0 | **Status**: Production-Ready (622/622 tests) | **Dernière mise à jour**: Décembre 2025
+**Version**: v10.4.0 | **Status**: Production-Ready (622/622 tests) | **Dernière mise à jour**: Février 2026
