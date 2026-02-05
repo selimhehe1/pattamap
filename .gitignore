@@ -55,6 +55,7 @@ backend/**/*.log
 *.bak
 *.old
 *.tmp
+tmpclaude-*
 
 # development logs (frontend)
 frontend.log
