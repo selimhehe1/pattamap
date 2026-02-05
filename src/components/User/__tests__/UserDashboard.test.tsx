@@ -142,6 +142,15 @@ vi.mock('../../../hooks/useFavorites', () => ({
   }),
 }));
 
+// Mock DeleteAccountModal (uses useCSRF and i18n.language which need providers)
+vi.mock('../DeleteAccountModal', () => ({
+  default: ({ isOpen, onClose }: any) => isOpen ? (
+    <div data-testid="delete-account-modal">
+      <button onClick={onClose}>Close Delete Account</button>
+    </div>
+  ) : null,
+}));
+
 // Mock logger
 vi.mock('../../../utils/logger', () => ({
   logger: {

@@ -27,6 +27,18 @@ import { createMockChain } from '../../test-helpers/supabaseMockChain';
 
 // Mock dependencies
 jest.mock('../../config/supabase');
+jest.mock('../../config/supabaseAuth', () => ({
+  verifySupabaseToken: jest.fn().mockResolvedValue(null),
+  getSupabaseUserByEmail: jest.fn().mockResolvedValue(null),
+  createSupabaseUserWithHash: jest.fn().mockResolvedValue(null),
+  updateSupabaseUserMetadata: jest.fn().mockResolvedValue(false),
+  supabaseAdmin: {
+    auth: {
+      getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      admin: { listUsers: jest.fn().mockResolvedValue({ data: { users: [] }, error: null }) },
+    },
+  },
+}));
 jest.mock('../../utils/logger');
 jest.mock('../../config/sentry');
 
