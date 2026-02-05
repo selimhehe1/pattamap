@@ -520,6 +520,9 @@
     "passwordsNoMatch": "Пароли не совпадают",
     "passwordsMustMatch": "Пароли должны совпадать",
     "draftCleared": "Черновик очищен",
+    "googleDataPrefilled": "Ваша информация из Google получена. Выберите тип аккаунта, чтобы продолжить.",
+    "sessionExpired": "Сессия истекла. Пожалуйста, войдите через Google снова.",
+    "syncFailed": "Не удалось создать аккаунт. Пожалуйста, попробуйте снова.",
     "zones": {
       "beachroad": "Бич Роуд",
       "walkingstreet": "Волкинг Стрит",

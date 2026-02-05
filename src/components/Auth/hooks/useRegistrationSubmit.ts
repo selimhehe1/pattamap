@@ -59,6 +59,7 @@ interface UseRegistrationSubmitOptions {
   clearDraft: () => void;
   uploadPhotos: (csrfToken?: string) => Promise<string[]>;
   onSuccess: () => void;
+  isFromGoogle?: boolean;
 }
 
 interface UseRegistrationSubmitReturn {
@@ -85,7 +86,8 @@ export function useRegistrationSubmit({
   validateForm,
   clearDraft,
   uploadPhotos,
-  onSuccess
+  onSuccess,
+  isFromGoogle = false
 }: UseRegistrationSubmitOptions): UseRegistrationSubmitReturn {
   const { t } = useTranslation();
   const { register, claimEmployeeProfile, submitOwnershipRequest } = useAuth();
@@ -130,20 +132,74 @@ export function useRegistrationSubmit({
     setSubmitError('');
 
     try {
-      // Register user account and get fresh CSRF token
-      const result = await register(
-        formData.pseudonym,
-        formData.email,
-        formData.password,
-        formData.accountType
-      );
-      const freshToken = result?.csrfToken;
+      let freshToken: string | null | undefined;
 
-      // Show warning if password was found in breach database
-      if (result?.passwordBreached) {
-        notification.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
-          duration: 10000
+      if (isFromGoogle) {
+        // Google OAuth flow: user is already authenticated, just need to sync with our database
+        const { supabase } = await import('../../../config/supabase');
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          throw new Error(t('register.sessionExpired', 'Session expired. Please sign in with Google again.'));
+        }
+
+        // Get stored avatar URL from Google
+        const googleAvatarUrl = sessionStorage.getItem('google_avatar_url');
+
+        // Call sync-user to create the user in our database
+        // Use credentials: 'include' so the server can set the auth-token cookie
+        const syncResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/sync-user`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            supabaseUserId: session.user.id,
+            email: formData.email,
+            pseudonym: formData.pseudonym,
+            account_type: formData.accountType,
+            avatar_url: googleAvatarUrl || session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+            checkOnly: false
+          })
         });
+
+        if (!syncResponse.ok) {
+          const errorData = await syncResponse.json();
+          throw new Error(errorData.error || t('register.syncFailed', 'Failed to create account'));
+        }
+
+        // Clean up stored Google data
+        sessionStorage.removeItem('google_avatar_url');
+
+        // Fetch a CSRF token for subsequent requests (uploads, claims, etc.)
+        // The sync-user response sets the auth-token cookie, so we can now get a CSRF token
+        const csrfResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/csrf-token`, {
+          credentials: 'include'
+        });
+        if (csrfResponse.ok) {
+          const csrfData = await csrfResponse.json();
+          freshToken = csrfData.csrfToken;
+        }
+
+        logger.debug('[Register] Google OAuth user synced successfully');
+      } else {
+        // Normal registration flow with email/password
+        const result = await register(
+          formData.pseudonym,
+          formData.email,
+          formData.password,
+          formData.accountType
+        );
+        freshToken = result?.csrfToken;
+
+        // Show warning if password was found in breach database
+        if (result?.passwordBreached) {
+          notification.warning(t('register.passwordBreachWarning', 'Your password has been found in a data breach. Consider changing it for better security.'), {
+            duration: 10000
+          });
+        }
       }
 
       clearDraft();
@@ -354,7 +410,8 @@ export function useRegistrationSubmit({
     register,
     claimEmployeeProfile,
     submitOwnershipRequest,
-    t
+    t,
+    isFromGoogle
   ]);
 
   return {

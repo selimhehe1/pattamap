@@ -518,6 +518,9 @@
     "passwordsNoMatch": "รหัสผ่านไม่ตรงกัน",
     "passwordsMustMatch": "รหัสผ่านต้องตรงกัน",
     "draftCleared": "ล้างร่างแล้ว",
+    "googleDataPrefilled": "ข้อมูล Google ของคุณถูกดึงมาแล้ว เลือกประเภทบัญชีเพื่อดำเนินการต่อ",
+    "sessionExpired": "เซสชันหมดอายุ กรุณาลงชื่อเข้าใช้ด้วย Google อีกครั้ง",
+    "syncFailed": "ไม่สามารถสร้างบัญชีได้ กรุณาลองอีกครั้ง",
     "zones": {
       "beachroad": "บีชโรด",
       "walkingstreet": "วอล์คกิ้งสตรีท",

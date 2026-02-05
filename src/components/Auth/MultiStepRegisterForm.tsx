@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Lock, KeyRound, Mail, User, CheckSquare } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff, AlertTriangle, Sparkles, FileText, MessageSquare, Lock, KeyRound, Mail, User, CheckSquare, CheckCircle } from 'lucide-react';
 import { useFormValidation, ValidationRules } from '../../hooks/useFormValidation';
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useEmployeeSearch } from '../../hooks/useEmployees';
@@ -97,6 +97,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
   embedded = false
 }) => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isFromGoogle = searchParams.get('from') === 'google';
 
   // Current step state
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -247,9 +249,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       }
     },
     password: {
-      required: true,
-      minLength: 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
+      required: !isFromGoogle, // Not required for Google OAuth
+      minLength: isFromGoogle ? 0 : 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
       custom: (value) => {
+        if (isFromGoogle) return true; // Skip validation for Google OAuth
         const pwd = value as string;
         if (pwd.length < 8) return true; // Let minLength handle this
         if (!/[a-z]/.test(pwd)) return t('register.passwordNeedsLowercase');
@@ -265,8 +268,9 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       }
     },
     confirmPassword: {
-      required: true,
+      required: !isFromGoogle, // Not required for Google OAuth
       custom: (value) => {
+        if (isFromGoogle) return true; // Skip validation for Google OAuth
         if (value !== formData.password) return t('register.passwordsNoMatch');
         return true;
       },
@@ -322,6 +326,40 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pre-fill form data from Google OAuth
+  useEffect(() => {
+    if (isFromGoogle) {
+      const googleData = sessionStorage.getItem('google_user_data');
+      if (googleData) {
+        try {
+          const { email, name, avatar_url } = JSON.parse(googleData);
+          // Convert Google name to valid pseudonym (lowercase, underscores)
+          const pseudonymFromName = name
+            ? name.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 50)
+            : '';
+
+          setFormData(prev => ({
+            ...prev,
+            email: email || '',
+            pseudonym: pseudonymFromName || ''
+          }));
+
+          // Store avatar_url for use during account creation
+          if (avatar_url) {
+            sessionStorage.setItem('google_avatar_url', avatar_url);
+          }
+
+          // Clean up the Google data
+          sessionStorage.removeItem('google_user_data');
+
+          logger.debug('[Register] Pre-filled form with Google data', { email, pseudonymFromName });
+        } catch (error) {
+          logger.error('[Register] Failed to parse Google data:', error);
+        }
+      }
+    }
+  }, [isFromGoogle]);
+
   // 🆕 v10.x - Fetch categories for owner establishment creation
   useEffect(() => {
     const fetchCategories = async () => {
@@ -371,7 +409,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     validateForm,
     clearDraft,
     uploadPhotos,
-    onSuccess: onClose
+    onSuccess: onClose,
+    isFromGoogle
   });
 
   // Handle employee selection from grid
@@ -536,6 +575,14 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
             >
               {t('register.clearDraft')}
             </button>
+          </div>
+        )}
+
+        {/* Google OAuth pre-fill banner */}
+        {isFromGoogle && (
+          <div className="google-prefill-banner">
+            <CheckCircle size={16} />
+            <span>{t('register.googleDataPrefilled', 'Vos informations Google ont ete recuperees. Choisissez votre type de compte pour continuer.')}</span>
           </div>
         )}
 
@@ -721,85 +768,90 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 message={emailAvailability.message}
               />
 
-              <div style={{ position: 'relative' }}>
-                <FormField
-                  label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  error={errors.password}
-                  status={fieldStatus.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  onBlur={(e) => handleInputBlur('password', e.target.value)}
-                  placeholder={t('register.passwordPlaceholder')}
-                  required
-                  minLength={8}
-                  helpText={t('register.passwordHelp')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '38px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '4px',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-                  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+              {/* Password fields - hidden for Google OAuth users */}
+              {!isFromGoogle && (
+                <>
+                  <div style={{ position: 'relative' }}>
+                    <FormField
+                      label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      error={errors.password}
+                      status={fieldStatus.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      onBlur={(e) => handleInputBlur('password', e.target.value)}
+                      placeholder={t('register.passwordPlaceholder')}
+                      required
+                      minLength={8}
+                      helpText={t('register.passwordHelp')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '38px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        transition: 'color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                      aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
 
-              <div style={{ position: 'relative' }}>
-                <FormField
-                  label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  error={errors.confirmPassword}
-                  status={fieldStatus.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
-                  placeholder={t('register.confirmPasswordPlaceholder')}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '38px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '4px',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-                  aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
-                >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+                  <div style={{ position: 'relative' }}>
+                    <FormField
+                      label={<><KeyRound size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.confirmPasswordLabel')}</>}
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      error={errors.confirmPassword}
+                      status={fieldStatus.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      onBlur={(e) => handleInputBlur('confirmPassword', e.target.value)}
+                      placeholder={t('register.confirmPasswordPlaceholder')}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '38px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        transition: 'color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                      aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </>
+              )}
 
               {/* Claim Message Field (only if claiming) */}
               {formData.employeePath === 'claim' && (

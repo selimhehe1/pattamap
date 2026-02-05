@@ -33,7 +33,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, onClose
 
   const handleDelete = async () => {
     if (!isConfirmValid) {
-      setError(t('deleteAccount.confirmError', `Please type "${confirmWord}" to confirm`));
+      setError(t('deleteAccount.confirmError', { word: confirmWord }));
       return;
     }
 
@@ -171,7 +171,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, onClose
             color: 'rgba(248, 250, 252, 0.9)',
             marginBottom: '8px'
           }}>
-            {t('deleteAccount.confirmPrompt', `Type "${confirmWord}" to confirm:`)}
+            {t('deleteAccount.confirmPrompt', { word: confirmWord })}
           </label>
           <input
             type="text"

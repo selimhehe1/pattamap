@@ -518,6 +518,9 @@
     "passwordsNoMatch": "密码不匹配",
     "passwordsMustMatch": "密码必须匹配",
     "draftCleared": "草稿已清除",
+    "googleDataPrefilled": "您的Google信息已获取。请选择账户类型以继续。",
+    "sessionExpired": "会话已过期。请重新使用Google登录。",
+    "syncFailed": "创建账户失败。请重试。",
     "zones": {
       "beachroad": "海滩路",
       "walkingstreet": "步行街",

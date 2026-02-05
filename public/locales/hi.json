@@ -518,6 +518,9 @@
     "passwordsNoMatch": "पासवर्ड मेल नहीं खाते",
     "passwordsMustMatch": "पासवर्ड मेल खाने चाहिए",
     "draftCleared": "ड्राफ्ट साफ़ किया गया",
+    "googleDataPrefilled": "आपकी Google जानकारी प्राप्त हो गई है। जारी रखने के लिए अपना खाता प्रकार चुनें।",
+    "sessionExpired": "सत्र समाप्त हो गया। कृपया Google से पुनः साइन इन करें।",
+    "syncFailed": "खाता बनाने में विफल। कृपया पुनः प्रयास करें।",
     "zones": {
       "beachroad": "बीच रोड",
       "walkingstreet": "वॉकिंग स्ट्रीट",

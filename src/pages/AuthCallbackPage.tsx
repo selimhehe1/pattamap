@@ -52,16 +52,61 @@ const AuthCallbackPage: React.FC = () => {
         }
 
         if (session) {
-          logger.debug('[AuthCallback] Session found, redirecting...');
-          setStatus('success');
+          logger.debug('[AuthCallback] Session found, checking if user exists...');
 
-          // Small delay to show success state
-          setTimeout(() => {
-            // Redirect to dashboard or intended page
-            const redirectTo = sessionStorage.getItem('auth_redirect') || '/';
-            sessionStorage.removeItem('auth_redirect');
-            navigate(redirectTo, { replace: true });
-          }, 1000);
+          // Check if user already exists in our database
+          try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/sync-user`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+              },
+              body: JSON.stringify({
+                supabaseUserId: session.user.id,
+                email: session.user.email,
+                checkOnly: true
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.isNew) {
+              // New user: store Google data and redirect to registration
+              logger.debug('[AuthCallback] New user detected, redirecting to register');
+              const googleData = {
+                email: session.user.email,
+                name: session.user.user_metadata?.full_name ||
+                      session.user.user_metadata?.name || '',
+                avatar_url: session.user.user_metadata?.avatar_url ||
+                            session.user.user_metadata?.picture || ''
+              };
+              sessionStorage.setItem('google_user_data', JSON.stringify(googleData));
+
+              setStatus('success');
+              setTimeout(() => {
+                navigate('/register?from=google', { replace: true });
+              }, 1000);
+            } else {
+              // Existing user: normal login flow
+              logger.debug('[AuthCallback] Existing user, redirecting to dashboard');
+              setStatus('success');
+              setTimeout(() => {
+                const redirectTo = sessionStorage.getItem('auth_redirect') || '/';
+                sessionStorage.removeItem('auth_redirect');
+                navigate(redirectTo, { replace: true });
+              }, 1000);
+            }
+          } catch (syncError) {
+            logger.error('[AuthCallback] Sync check failed:', syncError);
+            // Fallback to normal redirect on error
+            setStatus('success');
+            setTimeout(() => {
+              const redirectTo = sessionStorage.getItem('auth_redirect') || '/';
+              sessionStorage.removeItem('auth_redirect');
+              navigate(redirectTo, { replace: true });
+            }, 1000);
+          }
         } else {
           // No session - might be email confirmation
           // Check if this is a recovery (password reset) link

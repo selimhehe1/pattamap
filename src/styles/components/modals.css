@@ -808,3 +808,28 @@ body[data-theme="light"] .btn--google:hover:not(:disabled) {
   border-color: rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
+
+/* Google OAuth Pre-fill Banner */
+.google-prefill-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.2));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 12px;
+  color: #10b981;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.google-prefill-banner svg {
+  flex-shrink: 0;
+}
+
+body[data-theme="light"] .google-prefill-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.15));
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}

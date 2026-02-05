@@ -878,7 +878,7 @@ export const logoutAll = asyncHandler(async (req: AuthRequest, res: Response) =>
  * @requires Supabase Auth token in Authorization header
  */
 export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response) => {
-  const { supabaseUserId, email, pseudonym, account_type } = req.body;
+  const { supabaseUserId, email, pseudonym, account_type, avatar_url, checkOnly } = req.body;
 
   // Validate required fields
   if (!supabaseUserId) {
@@ -908,8 +908,42 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
       pseudonym: existingUser.pseudonym
     });
 
+    // Update avatar_url if missing and provided (from Google)
+    if (!existingUser.avatar_url && avatar_url) {
+      await supabase
+        .from('users')
+        .update({ avatar_url })
+        .eq('id', existingUser.id);
+      existingUser.avatar_url = avatar_url;
+    }
+
+    // Set JWT cookie for existing OAuth users (needed for CSRF and subsequent requests)
+    const jwtSecret = process.env.JWT_SECRET;
+    if (jwtSecret) {
+      const jwtExpiration = process.env.JWT_EXPIRES_IN?.trim() || '7d';
+      const token = jwt.sign(
+        {
+          userId: existingUser.id,
+          email: existingUser.email,
+          role: existingUser.role,
+          linkedEmployeeId: existingUser.linked_employee_id
+        },
+        jwtSecret,
+        { expiresIn: jwtExpiration } as jwt.SignOptions
+      );
+
+      res.cookie('auth-token', token, {
+        httpOnly: true,
+        secure: COOKIES_SECURE,
+        sameSite: COOKIE_SAME_SITE,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/'
+      });
+    }
+
     return res.json({
       message: 'User already synced',
+      isNew: false,
       user: {
         id: existingUser.id,
         pseudonym: existingUser.pseudonym,
@@ -932,10 +966,15 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
     .single();
 
   if (legacyUser) {
-    // Link existing user to Supabase Auth
+    // Link existing user to Supabase Auth and update avatar if provided
+    const updateData: Record<string, unknown> = { auth_id: supabaseUserId };
+    if (!legacyUser.avatar_url && avatar_url) {
+      updateData.avatar_url = avatar_url;
+    }
+
     const { data: updatedUser, error: updateError } = await supabase
       .from('users')
-      .update({ auth_id: supabaseUserId })
+      .update(updateData)
       .eq('id', legacyUser.id)
       .select()
       .single();
@@ -950,8 +989,33 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
       pseudonym: updatedUser.pseudonym
     });
 
+    // Set JWT cookie for legacy OAuth users (needed for CSRF and subsequent requests)
+    const jwtSecretLegacy = process.env.JWT_SECRET;
+    if (jwtSecretLegacy) {
+      const jwtExpirationLegacy = process.env.JWT_EXPIRES_IN?.trim() || '7d';
+      const tokenLegacy = jwt.sign(
+        {
+          userId: updatedUser.id,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          linkedEmployeeId: updatedUser.linked_employee_id
+        },
+        jwtSecretLegacy,
+        { expiresIn: jwtExpirationLegacy } as jwt.SignOptions
+      );
+
+      res.cookie('auth-token', tokenLegacy, {
+        httpOnly: true,
+        secure: COOKIES_SECURE,
+        sameSite: COOKIE_SAME_SITE,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/'
+      });
+    }
+
     return res.json({
       message: 'User account linked',
+      isNew: false,
       user: {
         id: updatedUser.id,
         pseudonym: updatedUser.pseudonym,
@@ -963,6 +1027,17 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
         avatar_url: updatedUser.avatar_url,
         auth_id: updatedUser.auth_id
       }
+    });
+  }
+
+  // If checkOnly mode, return isNew without creating account
+  // This is used to determine if user should be redirected to registration
+  if (checkOnly) {
+    logger.debug('[SyncUser] CheckOnly mode - user is new');
+    return res.json({
+      message: 'User does not exist',
+      isNew: true,
+      user: null
     });
   }
 
@@ -1008,7 +1083,8 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
       password: 'SUPABASE_AUTH', // Placeholder - password managed by Supabase
       role: 'user',
       is_active: true,
-      account_type: account_type || 'regular'
+      account_type: account_type || 'regular',
+      avatar_url: avatar_url || null
     })
     .select()
     .single();
@@ -1041,8 +1117,32 @@ export const syncSupabaseUser = asyncHandler(async (req: Request, res: Response)
     provider: 'oauth'
   });
 
+  // Set JWT cookie so that subsequent requests (CSRF, uploads, claims) are authenticated
+  const jwtSecret = process.env.JWT_SECRET;
+  if (jwtSecret) {
+    const jwtExpiration = process.env.JWT_EXPIRES_IN?.trim() || '7d';
+    const token = jwt.sign(
+      {
+        userId: newUser.id,
+        email: newUser.email,
+        role: newUser.role
+      },
+      jwtSecret,
+      { expiresIn: jwtExpiration } as jwt.SignOptions
+    );
+
+    res.cookie('auth-token', token, {
+      httpOnly: true,
+      secure: COOKIES_SECURE,
+      sameSite: COOKIE_SAME_SITE,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/'
+    });
+  }
+
   res.status(201).json({
     message: 'User created successfully',
+    isNew: true,
     user: {
       id: newUser.id,
       pseudonym: newUser.pseudonym,

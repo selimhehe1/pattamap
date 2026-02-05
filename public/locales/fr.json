@@ -634,6 +634,9 @@
     "termsOfService": "Conditions d'Utilisation",
     "and": "et les",
     "acceptTermsRequired": "Vous devez accepter la Politique de Confidentialité et les Conditions d'Utilisation",
+    "googleDataPrefilled": "Vos informations Google ont été récupérées. Choisissez votre type de compte pour continuer.",
+    "sessionExpired": "Session expirée. Veuillez vous reconnecter avec Google.",
+    "syncFailed": "Échec de la création du compte. Veuillez réessayer.",
     "zones": {
       "beachroad": "Beach Road",
       "walkingstreet": "Walking Street",
