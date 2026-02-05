@@ -134,13 +134,14 @@ describe('FavoriteController', () => {
         vip_expires_at: null
       };
 
-      // Mock queries: 1) get favorites, 2) get employee, 3) get employment, 4) get ratings, 5) get votes
+      // Mock queries: 1) get favorites, 2) get employee, 3) get employment, 4) get ratings, 5) get votes, 6) independent_positions
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockFavorites)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployee)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockEmployment)))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockRatings)))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockVotes)));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess(mockVotes)))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([]))); // independent_positions
 
       await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -164,12 +165,13 @@ describe('FavoriteController', () => {
     });
 
     it('should return empty array when user has no favorites', async () => {
-      // Mock all 4 queries: favorites, employment, comments, votes (even though last 3 will get empty arrays)
+      // Mock all 5 queries: favorites, employment, comments, votes, independent_positions (even though last 4 will get empty arrays)
       (supabase.from as jest.Mock)
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
         .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
-        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])));
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([])))
+        .mockReturnValueOnce(createMockQueryBuilder(mockSuccess([]))); // independent_positions
 
       await getFavorites(mockRequest as Request, mockResponse as Response, mockNext);
 

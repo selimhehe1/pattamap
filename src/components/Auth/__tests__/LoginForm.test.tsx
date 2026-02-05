@@ -18,7 +18,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key, // Return the key as-is
     i18n: { language: 'en' }
-  })
+  }),
+  initReactI18next: { type: '3rdParty', init: () => {} }
 }));
 
 // Mock the toast utility
@@ -44,6 +45,16 @@ vi.mock('../../../contexts/AuthContext', async () => {
     }),
   };
 });
+
+// Mock useSupabaseAuth
+vi.mock('../../../contexts/auth/SupabaseAuthContext', () => ({
+  useSupabaseAuth: () => ({
+    signInWithGoogle: vi.fn(),
+    user: null,
+    session: null,
+    loading: false,
+  }),
+}));
 
 // Mock useAutoSave
 vi.mock('../../../hooks/useAutoSave', () => ({
