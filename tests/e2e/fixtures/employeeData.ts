@@ -5,7 +5,6 @@
  */
 
 import { Page } from '@playwright/test';
-import axios from 'axios';
 import { TestUser } from './testUser';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -84,9 +83,14 @@ export async function createTestEmployee(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    const response = await axios.post(
-      `${API_BASE_URL}/employees`,
-      {
+    const response = await fetch(`${API_BASE_URL}/employees`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
+      },
+      body: JSON.stringify({
         name: employee.name,
         nickname: employee.nickname,
         age: employee.age,
@@ -97,31 +101,22 @@ export async function createTestEmployee(
         phone: employee.phone,
         line_id: employee.line_id,
         instagram: employee.instagram
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
 
     if (response.status === 201 || response.status === 200) {
-      employee.id = response.data.employee?.id || response.data.id;
+      const responseData = await response.json();
+      employee.id = responseData.employee?.id || responseData.id;
       console.log(`✅ Employee created: ${employee.name} (ID: ${employee.id})`);
       return employee;
     }
 
-    throw new Error(`Failed to create employee: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`Failed to create employee: ${response.status} - ${errorData.error || ''}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Create employee failed: ${errorMessage}`);
-      throw new Error(`Create employee failed: ${errorMessage}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Create employee failed: ${errorMessage}`);
+    throw new Error(`Create employee failed: ${errorMessage}`);
   }
 }
 
@@ -140,8 +135,9 @@ export async function getExistingEmployee(
     if (filters?.nationality) params.append('nationality', filters.nationality);
     if (filters?.verified !== undefined) params.append('verified', String(filters.verified));
 
-    const response = await axios.get(`${API_BASE_URL}/employees?${params.toString()}`);
-    const employees = response.data.employees || response.data;
+    const response = await fetch(`${API_BASE_URL}/employees?${params.toString()}`);
+    const data = await response.json();
+    const employees = data.employees || data;
 
     if (employees?.length > 0) {
       const emp = employees[0];
@@ -173,10 +169,11 @@ export async function getEmployeesByEstablishment(
   establishmentId: string
 ): Promise<TestEmployee[]> {
   try {
-    const response = await axios.get(
+    const response = await fetch(
       `${API_BASE_URL}/employees?establishment_id=${establishmentId}&status=approved`
     );
-    const employees = response.data.employees || response.data;
+    const data = await response.json();
+    const employees = data.employees || data;
 
     return employees.map((emp: Record<string, unknown>) => ({
       id: emp.id,
@@ -201,8 +198,9 @@ export async function getEmployeesByEstablishment(
  */
 export async function getFreelances(): Promise<TestEmployee[]> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/employees?type=freelance&status=approved`);
-    const employees = response.data.employees || response.data;
+    const response = await fetch(`${API_BASE_URL}/employees?type=freelance&status=approved`);
+    const data = await response.json();
+    const employees = data.employees || data;
 
     return employees.map((emp: Record<string, unknown>) => ({
       id: emp.id,
@@ -234,25 +232,25 @@ export async function updateTestEmployee(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.put(
-      `${API_BASE_URL}/employees/${employeeId}`,
-      updates,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
+      },
+      body: JSON.stringify(updates)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Update employee failed: ${errorData.error || `HTTP ${response.status}`}`);
+    }
 
     console.log(`✅ Employee updated: ${employeeId}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Update employee failed: ${error.response?.data?.error || error.message}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Update employee failed: ${errorMessage}`);
   }
 }
 
@@ -268,16 +266,13 @@ export async function deleteTestEmployee(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.delete(
-      `${API_BASE_URL}/employees/${employeeId}`,
-      {
-        headers: {
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
+    await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
+      method: 'DELETE',
+      headers: {
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
       }
-    );
+    });
 
     console.log(`✅ Employee deleted: ${employeeId}`);
   } catch (error) {
@@ -323,27 +318,27 @@ export async function addEmployeeToFavorites(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.post(
-      `${API_BASE_URL}/favorites`,
-      {
-        employee_id: employeeId
+    const response = await fetch(`${API_BASE_URL}/favorites`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
       },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+      body: JSON.stringify({
+        employee_id: employeeId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Add favorite failed: ${errorData.error || `HTTP ${response.status}`}`);
+    }
 
     console.log(`✅ Employee added to favorites: ${employeeId}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Add favorite failed: ${error.response?.data?.error || error.message}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Add favorite failed: ${errorMessage}`);
   }
 }
 
@@ -361,28 +356,28 @@ export async function createEmployeeReview(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.post(
-      `${API_BASE_URL}/comments`,
-      {
+    const response = await fetch(`${API_BASE_URL}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
+      },
+      body: JSON.stringify({
         employee_id: employeeId,
         content,
         rating
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Create review failed: ${errorData.error || `HTTP ${response.status}`}`);
+    }
 
     console.log(`✅ Review created for employee: ${employeeId} (${rating} stars)`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Create review failed: ${error.response?.data?.error || error.message}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Create review failed: ${errorMessage}`);
   }
 }

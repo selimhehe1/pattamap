@@ -14,7 +14,6 @@
  */
 
 import { chromium, FullConfig } from '@playwright/test';
-import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -102,22 +101,31 @@ async function setupAuthState(
   const page = await context.newPage();
 
   try {
-    // Attempt API login
-    const loginResponse = await axios.post(
-      `${API_BASE_URL}/auth/login`,
-      {
+    // Attempt API login using native fetch
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         login: credentials.email,
         password: credentials.password
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-        timeout: 10000
-      }
-    );
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    const loginData = await response.json();
 
     // Get cookies from response
-    const setCookies = loginResponse.headers['set-cookie'] || [];
+    const setCookies = response.headers.getSetCookie?.() || [];
 
     if (setCookies.length > 0) {
       const cookiesToAdd = [];
@@ -144,16 +152,16 @@ async function setupAuthState(
     await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
 
     // Store CSRF token and user data in localStorage if available
-    if (loginResponse.data.csrfToken) {
+    if (loginData.csrfToken) {
       await page.evaluate((token) => {
         localStorage.setItem('csrfToken', token);
-      }, loginResponse.data.csrfToken);
+      }, loginData.csrfToken);
     }
 
-    if (loginResponse.data.user) {
+    if (loginData.user) {
       await page.evaluate((user) => {
         localStorage.setItem('user', JSON.stringify(user));
-      }, loginResponse.data.user);
+      }, loginData.user);
     }
 
     // Save storage state
@@ -161,16 +169,12 @@ async function setupAuthState(
 
     console.log(`   ✅ ${label} state saved to ${path.basename(stateFile)}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.log(`   ⚠️  ${label} login failed: ${errorMessage}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`   ⚠️  ${label} login failed: ${errorMessage}`);
 
-      // Check for rate limiting
-      if (errorMessage.includes('Too many')) {
-        console.log(`   ℹ️  Rate limited - tests will handle auth individually`);
-      }
-    } else {
-      console.log(`   ⚠️  ${label} setup error:`, error);
+    // Check for rate limiting
+    if (errorMessage.includes('Too many')) {
+      console.log(`   ℹ️  Rate limited - tests will handle auth individually`);
     }
 
     // Create empty state file so tests know pre-auth failed

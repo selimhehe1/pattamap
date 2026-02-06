@@ -5,7 +5,6 @@
  */
 
 import { Page } from '@playwright/test';
-import axios from 'axios';
 import { TestUser } from './testUser';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -82,9 +81,14 @@ export async function createTestEstablishment(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    const response = await axios.post(
-      `${API_BASE_URL}/establishments`,
-      {
+    const response = await fetch(`${API_BASE_URL}/establishments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
+      },
+      body: JSON.stringify({
         name: establishment.name,
         category: establishment.category,
         zone: establishment.zone,
@@ -94,32 +98,23 @@ export async function createTestEstablishment(
         longitude: establishment.longitude,
         opening_hours: establishment.opening_hours,
         price_range: establishment.price_range
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
 
     if (response.status === 201 || response.status === 200) {
-      establishment.id = response.data.establishment?.id || response.data.id;
-      establishment.slug = response.data.establishment?.slug || response.data.slug;
+      const responseData = await response.json();
+      establishment.id = responseData.establishment?.id || responseData.id;
+      establishment.slug = responseData.establishment?.slug || responseData.slug;
       console.log(`✅ Establishment created: ${establishment.name} (ID: ${establishment.id})`);
       return establishment;
     }
 
-    throw new Error(`Failed to create establishment: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`Failed to create establishment: ${response.status} - ${errorData.error || ''}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Create establishment failed: ${errorMessage}`);
-      throw new Error(`Create establishment failed: ${errorMessage}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Create establishment failed: ${errorMessage}`);
+    throw new Error(`Create establishment failed: ${errorMessage}`);
   }
 }
 
@@ -137,8 +132,9 @@ export async function getExistingEstablishment(
     if (filters?.zone) params.append('zone', filters.zone);
     if (filters?.category) params.append('category', filters.category);
 
-    const response = await axios.get(`${API_BASE_URL}/establishments?${params.toString()}`);
-    const establishments = response.data.establishments || response.data;
+    const response = await fetch(`${API_BASE_URL}/establishments?${params.toString()}`);
+    const data = await response.json();
+    const establishments = data.establishments || data;
 
     if (establishments?.length > 0) {
       const est = establishments[0];
@@ -158,8 +154,8 @@ export async function getExistingEstablishment(
 
     return null;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
+    if (error instanceof Error) {
+      const errorMessage = error.message;
       // Check for common Supabase/API key issues
       if (errorMessage.includes('Invalid API key') || errorMessage.includes('API key')) {
         console.warn(`⚠️  Supabase API key issue detected: ${errorMessage}`);
@@ -181,8 +177,9 @@ export async function getExistingEstablishment(
  */
 export async function getEstablishmentsByZone(zone: string): Promise<TestEstablishment[]> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/establishments?zone=${zone}&status=approved`);
-    const establishments = response.data.establishments || response.data;
+    const response = await fetch(`${API_BASE_URL}/establishments?zone=${zone}&status=approved`);
+    const data = await response.json();
+    const establishments = data.establishments || data;
 
     return establishments.map((est: Record<string, unknown>) => ({
       id: est.id,
@@ -215,25 +212,25 @@ export async function updateTestEstablishment(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.put(
-      `${API_BASE_URL}/establishments/${establishmentId}`,
-      updates,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/establishments/${establishmentId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
+      },
+      body: JSON.stringify(updates)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Update establishment failed: ${errorData.error || `HTTP ${response.status}`}`);
+    }
 
     console.log(`✅ Establishment updated: ${establishmentId}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Update establishment failed: ${error.response?.data?.error || error.message}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Update establishment failed: ${errorMessage}`);
   }
 }
 
@@ -249,16 +246,13 @@ export async function deleteTestEstablishment(
     const cookies = await page.context().cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    await axios.delete(
-      `${API_BASE_URL}/establishments/${establishmentId}`,
-      {
-        headers: {
-          'Cookie': cookieString,
-          'X-CSRF-Token': user.csrfToken || ''
-        },
-        withCredentials: true
+    await fetch(`${API_BASE_URL}/establishments/${establishmentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Cookie': cookieString,
+        'X-CSRF-Token': user.csrfToken || ''
       }
-    );
+    });
 
     console.log(`✅ Establishment deleted: ${establishmentId}`);
   } catch (error) {

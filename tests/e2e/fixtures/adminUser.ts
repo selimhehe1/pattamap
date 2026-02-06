@@ -6,7 +6,6 @@
  */
 
 import { Page } from '@playwright/test';
-import axios from 'axios';
 import { setupMockAuth, mockBackendAuthMe, mockAdminUser, mockAdminSession } from './mockAuth';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -133,34 +132,41 @@ export async function loginAsAdmin(
   // Real API login (for local development)
   try {
     // Login via API to get auth cookies
-    const loginResponse = await axios.post(
+    const response = await fetch(
       `${API_BASE_URL}/auth/login`,
       {
-        login: admin.email,
-        password: admin.password
-      },
-      {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        withCredentials: true
+        body: JSON.stringify({
+          login: admin.email,
+          password: admin.password
+        })
       }
     );
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    const loginData = await response.json();
+
     // Extract CSRF token from response body
-    admin.csrfToken = loginResponse.data.csrfToken;
-    admin.id = loginResponse.data.user?.id;
+    admin.csrfToken = loginData.csrfToken;
+    admin.id = loginData.user?.id;
 
     // Verify admin role
-    const userRole = loginResponse.data.user?.role;
+    const userRole = loginData.user?.role;
     if (userRole !== 'admin' && userRole !== 'super_admin') {
       throw new Error(`User ${admin.email} is not an admin (role: ${userRole})`);
     }
 
     // Extract cookies from login response
-    const cookies = loginResponse.headers['set-cookie'];
+    const cookies = response.headers.getSetCookie?.() || [];
 
-    if (cookies) {
+    if (cookies.length > 0) {
       const context = page.context();
       const cookiesToAdd = [];
 
@@ -189,19 +195,16 @@ export async function loginAsAdmin(
     console.log(`✅ Admin logged in: ${admin.email} (role: ${userRole})`);
     return admin;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Admin login failed: ${errorMessage}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Admin login failed: ${errorMessage}`);
 
-      // Fallback to mock auth if real login fails
-      if (process.env.CI === 'true') {
-        console.log(`🔄 Falling back to mock admin auth...`);
-        return loginAsAdmin(page, { ...credentials, email: 'mock-fallback' });
-      }
-
-      throw new Error(`Admin login failed: ${errorMessage}`);
+    // Fallback to mock auth if real login fails
+    if (process.env.CI === 'true') {
+      console.log(`🔄 Falling back to mock admin auth...`);
+      return loginAsAdmin(page, { ...credentials, email: 'mock-fallback' });
     }
-    throw error;
+
+    throw new Error(`Admin login failed: ${errorMessage}`);
   }
 }
 
@@ -296,17 +299,20 @@ export async function adminApiRequest(
   const cookies = await page.context().cookies();
   const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-  const response = await axios({
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method,
-    url: `${API_BASE_URL}${endpoint}`,
-    data,
     headers: {
       'Content-Type': 'application/json',
       'Cookie': cookieString,
       'X-CSRF-Token': admin.csrfToken || ''
     },
-    withCredentials: true
+    body: JSON.stringify(data)
   });
 
-  return response.data;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP ${response.status}`);
+  }
+
+  return response.json();
 }

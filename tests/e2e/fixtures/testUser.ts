@@ -17,7 +17,6 @@
  */
 
 import { Page } from '@playwright/test';
-import axios from 'axios';
 import { setupMockAuth, setupMockAdminAuth, mockUser, mockAdminUser } from './mockAuth';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -113,54 +112,57 @@ export async function registerUser(
   console.log(`🔑 Using REAL AUTH for: ${user.email}`);
   try {
     // Register via API directly
-    const response = await axios.post(
-      `${API_BASE_URL}/auth/register`,
-      {
+    const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         email: user.email,
         pseudonym: user.username, // Backend uses 'pseudonym' not 'username'
         password: user.password,
         account_type: user.account_type
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+      })
+    });
 
-    if (response.status === 201 || response.status === 200) {
+    if (registerResponse.status === 201 || registerResponse.status === 200) {
+      const registerData = await registerResponse.json();
       // Store user ID for future use
-      user.id = response.data.user?.id || response.data.id;
+      user.id = registerData.user?.id || registerData.id;
 
       // Now login via API to get auth cookies
-      const loginResponse = await axios.post(
-        `${API_BASE_URL}/auth/login`,
-        {
+      const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           login: user.email, // Backend expects 'login' (can be pseudonym or email)
           password: user.password
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
-      );
+        })
+      });
+
+      if (!loginResponse.ok) {
+        const errorData = await loginResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || `Login HTTP ${loginResponse.status}`);
+      }
+
+      const loginData = await loginResponse.json();
 
       // Extract CSRF token from response body (NOT from cookies!)
-      user.csrfToken = loginResponse.data.csrfToken;
+      user.csrfToken = loginData.csrfToken;
 
       // Extract cookies from login response
-      const cookies = loginResponse.headers['set-cookie'];
+      const cookies = loginResponse.headers.getSetCookie?.() || [];
 
-      if (cookies) {
+      if (cookies.length > 0) {
         // Set cookies in browser context
         const context = page.context();
 
         // Build array of cookies to add
         const cookiesToAdd = [];
         for (const cookie of cookies) {
-          const [nameValue, ...attributes] = cookie.split(';');
+          const [nameValue] = cookie.split(';');
           const [name, value] = nameValue.split('=');
 
           cookiesToAdd.push({
@@ -184,15 +186,13 @@ export async function registerUser(
 
       console.log(`✅ User registered & logged in via API: ${user.email}`);
     } else {
-      throw new Error(`Registration failed with status ${response.status}`);
+      const errorData = await registerResponse.json().catch(() => ({}));
+      throw new Error(`Registration failed: ${errorData.error || `HTTP ${registerResponse.status}`}`);
     }
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Registration failed: ${errorMessage}`);
-      throw new Error(`Registration failed: ${errorMessage}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Registration failed: ${errorMessage}`);
+    throw new Error(`Registration failed: ${errorMessage}`);
   }
 }
 
@@ -224,34 +224,38 @@ export async function loginUser(
   console.log(`🔑 Using REAL AUTH login for: ${user.email}`);
   try {
     // Login via API to get auth cookies
-    const loginResponse = await axios.post(
-      `${API_BASE_URL}/auth/login`,
-      {
+    const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         login: user.email, // Backend expects 'login' (can be pseudonym or email)
         password: user.password
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
+
+    if (!loginResponse.ok) {
+      const errorData = await loginResponse.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${loginResponse.status}`);
+    }
+
+    const loginData = await loginResponse.json();
 
     // Extract CSRF token from response body (NOT from cookies!)
-    user.csrfToken = loginResponse.data.csrfToken;
+    user.csrfToken = loginData.csrfToken;
 
     // Extract cookies from login response
-    const cookies = loginResponse.headers['set-cookie'];
+    const cookies = loginResponse.headers.getSetCookie?.() || [];
 
-    if (cookies) {
+    if (cookies.length > 0) {
       // Set cookies in browser context
       const context = page.context();
 
       // Build array of cookies to add
       const cookiesToAdd = [];
       for (const cookie of cookies) {
-        const [nameValue, ...attributes] = cookie.split(';');
+        const [nameValue] = cookie.split(';');
         const [name, value] = nameValue.split('=');
 
         cookiesToAdd.push({
@@ -275,12 +279,9 @@ export async function loginUser(
 
     console.log(`✅ User logged in via API: ${user.email}`);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Login failed: ${errorMessage}`);
-      throw new Error(`Login failed: ${errorMessage}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Login failed: ${errorMessage}`);
+    throw new Error(`Login failed: ${errorMessage}`);
   }
 }
 
@@ -296,26 +297,25 @@ export async function awardXPDirectly(
   source: string = 'test_manual'
 ): Promise<void> {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/admin/gamification/award-xp`,
-      {
+    const response = await fetch(`${API_BASE_URL}/admin/gamification/award-xp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         user_id: userId,
         xp_amount: xp,
         source,
         description: `E2E Test XP Award - ${source}`
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
 
-    console.log(`✅ XP awarded: ${xp} XP to user ${userId}`);
-    return response.data;
+    if (response.ok) {
+      console.log(`✅ XP awarded: ${xp} XP to user ${userId}`);
+    }
   } catch (error) {
-    console.warn(`⚠️  Could not award XP directly (might need admin auth):`, error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn(`⚠️  Could not award XP directly (might need admin auth):`, errorMessage);
   }
 }
 
@@ -333,10 +333,11 @@ export async function createReviewForXP(
   try {
     // If no employee ID provided, fetch one from API
     if (!employeeId) {
-      const empResponse = await axios.get(`${API_BASE_URL}/employees?limit=1&status=approved`);
+      const empResponse = await fetch(`${API_BASE_URL}/employees?limit=1&status=approved`);
+      const empData = await empResponse.json();
 
       // API returns { employees: [...] }
-      const employees = empResponse.data.employees || empResponse.data;
+      const employees = empData.employees || empData;
       employeeId = employees?.[0]?.id;
 
       if (!employeeId) {
@@ -353,22 +354,19 @@ export async function createReviewForXP(
     const csrfToken = user.csrfToken || '';
 
     // Create comment/review via API (comments are for employees, not establishments)
-    const response = await axios.post(
-      `${API_BASE_URL}/comments`,
-      {
+    const response = await fetch(`${API_BASE_URL}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({
         employee_id: employeeId,
         content: 'E2E Test Review - Great service! ⭐⭐⭐⭐⭐',
         rating: 5
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': csrfToken
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
 
     if (response.status === 201 || response.status === 200) {
       console.log(`✅ Review created via API (+50 XP expected)`);
@@ -383,8 +381,8 @@ export async function createReviewForXP(
     }
     return false;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
+    if (error instanceof Error) {
+      const errorMessage = error.message;
       // Check for common Supabase/API key issues
       if (errorMessage.includes('Invalid API key') || errorMessage.includes('API key')) {
         console.warn(`⚠️  Supabase API key issue detected: ${errorMessage}`);
@@ -414,10 +412,11 @@ export async function checkInForXP(
   try {
     // If no establishment ID provided, fetch one from API
     if (!establishmentId) {
-      const estResponse = await axios.get(`${API_BASE_URL}/establishments?limit=1`);
+      const estResponse = await fetch(`${API_BASE_URL}/establishments?limit=1`);
+      const estData = await estResponse.json();
 
       // API returns { establishments: [...] }
-      const establishments = estResponse.data.establishments || estResponse.data;
+      const establishments = estData.establishments || estData;
       establishmentId = establishments?.[0]?.id;
 
       if (!establishmentId) {
@@ -429,8 +428,9 @@ export async function checkInForXP(
     }
 
     // Get establishment coordinates
-    const estDetailResponse = await axios.get(`${API_BASE_URL}/establishments/${establishmentId}`);
-    const establishment = estDetailResponse.data.establishment || estDetailResponse.data;
+    const estDetailResponse = await fetch(`${API_BASE_URL}/establishments/${establishmentId}`);
+    const estDetailData = await estDetailResponse.json();
+    const establishment = estDetailData.establishment || estDetailData;
 
     // Use establishment coordinates (or fake nearby coordinates for testing)
     const latitude = establishment.latitude || 12.9305;
@@ -444,25 +444,23 @@ export async function checkInForXP(
     const csrfToken = user.csrfToken || '';
 
     // Call check-in endpoint
-    const response = await axios.post(
-      `${API_BASE_URL}/gamification/check-in`,
-      {
+    const response = await fetch(`${API_BASE_URL}/gamification/check-in`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieString,
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({
         establishmentId,
         latitude,
         longitude
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieString,
-          'X-CSRF-Token': csrfToken
-        },
-        withCredentials: true
-      }
-    );
+      })
+    });
 
     if (response.status === 200) {
-      const { verified, xpAwarded, message } = response.data;
+      const responseData = await response.json();
+      const { verified, xpAwarded, message } = responseData;
       console.log(`✅ Check-in ${verified ? 'verified' : 'recorded'}: ${message} (+${xpAwarded} XP)`);
 
       // Wait for backend to process mission progress
@@ -471,14 +469,14 @@ export async function checkInForXP(
       // Reload page to see updated mission progress
       await page.reload();
       await page.waitForLoadState('networkidle');
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
     }
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error(`❌ Check-in failed: ${errorMessage}`);
-      throw new Error(`Check-in failed: ${errorMessage}`);
-    }
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Check-in failed: ${errorMessage}`);
+    throw new Error(`Check-in failed: ${errorMessage}`);
   }
 }
 
