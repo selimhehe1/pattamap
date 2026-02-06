@@ -15,11 +15,33 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../../utils/logger');
 
+// Mock useUser from UserContext
+const mockSetUser = vi.fn();
+const mockSetToken = vi.fn();
+vi.mock('../../contexts/auth/UserContext', () => ({
+  useUser: () => ({
+    setUser: mockSetUser,
+    setToken: mockSetToken,
+    user: null,
+    token: null,
+    loading: false,
+    refreshUser: vi.fn(),
+    checkAuthStatus: vi.fn(),
+  }),
+}));
+
 const mockGetSession = vi.fn();
+let mockOnAuthStateChangeCallback: ((event: string, session: unknown) => void) | null = null;
+const mockUnsubscribe = vi.fn();
+
 vi.mock('../../config/supabase', () => ({
   supabase: {
     auth: {
-      getSession: () => mockGetSession()
+      getSession: () => mockGetSession(),
+      onAuthStateChange: (callback: (event: string, session: unknown) => void) => {
+        mockOnAuthStateChangeCallback = callback;
+        return { data: { subscription: { unsubscribe: mockUnsubscribe } } };
+      }
     }
   }
 }));
@@ -39,6 +61,7 @@ const mockSessionStorageRemoveItem = sessionStorage.removeItem as ReturnType<typ
 describe('AuthCallbackPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockOnAuthStateChangeCallback = null;
     vi.useFakeTimers({ shouldAdvanceTime: true });
     // Default: sessionStorage returns null for any key
     mockSessionStorageGetItem.mockReturnValue(null);
@@ -112,6 +135,24 @@ describe('AuthCallbackPage', () => {
       });
 
       expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
+    });
+
+    it('should update UserContext for existing user', async () => {
+      const existingUser = { id: 'db-123', pseudonym: 'testuser', account_type: 'regular' };
+      mockGetSession.mockResolvedValue({ data: { session: mockSession }, error: null });
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ isNew: false, user: existingUser })
+      });
+
+      renderWithRouter();
+
+      await waitFor(() => {
+        expect(screen.getByText('Connexion reussie !')).toBeInTheDocument();
+      });
+
+      expect(mockSetUser).toHaveBeenCalledWith(existingUser);
+      expect(mockSetToken).toHaveBeenCalledWith('authenticated');
     });
 
     it('should redirect to saved redirect path for existing user', async () => {
@@ -276,11 +317,44 @@ describe('AuthCallbackPage', () => {
     });
   });
 
+  describe('onAuthStateChange fallback', () => {
+    it('should process session from onAuthStateChange if getSession returns null', async () => {
+      // getSession returns no session
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ isNew: false, user: { id: 'db-123' } })
+      });
+
+      renderWithRouter();
+
+      // Initially shows loading
+      expect(screen.getByText('Connexion en cours...')).toBeInTheDocument();
+
+      // Simulate auth state change firing after PKCE exchange completes
+      await act(async () => {
+        mockOnAuthStateChangeCallback?.('SIGNED_IN', mockSession);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Connexion reussie !')).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('No session flow', () => {
-    it('should show error when no session found', async () => {
+    it('should show error after timeout when no session found', async () => {
       mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
 
       renderWithRouter();
+
+      // Initially shows loading
+      expect(screen.getByText('Connexion en cours...')).toBeInTheDocument();
+
+      // Advance past the 15s timeout
+      await act(async () => {
+        vi.advanceTimersByTime(15000);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('Session non trouvee. Veuillez vous reconnecter.')).toBeInTheDocument();
@@ -295,6 +369,17 @@ describe('AuthCallbackPage', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/reset-password', { replace: true });
       });
+    });
+  });
+
+  describe('Cleanup', () => {
+    it('should unsubscribe from auth state changes on unmount', () => {
+      mockGetSession.mockReturnValue(new Promise(() => {}));
+      const { unmount } = renderWithRouter();
+
+      unmount();
+
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 });
