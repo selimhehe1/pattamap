@@ -1015,7 +1015,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className={`btn btn--success ${isLoading ? 'btn--loading' : ''}`}
+                    className="btn btn--success"
                     style={{ flex: 2 }}
                   >
                     {isLoading ? (
