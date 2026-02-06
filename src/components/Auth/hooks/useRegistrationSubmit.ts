@@ -402,9 +402,24 @@ export function useRegistrationSubmit({
           })
         });
 
+        const responseData = await response.json();
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to create employee profile');
+          throw new Error(responseData.error || 'Failed to create employee profile');
+        }
+
+        // Re-fetch user to get updated linked_employee_id so dashboard is accessible
+        try {
+          const meResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+            credentials: 'include'
+          });
+          if (meResponse.ok) {
+            const meData = await meResponse.json();
+            if (meData.user) {
+              setUser(meData.user);
+            }
+          }
+        } catch {
+          // Non-critical - user will get refreshed on next page load
         }
 
         notification.success(t('register.employeeProfileCreated'));
