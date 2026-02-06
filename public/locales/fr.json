@@ -55,7 +55,8 @@
     "accessDenied": "Accès refusé",
     "offlineMessage": "Vous êtes actuellement hors ligne. Certaines fonctionnalités peuvent être indisponibles.",
     "retryConnection": "Réessayer la connexion",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "sending": "Envoi en cours..."
   },
 
   "sync": {
@@ -965,7 +966,19 @@
       "buttonApprove": "Approuver",
       "buttonReject": "Rejeter",
       "buttonRevoke": "Révoquer",
-      "buttonDetails": "Détails"
+      "buttonDetails": "Détails",
+      "manualReview": "File d'attente de révision manuelle",
+      "noRequests": "Aucune demande de vérification en attente de révision manuelle",
+      "employeeName": "Employée",
+      "submittedAt": "Soumis",
+      "selfiePhoto": "Selfie de vérification",
+      "profilePhotos": "Photos de profil",
+      "adminNotes": "Notes admin",
+      "adminNotesPlaceholder": "Ajouter des notes sur cette vérification...",
+      "approve": "Approuver la vérification",
+      "reject": "Rejeter la vérification",
+      "approved": "Vérification approuvée avec succès !",
+      "rejected": "Vérification rejetée."
     },
     "ownershipPleaseProvideNotes": "Veuillez fournir des notes admin pour l'approbation",
     "ownershipApprovedSuccess": "Demande de propriété approuvée avec succès !",
@@ -1748,7 +1761,32 @@
       "buttonTryAgain": "Réessayer",
       "buttonGoToDashboard": "Aller au tableau de bord",
       "uploadInstructions": "Téléchargez un selfie clair de votre visage. Nous utiliserons la reconnaissance faciale pour le comparer à vos photos de profil.",
-      "privacyNote": "Votre selfie est utilisé uniquement pour la vérification et ne sera pas affiché publiquement."
+      "privacyNote": "Votre selfie est utilisé uniquement pour la vérification et ne sera pas affiché publiquement.",
+      "instructions": "Instructions",
+      "pose": "Faites la pose mini cœur (🫰) avec votre main à côté de votre visage",
+      "uploadDifferent": "Télécharger une autre photo",
+      "cancel": "Annuler",
+      "submit": "Soumettre pour vérification",
+      "submitting": "Envoi en cours...",
+      "result": {
+        "approved": {
+          "title": "Vérification approuvée !",
+          "description": "Votre profil est maintenant vérifié. Vous verrez un badge vérifié sur votre profil."
+        },
+        "manualReview": {
+          "title": "Révision manuelle requise",
+          "description": "Votre vérification sera examinée manuellement par notre équipe. Cela prend généralement 1 à 2 jours ouvrés."
+        },
+        "rejected": {
+          "title": "Vérification échouée",
+          "description": "La photo ne correspond pas suffisamment à vos photos de profil. Veuillez réessayer avec une photo plus claire montrant clairement votre visage."
+        },
+        "error": {
+          "title": "Erreur de vérification",
+          "description": "Une erreur est survenue lors de la vérification. Veuillez réessayer plus tard."
+        },
+        "close": "Fermer"
+      }
     }
   },
 
@@ -2497,5 +2535,18 @@
     "contactText": "Si vous avez des questions concernant ces Conditions Générales d'Utilisation, veuillez nous contacter :",
     "contactAddress": "Adresse",
     "footerText": "Ces Conditions Générales d'Utilisation sont en vigueur depuis janvier 2025. En utilisant PattaMap, vous reconnaissez avoir lu, compris et accepté d'être lié par ces conditions."
+  },
+
+  "notFound": {
+    "pageTitle": "Page introuvable - PattaMap",
+    "metaDescription": "La page que vous recherchez n'existe pas.",
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée. Remettons-vous sur la bonne voie.",
+    "goBack": "Retour",
+    "goBackAria": "Retourner à la page précédente",
+    "home": "Accueil",
+    "homeAria": "Aller à la page d'accueil",
+    "tryThese": "Ou essayez l'un de ceux-ci :",
+    "quickNav": "Navigation rapide"
   }
 }
