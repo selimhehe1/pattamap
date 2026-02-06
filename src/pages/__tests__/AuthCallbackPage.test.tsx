@@ -143,7 +143,7 @@ describe('AuthCallbackPage', () => {
   });
 
   describe('New user flow', () => {
-    it('should redirect new user to /register?from=google', async () => {
+    it('should redirect new user to /login?mode=register&from=google', async () => {
       mockGetSession.mockResolvedValue({ data: { session: mockSession }, error: null });
       mockFetch.mockResolvedValue({
         ok: true,
@@ -160,7 +160,7 @@ describe('AuthCallbackPage', () => {
         vi.advanceTimersByTime(1000);
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/register?from=google', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/login?mode=register&from=google', { replace: true });
     });
 
     it('should store Google user data in sessionStorage for new user', async () => {

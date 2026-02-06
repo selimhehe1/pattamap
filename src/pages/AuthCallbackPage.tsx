@@ -101,7 +101,7 @@ const AuthCallbackPage: React.FC = () => {
 
               setStatus('success');
               setTimeout(() => {
-                navigate('/register?from=google', { replace: true });
+                navigate('/login?mode=register&from=google', { replace: true });
               }, 1000);
             } else {
               // Existing user: normal login flow

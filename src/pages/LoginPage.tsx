@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useNavigateWithTransition } from '../hooks/useNavigateWithTransition';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { ArrowLeft } from 'lucide-react';
@@ -39,8 +39,10 @@ type AuthMode = 'login' | 'register' | 'forgot-password';
 const LoginPage: React.FC = () => {
   const navigate = useNavigateWithTransition();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
 
   // Get the redirect path from location state or default to appropriate page
   const from = (location.state as { from?: string })?.from || null;
