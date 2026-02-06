@@ -393,7 +393,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     formData,
     currentStep,
     setCurrentStep,
-    availabilityStatus
+    availabilityStatus,
+    isFromGoogle
   });
 
   // Registration submit hook

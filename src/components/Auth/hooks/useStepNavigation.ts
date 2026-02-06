@@ -32,6 +32,7 @@ interface UseStepNavigationOptions {
     pseudonym: AvailabilityStatus;
     email: AvailabilityStatus;
   };
+  isFromGoogle?: boolean;
 }
 
 interface UseStepNavigationReturn {
@@ -63,18 +64,25 @@ function validatePasswordComplexity(password: string, t: (key: string) => string
  */
 function validateCredentials(
   formData: FormDataForNavigation,
-  t: (key: string) => string
+  t: (key: string) => string,
+  isFromGoogle = false
 ): string | null {
-  if (!formData.pseudonym.trim() || !formData.email.trim() || !formData.password || !formData.confirmPassword) {
+  if (!formData.pseudonym.trim() || !formData.email.trim()) {
     return t('register.fillAllFields');
   }
-  if (formData.password !== formData.confirmPassword) {
-    return t('register.passwordsDoNotMatch');
+  if (!isFromGoogle) {
+    if (!formData.password || !formData.confirmPassword) {
+      return t('register.fillAllFields');
+    }
+    if (formData.password !== formData.confirmPassword) {
+      return t('register.passwordsDoNotMatch');
+    }
+    if (formData.password.length < 8) {
+      return t('register.passwordTooShort');
+    }
+    return validatePasswordComplexity(formData.password, t);
   }
-  if (formData.password.length < 8) {
-    return t('register.passwordTooShort');
-  }
-  return validatePasswordComplexity(formData.password, t);
+  return null;
 }
 
 /**
@@ -90,7 +98,8 @@ export function useStepNavigation({
   formData,
   currentStep,
   setCurrentStep,
-  availabilityStatus
+  availabilityStatus,
+  isFromGoogle = false
 }: UseStepNavigationOptions): UseStepNavigationReturn {
   const { t } = useTranslation();
 
@@ -148,7 +157,7 @@ export function useStepNavigation({
           notification.error(availabilityError);
           return;
         }
-        const credentialError = validateCredentials(formData, t);
+        const credentialError = validateCredentials(formData, t, isFromGoogle);
         if (credentialError) {
           notification.error(credentialError);
           return;
@@ -168,7 +177,7 @@ export function useStepNavigation({
           notification.error(availabilityError);
           return;
         }
-        const credentialError = validateCredentials(formData, t);
+        const credentialError = validateCredentials(formData, t, isFromGoogle);
         if (credentialError) {
           notification.error(credentialError);
           return;
@@ -197,7 +206,7 @@ export function useStepNavigation({
       // For claim/regular/owner, submit is handled by form onSubmit
     }
     // Step 4 → Submit (handled by form onSubmit)
-  }, [currentStep, formData, setCurrentStep, t, checkAvailabilityBlock]);
+  }, [currentStep, formData, setCurrentStep, t, checkAvailabilityBlock, isFromGoogle]);
 
   const handlePrevious = useCallback(() => {
     if (currentStep === 4) {
