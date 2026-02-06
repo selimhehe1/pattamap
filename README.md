@@ -2,9 +2,9 @@
 
 > Collaborative platform for referencing entertainment venues and employees in Pattaya, Thailand.
 
-**Version**: v10.4.0 (Reviews Améliorées Complete)
-**Status**: ✅ Production-Ready with 622 tests, TypeScript strict, security hardening
-**Last Updated**: December 2025
+**Version**: v10.4.1 (Post-Launch Hardening)
+**Status**: ✅ Production-Ready with 1,691 tests, TypeScript strict, security hardening
+**Last Updated**: February 2026
 
 > **📖 For complete documentation, see [docs/CLAUDE.md](docs/CLAUDE.md) - Main entry point for developers and Claude Code**
 >
@@ -63,7 +63,9 @@ npm start                  # Terminal 2 → :3000
 - **Storage**: Cloudinary (images CDN)
 - **Auth**: JWT + httpOnly cookies + CSRF protection
 - **Monitoring**: Sentry (errors + performance tracing)
-- **Testing**: Vitest (frontend) + Jest (backend) + Playwright (E2E) - 622 tests, 85%+ middleware coverage
+- **Testing**: Vitest (frontend) + Jest (backend) + Playwright (E2E) - 1,691 tests, 85%+ middleware coverage
+- **Upload Security**: Magic bytes validation (MIME spoofing prevention)
+- **Dev Tooling**: Husky + lint-staged pre-commit hooks
 
 → **Full Stack Details**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -77,6 +79,7 @@ npm start                  # Terminal 2 → :3000
 - ✅ Rate Limiting (8 granular limiters)
 - ✅ Helmet.js (HSTS, CSP, X-Frame-Options)
 - ✅ Audit Logging (admin actions trail)
+- ✅ Magic Bytes Validation (MIME spoofing prevention on uploads)
 
 → **Security Guide**: [backend/docs/SECURITY.md](backend/docs/SECURITY.md)
 
@@ -103,6 +106,7 @@ npm start                  # Terminal 2 → :3000
 - **✨ Features**: [docs/features/FEATURES_OVERVIEW.md](docs/features/FEATURES_OVERVIEW.md)
 - **🗺️ Roadmap**: [docs/features/ROADMAP.md](docs/features/ROADMAP.md)
 - **🧪 Testing**: [docs/development/TESTING.md](docs/development/TESTING.md)
+- **📡 Monitoring**: [MONITORING.md](MONITORING.md)
 
 ### 👨‍💻 For Developers
 
@@ -120,7 +124,7 @@ docs/
 
 ---
 
-## 📊 Key Metrics (v10.4.0)
+## 📊 Key Metrics (v10.4.1)
 
 | Metric | Value |
 |--------|-------|
@@ -129,8 +133,8 @@ docs/
 | **Zones** | 9 |
 | **Reviews** | 52 community ratings |
 | **Users** | 14 (user/moderator/admin/establishment_owner) |
-| **Frontend Tests** | 300+ (hooks, components, contexts) |
-| **Backend Tests** | 322+ (middleware 85%+ coverage) |
+| **Frontend Tests** | 513 (40 suites - hooks, pages, components, contexts) |
+| **Backend Tests** | 1,178 (45 suites - middleware 85%+ coverage) |
 | **Performance** | ~20ms P50 latency |
 
 ---
@@ -158,17 +162,17 @@ docs/
 ## 🧪 Testing
 
 ```bash
-# Frontend (300+ tests)
+# Frontend (513 tests, 40 suites)
 npm test                     # Run all tests
 npm run build                # Production build
 
 # Key test suites:
 # - src/contexts/__tests__/ (105 tests - 7 contexts)
-# - src/hooks/__tests__/ (30 tests - validation, auto-save)
-# - src/components/Auth/__tests__/ (7 tests)
+# - src/hooks/__tests__/ (50 tests - secureFetch, formValidation, online, mediaQuery, infiniteScroll)
+# - src/components/__tests__/ (200+ tests - pages, layout, common, feature)
 # - tests/e2e/ (67 Playwright tests)
 
-# Backend (322+ tests)
+# Backend (1,178 tests, 45 suites)
 cd backend
 npm test                     # Run all tests (85%+ middleware coverage)
 npm run build                # TypeScript compile
@@ -211,4 +215,4 @@ Private project - All rights reserved
 
 **Built with ❤️ for the Pattaya nightlife community**
 
-**Version**: v10.4.0 | **Status**: Production-Ready | **December 2025**
+**Version**: v10.4.1 | **Status**: Production-Ready | **February 2026**

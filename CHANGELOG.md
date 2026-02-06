@@ -5,6 +5,24 @@ All notable changes to PattaMap will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.4.1] - 2026-02-06 - Post-Launch Hardening
+
+### Security
+- **Magic Bytes Validation**: New middleware validates file content (JPEG, PNG, WebP, GIF, PDF) matches declared MIME type, prevents MIME spoofing attacks on all upload routes
+- **Husky Pre-commit Hooks**: lint-staged runs ESLint on staged files before every commit
+
+### Changed
+- **Backend `any` Cleanup**: Removed all `(req as any).user` casts in production code, replaced with typed `req.user` via express.d.ts augmentation. Added generics to Supabase mock helpers (`MockData<T>`, `mockSuccess<T>`)
+- Frontend tests: 21 → 40 test files, 372 → 513 tests
+- Backend tests: 44 → 45 test suites, 1163 → 1178 tests
+
+### Added
+- **MONITORING.md**: Production monitoring guide (Sentry alerts, UptimeRobot, Core Web Vitals thresholds, env vars checklist)
+- **19 new frontend test files**: 5 hooks (useSecureFetch, useFormValidation, useOnline, useMediaQuery, useInfiniteScroll), 4 pages (Establishments, NotFound, PrivacyPolicy, TermsOfService), 5 core components (Footer, Header, ErrorBoundary, CookieConsent, SEOHead), 5 feature components (BarDetailPage, EmptyState, LazyImage, OfflineBanner, SearchResults)
+- **Magic bytes test**: 15 tests covering all file types and edge cases
+
+---
+
 ## [10.4.0] - 2025-12-28 - Reviews Améliorées & Gamification Complete
 
 ### Added
