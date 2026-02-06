@@ -184,4 +184,103 @@ export const authenticateSupabaseTokenOptional = async (
   }
 };
 
+/**
+ * Middleware that validates Supabase JWT but allows new users (not yet in our DB).
+ * - If the user exists in DB → attaches req.user + req.supabaseUser (same as authenticateSupabaseToken)
+ * - If the user does NOT exist in DB → attaches only req.supabaseUser and calls next()
+ * Use this for endpoints that need to handle new user creation (e.g. sync-user).
+ */
+export const authenticateSupabaseTokenAllowNew = async (
+  req: SupabaseAuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    logger.debug('[SupabaseAuth] Auth check (allow new)', {
+      method: req.method,
+      url: req.originalUrl
+    });
+
+    // Extract token from Authorization header
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+
+    if (!token) {
+      logger.debug('[SupabaseAuth] No token provided');
+      return res.status(401).json({
+        error: 'Access token required',
+        code: 'TOKEN_MISSING'
+      });
+    }
+
+    // Verify the Supabase token
+    const supabaseUser = await verifySupabaseToken(token);
+
+    if (!supabaseUser) {
+      logger.debug('[SupabaseAuth] Token verification failed');
+      return res.status(401).json({
+        error: 'Invalid or expired token',
+        code: 'TOKEN_INVALID'
+      });
+    }
+
+    logger.debug('[SupabaseAuth] Token verified (allow new)', {
+      supabaseUserId: supabaseUser.id,
+      email: supabaseUser.email
+    });
+
+    // Try to get user from our database using auth_id
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, pseudonym, email, role, is_active, account_type, linked_employee_id, auth_id')
+      .eq('auth_id', supabaseUser.id)
+      .single();
+
+    if (user) {
+      if (!user.is_active) {
+        logger.debug('[SupabaseAuth] User is inactive', { userId: user.id });
+        return res.status(401).json({
+          error: 'Account is deactivated',
+          code: 'USER_INACTIVE'
+        });
+      }
+
+      // Existing user - attach full user data
+      req.user = {
+        id: user.id,
+        pseudonym: user.pseudonym,
+        email: user.email,
+        role: user.role,
+        is_active: user.is_active,
+        account_type: user.account_type,
+        linked_employee_id: user.linked_employee_id,
+        auth_id: user.auth_id
+      };
+      req.supabaseUser = supabaseUser;
+      setSentryUserFromRequest(req);
+
+      logger.debug('[SupabaseAuth] Existing user authenticated', {
+        userId: user.id,
+        pseudonym: user.pseudonym
+      });
+    } else {
+      // New user - attach only Supabase data, let the handler create the user
+      req.supabaseUser = supabaseUser;
+
+      logger.debug('[SupabaseAuth] New user (not in DB yet), allowing through', {
+        supabaseUserId: supabaseUser.id,
+        email: supabaseUser.email
+      });
+    }
+
+    next();
+  } catch (error) {
+    logger.error('[SupabaseAuth] Authentication error (allow new):', error);
+    return res.status(500).json({
+      error: 'Authentication error',
+      code: 'AUTH_ERROR'
+    });
+  }
+};
+
 export default authenticateSupabaseToken;

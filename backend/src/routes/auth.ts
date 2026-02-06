@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { register, login, getProfile, logout, forgotPassword, resetPassword, checkAvailability, logoutAll, syncSupabaseUser } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
-import { authenticateSupabaseToken } from '../middleware/supabaseAuth';
+import { authenticateSupabaseToken, authenticateSupabaseTokenAllowNew } from '../middleware/supabaseAuth';
 import { csrfProtection } from '../middleware/csrf';
 import { availabilityCheckRateLimit, authRateLimit } from '../middleware/rateLimit';
 import { refreshAccessToken } from '../middleware/refreshToken';
@@ -402,6 +402,6 @@ router.post('/logout-all', authenticateToken, csrfProtection, logoutAll);
  *       401:
  *         description: Invalid or missing Supabase Auth token
  */
-router.post('/sync-user', authenticateSupabaseToken, syncSupabaseUser);
+router.post('/sync-user', authenticateSupabaseTokenAllowNew, syncSupabaseUser);
 
 export default router;

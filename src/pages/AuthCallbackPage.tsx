@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
@@ -26,8 +26,13 @@ const AuthCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<CallbackStatus>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const syncCalledRef = useRef(false);
 
   useEffect(() => {
+    // Guard against React StrictMode double-render causing multiple sync calls
+    if (syncCalledRef.current) return;
+    syncCalledRef.current = true;
+
     const handleCallback = async () => {
       try {
         // Check for error in URL params (from Supabase redirect)
@@ -71,6 +76,17 @@ const AuthCallbackPage: React.FC = () => {
 
             const data = await response.json();
 
+            if (!response.ok) {
+              // API returned an error status
+              logger.error('[AuthCallback] Sync-user failed', {
+                status: response.status,
+                code: data.code
+              });
+              setStatus('error');
+              setErrorMessage(data.error || 'Erreur lors de la synchronisation du compte');
+              return;
+            }
+
             if (data.isNew) {
               // New user: store Google data and redirect to registration
               logger.debug('[AuthCallback] New user detected, redirecting to register');
@@ -99,13 +115,8 @@ const AuthCallbackPage: React.FC = () => {
             }
           } catch (syncError) {
             logger.error('[AuthCallback] Sync check failed:', syncError);
-            // Fallback to normal redirect on error
-            setStatus('success');
-            setTimeout(() => {
-              const redirectTo = sessionStorage.getItem('auth_redirect') || '/';
-              sessionStorage.removeItem('auth_redirect');
-              navigate(redirectTo, { replace: true });
-            }, 1000);
+            setStatus('error');
+            setErrorMessage('Impossible de synchroniser votre compte. Veuillez reessayer.');
           }
         } else {
           // No session - might be email confirmation
