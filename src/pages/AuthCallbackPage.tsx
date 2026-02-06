@@ -94,7 +94,9 @@ const AuthCallbackPage: React.FC = () => {
             name: session.user.user_metadata?.full_name ||
                   session.user.user_metadata?.name || '',
             avatar_url: session.user.user_metadata?.avatar_url ||
-                        session.user.user_metadata?.picture || ''
+                        session.user.user_metadata?.picture || '',
+            birthday: session.user.user_metadata?.birthday || null,
+            gender: session.user.user_metadata?.gender || null
           };
           sessionStorage.setItem('oauth_user_data', JSON.stringify(oauthData));
 

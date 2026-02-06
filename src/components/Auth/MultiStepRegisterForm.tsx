@@ -332,16 +332,33 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       const googleData = sessionStorage.getItem('oauth_user_data');
       if (googleData) {
         try {
-          const { email, name, avatar_url } = JSON.parse(googleData);
-          // Convert Google name to valid pseudonym (lowercase, underscores)
+          const { email, name, avatar_url, birthday, gender } = JSON.parse(googleData);
+          // Convert OAuth name to valid pseudonym (lowercase, underscores)
           const pseudonymFromName = name
             ? name.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 50)
             : '';
 
+          // Calculate age from Facebook birthday (format MM/DD/YYYY)
+          let ageFromBirthday = '';
+          if (birthday) {
+            const parts = birthday.split('/');
+            if (parts.length === 3) {
+              const birthYear = parseInt(parts[2], 10);
+              const currentYear = new Date().getFullYear();
+              ageFromBirthday = String(currentYear - birthYear);
+            }
+          }
+
+          // Map Facebook gender → form value (direct mapping: 'male'/'female')
+          const sexFromGender = (gender === 'male' || gender === 'female') ? gender : '';
+
           setFormData(prev => ({
             ...prev,
             email: email || '',
-            pseudonym: pseudonymFromName || ''
+            pseudonym: pseudonymFromName || '',
+            employeeName: name || '',
+            employeeAge: ageFromBirthday || '',
+            employeeSex: sexFromGender || ''
           }));
 
           // Store avatar_url for use during account creation

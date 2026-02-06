@@ -160,7 +160,7 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       provider: 'facebook',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: 'email,public_profile'
+        scopes: 'email,public_profile,user_birthday,user_gender,user_photos'
       }
     });
 
