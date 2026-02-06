@@ -140,20 +140,6 @@ describe('OwnershipRequestController', () => {
       });
     });
 
-    it('should return 400 for missing documents', async () => {
-      mockRequest.body = {
-        establishment_id: 'est-1',
-        documents_urls: []
-      };
-
-      await createOwnershipRequest(mockRequest as AuthRequest, mockResponse as Response, mockNext);
-
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'At least one document is required'
-      });
-    });
-
     it('should return 403 if user is not establishment_owner', async () => {
       mockRequest.body = {
         establishment_id: 'est-1',

@@ -107,9 +107,7 @@ export const createOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
       throw BadRequestError('Either establishment_id or establishment_data is required');
     }
 
-    if (!documents_urls || documents_urls.length === 0) {
-      throw BadRequestError('At least one document is required');
-    }
+    // Documents are optional - owners can submit without proof documents
 
     // Validate establishment_data if provided
     if (establishment_data) {
@@ -183,7 +181,7 @@ export const createOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
       .insert({
         user_id: userId,
         establishment_id: finalEstablishmentId!,
-        documents_urls: JSON.stringify(documents_urls),
+        documents_urls: JSON.stringify(documents_urls || []),
         verification_code,
         request_message,
         status: 'pending'
