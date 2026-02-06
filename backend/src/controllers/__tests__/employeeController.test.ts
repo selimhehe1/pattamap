@@ -857,6 +857,7 @@ describe('EmployeeController', () => {
     it('should create self-managed employee profile', async () => {
       mockRequest.body = {
         name: 'Self Created',
+        sex: 'female',
         photos: ['https://example.com/photo.jpg']
       };
 

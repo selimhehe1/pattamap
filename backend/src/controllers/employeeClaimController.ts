@@ -38,11 +38,14 @@ export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, re
       name,
       nickname,
       age,
+      sex,
       nationality,
       description,
       photos,
       social_media,
+      is_freelance,
       current_establishment_id,
+      current_establishment_ids,
       position,
       start_date
     }: CreateEmployeeRequest = req.body;
@@ -55,6 +58,23 @@ export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, re
       throw BadRequestError('Maximum 5 photos allowed');
     }
 
+    // Validate sex field (required)
+    const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
+    if (!sex) {
+      throw BadRequestError('Sex/gender is required');
+    }
+    if (!VALID_SEX_VALUES.includes(sex as typeof VALID_SEX_VALUES[number])) {
+      throw BadRequestError(`Sex must be one of: ${VALID_SEX_VALUES.join(', ')}`);
+    }
+
+    // Determine establishment IDs for freelance support
+    const establishmentIds: string[] = [];
+    if (current_establishment_ids && current_establishment_ids.length > 0) {
+      establishmentIds.push(...current_establishment_ids);
+    } else if (current_establishment_id) {
+      establishmentIds.push(current_establishment_id);
+    }
+
     // Create employee with self-profile flag and user link
     const { data: employee, error: employeeError } = await supabase
       .from('employees')
@@ -62,10 +82,12 @@ export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, re
         name,
         nickname,
         age,
+        sex,
         nationality,
         description,
         photos,
         social_media,
+        is_freelance: is_freelance || false,
         status: 'pending', // Needs moderation approval
         created_by: req.user.id,
         user_id: req.user.id, // Link to user account
@@ -95,18 +117,20 @@ export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, re
       throw InternalServerError('Failed to link profile to account');
     }
 
-    // Add employment/freelance position if provided
-    if (current_establishment_id) {
+    // Add employment/freelance positions if provided
+    if (establishmentIds.length > 0) {
+      const employmentRecords = establishmentIds.map(estId => ({
+        employee_id: employee.id,
+        establishment_id: estId,
+        position,
+        start_date: start_date || new Date().toISOString().split('T')[0],
+        is_current: true,
+        created_by: req.user!.id
+      }));
+
       const { error: employmentError } = await supabase
         .from('employment_history')
-        .insert({
-          employee_id: employee.id,
-          establishment_id: current_establishment_id,
-          position,
-          start_date: start_date || new Date().toISOString().split('T')[0],
-          is_current: true,
-          created_by: req.user.id
-        });
+        .insert(employmentRecords);
 
       if (employmentError) {
         logger.error('Employment history error:', employmentError);
