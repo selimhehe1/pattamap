@@ -685,6 +685,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onAvailabilityChange={(field, status) => {
                 setAvailabilityStatus(prev => ({ ...prev, [field]: status }));
               }}
+              isFromGoogle={isFromGoogle}
             />
           )}
 
