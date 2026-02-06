@@ -161,7 +161,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
+          className="btn btn--primary"
         >
           {isLoading ? (
             <span className="loading-flex">

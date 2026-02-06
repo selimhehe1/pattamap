@@ -369,7 +369,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             <button
               type="submit"
               disabled={isLoading}
-              className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
+              className="btn btn--primary"
               data-testid="login-button"
               style={{ ...lightModeStyles.primaryButton, flex: 'none' }}
             >
@@ -408,7 +408,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading || isFacebookLoading || isLoading}
-            className={`btn btn--google ${isGoogleLoading ? 'btn--loading' : ''}`}
+            className="btn btn--google"
             data-testid="google-signin-button"
           >
             {isGoogleLoading ? (
@@ -434,7 +434,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
             type="button"
             onClick={handleFacebookSignIn}
             disabled={isFacebookLoading || isGoogleLoading || isLoading}
-            className={`btn btn--facebook ${isFacebookLoading ? 'btn--loading' : ''}`}
+            className="btn btn--facebook"
             data-testid="facebook-signin-button"
           >
             {isFacebookLoading ? (
