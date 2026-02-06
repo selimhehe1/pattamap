@@ -379,6 +379,14 @@ npm start                    # → http://localhost:3000
 - **Helmet.js**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options
 - **Audit Logs**: Trail complet actions admin/modérateur
 
+### Google OAuth (Supabase Auth)
+- **Provider**: Google OAuth 2.0 via Supabase Auth
+- **Flux**: `signInWithOAuth({ provider: 'google' })` → Supabase callback → `AuthCallbackPage` → redirect avec `?from=google`
+- **Inscription**: Les champs password/confirmPassword sont masques pour les Google users (`isFromGoogle` prop)
+- **Config**: Google Cloud Console > APIs & Services > OAuth consent screen (app name: "PattaMap")
+- **Domaine consent screen**: `iwqabjlfrqaostkobejo.supabase.co` (custom domain = plan Pro requis)
+- **Fichiers cles**: `config/supabaseAuth.ts`, `AuthCallbackPage.tsx`, `MultiStepRegisterForm.tsx`, `CredentialsStep.tsx`
+
 ### Endpoints Protégés
 | Route | Middleware | Protection |
 |-------|-----------|-----------|
