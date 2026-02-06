@@ -32,7 +32,7 @@ interface UseStepNavigationOptions {
     pseudonym: AvailabilityStatus;
     email: AvailabilityStatus;
   };
-  isFromGoogle?: boolean;
+  isFromOAuth?: boolean;
 }
 
 interface UseStepNavigationReturn {
@@ -65,12 +65,12 @@ function validatePasswordComplexity(password: string, t: (key: string) => string
 function validateCredentials(
   formData: FormDataForNavigation,
   t: (key: string) => string,
-  isFromGoogle = false
+  isFromOAuth = false
 ): string | null {
   if (!formData.pseudonym.trim() || !formData.email.trim()) {
     return t('register.fillAllFields');
   }
-  if (!isFromGoogle) {
+  if (!isFromOAuth) {
     if (!formData.password || !formData.confirmPassword) {
       return t('register.fillAllFields');
     }
@@ -99,7 +99,7 @@ export function useStepNavigation({
   currentStep,
   setCurrentStep,
   availabilityStatus,
-  isFromGoogle = false
+  isFromOAuth = false
 }: UseStepNavigationOptions): UseStepNavigationReturn {
   const { t } = useTranslation();
 
@@ -157,7 +157,7 @@ export function useStepNavigation({
           notification.error(availabilityError);
           return;
         }
-        const credentialError = validateCredentials(formData, t, isFromGoogle);
+        const credentialError = validateCredentials(formData, t, isFromOAuth);
         if (credentialError) {
           notification.error(credentialError);
           return;
@@ -177,7 +177,7 @@ export function useStepNavigation({
           notification.error(availabilityError);
           return;
         }
-        const credentialError = validateCredentials(formData, t, isFromGoogle);
+        const credentialError = validateCredentials(formData, t, isFromOAuth);
         if (credentialError) {
           notification.error(credentialError);
           return;
@@ -206,7 +206,7 @@ export function useStepNavigation({
       // For claim/regular/owner, submit is handled by form onSubmit
     }
     // Step 4 → Submit (handled by form onSubmit)
-  }, [currentStep, formData, setCurrentStep, t, checkAvailabilityBlock, isFromGoogle]);
+  }, [currentStep, formData, setCurrentStep, t, checkAvailabilityBlock, isFromOAuth]);
 
   const handlePrevious = useCallback(() => {
     if (currentStep === 4) {

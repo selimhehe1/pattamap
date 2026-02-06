@@ -50,6 +50,7 @@ vi.mock('../../../contexts/AuthContext', async () => {
 vi.mock('../../../contexts/auth/SupabaseAuthContext', () => ({
   useSupabaseAuth: () => ({
     signInWithGoogle: vi.fn(),
+    signInWithFacebook: vi.fn(),
     user: null,
     session: null,
     loading: false,
@@ -194,6 +195,19 @@ describe('LoginForm', () => {
     }, { timeout: 100 }).catch(() => {
       // Button might not disable immediately, that's okay
     });
+  });
+
+  it('renders Facebook sign-in button', () => {
+    renderWithProviders(
+      <LoginForm
+        onClose={mockOnClose}
+        onSwitchToRegister={mockOnSwitchToRegister}
+      />
+    );
+
+    const facebookButton = screen.getByTestId('facebook-signin-button');
+    expect(facebookButton).toBeInTheDocument();
+    expect(facebookButton).toHaveTextContent('auth.continueWithFacebook');
   });
 
   it('displays error message on failed login', async () => {

@@ -26,8 +26,8 @@ interface CredentialsStepProps {
   submitLabel?: React.ReactNode;
   /** Callback when availability status changes (for blocking Next if taken) */
   onAvailabilityChange?: (field: 'pseudonym' | 'email', status: AvailabilityStatus) => void;
-  /** Whether the user registered via Google OAuth (hides password fields) */
-  isFromGoogle?: boolean;
+  /** Whether the user registered via OAuth (hides password fields) */
+  isFromOAuth?: boolean;
 }
 
 /**
@@ -57,7 +57,7 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
   nextLabel,
   submitLabel,
   onAvailabilityChange,
-  isFromGoogle = false
+  isFromOAuth = false
 }) => {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +78,7 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
 
   const isFormValid = credentials.pseudonym.trim() &&
     credentials.email.trim() &&
-    (isFromGoogle || (credentials.password && credentials.confirmPassword));
+    (isFromOAuth || (credentials.password && credentials.confirmPassword));
 
   return (
     <>
@@ -123,7 +123,7 @@ const CredentialsStep: React.FC<CredentialsStepProps> = ({
         message={emailAvailability.message}
       />
 
-      {!isFromGoogle && (
+      {!isFromOAuth && (
         <>
           <FormField
             label={<><Lock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />{t('register.passwordLabel')}</>}

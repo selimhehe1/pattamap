@@ -4,7 +4,6 @@
     "exploreNightlife": "Explore Pattaya nightlife by area",
     "searchAll": "Search All Zones"
   },
-
   "zones": {
     "soi6": "Soi 6",
     "soi6Description": "Beer bars & GoGo clubs",
@@ -21,7 +20,6 @@
     "freelance": "Freelance",
     "freelanceDescription": "Independent workers"
   },
-
   "establishments": {
     "venuesInZone": "{{count}} venues in {{zone}}",
     "noZoneSelected": "No zone selected",
@@ -29,7 +27,6 @@
     "noVenuesFound": "No venues found",
     "noVenuesInZone": "There are no establishments in this zone yet."
   },
-
   "common": {
     "backToHome": "Back to Home",
     "errorLoading": "Error loading data",
@@ -58,7 +55,6 @@
     "retry": "Retry",
     "sending": "Sending..."
   },
-
   "sync": {
     "syncing": "Syncing...",
     "pending": "{{count}} pending",
@@ -69,7 +65,6 @@
     "clickToSync": "Click to sync now",
     "queuedForSync": "Queued for sync when online"
   },
-
   "header": {
     "title": "PATTAMAP",
     "subtitle": "Navigate Pattaya Nightlife",
@@ -92,7 +87,6 @@
     "myEstablishments": "My Establishments",
     "editMyProfile": "Edit My Profile"
   },
-
   "map": {
     "title": "Zones",
     "selectZone": "Select a zone to explore",
@@ -132,7 +126,6 @@
       "beachroad": "Beach Road"
     }
   },
-
   "establishmentList": {
     "resultsCount": "{{count}} Establishment",
     "resultsCount_plural": "{{count}} Establishments",
@@ -142,7 +135,6 @@
     "noResults": "No establishments found",
     "noResultsHint": "Try adjusting your filters or search term"
   },
-
   "search": {
     "title": "Advanced Employee Search",
     "subtitle": "Find employees by name, age, nationality, zone, and establishment",
@@ -199,7 +191,7 @@
       "name": "Name A-Z"
     },
     "photoCount": "{{count}}",
-    "yearsOld": "{{age}}y",
+    "yearsOld": "years",
     "noResultsTitle": "No Results Found",
     "noResultsHint": "Try adjusting your search filters or search terms",
     "loadingMore": "Loading more results...",
@@ -215,7 +207,6 @@
     "freelanceInfo": "Freelancers work independently or in nightclubs",
     "freelanceMode": "Freelance",
     "freelanceNoEstablishment": "N/A - Freelance mode",
-    "yearsOld": "years",
     "sections": {
       "search": "Search",
       "profile": "Profile",
@@ -225,7 +216,6 @@
     },
     "removeFilter": "Remove"
   },
-
   "pagination": {
     "first": "First",
     "previous": "Previous",
@@ -237,7 +227,6 @@
     "pageInfo": "Page {{current}} of {{total}}",
     "navigation": "Pagination Navigation"
   },
-
   "profile": {
     "employee": "Employee Profile",
     "establishment": "Establishment Profile",
@@ -295,17 +284,79 @@
     "cancelComment": "Cancel Comment",
     "addComment": "Add Comment"
   },
-
   "employee": {
-    "sexLabel": "Gender",
-    "sex": {
-      "male": "Male",
-      "female": "Female",
-      "ladyboy": "Ladyboy"
-    },
-    "errorSexRequired": "Please select a gender"
+    "editTitle": "Edit Employee",
+    "addTitle": "Add New Employee",
+    "editSubtitle": "Propose changes to employee profile",
+    "createSubtitle": "Create a new employee profile",
+    "savingDraft": "Saving draft...",
+    "draftSavedAt": "Draft saved at {{time}}",
+    "autoSaveEnabled": "Auto-save enabled",
+    "basicInfo": "Basic Information",
+    "basicInformation": "Basic Information",
+    "nameLabel": "Name",
+    "nameRequired": "Name *",
+    "namePlaceholder": "Enter full name",
+    "photos": "Photos",
+    "uploadingPhotos": "Uploading photos...",
+    "clickToUpload": "Click or drag photos here",
+    "maxPhotosInfo": "Maximum {{max}} photos allowed",
+    "removePhoto": "Remove photo",
+    "mainPhoto": "Main",
+    "errorPhotosRequired": "At least one photo is required",
+    "errorRateLimitExceeded": "Too many requests. Please wait a few minutes and try again.",
+    "nicknameLabel": "Nickname",
+    "nicknamePlaceholder": "Nickname or stage name",
+    "ageLabel": "Age",
+    "agePlaceholder": "Age",
+    "nationalityLabel": "Nationality",
+    "nationalityPlaceholder": "e.g., Thai, Filipino",
+    "isHalf": "Half / Mixed",
+    "halfDescription": "Check if mixed heritage (allows selecting 2 nationalities)",
+    "selectNationalities": "Select nationality/ies",
+    "maxTwoNationalities": "Select up to 2 nationalities for half/mixed heritage",
+    "searchCountries": "Search countries...",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Brief description...",
+    "photosTitle": "Photos (Max 5)",
+    "photosUploadArea": "Click or drag photos here",
+    "photosUploadFormats": "JPG, PNG, GIF up to 10MB each",
+    "currentPhotos": "Current Photos ({{count}}/5)",
+    "newPhotos": "New Photos to Upload ({{count}}/5)",
+    "employmentMode": "Employment Mode",
+    "freelanceMode": "Freelance Mode",
+    "freelanceModeActive": "ACTIVE",
+    "freelanceZone": "Freelance Zone",
+    "selectZoneRequired": "Select Zone *",
+    "selectZonePlaceholder": "Select a zone",
+    "freelanceNote": "Note: Admin will assign your exact position on the map after approval. Just select your preferred zone for now.",
+    "currentEmployment": "Current Employment (Optional)",
+    "currentEstablishment": "Current Establishment",
+    "establishmentPlaceholder": "Select establishment",
+    "noEstablishmentsFound": "No establishments found",
+    "socialMedia": "Social Media (Optional)",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook",
+    "lineLabel": "Line",
+    "telegramLabel": "Telegram",
+    "whatsappLabel": "WhatsApp",
+    "instagramPlaceholder": "Instagram username",
+    "facebookPlaceholder": "Facebook username",
+    "linePlaceholder": "Line ID",
+    "telegramPlaceholder": "Telegram username",
+    "whatsappPlaceholder": "WhatsApp number",
+    "errorNameRequired": "Name is required",
+    "errorAgeRange": "Age must be between 18 and 80",
+    "errorFreelanceZone": "Please select a zone for freelance mode",
+    "errorPhotosMax": "Maximum 5 photos total allowed",
+    "errorPhotosType": "Only image files are allowed",
+    "errorPhotosSize": "Images must be smaller than 10MB",
+    "buttonCancel": "Cancel",
+    "buttonSaveChanges": "Save Changes",
+    "buttonAddEmployee": "Add Employee",
+    "buttonUploadingPhotos": "Uploading Photos...",
+    "buttonSubmitting": "Submitting..."
   },
-
   "validation": {
     "communityValidation": "Community Validation",
     "underReview": "Under review",
@@ -321,7 +372,6 @@
     "alreadyVoted": "You have already voted on this profile",
     "voteFailed": "Failed to submit vote"
   },
-
   "review": {
     "title": "Review",
     "writeReview": "Write a Review",
@@ -351,7 +401,6 @@
       "submitButton": "Submit Comment"
     }
   },
-
   "reviews": {
     "addPhotos": "Add photos (optional)",
     "photosLimit": "Maximum 3 photos",
@@ -385,7 +434,6 @@
       "filterResponded": "Responded"
     }
   },
-
   "auth": {
     "login": "Login",
     "register": "Register",
@@ -437,9 +485,10 @@
     "sendResetLink": "Send Reset Link",
     "rememberPassword": "Remember your password?",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "continueWithFacebook": "Continue with Facebook",
+    "facebookSignInFailed": "Facebook sign-in failed. Please try again."
   },
-
   "register": {
     "title": "Join Us",
     "subtitle": "Create your account",
@@ -502,7 +551,7 @@
     "acceptedFormats": "Images, PDF, Word (max 10MB)",
     "fileSizeError": "File too large (max 10MB)",
     "ownerClaimSubmitted": "Ownership request submitted! We'll review it shortly.",
-    "ownerAccountCreated": "Owner account created! You can now add establishments.",
+    "ownerAccountCreated": "Account created! An administrator will review your establishment owner request.",
     "claimMessage": "Why is this your profile?",
     "claimMessagePlaceholder": "Explain why this profile belongs to you... (min 10 characters)",
     "claimMessageMinChars": "{{count}}/10 characters minimum",
@@ -551,7 +600,6 @@
     "whatsappPlaceholder": "WhatsApp number",
     "uploadingPhotos": "Uploading Photos...",
     "creatingProfile": "Creating Profile...",
-    "ownerAccountCreated": "Account created! An administrator will review your establishment owner request.",
     "claimSubmitted": "Claim request submitted! An administrator will review your request.",
     "creatingEmployeeProfile": "Creating your employee profile...",
     "sessionSyncError": "Session synchronization failed. Please refresh and try again.",
@@ -633,7 +681,6 @@
     "termsOfService": "Terms of Service",
     "and": "and",
     "acceptTermsRequired": "You must accept the Privacy Policy and Terms of Service",
-    "googleDataPrefilled": "Your Google information has been retrieved. Choose your account type to continue.",
     "sessionExpired": "Session expired. Please sign in with Google again.",
     "syncFailed": "Failed to create account. Please try again.",
     "zones": {
@@ -646,83 +693,9 @@
       "jomtiencomplex": "Jomtien Complex",
       "boyztown": "BoyzTown",
       "soi78": "Soi 7 & 8"
-    }
+    },
+    "oauthDataPrefilled": "Your information has been retrieved. Choose your account type to continue."
   },
-
-  "employee": {
-    "editTitle": "Edit Employee",
-    "addTitle": "Add New Employee",
-    "editSubtitle": "Propose changes to employee profile",
-    "createSubtitle": "Create a new employee profile",
-    "savingDraft": "Saving draft...",
-    "draftSavedAt": "Draft saved at {{time}}",
-    "autoSaveEnabled": "Auto-save enabled",
-    "basicInfo": "Basic Information",
-    "basicInformation": "Basic Information",
-    "nameLabel": "Name",
-    "nameRequired": "Name *",
-    "namePlaceholder": "Enter full name",
-    "photos": "Photos",
-    "uploadingPhotos": "Uploading photos...",
-    "clickToUpload": "Click or drag photos here",
-    "maxPhotosInfo": "Maximum {{max}} photos allowed",
-    "removePhoto": "Remove photo",
-    "mainPhoto": "Main",
-    "errorPhotosRequired": "At least one photo is required",
-    "errorRateLimitExceeded": "Too many requests. Please wait a few minutes and try again.",
-    "nicknameLabel": "Nickname",
-    "nicknamePlaceholder": "Nickname or stage name",
-    "ageLabel": "Age",
-    "agePlaceholder": "Age",
-    "nationalityLabel": "Nationality",
-    "nationalityPlaceholder": "e.g., Thai, Filipino",
-    "isHalf": "Half / Mixed",
-    "halfDescription": "Check if mixed heritage (allows selecting 2 nationalities)",
-    "selectNationalities": "Select nationality/ies",
-    "maxTwoNationalities": "Select up to 2 nationalities for half/mixed heritage",
-    "searchCountries": "Search countries...",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Brief description...",
-    "photosTitle": "Photos (Max 5)",
-    "photosUploadArea": "Click or drag photos here",
-    "photosUploadFormats": "JPG, PNG, GIF up to 10MB each",
-    "currentPhotos": "Current Photos ({{count}}/5)",
-    "newPhotos": "New Photos to Upload ({{count}}/5)",
-    "employmentMode": "Employment Mode",
-    "freelanceMode": "Freelance Mode",
-    "freelanceModeActive": "ACTIVE",
-    "freelanceZone": "Freelance Zone",
-    "selectZoneRequired": "Select Zone *",
-    "selectZonePlaceholder": "Select a zone",
-    "freelanceNote": "Note: Admin will assign your exact position on the map after approval. Just select your preferred zone for now.",
-    "currentEmployment": "Current Employment (Optional)",
-    "currentEstablishment": "Current Establishment",
-    "establishmentPlaceholder": "Select establishment",
-    "noEstablishmentsFound": "No establishments found",
-    "socialMedia": "Social Media (Optional)",
-    "instagramLabel": "Instagram",
-    "facebookLabel": "Facebook",
-    "lineLabel": "Line",
-    "telegramLabel": "Telegram",
-    "whatsappLabel": "WhatsApp",
-    "instagramPlaceholder": "Instagram username",
-    "facebookPlaceholder": "Facebook username",
-    "linePlaceholder": "Line ID",
-    "telegramPlaceholder": "Telegram username",
-    "whatsappPlaceholder": "WhatsApp number",
-    "errorNameRequired": "Name is required",
-    "errorAgeRange": "Age must be between 18 and 80",
-    "errorFreelanceZone": "Please select a zone for freelance mode",
-    "errorPhotosMax": "Maximum 5 photos total allowed",
-    "errorPhotosType": "Only image files are allowed",
-    "errorPhotosSize": "Images must be smaller than 10MB",
-    "buttonCancel": "Cancel",
-    "buttonSaveChanges": "Save Changes",
-    "buttonAddEmployee": "Add Employee",
-    "buttonUploadingPhotos": "Uploading Photos...",
-    "buttonSubmitting": "Submitting..."
-  },
-
   "establishment": {
     "editTitle": "Edit Establishment",
     "addTitle": "Add New Establishment",
@@ -821,7 +794,6 @@
       }
     }
   },
-
   "ownerEstablishmentModal": {
     "errorLogoUploadFailed": "Failed to upload logo: {{error}}",
     "errorNameRequired": "Name required",
@@ -842,7 +814,6 @@
     "buttonSaving": "Saving...",
     "buttonSaveChanges": "Save Changes"
   },
-
   "claimEmployeeModal": {
     "errorEmployeeNotFound": "Employee not found",
     "errorSearchFailed": "Failed to search employee",
@@ -872,7 +843,6 @@
     "whatHappensNextStep2": "You'll be notified when your request is approved or rejected",
     "whatHappensNextStep3": "Once approved, you'll be able to edit and manage your profile"
   },
-
   "claimOrDelete": {
     "title": "Is this you?",
     "subtitle": "What would you like to do with this profile?",
@@ -883,7 +853,6 @@
     "deleteDesc": "Request the removal of your personal data",
     "notice": "In accordance with data protection laws (PDPA), you have the right to request the deletion of your information."
   },
-
   "deletionRequest": {
     "title": "Deletion Request",
     "titleSuccess": "Request Sent",
@@ -908,7 +877,6 @@
     "errorFileTooLarge": "File too large (max 10MB)",
     "errorSubmit": "Error sending. Please try again."
   },
-
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back",
@@ -925,7 +893,6 @@
     "totalReviews": "Total Reviews",
     "memberSince": "Member since"
   },
-
   "admin": {
     "title": "Admin Panel",
     "dashboard": "Dashboard",
@@ -1059,7 +1026,6 @@
     "report_plural": "reports",
     "reviewFor": "Review for:",
     "anonymous": "Anonymous",
-    "reports": "Reports",
     "approving": "Approving...",
     "rejecting": "Rejecting...",
     "dismissing": "Dismissing...",
@@ -1223,7 +1189,6 @@
     "rejectProposalPrompt": "Reason for rejection:",
     "enterRejectionReason": "Enter rejection reason..."
   },
-
   "establishmentLogo": {
     "errorInvalidFileType": "Please select a PNG, JPG, or GIF image",
     "errorFileTooLarge": "Image must be smaller than 5MB",
@@ -1236,7 +1201,6 @@
     "buttonRemove": "Remove",
     "recommendationText": "Recommended: 64x64px PNG with transparent background"
   },
-
   "establishmentLogosManager": {
     "title": "Manage Establishment Logos",
     "loadingEstablishments": "Loading establishments...",
@@ -1250,7 +1214,6 @@
     "withLogosSection": "With Logos ({{count}})",
     "noResults": "No establishments found matching your criteria."
   },
-
   "establishmentEditModal": {
     "title": "Edit {{name}}",
     "errorInvalidFileType": "Please select a PNG, JPG, or GIF image",
@@ -1290,7 +1253,6 @@
     "buttonSaving": "Saving...",
     "buttonSaveChanges": "Save Changes"
   },
-
   "userRating": {
     "loginToRate": "Login to rate",
     "loginPrompt": "to rate this employee",
@@ -1308,7 +1270,6 @@
     "buttonUpdate": "Update Rating",
     "buttonSubmit": "Submit Rating"
   },
-
   "editMyProfileModal": {
     "title": "Edit My Profile",
     "ariaCloseModal": "Close modal",
@@ -1325,7 +1286,6 @@
     "noteText": "Any changes you make will be submitted for admin approval before becoming public. Your current profile will remain visible until the changes are approved.",
     "noLinkedProfile": "No linked profile found"
   },
-
   "reviewsModal": {
     "title": "All Reviews for {{employeeName}}",
     "noReviewsTitle": "No Reviews Yet",
@@ -1334,7 +1294,6 @@
     "reviewsCountPlural": "{{count}} Reviews Total",
     "footerTip": "Tip: Use Ctrl+F to search specific reviews"
   },
-
   "userDashboard": {
     "pageTitle": "My Favorites",
     "pageSubtitle": "Your favorite employees and where they work",
@@ -1354,7 +1313,6 @@
     "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
     "deleteAccountButton": "Delete Account"
   },
-
   "cookies": {
     "title": "Cookie Settings",
     "description": "We use cookies to analyze site usage and improve your experience. You can accept or decline analytics cookies.",
@@ -1362,7 +1320,6 @@
     "accept": "Accept",
     "decline": "Decline"
   },
-
   "deleteAccount": {
     "title": "Delete Account",
     "warning": "This action is permanent and cannot be undone",
@@ -1380,7 +1337,6 @@
     "success": "Your account has been deleted. Goodbye!",
     "deleteFailed": "Failed to delete account"
   },
-
   "reviewsList": {
     "dateToday": "Today",
     "dateYesterday": "Yesterday",
@@ -1418,7 +1374,6 @@
     "ariaViewAllReviews": "View all {{count}} reviews in modal",
     "buttonViewAllReviews": "View all reviews ({{count}})"
   },
-
   "barDetailPage": {
     "toastSuccessApplied": "Changes applied immediately!",
     "errorUpdateFailed": "Failed to update establishment",
@@ -1443,7 +1398,6 @@
       "ariaViewDetails": "View establishment details"
     }
   },
-
   "employeeProfileWizard": {
     "ariaClose": "Close",
     "titleFindProfile": "Find Your Profile",
@@ -1482,14 +1436,12 @@
     "infoBoxOptionB": "Option B is best if you're new to Pattaya or want a completely fresh start. You'll create everything from scratch.",
     "buttonSkip": "I'll do this later"
   },
-
   "photoGalleryModal": {
     "ariaClose": "Close",
     "ariaPrevious": "Previous",
     "ariaNext": "Next",
     "altTextPhoto": "{{employeeName}} - Photo {{currentIndex}} of {{totalPhotos}}"
   },
-
   "employeeCard": {
     "ariaViewProfile": "View {{name}}'s profile",
     "altTextPhoto": "{{name}}, {{age}} years old from {{nationality}}",
@@ -1498,7 +1450,6 @@
     "freelanceEmployee": "Freelance Employee",
     "voteCount": "{{count}} vote(s) for existence confirmation"
   },
-
   "employeeDashboard": {
     "title": "Employee Dashboard",
     "subtitle": "Manage your profile and verification status",
@@ -1553,7 +1504,6 @@
     "upgradeNow": "Upgrade Now",
     "vipPurchaseSuccess": "VIP purchase initiated! Awaiting admin verification."
   },
-
   "verification": {
     "modal": {
       "title": "Verify Your Profile",
@@ -1599,7 +1549,6 @@
     "verifiedCount": "{{count}} verified",
     "totalCount": "{{total}} total"
   },
-
   "verificationModal": {
     "title": "Verify Your Profile",
     "poseTitle": "Required Pose",
@@ -1628,14 +1577,12 @@
     "rejectedMessage": "The photo did not match your profile photos. Please try again with a clearer selfie.",
     "matchScore": "Match score"
   },
-
   "starRating": {
     "ariaStarsSingular": "{{count}} star",
     "ariaStarsPlural": "{{count}} stars",
     "ariaGroupLabel": "Star rating",
     "ariaCurrentRating": "Current rating: {{rating}} out of {{max}} stars"
   },
-
   "barInfoSidebar": {
     "errors": {
       "loadingTemplates": "Error loading templates (HTTP {{status}})",
@@ -1707,7 +1654,6 @@
       "managedByOwner": "Managed by verified owner"
     }
   },
-
   "girlsGallery": {
     "title": "Lineup Gallery",
     "filters": {
@@ -1727,7 +1673,6 @@
     },
     "emptyState": "No employees match your filters"
   },
-
   "form": {
     "required": "Required field",
     "invalidEmail": "Invalid email address",
@@ -1741,14 +1686,12 @@
     "imageTooLarge": "Image too large (max 5MB)",
     "invalidImageType": "Invalid image type (JPG, PNG, GIF only)"
   },
-
   "modal": {
     "confirmDelete": "Confirm Deletion",
     "confirmDeleteMessage": "Are you sure you want to delete this item? This action cannot be undone.",
     "confirmLogout": "Confirm Logout",
     "confirmLogoutMessage": "Are you sure you want to logout?"
   },
-
   "toast": {
     "saved": "Saved successfully!",
     "deleted": "Deleted successfully!",
@@ -1759,7 +1702,6 @@
     "addedToFavorites": "Added to favorites!",
     "removedFromFavorites": "Removed from favorites!"
   },
-
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
@@ -1935,7 +1877,6 @@
       "contentPendingReview": "Your {{contentType}} \"{{contentName}}\" has been submitted and is pending review by our team."
     }
   },
-
   "myEmployees": {
     "loading": "Loading employees...",
     "noEmployees": "No employees found for {{name}}",
@@ -1952,7 +1893,6 @@
     "rating": "Rating",
     "viewEmployees": "View Employees"
   },
-
   "vipPurchase": {
     "title": "Purchase VIP Subscription",
     "forEmployee": "For",
@@ -1987,7 +1927,6 @@
     "successMessage": "VIP subscription activated successfully!",
     "successMessageCash": "Your VIP subscription has been created. Please contact admin to verify payment."
   },
-
   "vipVerification": {
     "title": "VIP Payment Verification",
     "subtitle": "Verify cash payments for VIP subscriptions",
@@ -2024,7 +1963,6 @@
     "rejectSuccess": "Payment rejected successfully",
     "rejectError": "Failed to reject payment"
   },
-
   "accessDenied": {
     "title": "Access Denied",
     "employee": "This page is only accessible to employee accounts. Please create an employee profile or login with an employee account.",
@@ -2036,7 +1974,6 @@
     "login": "Login",
     "help": "Need help? Contact support at"
   },
-
   "emptyState": {
     "search": {
       "title": "No results found",
@@ -2077,7 +2014,6 @@
       "message": "This section is currently empty."
     }
   },
-
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel",
@@ -2094,7 +2030,6 @@
     "errorMinLength": "Minimum {{minLength}} characters required",
     "errorMaxLength": "Maximum {{maxLength}} characters allowed"
   },
-
   "gamification": {
     "xp": {
       "gained": "XP Gained",
@@ -2104,18 +2039,18 @@
       "reward": "XP Reward"
     },
     "level": {
-      "current": "Current Level",
-      "up": "Level Up!",
-      "progress": "Level Progress",
-      "abbreviation": "Lv.",
-      "maxReached": "Max level reached! {{xp}} XP",
       "1": "Newbie",
       "2": "Explorer",
       "3": "Regular",
       "4": "Veteran",
       "5": "Expert",
       "6": "Elite",
-      "7": "Ambassador"
+      "7": "Ambassador",
+      "current": "Current Level",
+      "up": "Level Up!",
+      "progress": "Level Progress",
+      "abbreviation": "Lv.",
+      "maxReached": "Max level reached! {{xp}} XP"
     },
     "badges": {
       "title": "Badges",
@@ -2304,7 +2239,6 @@
       "statsTotalXP": "Total XP"
     }
   },
-
   "visitHistory": {
     "title": "My Visit History",
     "subtitle": "Track your check-ins and verified visits",
@@ -2328,7 +2262,6 @@
     "loginRequired": "Login Required",
     "loginMessage": "Please log in to view your visit history."
   },
-
   "footer": {
     "about": "About",
     "contact": "Contact",
@@ -2336,7 +2269,6 @@
     "terms": "Terms of Service",
     "copyright": "© 2025 PattaMap. All rights reserved."
   },
-
   "privacyPolicy": {
     "pageTitle": "Privacy Policy",
     "metaDescription": "PattaMap Privacy Policy - Learn how we collect, use, and protect your personal data in compliance with PDPA and GDPR.",
@@ -2415,7 +2347,6 @@
     "contactAddress": "Address",
     "footerText": "This Privacy Policy may be updated from time to time. We will notify you of any significant changes by posting the new policy on this page."
   },
-
   "termsOfService": {
     "pageTitle": "Terms of Service",
     "metaDescription": "PattaMap Terms of Service - Rules and conditions for using our platform.",
@@ -2485,7 +2416,6 @@
     "contactAddress": "Address",
     "footerText": "These Terms of Service are effective as of January 2025. By using PattaMap, you acknowledge that you have read, understood, and agree to be bound by these terms."
   },
-
   "notFound": {
     "pageTitle": "Page Not Found - PattaMap",
     "metaDescription": "The page you're looking for doesn't exist.",

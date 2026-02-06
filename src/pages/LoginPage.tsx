@@ -48,11 +48,11 @@ const LoginPage: React.FC = () => {
   const from = (location.state as { from?: string })?.from || null;
 
   // Redirect if already logged in OR after successful login
-  // BUT not during Google registration flow (let the registration form show)
-  const isGoogleRegistration = searchParams.get('from') === 'google' && searchParams.get('mode') === 'register';
+  // BUT not during OAuth registration flow (let the registration form show)
+  const isOAuthRegistration = searchParams.get('from') === 'oauth' && searchParams.get('mode') === 'register';
 
   React.useEffect(() => {
-    if (user && !isGoogleRegistration) {
+    if (user && !isOAuthRegistration) {
       // Determine redirect based on user role
       const redirectPath = from || (
         user.role === 'admin' ? '/admin' :
@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
 
       navigate(redirectPath, { replace: true });
     }
-  }, [user, navigate, from, isGoogleRegistration]);
+  }, [user, navigate, from, isOAuthRegistration]);
 
   const handleClose = () => {
     // Navigate back to home when user explicitly closes the form

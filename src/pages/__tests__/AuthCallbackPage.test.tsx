@@ -184,7 +184,7 @@ describe('AuthCallbackPage', () => {
   });
 
   describe('New user flow', () => {
-    it('should redirect new user to /login?mode=register&from=google', async () => {
+    it('should redirect new user to /login?mode=register&from=oauth', async () => {
       mockGetSession.mockResolvedValue({ data: { session: mockSession }, error: null });
       mockFetch.mockResolvedValue({
         ok: true,
@@ -201,10 +201,10 @@ describe('AuthCallbackPage', () => {
         vi.advanceTimersByTime(1000);
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/login?mode=register&from=google', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/login?mode=register&from=oauth', { replace: true });
     });
 
-    it('should store Google user data in sessionStorage for new user', async () => {
+    it('should store OAuth user data in sessionStorage for new user', async () => {
       mockGetSession.mockResolvedValue({ data: { session: mockSession }, error: null });
       mockFetch.mockResolvedValue({
         ok: true,
@@ -219,13 +219,13 @@ describe('AuthCallbackPage', () => {
 
       // Verify sessionStorage.setItem was called with Google user data
       expect(mockSessionStorageSetItem).toHaveBeenCalledWith(
-        'google_user_data',
+        'oauth_user_data',
         expect.stringContaining('"email":"test@example.com"')
       );
 
       // Parse the stored value to verify all fields
       const setItemCall = mockSessionStorageSetItem.mock.calls.find(
-        (call: string[]) => call[0] === 'google_user_data'
+        (call: string[]) => call[0] === 'oauth_user_data'
       );
       const storedData = JSON.parse(setItemCall[1]);
       expect(storedData.email).toBe('test@example.com');

@@ -98,7 +98,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const isFromGoogle = searchParams.get('from') === 'google';
+  const isFromOAuth = searchParams.get('from') === 'oauth';
 
   // Current step state
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -249,10 +249,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       }
     },
     password: {
-      required: !isFromGoogle, // Not required for Google OAuth
-      minLength: isFromGoogle ? 0 : 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
+      required: !isFromOAuth, // Not required for Google OAuth
+      minLength: isFromOAuth ? 0 : 8, // 🔧 FIX P1: Changed from 12 to 8 (user request)
       custom: (value) => {
-        if (isFromGoogle) return true; // Skip validation for Google OAuth
+        if (isFromOAuth) return true; // Skip validation for Google OAuth
         const pwd = value as string;
         if (pwd.length < 8) return true; // Let minLength handle this
         if (!/[a-z]/.test(pwd)) return t('register.passwordNeedsLowercase');
@@ -268,9 +268,9 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
       }
     },
     confirmPassword: {
-      required: !isFromGoogle, // Not required for Google OAuth
+      required: !isFromOAuth, // Not required for Google OAuth
       custom: (value) => {
-        if (isFromGoogle) return true; // Skip validation for Google OAuth
+        if (isFromOAuth) return true; // Skip validation for Google OAuth
         if (value !== formData.password) return t('register.passwordsNoMatch');
         return true;
       },
@@ -326,10 +326,10 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Pre-fill form data from Google OAuth
+  // Pre-fill form data from OAuth (Google, Facebook, etc.)
   useEffect(() => {
-    if (isFromGoogle) {
-      const googleData = sessionStorage.getItem('google_user_data');
+    if (isFromOAuth) {
+      const googleData = sessionStorage.getItem('oauth_user_data');
       if (googleData) {
         try {
           const { email, name, avatar_url } = JSON.parse(googleData);
@@ -346,19 +346,19 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
 
           // Store avatar_url for use during account creation
           if (avatar_url) {
-            sessionStorage.setItem('google_avatar_url', avatar_url);
+            sessionStorage.setItem('oauth_avatar_url', avatar_url);
           }
 
           // Clean up the Google data
-          sessionStorage.removeItem('google_user_data');
+          sessionStorage.removeItem('oauth_user_data');
 
-          logger.debug('[Register] Pre-filled form with Google data', { email, pseudonymFromName });
+          logger.debug('[Register] Pre-filled form with OAuth data', { email, pseudonymFromName });
         } catch (error) {
-          logger.error('[Register] Failed to parse Google data:', error);
+          logger.error('[Register] Failed to parse OAuth data:', error);
         }
       }
     }
-  }, [isFromGoogle]);
+  }, [isFromOAuth]);
 
   // 🆕 v10.x - Fetch categories for owner establishment creation
   useEffect(() => {
@@ -394,7 +394,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     currentStep,
     setCurrentStep,
     availabilityStatus,
-    isFromGoogle
+    isFromOAuth
   });
 
   // Registration submit hook
@@ -411,7 +411,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
     clearDraft,
     uploadPhotos,
     onSuccess: onClose,
-    isFromGoogle
+    isFromOAuth
   });
 
   // Handle employee selection from grid
@@ -579,11 +579,11 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
           </div>
         )}
 
-        {/* Google OAuth pre-fill banner */}
-        {isFromGoogle && (
-          <div className="google-prefill-banner">
+        {/* OAuth pre-fill banner */}
+        {isFromOAuth && (
+          <div className="oauth-prefill-banner">
             <CheckCircle size={16} />
-            <span>{t('register.googleDataPrefilled', 'Vos informations Google ont ete recuperees. Choisissez votre type de compte pour continuer.')}</span>
+            <span>{t('register.oauthDataPrefilled', 'Vos informations ont ete recuperees. Choisissez votre type de compte pour continuer.')}</span>
           </div>
         )}
 
@@ -685,7 +685,7 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
               onAvailabilityChange={(field, status) => {
                 setAvailabilityStatus(prev => ({ ...prev, [field]: status }));
               }}
-              isFromGoogle={isFromGoogle}
+              isFromOAuth={isFromOAuth}
             />
           )}
 
@@ -770,8 +770,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                 message={emailAvailability.message}
               />
 
-              {/* Password fields - hidden for Google OAuth users */}
-              {!isFromGoogle && (
+              {/* Password fields - hidden for OAuth users */}
+              {!isFromOAuth && (
                 <>
                   <div style={{ position: 'relative' }}>
                     <FormField

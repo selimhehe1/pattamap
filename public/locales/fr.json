@@ -4,7 +4,6 @@
     "exploreNightlife": "Explorez la vie nocturne de Pattaya par quartier",
     "searchAll": "Rechercher dans toutes les zones"
   },
-
   "zones": {
     "soi6": "Soi 6",
     "soi6Description": "Beer bars & clubs GoGo",
@@ -21,7 +20,6 @@
     "freelance": "Freelance",
     "freelanceDescription": "Travailleuses indépendantes"
   },
-
   "establishments": {
     "venuesInZone": "{{count}} établissements à {{zone}}",
     "noZoneSelected": "Aucune zone sélectionnée",
@@ -29,7 +27,6 @@
     "noVenuesFound": "Aucun établissement trouvé",
     "noVenuesInZone": "Il n'y a pas encore d'établissements dans cette zone."
   },
-
   "common": {
     "backToHome": "Retour à l'accueil",
     "errorLoading": "Erreur de chargement",
@@ -58,7 +55,6 @@
     "retry": "Réessayer",
     "sending": "Envoi en cours..."
   },
-
   "sync": {
     "syncing": "Synchronisation...",
     "pending": "{{count}} en attente",
@@ -69,7 +65,6 @@
     "clickToSync": "Cliquez pour synchroniser",
     "queuedForSync": "En file d'attente pour la synchronisation"
   },
-
   "header": {
     "title": "PATTAMAP",
     "subtitle": "Naviguez dans la vie nocturne de Pattaya",
@@ -92,7 +87,6 @@
     "myEstablishments": "Mes établissements",
     "editMyProfile": "Modifier mon profil"
   },
-
   "map": {
     "title": "Zones",
     "selectZone": "Sélectionnez une zone à explorer",
@@ -132,7 +126,6 @@
       "beachroad": "Beach Road"
     }
   },
-
   "establishmentList": {
     "resultsCount": "{{count}} établissement",
     "resultsCount_plural": "{{count}} établissements",
@@ -142,7 +135,6 @@
     "noResults": "Aucun établissement trouvé",
     "noResultsHint": "Essayez d'ajuster vos filtres ou votre terme de recherche"
   },
-
   "search": {
     "title": "Recherche avancée d'employées",
     "subtitle": "Trouvez des employées par nom, âge, nationalité, zone et établissement",
@@ -199,7 +191,7 @@
       "name": "Nom A-Z"
     },
     "photoCount": "{{count}}",
-    "yearsOld": "{{age}} ans",
+    "yearsOld": "ans",
     "noResultsTitle": "Aucun résultat trouvé",
     "noResultsHint": "Essayez d'ajuster vos filtres ou termes de recherche",
     "loadingMore": "Chargement de plus de résultats...",
@@ -215,7 +207,6 @@
     "freelanceInfo": "Les freelances travaillent indépendamment ou en nightclub",
     "freelanceMode": "Freelance",
     "freelanceNoEstablishment": "N/A - Mode freelance",
-    "yearsOld": "ans",
     "sections": {
       "search": "Recherche",
       "profile": "Profil",
@@ -225,7 +216,6 @@
     },
     "removeFilter": "Supprimer"
   },
-
   "pagination": {
     "first": "Première",
     "previous": "Précédent",
@@ -237,7 +227,6 @@
     "pageInfo": "Page {{current}} sur {{total}}",
     "navigation": "Navigation pagination"
   },
-
   "profile": {
     "employee": "Profil employée",
     "establishment": "Profil établissement",
@@ -295,17 +284,79 @@
     "cancelComment": "Annuler le commentaire",
     "addComment": "Ajouter un commentaire"
   },
-
   "employee": {
-    "sexLabel": "Genre",
-    "sex": {
-      "male": "Homme",
-      "female": "Femme",
-      "ladyboy": "Ladyboy"
-    },
-    "errorSexRequired": "Veuillez sélectionner un genre"
+    "editTitle": "Modifier l'employée",
+    "addTitle": "Ajouter une nouvelle employée",
+    "editSubtitle": "Proposer des modifications au profil de l'employée",
+    "createSubtitle": "Créer un nouveau profil d'employée",
+    "savingDraft": "Enregistrement du brouillon...",
+    "draftSavedAt": "Brouillon enregistré à {{time}}",
+    "autoSaveEnabled": "Sauvegarde automatique activée",
+    "basicInfo": "Informations de base",
+    "basicInformation": "Informations de base",
+    "nameLabel": "Nom",
+    "nameRequired": "Nom *",
+    "namePlaceholder": "Entrez le nom complet",
+    "photos": "Photos",
+    "uploadingPhotos": "Téléchargement des photos...",
+    "clickToUpload": "Cliquez ou déposez les photos ici",
+    "maxPhotosInfo": "Maximum {{max}} photos autorisées",
+    "removePhoto": "Supprimer la photo",
+    "mainPhoto": "Principale",
+    "errorPhotosRequired": "Au moins une photo est requise",
+    "errorRateLimitExceeded": "Trop de requêtes. Veuillez patienter quelques minutes et réessayer.",
+    "nicknameLabel": "Surnom",
+    "nicknamePlaceholder": "Surnom ou nom de scène",
+    "ageLabel": "Âge",
+    "agePlaceholder": "Âge",
+    "nationalityLabel": "Nationalité",
+    "nationalityPlaceholder": "ex. Thaïlandaise, Philippine",
+    "isHalf": "Métisse / Mixte",
+    "halfDescription": "Cochez si origine mixte (permet de sélectionner 2 nationalités)",
+    "selectNationalities": "Sélectionner nationalité(s)",
+    "maxTwoNationalities": "Sélectionnez jusqu'à 2 nationalités pour origine mixte",
+    "searchCountries": "Rechercher pays...",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Brève description...",
+    "photosTitle": "Photos (Max 5)",
+    "photosUploadArea": "Cliquez ou déposez les photos ici",
+    "photosUploadFormats": "JPG, PNG, GIF jusqu'à 10MB chacun",
+    "currentPhotos": "Photos actuelles ({{count}}/5)",
+    "newPhotos": "Nouvelles photos à télécharger ({{count}}/5)",
+    "employmentMode": "Mode d'emploi",
+    "freelanceMode": "Mode Freelance",
+    "freelanceModeActive": "ACTIF",
+    "freelanceZone": "Zone Freelance",
+    "selectZoneRequired": "Sélectionner la zone *",
+    "selectZonePlaceholder": "Sélectionnez une zone",
+    "freelanceNote": "Note : L'administrateur assignera votre position exacte sur la carte après approbation. Sélectionnez simplement votre zone préférée pour l'instant.",
+    "currentEmployment": "Emploi actuel (Facultatif)",
+    "currentEstablishment": "Établissement actuel",
+    "establishmentPlaceholder": "Sélectionner un établissement",
+    "noEstablishmentsFound": "Aucun établissement trouvé",
+    "socialMedia": "Réseaux sociaux (Facultatif)",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook",
+    "lineLabel": "Line",
+    "telegramLabel": "Telegram",
+    "whatsappLabel": "WhatsApp",
+    "instagramPlaceholder": "Nom d'utilisateur Instagram",
+    "facebookPlaceholder": "Nom d'utilisateur Facebook",
+    "linePlaceholder": "ID Line",
+    "telegramPlaceholder": "Nom d'utilisateur Telegram",
+    "whatsappPlaceholder": "Numéro WhatsApp",
+    "errorNameRequired": "Le nom est requis",
+    "errorAgeRange": "L'âge doit être entre 18 et 80 ans",
+    "errorFreelanceZone": "Veuillez sélectionner une zone pour le mode freelance",
+    "errorPhotosMax": "Maximum 5 photos autorisées au total",
+    "errorPhotosType": "Seuls les fichiers image sont autorisés",
+    "errorPhotosSize": "Les images doivent être inférieures à 10MB",
+    "buttonCancel": "Annuler",
+    "buttonSaveChanges": "Enregistrer les modifications",
+    "buttonAddEmployee": "Ajouter l'employée",
+    "buttonUploadingPhotos": "Téléchargement des photos...",
+    "buttonSubmitting": "Envoi en cours..."
   },
-
   "validation": {
     "communityValidation": "Validation Communautaire",
     "underReview": "En cours d'examen",
@@ -321,7 +372,6 @@
     "alreadyVoted": "Vous avez déjà voté",
     "voteFailed": "Échec du vote, veuillez réessayer"
   },
-
   "review": {
     "title": "Avis",
     "writeReview": "Écrire un avis",
@@ -351,7 +401,6 @@
       "submitButton": "Soumettre le commentaire"
     }
   },
-
   "reviews": {
     "addPhotos": "Ajouter des photos (optionnel)",
     "photosLimit": "Maximum 3 photos",
@@ -385,7 +434,6 @@
       "filterResponded": "Répondus"
     }
   },
-
   "auth": {
     "login": "Connexion",
     "register": "Inscription",
@@ -437,9 +485,10 @@
     "resetRequestFailed": "Échec de l'envoi de l'email de réinitialisation",
     "enterEmail": "Entrez votre email",
     "emailRequired": "Email requis",
-    "invalidEmail": "Format d'email invalide"
+    "invalidEmail": "Format d'email invalide",
+    "continueWithFacebook": "Continuer avec Facebook",
+    "facebookSignInFailed": "La connexion avec Facebook a échoué. Veuillez réessayer."
   },
-
   "register": {
     "title": "Rejoignez-nous",
     "subtitle": "Créez votre compte",
@@ -502,7 +551,7 @@
     "acceptedFormats": "Images, PDF, Word (max 10 Mo)",
     "fileSizeError": "Fichier trop volumineux (max 10 Mo)",
     "ownerClaimSubmitted": "Demande de propriété soumise ! Nous l'examinerons bientôt.",
-    "ownerAccountCreated": "Compte propriétaire créé ! Vous pouvez maintenant ajouter des établissements.",
+    "ownerAccountCreated": "Compte créé ! Un administrateur examinera votre demande de propriétaire d'établissement.",
     "claimMessage": "Pourquoi est-ce votre profil ?",
     "claimMessagePlaceholder": "Expliquez pourquoi ce profil vous appartient... (minimum 10 caractères)",
     "claimMessageMinChars": "{{count}}/10 caractères minimum",
@@ -529,7 +578,7 @@
     "employmentModeSection": "Mode d'emploi",
     "freelanceMode": "Mode Freelance",
     "freelanceModeActive": "ACTIF",
-    "selectZone": "Sélectionner la zone",
+    "selectZone": "Sélectionnez une zone",
     "selectNightclubs": "Sélectionner des Nightclubs (Optionnel)",
     "freelanceNightclubNote": "En tant que freelance, vous pouvez travailler dans plusieurs nightclubs simultanément, ou laisser vide pour être listée comme freelance indépendante.",
     "noNightclubsAvailable": "Aucun nightclub disponible",
@@ -552,7 +601,6 @@
     "whatsappPlaceholder": "Numéro WhatsApp",
     "uploadingPhotos": "Téléchargement des photos...",
     "creatingProfile": "Création du profil...",
-    "ownerAccountCreated": "Compte créé ! Un administrateur examinera votre demande de propriétaire d'établissement.",
     "claimSubmitted": "Demande de réclamation soumise ! Un administrateur examinera votre demande.",
     "creatingEmployeeProfile": "Création de votre profil d'employée...",
     "sessionSyncError": "Échec de la synchronisation de la session. Veuillez actualiser et réessayer.",
@@ -613,7 +661,6 @@
     "establishmentAddress": "Adresse",
     "establishmentAddressPlaceholder": "Entrez l'adresse",
     "establishmentZone": "Zone",
-    "selectZone": "Sélectionnez une zone",
     "establishmentCategory": "Catégorie",
     "selectCategory": "Sélectionnez une catégorie",
     "establishmentDescription": "Description",
@@ -629,13 +676,11 @@
     "establishmentCreatedPending": "Compte et établissement créés ! Les deux seront examinés par un administrateur.",
     "selfCreatedEstablishmentMessage": "Auto-créé lors de l'inscription",
     "draftCleared": "Brouillon effacé",
-    "draftClearedToast": "Brouillon effacé",
     "acceptTerms": "J'accepte la",
     "privacyPolicy": "Politique de Confidentialité",
     "termsOfService": "Conditions d'Utilisation",
     "and": "et les",
     "acceptTermsRequired": "Vous devez accepter la Politique de Confidentialité et les Conditions d'Utilisation",
-    "googleDataPrefilled": "Vos informations Google ont été récupérées. Choisissez votre type de compte pour continuer.",
     "sessionExpired": "Session expirée. Veuillez vous reconnecter avec Google.",
     "syncFailed": "Échec de la création du compte. Veuillez réessayer.",
     "zones": {
@@ -648,9 +693,9 @@
       "jomtiencomplex": "Complexe Jomtien",
       "boyztown": "BoyzTown",
       "soi78": "Soi 7 & 8"
-    }
+    },
+    "oauthDataPrefilled": "Vos informations ont été récupérées. Choisissez votre type de compte pour continuer."
   },
-
   "dashboard": {
     "title": "Tableau de bord",
     "welcome": "Bienvenue",
@@ -667,7 +712,6 @@
     "totalReviews": "Avis totaux",
     "memberSince": "Membre depuis"
   },
-
   "employeeDashboard": {
     "title": "Tableau de bord employée",
     "subtitle": "Gérez votre profil et votre statut de vérification",
@@ -727,7 +771,6 @@
     "reviews": "Avis",
     "rating": "Note moyenne"
   },
-
   "admin": {
     "title": "Panneau Admin",
     "dashboard": "Tableau de bord",
@@ -856,7 +899,6 @@
     "report_plural": "signalements",
     "reviewFor": "Avis pour :",
     "anonymous": "Anonyme",
-    "reports": "Signalements",
     "approving": "Approbation...",
     "rejecting": "Rejet...",
     "dismissing": "Rejet des signalements...",
@@ -1050,7 +1092,6 @@
       "detailModeratorNotes": "Notes du modérateur :"
     }
   },
-
   "userDashboard": {
     "pageTitle": "Mes favoris",
     "pageSubtitle": "Vos employées favorites et où elles travaillent",
@@ -1070,7 +1111,6 @@
     "deleteAccountDescription": "Supprimez définitivement votre compte et toutes les données associées. Cette action est irréversible.",
     "deleteAccountButton": "Supprimer mon compte"
   },
-
   "cookies": {
     "title": "Paramètres des cookies",
     "description": "Nous utilisons des cookies pour analyser l'utilisation du site et améliorer votre expérience. Vous pouvez accepter ou refuser les cookies analytiques.",
@@ -1078,7 +1118,6 @@
     "accept": "Accepter",
     "decline": "Refuser"
   },
-
   "deleteAccount": {
     "title": "Supprimer le compte",
     "warning": "Cette action est définitive et irréversible",
@@ -1096,7 +1135,6 @@
     "success": "Votre compte a été supprimé. Au revoir !",
     "deleteFailed": "Échec de la suppression du compte"
   },
-
   "form": {
     "required": "Champ requis",
     "invalidEmail": "Adresse email invalide",
@@ -1110,14 +1148,12 @@
     "imageTooLarge": "Image trop volumineuse (max 5MB)",
     "invalidImageType": "Type d'image invalide (JPG, PNG, GIF uniquement)"
   },
-
   "modal": {
     "confirmDelete": "Confirmer la suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer cet élément ? Cette action ne peut pas être annulée.",
     "confirmLogout": "Confirmer la déconnexion",
     "confirmLogoutMessage": "Êtes-vous sûr de vouloir vous déconnecter ?"
   },
-
   "toast": {
     "saved": "Enregistré avec succès !",
     "deleted": "Supprimé avec succès !",
@@ -1128,7 +1164,6 @@
     "addedToFavorites": "Ajouté aux favoris !",
     "removedFromFavorites": "Retiré des favoris !"
   },
-
   "photoGalleryModal": {
     "ariaClose": "Fermer",
     "ariaPrevious": "Précédent",
@@ -1149,7 +1184,6 @@
     "ariaGroupLabel": "Évaluation par étoiles",
     "ariaCurrentRating": "Note actuelle : {{rating}} sur {{max}} étoiles"
   },
-
   "barInfoSidebar": {
     "errors": {
       "loadingTemplates": "Erreur de chargement des modèles (HTTP {{status}})",
@@ -1221,7 +1255,6 @@
       "managedByOwner": "Géré par un propriétaire vérifié"
     }
   },
-
   "girlsGallery": {
     "title": "Galerie des Employées",
     "filters": {
@@ -1241,86 +1274,12 @@
     },
     "emptyState": "Aucune employée ne correspond à vos filtres"
   },
-
   "footer": {
     "about": "À propos",
     "contact": "Contact",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
     "copyright": "© 2025 PattaMap. Tous droits réservés."
-  },
-  "employee": {
-    "editTitle": "Modifier l'employée",
-    "addTitle": "Ajouter une nouvelle employée",
-    "editSubtitle": "Proposer des modifications au profil de l'employée",
-    "createSubtitle": "Créer un nouveau profil d'employée",
-    "savingDraft": "Enregistrement du brouillon...",
-    "draftSavedAt": "Brouillon enregistré à {{time}}",
-    "autoSaveEnabled": "Sauvegarde automatique activée",
-    "basicInfo": "Informations de base",
-    "basicInformation": "Informations de base",
-    "nameLabel": "Nom",
-    "nameRequired": "Nom *",
-    "namePlaceholder": "Entrez le nom complet",
-    "photos": "Photos",
-    "uploadingPhotos": "Téléchargement des photos...",
-    "clickToUpload": "Cliquez ou déposez les photos ici",
-    "maxPhotosInfo": "Maximum {{max}} photos autorisées",
-    "removePhoto": "Supprimer la photo",
-    "mainPhoto": "Principale",
-    "errorPhotosRequired": "Au moins une photo est requise",
-    "errorRateLimitExceeded": "Trop de requêtes. Veuillez patienter quelques minutes et réessayer.",
-    "nicknameLabel": "Surnom",
-    "nicknamePlaceholder": "Surnom ou nom de scène",
-    "ageLabel": "Âge",
-    "agePlaceholder": "Âge",
-    "nationalityLabel": "Nationalité",
-    "nationalityPlaceholder": "ex. Thaïlandaise, Philippine",
-    "isHalf": "Métisse / Mixte",
-    "halfDescription": "Cochez si origine mixte (permet de sélectionner 2 nationalités)",
-    "selectNationalities": "Sélectionner nationalité(s)",
-    "maxTwoNationalities": "Sélectionnez jusqu'à 2 nationalités pour origine mixte",
-    "searchCountries": "Rechercher pays...",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Brève description...",
-    "photosTitle": "Photos (Max 5)",
-    "photosUploadArea": "Cliquez ou déposez les photos ici",
-    "photosUploadFormats": "JPG, PNG, GIF jusqu'à 10MB chacun",
-    "currentPhotos": "Photos actuelles ({{count}}/5)",
-    "newPhotos": "Nouvelles photos à télécharger ({{count}}/5)",
-    "employmentMode": "Mode d'emploi",
-    "freelanceMode": "Mode Freelance",
-    "freelanceModeActive": "ACTIF",
-    "freelanceZone": "Zone Freelance",
-    "selectZoneRequired": "Sélectionner la zone *",
-    "selectZonePlaceholder": "Sélectionnez une zone",
-    "freelanceNote": "Note : L'administrateur assignera votre position exacte sur la carte après approbation. Sélectionnez simplement votre zone préférée pour l'instant.",
-    "currentEmployment": "Emploi actuel (Facultatif)",
-    "currentEstablishment": "Établissement actuel",
-    "establishmentPlaceholder": "Sélectionner un établissement",
-    "noEstablishmentsFound": "Aucun établissement trouvé",
-    "socialMedia": "Réseaux sociaux (Facultatif)",
-    "instagramLabel": "Instagram",
-    "facebookLabel": "Facebook",
-    "lineLabel": "Line",
-    "telegramLabel": "Telegram",
-    "whatsappLabel": "WhatsApp",
-    "instagramPlaceholder": "Nom d'utilisateur Instagram",
-    "facebookPlaceholder": "Nom d'utilisateur Facebook",
-    "linePlaceholder": "ID Line",
-    "telegramPlaceholder": "Nom d'utilisateur Telegram",
-    "whatsappPlaceholder": "Numéro WhatsApp",
-    "errorNameRequired": "Le nom est requis",
-    "errorAgeRange": "L'âge doit être entre 18 et 80 ans",
-    "errorFreelanceZone": "Veuillez sélectionner une zone pour le mode freelance",
-    "errorPhotosMax": "Maximum 5 photos autorisées au total",
-    "errorPhotosType": "Seuls les fichiers image sont autorisés",
-    "errorPhotosSize": "Les images doivent être inférieures à 10MB",
-    "buttonCancel": "Annuler",
-    "buttonSaveChanges": "Enregistrer les modifications",
-    "buttonAddEmployee": "Ajouter l'employée",
-    "buttonUploadingPhotos": "Téléchargement des photos...",
-    "buttonSubmitting": "Envoi en cours..."
   },
   "establishment": {
     "editTitle": "Modifier l'établissement",
@@ -1420,7 +1379,6 @@
       }
     }
   },
-
   "reviewsList": {
     "dateToday": "Aujourd'hui",
     "dateYesterday": "Hier",
@@ -1458,7 +1416,6 @@
     "ariaViewAllReviews": "Voir tous les {{count}} avis dans une fenêtre",
     "buttonViewAllReviews": "Voir tous les avis ({{count}})"
   },
-
   "barDetailPage": {
     "toastSuccessApplied": "Modifications appliquées immédiatement !",
     "errorUpdateFailed": "Échec de la mise à jour de l'établissement",
@@ -1483,7 +1440,6 @@
       "ariaViewDetails": "Voir les détails de l'établissement"
     }
   },
-
   "employeeProfileWizard": {
     "ariaClose": "Fermer",
     "titleFindProfile": "Trouvez votre profil",
@@ -1522,7 +1478,6 @@
     "infoBoxOptionB": "L'option B est préférable si vous êtes nouveau à Pattaya ou si vous voulez repartir complètement à zéro. Vous créerez tout de A à Z.",
     "buttonSkip": "Je le ferai plus tard"
   },
-
   "claimEmployeeModal": {
     "errorEmployeeNotFound": "Employée introuvable",
     "errorSearchFailed": "Échec de la recherche d'employée",
@@ -1552,7 +1507,6 @@
     "whatHappensNextStep2": "Vous serez notifié lorsque votre demande sera approuvée ou rejetée",
     "whatHappensNextStep3": "Une fois approuvé, vous pourrez modifier et gérer votre profil"
   },
-
   "claimOrDelete": {
     "title": "C'est vous ?",
     "subtitle": "Que souhaitez-vous faire avec ce profil ?",
@@ -1563,7 +1517,6 @@
     "deleteDesc": "Demandez la suppression de vos données personnelles",
     "notice": "Conformément à la loi sur la protection des données personnelles (PDPA), vous avez le droit de demander la suppression de vos informations."
   },
-
   "deletionRequest": {
     "title": "Demande de suppression",
     "titleSuccess": "Demande envoyée",
@@ -1588,7 +1541,6 @@
     "errorFileTooLarge": "Fichier trop volumineux (max 10Mo)",
     "errorSubmit": "Erreur lors de l'envoi. Veuillez réessayer."
   },
-
   "userRating": {
     "loginToRate": "Connectez-vous pour noter",
     "loginPrompt": "pour noter cette employée",
@@ -1606,7 +1558,6 @@
     "buttonUpdate": "Mettre à jour la note",
     "buttonSubmit": "Soumettre la note"
   },
-
   "editMyProfileModal": {
     "title": "Modifier mon profil",
     "ariaCloseModal": "Fermer la fenêtre",
@@ -1623,7 +1574,6 @@
     "noteText": "Toute modification que vous apportez sera soumise à l'approbation de l'administrateur avant d'être publique. Votre profil actuel restera visible jusqu'à ce que les modifications soient approuvées.",
     "noLinkedProfile": "Aucun profil lié trouvé"
   },
-
   "reviewsModal": {
     "title": "Tous les avis pour {{employeeName}}",
     "noReviewsTitle": "Aucun avis pour le moment",
@@ -1632,7 +1582,6 @@
     "reviewsCountPlural": "{{count}} avis au total",
     "footerTip": "Astuce : Utilisez Ctrl+F pour rechercher des avis spécifiques"
   },
-
   "establishmentEditModal": {
     "title": "Modifier {{name}}",
     "errorInvalidFileType": "Veuillez sélectionner une image PNG, JPG ou GIF",
@@ -1672,7 +1621,6 @@
     "buttonSaving": "Enregistrement...",
     "buttonSaveChanges": "Enregistrer les modifications"
   },
-
   "ownerEstablishmentModal": {
     "errorLogoUploadFailed": "Échec du téléchargement du logo: {{error}}",
     "errorNameRequired": "Nom requis",
@@ -1693,7 +1641,6 @@
     "buttonSaving": "Enregistrement...",
     "buttonSaveChanges": "Enregistrer les modifications"
   },
-
   "establishmentLogosManager": {
     "title": "Gérer les logos des établissements",
     "loadingEstablishments": "Chargement des établissements...",
@@ -1707,7 +1654,6 @@
     "withLogosSection": "Avec logos ({{count}})",
     "noResults": "Aucun établissement trouvé correspondant à vos critères."
   },
-
   "establishmentLogo": {
     "errorInvalidFileType": "Veuillez sélectionner une image PNG, JPG ou GIF",
     "errorFileTooLarge": "L'image doit être inférieure à 5MB",
@@ -1720,7 +1666,6 @@
     "buttonRemove": "Supprimer",
     "recommendationText": "Recommandé: 64x64px PNG avec fond transparent"
   },
-
   "verification": {
     "verifiedProfile": "Profil vérifié",
     "verifiedTooltip": "Ce profil a été vérifié par un administrateur",
@@ -1789,7 +1734,6 @@
       }
     }
   },
-
   "verificationModal": {
     "title": "Verify Your Profile",
     "poseTitle": "Required Pose",
@@ -1818,7 +1762,6 @@
     "rejectedMessage": "The photo did not match your profile photos. Please try again with a clearer selfie.",
     "matchScore": "Match score"
   },
-
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Tout marquer comme lu",
@@ -1994,7 +1937,6 @@
       "contentPendingReview": "Votre {{contentType}} \"{{contentName}}\" a été soumis et est en attente de validation par notre équipe."
     }
   },
-
   "myEmployees": {
     "loading": "Chargement des employées...",
     "noEmployees": "Aucune employée trouvée pour {{name}}",
@@ -2011,7 +1953,6 @@
     "rating": "Note",
     "viewEmployees": "Voir les employées"
   },
-
   "vipPurchase": {
     "title": "Acheter un abonnement VIP",
     "forEmployee": "Pour",
@@ -2046,7 +1987,6 @@
     "successMessage": "Abonnement VIP activé avec succès !",
     "successMessageCash": "Votre abonnement VIP a été créé. Veuillez contacter l'administrateur pour vérifier le paiement."
   },
-
   "vipVerification": {
     "title": "Vérification des paiements VIP",
     "subtitle": "Vérifier les paiements en espèces pour les abonnements VIP",
@@ -2083,7 +2023,6 @@
     "rejectSuccess": "Paiement rejeté avec succès",
     "rejectError": "Échec du rejet du paiement"
   },
-
   "dialog": {
     "confirm": "Confirmer",
     "cancel": "Annuler",
@@ -2100,7 +2039,6 @@
     "errorMinLength": "Minimum {{minLength}} caractères requis",
     "errorMaxLength": "Maximum {{maxLength}} caractères autorisés"
   },
-
   "accessDenied": {
     "title": "Accès refusé",
     "employee": "Cette page est accessible uniquement aux comptes employées. Veuillez créer un profil employée ou vous connecter avec un compte employée.",
@@ -2112,7 +2050,6 @@
     "login": "Connexion",
     "help": "Besoin d'aide ? Contactez le support à"
   },
-
   "emptyState": {
     "search": {
       "title": "Aucun résultat trouvé",
@@ -2153,7 +2090,6 @@
       "message": "Cette section est actuellement vide."
     }
   },
-
   "gamification": {
     "xp": {
       "gained": "XP gagné",
@@ -2163,18 +2099,18 @@
       "reward": "Récompense XP"
     },
     "level": {
-      "current": "Niveau actuel",
-      "up": "Niveau supérieur !",
-      "progress": "Progression du niveau",
-      "abbreviation": "Niv.",
-      "maxReached": "Niveau maximum atteint ! {{xp}} XP",
       "1": "Débutant",
       "2": "Explorateur",
       "3": "Habitué",
       "4": "Vétéran",
       "5": "Expert",
       "6": "Élite",
-      "7": "Ambassadeur"
+      "7": "Ambassadeur",
+      "current": "Niveau actuel",
+      "up": "Niveau supérieur !",
+      "progress": "Progression du niveau",
+      "abbreviation": "Niv.",
+      "maxReached": "Niveau maximum atteint ! {{xp}} XP"
     },
     "badges": {
       "title": "Badges",
@@ -2363,7 +2299,6 @@
       "statsTotalXP": "XP Total"
     }
   },
-
   "visitHistory": {
     "title": "Mon historique de visites",
     "subtitle": "Suivez vos enregistrements et visites vérifiées",
@@ -2387,7 +2322,6 @@
     "loginRequired": "Connexion requise",
     "loginMessage": "Veuillez vous connecter pour voir votre historique de visites."
   },
-
   "privacyPolicy": {
     "pageTitle": "Politique de Confidentialité",
     "metaDescription": "Politique de Confidentialité PattaMap - Découvrez comment nous collectons, utilisons et protégeons vos données personnelles conformément au PDPA et au RGPD.",
@@ -2466,7 +2400,6 @@
     "contactAddress": "Adresse",
     "footerText": "Cette Politique de Confidentialité peut être mise à jour de temps en temps. Nous vous informerons de tout changement significatif en publiant la nouvelle politique sur cette page."
   },
-
   "termsOfService": {
     "pageTitle": "Conditions Générales d'Utilisation",
     "metaDescription": "Conditions Générales d'Utilisation de PattaMap - Règles et conditions d'utilisation de notre plateforme.",
@@ -2536,7 +2469,6 @@
     "contactAddress": "Adresse",
     "footerText": "Ces Conditions Générales d'Utilisation sont en vigueur depuis janvier 2025. En utilisant PattaMap, vous reconnaissez avoir lu, compris et accepté d'être lié par ces conditions."
   },
-
   "notFound": {
     "pageTitle": "Page introuvable - PattaMap",
     "metaDescription": "La page que vous recherchez n'existe pas.",

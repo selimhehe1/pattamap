@@ -457,7 +457,9 @@
     "resetRequestFailed": "リセットメールの送信に失敗しました",
     "enterEmail": "メールアドレスを入力",
     "emailRequired": "メールアドレスが必要です",
-    "invalidEmail": "無効なメールアドレス形式"
+    "invalidEmail": "無効なメールアドレス形式",
+    "continueWithFacebook": "Facebookで続ける",
+    "facebookSignInFailed": "Facebookサインインに失敗しました。もう一度お試しください。"
   },
   "register": {
     "title": "新規登録",
@@ -590,7 +592,6 @@
     "passwordInvalid": "無効なパスワードです",
     "passwordsNoMatch": "パスワードが一致しません",
     "passwordsMustMatch": "パスワードは一致する必要があります",
-    "googleDataPrefilled": "Googleの情報を取得しました。アカウントタイプを選択して続行してください。",
     "sessionExpired": "セッションが期限切れです。Googleで再度ログインしてください。",
     "syncFailed": "アカウントの作成に失敗しました。もう一度お試しください。",
     "zones": {
@@ -666,7 +667,8 @@
     "submittingButton": "送信中...",
     "termsOfService": "利用規約",
     "uploadOwnershipDocuments": "所有権の証明書をアップロード",
-    "uploadOwnershipDocumentsDesc": "営業許可証、賃貸契約書、またはあなた名義の公共料金請求書"
+    "uploadOwnershipDocumentsDesc": "営業許可証、賃貸契約書、またはあなた名義の公共料金請求書",
+    "oauthDataPrefilled": "情報を取得しました。アカウントタイプを選択して続行してください。"
   },
   "establishment": {
     "editTitle": "店舗を編集",

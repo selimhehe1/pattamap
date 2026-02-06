@@ -485,7 +485,9 @@
     "sendResetLink": "ส่งลิงก์รีเซ็ต",
     "rememberPassword": "จำรหัสผ่านได้?",
     "showPassword": "แสดงรหัสผ่าน",
-    "hidePassword": "ซ่อนรหัสผ่าน"
+    "hidePassword": "ซ่อนรหัสผ่าน",
+    "continueWithFacebook": "ดำเนินการต่อด้วย Facebook",
+    "facebookSignInFailed": "การเข้าสู่ระบบด้วย Facebook ล้มเหลว กรุณาลองอีกครั้ง"
   },
   "register": {
     "title": "เข้าร่วมกับเรา",
@@ -679,7 +681,6 @@
     "termsOfService": "ข้อกำหนดการใช้บริการ",
     "and": "และ",
     "acceptTermsRequired": "คุณต้องยอมรับนโยบายความเป็นส่วนตัวและข้อกำหนดการใช้บริการ",
-    "googleDataPrefilled": "ข้อมูล Google ของคุณถูกดึงมาแล้ว เลือกประเภทบัญชีเพื่อดำเนินการต่อ",
     "sessionExpired": "เซสชันหมดอายุ กรุณาลงชื่อเข้าใช้ด้วย Google อีกครั้ง",
     "syncFailed": "ไม่สามารถสร้างบัญชีได้ กรุณาลองอีกครั้ง",
     "zones": {
@@ -695,7 +696,8 @@
     },
     "selectZonePlaceholder": "เลือกโซน",
     "freelanceNote": "หมายเหตุ: ผู้ดูแลจะกำหนดตำแหน่งที่แน่นอนบนแผนที่หลังจากอนุมัติ",
-    "passwordMinLength": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"
+    "passwordMinLength": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    "oauthDataPrefilled": "ข้อมูลของคุณถูกดึงมาแล้ว เลือกประเภทบัญชีเพื่อดำเนินการต่อ"
   },
   "establishment": {
     "editTitle": "แก้ไขสถานประกอบการ",

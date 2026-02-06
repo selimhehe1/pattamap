@@ -60,7 +60,7 @@ interface UseRegistrationSubmitOptions {
   clearDraft: () => void;
   uploadPhotos: (csrfToken?: string) => Promise<string[]>;
   onSuccess: () => void;
-  isFromGoogle?: boolean;
+  isFromOAuth?: boolean;
 }
 
 interface UseRegistrationSubmitReturn {
@@ -88,7 +88,7 @@ export function useRegistrationSubmit({
   clearDraft,
   uploadPhotos,
   onSuccess,
-  isFromGoogle = false
+  isFromOAuth = false
 }: UseRegistrationSubmitOptions): UseRegistrationSubmitReturn {
   const { t } = useTranslation();
   const { register, claimEmployeeProfile, submitOwnershipRequest } = useAuth();
@@ -136,17 +136,17 @@ export function useRegistrationSubmit({
     try {
       let freshToken: string | null | undefined;
 
-      if (isFromGoogle) {
-        // Google OAuth flow: user is already authenticated, just need to sync with our database
+      if (isFromOAuth) {
+        // OAuth flow: user is already authenticated, just need to sync with our database
         const { supabase } = await import('../../../config/supabase');
         const { data: { session } } = await supabase.auth.getSession();
 
         if (!session) {
-          throw new Error(t('register.sessionExpired', 'Session expired. Please sign in with Google again.'));
+          throw new Error(t('register.sessionExpired', 'Session expired. Please sign in again.'));
         }
 
-        // Get stored avatar URL from Google
-        const googleAvatarUrl = sessionStorage.getItem('google_avatar_url');
+        // Get stored avatar URL from OAuth provider
+        const oauthAvatarUrl = sessionStorage.getItem('oauth_avatar_url');
 
         // Call sync-user to create the user in our database
         // Use credentials: 'include' so the server can set the auth-token cookie
@@ -162,7 +162,7 @@ export function useRegistrationSubmit({
             email: formData.email,
             pseudonym: formData.pseudonym,
             account_type: formData.accountType,
-            avatar_url: googleAvatarUrl || session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+            avatar_url: oauthAvatarUrl || session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
             checkOnly: false
           })
         });
@@ -180,8 +180,8 @@ export function useRegistrationSubmit({
           setToken('authenticated');
         }
 
-        // Clean up stored Google data
-        sessionStorage.removeItem('google_avatar_url');
+        // Clean up stored OAuth data
+        sessionStorage.removeItem('oauth_avatar_url');
 
         // Fetch a CSRF token for subsequent requests (uploads, claims, etc.)
         // The sync-user response sets the auth-token cookie, so we can now get a CSRF token
@@ -193,7 +193,7 @@ export function useRegistrationSubmit({
           freshToken = csrfData.csrfToken;
         }
 
-        logger.debug('[Register] Google OAuth user synced successfully');
+        logger.debug('[Register] OAuth user synced successfully');
       } else {
         // Normal registration flow with email/password
         const result = await register(
@@ -438,7 +438,7 @@ export function useRegistrationSubmit({
     setUser,
     setToken,
     t,
-    isFromGoogle
+    isFromOAuth
   ]);
 
   return {

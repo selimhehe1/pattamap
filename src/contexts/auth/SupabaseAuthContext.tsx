@@ -11,6 +11,7 @@ export interface SupabaseAuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signUp: (email: string, password: string, metadata: SignUpMetadata) => Promise<{ needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -154,6 +155,21 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     }
   }, []);
 
+  const signInWithFacebook = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'email,public_profile'
+      }
+    });
+
+    if (error) {
+      logger.error('[SupabaseAuth] Facebook sign in failed:', error);
+      throw mapAuthError(error);
+    }
+  }, []);
+
   const signUp = useCallback(async (
     email: string,
     password: string,
@@ -246,6 +262,7 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     loading,
     signInWithEmail,
     signInWithGoogle,
+    signInWithFacebook,
     signUp,
     signOut,
     resetPassword,

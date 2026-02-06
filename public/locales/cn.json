@@ -485,7 +485,9 @@
     "sendResetLink": "发送重置链接",
     "rememberPassword": "记得密码？",
     "showPassword": "显示密码",
-    "hidePassword": "隐藏密码"
+    "hidePassword": "隐藏密码",
+    "continueWithFacebook": "使用 Facebook 继续",
+    "facebookSignInFailed": "Facebook 登录失败，请重试。"
   },
   "register": {
     "title": "加入我们",
@@ -679,7 +681,6 @@
     "termsOfService": "服务条款",
     "and": "和",
     "acceptTermsRequired": "您必须接受隐私政策和服务条款",
-    "googleDataPrefilled": "您的Google信息已获取。请选择账户类型以继续。",
     "sessionExpired": "会话已过期。请重新使用Google登录。",
     "syncFailed": "创建账户失败。请重试。",
     "zones": {
@@ -695,7 +696,8 @@
     },
     "selectZonePlaceholder": "选择区域",
     "freelanceNote": "注意：管理员将在批准后为您分配地图上的确切位置。",
-    "passwordMinLength": "密码必须至少8个字符"
+    "passwordMinLength": "密码必须至少8个字符",
+    "oauthDataPrefilled": "您的信息已获取。请选择账户类型以继续。"
   },
   "establishment": {
     "editTitle": "编辑场所",

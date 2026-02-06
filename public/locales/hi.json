@@ -485,7 +485,9 @@
     "sendResetLink": "रीसेट लिंक भेजें",
     "rememberPassword": "अपना पासवर्ड याद है?",
     "showPassword": "पासवर्ड दिखाएं",
-    "hidePassword": "पासवर्ड छुपाएं"
+    "hidePassword": "पासवर्ड छुपाएं",
+    "continueWithFacebook": "Facebook से जारी रखें",
+    "facebookSignInFailed": "Facebook साइन-इन विफल। कृपया पुनः प्रयास करें।"
   },
   "register": {
     "title": "हमारे साथ जुड़ें",
@@ -679,7 +681,6 @@
     "termsOfService": "सेवा की शर्तें",
     "and": "और",
     "acceptTermsRequired": "आपको गोपनीयता नीति और सेवा की शर्तें स्वीकार करनी होंगी",
-    "googleDataPrefilled": "आपकी Google जानकारी प्राप्त हो गई है। जारी रखने के लिए अपना खाता प्रकार चुनें।",
     "sessionExpired": "सत्र समाप्त हो गया। कृपया Google से पुनः साइन इन करें।",
     "syncFailed": "खाता बनाने में विफल। कृपया पुनः प्रयास करें।",
     "zones": {
@@ -695,7 +696,8 @@
     },
     "selectZonePlaceholder": "क्षेत्र चुनें",
     "freelanceNote": "नोट: व्यवस्थापक अनुमोदन के बाद मानचित्र पर आपकी सटीक स्थिति निर्धारित करेगा।",
-    "passwordMinLength": "पासवर्ड में कम से कम 8 वर्ण होने चाहिए"
+    "passwordMinLength": "पासवर्ड में कम से कम 8 वर्ण होने चाहिए",
+    "oauthDataPrefilled": "आपकी जानकारी प्राप्त हो गई है। जारी रखने के लिए अपना खाता प्रकार चुनें।"
   },
   "establishment": {
     "editTitle": "प्रतिष्ठान संपादित करें",

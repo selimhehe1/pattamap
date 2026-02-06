@@ -87,20 +87,20 @@ const AuthCallbackPage: React.FC = () => {
         }
 
         if (data.isNew) {
-          // New user: store Google data and redirect to registration
+          // New user: store OAuth data and redirect to registration
           logger.debug('[AuthCallback] New user detected, redirecting to register');
-          const googleData = {
+          const oauthData = {
             email: session.user.email,
             name: session.user.user_metadata?.full_name ||
                   session.user.user_metadata?.name || '',
             avatar_url: session.user.user_metadata?.avatar_url ||
                         session.user.user_metadata?.picture || ''
           };
-          sessionStorage.setItem('google_user_data', JSON.stringify(googleData));
+          sessionStorage.setItem('oauth_user_data', JSON.stringify(oauthData));
 
           setStatus('success');
           setTimeout(() => {
-            navigate('/login?mode=register&from=google', { replace: true });
+            navigate('/login?mode=register&from=oauth', { replace: true });
           }, 1000);
         } else {
           // Existing user: update UserContext with the returned user data
