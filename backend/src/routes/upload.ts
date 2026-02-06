@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { uploadMultiple, uploadSingle } from '../middleware/upload';
+import { validateMagicBytes } from '../middleware/validateMagicBytes';
 import {
   uploadImages,
   uploadSingleImage,
@@ -23,13 +24,13 @@ const router = Router();
 // ========================================
 
 // Upload establishment logo (auth required, no CSRF)
-router.post('/establishment-logo', authenticateToken, uploadSingle, uploadEstablishmentLogo);
+router.post('/establishment-logo', authenticateToken, uploadSingle, validateMagicBytes, uploadEstablishmentLogo);
 
 // Upload multiple images (auth required, no CSRF)
-router.post('/images', authenticateToken, uploadMultiple, uploadImages);
+router.post('/images', authenticateToken, uploadMultiple, validateMagicBytes, uploadImages);
 
 // Upload user avatar (auth required, no CSRF)
-router.post('/avatar', authenticateToken, uploadSingle, uploadAvatar);
+router.post('/avatar', authenticateToken, uploadSingle, validateMagicBytes, uploadAvatar);
 
 // ========================================
 // ROUTES WITH CSRF (JSON/form requests)
@@ -39,7 +40,7 @@ router.post('/avatar', authenticateToken, uploadSingle, uploadAvatar);
 router.delete('/avatar', authenticateToken, csrfProtection, deleteAvatar);
 
 // Upload single image (auth + CSRF required)
-router.post('/image', authenticateToken, csrfProtection, uploadSingle, uploadSingleImage);
+router.post('/image', authenticateToken, csrfProtection, uploadSingle, validateMagicBytes, uploadSingleImage);
 
 // Delete image (auth + CSRF required)
 router.delete('/image', authenticateToken, csrfProtection, deleteImage);

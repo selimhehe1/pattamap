@@ -4,8 +4,8 @@ import { logger } from '../utils/logger';
 import { notifyNewFavorite } from '../utils/notificationHelper';
 import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
-// Helper to safely access user from request (type augmentation workaround for ts-node)
-const getUser = (req: Request) => (req as any).user as { id: string } | undefined;
+// Helper to safely access user from request
+const getUser = (req: Request) => req.user;
 
 export const getFavorites = asyncHandler(async (req: Request, res: Response) => {
   const userId = getUser(req)?.id;

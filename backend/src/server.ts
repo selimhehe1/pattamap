@@ -455,8 +455,7 @@ app.use(express.urlencoded({
 // Authenticated users: 1000 req/15min, Anonymous: 300 req/15min
 app.use('/api', (req, res, next) => {
   // Authenticated users get much higher limits (power users)
-  // Type assertion needed because express.d.ts augmentation isn't always picked up by ts-node
-  if ((req as any).user?.id) {
+  if (req.user?.id) {
     return globalAuthenticatedRateLimit(req, res, next);
   }
   // Anonymous users get lower limits (anti-bot)

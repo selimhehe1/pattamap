@@ -51,7 +51,8 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
     "ci": "npm run lint && npm run typecheck && npm run build",
-    "ci:full": "npm run ci && npm run test:e2e:ci"
+    "ci:full": "npm run ci && npm run test:e2e:ci",
+    "prepare": "husky"
   },
   "browserslist": {
     "production": [
@@ -63,6 +64,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --max-warnings 100"
     ]
   },
   "devDependencies": {
@@ -77,8 +83,10 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "husky": "^9.1.7",
     "jest-axe": "^10.0.0",
     "jsdom": "^27.3.0",
+    "lint-staged": "^16.2.7",
     "playwright": "^1.56.0",
     "purgecss": "^7.0.2",
     "sharp": "^0.34.5",

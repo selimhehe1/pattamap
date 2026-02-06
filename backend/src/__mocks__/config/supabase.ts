@@ -3,8 +3,13 @@
  * Provides a chainable mock interface matching Supabase's API
  */
 
+interface MockData<T = unknown> {
+  data: T | null;
+  error: unknown;
+}
+
 // Mock query builder with chainable methods
-const createMockQueryBuilder = (mockData: any = { data: null, error: null }) => {
+const createMockQueryBuilder = (mockData: MockData = { data: null, error: null }) => {
   const chainableMethods = {
     select: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
@@ -31,7 +36,7 @@ const createMockQueryBuilder = (mockData: any = { data: null, error: null }) => 
     containedBy: jest.fn().mockReturnThis(),
     overlaps: jest.fn().mockReturnThis(),
     textSearch: jest.fn().mockReturnThis(),
-    then: jest.fn((resolve) => resolve(mockData)), // Make it thenable
+    then: jest.fn((resolve: (value: MockData) => void) => resolve(mockData)), // Make it thenable
   };
 
   return chainableMethods;
@@ -39,7 +44,7 @@ const createMockQueryBuilder = (mockData: any = { data: null, error: null }) => 
 
 // Mock Supabase client
 export const supabase = {
-  from: jest.fn((table: string) => createMockQueryBuilder()),
+  from: jest.fn((_table: string) => createMockQueryBuilder()),
   auth: {
     signUp: jest.fn(),
     signInWithPassword: jest.fn(),
@@ -58,10 +63,10 @@ export const supabase = {
   },
   rpc: jest.fn(),
   // Add helper to set mock data for specific queries
-  __setMockData: (data: any) => {
+  __setMockData: <T = unknown>(data: T) => {
     (supabase.from as jest.Mock).mockImplementation(() => createMockQueryBuilder({ data, error: null }));
   },
-  __setMockError: (error: any) => {
+  __setMockError: (error: unknown) => {
     (supabase.from as jest.Mock).mockImplementation(() => createMockQueryBuilder({ data: null, error }));
   },
 };
@@ -71,7 +76,7 @@ export const supabaseClient = {
 };
 
 // Export helper functions for test setup
-export const mockSupabaseResponse = (data: any, error: any = null) => {
+export const mockSupabaseResponse = <T = unknown>(data: T, error: unknown = null) => {
   return { data, error };
 };
 

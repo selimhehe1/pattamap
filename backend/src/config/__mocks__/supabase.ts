@@ -5,9 +5,9 @@
  * Updated v10.3.3 - Support for complex queries with joins and configurable mock data
  */
 
-export interface MockData {
-  data: any;
-  error: any;
+export interface MockData<T = unknown> {
+  data: T | null;
+  error: unknown;
 }
 
 /**
@@ -16,7 +16,7 @@ export interface MockData {
  * @returns Chainable query builder mock
  */
 export const createMockQueryBuilder = (mockData: MockData = { data: null, error: null }) => {
-  const builder: any = {
+  const builder: Record<string, jest.Mock> = {
     select: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
     update: jest.fn().mockReturnThis(),
@@ -57,7 +57,7 @@ export const createMockQueryBuilder = (mockData: MockData = { data: null, error:
  * @param data - Data to return
  * @returns MockData object
  */
-export const mockSuccess = (data: any): MockData => ({
+export const mockSuccess = <T = unknown>(data: T): MockData<T> => ({
   data,
   error: null,
 });
@@ -67,7 +67,7 @@ export const mockSuccess = (data: any): MockData => ({
  * @param error - Error to return
  * @returns MockData object
  */
-export const mockError = (error: any): MockData => ({
+export const mockError = (error: unknown): MockData => ({
   data: null,
   error,
 });

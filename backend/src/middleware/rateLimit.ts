@@ -3,9 +3,9 @@ import { logger } from '../utils/logger';
 import { getRedisClient, isRedisConnected } from '../config/redis';
 import Redis from 'ioredis';
 
-// Helper to safely access user from request (type augmentation workaround for ts-node)
+// Helper to safely access user from request
 const getUserId = (req: Request): string => {
-  return (req as any).user?.id || 'anonymous';
+  return req.user?.id || 'anonymous';
 };
 
 // ==========================================
