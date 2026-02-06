@@ -140,8 +140,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onSwitchToRegister, onLo
 
     try {
       // Store redirect path for after OAuth callback
+      // Don't store /login itself as redirect target - it would cause a loop
       const from = sessionStorage.getItem('auth_redirect');
-      if (!from) {
+      if (!from && window.location.pathname !== '/login') {
         sessionStorage.setItem('auth_redirect', window.location.pathname);
       }
 

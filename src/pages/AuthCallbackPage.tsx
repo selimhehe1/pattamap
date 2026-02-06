@@ -63,6 +63,7 @@ const AuthCallbackPage: React.FC = () => {
           try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/sync-user`, {
               method: 'POST',
+              credentials: 'include',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.access_token}`

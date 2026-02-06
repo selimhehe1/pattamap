@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useUser } from '../../../contexts/auth/UserContext';
 import notification from '../../../utils/notification';
 import { logger } from '../../../utils/logger';
 import { Employee, Establishment } from '../../../types';
@@ -91,6 +92,7 @@ export function useRegistrationSubmit({
 }: UseRegistrationSubmitOptions): UseRegistrationSubmitReturn {
   const { t } = useTranslation();
   const { register, claimEmployeeProfile, submitOwnershipRequest } = useAuth();
+  const { setUser, setToken } = useUser();
 
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
@@ -168,6 +170,14 @@ export function useRegistrationSubmit({
         if (!syncResponse.ok) {
           const errorData = await syncResponse.json();
           throw new Error(errorData.error || t('register.syncFailed', 'Failed to create account'));
+        }
+
+        const syncData = await syncResponse.json();
+
+        // Update user state so the app recognizes the user is authenticated
+        if (syncData.user) {
+          setUser(syncData.user);
+          setToken('authenticated');
         }
 
         // Clean up stored Google data
@@ -410,6 +420,8 @@ export function useRegistrationSubmit({
     register,
     claimEmployeeProfile,
     submitOwnershipRequest,
+    setUser,
+    setToken,
     t,
     isFromGoogle
   ]);

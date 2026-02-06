@@ -41,6 +41,7 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/sync-user`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${currentSession.access_token}`
@@ -82,7 +83,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       setSession(initialSession);
       setSupabaseUser(initialSession?.user ?? null);
 
-      if (initialSession?.user) {
+      // Skip sync on /auth/callback - let AuthCallbackPage handle the flow
+      // to avoid creating the user prematurely with default values
+      const isAuthCallback = window.location.pathname === '/auth/callback';
+
+      if (initialSession?.user && !isAuthCallback) {
         syncUserWithBackend(initialSession).finally(() => {
           setLoading(false);
         });
@@ -100,7 +105,10 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
         setSupabaseUser(currentSession?.user ?? null);
 
         if (event === 'SIGNED_IN' && currentSession) {
-          await syncUserWithBackend(currentSession);
+          // Skip sync on /auth/callback - let AuthCallbackPage handle the flow
+          if (window.location.pathname !== '/auth/callback') {
+            await syncUserWithBackend(currentSession);
+          }
         } else if (event === 'SIGNED_OUT') {
           if (onUserSync) {
             onUserSync(null);
