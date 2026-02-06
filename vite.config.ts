@@ -130,8 +130,7 @@ export default defineConfig({
             return 'charts';
           }
           // Utils
-          if (id.includes('node_modules/axios') ||
-              id.includes('node_modules/dompurify')) {
+          if (id.includes('node_modules/dompurify')) {
             return 'utils';
           }
           // Helmet
