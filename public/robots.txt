@@ -3,10 +3,11 @@
 
 User-agent: *
 Disallow: /api/
+Allow: /api/public/sitemap.xml
 Disallow: /admin/
 Disallow: /_next/
 Disallow: /static/
 Allow: /
 
 # Sitemaps
-Sitemap: https://pattamap.com/sitemap.xml
+Sitemap: https://pattamap.com/api/public/sitemap.xml
