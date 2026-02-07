@@ -29,6 +29,14 @@ vi.mock('@dr.pogodin/react-helmet', () => ({
   },
 }));
 
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en' },
+  }),
+}));
+
 // Mock logger
 vi.mock('../../../utils/logger');
 
@@ -93,5 +101,34 @@ describe('SEOHead Component', () => {
     const robotsMeta = findHelmetChild('meta', { name: 'robots' });
     expect(robotsMeta).toBeTruthy();
     expect(robotsMeta!.props.content).toBe('noindex,nofollow');
+  });
+
+  it('should include hreflang tags for all supported languages plus x-default', () => {
+    render(<SEOHead {...defaultProps} />);
+
+    const hreflangLinks = lastHelmetChildren.filter((child) => {
+      if (!React.isValidElement(child)) return false;
+      return child.type === 'link' && (child.props as any).rel === 'alternate' && (child.props as any).hrefLang;
+    }) as React.ReactElement[];
+
+    // 8 languages + x-default = 9
+    expect(hreflangLinks.length).toBe(9);
+
+    // Check x-default exists
+    const xDefault = hreflangLinks.find((el) => (el.props as any).hrefLang === 'x-default');
+    expect(xDefault).toBeTruthy();
+
+    // Check zh-CN mapping for 'cn'
+    const zhLink = hreflangLinks.find((el) => (el.props as any).hrefLang === 'zh-CN');
+    expect(zhLink).toBeTruthy();
+    expect((zhLink!.props as any).href).toContain('?lang=cn');
+  });
+
+  it('should set og:locale dynamically based on current language', () => {
+    render(<SEOHead {...defaultProps} />);
+
+    const ogLocale = findHelmetChild('meta', { property: 'og:locale' });
+    expect(ogLocale).toBeTruthy();
+    expect(ogLocale!.props.content).toBe('en_US');
   });
 });

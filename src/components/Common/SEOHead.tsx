@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
+import { useTranslation } from 'react-i18next';
 
 /**
  * SEO Head Component
@@ -62,6 +63,32 @@ export interface SEOHeadProps {
   twitterHandle?: string;
 }
 
+/** Map i18n language codes to BCP 47 hreflang tags */
+const HREFLANG_MAP: Record<string, string> = {
+  en: 'en',
+  th: 'th',
+  ru: 'ru',
+  cn: 'zh-CN',
+  fr: 'fr',
+  hi: 'hi',
+  ko: 'ko',
+  ja: 'ja',
+};
+
+/** Map i18n language codes to og:locale format */
+const OG_LOCALE_MAP: Record<string, string> = {
+  en: 'en_US',
+  th: 'th_TH',
+  ru: 'ru_RU',
+  cn: 'zh_CN',
+  fr: 'fr_FR',
+  hi: 'hi_IN',
+  ko: 'ko_KR',
+  ja: 'ja_JP',
+};
+
+const SUPPORTED_LANGS = Object.keys(HREFLANG_MAP);
+
 const SEOHead: React.FC<SEOHeadProps> = ({
   title,
   description,
@@ -73,6 +100,9 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   author,
   twitterHandle,
 }) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
   // Site configuration
   const siteName = 'PattaMap';
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://pattamap.com';
@@ -82,6 +112,12 @@ const SEOHead: React.FC<SEOHeadProps> = ({
 
   // Canonical URL (default to current if not provided)
   const fullCanonical = canonical || (typeof window !== 'undefined' ? window.location.href : siteUrl);
+
+  // Base URL for hreflang (strip existing ?lang= param)
+  const hreflangBase = fullCanonical.split('?')[0];
+
+  // Dynamic og:locale based on current language
+  const ogLocale = OG_LOCALE_MAP[currentLang] || 'en_US';
 
   // Ensure OG image is absolute URL
   const absoluteOgImage = ogImage.startsWith('http')
@@ -113,7 +149,18 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:image" content={absoluteOgImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:locale" content="en_US" />
+      <meta property="og:locale" content={ogLocale} />
+
+      {/* Hreflang alternate links for multilingual SEO */}
+      {SUPPORTED_LANGS.map((lang) => (
+        <link
+          key={lang}
+          rel="alternate"
+          hrefLang={HREFLANG_MAP[lang]}
+          href={`${hreflangBase}?lang=${lang}`}
+        />
+      ))}
+      <link rel="alternate" hrefLang="x-default" href={hreflangBase} />
 
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />
