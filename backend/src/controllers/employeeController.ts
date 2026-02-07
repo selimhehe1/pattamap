@@ -7,6 +7,7 @@ import { notifyAdminsPendingContent, notifyUserContentPendingReview } from '../u
 import { awardXP } from '../services/gamificationService';
 import { missionTrackingService } from '../services/missionTrackingService';
 import { validateImageUrls, escapeLikeWildcards } from '../utils/validation';
+import { VALID_SEX_VALUES } from '../utils/constants';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError } from '../middleware/asyncHandler';
 import {
   fetchEmployeeRatingsAndVotes,
@@ -312,10 +313,7 @@ export const createEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       throw BadRequestError('Name is required');
     }
 
-    // ========================================
-    // v10.x - Validate sex field (required)
-    // ========================================
-    const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
+    // Validate sex field (required)
     if (!sex) {
       throw BadRequestError('Sex/gender is required');
     }
@@ -563,9 +561,8 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       throw BadRequestError(nationalityValidation.error || 'Invalid nationality');
     }
 
-    // v10.x - Validate sex field if provided
+    // Validate sex field if provided
     if (updates.sex !== undefined && updates.sex !== null) {
-      const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
       if (!VALID_SEX_VALUES.includes(updates.sex as typeof VALID_SEX_VALUES[number])) {
         throw BadRequestError(`Sex must be one of: ${VALID_SEX_VALUES.join(', ')}`);
       }

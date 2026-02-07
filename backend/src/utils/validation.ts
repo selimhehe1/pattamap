@@ -105,10 +105,59 @@ export const validateUUID = (input: string): boolean => {
   return uuidRegex.test(input);
 };
 
-// Validate email format (same as authController but centralized)
+// Validate email format
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) && email.length <= 255;
+};
+
+// Validate password strength
+export const validatePassword = (password: string): { valid: boolean; message?: string } => {
+  if (password.length < 8) {
+    return {
+      valid: false,
+      message: 'Password must be at least 8 characters long'
+    };
+  }
+  if (password.length > 128) {
+    return {
+      valid: false,
+      message: 'Password too long (max 128 characters)'
+    };
+  }
+
+  if (!/(?=.*[a-z])/.test(password)) {
+    return {
+      valid: false,
+      message: 'Password must contain at least one lowercase letter (a-z)'
+    };
+  }
+  if (!/(?=.*[A-Z])/.test(password)) {
+    return {
+      valid: false,
+      message: 'Password must contain at least one uppercase letter (A-Z)'
+    };
+  }
+  if (!/(?=.*\d)/.test(password)) {
+    return {
+      valid: false,
+      message: 'Password must contain at least one number (0-9)'
+    };
+  }
+
+  if (!/(?=.*[@$!%*?&#^()_+\-=[{};':"\\|,.<>/\]])/.test(password)) {
+    return {
+      valid: false,
+      message: 'Password must contain at least one special character (@$!%*?&#^()_+-=[]{};\':"|,.<>/)'
+    };
+  }
+
+  return { valid: true };
+};
+
+// Validate pseudonym format
+export const validatePseudonym = (pseudonym: string): boolean => {
+  return pseudonym.length >= 3 && pseudonym.length <= 50 && /^[a-zA-Z0-9_-]+$/.test(pseudonym);
 };
 
 // Validate URL format

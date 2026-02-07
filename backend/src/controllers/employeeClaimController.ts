@@ -11,6 +11,7 @@ import { AuthRequest } from '../middleware/auth';
 import { CreateEmployeeRequest } from '../types';
 import { logger } from '../utils/logger';
 import { validateUrlArray } from '../utils/validation';
+import { VALID_SEX_VALUES } from '../utils/constants';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 
 /**
@@ -59,7 +60,6 @@ export const createOwnEmployeeProfile = asyncHandler(async (req: AuthRequest, re
     }
 
     // Validate sex field (required)
-    const VALID_SEX_VALUES = ['male', 'female', 'ladyboy'] as const;
     if (!sex) {
       throw BadRequestError('Sex/gender is required');
     }

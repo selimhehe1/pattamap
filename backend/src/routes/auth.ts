@@ -4,7 +4,6 @@ import { authenticateToken } from '../middleware/auth';
 import { authenticateSupabaseToken, authenticateSupabaseTokenAllowNew } from '../middleware/supabaseAuth';
 import { csrfProtection } from '../middleware/csrf';
 import { availabilityCheckRateLimit, authRateLimit } from '../middleware/rateLimit';
-import { refreshAccessToken } from '../middleware/refreshToken';
 
 const router = Router();
 
@@ -288,40 +287,6 @@ router.post('/reset-password', authRateLimit, resetPassword);
  *         description: Rate limit exceeded
  */
 router.get('/check-availability', availabilityCheckRateLimit, checkAvailability);
-
-/**
- * @swagger
- * /api/auth/refresh:
- *   post:
- *     summary: Refresh access token
- *     description: Get a new access token using a valid refresh token (stored in httpOnly cookie)
- *     tags: [Auth]
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         headers:
- *           Set-Cookie:
- *             description: New auth-token and refresh-token cookies
- *             schema:
- *               type: string
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Token refreshed successfully
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         description: Invalid or expired refresh token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.post('/refresh', refreshAccessToken);
 
 /**
  * @swagger

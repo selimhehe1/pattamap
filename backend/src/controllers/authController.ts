@@ -6,8 +6,8 @@ import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { generateCSRFToken } from '../middleware/csrf';
-import { escapeLikeWildcards } from '../utils/validation';
-import { revokeAllUserTokens } from '../middleware/refreshToken';
+import { escapeLikeWildcards, validateEmail, validatePassword, validatePseudonym } from '../utils/validation';
+import { VALID_ACCOUNT_TYPES } from '../utils/constants';
 import { checkPasswordBreach } from '../utils/passwordSecurity';
 import { asyncHandler, BadRequestError, NotFoundError, UnauthorizedError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 import { blacklistToken } from '../config/redis';
@@ -18,104 +18,9 @@ const COOKIES_SECURE = NODE_ENV === 'production' ||
   process.env.COOKIES_SECURE === 'true' ||
   process.env.HTTPS_ENABLED === 'true';
 
-// 🔧 FIX: Cookie domain for cross-subdomain sharing (www.pattamap.com <-> api.pattamap.com)
-// Note: Modern browsers don't require leading dot, and Express cookie library may reject it
-const _COOKIE_DOMAIN = (() => {
-  if (process.env.COOKIE_DOMAIN) {
-    return process.env.COOKIE_DOMAIN;
-  }
-  // Auto-derive from CORS_ORIGIN in production
-  if (NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
-    try {
-      const url = new URL(process.env.CORS_ORIGIN);
-      const parts = url.hostname.split('.');
-      if (parts.length >= 2) {
-        // Return domain without leading dot (e.g., "pattamap.com")
-        return parts.slice(-2).join('.');
-      }
-    } catch {
-      // Ignore parsing errors
-    }
-  }
-  return undefined;
-})();
-
-// 🔧 FIX: sameSite must be 'none' for cross-subdomain, 'lax' for same-origin dev
 const COOKIE_SAME_SITE: 'none' | 'lax' | 'strict' = COOKIES_SECURE ? 'none' : 'lax';
 
-// Input validation helpers
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email) && email.length <= 255;
-};
-
-/**
- * 🔒 Password Policy
- *
- * Requirements:
- * - Minimum 8 characters (user request: not a high-security site)
- * - At least one lowercase letter
- * - At least one uppercase letter
- * - At least one number
- * - At least one special character
- * - Maximum 128 characters (prevent DoS)
- *
- * Protection against:
- * - Brute force attacks
- * - Dictionary attacks
- * - Credential stuffing
- */
-const validatePassword = (password: string): { valid: boolean; message?: string } => {
-  // Length checks - 🔧 FIX P1: Changed from 12 to 8 (user request)
-  if (password.length < 8) {
-    return {
-      valid: false,
-      message: 'Password must be at least 8 characters long'
-    };
-  }
-  if (password.length > 128) {
-    return {
-      valid: false,
-      message: 'Password too long (max 128 characters)'
-    };
-  }
-
-  // Complexity checks
-  if (!/(?=.*[a-z])/.test(password)) {
-    return {
-      valid: false,
-      message: 'Password must contain at least one lowercase letter (a-z)'
-    };
-  }
-  if (!/(?=.*[A-Z])/.test(password)) {
-    return {
-      valid: false,
-      message: 'Password must contain at least one uppercase letter (A-Z)'
-    };
-  }
-  if (!/(?=.*\d)/.test(password)) {
-    return {
-      valid: false,
-      message: 'Password must contain at least one number (0-9)'
-    };
-  }
-
-  // 🔒 NEW: Special character requirement
-  if (!/(?=.*[@$!%*?&#^()_+\-=[{};':"\\|,.<>/\]])/.test(password)) {
-    return {
-      valid: false,
-      message: 'Password must contain at least one special character (@$!%*?&#^()_+-=[]{};\':"|,.<>/)'
-    };
-  }
-
-  return { valid: true };
-};
-
-const validatePseudonym = (pseudonym: string): boolean => {
-  return pseudonym.length >= 3 && pseudonym.length <= 50 && /^[a-zA-Z0-9_-]+$/.test(pseudonym);
-};
-
-const sanitizeInput = (input: string): string => {
+const normalizeEmailInput = (input: string): string => {
   return input.trim().toLowerCase();
 };
 
@@ -133,7 +38,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Validate email
-    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedEmail = normalizeEmailInput(email);
     if (!validateEmail(sanitizedEmail)) {
       throw BadRequestError('Invalid email format');
     }
@@ -156,8 +61,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Validate account_type (optional, defaults to 'regular')
-    const validAccountTypes = ['regular', 'employee', 'establishment_owner'];
-    const userAccountType = account_type && validAccountTypes.includes(account_type)
+    const userAccountType = account_type && (VALID_ACCOUNT_TYPES as readonly string[]).includes(account_type)
       ? account_type
       : 'regular';
 
@@ -260,11 +164,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         path: '/'
       };
 
-      // 🔧 FIX: Temporarily disable domain setting - causes "option domain is invalid" errors
-      // if (COOKIE_DOMAIN && typeof COOKIE_DOMAIN === 'string' && COOKIE_DOMAIN.trim().length > 0) {
-      //   registerCookieOptions.domain = COOKIE_DOMAIN.trim();
-      // }
-
       res.cookie('auth-token', token, registerCookieOptions);
 
       // 🔧 CSRF FIX v3: Regenerate CSRF token and WAIT for session save
@@ -319,7 +218,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       throw BadRequestError('Invalid input types');
     }
 
-    const sanitizedLogin = sanitizeInput(login);
+    const sanitizedLogin = normalizeEmailInput(login);
 
     // Find user by pseudonym or email with security checks (case-insensitive)
     // Using ilike for case-insensitive search on pseudonym and email
@@ -347,12 +246,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       throw UnauthorizedError('Invalid credentials');
     }
 
-    // LEGACY JWT: Single token (7 days), no refresh token.
-    // A token-pair system exists in refreshToken.ts (access 15min + refresh 7d)
-    // but is NOT connected to login/register flows. To migrate:
-    // 1. Replace jwt.sign() below with generateTokenPair() from refreshToken.ts
-    // 2. Set both 'auth-token' and 'refresh-token' cookies
-    // 3. Apply autoRefreshMiddleware() in server.ts
+    // JWT token (7-day expiry)
     const jwtSecret = process.env.JWT_SECRET;
     // 🔧 FIX: Ensure JWT_EXPIRES_IN is valid (non-empty string or use default)
     const rawExpiration = process.env.JWT_EXPIRES_IN;
@@ -390,12 +284,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       path: '/'
     };
-
-    // 🔧 FIX: Temporarily disable domain setting - causes "option domain is invalid" errors
-    // Cross-subdomain cookies will be handled by browser (sameSite=none + secure)
-    // if (COOKIE_DOMAIN && typeof COOKIE_DOMAIN === 'string' && COOKIE_DOMAIN.trim().length > 0) {
-    //   cookieOptions.domain = COOKIE_DOMAIN.trim();
-    // }
 
     res.cookie('auth-token', token, cookieOptions);
 
@@ -795,7 +683,7 @@ export const checkAvailability = asyncHandler(async (req: Request, res: Response
 
     // Check email availability
     if (email && typeof email === 'string') {
-      const sanitizedEmail = sanitizeInput(email);
+      const sanitizedEmail = normalizeEmailInput(email);
 
       // Validate format first
       if (!validateEmail(sanitizedEmail)) {
@@ -829,28 +717,34 @@ export const logoutAll = asyncHandler(async (req: AuthRequest, res: Response) =>
       throw UnauthorizedError('Authentication required');
     }
 
-    // Revoke all refresh tokens for this user
-    const success = await revokeAllUserTokens(req.user.id);
+    // Blacklist the current token (same as regular logout)
+    const token = req.cookies?.['auth-token'] ||
+      (req.headers['authorization']?.startsWith('Bearer ') ? req.headers['authorization'].substring(7) : null);
 
-    if (!success) {
-      throw InternalServerError('Failed to logout from all devices');
+    if (token) {
+      try {
+        const decoded = jwt.decode(token) as { exp?: number } | null;
+        if (decoded?.exp) {
+          const remainingTtl = decoded.exp - Math.floor(Date.now() / 1000);
+          if (remainingTtl > 0) {
+            await blacklistToken(token, remainingTtl);
+            logger.debug('Token blacklisted on logout-all', {
+              userId: req.user.id,
+              ttlSeconds: remainingTtl
+            });
+          }
+        }
+      } catch (error) {
+        logger.warn('Failed to blacklist token on logout-all:', error);
+      }
     }
 
-    // Clear cookies
+    // Clear auth cookie
     res.clearCookie('auth-token', {
       httpOnly: true,
       secure: COOKIES_SECURE,
       sameSite: COOKIE_SAME_SITE,
       path: '/'
-      // domain temporarily disabled - see login fix
-    });
-
-    res.clearCookie('refresh-token', {
-      httpOnly: true,
-      secure: COOKIES_SECURE,
-      sameSite: COOKIE_SAME_SITE,
-      path: '/'
-      // domain temporarily disabled - see login fix
     });
 
     logger.info('User logged out from all devices', {
