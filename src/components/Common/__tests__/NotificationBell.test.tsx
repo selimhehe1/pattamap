@@ -347,4 +347,24 @@ describe('NotificationBell', () => {
       });
     });
   });
+
+  describe('[a11y]', () => {
+    test('should have no accessibility violations', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      mockUseRealtimeNotifications.mockReturnValue({
+        notifications: [],
+        unreadCount: 0,
+        isConnected: false,
+        markAsRead: vi.fn(),
+        markAllAsRead: vi.fn(),
+      });
+
+      const { container } = renderWithContext(<NotificationBell />);
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

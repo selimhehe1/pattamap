@@ -229,4 +229,18 @@ describe('Pagination Component', () => {
       expect(ellipses.length).toBeGreaterThan(0);
     });
   });
+
+  describe('[a11y]', () => {
+    it('should have no accessibility violations', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      const { container } = render(
+        <Pagination {...defaultProps} totalPages={5} currentPage={3} />
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

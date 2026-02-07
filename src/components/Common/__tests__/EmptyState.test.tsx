@@ -120,4 +120,18 @@ describe('EmptyState', () => {
     fireEvent.click(secondaryBtn);
     expect(onSecondary).toHaveBeenCalledTimes(1);
   });
+
+  describe('[a11y]', () => {
+    it('should have no accessibility violations', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      const { container } = render(
+        <EmptyState title="No results" message="Try a different search" />
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

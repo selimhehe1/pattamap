@@ -246,4 +246,18 @@ describe('Modal Component', () => {
       removeEventListenerSpy.mockRestore();
     });
   });
+
+  describe('[a11y]', () => {
+    it('should have no accessibility violations', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      const { container } = render(
+        <Modal modal={createModalConfig()} index={0} onClose={mockOnClose} />
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

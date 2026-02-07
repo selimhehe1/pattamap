@@ -151,4 +151,26 @@ describe('CookieConsent Component', () => {
     fireEvent.click(screen.getByText('Decline'));
     expect(onDecline).toHaveBeenCalledTimes(1);
   });
+
+  describe('[a11y]', () => {
+    it('should have no accessibility violations when visible', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      mockHasConsentChoice.mockReturnValue(false);
+
+      const { container } = render(<CookieConsent />);
+
+      // Advance fake timers to show the banner
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      // Switch to real timers before axe (axe uses async internally)
+      vi.useRealTimers();
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

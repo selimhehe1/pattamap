@@ -178,4 +178,16 @@ describe('StarRating Component', () => {
       expect(container.firstChild).toHaveClass('custom-rating');
     });
   });
+
+  describe('[a11y]', () => {
+    it('should have no accessibility violations in readonly mode', async () => {
+      const { axe, toHaveNoViolations } = await import('jest-axe');
+      expect.extend(toHaveNoViolations);
+
+      const { container } = render(<StarRating value={3} readonly />);
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });
