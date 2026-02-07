@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * Hook to detect service worker updates and prompt the user to refresh.
@@ -7,6 +7,8 @@ import { useState, useEffect, useCallback } from 'react';
 export function useServiceWorkerUpdate() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+  // Only reload after the user explicitly clicks "Refresh"
+  const userRequestedUpdate = useRef(false);
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
@@ -37,10 +39,10 @@ export function useServiceWorkerUpdate() {
 
     checkForUpdate();
 
-    // Also detect controller change (happens after skipWaiting)
+    // Reload only when the user explicitly requested the update via applyUpdate()
     let refreshing = false;
     const onControllerChange = () => {
-      if (refreshing) return;
+      if (refreshing || !userRequestedUpdate.current) return;
       refreshing = true;
       window.location.reload();
     };
@@ -53,6 +55,7 @@ export function useServiceWorkerUpdate() {
 
   const applyUpdate = useCallback(() => {
     if (!waitingWorker) return;
+    userRequestedUpdate.current = true;
     waitingWorker.postMessage({ type: 'SKIP_WAITING' });
   }, [waitingWorker]);
 
