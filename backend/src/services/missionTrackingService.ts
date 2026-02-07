@@ -276,6 +276,191 @@ class MissionTrackingService {
   }
 
   // ========================================
+  // EVENT LISTENERS - ROLE-BASED MISSIONS
+  // ========================================
+
+  /**
+   * Called when user adds an employee to favorites
+   * Updates missions: Favorite Collector
+   */
+  async onFavoriteAdded(userId: string, employeeId: string): Promise<void> {
+    try {
+      logger.debug('Mission tracking: favorite added event', { userId, employeeId });
+
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .eq('requirements->>type', 'add_favorites');
+
+      if (error) {
+        logger.error('Failed to fetch favorite missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active favorite missions found');
+        return;
+      }
+
+      await Promise.all(
+        missions.map(mission => this.updateMissionProgress(userId, mission.id, 1))
+      );
+    } catch (error) {
+      logger.error('Error in onFavoriteAdded mission tracking:', error);
+    }
+  }
+
+  /**
+   * Called when user updates an existing review
+   * Updates missions: Review Updater
+   */
+  async onReviewUpdated(userId: string, reviewId: string): Promise<void> {
+    try {
+      logger.debug('Mission tracking: review updated event', { userId, reviewId });
+
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .eq('requirements->>type', 'update_review');
+
+      if (error) {
+        logger.error('Failed to fetch review update missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active review update missions found');
+        return;
+      }
+
+      await Promise.all(
+        missions.map(mission => this.updateMissionProgress(userId, mission.id, 1))
+      );
+    } catch (error) {
+      logger.error('Error in onReviewUpdated mission tracking:', error);
+    }
+  }
+
+  /**
+   * Called when employee updates their profile (photos, social links, etc.)
+   * Updates missions: Complete Profile, Social Connect, Fresh Face
+   */
+  async onEmployeeProfileUpdated(userId: string, updateFields: string[]): Promise<void> {
+    try {
+      logger.debug('Mission tracking: employee profile updated event', { userId, updateFields });
+
+      const missionTypes = ['complete_employee_profile', 'add_social_links', 'update_profile_photo'];
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .in('requirements->>type', missionTypes);
+
+      if (error) {
+        logger.error('Failed to fetch employee profile missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active employee profile missions found');
+        return;
+      }
+
+      for (const mission of missions) {
+        const reqType = mission.requirements.type;
+
+        if (reqType === 'complete_employee_profile') {
+          // Always increment - completion check is done by count requirement
+          await this.updateMissionProgress(userId, mission.id, 1);
+        } else if (reqType === 'add_social_links' && updateFields.includes('social_media')) {
+          await this.updateMissionProgress(userId, mission.id, 1);
+        } else if (reqType === 'update_profile_photo' && updateFields.includes('photos')) {
+          await this.updateMissionProgress(userId, mission.id, 1);
+        }
+      }
+    } catch (error) {
+      logger.error('Error in onEmployeeProfileUpdated mission tracking:', error);
+    }
+  }
+
+  /**
+   * Called when establishment owner responds to a review
+   * Updates missions: Responsive Owner
+   */
+  async onOwnerReviewResponse(userId: string, reviewId: string): Promise<void> {
+    try {
+      logger.debug('Mission tracking: owner review response event', { userId, reviewId });
+
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .eq('requirements->>type', 'respond_reviews');
+
+      if (error) {
+        logger.error('Failed to fetch owner response missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active owner response missions found');
+        return;
+      }
+
+      await Promise.all(
+        missions.map(mission => this.updateMissionProgress(userId, mission.id, 1))
+      );
+    } catch (error) {
+      logger.error('Error in onOwnerReviewResponse mission tracking:', error);
+    }
+  }
+
+  /**
+   * Called when establishment owner updates their establishment
+   * Updates missions: Profile Master, Photo Curator, Info Keeper
+   */
+  async onEstablishmentUpdated(userId: string, establishmentId: string, updateFields: string[]): Promise<void> {
+    try {
+      logger.debug('Mission tracking: establishment updated event', { userId, establishmentId, updateFields });
+
+      const missionTypes = ['complete_establishment_profile', 'upload_establishment_photos', 'update_establishment_info'];
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .in('requirements->>type', missionTypes);
+
+      if (error) {
+        logger.error('Failed to fetch establishment update missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active establishment update missions found');
+        return;
+      }
+
+      for (const mission of missions) {
+        const reqType = mission.requirements.type;
+
+        if (reqType === 'update_establishment_info') {
+          // Any update counts
+          await this.updateMissionProgress(userId, mission.id, 1);
+        } else if (reqType === 'upload_establishment_photos' && updateFields.includes('logo_url')) {
+          await this.updateMissionProgress(userId, mission.id, 1);
+        } else if (reqType === 'complete_establishment_profile') {
+          // Check profile completeness
+          await this.updateMissionProgress(userId, mission.id, 1);
+        }
+      }
+    } catch (error) {
+      logger.error('Error in onEstablishmentUpdated mission tracking:', error);
+    }
+  }
+
+  // ========================================
   // MISSION PROCESSING (TYPE-SPECIFIC)
   // ========================================
 

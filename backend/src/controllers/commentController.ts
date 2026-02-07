@@ -7,6 +7,7 @@ import { sanitizeErrorForClient } from '../utils/validation';
 import { notifyCommentReply, notifyModeratorsNewReport } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
 import { insertCommentPhotos, handleCommentNotifications, handlePostCreationHooks } from '../utils/commentHelpers';
+import { missionTrackingService } from '../services/missionTrackingService';
 
 // Type definitions
 interface CommentUpdates {
@@ -237,6 +238,15 @@ export const updateComment = asyncHandler(async (req: AuthRequest, res: Response
   if (error) {
     logger.error('Update comment error:', error);
     throw BadRequestError(sanitizeErrorForClient(error, 'update'));
+  }
+
+  // Track mission progress: Review Updater (only for parent comments = reviews)
+  if (!comment.parent_comment_id) {
+    try {
+      await missionTrackingService.onReviewUpdated(req.user!.id, id);
+    } catch (missionError) {
+      logger.error('Mission tracking error (review update):', missionError);
+    }
   }
 
   res.json({
@@ -617,6 +627,13 @@ export const createEstablishmentResponse = asyncHandler(async (req: AuthRequest,
   } catch (notifyError) {
     // Don't fail the request if notification fails
     logger.error('Establishment response notification error:', notifyError);
+  }
+
+  // Track mission progress: Responsive Owner
+  try {
+    await missionTrackingService.onOwnerReviewResponse(req.user!.id, commentId);
+  } catch (missionError) {
+    logger.error('Mission tracking error (owner response):', missionError);
   }
 
   res.status(201).json({

@@ -207,10 +207,12 @@ export const getMyBadges = asyncHandler(async (req: AuthRequest, res: Response) 
  */
 export const getMissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { type, is_active } = req.query;
+    const accountType = req.user?.account_type || 'regular';
 
     let query = supabase
       .from('missions')
       .select('*')
+      .contains('target_account_types', [accountType])
       .order('sort_order', { ascending: true });
 
     if (type) {
@@ -236,14 +238,16 @@ export const getMissions = asyncHandler(async (req: AuthRequest, res: Response) 
  */
 export const getMyMissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
+    const accountType = req.user!.account_type || 'regular';
 
     const { data: missionProgress, error } = await supabase
       .from('user_mission_progress')
       .select(`
         *,
-        mission:missions(*)
+        mission:missions!inner(*)
       `)
       .eq('user_id', userId)
+      .contains('missions.target_account_types', [accountType])
       .order('updated_at', { ascending: false });
 
     if (error) {

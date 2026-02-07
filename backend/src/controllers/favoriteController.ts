@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { logger } from '../utils/logger';
 import { notifyNewFavorite } from '../utils/notificationHelper';
+import { missionTrackingService } from '../services/missionTrackingService';
 import { asyncHandler, UnauthorizedError, BadRequestError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
 
 // Helper to safely access user from request
@@ -280,6 +281,13 @@ export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
     } catch (notifyError) {
       // Log error but don't fail the request if notification fails
       logger.error('New favorite notification error:', notifyError);
+    }
+
+    // Track mission progress: Favorite Collector
+    try {
+      await missionTrackingService.onFavoriteAdded(userId, employee_id);
+    } catch (missionError) {
+      logger.error('Mission tracking error (favorite):', missionError);
     }
 
     res.status(201).json({

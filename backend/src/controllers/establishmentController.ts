@@ -6,6 +6,7 @@ import { logger } from '../utils/logger';
 import { cacheDel, cacheInvalidatePattern, CACHE_KEYS } from '../config/redis';
 import { notifyAdminsPendingContent } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError } from '../middleware/asyncHandler';
+import { missionTrackingService } from '../services/missionTrackingService';
 import {
   validateCoordinates,
   getEstablishmentCoordinates,
@@ -631,6 +632,16 @@ export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Re
   await cacheDel(CACHE_KEYS.ESTABLISHMENT(id));
   await cacheInvalidatePattern('establishments:*');
   await cacheDel('dashboard:stats');
+
+  // Track mission progress for establishment owners
+  if (req.user!.account_type === 'establishment_owner') {
+    try {
+      const updateFields = Object.keys(cleanUpdates);
+      await missionTrackingService.onEstablishmentUpdated(req.user!.id, id, updateFields);
+    } catch (missionError) {
+      logger.error('Mission tracking error (establishment update):', missionError);
+    }
+  }
 
   res.json({
     message: 'Establishment updated successfully',

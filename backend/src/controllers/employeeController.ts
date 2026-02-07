@@ -5,6 +5,7 @@ import { CreateEmployeeRequest } from '../types';
 import { logger } from '../utils/logger';
 import { notifyAdminsPendingContent, notifyUserContentPendingReview } from '../utils/notificationHelper';
 import { awardXP } from '../services/gamificationService';
+import { missionTrackingService } from '../services/missionTrackingService';
 import { validateImageUrls, escapeLikeWildcards } from '../utils/validation';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError } from '../middleware/asyncHandler';
 import {
@@ -629,6 +630,16 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
         employee,
         current_establishment_id !== undefined
       );
+    }
+
+    // Track mission progress for employee accounts
+    if (req.user!.account_type === 'employee') {
+      try {
+        const updateFields = Object.keys(updates);
+        await missionTrackingService.onEmployeeProfileUpdated(req.user!.id, updateFields);
+      } catch (missionError) {
+        logger.error('Mission tracking error (employee profile):', missionError);
+      }
     }
 
     res.json({
