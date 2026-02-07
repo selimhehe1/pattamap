@@ -651,6 +651,15 @@
     "passwordNeedsUppercase": "รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว (A-Z)",
     "passwordNeedsNumber": "รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว (0-9)",
     "passwordNeedsSpecial": "รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว (@$!%*?&#)",
+    "strengthMinLength": "อย่างน้อย 8 ตัวอักษร",
+    "strengthLowercase": "ตัวพิมพ์เล็ก 1 ตัว (a-z)",
+    "strengthUppercase": "ตัวพิมพ์ใหญ่ 1 ตัว (A-Z)",
+    "strengthNumber": "ตัวเลข 1 ตัว (0-9)",
+    "strengthSpecial": "อักขระพิเศษ 1 ตัว (@$!%*?&#)",
+    "strength_weak": "อ่อน",
+    "strength_fair": "พอใช้",
+    "strength_good": "ดี",
+    "strength_strong": "แข็งแกร่ง",
     "employeeNameRequired": "ต้องระบุชื่อพนักงาน",
     "employeeSexRequired": "กรุณาเลือกเพศ",
     "createNewEstablishment": "สร้างสถานประกอบการใหม่",
@@ -2483,5 +2492,12 @@
     "homeAria": "ไปที่หน้าแรก",
     "tryThese": "หรือลองสิ่งเหล่านี้:",
     "quickNav": "การนำทางด่วน"
+  },
+  "pwa": {
+    "installTitle": "ติดตั้ง PattaMap",
+    "installDescription": "เพิ่มลงหน้าจอหลักเพื่อประสบการณ์ที่ดีขึ้น",
+    "installButton": "ติดตั้ง",
+    "updateAvailable": "มีเวอร์ชันใหม่พร้อมใช้งาน",
+    "updateButton": "รีเฟรช"
   }
 }

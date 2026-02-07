@@ -25,6 +25,8 @@ import { NotificationProvider } from './components/Notifications';
 import { initGA, initWebVitals, trackPageView } from './utils/analytics';
 import { hasAcceptedCookies } from './utils/cookieConsent';
 import CookieConsent from './components/Common/CookieConsent';
+import InstallBanner from './components/Common/InstallBanner';
+import ServiceWorkerUpdateNotifier from './components/Common/ServiceWorkerUpdateNotifier';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransition from './components/Common/PageTransition';
 
@@ -389,6 +391,8 @@ const App: React.FC = () => {
                       <NotificationProvider>
                         <AppContent />
                         <CookieConsent onAccept={handleCookieAccept} />
+                        <InstallBanner />
+                        <ServiceWorkerUpdateNotifier />
                       </NotificationProvider>
                     </SidebarProvider>
                   </ModalProvider>

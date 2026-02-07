@@ -468,15 +468,6 @@ export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) =
       throw NotFoundError('User profile not found');
     }
 
-    // 🔍 DEBUG: Log what we're returning
-    logger.debug('🔍 /api/auth/profile response:', {
-      userId: fullUser.id,
-      pseudonym: fullUser.pseudonym,
-      account_type: fullUser.account_type,
-      linked_employee_id: fullUser.linked_employee_id,
-      hasLinkedEmployee: !!fullUser.linked_employee_id
-    });
-
     res.json({
       user: fullUser
     });

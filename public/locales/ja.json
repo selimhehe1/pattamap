@@ -651,6 +651,15 @@
     "passwordNeedsLowercase": "パスワードには小文字（a-z）を1つ以上含める必要があります",
     "passwordNeedsNumber": "パスワードには数字（0-9）を1つ以上含める必要があります",
     "passwordNeedsSpecial": "パスワードには特殊文字（@$!%*?&#）を1つ以上含める必要があります",
+    "strengthMinLength": "8文字以上",
+    "strengthLowercase": "小文字1つ (a-z)",
+    "strengthUppercase": "大文字1つ (A-Z)",
+    "strengthNumber": "数字1つ (0-9)",
+    "strengthSpecial": "特殊文字1つ (@$!%*?&#)",
+    "strength_weak": "弱い",
+    "strength_fair": "普通",
+    "strength_good": "良い",
+    "strength_strong": "強い",
     "passwordNeedsUppercase": "パスワードには大文字（A-Z）を1つ以上含める必要があります",
     "passwordTooShort": "パスワードは8文字以上必要です",
     "passwordsDoNotMatch": "パスワードが一致しません",
@@ -2429,5 +2438,12 @@
     "serviceText1": "PattaMapは、タイ・パタヤのナイトライフ店舗のディレクトリプラットフォームです。本サービスでは以下のことが可能です：",
     "serviceTitle": "サービスの説明",
     "title": "利用規約"
+  },
+  "pwa": {
+    "installTitle": "PattaMapをインストール",
+    "installDescription": "ホーム画面に追加してより良い体験を",
+    "installButton": "インストール",
+    "updateAvailable": "新しいバージョンが利用可能です",
+    "updateButton": "更新"
   }
 }

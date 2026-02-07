@@ -651,6 +651,15 @@
     "passwordNeedsUppercase": "पासवर्ड में कम से कम एक बड़ा अक्षर (A-Z) होना चाहिए",
     "passwordNeedsNumber": "पासवर्ड में कम से कम एक अंक (0-9) होना चाहिए",
     "passwordNeedsSpecial": "पासवर्ड में कम से कम एक विशेष अक्षर (@$!%*?&#) होना चाहिए",
+    "strengthMinLength": "कम से कम 8 अक्षर",
+    "strengthLowercase": "एक छोटा अक्षर (a-z)",
+    "strengthUppercase": "एक बड़ा अक्षर (A-Z)",
+    "strengthNumber": "एक अंक (0-9)",
+    "strengthSpecial": "एक विशेष अक्षर (@$!%*?&#)",
+    "strength_weak": "कमज़ोर",
+    "strength_fair": "ठीक",
+    "strength_good": "अच्छा",
+    "strength_strong": "मज़बूत",
     "employeeNameRequired": "कर्मचारी का नाम आवश्यक है",
     "employeeSexRequired": "कृपया अपना लिंग चुनें",
     "createNewEstablishment": "नया स्थल बनाएं",
@@ -2532,5 +2541,12 @@
     "homeAria": "होमपेज पर जाएं",
     "tryThese": "या इनमें से कोई आज़माएं:",
     "quickNav": "त्वरित नेविगेशन"
+  },
+  "pwa": {
+    "installTitle": "PattaMap इंस्टॉल करें",
+    "installDescription": "बेहतर अनुभव के लिए होम स्क्रीन पर जोड़ें",
+    "installButton": "इंस्टॉल",
+    "updateAvailable": "एक नया संस्करण उपलब्ध है",
+    "updateButton": "रीफ्रेश"
   }
 }

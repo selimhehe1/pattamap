@@ -55,18 +55,10 @@ export const getComments = asyncHandler(async (req: AuthRequest, res: Response) 
     parent_id: comment.parent_comment_id
   })) || [];
 
-  logger.debug('🔧 BACKEND - getComments result:');
-  logger.debug('Total comments:', mappedComments.length);
-  logger.debug('Comments with parent_id:', mappedComments.filter(c => c.parent_id).length);
-  logger.debug('Parent comments:', mappedComments.filter(c => !c.parent_id).length);
-
   res.json({ comments: mappedComments });
 });
 
 export const createComment = asyncHandler(async (req: AuthRequest, res: Response) => {
-  logger.debug('🎯 CREATE COMMENT - Body:', req.body);
-  logger.debug('🎯 CREATE COMMENT - User:', req.user);
-
   const { employee_id, content, rating, parent_comment_id, photo_urls }: CreateCommentRequest = req.body;
 
   if (!employee_id || !content) {
@@ -418,9 +410,8 @@ export const getUserRating = asyncHandler(async (req: AuthRequest, res: Response
 
   const userRating = userRatings && userRatings.length > 0 ? userRatings[0] : null;
 
-  // 🚨 DEBUG: Log if duplicates found
   if (userRatings && userRatings.length > 1) {
-    logger.debug(`⚠️ WARNING: Found ${userRatings.length} ratings for user ${req.user!.id} and employee ${employee_id}`);
+    logger.warn(`Found ${userRatings.length} duplicate ratings for user ${req.user!.id} and employee ${employee_id}`);
   }
 
   if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned

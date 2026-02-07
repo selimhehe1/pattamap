@@ -35,10 +35,6 @@ interface EmployeeFromQuery {
  * PATCH /api/establishments/:id/grid-position
  */
 export const updateEstablishmentGridPosition = asyncHandler(async (req: AuthRequest, res: Response) => {
-  logger.debug('🔍 DEBUG - Raw request body type:', typeof req.body);
-  logger.debug('🔍 DEBUG - Raw request body:', req.body);
-  logger.debug('🔍 DEBUG - Request headers:', req.headers);
-
   const { id } = req.params;
   const { grid_row, grid_col, zone, swap_with_id } = req.body;
 

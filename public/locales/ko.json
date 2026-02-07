@@ -804,6 +804,15 @@
     "passwordNeedsUppercase": "비밀번호에 대문자(A-Z)가 최소 하나 포함되어야 합니다",
     "passwordNeedsNumber": "비밀번호에 숫자(0-9)가 최소 하나 포함되어야 합니다",
     "passwordNeedsSpecial": "비밀번호에 특수문자(@$!%*?&#)가 최소 하나 포함되어야 합니다",
+    "strengthMinLength": "최소 8자",
+    "strengthLowercase": "소문자 1개 (a-z)",
+    "strengthUppercase": "대문자 1개 (A-Z)",
+    "strengthNumber": "숫자 1개 (0-9)",
+    "strengthSpecial": "특수문자 1개 (@$!%*?&#)",
+    "strength_weak": "약함",
+    "strength_fair": "보통",
+    "strength_good": "좋음",
+    "strength_strong": "강함",
     "employeeNameRequired": "직원 이름은 필수입니다",
     "employeeSexRequired": "성별을 선택하세요",
     "createNewEstablishment": "새 업소 만들기",
@@ -3212,5 +3221,12 @@
     "quickNav": "빠른 이동",
     "title": "페이지를 찾을 수 없습니다",
     "tryThese": "또는 다음을 시도해보세요:"
+  },
+  "pwa": {
+    "installTitle": "PattaMap 설치",
+    "installDescription": "홈 화면에 추가하여 더 나은 경험을",
+    "installButton": "설치",
+    "updateAvailable": "새 버전이 있습니다",
+    "updateButton": "새로고침"
   }
 }

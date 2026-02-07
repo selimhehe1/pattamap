@@ -651,6 +651,15 @@
     "passwordNeedsUppercase": "Le mot de passe doit contenir au moins une lettre majuscule (A-Z)",
     "passwordNeedsNumber": "Le mot de passe doit contenir au moins un chiffre (0-9)",
     "passwordNeedsSpecial": "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&#)",
+    "strengthMinLength": "Au moins 8 caractères",
+    "strengthLowercase": "Une lettre minuscule (a-z)",
+    "strengthUppercase": "Une lettre majuscule (A-Z)",
+    "strengthNumber": "Un chiffre (0-9)",
+    "strengthSpecial": "Un caractère spécial (@$!%*?&#)",
+    "strength_weak": "Faible",
+    "strength_fair": "Moyen",
+    "strength_good": "Bon",
+    "strength_strong": "Fort",
     "employeeNameRequired": "Le nom de l'employé est requis",
     "employeeSexRequired": "Veuillez sélectionner votre sexe/genre",
     "createNewEstablishment": "Créer un Nouvel Établissement",
@@ -2480,5 +2489,12 @@
     "homeAria": "Aller à la page d'accueil",
     "tryThese": "Ou essayez l'un de ceux-ci :",
     "quickNav": "Navigation rapide"
+  },
+  "pwa": {
+    "installTitle": "Installer PattaMap",
+    "installDescription": "Ajoutez à votre écran d'accueil pour une meilleure expérience",
+    "installButton": "Installer",
+    "updateAvailable": "Une nouvelle version est disponible",
+    "updateButton": "Actualiser"
   }
 }

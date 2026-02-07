@@ -12,6 +12,7 @@ import {
   notifyOwnershipRequestSubmitted
 } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ForbiddenError, ConflictError , InternalServerError } from '../middleware/asyncHandler';
+import { unwrapSupabaseRelation } from '../utils/supabaseHelpers';
 
 // Type definitions for nested Supabase query results
 interface RequestUser {
@@ -381,9 +382,7 @@ export const approveOwnershipRequest = asyncHandler(async (req: AuthRequest, res
     }
 
     // Verify user still has establishment_owner account type
-    // Handle both array (Supabase) and object (test mock) formats
-    const userData = request.user;
-    const user = Array.isArray(userData) ? userData[0] as RequestUser : userData as RequestUser;
+    const user = unwrapSupabaseRelation(request.user) as RequestUser;
     if (!user || user.account_type !== 'establishment_owner') {
       throw BadRequestError('User no longer has establishment_owner account type');
     }
@@ -474,9 +473,7 @@ export const approveOwnershipRequest = asyncHandler(async (req: AuthRequest, res
     });
 
     // Notify owner
-    // Handle both array (Supabase) and object (test mock) formats
-    const estData = request.establishment;
-    const establishment = Array.isArray(estData) ? estData[0] as RequestEstablishment : estData as RequestEstablishment;
+    const establishment = unwrapSupabaseRelation(request.establishment) as RequestEstablishment;
     await notifyOwnerRequestStatusChange(
       request.user_id,
       'approved',
@@ -554,9 +551,7 @@ export const rejectOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
     });
 
     // Notify owner
-    // Handle both array (Supabase) and object (test mock) formats
-    const estData = request.establishment;
-    const establishment = Array.isArray(estData) ? estData[0] as RequestEstablishment : estData as RequestEstablishment;
+    const establishment = unwrapSupabaseRelation(request.establishment) as RequestEstablishment;
     await notifyOwnerRequestStatusChange(
       request.user_id,
       'rejected',
@@ -609,9 +604,7 @@ export const cancelOwnershipRequest = asyncHandler(async (req: AuthRequest, res:
       throw InternalServerError('Failed to cancel request');
     }
 
-    // Handle both array (Supabase) and object (test mock) formats
-    const estData = request.establishment;
-    const establishment = Array.isArray(estData) ? estData[0] as RequestEstablishment : estData as RequestEstablishment;
+    const establishment = unwrapSupabaseRelation(request.establishment) as RequestEstablishment;
     logger.info('Ownership request cancelled', {
       requestId: id,
       userId,

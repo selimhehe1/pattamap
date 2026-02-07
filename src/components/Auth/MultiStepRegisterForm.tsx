@@ -12,6 +12,7 @@ import notification from '../../utils/notification';
 import { logger } from '../../utils/logger';
 import { AccountTypeSelectionStep, CredentialsStep, EmployeePathStep, OwnerPathStep, EmployeeCreateStep, OwnerCreateStep } from './steps';
 import { StepIndicator, AvailabilityFeedback } from './components';
+import PasswordStrengthMeter from './components/PasswordStrengthMeter';
 import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import { usePhotoUpload, useStepNavigation, useRegistrationSubmit } from './hooks';
 import type { AccountType } from './steps/types';
@@ -830,6 +831,8 @@ const MultiStepRegisterForm: React.FC<MultiStepRegisterFormProps> = ({
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
+
+                  <PasswordStrengthMeter password={formData.password} />
 
                   <div style={{ position: 'relative' }}>
                     <FormField

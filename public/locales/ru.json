@@ -655,6 +655,15 @@
     "passwordNeedsUppercase": "Пароль должен содержать хотя бы одну заглавную букву (A-Z)",
     "passwordNeedsNumber": "Пароль должен содержать хотя бы одну цифру (0-9)",
     "passwordNeedsSpecial": "Пароль должен содержать хотя бы один спецсимвол (@$!%*?&#)",
+    "strengthMinLength": "Минимум 8 символов",
+    "strengthLowercase": "Одна строчная буква (a-z)",
+    "strengthUppercase": "Одна заглавная буква (A-Z)",
+    "strengthNumber": "Одна цифра (0-9)",
+    "strengthSpecial": "Один спецсимвол (@$!%*?&#)",
+    "strength_weak": "Слабый",
+    "strength_fair": "Средний",
+    "strength_good": "Хороший",
+    "strength_strong": "Надёжный",
     "employeeNameRequired": "Имя сотрудника обязательно",
     "employeeSexRequired": "Пожалуйста, выберите пол",
     "createNewEstablishment": "Создать новое заведение",
@@ -2493,5 +2502,12 @@
     "homeAria": "Перейти на главную",
     "tryThese": "Или попробуйте:",
     "quickNav": "Быстрая навигация"
+  },
+  "pwa": {
+    "installTitle": "Установить PattaMap",
+    "installDescription": "Добавьте на главный экран для лучшего опыта",
+    "installButton": "Установить",
+    "updateAvailable": "Доступна новая версия",
+    "updateButton": "Обновить"
   }
 }

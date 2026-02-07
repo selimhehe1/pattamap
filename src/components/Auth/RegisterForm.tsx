@@ -7,6 +7,7 @@ import { useFormValidation, ValidationRules } from '../../hooks/useFormValidatio
 import { useAutoSave } from '../../hooks/useAutoSave';
 import { useAvailabilityCheck } from '../../hooks/useAvailabilityCheck';
 import FormField from '../Common/FormField';
+import PasswordStrengthMeter from './components/PasswordStrengthMeter';
 import notification from '../../utils/notification';
 import '../../styles/components/modals.css';
 
@@ -667,6 +668,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onSwitchToLogin, o
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+
+          <PasswordStrengthMeter password={formData.password} />
 
           <div style={{ position: 'relative' }}>
             <FormField

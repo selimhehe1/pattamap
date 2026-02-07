@@ -9,6 +9,7 @@ import {
   notifyEstablishmentOwnerPermissionsUpdated
 } from '../utils/notificationHelper';
 import { asyncHandler, BadRequestError, NotFoundError, ConflictError, InternalServerError } from '../middleware/asyncHandler';
+import { unwrapSupabaseRelation } from '../utils/supabaseHelpers';
 
 // Type definitions
 interface OwnershipPermissions {
@@ -138,9 +139,7 @@ export const getMyOwnedEstablishments = asyncHandler(async (req: AuthRequest, re
     // Extract establishments from ownership records
     // Type assertion at use point to avoid complex Supabase typing issues
     const establishments = (ownerships || []).map((ownership) => {
-      const est = ownership.establishment;
-      // Handle Supabase returning nested queries as arrays
-      const establishment = Array.isArray(est) ? est[0] : est;
+      const establishment = unwrapSupabaseRelation(ownership.establishment);
       return {
         ...establishment,
         ownership_role: ownership.owner_role,

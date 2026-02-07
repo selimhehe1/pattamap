@@ -651,6 +651,15 @@
     "passwordNeedsUppercase": "密码必须包含至少一个大写字母（A-Z）",
     "passwordNeedsNumber": "密码必须包含至少一个数字（0-9）",
     "passwordNeedsSpecial": "密码必须包含至少一个特殊字符（@$!%*?&#）",
+    "strengthMinLength": "至少8个字符",
+    "strengthLowercase": "一个小写字母 (a-z)",
+    "strengthUppercase": "一个大写字母 (A-Z)",
+    "strengthNumber": "一个数字 (0-9)",
+    "strengthSpecial": "一个特殊字符 (@$!%*?&#)",
+    "strength_weak": "弱",
+    "strength_fair": "一般",
+    "strength_good": "好",
+    "strength_strong": "强",
     "employeeNameRequired": "员工姓名为必填项",
     "employeeSexRequired": "请选择您的性别",
     "createNewEstablishment": "创建新场所",
@@ -2532,5 +2541,12 @@
     "homeAria": "前往首页",
     "tryThese": "或试试以下链接：",
     "quickNav": "快速导航"
+  },
+  "pwa": {
+    "installTitle": "安装 PattaMap",
+    "installDescription": "添加到主屏幕以获得更好的体验",
+    "installButton": "安装",
+    "updateAvailable": "有新版本可用",
+    "updateButton": "刷新"
   }
 }

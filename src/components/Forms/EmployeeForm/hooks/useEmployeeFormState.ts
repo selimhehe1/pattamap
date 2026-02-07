@@ -367,13 +367,6 @@ export function useEmployeeFormState({ initialData, onSubmit }: UseEmployeeFormS
         is_freelance: isFreelanceMode
       };
 
-      // DEBUG: Log what we're submitting
-      console.log('🏢 EmployeeForm submitData:', JSON.stringify({
-        current_establishment_id: submitData.current_establishment_id,
-        formData_current_establishment_id: formData.current_establishment_id,
-        is_freelance: submitData.is_freelance
-      }));
-
       onSubmit(submitData);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Submission failed';

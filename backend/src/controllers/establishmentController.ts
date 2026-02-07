@@ -567,14 +567,6 @@ export const updateEstablishment = asyncHandler(async (req: AuthRequest, res: Re
     Object.entries(allowedFields).filter(([_, value]) => value !== undefined)
   );
 
-  // DEBUG: Log logo_url specifically
-  logger.debug('🎨 LOGO UPDATE DEBUG:', {
-    'original_logo_url': updates.logo_url,
-    'allowedFields_logo_url': allowedFields.logo_url,
-    'cleanUpdates_logo_url': cleanUpdates.logo_url,
-    'cleanUpdates_keys': Object.keys(cleanUpdates)
-  });
-
   // Non-admin updates go back to pending status
   if (req.user!.role !== 'admin') {
     cleanUpdates.status = 'pending';

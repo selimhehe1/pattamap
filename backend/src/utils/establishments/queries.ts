@@ -13,6 +13,7 @@ import {
   EstablishmentConsumableWithTemplate
 } from './types';
 import { parsePostGISBinary } from './coordinates';
+import { unwrapSupabaseRelation } from '../supabaseHelpers';
 
 /**
  * Fetch employee counts for establishments
@@ -35,9 +36,8 @@ export async function fetchEmployeeCounts(establishmentIds: string[]): Promise<{
       const estId = emp.establishment_id;
       employeeCounts[estId] = (employeeCounts[estId] || 0) + 1;
 
-      const employeeStatus = Array.isArray(emp.employees)
-        ? emp.employees[0]?.status
-        : (emp.employees as { status: string } | undefined)?.status;
+      const employee = unwrapSupabaseRelation(emp.employees) as { status: string } | undefined;
+      const employeeStatus = employee?.status;
       if (employeeStatus === 'approved') {
         approvedEmployeeCounts[estId] = (approvedEmployeeCounts[estId] || 0) + 1;
       }
