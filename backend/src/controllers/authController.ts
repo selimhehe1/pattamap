@@ -347,7 +347,12 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       throw UnauthorizedError('Invalid credentials');
     }
 
-    // Generate JWT with proper expiration
+    // LEGACY JWT: Single token (7 days), no refresh token.
+    // A token-pair system exists in refreshToken.ts (access 15min + refresh 7d)
+    // but is NOT connected to login/register flows. To migrate:
+    // 1. Replace jwt.sign() below with generateTokenPair() from refreshToken.ts
+    // 2. Set both 'auth-token' and 'refresh-token' cookies
+    // 3. Apply autoRefreshMiddleware() in server.ts
     const jwtSecret = process.env.JWT_SECRET;
     // 🔧 FIX: Ensure JWT_EXPIRES_IN is valid (non-empty string or use default)
     const rawExpiration = process.env.JWT_EXPIRES_IN;

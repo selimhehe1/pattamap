@@ -173,7 +173,7 @@ PattaMap est construit avec une architecture moderne full-stack TypeScript, priv
 ### Security Patterns
 - **httpOnly Cookies** - Tokens inaccessibles JavaScript (XSS protection)
 - **CSRF Double Submit** - Validation token session + header
-- **JWT Refresh Rotation** - Access 7j, Refresh 30j
+- **JWT Legacy** - Access 7j (single token, refresh token system built but not connected)
 - **Rate Limiting Granular** - Par type d'opération (auth, upload, admin)
 - **Audit Logging** - Trail complet actions sensibles
 - **CSP Conditionnel** - Strict par défaut, relaxé pour Swagger UI
@@ -251,7 +251,7 @@ SUPABASE_SERVICE_KEY=your-service-key
 # Authentication
 JWT_SECRET=min-32-chars-secret-key
 JWT_EXPIRES_IN=7d
-JWT_REFRESH_EXPIRES_IN=30d
+# JWT_REFRESH_EXPIRES_IN=7d  # Not currently used (refresh token system not connected to login)
 SESSION_SECRET=session-secret-key
 
 # Cloudinary
@@ -310,7 +310,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 - **Dashboard Stats**: 800ms -> 97ms (8x faster with Promise.all)
 - **Bandwidth**: -75% (Brotli compression)
 - **Mobile Transfer Time**: -70%
-- **Test Coverage**: 622+ tests passing (300+ frontend, 322+ backend)
+- **Test Coverage**: 1,675 tests passing (513 frontend, 1,162 backend)
 - **P50 Latency**: ~20ms
 - **P95 Latency**: ~80ms
 

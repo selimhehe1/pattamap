@@ -5,7 +5,7 @@
 **PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec des fonctionnalités communautaires avancées.
 
 **Version actuelle**: v10.4.0 (Reviews Améliorées Complete)
-**Statut**: 76 employées, 151 établissements, 9 zones, système complet et sécurisé
+**Statut**: 331 établissements, 9 zones, système complet et sécurisé (production: 2 users, 1 employé)
 
 ---
 
@@ -23,7 +23,7 @@
 - Statut (pending/approved/rejected)
 
 **Établissements**:
-- 41 venues actives
+- 331 venues en production
 - Catégories (Bar, Gogo, Nightclub, Massage)
 - Menus avec prix (consommations, lady drinks, bar fine, rooms)
 - Galerie photos
@@ -51,7 +51,7 @@
 
 **Enterprise-grade security**
 
-- **JWT Tokens**: Access (15min) + Refresh (7j)
+- **JWT Tokens**: Access (7j, legacy single token, no active refresh)
 - **httpOnly Cookies**: Protection XSS
 - **CSRF Protection**: Custom middleware avec session tokens
 - **Rate Limiting**: 8 limiters granulaires (auth, upload, admin, etc.)
@@ -123,7 +123,7 @@
 ### 2. Monitoring Sentry ✅
 
 - **Error Tracking**: Frontend + Backend
-- **Performance Tracing**: 10% sampling
+- **Performance Tracing**: Backend 50%, Frontend 10%
 - **Custom Spans**: Database queries, API calls
 - **CPU Profiling**: Optionnel (production)
 - **Breadcrumbs**: Contexte utilisateur complet
@@ -141,10 +141,10 @@
 
 ## 🧪 Testing & Quality (Implémenté)
 
-- **622 tests automatisés**: Backend + Frontend (100% passing)
+- **1,675 tests automatisés**: 513 frontend (Vitest) + 1,162 backend (Jest)
 - **Coverage 85%+**: Middleware critiques (auth, CSRF)
 - **Jest + Supertest**: Backend testing
-- **React Testing Library**: Frontend tests
+- **Vitest + React Testing Library**: Frontend tests
 
 → Voir détails: [docs/development/TESTING.md](../development/TESTING.md)
 
@@ -154,12 +154,12 @@
 
 | Métrique | Valeur |
 |----------|--------|
-| **Employées actives** | 76 |
-| **Établissements** | 151 |
+| **Établissements** | 331 |
+| **Employés** | 1 (production quasi-vide) |
 | **Zones géographiques** | 9 |
-| **Reviews** | 52+ |
-| **Utilisateurs** | 14+ (user/moderator/admin/owner) |
-| **Tests automatisés** | 622 (100% passing) |
+| **Reviews** | 0 |
+| **Utilisateurs** | 2 |
+| **Tests automatisés** | 1,675 (513 frontend + 1,162 backend) |
 | **Langues supportées** | 8 (EN, FR, TH, RU, CN, HI, JA, KO) |
 | **Performance P50** | ~20ms (avec optimisations) |
 | **Bundle size** | Optimisé (compression -75%) |
@@ -239,4 +239,4 @@
 
 ---
 
-**Dernière mise à jour**: v10.4.0 (Décembre 2025)
+**Dernière mise à jour**: v10.4.0 (Février 2026)

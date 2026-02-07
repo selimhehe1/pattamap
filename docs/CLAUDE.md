@@ -5,7 +5,7 @@
 
 **Version**: v10.4.0 (Reviews Améliorées Complete)
 **Dernière mise à jour**: Février 2026 - Reviews Améliorées + i18n 8 langues
-**Statut**: ✅ Production-Ready + 622/622 tests passing
+**Statut**: ✅ Production-Ready + 1,675 tests passing (513 frontend + 1,162 backend)
 
 ---
 
@@ -13,12 +13,12 @@
 
 **PattaMap** est une plateforme collaborative de référencement des employées de divertissement à Pattaya, Thaïlande, avec des fonctionnalités communautaires avancées.
 
-### Données Actuelles
+### Données Actuelles (Supabase Production - Février 2026)
 - 🗺️ **9 zones géographiques**
-- 🏢 **151 établissements** (Bars, Gogos, Nightclubs, Massages)
-- 👥 **76 profils employées** avec photos, réseaux sociaux, historique
-- ⭐ **52 reviews communautaires**
-- 🔐 **14 utilisateurs** (roles: user/moderator/admin)
+- 🏢 **331 établissements** (Bars, Gogos, Nightclubs, Massages)
+- 👥 **1 profil employé** (production quasi-vide, catalogue à peupler)
+- ⭐ **0 reviews** (communauté à construire)
+- 🔐 **2 utilisateurs** (roles: user/moderator/admin)
 
 ---
 
@@ -176,7 +176,7 @@
 - 📚 **Documentation exemplaire** : 1,056 lignes + 20+ docs techniques
 - 🔒 **Sécurité robuste** : JWT + httpOnly cookies, CSRF, 8 rate limiters
 - ⚡ **Performance optimisée** : Compression -75%, dashboard 8x plus rapide
-- 🧪 **622+ tests** : 85%+ coverage middleware, 300+ frontend, 322+ backend
+- 🧪 **1,675 tests** : 85%+ coverage middleware, 513 frontend, 1,162 backend
 
 **Dette Technique Totale** : **157 jours** (31 semaines) - Reduced from 172 (Phase 6 -15 days)
 
@@ -272,12 +272,12 @@
 ### Sécurité
 - **Helmet.js** ^8.1.0 (HTTP security headers, CSP conditionnel)
 - **Rate Limiting** (8 limiters granulaires)
-- **Sentry** ^10.19.0 (monitoring + performance tracing 50%)
+- **Sentry** ^10.19.0 (monitoring + performance tracing: backend 50%, frontend 10%)
 
 ### Testing
-- **Vitest** ^4.0.15 (frontend, 300+ tests) + **Jest** ^30.2.0 (backend, 322+ tests)
+- **Vitest** ^4.0.15 (frontend, 513 tests) + **Jest** ^30.2.0 (backend, 1,162 tests)
 - **Playwright** ^1.56.1 (E2E, 67 tests)
-- **622+ tests** total (85%+ coverage middleware critiques)
+- **1,675 tests** total (85%+ coverage middleware critiques)
 
 → **Détails complets**: [docs/architecture/TECH_STACK.md](docs/architecture/TECH_STACK.md)
 
@@ -374,7 +374,7 @@ npm start                    # → http://localhost:3000
 ### Protection Active
 - **httpOnly Cookies**: Tokens inaccessibles JavaScript (XSS protection)
 - **CSRF Protection**: Validation token session + header (custom middleware)
-- **JWT Refresh Rotation**: Access 7j, Refresh 30j
+- **JWT Legacy**: Access token 7j (single token, no active refresh token)
 - **Rate Limiting**: 8 limiters (auth 20req/5min, upload 10req/1min, etc.)
 - **Helmet.js**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options
 - **Audit Logs**: Trail complet actions admin/modérateur
@@ -435,10 +435,10 @@ npm start                    # → http://localhost:3000
 ✅ **Upload Images** - Cloudinary CDN
 ✅ **API Docs** - Swagger UI interactive
 ✅ **Monitoring** - Sentry (errors + performance)
-✅ **Tests** - 622/622 tests passing (100%)
+✅ **Tests** - 1,675 tests passing (513 frontend + 1,162 backend)
 ✅ **Establishment Owners** (v10.1) - Venue owners can manage their own establishments with granular permissions
 ✅ **Multilingue (i18n)** (v10.4) - 8 langues complètes EN/TH/RU/CN/FR/HI/JA/KO (1,100+ clés, 100% coverage, ~98% native Unicode, 42 composants)
-✅ **Notifications System** (v10.2) - PWA Push + Enhanced UI (21 types, grouping, filtering) - 50+ tests
+✅ **Notifications System** (v10.2) - PWA Push + Enhanced UI (37 types, grouping, filtering) - 50+ tests
 ✅ **VIP Subscriptions** (v10.3) - Freemium monetization system for employees & establishments (3 tables, 22 indexes, 16 RLS policies, 5 functions, 2 auto-sync triggers) - 7 API endpoints
 ✅ **Reviews Améliorées** (v10.4) - Photos dans reviews (1-3/avis), réponses établissements (OwnerReviewsPanel), i18n 8 langues
 
@@ -468,53 +468,25 @@ npm start                    # → http://localhost:3000
 
 ## 🚨 Manquements & Problèmes Identifiés
 
-### Features Incomplètes (32 jours)
+### Features Restantes (~11 jours)
 
-**VIP Subscriptions (v10.3) - 70% complet** :
-- ✅ Backend : API, database, triggers, pricing (100%)
-- ⏳ Frontend manquant :
-  - VIP purchase modal (tier selection, payment)
-  - VIP admin panel (verify cash payments)
-  - VIP visual effects (gold border, crown icon)
-  - Featured placement (VIP first in results)
-- Estimation : 5 jours pour compléter
+**Système Tips** - Pourboires digitaux :
+- ⏳ Non démarré
+- Stripe Connect integration
+- Estimation : 7 jours
+- Vérifier légalité Thaïlande avant implémentation
 
-**Employee Verification System (v10.2) - 60% complet** :
-- ✅ Backend : API endpoints, vérification manuelle admin
-- ✅ Frontend : Request verification modal
-- ⏳ Manquant :
-  - Admin verification panel (review proofs)
-  - Verification badge display
-- Estimation : 4 jours pour compléter
-
-**Establishment Owners Dashboard (v10.1) - 80% complet** :
-- ✅ Backend : API, middleware, permissions (100%)
-- ✅ Frontend : Admin panel, edit modal (100%)
-- ⏳ Manquant :
-  - Owner dashboard stats (views, favorites, reviews)
-  - Permission-based editing (actuellement all-or-nothing)
-  - Owner approval workflow
-- Estimation : 3 jours pour compléter
-
-**Gamification Analytics (v10.3) - 50% complet** :
-- ✅ Backend : XP system, achievements, missions
-- ✅ Frontend : XP progress bar, achievement badges
-- ⏳ Manquant :
-  - Leaderboards (top users, employees)
-  - XP history graph
-  - Mission dashboard (daily/weekly challenges)
-  - Rewards system (unlock features with XP)
-- Estimation : 6 jours pour compléter
+**Publicité Ciblée** - Sponsoring :
+- ⏳ Non démarré
+- Featured listings + bannières
+- Estimation : 4 jours
 
 **Cursor Pagination - Prêt mais inutilisé** :
 - ✅ Helpers créés (`cursorPagination.ts`)
 - ⏳ Pas appliqué aux endpoints
 - Estimation : 2 jours pour activer
 
-**Admin Audit Log Viewer** :
-- ✅ Backend : Logs complets
-- ⏳ Frontend : UI viewer, search, export CSV
-- Estimation : 3 jours
+**Note** : VIP Subscriptions, Gamification, Verification, Owners Dashboard, Reviews Améliorées sont tous **100% complets** (voir ROADMAP.md).
 
 ### Problèmes d'Accessibilité (17.5 jours)
 
@@ -1058,7 +1030,7 @@ Le système de notifications PattaMap combine **PWA Push Notifications** (Phase 
 - ✅ Push Manager utility (`src/utils/pushManager.ts`)
 - ✅ Push Settings UI (`src/components/User/PushSettings.tsx`)
 - ✅ Enhanced NotificationBell (`src/components/Common/NotificationBell.tsx`)
-- ✅ 21 notification types avec 6 catégories
+- ✅ 37 notification types avec 6 catégories
 - ✅ Dual grouping modes (Type / Date)
 - ✅ Advanced filtering (6 category filters + unread)
 - ✅ Batch operations (mark groups as read)
@@ -1126,7 +1098,7 @@ ADMIN_EMAIL=admin@pattamap.com
 - **Advanced Filtering**: Unread toggle + 6 category filter chips
 - **Batch Actions**: Mark entire groups as read with Promise.all
 - **Collapsible Groups**: Smooth expand/collapse animations
-- **Visual Design**: 21 distinct emoji icons, sticky headers, responsive mobile
+- **Visual Design**: 37 distinct emoji icons, sticky headers, responsive mobile
 - **Multilingual**: 28 translation keys x 8 languages (EN/TH/RU/CN/FR/HI/JA/KO)
 
 **CSS Architecture** (~260 lines):
@@ -1144,7 +1116,7 @@ ADMIN_EMAIL=admin@pattamap.com
 CREATE TABLE notifications (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id),
-  type TEXT NOT NULL,  -- 21 types
+  type TEXT NOT NULL,  -- 37 types
   title TEXT NOT NULL,
   message TEXT NOT NULL,
   link TEXT,
@@ -1225,10 +1197,10 @@ WHERE proname IN ('get_user_notifications', 'mark_notification_read',
 
 **Stratégie Business**: L'app est actuellement **100% gratuite** pour construire la base utilisateurs. Le VIP sera activé plus tard quand la communauté sera établie.
 
-**Feature Flag**: `VITE_FEATURE_VIP_SYSTEM=false` dans `.env`
+**Feature Flag**: `VITE_FEATURE_VIP_SYSTEM` (default: disabled, opt-in)
 
 **Pour activer le VIP**:
-1. Modifier `.env`: `VITE_FEATURE_VIP_SYSTEM=true`
+1. Ajouter dans `.env`: `VITE_FEATURE_VIP_SYSTEM=true`
 2. Redéployer l'application
 
 **Composants cachés quand désactivé**:
@@ -1426,13 +1398,13 @@ Types: feat, fix, docs, style, refactor, test, chore
 ### Commandes
 
 ```bash
-# Backend (Jest - 322+ tests)
+# Backend (Jest - 1,162 tests)
 cd backend
 npm test                 # Run all tests
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
 
-# Frontend (Vitest - 300+ tests)
+# Frontend (Vitest - 513 tests)
 npm test                 # Run all tests
 npm run test:ci          # Coverage report
 
@@ -1702,7 +1674,7 @@ cd backend && npm run build  # Backend → dist/
 
 # Tests
 npm test                     # Frontend
-cd backend && npm test       # Backend (322+ tests)
+cd backend && npm test       # Backend (1,162 tests)
 
 # Analyze
 npm run analyze              # Bundle size
@@ -1751,20 +1723,20 @@ lsof -ti:8080 | xargs kill -9
 
 ## 📊 Métriques Actuelles (v10.4.0)
 
-### Données Business
+### Données Business (Supabase Production - Février 2026)
 
 | Métrique | Valeur |
 |----------|--------|
-| **Employées** | 76 profils |
-| **Établissements** | 151 venues |
-| **Reviews** | 52 avis |
-| **Utilisateurs** | 14 (user/moderator/admin/establishment_owner) |
+| **Établissements** | 331 venues |
+| **Employés** | 1 profil (production quasi-vide) |
+| **Reviews** | 0 |
+| **Utilisateurs** | 2 |
 | **Account Types** | 3 (regular, employee, establishment_owner) |
 | **Zones** | 9 |
 | **Positions grilles** | 322 total |
 | **Establishment Owners** | System actif (v10.1) |
-| **Notifications System** | PWA Push + Enhanced UI (v10.2) - 21 types |
-| **VIP Subscriptions** | Backend actif (v10.3) - Frontend désactivé via feature flag |
+| **Notifications System** | PWA Push + Enhanced UI (v10.2) - 37 types |
+| **VIP Subscriptions** | 100% complet (v10.4) - désactivé via feature flag |
 
 ### Santé Technique
 
@@ -1773,8 +1745,8 @@ lsof -ti:8080 | xargs kill -9
 | **Score de Santé** | 7.5/10 | 9/10 | 🟡 Bon |
 | **Dette Technique** | 157 jours | <30 jours | 🔴 Élevée |
 | **Vulnérabilités** | 0 (7/7 fixed) | 0 | ✅ Résolu |
-| **Tests Backend** | 322+ tests | 200+ tests | ✅ Excellent |
-| **Tests Frontend** | 300+ tests | 200+ tests | ✅ Bon |
+| **Tests Backend** | 1,162 tests | 200+ tests | ✅ Excellent |
+| **Tests Frontend** | 513 tests | 200+ tests | ✅ Excellent |
 | **Coverage Middleware** | 85%+ | 85%+ | ✅ Excellent |
 | **Coverage Controllers** | <10% | 80%+ | 🔴 Faible |
 | **Coverage Frontend** | ~4-63% | 70%+ | 🟡 En progrès |
@@ -1899,4 +1871,4 @@ lsof -ti:8080 | xargs kill -9
 
 **🏮 PattaMap - Naviguer Pattaya Nightlife avec Innovation**
 
-**Version**: v10.4.0 | **Status**: Production-Ready (622/622 tests) | **Dernière mise à jour**: Février 2026
+**Version**: v10.4.0 | **Status**: Production-Ready (1,675 tests) | **Dernière mise à jour**: Février 2026

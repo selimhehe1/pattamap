@@ -32,13 +32,15 @@ export type FeatureFlag = typeof FEATURES[keyof typeof FEATURES];
 
 /**
  * Feature flag configuration from environment variables
- * Default: all features ENABLED unless explicitly disabled
  *
- * To disable VIP in production, set: REACT_APP_FEATURE_VIP_SYSTEM=false
+ * VIP & PAYMENTS: opt-in (disabled by default, set VITE_FEATURE_*=true to enable)
+ * GAMIFICATION & PUSH_NOTIFICATIONS: opt-out (enabled by default, set VITE_FEATURE_*=false to disable)
+ *
+ * To enable VIP in production, set: VITE_FEATURE_VIP_SYSTEM=true
  */
 const featureConfig: Record<FeatureFlag, boolean> = {
-  [FEATURES.VIP_SYSTEM]: import.meta.env.VITE_FEATURE_VIP_SYSTEM !== 'false',
-  [FEATURES.PAYMENTS]: import.meta.env.VITE_FEATURE_PAYMENTS !== 'false',
+  [FEATURES.VIP_SYSTEM]: import.meta.env.VITE_FEATURE_VIP_SYSTEM === 'true',
+  [FEATURES.PAYMENTS]: import.meta.env.VITE_FEATURE_PAYMENTS === 'true',
   [FEATURES.GAMIFICATION]: import.meta.env.VITE_FEATURE_GAMIFICATION !== 'false',
   [FEATURES.PUSH_NOTIFICATIONS]: import.meta.env.VITE_FEATURE_PUSH_NOTIFICATIONS !== 'false',
 };

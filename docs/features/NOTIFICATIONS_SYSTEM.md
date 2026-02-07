@@ -44,7 +44,7 @@ The PattaMap notification system is a comprehensive solution for keeping users i
 - **In-App Notifications**: Real-time notifications displayed in the NotificationBell dropdown
 - **PWA Push Notifications**: Browser push notifications via Service Worker (Phase 3)
 - **Advanced UI**: Grouping, filtering, and batch operations (Phase 4)
-- **Multilingual Support**: 6 languages (EN/TH/RU/CN/FR/HI) with 1,046 translation keys
+- **Multilingual Support**: 8 languages (EN/TH/RU/CN/FR/HI) with 1,046 translation keys
 
 ### Key Features
 
@@ -54,7 +54,7 @@ The PattaMap notification system is a comprehensive solution for keeping users i
 ✅ **Advanced Filtering**: Category filters + Unread toggle
 ✅ **Batch Operations**: Mark entire groups as read
 ✅ **Responsive Design**: Mobile-optimized UI
-✅ **Multilingual**: 6 languages, 100% coverage
+✅ **Multilingual**: 8 languages, 100% coverage
 ✅ **Tested**: 50+ tests (NotificationBell, pushManager, pushController)
 
 ---
@@ -627,7 +627,7 @@ CREATE INDEX idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
 
 ### Translation Keys (32 keys)
 
-**Structure** (all 6 languages):
+**Structure** (all 8 languages):
 
 ```json
 {
@@ -846,7 +846,7 @@ Phase 4 is frontend-only, no backend deployment needed.
 2. Test grouping modes (by type and by date)
 3. Test filtering (unread + 6 categories)
 4. Test batch operations (mark group as read)
-5. Verify i18n works in all 6 languages
+5. Verify i18n works in all 8 languages
 6. Test responsive design (mobile/tablet/desktop)
 
 ---

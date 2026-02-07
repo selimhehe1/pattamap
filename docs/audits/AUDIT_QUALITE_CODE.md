@@ -1075,10 +1075,10 @@ describe('NotificationBell - Grouping', () => {
 
 #### C. Total Tests Comptabilisés
 
-**Backend**: 322+ tests (85%+ coverage middleware critiques)
-**Frontend**: 300+ tests (contexts, hooks, components, notifications, push, utils)
+**Backend**: 1,162 tests (85%+ coverage middleware critiques)
+**Frontend**: 513 tests (contexts, hooks, components, notifications, push, utils)
 
-**Total estimé**: **622+ tests**
+**Total**: **1,675 tests** (mis à jour Février 2026)
 
 ### ❌ Gaps de Coverage
 

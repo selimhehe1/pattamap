@@ -13,7 +13,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 ## 📊 Métriques Projet v10.3.3
 
 ### État Général
-- **Tests**: 622/622 passing (100%) ✅
+- **Tests**: 1,675 passing (513 frontend + 1,162 backend) ✅
 - **Features Complètes**: 17 systèmes majeurs
 - **Controllers Backend**: 19 controllers
 - **Tables Database**: 30+ tables
@@ -40,13 +40,15 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 
 **Objectif**: Rendre l'app accessible internationalement
 
-**Langues implémentées**:
+**Langues implémentées (8)**:
 - 🇬🇧 Anglais (1,046 clés)
 - 🇹🇭 Thaï (1,046 clés)
 - 🇷🇺 Russe (1,046 clés)
 - 🇨🇳 Chinois (1,046 clés)
 - 🇫🇷 Français (1,046 clés)
 - 🇮🇳 Hindi (1,046 clés)
+- 🇯🇵 Japonais (1,046 clés)
+- 🇰🇷 Coréen (1,046 clés)
 
 **Implementation**:
 - ✅ 42 composants traduits
@@ -57,7 +59,7 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - ✅ Documentation complète
 
 **Impact**: Audience potentielle ×10
-**Stack**: react-i18next v14.0.0
+**Stack**: react-i18next v16.0.0
 **Documentation**: [I18N_IMPLEMENTATION.md](I18N_IMPLEMENTATION.md)
 
 ---
@@ -93,13 +95,13 @@ Ce document présente l'état actuel des fonctionnalités de PattaMap ainsi que 
 - Push manager (frontend utility)
 
 **Phase 4 - Enhanced NotificationBell UI** ✅:
-- 21 notification types (6 categories)
+- 37 notification types (6 categories)
 - Dual grouping modes (Type / Date)
 - Advanced filtering (unread + 6 category filters)
 - Batch operations (mark group as read)
 - Collapsible groups avec animations
 - 21 distinct emoji icons
-- Multilingual support (6 languages, 28 keys)
+- Multilingual support (8 languages, 28 keys)
 
 **Impact**: Rétention +40%, engagement +60%
 **Tests**: 50+ tests (NotificationBell, pushManager, pushController)
@@ -679,7 +681,7 @@ L'audit a été réalisé en:
 - ✅ 3/4 High Priority features complétées (75%)
 - ✅ 6/6 Medium Priority features complétées (100%)
 - ✅ 7/7 Support systems complétés (100%)
-- ✅ 534/592 tests passing (90.2%)
+- ✅ 1,675 tests passing (513 frontend + 1,162 backend)
 - ✅ 7/7 vulnérabilités sécurité résolues (100%)
 
 **Infrastructure technique robuste**:
