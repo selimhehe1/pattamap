@@ -9,6 +9,7 @@ import { Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
+import { missionTrackingService } from '../services/missionTrackingService';
 import { asyncHandler, BadRequestError, NotFoundError } from '../middleware/asyncHandler';
 
 // ==========================================
@@ -200,6 +201,15 @@ export const recordProfileView = asyncHandler(async (req: AuthRequest, res: Resp
     if (error) {
       logger.error('Record profile view error:', error);
       throw BadRequestError(error.message);
+    }
+
+    // Track mission progress for authenticated users only
+    if (req.user?.id) {
+      try {
+        await missionTrackingService.onProfileViewed(req.user.id, id);
+      } catch (missionError) {
+        logger.error('Mission tracking error (profile view):', missionError);
+      }
     }
 
     res.json({ success: true });

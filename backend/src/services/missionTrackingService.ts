@@ -280,6 +280,76 @@ class MissionTrackingService {
   // ========================================
 
   /**
+   * Called when a logged-in user views an employee profile
+   * Updates missions: Profile Explorer (view_profiles)
+   */
+  async onProfileViewed(viewerId: string, employeeId: string): Promise<void> {
+    try {
+      logger.debug('Mission tracking: profile viewed event', { viewerId, employeeId });
+
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .eq('requirements->>type', 'view_profiles');
+
+      if (error) {
+        logger.error('Failed to fetch view_profiles missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active view_profiles missions found');
+        return;
+      }
+
+      for (const mission of missions) {
+        if (mission.requirements.unique) {
+          // Count unique employee profiles viewed this period
+          const count = await this.getUniqueProfileViewsCount(viewerId, mission.type);
+          await this.setMissionProgress(viewerId, mission.id, count);
+        } else {
+          await this.updateMissionProgress(viewerId, mission.id, 1);
+        }
+      }
+    } catch (error) {
+      logger.error('Error in onProfileViewed mission tracking:', error);
+    }
+  }
+
+  /**
+   * Called when an establishment owner adds or updates an employee
+   * Updates missions: Team Builder (manage_employees)
+   */
+  async onEmployeeManagedByOwner(ownerId: string, employeeId: string, action: 'added' | 'updated'): Promise<void> {
+    try {
+      logger.debug('Mission tracking: employee managed by owner event', { ownerId, employeeId, action });
+
+      const { data: missions, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('is_active', true)
+        .eq('requirements->>type', 'manage_employees');
+
+      if (error) {
+        logger.error('Failed to fetch manage_employees missions:', error);
+        return;
+      }
+
+      if (!missions || missions.length === 0) {
+        logger.debug('No active manage_employees missions found');
+        return;
+      }
+
+      await Promise.all(
+        missions.map(mission => this.updateMissionProgress(ownerId, mission.id, 1))
+      );
+    } catch (error) {
+      logger.error('Error in onEmployeeManagedByOwner mission tracking:', error);
+    }
+  }
+
+  /**
    * Called when user adds an employee to favorites
    * Updates missions: Favorite Collector
    */
@@ -425,7 +495,7 @@ class MissionTrackingService {
     try {
       logger.debug('Mission tracking: establishment updated event', { userId, establishmentId, updateFields });
 
-      const missionTypes = ['complete_establishment_profile', 'upload_establishment_photos', 'update_establishment_info'];
+      const missionTypes = ['complete_establishment_profile', 'update_establishment_info'];
       const { data: missions, error } = await supabase
         .from('missions')
         .select('*')
@@ -447,8 +517,6 @@ class MissionTrackingService {
 
         if (reqType === 'update_establishment_info') {
           // Any update counts
-          await this.updateMissionProgress(userId, mission.id, 1);
-        } else if (reqType === 'upload_establishment_photos' && updateFields.includes('logo_url')) {
           await this.updateMissionProgress(userId, mission.id, 1);
         } else if (reqType === 'complete_establishment_profile') {
           // Check profile completeness
@@ -818,6 +886,39 @@ class MissionTrackingService {
       return uniqueZones.size;
     } catch (error) {
       logger.error('Error counting unique zones:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get unique profile views count for a user (within time period if daily/weekly)
+   */
+  private async getUniqueProfileViewsCount(userId: string, missionType: string): Promise<number> {
+    try {
+      let query = supabase
+        .from('profile_views')
+        .select('employee_id')
+        .eq('user_id', userId);
+
+      if (missionType === 'daily') {
+        const today = this.getTodayBangkok();
+        query = query.gte('viewed_at', today);
+      } else if (missionType === 'weekly') {
+        const monday = this.getThisWeekMonday();
+        query = query.gte('viewed_at', monday);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        logger.error('Failed to count unique profile views:', error);
+        return 0;
+      }
+
+      const uniqueEmployees = new Set(data?.map((pv: { employee_id: string }) => pv.employee_id) || []);
+      return uniqueEmployees.size;
+    } catch (error) {
+      logger.error('Error counting unique profile views:', error);
       return 0;
     }
   }

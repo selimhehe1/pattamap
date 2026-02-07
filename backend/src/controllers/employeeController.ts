@@ -507,6 +507,15 @@ export const createEmployee = asyncHandler(async (req: AuthRequest, res: Respons
       logger.error('XP award error:', xpError);
     }
 
+    // Track mission progress for establishment owners creating employees
+    if (req.user!.account_type === 'establishment_owner') {
+      try {
+        await missionTrackingService.onEmployeeManagedByOwner(req.user!.id, employee.id, 'added');
+      } catch (missionError) {
+        logger.error('Mission tracking error (employee managed - added):', missionError);
+      }
+    }
+
     res.status(201).json({
       message: 'Employee profile submitted for approval',
       employee
@@ -639,6 +648,15 @@ export const updateEmployee = asyncHandler(async (req: AuthRequest, res: Respons
         await missionTrackingService.onEmployeeProfileUpdated(req.user!.id, updateFields);
       } catch (missionError) {
         logger.error('Mission tracking error (employee profile):', missionError);
+      }
+    }
+
+    // Track mission progress for establishment owners updating employees
+    if (req.user!.account_type === 'establishment_owner') {
+      try {
+        await missionTrackingService.onEmployeeManagedByOwner(req.user!.id, id, 'updated');
+      } catch (missionError) {
+        logger.error('Mission tracking error (employee managed - updated):', missionError);
       }
     }
 
